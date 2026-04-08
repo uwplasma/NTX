@@ -87,9 +87,6 @@ def load_run_config(path: str | Path) -> RunConfig:
         epsi_hat=_optional_float(case_data.get("epsi_hat")),
         er_hat=_optional_float(case_data.get("er_hat")),
     )
-    if surface_type == "vmec" and case.er_hat is not None:
-        msg = "VMEC inputs require case.epsi_hat; case.er_hat is not supported"
-        raise ValueError(msg)
     output_npz_value = output_data.get("npz", input_path.with_suffix(".npz").name)
     output = OutputSpec(
         npz=_resolve_relative_path(input_path, Path(str(output_npz_value))),
@@ -169,7 +166,7 @@ def save_run_npz(
     output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     geom = geometry if geometry is not None else geometry_on_grid(surface, config.grid)
-    resolved_epsi_hat = config.case.resolved_epsi_hat(geom.psi_p)
+    resolved_epsi_hat = config.case.resolved_epsi_hat(geom.transport_psi_scale)
     surface_meta = _surface_metadata(surface)
     geometry_meta = _geometry_metadata(geom)
     algorithm_meta = _algorithm_metadata(config, geom)
@@ -288,6 +285,10 @@ def save_run_npz(
         data["vmec_loaded_mode_count"] = np.asarray(surface.loaded_mode_count)
         data["vmec_psi_a_hat"] = np.asarray(surface.psi_a_hat)
         data["vmec_phi_edge"] = np.asarray(surface.phi_edge)
+        data["vmec_r_n"] = np.asarray(surface.r_n)
+        data["vmec_r_hat"] = np.asarray(surface.r_hat)
+        data["vmec_dpsi_hat_dr_hat"] = np.asarray(surface.dpsi_hat_dr_hat)
+        data["vmec_dr_hat_dpsi_hat"] = np.asarray(surface.dr_hat_dpsi_hat)
         data["vmec_aminor_p"] = np.asarray(
             np.nan if surface.aminor_p is None else float(surface.aminor_p)
         )
@@ -363,6 +364,8 @@ def _surface_table(surface: BoozerSurface | VmecSurface, config: RunConfig) -> T
         table.add_row("selected_psi_n", f"{surface.psi_n:.10g}")
         table.add_row("iota", f"{surface.iota:.10g}")
         table.add_row("B00", f"{surface.b0:.10g}")
+        table.add_row("r_n", f"{surface.r_n:.10g}")
+        table.add_row("r_hat", f"{surface.r_hat:.10g}")
         table.add_row("loaded_modes", str(surface.loaded_mode_count))
         table.add_row("vmec_radial_option", str(config.surface.vmec_radial_option))
         table.add_row("vmec_nyquist_option", str(config.surface.vmec_nyquist_option))
@@ -404,10 +407,14 @@ def _case_table(config: RunConfig, surface: BoozerSurface | VmecSurface) -> Tabl
         "-" if config.case.epsi_hat is None else f"{config.case.epsi_hat:.10g}",
     )
     try:
-        resolved_epsi_hat = f"{config.case.resolved_epsi_hat(surface.psi_p):.10g}"
+        scale = surface.transport_psi_scale if isinstance(surface, VmecSurface) else surface.psi_p
+        resolved_epsi_hat = f"{config.case.resolved_epsi_hat(scale):.10g}"
     except ValueError:
-        resolved_epsi_hat = "requires epsi_hat"
+        resolved_epsi_hat = "requires transport normalization"
     table.add_row("epsi_hat_resolved", resolved_epsi_hat)
+    if isinstance(surface, VmecSurface):
+        table.add_row("dpsi_hat/dr_hat", f"{surface.dpsi_hat_dr_hat:.10g}")
+        table.add_row("dr_hat/dpsi_hat", f"{surface.dr_hat_dpsi_hat:.10g}")
     table.add_row("output_npz", str(config.output.npz))
     table.add_row("include_modes", str(config.output.include_modes))
     return table
@@ -496,6 +503,10 @@ def _surface_metadata(surface: BoozerSurface | VmecSurface) -> dict[str, Any]:
             "b0": float(surface.b0),
             "phi_edge": float(surface.phi_edge),
             "psi_a_hat": float(surface.psi_a_hat),
+            "r_n": float(surface.r_n),
+            "r_hat": float(surface.r_hat),
+            "dpsi_hat_dr_hat": float(surface.dpsi_hat_dr_hat),
+            "dr_hat_dpsi_hat": float(surface.dr_hat_dpsi_hat),
             "aminor_p": None if surface.aminor_p is None else float(surface.aminor_p),
             "transport_psi_scale": float(surface.transport_psi_scale),
         }

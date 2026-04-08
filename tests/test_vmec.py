@@ -20,6 +20,10 @@ def test_load_vmec_surface_and_geometry():
     assert surface.loaded_mode_count > 0
     assert surface.total_mode_count >= surface.loaded_mode_count
     assert surface.psi_p is None
+    assert surface.r_n == pytest.approx(0.5)
+    assert surface.r_hat == pytest.approx(surface.aminor_p * surface.r_n)
+    assert surface.transport_psi_scale == pytest.approx(surface.dpsi_hat_dr_hat)
+    assert surface.dr_hat_dpsi_hat == pytest.approx(1.0 / surface.dpsi_hat_dr_hat)
     geom = geometry_on_grid(surface, GridSpec(7, 9, 4))
     assert geom.surface_type == "vmec"
     assert geom.b.shape == (7, 9)
@@ -43,7 +47,18 @@ def test_vmec_mode_filtering_reduces_mode_count():
     assert filtered.loaded_mode_count < full.loaded_mode_count
 
 
-def test_vmec_surface_requires_epsi_hat_for_er_input():
+def test_vmec_surface_resolves_er_hat_from_transport_scale():
     surface = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25)
-    with pytest.raises(ValueError, match="er_hat"):
-        solve_monoenergetic(surface, GridSpec(7, 9, 4), MonoenergeticCase(1e-3, er_hat=1e-3))
+    er_hat = 1e-3
+    result_from_er = solve_monoenergetic(
+        surface,
+        GridSpec(7, 9, 4),
+        MonoenergeticCase(1e-3, er_hat=er_hat),
+    ).as_dict()
+    result_from_epsi = solve_monoenergetic(
+        surface,
+        GridSpec(7, 9, 4),
+        MonoenergeticCase(1e-3, epsi_hat=er_hat / surface.transport_psi_scale),
+    ).as_dict()
+    for key in ("D11", "D31", "D13", "D33", "D33_spitzer"):
+        assert result_from_er[key] == pytest.approx(result_from_epsi[key], rel=1e-12, abs=1e-12)

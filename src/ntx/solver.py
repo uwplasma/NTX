@@ -30,17 +30,17 @@ class MonoenergeticCase:
     epsi_hat: float | None = None
     er_hat: float | None = None
 
-    def resolved_epsi_hat(self, psi_p: float | None) -> float:
+    def resolved_epsi_hat(self, transport_psi_scale: float | None) -> float:
         if self.epsi_hat is not None and self.er_hat is not None:
             msg = "set only one of epsi_hat or er_hat"
             raise ValueError(msg)
         if self.epsi_hat is not None:
             return float(self.epsi_hat)
         if self.er_hat is not None:
-            if psi_p is None:
-                msg = "er_hat requires a surface with psi_p; use epsi_hat for VMEC inputs"
+            if transport_psi_scale is None:
+                msg = "er_hat requires a surface with a transport normalization scale"
                 raise ValueError(msg)
-            return float(self.er_hat) / float(psi_p)
+            return float(self.er_hat) / float(transport_psi_scale)
         return 0.0
 
 
@@ -81,7 +81,9 @@ def solve_monoenergetic(
         surface=surface,
         geometry=geom,
         nu_hat=jnp.asarray(case.nu_hat, dtype=grid.jax_dtype),
-        epsi_hat=jnp.asarray(case.resolved_epsi_hat(geom.psi_p), dtype=grid.jax_dtype),
+        epsi_hat=jnp.asarray(
+            case.resolved_epsi_hat(geom.transport_psi_scale), dtype=grid.jax_dtype
+        ),
     )
     d_theta, d_zeta = derivative_blocks(geom)
     s1, s3 = source_modes(ctx, grid.n_xi)
@@ -135,9 +137,9 @@ def solve_monoenergetic_scan(
             epsi_values = jnp.zeros_like(nu_values)
         else:
             if geom.psi_p is None:
-                msg = "er_hat scans require a surface with psi_p; use epsi_hat for VMEC inputs"
+                msg = "er_hat scans require a surface with a transport normalization scale"
                 raise ValueError(msg)
-            epsi_values = jnp.asarray(er_hat, dtype=grid.jax_dtype) / geom.psi_p
+            epsi_values = jnp.asarray(er_hat, dtype=grid.jax_dtype) / geom.transport_psi_scale
     else:
         epsi_values = jnp.asarray(epsi_hat, dtype=grid.jax_dtype)
     nu_values, epsi_values = jnp.broadcast_arrays(nu_values, epsi_values)

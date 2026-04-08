@@ -68,6 +68,8 @@ def load_vmec_surface(
 
     psi_a_hat = float(phi[-1]) / (2.0 * np.pi)
     target_psi_n = _resolve_psi_n(psi_n_grid, float(psi_n), int(vmec_radial_option))
+    if target_psi_n <= 0.0:
+        raise ValueError("VMEC transport normalization requires surface.psi_n > 0")
     radial_grid = psi_n_grid[1:]
     b_interp = _interp_mode_columns(radial_grid, bmnc[:, 1:], target_psi_n)
     g_interp = _interp_mode_columns(radial_grid, gmnc[:, 1:], target_psi_n)
@@ -85,6 +87,14 @@ def load_vmec_surface(
     b0 = float(b_interp[0])
     if b0 == 0.0:
         raise ValueError("VMEC mode (0,0) has zero magnetic-field strength")
+    if aminor_p is None or aminor_p == 0.0:
+        raise ValueError("VMEC input must provide a nonzero Aminor_p for transport normalization")
+
+    r_n = float(np.sqrt(target_psi_n))
+    r_hat = float(aminor_p * r_n)
+    dpsi_hat_dr_hat = float(2.0 * psi_a_hat * r_n / aminor_p)
+    if dpsi_hat_dr_hat == 0.0:
+        raise ValueError("VMEC transport normalization produced dpsi_hat/dr_hat = 0")
 
     include = np.abs(b_interp / b0) >= float(min_bmn_to_load)
     if int(vmec_nyquist_option) == 1:
@@ -115,9 +125,13 @@ def load_vmec_surface(
         b0=b0,
         psi_a_hat=psi_a_hat,
         phi_edge=float(phi[-1]),
+        r_n=r_n,
+        r_hat=r_hat,
+        dpsi_hat_dr_hat=dpsi_hat_dr_hat,
+        dr_hat_dpsi_hat=float(1.0 / dpsi_hat_dr_hat),
         aminor_p=aminor_p,
         psi_p=None,
-        transport_psi_scale=1.0,
+        transport_psi_scale=dpsi_hat_dr_hat,
     )
 
 
