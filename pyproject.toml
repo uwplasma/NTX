@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.25"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
@@ -13,29 +13,29 @@ authors = [
   { name = "UW Plasma" }
 ]
 dependencies = [
-  "jax>=0.4.30",
-  "jaxlib>=0.4.30",
-  "numpy>=1.26",
-  "rich>=13.7",
-  "scipy>=1.11",
-  "typing-extensions>=4.10",
-  "tomli>=2.0; python_version < '3.11'",
+  "jax",
+  "jaxlib",
+  "numpy",
+  "rich",
+  "scipy",
+  "typing-extensions",
+  "tomli; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=8",
-  "ruff>=0.6",
-  "mypy>=1.10",
+  "pytest",
+  "ruff",
+  "mypy",
 ]
 docs = [
-  "sphinx>=7",
-  "myst-parser>=2",
-  "sphinx-rtd-theme>=2",
+  "sphinx",
+  "myst-parser",
+  "sphinx-rtd-theme",
 ]
 io = [
-  "netCDF4>=1.6",
-  "xarray>=2024.1",
+  "netCDF4",
+  "xarray",
 ]
 
 [project.scripts]

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -176,6 +177,8 @@ def save_run_npz(
     algorithm_meta = _algorithm_metadata(config, geom)
     source_path = _surface_source_path(surface)
     source_stat = None if source_path is None or not source_path.exists() else source_path.stat()
+    source_sha256 = _source_sha256(source_path)
+    source_text = _surface_source_text(surface, source_path)
     data: dict[str, Any] = {
         "input_path": np.asarray(str(config.input_path)),
         "input_toml_text": np.asarray(config.input_path.read_text(encoding="utf-8")),
@@ -214,6 +217,7 @@ def save_run_npz(
         "surface_source_mtime": np.asarray(
             np.nan if source_stat is None else float(source_stat.st_mtime)
         ),
+        "surface_source_sha256": np.asarray("" if source_sha256 is None else source_sha256),
         "theta_grid": np.asarray(geom.grid.theta),
         "zeta_grid": np.asarray(geom.grid.zeta),
         "b": np.asarray(geom.b),
@@ -271,6 +275,8 @@ def save_run_npz(
         ),
         "result_json": np.asarray(json.dumps(result.as_dict(), sort_keys=True)),
     }
+    if source_text is not None:
+        data["surface_source_text"] = np.asarray(source_text)
     if isinstance(surface, BoozerSurface):
         data["surface_modes_m"] = np.asarray(surface.m)
         data["surface_modes_n"] = np.asarray(surface.n)
@@ -473,6 +479,11 @@ def _output_table(path: Path, config: RunConfig) -> Table:
         "surface, geometry, algorithm, residuals, and transport coefficients",
     )
     table.add_row("stored_source_info", "input filename, file size, and modification time")
+    table.add_row("stored_source_hash", "SHA-256 checksum of the source file when available")
+    table.add_row(
+        "stored_source_text",
+        "raw text for DKES and other text surfaces when available",
+    )
     table.add_row("stored_harmonics", "surface Fourier harmonics")
     table.add_row(
         "stored_modes",
@@ -571,3 +582,24 @@ def _surface_source_path(surface: BoozerSurface | VmecSurface) -> Path | None:
     if isinstance(surface, BoozerSurface):
         return surface.source_path
     return surface.path
+
+
+def _source_sha256(path: Path | None) -> str | None:
+    if path is None or not path.exists():
+        return None
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _surface_source_text(surface: BoozerSurface | VmecSurface, path: Path | None) -> str | None:
+    if path is None or not path.exists():
+        return None
+    if isinstance(surface, VmecSurface):
+        return None
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return None

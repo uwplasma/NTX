@@ -32,6 +32,8 @@ pytest -q
 sphinx-build -b html docs docs/_build/html
 ```
 
+GitHub Actions runs the CPU suite across Python `3.10`, `3.11`, and `3.12`.
+
 ## Quick Start
 
 The main entrypoint is:
@@ -53,6 +55,7 @@ ntx examples/qi_vmec_erhat.toml
 
 - the resolved inputs
 - source-file metadata
+- source-file checksums
 - surface metadata
 - geometry arrays on the angular grid
 - transport coefficients
@@ -186,13 +189,16 @@ angular grid before assembling the Legendre blocks.
 The `.npz` payload includes:
 
 - run configuration and raw input text
-- source filename, file size, and modification time
+- source filename, file size, modification time, and SHA-256 checksum
 - surface metadata and geometry metadata as JSON
 - algorithm metadata
 - angular grids and geometry arrays
 - surface Fourier harmonics
 - transport coefficients and residuals
 - optional `f1_modes` and `f3_modes`
+
+For text-based surface inputs such as DKES `ddkes2.data`, the raw source text is
+also stored in the output payload.
 
 For VMEC runs, the output also includes:
 
@@ -218,7 +224,13 @@ Primary docs:
 - [docs/input-file.md](/Users/rogeriojorge/local/.NTX/docs/input-file.md)
 - [docs/algorithm.md](/Users/rogeriojorge/local/.NTX/docs/algorithm.md)
 - [docs/examples.md](/Users/rogeriojorge/local/.NTX/docs/examples.md)
+- [docs/validation.md](/Users/rogeriojorge/local/.NTX/docs/validation.md)
 - [docs/gpu.md](/Users/rogeriojorge/local/.NTX/docs/gpu.md)
+
+Useful analysis scripts:
+
+- `python scripts/compare_archived_benchmarks.py --output-json archived-benchmarks.json`
+- `python scripts/profile_runtime.py --output-json runtime-profile.json`
 
 ## GPU Runs
 

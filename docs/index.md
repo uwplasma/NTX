@@ -12,6 +12,8 @@ The current implementation supports:
 - VMEC `er_hat` normalization from `psi_a_hat`, `psi_n`, and `Aminor_p`
 - Rich terminal summaries for file-driven runs
 - compressed `.npz` outputs with geometry, metadata, diagnostics, and modes
+- archived DKES and SFINCS benchmark comparison scripts
+- runtime profiling scripts for CPU and GPU scans
 
 ## Main Entry Point
 
@@ -28,5 +30,6 @@ install
 input-file
 algorithm
 examples
+validation
 gpu
 ```
