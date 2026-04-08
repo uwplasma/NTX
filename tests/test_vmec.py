@@ -3,7 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import jax.numpy as jnp
+import numpy as np
 import pytest
+from scipy.io import netcdf_file
 
 from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
 from ntx.geometry import VmecSurface, geometry_on_grid
@@ -68,6 +70,55 @@ def test_vmec_nyquist_option_switches_total_mode_count():
     assert primary.total_mode_count == 288
     assert nyquist.total_mode_count == 574
     assert primary.loaded_mode_count < nyquist.loaded_mode_count
+
+
+def test_vmec_reduced_mode_convention_truncates_coefficients_by_position():
+    surface = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, vmec_nyquist_option=1)
+    mode_lookup = {
+        (int(m), int(n)): float(b)
+        for m, n, b in zip(
+            np.asarray(surface.m),
+            np.asarray(surface.n),
+            np.asarray(surface.b_cos),
+            strict=True,
+        )
+    }
+    assert mode_lookup[(2, -12)] == pytest.approx(-0.1290792429334510)
+    assert mode_lookup[(0, 1)] == pytest.approx(0.1255195172274547)
+
+
+def test_vmec_filtered_nyquist_convention_uses_filtered_nyquist_coefficients():
+    surface = load_vmec_surface(
+        VMEC_FIXTURE,
+        psi_n=0.25,
+        vmec_nyquist_option=1,
+        vmec_mode_convention="filtered_nyquist",
+    )
+    with netcdf_file(VMEC_FIXTURE, "r", mmap=False) as handle:
+        nfp = int(np.asarray(handle.variables["nfp"].data).reshape(()))
+        mpol = int(np.asarray(handle.variables["mpol"].data).reshape(()))
+        ntor = int(np.asarray(handle.variables["ntor"].data).reshape(()))
+        xm_nyq = np.asarray(handle.variables["xm_nyq"].data, dtype=np.int32)
+        xn_nyq = np.asarray(handle.variables["xn_nyq"].data, dtype=np.int32)
+
+    include = (np.abs(xm_nyq) < mpol) & (np.abs(xn_nyq / float(nfp)) <= float(ntor))
+    selected = np.nonzero(include)[0]
+
+    assert surface.total_mode_count == selected.size
+    assert np.array_equal(np.asarray(surface.m), xm_nyq[selected])
+    assert np.array_equal(np.asarray(surface.n), np.rint(xn_nyq[selected] / nfp).astype(np.int32))
+    mode_lookup = {
+        (int(m), int(n)): float(b)
+        for m, n, b in zip(
+            np.asarray(surface.m),
+            np.asarray(surface.n),
+            np.asarray(surface.b_cos),
+            strict=True,
+        )
+    }
+    assert mode_lookup[(0, 0)] == pytest.approx(2.7846035563558886)
+    assert mode_lookup[(2, -12)] == pytest.approx(-0.00014346214156386845, rel=5e-5)
+    assert mode_lookup[(0, 1)] == pytest.approx(0.1255195172274547)
 
 
 def test_vmec_surface_resolves_er_hat_from_transport_scale():

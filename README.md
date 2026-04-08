@@ -129,15 +129,24 @@ For VMEC surfaces, NTX derives a radial normalization from the selected surface:
 - `epsi_hat = er_hat / (dpsi_hat/dr_hat)`
 
 This keeps the VMEC `er_hat` path tied to explicit surface metadata rather than a
-placeholder scale.
+placeholder scale. The stored output distinguishes this electric-field
+conversion scale from the coefficient normalization scale:
+
+- `surface_transport_psi_scale = dpsi_hat/dr_hat`
+- `surface_coefficient_psi_scale = 1` for Escoto-style VMEC outputs
 
 For VMEC mode selection:
 
-- `vmec_nyquist_option = 1` uses the primary VMEC Fourier mode set (`xm`, `xn`)
+- `vmec_nyquist_option = 1` uses a reduced VMEC spectral set
 - `vmec_nyquist_option = 2` uses the full Nyquist mode set (`xm_nyq`, `xn_nyq`)
+- `vmec_mode_convention = "reduced"` keeps the reduced `(xm, xn)` mode table
+  and truncates the VMEC coefficient arrays to the same length
+- `vmec_mode_convention = "filtered_nyquist"` keeps the filtered Nyquist subset
+  with `|m| < mpol` and `|n| <= ntor` in field-period units
 
-The primary mode set is the more conservative default and aligns with the
-reduced spectral set used in established VMEC-based monoenergetic workflows.
+The default is `vmec_mode_convention = "reduced"`, which follows the reduced
+mode-table convention used in Escoto-style VMEC workflows. Use
+`"filtered_nyquist"` when comparing against SFINCS-style VMEC geometry paths.
 
 ## Other Ways To Run
 

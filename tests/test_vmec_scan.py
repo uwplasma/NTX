@@ -34,13 +34,13 @@ def test_w7x_vmec_er_hat_scan_matches_loop_and_regression():
 
     assert np.allclose(
         np.asarray(scan["D11"]),
-        np.asarray([0.11463314117197669, 0.13054788699643827, 0.028693555883509558]),
+        np.asarray([0.11545369711257313, 0.23938386669007022, 0.06712724596348789]),
         rtol=1e-8,
         atol=1e-12,
     )
     assert np.allclose(
         np.asarray(scan["D31"]),
-        np.asarray([0.6493782796612592, 1.1160492682188634, 0.3038582877699687]),
+        np.asarray([0.08674811475363547, 0.29754638687023927, 0.3999704567518334]),
         rtol=2e-8,
         atol=1e-12,
     )
@@ -66,13 +66,13 @@ def test_qi_vmec_er_hat_scan_matches_explicit_epsi_hat_scan():
 
     assert np.allclose(
         np.asarray(er_scan["D11"]),
-        np.asarray([1.1448629570228259e-04, 1.778129748567723e-05, 1.0368740974298214e-05]),
+        np.asarray([1.1505805784732863e-04, 1.294881489660715e-05, 3.3337729320005576e-06]),
         rtol=1e-9,
         atol=1e-12,
     )
     assert np.allclose(
         np.asarray(er_scan["D33"]),
-        np.asarray([826.5374315404677, 209.95479247294583, 45.90534950254614]),
+        np.asarray([828.6276601080895, 209.75848276861706, 45.884866758796946]),
         rtol=1e-9,
         atol=1e-9,
     )

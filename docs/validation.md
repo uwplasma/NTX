@@ -26,8 +26,11 @@ The scan tests cover both:
 
 The VMEC loader also distinguishes between:
 
-- `vmec_nyquist_option = 1`: primary VMEC mode set
+- `vmec_nyquist_option = 1`: reduced VMEC spectral set
 - `vmec_nyquist_option = 2`: full Nyquist mode set
+- `vmec_mode_convention = "reduced"`: reduced `(xm, xn)` mode-table convention
+- `vmec_mode_convention = "filtered_nyquist"`: filtered Nyquist convention used
+  in SFINCS-style VMEC geometry paths
 
 This distinction is covered in `tests/test_vmec.py` so changes in VMEC mode
 selection do not silently alter the active spectral set.

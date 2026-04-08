@@ -43,6 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     solve.add_argument("--psi-n", type=float, default=None)
     solve.add_argument("--vmec-radial-option", type=int, default=0)
     solve.add_argument("--vmec-nyquist-option", type=int, default=1)
+    solve.add_argument("--vmec-mode-convention", default="reduced")
     solve.add_argument("--min-bmn-to-load", type=float, default=0.0)
 
     inspect = sub.add_parser("inspect-surface", help="print a surface definition")
@@ -57,6 +58,7 @@ def main(argv: list[str] | None = None) -> int:
     inspect.add_argument("--psi-n", type=float, default=None)
     inspect.add_argument("--vmec-radial-option", type=int, default=0)
     inspect.add_argument("--vmec-nyquist-option", type=int, default=1)
+    inspect.add_argument("--vmec-mode-convention", default="reduced")
     inspect.add_argument("--min-bmn-to-load", type=float, default=0.0)
 
     args = parser.parse_args(args_list)
@@ -100,6 +102,7 @@ def _load_surface(args):
             psi_n=args.psi_n,
             vmec_radial_option=args.vmec_radial_option,
             vmec_nyquist_option=args.vmec_nyquist_option,
+            vmec_mode_convention=args.vmec_mode_convention,
             min_bmn_to_load=args.min_bmn_to_load,
         )
     msg = "select one of --example, --dkes, or --vmec"

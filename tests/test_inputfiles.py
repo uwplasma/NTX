@@ -20,6 +20,7 @@ def test_load_run_config_vmec_parses_surface_options(tmp_path):
                 "psi_n = 0.4",
                 "vmec_radial_option = 1",
                 "vmec_nyquist_option = 2",
+                'vmec_mode_convention = "filtered_nyquist"',
                 "min_bmn_to_load = 1e-4",
                 "",
                 "[grid]",
@@ -40,6 +41,7 @@ def test_load_run_config_vmec_parses_surface_options(tmp_path):
     assert config.surface.psi_n == 0.4
     assert config.surface.vmec_radial_option == 1
     assert config.surface.vmec_nyquist_option == 2
+    assert config.surface.vmec_mode_convention == "filtered_nyquist"
     assert config.surface.min_bmn_to_load == 1e-4
     assert config.case.epsi_hat == 2e-3
 
@@ -133,12 +135,14 @@ def test_run_from_input_file_vmec_writes_metadata_npz(tmp_path):
     with np.load(output_path) as data:
         assert "vmec_ns" in data
         assert "vmec_total_mode_count" in data
+        assert "surface_vmec_mode_convention" in data
         assert "surface_metadata_json" in data
         assert "geometry_metadata_json" in data
         assert "algorithm_metadata_json" in data
         assert np.isnan(data["surface_psi_p"])
         assert data["surface_source_name"] == "wout_w7x_standardConfig.nc"
         assert data["surface_source_size_bytes"] > 0.0
+        assert data["surface_coefficient_psi_scale"] == 1.0
         assert "vmec_r_n" in data
         assert "vmec_r_hat" in data
         assert "vmec_dpsi_hat_dr_hat" in data

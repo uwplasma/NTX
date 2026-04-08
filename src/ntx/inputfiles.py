@@ -33,6 +33,7 @@ class SurfaceSpec:
     psi_n: float | None = None
     vmec_radial_option: int = 0
     vmec_nyquist_option: int = 1
+    vmec_mode_convention: str = "reduced"
     min_bmn_to_load: float = 0.0
 
 
@@ -105,6 +106,7 @@ def load_run_config(path: str | Path) -> RunConfig:
             psi_n=psi_n,
             vmec_radial_option=int(surface_data.get("vmec_radial_option", 0)),
             vmec_nyquist_option=int(surface_data.get("vmec_nyquist_option", 1)),
+            vmec_mode_convention=str(surface_data.get("vmec_mode_convention", "reduced")),
             min_bmn_to_load=float(surface_data.get("min_bmn_to_load", 0.0)),
         ),
         grid=grid,
@@ -189,6 +191,7 @@ def save_run_npz(
         ),
         "surface_vmec_radial_option": np.asarray(config.surface.vmec_radial_option),
         "surface_vmec_nyquist_option": np.asarray(config.surface.vmec_nyquist_option),
+        "surface_vmec_mode_convention": np.asarray(config.surface.vmec_mode_convention),
         "surface_min_bmn_to_load": np.asarray(config.surface.min_bmn_to_load),
         "n_theta": np.asarray(config.grid.n_theta),
         "n_zeta": np.asarray(config.grid.n_zeta),
@@ -207,6 +210,7 @@ def save_run_npz(
         "surface_iota": np.asarray(geom.iota),
         "surface_psi_p": np.asarray(np.nan if geom.psi_p is None else float(geom.psi_p)),
         "surface_transport_psi_scale": np.asarray(float(geom.transport_psi_scale)),
+        "surface_coefficient_psi_scale": np.asarray(float(geom.coefficient_psi_scale)),
         "surface_b0": np.asarray(float(geom.b0)),
         "surface_mode_count": np.asarray(_mode_count(surface)),
         "surface_stellarator_symmetric": np.asarray(bool(surface.stellarator_symmetric)),
@@ -250,6 +254,7 @@ def save_run_npz(
                         "psi_n": config.surface.psi_n,
                         "vmec_radial_option": config.surface.vmec_radial_option,
                         "vmec_nyquist_option": config.surface.vmec_nyquist_option,
+                        "vmec_mode_convention": config.surface.vmec_mode_convention,
                         "min_bmn_to_load": config.surface.min_bmn_to_load,
                     },
                     "grid": {
@@ -328,6 +333,7 @@ def _load_surface(spec: SurfaceSpec) -> BoozerSurface | VmecSurface:
             psi_n=spec.psi_n,
             vmec_radial_option=spec.vmec_radial_option,
             vmec_nyquist_option=spec.vmec_nyquist_option,
+            vmec_mode_convention=spec.vmec_mode_convention,
             min_bmn_to_load=spec.min_bmn_to_load,
         )
     msg = f"unsupported surface.type {spec.type!r}"
@@ -388,6 +394,7 @@ def _surface_table(surface: BoozerSurface | VmecSurface, config: RunConfig) -> T
         table.add_row("loaded_modes", str(surface.loaded_mode_count))
         table.add_row("vmec_radial_option", str(config.surface.vmec_radial_option))
         table.add_row("vmec_nyquist_option", str(config.surface.vmec_nyquist_option))
+        table.add_row("vmec_mode_convention", config.surface.vmec_mode_convention)
         table.add_row("min_bmn_to_load", f"{config.surface.min_bmn_to_load:.10g}")
     return table
 
@@ -434,6 +441,7 @@ def _case_table(config: RunConfig, surface: BoozerSurface | VmecSurface) -> Tabl
     if isinstance(surface, VmecSurface):
         table.add_row("dpsi_hat/dr_hat", f"{surface.dpsi_hat_dr_hat:.10g}")
         table.add_row("dr_hat/dpsi_hat", f"{surface.dr_hat_dpsi_hat:.10g}")
+        table.add_row("coefficient_psi_scale", "1")
     table.add_row("output_npz", str(config.output.npz))
     table.add_row("include_modes", str(config.output.include_modes))
     return table
@@ -557,6 +565,7 @@ def _geometry_metadata(geom) -> dict[str, Any]:
         "volume_prime": float(geom.volume_prime),
         "b2_mean": float(geom.b2_mean),
         "transport_psi_scale": float(geom.transport_psi_scale),
+        "coefficient_psi_scale": float(geom.coefficient_psi_scale),
     }
 
 

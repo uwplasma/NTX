@@ -93,6 +93,7 @@ class GeometryOnGrid:
     iota: float
     psi_p: float | None
     transport_psi_scale: float
+    coefficient_psi_scale: float
     grid: AngularGrid
     theta_2d: Array
     zeta_2d: Array
@@ -206,6 +207,7 @@ def _boozer_geometry_on_grid(surface: BoozerSurface, spec) -> GeometryOnGrid:
         iota=surface.iota,
         psi_p=surface.psi_p,
         transport_psi_scale=surface.psi_p,
+        coefficient_psi_scale=surface.psi_p,
         grid=grid,
         theta_2d=theta_2d,
         zeta_2d=zeta_2d,
@@ -288,6 +290,7 @@ def _vmec_geometry_on_grid(surface: VmecSurface, spec) -> GeometryOnGrid:
         iota=surface.iota,
         psi_p=surface.psi_p,
         transport_psi_scale=surface.transport_psi_scale,
+        coefficient_psi_scale=1.0,
         grid=grid,
         theta_2d=theta_2d,
         zeta_2d=zeta_2d,
