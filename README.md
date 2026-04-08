@@ -232,6 +232,9 @@ Useful analysis scripts:
 - `python scripts/compare_archived_benchmarks.py --output-json archived-benchmarks.json`
 - `python scripts/profile_runtime.py --output-json runtime-profile.json`
 
+Those two scripts default to `JAX_PLATFORM_NAME=cpu` so they are stable on any
+machine. Override the platform explicitly when you want to force GPU execution.
+
 ## GPU Runs
 
 CPU CI keeps running `pytest -m "not gpu"`.

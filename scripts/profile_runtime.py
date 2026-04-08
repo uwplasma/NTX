@@ -5,8 +5,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from time import perf_counter
+
+os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
 
 import jax
 import jax.numpy as jnp
@@ -19,6 +22,7 @@ from ntx import (
     solve_monoenergetic,
     solve_monoenergetic_scan,
 )
+from ntx.config import enable_x64
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
@@ -33,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
         help="optional path for the JSON summary",
     )
     args = parser.parse_args(argv)
+    enable_x64(True)
 
     nu = jnp.logspace(-4, -2, 8)
     er = jnp.full((8,), 1e-3)
