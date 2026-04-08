@@ -31,6 +31,9 @@ Run:
 python scripts/compare_archived_benchmarks.py --output-json archived-benchmarks.json
 ```
 
+This script defaults to `JAX_PLATFORM_NAME=cpu` so the archived comparison does
+not depend on accelerator FFT behavior.
+
 This script evaluates vendored archived DKES and SFINCS tables for:
 
 - W7-X EIM
@@ -53,6 +56,9 @@ Run:
 ```bash
 python scripts/profile_runtime.py --output-json runtime-profile.json
 ```
+
+This script also defaults to `JAX_PLATFORM_NAME=cpu`. Override the environment
+when you want a GPU-specific profile.
 
 This profiles the batched scan path against a Python loop for one DKES case and
 one VMEC case, and writes:

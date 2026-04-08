@@ -77,3 +77,6 @@ For local performance profiling on either CPU or GPU:
 ```bash
 python scripts/profile_runtime.py --output-json runtime-profile.json
 ```
+
+This script defaults to `JAX_PLATFORM_NAME=cpu`. Set `JAX_PLATFORM_NAME=gpu`
+explicitly if you want to profile the GPU backend instead.

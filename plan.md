@@ -251,3 +251,40 @@ Important environment facts found during planning:
   - The single-case dense solve path is still the dominant cost for archived
     high-resolution DKES comparisons, so the current performance gain helps scans
     more than it helps the hardest benchmark configurations.
+
+- Revalidated the updated code on the office GPU machine after the packaging,
+  scan, and benchmark-script changes.
+- Office environment on 2026-04-08 after this round:
+  - host: `office`
+  - Python: `3.10.12`
+  - JAX: `0.6.2`
+  - jaxlib: `0.6.2`
+  - backend: `gpu`
+  - device: `cuda:0`
+- What worked on office after syncing the updated tree over SSH:
+  - `python3 -m pip install -e ".[dev,docs,io]"`
+  - `python3 -m ruff check .`
+  - `python3 -m mypy src/ntx`
+  - `python3 -m pytest -q` -> `42 passed, 2 skipped`
+  - `python3 -m pytest -m gpu -q` -> `2 passed`
+  - `python3 -m sphinx -b html docs docs/_build/html`
+  - `python3 scripts/run_gpu_regression.py --output-json gpu-smoke-results.json`
+  - `python3 scripts/profile_runtime.py --output-json runtime-profile.json`
+- Office GPU regression results after this round:
+  - `dkes_w7x_smoke`: compile+run `1.592315 s`, steady `0.001621 s`,
+    max relative error `9.439e-09`
+  - `vmec_w7x_smoke`: compile+run `1.638515 s`, steady `0.002720 s`,
+    max relative error `5.681e-13`
+- Office CPU runtime profile from `scripts/profile_runtime.py`:
+  - `dkes_w7x_scan`: steady scan `2.0031 s` versus loop `7.6240 s`
+    (`3.81x` speedup)
+  - `vmec_w7x_scan`: steady scan `2.3734 s` versus loop `6.1010 s`
+    (`2.57x` speedup)
+- What did not:
+  - The office shell does not have the user-site script directory on `PATH`, so
+    `ruff`, `mypy`, and `pytest` had to be invoked as `python3 -m ...`.
+  - The archived benchmark comparison script was too heavy to finish in a
+    reasonable office run at its current comparison grids. The script now
+    defaults to `JAX_PLATFORM_NAME=cpu`, but the archived benchmark report is
+    still treated as an offline progress-tracking tool rather than a routine
+    office smoke check.
