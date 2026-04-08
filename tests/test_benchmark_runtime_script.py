@@ -22,7 +22,7 @@ def test_benchmark_against_reference_executable_script_cpu_skip_mode(tmp_path):
             sys.executable,
             str(ROOT / "scripts" / "benchmark_against_reference_executable.py"),
             "--case",
-            "w7x_eim_er0",
+            "w7x_eim_smoke",
             "--platform",
             "cpu",
             "--skip-reference_executable",
@@ -37,9 +37,10 @@ def test_benchmark_against_reference_executable_script_cpu_skip_mode(tmp_path):
     )
     payload = json.loads(proc.stdout)
     assert payload["platform"] == "cpu"
+    assert payload["mode"] == "eager"
     assert payload["xla_preallocate"] == "false"
     case = payload["cases"][0]
-    assert case["case"]["name"] == "w7x_eim_er0"
+    assert case["case"]["name"] == "w7x_eim_smoke"
     assert case["ntx"]["max_gpu_memory_mib"] == 0
     assert case["ntx"]["first_run"]["coefficients"]["D11"] > 0.0
     assert output_path.exists()

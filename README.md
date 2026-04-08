@@ -167,7 +167,15 @@ python -m ntx.cli solve --vmec tests/fixtures/wout_w7x_standardConfig.nc \
 Programmatic API:
 
 ```python
-from ntx import GridSpec, MonoenergeticCase, load_dkes_surface, load_vmec_surface, solve_monoenergetic
+from ntx import (
+    GridSpec,
+    MonoenergeticCase,
+    compile_prepared_solver,
+    load_dkes_surface,
+    load_vmec_surface,
+    prepare_monoenergetic_system,
+    solve_monoenergetic,
+)
 
 grid = GridSpec(n_theta=9, n_zeta=11, n_xi=8)
 
@@ -176,7 +184,16 @@ dkes_result = solve_monoenergetic(dkes_surface, grid, MonoenergeticCase(nu_hat=1
 
 vmec_surface = load_vmec_surface("tests/fixtures/wout_w7x_standardConfig.nc", psi_n=0.25)
 vmec_result = solve_monoenergetic(vmec_surface, grid, MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3))
+
+prepared = prepare_monoenergetic_system(dkes_surface, grid)
+compiled_solver = compile_prepared_solver(prepared)
+compiled_result = compiled_solver(MonoenergeticCase(nu_hat=1e-5, er_hat=1e-3))
 ```
+
+Use `compile_prepared_solver()` when you want repeated solves on one fixed
+surface and grid. The standard `solve_monoenergetic()` and `solve_prepared()`
+paths remain the right default for single solves and for heavy CPU benchmark
+cases where XLA compile time may not amortize cleanly.
 
 ## Algorithm
 

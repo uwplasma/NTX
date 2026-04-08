@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import jax
@@ -79,6 +80,9 @@ class PreparedMonoenergeticSystem:
     d_zeta: Array
 
 
+CompiledPreparedSolver = Callable[[MonoenergeticCase], TransportResult]
+
+
 def prepare_monoenergetic_system(
     surface: BoozerSurface | VmecSurface,
     grid: GridSpec,
@@ -114,14 +118,71 @@ def solve_prepared(
 ) -> TransportResult:
     """Solve one monoenergetic case using precomputed geometry and derivatives."""
 
+    return _transport_result_from_arrays(_solve_prepared_arrays(prepared, case))
+
+
+def compile_prepared_solver(
+    prepared: PreparedMonoenergeticSystem,
+) -> CompiledPreparedSolver:
+    """Return a jitted monoenergetic solver for repeated solves on one geometry."""
+
+    compiled = jax.jit(
+        lambda nu_hat, epsi_hat: _solve_prepared_arrays_from_values(
+            prepared,
+            nu_hat,
+            epsi_hat,
+        )
+    )
+
+    def solve(case: MonoenergeticCase) -> TransportResult:
+        epsi_hat = case.resolved_epsi_hat(prepared.geometry.transport_psi_scale)
+        return _transport_result_from_arrays(compiled(case.nu_hat, epsi_hat))
+
+    return solve
+
+
+def _transport_result_from_arrays(values: tuple[Array, ...]) -> TransportResult:
+    return TransportResult(
+        D11=values[0],
+        D31=values[1],
+        D13=values[2],
+        D33=values[3],
+        D33_spitzer=values[4],
+        f1_modes=values[5],
+        f3_modes=values[6],
+        residual_l2=values[7],
+        onsager_residual=values[8],
+    )
+
+
+def _solve_prepared_arrays(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> tuple[Array, ...]:
+    """Solve one monoenergetic case and return raw array outputs."""
+
+    return _solve_prepared_arrays_from_values(
+        prepared,
+        case.nu_hat,
+        case.resolved_epsi_hat(prepared.geometry.transport_psi_scale),
+    )
+
+
+def _solve_prepared_arrays_from_values(
+    prepared: PreparedMonoenergeticSystem,
+    nu_hat,
+    epsi_hat,
+) -> tuple[Array, ...]:
+    """Solve one monoenergetic case given resolved scalar inputs."""
+
     geom = prepared.geometry
     grid = prepared.grid
     ctx = _operator_context(
         prepared.surface,
         geom,
         grid,
-        case.nu_hat,
-        case.resolved_epsi_hat(geom.transport_psi_scale),
+        nu_hat,
+        epsi_hat,
     )
     s1, s3 = source_modes(ctx, grid.n_xi)
     f1_modes, f3_modes = _solve_modes(
@@ -143,16 +204,16 @@ def solve_prepared(
         s1,
         f1_modes,
     )
-    return TransportResult(
-        D11=d11,
-        D31=d31,
-        D13=d13,
-        D33=d33,
-        D33_spitzer=d33_spitzer,
-        f1_modes=f1_modes,
-        f3_modes=f3_modes,
-        residual_l2=residual,
-        onsager_residual=onsager_error(d31, d13),
+    return (
+        d11,
+        d31,
+        d13,
+        d33,
+        d33_spitzer,
+        f1_modes,
+        f3_modes,
+        residual,
+        onsager_error(d31, d13),
     )
 
 
