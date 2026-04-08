@@ -15,7 +15,7 @@ x64 = true
 
 [case]
 nu_hat = 1e-3
-epsi_hat = 1e-3
+er_hat = 1e-3
 
 [output]
 npz = "outputs/w7x_vmec.npz"

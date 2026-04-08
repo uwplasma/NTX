@@ -137,6 +137,8 @@ def test_run_from_input_file_vmec_writes_metadata_npz(tmp_path):
         assert "geometry_metadata_json" in data
         assert "algorithm_metadata_json" in data
         assert np.isnan(data["surface_psi_p"])
+        assert data["surface_source_name"] == "wout_w7x_standardConfig.nc"
+        assert data["surface_source_size_bytes"] > 0.0
         assert "vmec_r_n" in data
         assert "vmec_r_hat" in data
         assert "vmec_dpsi_hat_dr_hat" in data

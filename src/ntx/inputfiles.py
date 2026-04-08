@@ -170,6 +170,8 @@ def save_run_npz(
     surface_meta = _surface_metadata(surface)
     geometry_meta = _geometry_metadata(geom)
     algorithm_meta = _algorithm_metadata(config, geom)
+    source_path = _surface_source_path(surface)
+    source_stat = None if source_path is None or not source_path.exists() else source_path.stat()
     data: dict[str, Any] = {
         "input_path": np.asarray(str(config.input_path)),
         "input_toml_text": np.asarray(config.input_path.read_text(encoding="utf-8")),
@@ -201,6 +203,13 @@ def save_run_npz(
         "surface_b0": np.asarray(float(geom.b0)),
         "surface_mode_count": np.asarray(_mode_count(surface)),
         "surface_stellarator_symmetric": np.asarray(bool(surface.stellarator_symmetric)),
+        "surface_source_name": np.asarray("" if source_path is None else source_path.name),
+        "surface_source_size_bytes": np.asarray(
+            np.nan if source_stat is None else float(source_stat.st_size)
+        ),
+        "surface_source_mtime": np.asarray(
+            np.nan if source_stat is None else float(source_stat.st_mtime)
+        ),
         "theta_grid": np.asarray(geom.grid.theta),
         "zeta_grid": np.asarray(geom.grid.zeta),
         "b": np.asarray(geom.b),
@@ -459,6 +468,7 @@ def _output_table(path: Path, config: RunConfig) -> Table:
         "stored_metadata",
         "surface, geometry, algorithm, residuals, and transport coefficients",
     )
+    table.add_row("stored_source_info", "input filename, file size, and modification time")
     table.add_row("stored_harmonics", "surface Fourier harmonics")
     table.add_row(
         "stored_modes",
@@ -468,15 +478,19 @@ def _output_table(path: Path, config: RunConfig) -> Table:
 
 
 def _surface_metadata(surface: BoozerSurface | VmecSurface) -> dict[str, Any]:
+    source_path = _surface_source_path(surface)
+    source_stat = None if source_path is None or not source_path.exists() else source_path.stat()
     common: dict[str, Any] = {
         "mode_count": _mode_count(surface),
         "stellarator_symmetric": bool(surface.stellarator_symmetric),
+        "source_path": "-" if source_path is None else str(source_path),
+        "source_size_bytes": None if source_stat is None else int(source_stat.st_size),
+        "source_mtime": None if source_stat is None else float(source_stat.st_mtime),
     }
     if isinstance(surface, BoozerSurface):
         common.update(
             {
                 "family": "boozer",
-                "source_path": "-" if surface.source_path is None else str(surface.source_path),
                 "nfp": surface.nfp,
                 "iota": float(surface.iota),
                 "psi_p": float(surface.psi_p),
@@ -490,7 +504,6 @@ def _surface_metadata(surface: BoozerSurface | VmecSurface) -> dict[str, Any]:
     common.update(
         {
             "family": "vmec",
-            "source_path": str(surface.path),
             "requested_psi_n": float(surface.requested_psi_n),
             "selected_psi_n": float(surface.psi_n),
             "nfp": surface.nfp,
@@ -548,3 +561,9 @@ def _algorithm_metadata(config: RunConfig, geom) -> dict[str, Any]:
 
 def _mode_count(surface: BoozerSurface | VmecSurface) -> int:
     return int(len(surface.m))
+
+
+def _surface_source_path(surface: BoozerSurface | VmecSurface) -> Path | None:
+    if isinstance(surface, BoozerSurface):
+        return surface.source_path
+    return surface.path

@@ -82,8 +82,37 @@ The VMEC path evaluates:
 - `Jacobian`
 - `B_sub_theta`, `B_sub_zeta`
 - `B_sup_theta`, `B_sup_zeta`
+- `r_n = sqrt(psi_n)`
+- `r_hat = Aminor_p * r_n`
+- `dpsi_hat/dr_hat`
 
 on the requested angular grid before assembling the operator blocks.
+
+## Electric-Field Normalization
+
+NTX supports two equivalent electric-field inputs:
+
+- `epsi_hat`
+- `er_hat`
+
+For Boozer / DKES surfaces:
+
+```text
+epsi_hat = er_hat / psi_p
+```
+
+For VMEC surfaces:
+
+```text
+r_n = sqrt(psi_n)
+r_hat = Aminor_p * r_n
+dpsi_hat/dr_hat = 2 * psi_a_hat * r_n / Aminor_p
+epsi_hat = er_hat / (dpsi_hat/dr_hat)
+```
+
+The VMEC transport coefficients use the same `dpsi_hat/dr_hat` scale in the
+post-processing formulas, so the stored coefficient normalization matches the
+resolved field normalization shown at runtime.
 
 ## Diagnostics
 
