@@ -23,9 +23,8 @@ def load_vmec_surface(
 
     Notes
     -----
-    This loader follows the REFERENCE_EXECUTABLE VMEC input path closely for the coefficient
-    selection and uses the `sfincs_jax` reader structure only as guidance for
-    robust netCDF parsing.
+    This loader keeps the coefficient-selection logic close to established
+    stellarator transport workflows while using a minimal netCDF reader.
     """
 
     wout_path = Path(path).expanduser().resolve()
@@ -45,6 +44,11 @@ def load_vmec_surface(
         psi_n_grid = phi / float(phi[-1])
         iota_key = "iota_f" if "iota_f" in handle.variables else "iotas"
         iota_grid = _read_var(handle, iota_key).astype(np.float64)
+        aminor_p = (
+            float(_read_scalar(handle, "Aminor_p"))
+            if "Aminor_p" in handle.variables
+            else None
+        )
 
         mode_m = _read_var(handle, "xm_nyq" if "xm_nyq" in handle.variables else "xm").astype(
             np.int32
@@ -62,6 +66,7 @@ def load_vmec_surface(
     if ns < 2:
         raise ValueError("VMEC input must contain at least two radial surfaces")
 
+    psi_a_hat = float(phi[-1]) / (2.0 * np.pi)
     target_psi_n = _resolve_psi_n(psi_n_grid, float(psi_n), int(vmec_radial_option))
     radial_grid = psi_n_grid[1:]
     b_interp = _interp_mode_columns(radial_grid, bmnc[:, 1:], target_psi_n)
@@ -90,8 +95,14 @@ def load_vmec_surface(
 
     return VmecSurface(
         path=wout_path,
+        requested_psi_n=float(psi_n),
         psi_n=target_psi_n,
         nfp=nfp,
+        ns=ns,
+        mpol=mpol,
+        ntor=ntor,
+        total_mode_count=int(mode_m.size),
+        loaded_mode_count=int(np.count_nonzero(include)),
         iota=float(iota),
         m=jnp.asarray(mode_m[include], dtype=jnp.int32),
         n=jnp.asarray(np.rint(mode_n[include] / nfp).astype(np.int32), dtype=jnp.int32),
@@ -102,7 +113,11 @@ def load_vmec_surface(
         b_sup_theta_cos=jnp.asarray(b_sup_theta_interp[include], dtype=jnp.float64),
         b_sup_zeta_cos=jnp.asarray(b_sup_zeta_interp[include], dtype=jnp.float64),
         b0=b0,
-        psi_p=1.0,
+        psi_a_hat=psi_a_hat,
+        phi_edge=float(phi[-1]),
+        aminor_p=aminor_p,
+        psi_p=None,
+        transport_psi_scale=1.0,
     )
 
 

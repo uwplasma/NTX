@@ -1,0 +1,25 @@
+[surface]
+type = "vmec"
+path = "../tests/fixtures/wout_w7x_standardConfig.nc"
+psi_n = 0.253
+vmec_radial_option = 1
+vmec_nyquist_option = 2
+min_bmn_to_load = 1e-3
+
+[grid]
+n_theta = 9
+n_zeta = 11
+n_xi = 8
+dtype = "float64"
+x64 = true
+
+[case]
+nu_hat = 1e-3
+epsi_hat = 0.0
+
+[output]
+npz = "outputs/w7x_vmec_filtered.npz"
+include_modes = true
+
+[logging]
+verbose = true

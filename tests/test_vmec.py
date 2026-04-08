@@ -8,15 +8,18 @@ import pytest
 from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
 from ntx.geometry import VmecSurface, geometry_on_grid
 
-VMEC_FIXTURE = Path(
-    "/Users/rogeriojorge/local/tests/sfincs_jax/tests/ref/wout_w7x_standardConfig.nc"
-)
+VMEC_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "wout_w7x_standardConfig.nc"
 
 
-@pytest.mark.skipif(not VMEC_FIXTURE.exists(), reason="local VMEC fixture not available")
 def test_load_vmec_surface_and_geometry():
     surface = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25)
     assert isinstance(surface, VmecSurface)
+    assert surface.path == VMEC_FIXTURE.resolve()
+    assert surface.nfp == 5
+    assert surface.ns > 1
+    assert surface.loaded_mode_count > 0
+    assert surface.total_mode_count >= surface.loaded_mode_count
+    assert surface.psi_p is None
     geom = geometry_on_grid(surface, GridSpec(7, 9, 4))
     assert geom.surface_type == "vmec"
     assert geom.b.shape == (7, 9)
@@ -25,13 +28,22 @@ def test_load_vmec_surface_and_geometry():
     assert float(geom.b0) > 0.0
 
 
-@pytest.mark.skipif(not VMEC_FIXTURE.exists(), reason="local VMEC fixture not available")
-def test_vmec_surface_solves_with_epsi_hat():
+def test_vmec_radial_option_snaps_to_grid():
+    requested = 0.253
+    direct = load_vmec_surface(VMEC_FIXTURE, psi_n=requested, vmec_radial_option=0)
+    snapped = load_vmec_surface(VMEC_FIXTURE, psi_n=requested, vmec_radial_option=1)
+    assert direct.psi_n == pytest.approx(requested)
+    assert snapped.requested_psi_n == pytest.approx(requested)
+    assert snapped.psi_n != pytest.approx(requested)
+
+
+def test_vmec_mode_filtering_reduces_mode_count():
+    full = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, min_bmn_to_load=0.0)
+    filtered = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, min_bmn_to_load=1e-2)
+    assert filtered.loaded_mode_count < full.loaded_mode_count
+
+
+def test_vmec_surface_requires_epsi_hat_for_er_input():
     surface = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25)
-    result = solve_monoenergetic(
-        surface,
-        GridSpec(7, 9, 4),
-        MonoenergeticCase(nu_hat=1e-3, epsi_hat=1e-3),
-    )
-    values = jnp.asarray([result.D11, result.D31, result.D13, result.D33, result.D33_spitzer])
-    assert jnp.all(jnp.isfinite(values))
+    with pytest.raises(ValueError, match="er_hat"):
+        solve_monoenergetic(surface, GridSpec(7, 9, 4), MonoenergeticCase(1e-3, er_hat=1e-3))

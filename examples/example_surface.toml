@@ -1,0 +1,20 @@
+[surface]
+type = "example"
+
+[grid]
+n_theta = 9
+n_zeta = 9
+n_xi = 8
+dtype = "float64"
+x64 = true
+
+[case]
+nu_hat = 1e-2
+epsi_hat = 0.0
+
+[output]
+npz = "outputs/example_surface.npz"
+include_modes = true
+
+[logging]
+verbose = true
