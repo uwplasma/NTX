@@ -45,3 +45,27 @@ NTX uses JAX arrays throughout, so the same solver path can run on CPU or GPU.
 
 For production physics runs, keep `x64 = true` in the input file unless you are
 deliberately testing reduced precision.
+
+The repository CPU workflow runs:
+
+```bash
+pytest -m "not gpu"
+```
+
+GPU smoke and regression coverage is provided through:
+
+- `tests/test_gpu_smoke.py`
+- `scripts/run_gpu_regression.py`
+- `scripts/sh_office_gpu_smoke.sh`
+
+A typical GPU session in the office environment is:
+
+```bash
+sh office
+cd /Users/rogeriojorge/local/.NTX
+python -m pip install -e ".[dev,docs,io]"
+scripts/sh_office_gpu_smoke.sh
+```
+
+This writes `gpu-smoke-results.json` in the repository root with device
+information, timings, coefficient deltas, and regression summaries.

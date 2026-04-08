@@ -37,6 +37,7 @@ The example uses:
 - `vmec_radial_option = 0`
 - `vmec_nyquist_option = 1`
 - `min_bmn_to_load = 0.0`
+- `er_hat = 1e-3`
 
 ## Filtered VMEC Surface
 
@@ -50,6 +51,23 @@ This variant demonstrates:
 - keeping Nyquist modes with `vmec_nyquist_option = 2`
 - mode filtering through `min_bmn_to_load = 1e-3`
 
+## QI VMEC Surface
+
+```bash
+ntx examples/qi_vmec_erhat.toml
+```
+
+This example uses the repository QI VMEC fixture:
+
+- `tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc`
+
+The example demonstrates:
+
+- a second VMEC family beyond the W7-X regression surface
+- direct VMEC `er_hat` input
+- surface-normalized conversion through `dpsi_hat/dr_hat`
+- a lower-radius surface with `psi_n = 0.12247^2`
+
 ## Programmatic Example
 
 ```python
@@ -57,7 +75,7 @@ from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenerge
 
 surface = load_vmec_surface("tests/fixtures/wout_w7x_standardConfig.nc", psi_n=0.25)
 grid = GridSpec(n_theta=9, n_zeta=11, n_xi=6)
-case = MonoenergeticCase(nu_hat=1e-3, epsi_hat=1e-3)
+case = MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3)
 result = solve_monoenergetic(surface, grid, case)
 print(result.as_dict())
 ```

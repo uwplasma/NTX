@@ -55,6 +55,9 @@ Reads a VMEC `wout_*.nc` file and extracts:
 - covariant and contravariant field components
 - radial-grid metadata
 - selected flux-surface metadata
+- `psi_a_hat`
+- `Aminor_p`
+- VMEC radial transport normalization
 
 Additional VMEC keys:
 
@@ -96,11 +99,22 @@ Additional VMEC keys:
   - Optional float
 - `er_hat`
   - Optional float
-  - Converted internally through `epsi_hat = er_hat / psi_p`
+  - Converted internally through a surface-specific transport scale
 
 Exactly one of `epsi_hat` and `er_hat` may be set.
 
-For VMEC inputs, use `epsi_hat`. VMEC input files do not accept `er_hat`.
+Resolved electric-field normalization:
+
+- DKES / Boozer:
+  - `epsi_hat = er_hat / psi_p`
+- VMEC:
+  - `r_n = sqrt(psi_n)`
+  - `r_hat = Aminor_p * r_n`
+  - `dpsi_hat/dr_hat = 2 * psi_a_hat * r_n / Aminor_p`
+  - `epsi_hat = er_hat / (dpsi_hat/dr_hat)`
+
+VMEC inputs require `Aminor_p` in the `wout` file and `surface.psi_n > 0` so
+that this normalization is well defined.
 
 ## `[output]`
 
@@ -194,7 +208,7 @@ x64 = true
 
 [case]
 nu_hat = 1e-3
-epsi_hat = 1e-3
+er_hat = 1e-3
 
 [output]
 npz = "outputs/w7x_vmec.npz"
@@ -239,6 +253,9 @@ metadata, and resolved transport results.
 - `surface_b0`
 - `surface_mode_count`
 - `surface_stellarator_symmetric`
+- `surface_source_name`
+- `surface_source_size_bytes`
+- `surface_source_mtime`
 - `surface_metadata_json`
 
 Additional DKES / Boozer keys:
@@ -262,6 +279,10 @@ Additional VMEC keys:
 - `vmec_psi_a_hat`
 - `vmec_phi_edge`
 - `vmec_aminor_p`
+- `vmec_r_n`
+- `vmec_r_hat`
+- `vmec_dpsi_hat_dr_hat`
+- `vmec_dr_hat_dpsi_hat`
 - `surface_modes_m`
 - `surface_modes_n`
 - `surface_modes_b_cos`

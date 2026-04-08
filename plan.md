@@ -79,10 +79,9 @@ Important environment facts found during planning:
 - [x] Add verbose `ntx input.toml` runs and rich `.npz` outputs.
 - [x] Match the DKES path against the external local benchmark code.
 - [x] Add the first VMEC fixture, examples, docs, and regression coverage.
-- [ ] Formalize VMEC transport normalization and add a principled `er_hat` path.
-- [ ] Add a second VMEC fixture and regression family.
-- [ ] Add a second VMEC fixture and regression family.
-- [ ] Add GPU smoke/regression runs for one DKES case and one VMEC case.
+- [x] Formalize VMEC transport normalization and add a principled `er_hat` path.
+- [x] Add a second VMEC fixture and regression family.
+- [x] Add GPU smoke/regression runs for one DKES case and one VMEC case.
 
 ## Work Log
 
@@ -140,3 +139,32 @@ Important environment facts found during planning:
 - What did not:
   - Documentation and user-facing examples still need to be updated to describe the new
     QI fixture and the VMEC `er_hat` normalization explicitly.
+
+- Updated the user-facing docs and examples to match the current VMEC and GPU paths:
+  - `README.md`
+  - `docs/index.md`
+  - `docs/install.md`
+  - `docs/input-file.md`
+  - `docs/algorithm.md`
+  - `docs/examples.md`
+  - `docs/gpu.md`
+  - `examples/w7x_vmec.toml`
+  - `examples/qi_vmec_erhat.toml`
+- Added GPU regression tooling:
+  - `tests/test_gpu_smoke.py`
+  - `tests/test_gpu_scripts.py`
+  - `scripts/run_gpu_regression.py`
+  - `scripts/sh_office_gpu_smoke.sh`
+- Expanded `.npz` source-file metadata with:
+  - `surface_source_name`
+  - `surface_source_size_bytes`
+  - `surface_source_mtime`
+- Validation that worked:
+  - `ruff check .`
+  - `mypy src/ntx`
+  - `pytest -q` -> `36 passed, 2 skipped`
+  - `sphinx-build -b html docs docs/_build/html`
+- What did not:
+  - Actual GPU execution could not be validated in this local session because the available
+    JAX environment is CPU-only. The GPU tests were added and skipped cleanly, and the
+    `sh office` workflow is now scripted for the next hardware-backed run.

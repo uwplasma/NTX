@@ -9,6 +9,7 @@ The current implementation supports:
 
 - DKES-style Boozer inputs
 - VMEC `wout` inputs
+- VMEC `er_hat` normalization from `psi_a_hat`, `psi_n`, and `Aminor_p`
 - Rich terminal summaries for file-driven runs
 - compressed `.npz` outputs with geometry, metadata, diagnostics, and modes
 
@@ -27,4 +28,5 @@ install
 input-file
 algorithm
 examples
+gpu
 ```
