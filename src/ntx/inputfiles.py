@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -13,6 +12,11 @@ import numpy as np
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - exercised on Python 3.10 environments
+    import tomli as tomllib
 
 from .config import enable_x64
 from .geometry import BoozerSurface, VmecSurface, example_surface, geometry_on_grid
