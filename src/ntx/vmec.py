@@ -17,6 +17,7 @@ def load_vmec_surface(
     psi_n: float,
     vmec_radial_option: int = 0,
     vmec_nyquist_option: int = 1,
+    vmec_mode_convention: str = "reduced",
     min_bmn_to_load: float = 0.0,
 ) -> VmecSurface:
     """Load one VMEC flux surface from a `wout_*.nc` file.
@@ -78,7 +79,11 @@ def load_vmec_surface(
         base_mode_n,
         coeff_mode_m,
         coeff_mode_n,
-        int(vmec_nyquist_option),
+        nfp=nfp,
+        mpol=mpol,
+        ntor=ntor,
+        option=int(vmec_nyquist_option),
+        mode_convention=vmec_mode_convention,
     )
     b_interp = _interp_mode_columns(radial_grid, bmnc[selected_indices, 1:], target_psi_n)
     g_interp = _interp_mode_columns(radial_grid, gmnc[selected_indices, 1:], target_psi_n)
@@ -182,13 +187,48 @@ def _resolve_psi_n(psi_n_grid: np.ndarray, psi_n: float, option: int) -> float:
 
 
 def _interp_1d(x: np.ndarray, values: np.ndarray, xq: float) -> float:
-    return float(np.interp(float(xq), x, values))
+    return float(_interpolated_value(x, values, float(xq), order=2))
 
 
 def _interp_mode_columns(x: np.ndarray, values: np.ndarray, xq: float) -> np.ndarray:
     if values.ndim != 2:
         raise ValueError("expected a 2D `(mode, radius)` array")
-    return np.asarray([np.interp(float(xq), x, row) for row in values], dtype=np.float64)
+    return np.asarray(
+        [_interpolated_value(x, row, float(xq), order=2) for row in values],
+        dtype=np.float64,
+    )
+
+
+def _interpolated_value(
+    x_nodes: np.ndarray,
+    y_nodes: np.ndarray,
+    xq: float,
+    *,
+    order: int,
+) -> float:
+    if x_nodes.ndim != 1 or y_nodes.ndim != 1:
+        raise ValueError("interpolation inputs must be 1D")
+    if x_nodes.shape[0] != y_nodes.shape[0]:
+        raise ValueError("interpolation nodes and values must have the same length")
+    if x_nodes.shape[0] == 0:
+        raise ValueError("interpolation requires at least one node")
+    if x_nodes.shape[0] <= order:
+        return float(np.interp(xq, x_nodes, y_nodes))
+
+    js = int(np.argmin(np.abs(x_nodes - xq)))
+    start = js - (order - (order % 2)) // 2
+    start = max(0, min(start, x_nodes.shape[0] - (order + 1)))
+    indices = np.arange(start, start + order + 1, dtype=np.int32)
+    x_sel = x_nodes[indices]
+    y_sel = y_nodes[indices]
+
+    weights = np.ones((order + 1,), dtype=np.float64)
+    for i in range(order + 1):
+        for j in range(order + 1):
+            if i == j:
+                continue
+            weights[i] *= (xq - x_sel[j]) / (x_sel[i] - x_sel[j])
+    return float(np.dot(y_sel, weights))
 
 
 def _select_mode_set(
@@ -196,36 +236,32 @@ def _select_mode_set(
     base_mode_n: np.ndarray,
     coeff_mode_m: np.ndarray,
     coeff_mode_n: np.ndarray,
+    *,
+    nfp: int,
+    mpol: int,
+    ntor: int,
     option: int,
+    mode_convention: str,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     if option == 1:
-        if base_mode_m.shape == coeff_mode_m.shape and np.array_equal(base_mode_m, coeff_mode_m):
-            return base_mode_m, base_mode_n, np.arange(base_mode_m.size, dtype=np.int32)
-        return base_mode_m, base_mode_n, _match_mode_indices(
-            base_mode_m,
-            base_mode_n,
-            coeff_mode_m,
-            coeff_mode_n,
+        if mode_convention == "reduced":
+            if coeff_mode_m.shape[0] < base_mode_m.shape[0]:
+                raise ValueError(
+                    "VMEC Nyquist coefficient table is smaller than the reduced mode table"
+                )
+            selected_indices = np.arange(base_mode_m.size, dtype=np.int32)
+            return base_mode_m, base_mode_n, selected_indices
+        if mode_convention != "filtered_nyquist":
+            raise ValueError("vmec_mode_convention must be 'reduced' or 'filtered_nyquist'")
+        include = (np.abs(coeff_mode_m) < int(mpol)) & (
+            np.abs(coeff_mode_n / float(nfp)) <= float(ntor)
+        )
+        selected_indices = np.nonzero(include)[0].astype(np.int32)
+        return (
+            coeff_mode_m[selected_indices],
+            coeff_mode_n[selected_indices],
+            selected_indices,
         )
     if option == 2:
         return coeff_mode_m, coeff_mode_n, np.arange(coeff_mode_m.size, dtype=np.int32)
     raise ValueError("vmec_nyquist_option must be 1 or 2")
-
-
-def _match_mode_indices(
-    target_mode_m: np.ndarray,
-    target_mode_n: np.ndarray,
-    source_mode_m: np.ndarray,
-    source_mode_n: np.ndarray,
-) -> np.ndarray:
-    lookup = {
-        (int(mode_m), int(mode_n)): index
-        for index, (mode_m, mode_n) in enumerate(zip(source_mode_m, source_mode_n, strict=True))
-    }
-    indices = []
-    for mode_m, mode_n in zip(target_mode_m, target_mode_n, strict=True):
-        key = (int(mode_m), int(mode_n))
-        if key not in lookup:
-            raise ValueError(f"VMEC mode {key} not found in coefficient mode set")
-        indices.append(lookup[key])
-    return np.asarray(indices, dtype=np.int32)

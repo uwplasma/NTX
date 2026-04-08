@@ -22,6 +22,7 @@ def _load_surface_from_config(config):
         psi_n=config.surface.psi_n,
         vmec_radial_option=config.surface.vmec_radial_option,
         vmec_nyquist_option=config.surface.vmec_nyquist_option,
+        vmec_mode_convention=config.surface.vmec_mode_convention,
         min_bmn_to_load=config.surface.min_bmn_to_load,
     )
 

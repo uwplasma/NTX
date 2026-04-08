@@ -17,7 +17,7 @@ def coefficients_from_modes(
 ) -> tuple[Array, Array, Array, Array, Array]:
     """Compute `(D11, D31, D13, D33, D33_spitzer)` from modes 0, 1, and 2."""
 
-    psi_scale = geom.transport_psi_scale
+    psi_scale = geom.coefficient_psi_scale
 
     n_theta, n_zeta = geom.b.shape
     f10 = unflatten_fs(f1_modes[0], n_theta, n_zeta)

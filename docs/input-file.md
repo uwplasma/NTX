@@ -71,8 +71,14 @@ Additional VMEC keys:
   - `2`: snap to the nearest VMEC surface including endpoints
 - `vmec_nyquist_option`
   - Optional, default `1`.
-  - `1`: drop Nyquist modes
+  - `1`: use a reduced VMEC spectral set
   - `2`: keep Nyquist modes
+- `vmec_mode_convention`
+  - Optional, default `"reduced"`.
+  - `"reduced"`: use the reduced `(xm, xn)` mode table and truncate the VMEC
+    coefficient arrays to the same length
+  - `"filtered_nyquist"`: use the filtered Nyquist subset with `|m| < mpol` and
+    `|n| <= ntor` in field-period units
 - `min_bmn_to_load`
   - Optional, default `0.0`.
   - Drop modes whose `|B_mn / B00|` is below the threshold
@@ -233,6 +239,7 @@ metadata, and resolved transport results.
 - `surface_psi_n`
 - `surface_vmec_radial_option`
 - `surface_vmec_nyquist_option`
+- `surface_vmec_mode_convention`
 - `surface_min_bmn_to_load`
 - `n_theta`
 - `n_zeta`
@@ -250,6 +257,7 @@ metadata, and resolved transport results.
 - `surface_iota`
 - `surface_psi_p`
 - `surface_transport_psi_scale`
+- `surface_coefficient_psi_scale`
 - `surface_b0`
 - `surface_mode_count`
 - `surface_stellarator_symmetric`

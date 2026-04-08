@@ -421,3 +421,45 @@ Important environment facts found during planning:
     defaults to `JAX_PLATFORM_NAME=cpu`, but the archived benchmark report is
     still treated as an offline progress-tracking tool rather than a routine
     office smoke check.
+- 2026-04-08: closed the main VMEC parity gap.
+  - What worked:
+    - The remaining W7-X VMEC mismatch was traced to two separate issues in the
+      NTX VMEC path:
+      - VMEC mode selection needed an explicit convention split. NTX now
+        supports:
+        - `vmec_mode_convention = "reduced"`: reduced `(xm, xn)` table with the
+          coefficient arrays truncated by position.
+        - `vmec_mode_convention = "filtered_nyquist"`: filtered Nyquist subset
+          with `|m| < mpol` and `|n| <= ntor` in field-period units.
+      - VMEC coefficient normalization had been conflated with the `er_hat ->
+        epsi_hat` conversion scale. NTX now uses:
+        - `transport_psi_scale = dpsi_hat/dr_hat` to resolve `er_hat`.
+        - `coefficient_psi_scale = 1` for Escoto-style VMEC monoenergetic
+          outputs.
+    - VMEC radial interpolation now follows the centered quadratic Lagrange
+      stencil used in REFERENCE_EXECUTABLE instead of simple linear interpolation.
+    - After those fixes, the direct live W7-X VMEC comparison against the local
+      REFERENCE_EXECUTABLE executable closed to roundoff at the example resolution
+      (`9 x 11 x 8`, `nu_hat = 1e-3`):
+      - `epsi_hat = 0`:
+        - `D11`: `-7.03e-12`
+        - `D31`: `+1.96e-11`
+        - `D13`: `+7.05e-12`
+        - `D33`: `-1.53e-11`
+      - `er_hat = 1e-3`:
+        - `D11`: `-2.53e-15`
+        - `D31`: `-7.19e-13`
+        - `D13`: `+6.26e-14`
+        - `D33`: `-3.95e-12`
+    - The local validation suite was updated to the corrected VMEC baselines and
+      passed:
+      - `ruff check .`
+      - `mypy src/ntx`
+      - `pytest -q` -> `49 passed, 2 skipped`
+  - What did not:
+    - Some earlier VMEC regression and physics tests had been encoding the old
+      incorrect normalization. Those baselines were invalid and had to be
+      replaced rather than preserved.
+    - Coarse W7-X VMEC grids do not satisfy a small-Onsager-residual expectation.
+      That is consistent with the live REFERENCE_EXECUTABLE comparison and should not be used
+      as a physics gate at low angular / Legendre resolution.
