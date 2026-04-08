@@ -18,6 +18,8 @@ The VMEC path is covered by:
 - regression snapshots in `tests/test_vmec_regression.py`
 - scan coverage in `tests/test_vmec_scan.py`
 - standalone REFERENCE_EXECUTABLE comparison coverage through `scripts/compare_reference_executable.py`
+- standalone `sfincs_jax` geometry comparison coverage through
+  `scripts/compare_sfincs_geometry.py` and `tests/test_sfincs_vmec_geometry.py`
 
 The scan tests cover both:
 
@@ -35,10 +37,18 @@ The VMEC loader also distinguishes between:
 This distinction is covered in `tests/test_vmec.py` so changes in VMEC mode
 selection do not silently alter the active spectral set.
 
-Direct VMEC comparison against REFERENCE_EXECUTABLE is now wired up, but it is not yet a
-parity gate. The current W7-X VMEC comparison shows a substantial mismatch,
-which points to a remaining VMEC normalization or interpretation gap rather than
-to missing benchmark plumbing.
+Direct VMEC comparison against REFERENCE_EXECUTABLE is now a parity check for the reduced-mode
+VMEC convention. The current W7-X reduced-mode VMEC example closes to roundoff
+against the live REFERENCE_EXECUTABLE executable.
+
+For the `sfincs_jax` geometry comparison, NTX applies a toroidal-angle
+convention conversion before comparing arrays:
+
+- reverse the sampled zeta direction
+- flip the sign of the Jacobian reconstructed from `sfincs_jax`
+
+With that conversion, the snapped-surface filtered-Nyquist W7-X geometry arrays
+match `sfincs_jax` to roundoff.
 
 ## Archived Cross-Code Comparisons
 
@@ -108,6 +118,12 @@ one VMEC case, and writes:
 
 The current scan implementation uses a jitted batched kernel, which is the main
 throughput path for parameter scans on both CPU and GPU.
+
+NTX also now exposes a prepared-system path that caches the geometry and
+derivative blocks for repeated solves. On a local W7-X sample solve at
+`9 x 11 x 8`, the cached path reduced the steady repeated-solve wall time by
+about `1.34x` relative to rebuilding the geometry and derivative blocks for
+every solve.
 
 ## Runtime Benchmarks
 

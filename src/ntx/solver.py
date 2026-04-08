@@ -10,7 +10,7 @@ from jax import Array
 from jax.scipy.linalg import lu_factor, lu_solve
 
 from .config import enable_x64
-from .geometry import BoozerSurface, VmecSurface, geometry_on_grid
+from .geometry import BoozerSurface, GeometryOnGrid, VmecSurface, geometry_on_grid
 from .grids import GridSpec
 from .operators import (
     OperatorContext,
@@ -68,6 +68,35 @@ class TransportResult:
         }
 
 
+@dataclass(frozen=True)
+class PreparedMonoenergeticSystem:
+    """Cached geometry and derivative operators for repeated solves."""
+
+    surface: BoozerSurface | VmecSurface
+    grid: GridSpec
+    geometry: GeometryOnGrid
+    d_theta: Array
+    d_zeta: Array
+
+
+def prepare_monoenergetic_system(
+    surface: BoozerSurface | VmecSurface,
+    grid: GridSpec,
+) -> PreparedMonoenergeticSystem:
+    """Precompute geometry and derivative blocks for repeated solves."""
+
+    enable_x64(grid.x64)
+    geom = geometry_on_grid(surface, grid)
+    d_theta, d_zeta = derivative_blocks(geom)
+    return PreparedMonoenergeticSystem(
+        surface=surface,
+        grid=grid,
+        geometry=geom,
+        d_theta=d_theta,
+        d_zeta=d_zeta,
+    )
+
+
 def solve_monoenergetic(
     surface: BoozerSurface | VmecSurface,
     grid: GridSpec,
@@ -75,22 +104,45 @@ def solve_monoenergetic(
 ) -> TransportResult:
     """Solve one monoenergetic DKE case."""
 
-    enable_x64(grid.x64)
-    geom = geometry_on_grid(surface, grid)
+    prepared = prepare_monoenergetic_system(surface, grid)
+    return solve_prepared(prepared, case)
+
+
+def solve_prepared(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> TransportResult:
+    """Solve one monoenergetic case using precomputed geometry and derivatives."""
+
+    geom = prepared.geometry
+    grid = prepared.grid
     ctx = _operator_context(
-        surface,
+        prepared.surface,
         geom,
         grid,
         case.nu_hat,
         case.resolved_epsi_hat(geom.transport_psi_scale),
     )
-    d_theta, d_zeta = derivative_blocks(geom)
     s1, s3 = source_modes(ctx, grid.n_xi)
-    f1_modes, f3_modes = _solve_modes(ctx, grid.n_xi, d_theta, d_zeta, s1, s3)
+    f1_modes, f3_modes = _solve_modes(
+        ctx,
+        grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+        s1,
+        s3,
+    )
     d11, d31, d13, d33, d33_spitzer = coefficients_from_modes(
         geom, f1_modes, f3_modes, ctx.nu_hat
     )
-    residual = _residual_norm(ctx, grid.n_xi, d_theta, d_zeta, s1, f1_modes)
+    residual = _residual_norm(
+        ctx,
+        grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+        s1,
+        f1_modes,
+    )
     return TransportResult(
         D11=d11,
         D31=d31,
@@ -111,7 +163,8 @@ def solve_scan(
 ) -> list[TransportResult]:
     """Solve a Python-level scan of monoenergetic cases."""
 
-    return [solve_monoenergetic(surface, grid, case) for case in cases]
+    prepared = prepare_monoenergetic_system(surface, grid)
+    return [solve_prepared(prepared, case) for case in cases]
 
 
 def solve_monoenergetic_scan(
@@ -124,12 +177,11 @@ def solve_monoenergetic_scan(
 ) -> dict[str, Array]:
     """Vectorized scan over collisionality and radial electric field."""
 
-    enable_x64(grid.x64)
+    prepared = prepare_monoenergetic_system(surface, grid)
+    geom = prepared.geometry
     if epsi_hat is not None and er_hat is not None:
         msg = "set only one of epsi_hat or er_hat"
         raise ValueError(msg)
-    geom = geometry_on_grid(surface, grid)
-    d_theta, d_zeta = derivative_blocks(geom)
     nu_values = jnp.asarray(nu_hat, dtype=grid.jax_dtype)
     if epsi_hat is None:
         if er_hat is None:
@@ -145,9 +197,16 @@ def solve_monoenergetic_scan(
     output_shape = nu_values.shape
 
     def solve_one(nu_value, epsi_value):
-        ctx = _operator_context(surface, geom, grid, nu_value, epsi_value)
+        ctx = _operator_context(prepared.surface, geom, grid, nu_value, epsi_value)
         s1, s3 = source_modes(ctx, grid.n_xi)
-        f1_modes, f3_modes = _solve_modes(ctx, grid.n_xi, d_theta, d_zeta, s1, s3)
+        f1_modes, f3_modes = _solve_modes(
+            ctx,
+            grid.n_xi,
+            prepared.d_theta,
+            prepared.d_zeta,
+            s1,
+            s3,
+        )
         return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
 
     coeffs = jax.jit(jax.vmap(solve_one))(nu_values.ravel(), epsi_values.ravel())

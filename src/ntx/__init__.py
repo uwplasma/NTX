@@ -10,11 +10,15 @@ from .io import (
     load_magnetic_configuration_surface,
     load_vmec_surface,
 )
+from .sfincs_geometry import compare_vmec_geometry_to_sfincs
 from .solver import (
     MonoenergeticCase,
+    PreparedMonoenergeticSystem,
     TransportResult,
+    prepare_monoenergetic_system,
     solve_monoenergetic,
     solve_monoenergetic_scan,
+    solve_prepared,
 )
 from .transport import onsager_error
 
@@ -22,8 +26,10 @@ __all__ = [
     "BoozerSurface",
     "GridSpec",
     "MonoenergeticCase",
+    "PreparedMonoenergeticSystem",
     "TransportResult",
     "VmecSurface",
+    "compare_vmec_geometry_to_sfincs",
     "enable_x64",
     "example_surface",
     "load_run_config",
@@ -32,7 +38,9 @@ __all__ = [
     "load_magnetic_configuration_surface",
     "load_vmec_surface",
     "onsager_error",
+    "prepare_monoenergetic_system",
     "run_from_input_file",
     "solve_monoenergetic",
     "solve_monoenergetic_scan",
+    "solve_prepared",
 ]
