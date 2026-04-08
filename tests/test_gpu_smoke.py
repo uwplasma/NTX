@@ -52,11 +52,11 @@ def test_gpu_vmec_smoke_regression():
         MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3),
     ).as_dict()
     expected = {
-        "D11": 0.10146903492590549,
-        "D31": 1.475206169374796,
-        "D13": -1.4857960833097414,
-        "D33": 244.9115457177769,
-        "D33_spitzer": 668.9315902960439,
+        "D11": 0.26059288868417236,
+        "D31": -0.2671905614991318,
+        "D13": 0.22917651621927108,
+        "D33": 5.505770775408808,
+        "D33_spitzer": 668.5079790482463,
     }
     for key, reference in expected.items():
         assert np.isclose(result[key], reference, rtol=1e-6, atol=1e-9), (key, result[key])

@@ -6,9 +6,15 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from pathlib import Path
 
 os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 from ntx import (
     GridSpec,
@@ -27,8 +33,6 @@ from ntx.benchmarks import (
     select_monoenergetic_row,
 )
 from ntx.config import enable_x64
-
-ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
 CASE_BUILDERS = {
     "W7X-EIM": lambda: _compare_w7x_eim(),
