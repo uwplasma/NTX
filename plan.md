@@ -84,7 +84,8 @@ Important environment facts found during planning:
 - [x] Add GPU smoke/regression runs for one DKES case and one VMEC case.
 - [ ] Finish the archived cross-code benchmark campaign, with exact CIEMAT-QI
   archived solves and a clear interpretation of the DKES/SFINCS spread.
-- [ ] Push the current scan and GPU performance gains through the full office workflow.
+- [x] Push the current scan and GPU performance gains through the full office workflow.
+- [ ] Close the VMEC cross-code gap now that a direct REFERENCE_EXECUTABLE VMEC comparison path exists.
 
 ## Work Log
 
@@ -258,6 +259,79 @@ Important environment facts found during planning:
 - Office environment on 2026-04-08 after this round:
   - host: `office`
   - Python: `3.10.12`
+  
+- Added a standalone runtime benchmark runner:
+  - `/Users/rogeriojorge/local/.NTX/scripts/benchmark_against_reference_executable.py`
+  - test coverage in `tests/test_benchmark_runtime_script.py`
+- What worked:
+  - the benchmark payload now records `xla_preallocate`
+  - CPU runs no longer report phantom GPU memory usage
+  - timings explicitly block on device completion before serialization
+- What did not:
+  - the first benchmark attempt on `office` mixed CPU and GPU runs concurrently,
+    which inflated the apparent wall time for both REFERENCE_EXECUTABLE and NTX. Those numbers
+    were discarded and rerun sequentially.
+
+- Built REFERENCE_EXECUTABLE successfully on `office` using the local miniforge `qh-gpu`
+  toolchain:
+  - `gfortran`: `/home/rjorge/miniforge3/envs/qh-gpu/bin/gfortran`
+  - NetCDF Fortran include: `/home/rjorge/miniforge3/envs/qh-gpu/include`
+  - NetCDF Fortran lib: `/home/rjorge/miniforge3/envs/qh-gpu/lib`
+- What worked:
+  - same-host NTX versus REFERENCE_EXECUTABLE runtime comparisons are now reproducible on
+    `office`
+- What did not:
+  - the first build attempt ran before the REFERENCE_EXECUTABLE rsync had fully settled and
+    produced a misleading `quadpack.f` make error. Re-running the build after
+    the sync completed fixed it without any source change.
+
+- Same-host W7-X EIM runtime comparison on `office`, 2026-04-08:
+  - case: `23 x 55 x 80`, `nu_hat = 1e-5`, `er_hat = 0`
+  - REFERENCE_EXECUTABLE CPU wall: `4.2915 s`
+  - NTX CPU first run: `13.5266 s`
+  - NTX CPU steady run: `8.9925 s`
+  - NTX CPU RSS: `2151912 KiB`
+  - REFERENCE_EXECUTABLE CPU RSS: `201944 KiB`
+  - NTX/REFERENCE_EXECUTABLE steady CPU runtime ratio: `2.095x`
+  - NTX/REFERENCE_EXECUTABLE CPU RSS ratio: `10.656x`
+  - NTX GPU first run with `XLA_PYTHON_CLIENT_PREALLOCATE=false`: `10.6983 s`
+  - NTX GPU steady run with `XLA_PYTHON_CLIENT_PREALLOCATE=false`: `4.3680 s`
+  - NTX GPU sampled memory: `740 MiB`
+  - NTX/REFERENCE_EXECUTABLE steady GPU runtime ratio: `0.873x`
+- What worked:
+  - NTX on GPU is now slightly faster than REFERENCE_EXECUTABLE CPU for this representative
+    W7-X EIM benchmark case on the same machine.
+  - the DKES coefficients remain matched to the external reference to roundoff.
+- What did not:
+  - NTX CPU remains materially slower and much heavier in host memory than
+    REFERENCE_EXECUTABLE for the same case.
+
+- Tested one additional CPU tuning on `office`:
+  - `OMP_NUM_THREADS=1`
+  - `XLA_FLAGS="--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"`
+- Result:
+  - first run: `18.98 s`
+  - steady run: `15.18 s`
+  - RSS: `2151408 KiB`
+- Interpretation:
+  - forcing single-threaded CPU execution is a regression for NTX on this case
+    and does not materially reduce host memory use.
+
+- Extended the standalone REFERENCE_EXECUTABLE comparison script to accept VMEC inputs by
+  staging `VMEC.nc`, writing `reference_executable_input.surface`, and passing the resolved
+  NTX `epsi_hat` to REFERENCE_EXECUTABLE.
+- Added VMEC comparison coverage in `tests/test_reference_executable_script.py`.
+- Updated the VMEC loader so:
+  - `vmec_nyquist_option = 1` uses the primary VMEC mode set
+  - `vmec_nyquist_option = 2` uses the full Nyquist mode set
+- What worked:
+  - the VMEC comparison path now runs cleanly instead of being blocked by input
+    staging
+  - tests now pin the distinction between the primary and Nyquist VMEC mode sets
+- What did not:
+  - direct W7-X VMEC comparison against REFERENCE_EXECUTABLE still shows a large mismatch, so
+    the VMEC physics/normalization path is still not validated to the same level
+    as DKES.
   - JAX: `0.6.2`
 
 - Audited the archived benchmark parser against the vendored thesis tables and

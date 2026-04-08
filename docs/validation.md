@@ -17,11 +17,25 @@ The VMEC path is covered by:
 - QI-specific checks in `tests/test_vmec_qi.py`
 - regression snapshots in `tests/test_vmec_regression.py`
 - scan coverage in `tests/test_vmec_scan.py`
+- standalone REFERENCE_EXECUTABLE comparison coverage through `scripts/compare_reference_executable.py`
 
 The scan tests cover both:
 
 - loop-versus-scan agreement
 - `er_hat` versus explicit `epsi_hat` agreement on VMEC surfaces
+
+The VMEC loader also distinguishes between:
+
+- `vmec_nyquist_option = 1`: primary VMEC mode set
+- `vmec_nyquist_option = 2`: full Nyquist mode set
+
+This distinction is covered in `tests/test_vmec.py` so changes in VMEC mode
+selection do not silently alter the active spectral set.
+
+Direct VMEC comparison against REFERENCE_EXECUTABLE is now wired up, but it is not yet a
+parity gate. The current W7-X VMEC comparison shows a substantial mismatch,
+which points to a remaining VMEC normalization or interpretation gap rather than
+to missing benchmark plumbing.
 
 ## Archived Cross-Code Comparisons
 
@@ -91,3 +105,34 @@ one VMEC case, and writes:
 
 The current scan implementation uses a jitted batched kernel, which is the main
 throughput path for parameter scans on both CPU and GPU.
+
+## Runtime Benchmarks
+
+Run:
+
+```bash
+python scripts/benchmark_against_reference_executable.py --case w7x_eim_er0 --platform cpu
+python scripts/benchmark_against_reference_executable.py --case w7x_eim_er0 --platform gpu --disable-preallocate
+```
+
+On `office` on 2026-04-08, for the W7-X EIM `23 x 55 x 80` case at
+`nu_hat = 1e-5`, `er_hat = 0`:
+
+- CPU, same host:
+  - REFERENCE_EXECUTABLE wall time: about `4.29 s`
+  - NTX first run: about `13.53 s`
+  - NTX steady run: about `8.99 s`
+  - NTX/REFERENCE_EXECUTABLE steady runtime ratio: about `2.10x`
+  - NTX/REFERENCE_EXECUTABLE RSS ratio: about `10.66x`
+- GPU, same host, with `XLA_PYTHON_CLIENT_PREALLOCATE=false`:
+  - REFERENCE_EXECUTABLE wall time: about `5.00 s`
+  - NTX first run: about `10.70 s`
+  - NTX steady run: about `4.37 s`
+  - NTX/REFERENCE_EXECUTABLE steady runtime ratio: about `0.87x`
+  - sampled NTX GPU memory: about `740 MiB`
+
+One CPU tuning attempt that did **not** help:
+
+- forcing single-thread CPU execution with
+  `OMP_NUM_THREADS=1 XLA_FLAGS="--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"`
+  made NTX slower on `office` and did not materially reduce RSS.

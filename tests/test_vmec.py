@@ -58,8 +58,16 @@ def test_qi_vmec_surface_loads_with_expected_normalization():
     assert surface.r_n == pytest.approx(0.12247, rel=1e-8)
     assert surface.r_hat == pytest.approx(surface.aminor_p * surface.r_n)
     assert surface.loaded_mode_count == 72
-    assert surface.total_mode_count == 162
+    assert surface.total_mode_count == 72
     assert surface.transport_psi_scale == pytest.approx(surface.dpsi_hat_dr_hat)
+
+
+def test_vmec_nyquist_option_switches_total_mode_count():
+    primary = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, vmec_nyquist_option=1)
+    nyquist = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, vmec_nyquist_option=2)
+    assert primary.total_mode_count == 288
+    assert nyquist.total_mode_count == 574
+    assert primary.loaded_mode_count < nyquist.loaded_mode_count
 
 
 def test_vmec_surface_resolves_er_hat_from_transport_scale():
