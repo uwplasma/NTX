@@ -68,6 +68,28 @@ The implementation is written as pure JAX/Numpy-style array code:
 - x64 mode for physics runs
 - dense linear solves through JAX SciPy wrappers
 
+NTX now distinguishes between:
+
+- a file-driven CLI layer for terminal runs and serialized outputs
+- a differentiable imported core for JAX-native use
+
+The imported core supports:
+
+- `jit` over Boozer-surface arguments
+- gradients with respect to `nu_hat`
+- gradients with respect to `er_hat`
+- gradients with respect to surface Fourier coefficients
+
+The current differentiable VMEC story is intentionally split:
+
+- the file loader is not differentiable
+- the downstream operator assembly and solve are differentiable once a
+  `VmecSurface` object with JAX arrays already exists
+
+This split is the right foundation for coupling NTX to upstream JAX equilibrium
+or geometry providers without forcing the CLI/file path to carry autodiff
+constraints.
+
 ## Geometry
 
 NTX supports two surface families:
@@ -121,6 +143,14 @@ Each solve returns:
 - transport coefficients
 - `residual_l2`
 - `onsager_residual = |D13 + D31|`
+
+The imported low-level interface also exposes:
+
+- `solve_monoenergetic_internal(surface, grid, case) -> (Dij, f, s)`
+- `solve_prepared_internal(prepared, case) -> (Dij, f, s)`
+
+where `f` and `s` are the retained low-order internal systems needed for the
+monoenergetic coefficient evaluation.
 
 For file-driven runs, NTX also writes geometry statistics, surface metadata, and
 algorithm metadata into the output `.npz`.

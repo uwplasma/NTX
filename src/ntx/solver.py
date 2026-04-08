@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 import jax
 import jax.numpy as jnp
-from jax import Array
+from jax import Array, tree_util
 from jax.scipy.linalg import lu_factor, lu_solve
 
 from .config import enable_x64
@@ -31,18 +31,23 @@ class MonoenergeticCase:
     epsi_hat: float | None = None
     er_hat: float | None = None
 
-    def resolved_epsi_hat(self, transport_psi_scale: float | None) -> float:
+    def resolved_epsi_hat(self, transport_psi_scale: float | Array | None) -> Array:
         if self.epsi_hat is not None and self.er_hat is not None:
             msg = "set only one of epsi_hat or er_hat"
             raise ValueError(msg)
         if self.epsi_hat is not None:
-            return float(self.epsi_hat)
+            return jnp.asarray(self.epsi_hat)
         if self.er_hat is not None:
             if transport_psi_scale is None:
                 msg = "er_hat requires a surface with a transport normalization scale"
                 raise ValueError(msg)
-            return float(self.er_hat) / float(transport_psi_scale)
-        return 0.0
+            return jnp.asarray(self.er_hat) / jnp.asarray(transport_psi_scale)
+        if transport_psi_scale is not None:
+            return jnp.zeros_like(jnp.asarray(transport_psi_scale))
+        return jnp.asarray(0.0)
+
+
+tree_util.register_dataclass(MonoenergeticCase)
 
 
 @dataclass(frozen=True)
@@ -69,6 +74,9 @@ class TransportResult:
         }
 
 
+tree_util.register_dataclass(TransportResult)
+
+
 @dataclass(frozen=True)
 class PreparedMonoenergeticSystem:
     """Cached geometry and derivative operators for repeated solves."""
@@ -78,6 +86,9 @@ class PreparedMonoenergeticSystem:
     geometry: GeometryOnGrid
     d_theta: Array
     d_zeta: Array
+
+
+tree_util.register_dataclass(PreparedMonoenergeticSystem)
 
 
 CompiledPreparedSolver = Callable[[MonoenergeticCase], TransportResult]
@@ -112,6 +123,17 @@ def solve_monoenergetic(
     return solve_prepared(prepared, case)
 
 
+def solve_monoenergetic_internal(
+    surface: BoozerSurface | VmecSurface,
+    grid: GridSpec,
+    case: MonoenergeticCase,
+) -> tuple[Array, Array, Array]:
+    """Solve one monoenergetic case and return `(Dij, f, s)` low-order arrays."""
+
+    prepared = prepare_monoenergetic_system(surface, grid)
+    return solve_prepared_internal(prepared, case)
+
+
 def solve_prepared(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -119,6 +141,18 @@ def solve_prepared(
     """Solve one monoenergetic case using precomputed geometry and derivatives."""
 
     return _transport_result_from_arrays(_solve_prepared_arrays(prepared, case))
+
+
+def solve_prepared_internal(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> tuple[Array, Array, Array]:
+    """Solve one prepared monoenergetic case and return `(Dij, f, s)` low-order arrays."""
+
+    values = _solve_prepared_arrays(prepared, case)
+    result = _transport_result_from_arrays(values)
+    dij = _monoenergetic_matrix(result.D11, result.D31, result.D13, result.D33)
+    return dij, values[9], values[10]
 
 
 def compile_prepared_solver(
@@ -214,6 +248,8 @@ def _solve_prepared_arrays_from_values(
         f3_modes,
         residual,
         onsager_error(d31, d13),
+        _stack_internal_systems(f1_modes, f3_modes),
+        _stack_internal_systems(s1[:3], s3[:3]),
     )
 
 
@@ -226,6 +262,20 @@ def solve_scan(
 
     prepared = prepare_monoenergetic_system(surface, grid)
     return [solve_prepared(prepared, case) for case in cases]
+
+
+def _stack_internal_systems(primary: Array, parallel: Array) -> Array:
+    return jnp.stack((primary, primary, parallel))
+
+
+def _monoenergetic_matrix(d11: Array, d31: Array, d13: Array, d33: Array) -> Array:
+    return jnp.asarray(
+        [
+            [d11, d11, d13],
+            [d11, d11, d13],
+            [d31, d31, d33],
+        ]
+    )
 
 
 def solve_monoenergetic_scan(

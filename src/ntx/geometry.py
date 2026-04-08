@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import jax.numpy as jnp
-from jax import Array
+from jax import Array, tree_util
 
 from .grids import AngularGrid, flux_surface_average, periodic_grid
 
@@ -33,6 +33,24 @@ class BoozerSurface:
         if len(self.m) != len(self.n) or len(self.m) != len(self.b_cos):
             msg = "m, n, and b_cos must have the same length"
             raise ValueError(msg)
+
+
+tree_util.register_dataclass(
+    BoozerSurface,
+    data_fields=(
+        "m",
+        "n",
+        "b_cos",
+        "iota",
+        "psi_p",
+        "b_theta",
+        "b_zeta",
+        "chi_p",
+        "b0",
+        "b_sin",
+    ),
+    meta_fields=("nfp", "stellarator_symmetric", "source_path"),
+)
 
 
 @dataclass(frozen=True)
@@ -85,6 +103,44 @@ class VmecSurface:
                 raise ValueError(msg)
 
 
+tree_util.register_dataclass(
+    VmecSurface,
+    data_fields=(
+        "requested_psi_n",
+        "psi_n",
+        "nfp",
+        "iota",
+        "m",
+        "n",
+        "b_cos",
+        "jacobian_cos",
+        "b_sub_theta_cos",
+        "b_sub_zeta_cos",
+        "b_sup_theta_cos",
+        "b_sup_zeta_cos",
+        "b0",
+        "psi_a_hat",
+        "phi_edge",
+        "r_n",
+        "r_hat",
+        "dpsi_hat_dr_hat",
+        "dr_hat_dpsi_hat",
+        "aminor_p",
+        "psi_p",
+        "transport_psi_scale",
+    ),
+    meta_fields=(
+        "path",
+        "ns",
+        "mpol",
+        "ntor",
+        "total_mode_count",
+        "loaded_mode_count",
+        "stellarator_symmetric",
+    ),
+)
+
+
 @dataclass(frozen=True)
 class GeometryOnGrid:
     surface_type: str
@@ -109,6 +165,34 @@ class GeometryOnGrid:
     b2_mean: Array
     radial_drift_spatial: Array
     b0: Array
+
+
+tree_util.register_dataclass(
+    GeometryOnGrid,
+    data_fields=(
+        "nfp",
+        "iota",
+        "psi_p",
+        "transport_psi_scale",
+        "coefficient_psi_scale",
+        "grid",
+        "theta_2d",
+        "zeta_2d",
+        "b",
+        "d_b_dtheta",
+        "d_b_dzeta",
+        "jacobian",
+        "b_sub_theta",
+        "b_sub_zeta",
+        "b_sup_theta",
+        "b_sup_zeta",
+        "volume_prime",
+        "b2_mean",
+        "radial_drift_spatial",
+        "b0",
+    ),
+    meta_fields=("surface_type", "surface_path"),
+)
 
 
 def example_surface(dtype=jnp.float64) -> BoozerSurface:

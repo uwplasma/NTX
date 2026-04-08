@@ -19,8 +19,10 @@ from .solver import (
     compile_prepared_solver,
     prepare_monoenergetic_system,
     solve_monoenergetic,
+    solve_monoenergetic_internal,
     solve_monoenergetic_scan,
     solve_prepared,
+    solve_prepared_internal,
 )
 from .transport import onsager_error
 
@@ -45,6 +47,8 @@ __all__ = [
     "prepare_monoenergetic_system",
     "run_from_input_file",
     "solve_monoenergetic",
+    "solve_monoenergetic_internal",
     "solve_monoenergetic_scan",
     "solve_prepared",
+    "solve_prepared_internal",
 ]

@@ -91,6 +91,9 @@ Important environment facts found during planning:
   making compiled mode explicit.
 - [x] Reduce runtime-benchmark test cost by introducing a dedicated smoke
   benchmark case instead of reusing a production-sized case in tests.
+- [x] Prove that the imported NTX core can differentiate through Boozer solves.
+- [ ] Add a pure-JAX in-memory monoenergetic database builder for NEOPAX.
+- [ ] Add a differentiable VMEC array-builder path separate from the file loader.
 
 ## Work Log
 
@@ -258,6 +261,42 @@ Important environment facts found during planning:
   - The single-case dense solve path is still the dominant cost for archived
     high-resolution DKES comparisons, so the current performance gain helps scans
     more than it helps the hardest benchmark configurations.
+
+- Audited the differentiability requirements against:
+  - `/Users/rogeriojorge/local/tests/NEOPAX`
+  - `/Users/rogeriojorge/local/tests/reference_executable_f0`
+- Confirmed the key NEOPAX integration point is still the monoenergetic
+  database abstraction in `NEOPAX/_database.py`, and that the commented
+  lower-level path there expects a Python-callable monoenergetic solver similar
+  to `reference_executable._core.monoenergetic_dke_solve_internal(...)`.
+- Local autodiff probes showed:
+  - gradients through Boozer Fourier coefficients already worked in NTX
+  - gradients through `nu_hat` already worked
+  - gradients through `er_hat` failed only because `solver.py` converted traced
+    values with `float(...)`
+  - `solve_monoenergetic_scan(...)` already differentiated through `er_hat`
+  - `jax.jit` over a surface argument failed because the NTX surface/config
+    dataclasses were not registered as pytrees
+- Implemented the first differentiable-core pass:
+  - registered `GridSpec`, `AngularGrid`, `BoozerSurface`, `VmecSurface`,
+    `GeometryOnGrid`, `MonoenergeticCase`, `TransportResult`, and
+    `PreparedMonoenergeticSystem` as JAX dataclass pytrees
+  - removed tracer-breaking scalar coercions from the core `er_hat ->
+    epsi_hat` resolution path
+  - added `solve_monoenergetic_internal(...) -> (Dij, f, s)`
+  - added `solve_prepared_internal(...) -> (Dij, f, s)`
+- Validation that worked:
+  - `grad` through `er_hat`
+  - `grad` through `nu_hat`
+  - `grad` through Boozer `b_cos`
+  - `jit` over a Boozer surface argument in the imported solver path
+  - local tests in `tests/test_solver.py`
+- What did not:
+  - the VMEC file loader remains non-differentiable by design because it still
+    uses SciPy/NumPy file parsing, Python interpolation, and scalar coercions
+  - this means the correct next step is not to force autodiff through the file
+    loader, but to add a separate pure-JAX VMEC-array builder for in-memory use
+    in higher-level JAX workflows
 
 - Revalidated the updated code on the office GPU machine after the packaging,
   scan, and benchmark-script changes.
