@@ -13,3 +13,4 @@ docs/_build/
 benchmark-output/
 *.dat
 !tests/fixtures/*.dat
+!tests/fixtures/benchmarks/**/*.dat
