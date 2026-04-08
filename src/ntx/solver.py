@@ -10,7 +10,7 @@ from jax import Array
 from jax.scipy.linalg import lu_factor, lu_solve
 
 from .config import enable_x64
-from .geometry import BoozerSurface, geometry_on_grid
+from .geometry import BoozerSurface, VmecSurface, geometry_on_grid
 from .grids import GridSpec
 from .operators import (
     OperatorContext,
@@ -30,14 +30,17 @@ class MonoenergeticCase:
     epsi_hat: float | None = None
     er_hat: float | None = None
 
-    def resolved_epsi_hat(self, surface: BoozerSurface) -> float:
+    def resolved_epsi_hat(self, psi_p: float | None) -> float:
         if self.epsi_hat is not None and self.er_hat is not None:
             msg = "set only one of epsi_hat or er_hat"
             raise ValueError(msg)
         if self.epsi_hat is not None:
             return float(self.epsi_hat)
         if self.er_hat is not None:
-            return float(self.er_hat) / float(surface.psi_p)
+            if psi_p is None:
+                msg = "er_hat requires a surface with psi_p; use epsi_hat for VMEC inputs"
+                raise ValueError(msg)
+            return float(self.er_hat) / float(psi_p)
         return 0.0
 
 
@@ -66,7 +69,7 @@ class TransportResult:
 
 
 def solve_monoenergetic(
-    surface: BoozerSurface,
+    surface: BoozerSurface | VmecSurface,
     grid: GridSpec,
     case: MonoenergeticCase,
 ) -> TransportResult:
@@ -78,13 +81,13 @@ def solve_monoenergetic(
         surface=surface,
         geometry=geom,
         nu_hat=jnp.asarray(case.nu_hat, dtype=grid.jax_dtype),
-        epsi_hat=jnp.asarray(case.resolved_epsi_hat(surface), dtype=grid.jax_dtype),
+        epsi_hat=jnp.asarray(case.resolved_epsi_hat(geom.psi_p), dtype=grid.jax_dtype),
     )
     d_theta, d_zeta = derivative_blocks(geom)
     s1, s3 = source_modes(ctx, grid.n_xi)
     f1_modes, f3_modes = _solve_modes(ctx, grid.n_xi, d_theta, d_zeta, s1, s3)
     d11, d31, d13, d33, d33_spitzer = coefficients_from_modes(
-        geom, surface.psi_p, f1_modes, f3_modes, ctx.nu_hat
+        geom, f1_modes, f3_modes, ctx.nu_hat
     )
     residual = _residual_norm(ctx, grid.n_xi, d_theta, d_zeta, s1, f1_modes)
     return TransportResult(
@@ -101,7 +104,7 @@ def solve_monoenergetic(
 
 
 def solve_scan(
-    surface: BoozerSurface,
+    surface: BoozerSurface | VmecSurface,
     grid: GridSpec,
     cases: tuple[MonoenergeticCase, ...],
 ) -> list[TransportResult]:
@@ -111,7 +114,7 @@ def solve_scan(
 
 
 def solve_monoenergetic_scan(
-    surface: BoozerSurface,
+    surface: BoozerSurface | VmecSurface,
     grid: GridSpec,
     nu_hat: Array,
     *,
@@ -131,7 +134,10 @@ def solve_monoenergetic_scan(
         if er_hat is None:
             epsi_values = jnp.zeros_like(nu_values)
         else:
-            epsi_values = jnp.asarray(er_hat, dtype=grid.jax_dtype) / surface.psi_p
+            if geom.psi_p is None:
+                msg = "er_hat scans require a surface with psi_p; use epsi_hat for VMEC inputs"
+                raise ValueError(msg)
+            epsi_values = jnp.asarray(er_hat, dtype=grid.jax_dtype) / geom.psi_p
     else:
         epsi_values = jnp.asarray(epsi_hat, dtype=grid.jax_dtype)
     nu_values, epsi_values = jnp.broadcast_arrays(nu_values, epsi_values)
@@ -146,9 +152,7 @@ def solve_monoenergetic_scan(
         )
         s1, s3 = source_modes(ctx, grid.n_xi)
         f1_modes, f3_modes = _solve_modes(ctx, grid.n_xi, d_theta, d_zeta, s1, s3)
-        return jnp.stack(
-            coefficients_from_modes(geom, surface.psi_p, f1_modes, f3_modes, nu_value)
-        )
+        return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
 
     coeffs = jax.vmap(solve_one)(nu_values.ravel(), epsi_values.ravel())
     coeffs = coeffs.reshape((*output_shape, 5))

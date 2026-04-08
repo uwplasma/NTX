@@ -12,7 +12,6 @@ import numpy as np
 def _write_input_toml(tmp_path: Path, *, verbose: bool) -> Path:
     root = Path(__file__).resolve().parents[1]
     dkes = root / "tests" / "fixtures" / "w7x_eim_sample.ddkes2.data"
-    table = root / "tests" / "fixtures" / "reference_executable_reference_sample.dat"
     input_path = tmp_path / "run.toml"
     input_path.write_text(
         "\n".join(
@@ -34,9 +33,6 @@ def _write_input_toml(tmp_path: Path, *, verbose: bool) -> Path:
                 'npz = "results.npz"',
                 "include_modes = true",
                 "",
-                "[benchmark]",
-                f'reference_table = "{table}"',
-                "",
                 "[logging]",
                 f"verbose = {'true' if verbose else 'false'}",
                 "",
@@ -47,9 +43,13 @@ def _write_input_toml(tmp_path: Path, *, verbose: bool) -> Path:
     return input_path
 
 
-def test_cli_example_solve_runs():
+def _env() -> dict[str, str]:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+    return env
+
+
+def test_cli_example_solve_runs():
     proc = subprocess.run(
         [
             sys.executable,
@@ -69,20 +69,16 @@ def test_cli_example_solve_runs():
         check=True,
         text=True,
         capture_output=True,
-        env=env,
+        env=_env(),
     )
     payload = json.loads(proc.stdout)
     assert "D11" in payload
 
 
-def test_cli_dkes_solve_and_benchmark_runs():
-    env = os.environ.copy()
+def test_cli_dkes_solve_runs():
     root = Path(__file__).resolve().parents[1]
-    env["PYTHONPATH"] = str(root / "src")
     dkes = root / "tests" / "fixtures" / "w7x_eim_sample.ddkes2.data"
-    table = root / "tests" / "fixtures" / "reference_executable_reference_sample.dat"
-
-    solve_proc = subprocess.run(
+    proc = subprocess.run(
         [
             sys.executable,
             "-m",
@@ -102,53 +98,20 @@ def test_cli_dkes_solve_and_benchmark_runs():
         check=True,
         text=True,
         capture_output=True,
-        env=env,
+        env=_env(),
     )
-    solve_payload = json.loads(solve_proc.stdout)
-    assert "D33" in solve_payload
-
-    benchmark_proc = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "ntx.cli",
-            "benchmark",
-            "--dkes",
-            str(dkes),
-            str(table),
-            "--nu-hat",
-            "1e-5",
-            "--er-hat",
-            "1e-3",
-            "--n-theta",
-            "5",
-            "--n-zeta",
-            "5",
-            "--n-xi",
-            "4",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-        env=env,
-    )
-    benchmark_payload = json.loads(benchmark_proc.stdout)
-    assert "reference" in benchmark_payload
-    assert "ntx_minus_reference" in benchmark_payload
+    payload = json.loads(proc.stdout)
+    assert "D33" in payload
 
 
 def test_cli_input_file_runs_and_writes_npz(tmp_path):
-    env = os.environ.copy()
-    root = Path(__file__).resolve().parents[1]
-    env["PYTHONPATH"] = str(root / "src")
     input_path = _write_input_toml(tmp_path, verbose=True)
-
     proc = subprocess.run(
         [sys.executable, "-m", "ntx.cli", str(input_path)],
         check=True,
         text=True,
         capture_output=True,
-        env=env,
+        env=_env(),
     )
 
     output_npz = tmp_path / "results.npz"
@@ -157,5 +120,5 @@ def test_cli_input_file_runs_and_writes_npz(tmp_path):
     with np.load(output_npz) as data:
         assert "D11" in data
         assert "f1_modes" in data
-        assert "reference_D11" in data
-        assert "delta_D11" in data
+        assert "b" in data
+        assert "epsi_hat_resolved" in data

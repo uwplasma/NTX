@@ -36,6 +36,25 @@ def test_uniform_field_source_has_no_radial_drift():
     assert jnp.allclose(s3[1], 1.0)
 
 
+def test_parallel_source_uses_b_not_b_over_b0():
+    spec = GridSpec(5, 5, 4)
+    surface = BoozerSurface(
+        m=jnp.asarray([0]),
+        n=jnp.asarray([0]),
+        b_cos=jnp.asarray([2.0]),
+        nfp=1,
+        iota=0.6,
+        psi_p=1.0,
+        b_theta=0.1,
+        b_zeta=1.0,
+        b0=2.0,
+    )
+    geom = geometry_on_grid(surface, spec)
+    ctx = OperatorContext(surface, geom, jnp.asarray(1e-2), jnp.asarray(0.0))
+    _, s3 = source_modes(ctx, spec.n_xi)
+    assert jnp.allclose(s3[1], 2.0)
+
+
 def test_nullspace_condition_replaces_first_row():
     matrix = jnp.ones((4, 4))
     upper = jnp.ones((4, 4))

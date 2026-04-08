@@ -7,13 +7,13 @@ from dataclasses import dataclass
 import jax.numpy as jnp
 from jax import Array
 
-from .geometry import BoozerSurface, GeometryOnGrid
+from .geometry import BoozerSurface, GeometryOnGrid, VmecSurface
 from .grids import flatten_fs
 
 
 @dataclass(frozen=True)
 class OperatorContext:
-    surface: BoozerSurface
+    surface: BoozerSurface | VmecSurface
     geometry: GeometryOnGrid
     nu_hat: Array
     epsi_hat: Array
@@ -34,12 +34,10 @@ def derivative_blocks(geom: GeometryOnGrid) -> tuple[Array, Array]:
 def coefficients_for_k(ctx: OperatorContext, k: int | Array) -> tuple[Array, Array, Array]:
     """Return coefficient arrays for lower, diagonal, and upper blocks."""
 
-    s = ctx.surface
     g = ctx.geometry
     b = g.b
-    denom = s.b_zeta + s.iota * s.b_theta
-    bu = s.iota / g.jacobian
-    bv = 1.0 / g.jacobian
+    bu = g.b_sup_theta
+    bv = g.b_sup_zeta
     bdot_grad_b = bv * g.d_b_dzeta + bu * g.d_b_dtheta
 
     kf = jnp.asarray(k, dtype=b.dtype)
@@ -49,8 +47,8 @@ def coefficients_for_k(ctx: OperatorContext, k: int | Array) -> tuple[Array, Arr
         "value": (kf * (kf - 1.0)) * bdot_grad_b / (2.0 * (2.0 * kf - 1.0) * b**2),
     }
     diagonal = {
-        "theta": -ctx.epsi_hat * s.b_zeta / (g.jacobian * g.b2_mean),
-        "zeta": ctx.epsi_hat * s.b_theta / (g.jacobian * g.b2_mean),
+        "theta": -ctx.epsi_hat * g.b_sub_zeta / (g.jacobian * g.b2_mean),
+        "zeta": ctx.epsi_hat * g.b_sub_theta / (g.jacobian * g.b2_mean),
         "value": 0.5 * ctx.nu_hat * kf * (kf + 1.0) * jnp.ones_like(b),
     }
     upper = {
@@ -60,7 +58,6 @@ def coefficients_for_k(ctx: OperatorContext, k: int | Array) -> tuple[Array, Arr
             2.0 * (2.0 * kf + 3.0) * b**2
         ),
     }
-    _ = denom
     return _pack(lower), _pack(diagonal), _pack(upper)
 
 
@@ -123,5 +120,5 @@ def source_modes(ctx: OperatorContext, n_xi: int) -> tuple[Array, Array]:
     s1 = s1.at[0].set(-flatten_fs(vm0))
     s1 = s1.at[2].set(-flatten_fs(vm2))
     s1 = s1.at[0, 0].set(0.0)
-    s3 = s3.at[1].set(flatten_fs(b / ctx.geometry.b0))
+    s3 = s3.at[1].set(flatten_fs(b))
     return s1, s3

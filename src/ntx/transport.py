@@ -11,12 +11,16 @@ from .grids import unflatten_fs
 
 def coefficients_from_modes(
     geom: GeometryOnGrid,
-    psi_p: float,
     f1_modes: Array,
     f3_modes: Array,
     nu_hat: Array,
 ) -> tuple[Array, Array, Array, Array, Array]:
     """Compute `(D11, D31, D13, D33, D33_spitzer)` from modes 0, 1, and 2."""
+
+    if geom.psi_p is None:
+        msg = "transport coefficients require a geometry with psi_p"
+        raise ValueError(msg)
+    psi_p = geom.psi_p
 
     n_theta, n_zeta = geom.b.shape
     f10 = unflatten_fs(f1_modes[0], n_theta, n_zeta)

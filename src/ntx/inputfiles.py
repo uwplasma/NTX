@@ -13,11 +13,21 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from .benchmarks import coefficient_errors, nearest_reference_row, read_monoenergetic_table
-from .geometry import BoozerSurface, example_surface
+from .config import enable_x64
+from .geometry import BoozerSurface, VmecSurface, example_surface, geometry_on_grid
 from .grids import GridSpec
-from .io import load_dkes_surface
+from .io import load_dkes_surface, load_vmec_surface
 from .solver import MonoenergeticCase, TransportResult, solve_monoenergetic
+
+
+@dataclass(frozen=True)
+class SurfaceSpec:
+    type: str
+    path: Path | None = None
+    psi_n: float | None = None
+    vmec_radial_option: int = 0
+    vmec_nyquist_option: int = 1
+    min_bmn_to_load: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -27,19 +37,12 @@ class OutputSpec:
 
 
 @dataclass(frozen=True)
-class BenchmarkSpec:
-    reference_table: Path | None = None
-
-
-@dataclass(frozen=True)
 class RunConfig:
     input_path: Path
-    surface_type: str
-    surface_path: Path | None
+    surface: SurfaceSpec
     grid: GridSpec
     case: MonoenergeticCase
     output: OutputSpec
-    benchmark: BenchmarkSpec
     verbose: bool = True
 
 
@@ -54,7 +57,6 @@ def load_run_config(path: str | Path) -> RunConfig:
     grid_data = _get_table(data, "grid")
     case_data = _get_table(data, "case")
     output_data = _get_optional_table(data, "output")
-    benchmark_data = _get_optional_table(data, "benchmark")
     logging_data = _get_optional_table(data, "logging")
 
     surface_type = str(surface_data.get("type", "dkes"))
@@ -64,8 +66,12 @@ def load_run_config(path: str | Path) -> RunConfig:
         if surface_path_value is None
         else _resolve_relative_path(input_path, Path(str(surface_path_value)))
     )
-    if surface_type == "dkes" and surface_path is None:
-        msg = "surface.path is required when surface.type = 'dkes'"
+    if surface_type in {"dkes", "vmec"} and surface_path is None:
+        msg = f"surface.path is required when surface.type = {surface_type!r}"
+        raise ValueError(msg)
+    psi_n = _optional_float(surface_data.get("psi_n"))
+    if surface_type == "vmec" and psi_n is None:
+        msg = "surface.psi_n is required when surface.type = 'vmec'"
         raise ValueError(msg)
 
     grid = GridSpec(
@@ -85,22 +91,19 @@ def load_run_config(path: str | Path) -> RunConfig:
         npz=_resolve_relative_path(input_path, Path(str(output_npz_value))),
         include_modes=bool(output_data.get("include_modes", True)),
     )
-    benchmark_table = benchmark_data.get("reference_table")
-    benchmark = BenchmarkSpec(
-        reference_table=(
-            None
-            if benchmark_table is None
-            else _resolve_relative_path(input_path, Path(str(benchmark_table)))
-        )
-    )
     return RunConfig(
         input_path=input_path,
-        surface_type=surface_type,
-        surface_path=surface_path,
+        surface=SurfaceSpec(
+            type=surface_type,
+            path=surface_path,
+            psi_n=psi_n,
+            vmec_radial_option=int(surface_data.get("vmec_radial_option", 0)),
+            vmec_nyquist_option=int(surface_data.get("vmec_nyquist_option", 1)),
+            min_bmn_to_load=float(surface_data.get("min_bmn_to_load", 0.0)),
+        ),
         grid=grid,
         case=case,
         output=output,
-        benchmark=benchmark,
         verbose=bool(logging_data.get("verbose", True)),
     )
 
@@ -123,86 +126,79 @@ def run_from_input_file(
             )
         )
 
-    surface = _load_surface(config)
+    enable_x64(config.grid.x64)
+    surface = _load_surface(config.surface)
     if config.verbose:
         console.print(_surface_table(surface, config))
-        console.print(_case_table(config))
+        console.print(_case_table(config, surface))
         console.print("[bold green]Solving monoenergetic system...[/bold green]")
 
     result = solve_monoenergetic(surface, config.grid, config.case)
     result_dict = result.as_dict()
-
-    reference_row: np.void | None = None
-    comparison: dict[str, float] | None = None
-    if config.benchmark.reference_table is not None:
-        if config.verbose:
-            console.print(
-                f"[bold blue]Loading reference table[/bold blue] "
-                f"[cyan]{config.benchmark.reference_table}[/cyan]"
-            )
-        table = read_monoenergetic_table(config.benchmark.reference_table)
-        reference_row = nearest_reference_row(
-            table,
-            config.case.nu_hat,
-            0.0 if config.case.er_hat is None else config.case.er_hat,
-        )
-        comparison = coefficient_errors(result_dict, reference_row)
-
-    save_run_npz(
-        config.output.npz,
-        config,
-        surface,
-        result,
-        reference_row=reference_row,
-        comparison=comparison,
-    )
+    save_run_npz(config.output.npz, config, surface, result)
 
     if config.verbose:
         console.print(_result_table(result_dict))
-        if reference_row is not None and comparison is not None:
-            console.print(_comparison_table(reference_row, comparison))
         console.print(f"[bold green]Wrote[/bold green] [cyan]{config.output.npz}[/cyan]")
 
     return {
         "result": result_dict,
         "output_npz": str(config.output.npz),
-        "comparison": comparison,
     }
 
 
 def save_run_npz(
     path: str | Path,
     config: RunConfig,
-    surface: BoozerSurface,
+    surface: BoozerSurface | VmecSurface,
     result: TransportResult,
-    *,
-    reference_row: np.void | None,
-    comparison: dict[str, float] | None,
 ) -> None:
-    """Save run inputs, outputs, and optional benchmark data to `.npz`."""
+    """Save run inputs, outputs, and resolved geometry to `.npz`."""
 
     output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    geom = geometry_on_grid(surface, config.grid)
+    resolved_epsi_hat = config.case.resolved_epsi_hat(geom.psi_p)
     data: dict[str, Any] = {
         "input_path": np.asarray(str(config.input_path)),
-        "surface_type": np.asarray(config.surface_type),
-        "surface_path": np.asarray("" if config.surface_path is None else str(config.surface_path)),
+        "surface_type": np.asarray(config.surface.type),
+        "surface_path": np.asarray("" if config.surface.path is None else str(config.surface.path)),
+        "surface_psi_n": np.asarray(
+            np.nan if config.surface.psi_n is None else float(config.surface.psi_n)
+        ),
+        "surface_vmec_radial_option": np.asarray(config.surface.vmec_radial_option),
+        "surface_vmec_nyquist_option": np.asarray(config.surface.vmec_nyquist_option),
+        "surface_min_bmn_to_load": np.asarray(config.surface.min_bmn_to_load),
         "n_theta": np.asarray(config.grid.n_theta),
         "n_zeta": np.asarray(config.grid.n_zeta),
         "n_xi": np.asarray(config.grid.n_xi),
         "dtype": np.asarray(config.grid.dtype),
         "x64": np.asarray(config.grid.x64),
         "nu_hat": np.asarray(config.case.nu_hat),
-        "epsi_hat": np.asarray(
+        "epsi_hat_input": np.asarray(
             np.nan if config.case.epsi_hat is None else float(config.case.epsi_hat)
         ),
-        "er_hat": np.asarray(np.nan if config.case.er_hat is None else float(config.case.er_hat)),
-        "surface_nfp": np.asarray(surface.nfp),
-        "surface_iota": np.asarray(surface.iota),
-        "surface_psi_p": np.asarray(surface.psi_p),
-        "surface_b_theta": np.asarray(surface.b_theta),
-        "surface_b_zeta": np.asarray(surface.b_zeta),
-        "surface_b0": np.asarray(np.nan if surface.b0 is None else float(surface.b0)),
+        "er_hat_input": np.asarray(
+            np.nan if config.case.er_hat is None else float(config.case.er_hat)
+        ),
+        "epsi_hat_resolved": np.asarray(float(resolved_epsi_hat)),
+        "surface_nfp": np.asarray(geom.nfp),
+        "surface_iota": np.asarray(geom.iota),
+        "surface_psi_p": np.asarray(np.nan if geom.psi_p is None else float(geom.psi_p)),
+        "surface_b0": np.asarray(float(geom.b0)),
+        "theta_grid": np.asarray(geom.grid.theta),
+        "zeta_grid": np.asarray(geom.grid.zeta),
+        "b": np.asarray(geom.b),
+        "d_b_dtheta": np.asarray(geom.d_b_dtheta),
+        "d_b_dzeta": np.asarray(geom.d_b_dzeta),
+        "jacobian": np.asarray(geom.jacobian),
+        "b_sub_theta": np.asarray(geom.b_sub_theta),
+        "b_sub_zeta": np.asarray(geom.b_sub_zeta),
+        "b_sup_theta": np.asarray(geom.b_sup_theta),
+        "b_sup_zeta": np.asarray(geom.b_sup_zeta),
+        "radial_drift_spatial": np.asarray(geom.radial_drift_spatial),
+        "volume_prime": np.asarray(float(geom.volume_prime)),
+        "b2_mean": np.asarray(float(geom.b2_mean)),
         "D11": np.asarray(float(result.D11)),
         "D31": np.asarray(float(result.D31)),
         "D13": np.asarray(float(result.D13)),
@@ -212,26 +208,41 @@ def save_run_npz(
         "onsager_residual": np.asarray(float(result.onsager_residual)),
         "result_json": np.asarray(json.dumps(result.as_dict(), sort_keys=True)),
     }
+    if isinstance(surface, BoozerSurface):
+        data["surface_modes_m"] = np.asarray(surface.m)
+        data["surface_modes_n"] = np.asarray(surface.n)
+        data["surface_modes_b_cos"] = np.asarray(surface.b_cos)
+        data["surface_b_theta"] = np.asarray(surface.b_theta)
+        data["surface_b_zeta"] = np.asarray(surface.b_zeta)
+    if isinstance(surface, VmecSurface):
+        data["surface_modes_m"] = np.asarray(surface.m)
+        data["surface_modes_n"] = np.asarray(surface.n)
+        data["surface_modes_b_cos"] = np.asarray(surface.b_cos)
+        data["surface_modes_jacobian_cos"] = np.asarray(surface.jacobian_cos)
+        data["surface_modes_b_sub_theta_cos"] = np.asarray(surface.b_sub_theta_cos)
+        data["surface_modes_b_sub_zeta_cos"] = np.asarray(surface.b_sub_zeta_cos)
+        data["surface_modes_b_sup_theta_cos"] = np.asarray(surface.b_sup_theta_cos)
+        data["surface_modes_b_sup_zeta_cos"] = np.asarray(surface.b_sup_zeta_cos)
     if config.output.include_modes:
         data["f1_modes"] = np.asarray(result.f1_modes)
         data["f3_modes"] = np.asarray(result.f3_modes)
-    if reference_row is not None:
-        reference_names = reference_row.dtype.names
-        if reference_names is not None:
-            for name in reference_names:
-                data[f"reference_{name}"] = np.asarray(float(reference_row[name]))
-    if comparison is not None:
-        for key, value in comparison.items():
-            data[f"delta_{key}"] = np.asarray(value)
     np.savez_compressed(output_path, **data)
 
 
-def _load_surface(config: RunConfig) -> BoozerSurface:
-    if config.surface_type == "example":
+def _load_surface(spec: SurfaceSpec) -> BoozerSurface | VmecSurface:
+    if spec.type == "example":
         return example_surface()
-    if config.surface_type == "dkes" and config.surface_path is not None:
-        return load_dkes_surface(config.surface_path)
-    msg = f"unsupported surface.type {config.surface_type!r}"
+    if spec.type == "dkes" and spec.path is not None:
+        return load_dkes_surface(spec.path)
+    if spec.type == "vmec" and spec.path is not None and spec.psi_n is not None:
+        return load_vmec_surface(
+            spec.path,
+            psi_n=spec.psi_n,
+            vmec_radial_option=spec.vmec_radial_option,
+            vmec_nyquist_option=spec.vmec_nyquist_option,
+            min_bmn_to_load=spec.min_bmn_to_load,
+        )
+    msg = f"unsupported surface.type {spec.type!r}"
     raise ValueError(msg)
 
 
@@ -261,22 +272,32 @@ def _resolve_relative_path(input_path: Path, value: Path) -> Path:
     return value if value.is_absolute() else (input_path.parent / value).resolve()
 
 
-def _surface_table(surface: BoozerSurface, config: RunConfig) -> Table:
+def _surface_table(surface: BoozerSurface | VmecSurface, config: RunConfig) -> Table:
     table = Table(title="Surface", show_header=True, header_style="bold magenta")
     table.add_column("Field")
     table.add_column("Value", overflow="fold")
-    table.add_row("type", config.surface_type)
-    table.add_row("path", "-" if config.surface_path is None else str(config.surface_path))
-    table.add_row("nfp", str(surface.nfp))
-    table.add_row("iota", f"{surface.iota:.10g}")
-    table.add_row("psi_p", f"{surface.psi_p:.10g}")
-    table.add_row("B_theta", f"{surface.b_theta:.10g}")
-    table.add_row("B_zeta", f"{surface.b_zeta:.10g}")
-    table.add_row("modes", str(len(surface.m)))
+    table.add_row("type", config.surface.type)
+    table.add_row("path", "-" if config.surface.path is None else str(config.surface.path))
+    if isinstance(surface, BoozerSurface):
+        table.add_row("nfp", str(surface.nfp))
+        table.add_row("iota", f"{surface.iota:.10g}")
+        table.add_row("psi_p", f"{surface.psi_p:.10g}")
+        table.add_row("B_theta", f"{surface.b_theta:.10g}")
+        table.add_row("B_zeta", f"{surface.b_zeta:.10g}")
+        table.add_row("modes", str(len(surface.m)))
+    else:
+        table.add_row("nfp", str(surface.nfp))
+        table.add_row("psi_n", f"{surface.psi_n:.10g}")
+        table.add_row("iota", f"{surface.iota:.10g}")
+        table.add_row("B00", f"{surface.b0:.10g}")
+        table.add_row("modes", str(len(surface.m)))
+        table.add_row("vmec_radial_option", str(config.surface.vmec_radial_option))
+        table.add_row("vmec_nyquist_option", str(config.surface.vmec_nyquist_option))
+        table.add_row("min_bmn_to_load", f"{config.surface.min_bmn_to_load:.10g}")
     return table
 
 
-def _case_table(config: RunConfig) -> Table:
+def _case_table(config: RunConfig, surface: BoozerSurface | VmecSurface) -> Table:
     table = Table(title="Solve Parameters", show_header=True, header_style="bold magenta")
     table.add_column("Field")
     table.add_column("Value")
@@ -286,15 +307,15 @@ def _case_table(config: RunConfig) -> Table:
     table.add_row("dtype", config.grid.dtype)
     table.add_row("x64", str(config.grid.x64))
     table.add_row("nu_hat", f"{config.case.nu_hat:.10g}")
-    table.add_row(
-        "er_hat",
-        "-" if config.case.er_hat is None else f"{config.case.er_hat:.10g}",
-    )
+    table.add_row("er_hat", "-" if config.case.er_hat is None else f"{config.case.er_hat:.10g}")
     table.add_row(
         "epsi_hat",
         "-" if config.case.epsi_hat is None else f"{config.case.epsi_hat:.10g}",
     )
+    psi_p = surface.psi_p if isinstance(surface, VmecSurface) else surface.psi_p
+    table.add_row("epsi_hat_resolved", f"{config.case.resolved_epsi_hat(psi_p):.10g}")
     table.add_row("output_npz", str(config.output.npz))
+    table.add_row("include_modes", str(config.output.include_modes))
     return table
 
 
@@ -312,14 +333,4 @@ def _result_table(result: dict[str, float]) -> Table:
         "onsager_residual",
     ):
         table.add_row(key, f"{result[key]:.10g}")
-    return table
-
-
-def _comparison_table(reference_row: np.void, comparison: dict[str, float]) -> Table:
-    table = Table(title="Reference Comparison", show_header=True, header_style="bold yellow")
-    table.add_column("Coefficient")
-    table.add_column("Reference")
-    table.add_column("NTX - Reference")
-    for key in ("D11", "D31", "D13", "D33"):
-        table.add_row(key, f"{float(reference_row[key]):.10g}", f"{comparison[key]:.10g}")
     return table

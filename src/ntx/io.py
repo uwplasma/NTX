@@ -1,4 +1,4 @@
-"""Input/output helpers for Boozer-surface files and benchmark inputs."""
+"""Input/output helpers for Boozer-surface files."""
 
 from __future__ import annotations
 
@@ -9,6 +9,14 @@ import jax.numpy as jnp
 import numpy as np
 
 from .geometry import BoozerSurface
+from .vmec import load_vmec_surface
+
+__all__ = [
+    "load_boozer_modes_csv",
+    "load_dkes_surface",
+    "load_vmec_surface",
+    "write_result_jsonable",
+]
 
 
 def load_boozer_modes_csv(

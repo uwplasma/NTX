@@ -25,7 +25,8 @@ MONOENERGETIC_COLUMNS = (
 def read_monoenergetic_table(path: str | Path) -> np.ndarray:
     """Read a whitespace table with REFERENCE_EXECUTABLE-style monoenergetic coefficients."""
 
-    return np.genfromtxt(path, skip_header=1, names=MONOENERGETIC_COLUMNS)
+    table = np.genfromtxt(path, skip_header=1, names=MONOENERGETIC_COLUMNS)
+    return np.atleast_1d(table)
 
 
 def nearest_reference_row(table: np.ndarray, nu_hat: float, er_hat: float) -> np.void:
