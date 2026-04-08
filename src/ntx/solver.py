@@ -240,24 +240,46 @@ def _solve_modes(
         0: s3[0],
     }
 
-    y1 = lu_solve(lu_factor(saved_delta[2]), sigma1[2])
+    lu2 = lu_factor(saved_delta[2])
+    y1 = lu_solve(lu2, sigma1[2])
     sigma1[1] = s1[1] - saved_upper[1] @ y1
 
-    y1 = lu_solve(lu_factor(saved_delta[1]), sigma1[1])
-    y3 = lu_solve(lu_factor(saved_delta[1]), sigma3[1])
+    lu1 = lu_factor(saved_delta[1])
+    y13 = lu_solve(lu1, jnp.stack((sigma1[1], sigma3[1]), axis=-1))
+    y1 = y13[:, 0]
+    y3 = y13[:, 1]
     sigma1[0] = s1[0] - saved_upper[0] @ y1
     sigma3[0] = s3[0] - saved_upper[0] @ y3
 
     f1 = []
     f3 = []
-    f1_0 = lu_solve(lu_factor(saved_delta[0]), sigma1[0])
-    f3_0 = lu_solve(lu_factor(saved_delta[0]), sigma3[0])
+    lu0 = lu_factor(saved_delta[0])
+    f03 = lu_solve(lu0, jnp.stack((sigma1[0], sigma3[0]), axis=-1))
+    f1_0 = f03[:, 0]
+    f3_0 = f03[:, 1]
     f1.append(f1_0)
     f3.append(f3_0)
-    for k in (1, 2):
-        lu = lu_factor(saved_delta[k])
-        f1.append(lu_solve(lu, sigma1[k] - saved_lower[k] @ f1[k - 1]))
-        f3.append(lu_solve(lu, sigma3[k] - saved_lower[k] @ f3[k - 1]))
+    rhs_13 = jnp.stack(
+        (
+            sigma1[1] - saved_lower[1] @ f1[0],
+            sigma3[1] - saved_lower[1] @ f3[0],
+        ),
+        axis=-1,
+    )
+    f13 = lu_solve(lu1, rhs_13)
+    f1.append(f13[:, 0])
+    f3.append(f13[:, 1])
+
+    rhs_23 = jnp.stack(
+        (
+            sigma1[2] - saved_lower[2] @ f1[1],
+            sigma3[2] - saved_lower[2] @ f3[1],
+        ),
+        axis=-1,
+    )
+    f23 = lu_solve(lu2, rhs_23)
+    f1.append(f23[:, 0])
+    f3.append(f23[:, 1])
     return jnp.stack(f1), jnp.stack(f3)
 
 
