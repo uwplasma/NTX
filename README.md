@@ -131,6 +131,14 @@ For VMEC surfaces, NTX derives a radial normalization from the selected surface:
 This keeps the VMEC `er_hat` path tied to explicit surface metadata rather than a
 placeholder scale.
 
+For VMEC mode selection:
+
+- `vmec_nyquist_option = 1` uses the primary VMEC Fourier mode set (`xm`, `xn`)
+- `vmec_nyquist_option = 2` uses the full Nyquist mode set (`xm_nyq`, `xn_nyq`)
+
+The primary mode set is the more conservative default and aligns with the
+reduced spectral set used in established VMEC-based monoenergetic workflows.
+
 ## Other Ways To Run
 
 Direct CLI solve:
@@ -217,6 +225,12 @@ Repository examples:
 - [examples/w7x_vmec.toml](/Users/rogeriojorge/local/.NTX/examples/w7x_vmec.toml)
 - [examples/w7x_vmec_filtered.toml](/Users/rogeriojorge/local/.NTX/examples/w7x_vmec_filtered.toml)
 - [examples/qi_vmec_erhat.toml](/Users/rogeriojorge/local/.NTX/examples/qi_vmec_erhat.toml)
+
+Validation and benchmark scripts:
+
+- [scripts/compare_archived_benchmarks.py](/Users/rogeriojorge/local/.NTX/scripts/compare_archived_benchmarks.py)
+- [scripts/compare_reference_executable.py](/Users/rogeriojorge/local/.NTX/scripts/compare_reference_executable.py)
+- [scripts/benchmark_against_reference_executable.py](/Users/rogeriojorge/local/.NTX/scripts/benchmark_against_reference_executable.py)
 
 Primary docs:
 

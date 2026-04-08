@@ -50,12 +50,14 @@ def load_vmec_surface(
             else None
         )
 
-        mode_m = _read_var(handle, "xm_nyq" if "xm_nyq" in handle.variables else "xm").astype(
-            np.int32
-        )
-        mode_n = _read_var(handle, "xn_nyq" if "xn_nyq" in handle.variables else "xn").astype(
-            np.int32
-        )
+        base_mode_m = _read_var(handle, "xm").astype(np.int32)
+        base_mode_n = _read_var(handle, "xn").astype(np.int32)
+        coeff_mode_m = _read_var(
+            handle, "xm_nyq" if "xm_nyq" in handle.variables else "xm"
+        ).astype(np.int32)
+        coeff_mode_n = _read_var(
+            handle, "xn_nyq" if "xn_nyq" in handle.variables else "xn"
+        ).astype(np.int32)
         bmnc = _read_modes(handle, "bmnc")
         gmnc = _read_modes(handle, "gmnc")
         bsubumnc = _read_modes(handle, "bsubumnc")
@@ -71,17 +73,32 @@ def load_vmec_surface(
     if target_psi_n <= 0.0:
         raise ValueError("VMEC transport normalization requires surface.psi_n > 0")
     radial_grid = psi_n_grid[1:]
-    b_interp = _interp_mode_columns(radial_grid, bmnc[:, 1:], target_psi_n)
-    g_interp = _interp_mode_columns(radial_grid, gmnc[:, 1:], target_psi_n)
-    b_sub_theta_interp = _interp_mode_columns(radial_grid, bsubumnc[:, 1:], target_psi_n)
-    b_sub_zeta_interp = _interp_mode_columns(radial_grid, bsubvmnc[:, 1:], target_psi_n)
-    b_sup_theta_interp = _interp_mode_columns(radial_grid, bsupumnc[:, 1:], target_psi_n)
-    b_sup_zeta_interp = _interp_mode_columns(radial_grid, bsupvmnc[:, 1:], target_psi_n)
+    selected_mode_m, selected_mode_n, selected_indices = _select_mode_set(
+        base_mode_m,
+        base_mode_n,
+        coeff_mode_m,
+        coeff_mode_n,
+        int(vmec_nyquist_option),
+    )
+    b_interp = _interp_mode_columns(radial_grid, bmnc[selected_indices, 1:], target_psi_n)
+    g_interp = _interp_mode_columns(radial_grid, gmnc[selected_indices, 1:], target_psi_n)
+    b_sub_theta_interp = _interp_mode_columns(
+        radial_grid, bsubumnc[selected_indices, 1:], target_psi_n
+    )
+    b_sub_zeta_interp = _interp_mode_columns(
+        radial_grid, bsubvmnc[selected_indices, 1:], target_psi_n
+    )
+    b_sup_theta_interp = _interp_mode_columns(
+        radial_grid, bsupumnc[selected_indices, 1:], target_psi_n
+    )
+    b_sup_zeta_interp = _interp_mode_columns(
+        radial_grid, bsupvmnc[selected_indices, 1:], target_psi_n
+    )
     iota = _interp_1d(radial_grid, iota_grid[1:], target_psi_n)
 
-    if mode_m.shape[0] != b_interp.shape[0]:
+    if selected_mode_m.shape[0] != b_interp.shape[0]:
         raise ValueError("VMEC mode-number arrays do not match Fourier coefficient arrays")
-    if mode_m[0] != 0 or mode_n[0] != 0:
+    if selected_mode_m[0] != 0 or selected_mode_n[0] != 0:
         raise ValueError("expected the first VMEC mode to be (m,n)=(0,0)")
 
     b0 = float(b_interp[0])
@@ -97,10 +114,6 @@ def load_vmec_surface(
         raise ValueError("VMEC transport normalization produced dpsi_hat/dr_hat = 0")
 
     include = np.abs(b_interp / b0) >= float(min_bmn_to_load)
-    if int(vmec_nyquist_option) == 1:
-        include &= (np.abs(mode_m) < mpol) & (np.abs(mode_n / nfp) <= ntor)
-    elif int(vmec_nyquist_option) != 2:
-        raise ValueError("vmec_nyquist_option must be 1 or 2")
     include[0] = True
 
     return VmecSurface(
@@ -111,11 +124,14 @@ def load_vmec_surface(
         ns=ns,
         mpol=mpol,
         ntor=ntor,
-        total_mode_count=int(mode_m.size),
+        total_mode_count=int(selected_mode_m.size),
         loaded_mode_count=int(np.count_nonzero(include)),
         iota=float(iota),
-        m=jnp.asarray(mode_m[include], dtype=jnp.int32),
-        n=jnp.asarray(np.rint(mode_n[include] / nfp).astype(np.int32), dtype=jnp.int32),
+        m=jnp.asarray(selected_mode_m[include], dtype=jnp.int32),
+        n=jnp.asarray(
+            np.rint(selected_mode_n[include] / nfp).astype(np.int32),
+            dtype=jnp.int32,
+        ),
         b_cos=jnp.asarray(b_interp[include], dtype=jnp.float64),
         jacobian_cos=jnp.asarray(-g_interp[include], dtype=jnp.float64),
         b_sub_theta_cos=jnp.asarray(b_sub_theta_interp[include], dtype=jnp.float64),
@@ -173,3 +189,43 @@ def _interp_mode_columns(x: np.ndarray, values: np.ndarray, xq: float) -> np.nda
     if values.ndim != 2:
         raise ValueError("expected a 2D `(mode, radius)` array")
     return np.asarray([np.interp(float(xq), x, row) for row in values], dtype=np.float64)
+
+
+def _select_mode_set(
+    base_mode_m: np.ndarray,
+    base_mode_n: np.ndarray,
+    coeff_mode_m: np.ndarray,
+    coeff_mode_n: np.ndarray,
+    option: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    if option == 1:
+        if base_mode_m.shape == coeff_mode_m.shape and np.array_equal(base_mode_m, coeff_mode_m):
+            return base_mode_m, base_mode_n, np.arange(base_mode_m.size, dtype=np.int32)
+        return base_mode_m, base_mode_n, _match_mode_indices(
+            base_mode_m,
+            base_mode_n,
+            coeff_mode_m,
+            coeff_mode_n,
+        )
+    if option == 2:
+        return coeff_mode_m, coeff_mode_n, np.arange(coeff_mode_m.size, dtype=np.int32)
+    raise ValueError("vmec_nyquist_option must be 1 or 2")
+
+
+def _match_mode_indices(
+    target_mode_m: np.ndarray,
+    target_mode_n: np.ndarray,
+    source_mode_m: np.ndarray,
+    source_mode_n: np.ndarray,
+) -> np.ndarray:
+    lookup = {
+        (int(mode_m), int(mode_n)): index
+        for index, (mode_m, mode_n) in enumerate(zip(source_mode_m, source_mode_n, strict=True))
+    }
+    indices = []
+    for mode_m, mode_n in zip(target_mode_m, target_mode_n, strict=True):
+        key = (int(mode_m), int(mode_n))
+        if key not in lookup:
+            raise ValueError(f"VMEC mode {key} not found in coefficient mode set")
+        indices.append(lookup[key])
+    return np.asarray(indices, dtype=np.int32)
