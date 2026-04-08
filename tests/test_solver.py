@@ -6,8 +6,10 @@ from ntx import (
     GridSpec,
     MonoenergeticCase,
     example_surface,
+    prepare_monoenergetic_system,
     solve_monoenergetic,
     solve_monoenergetic_scan,
+    solve_prepared,
 )
 from ntx.geometry import BoozerSurface
 
@@ -56,3 +58,14 @@ def test_spitzer_scales_inverse_with_collisionality():
     low = solve_monoenergetic(surface, grid, MonoenergeticCase(1e-2))
     high = solve_monoenergetic(surface, grid, MonoenergeticCase(2e-2))
     assert jnp.allclose(low.D33_spitzer / high.D33_spitzer, 2.0, rtol=1e-10)
+
+
+def test_prepared_system_matches_direct_solve():
+    surface = example_surface()
+    grid = GridSpec(5, 5, 4)
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    prepared = prepare_monoenergetic_system(surface, grid)
+    direct = solve_monoenergetic(surface, grid, case).as_dict()
+    cached = solve_prepared(prepared, case).as_dict()
+    for key, value in direct.items():
+        assert jnp.allclose(value, cached[key], rtol=1e-12, atol=1e-12)

@@ -463,3 +463,24 @@ Important environment facts found during planning:
     - Coarse W7-X VMEC grids do not satisfy a small-Onsager-residual expectation.
       That is consistent with the live REFERENCE_EXECUTABLE comparison and should not be used
       as a physics gate at low angular / Legendre resolution.
+- 2026-04-08: added independent `sfincs_jax` VMEC geometry validation and a
+  prepared-system performance path.
+  - What worked:
+    - Added `src/ntx/sfincs_geometry.py` plus
+      `scripts/compare_sfincs_geometry.py` to compare NTX VMEC geometry against
+      a local `sfincs_jax` checkout.
+    - Established the required convention conversion for the comparison:
+      - reverse the sampled zeta direction
+      - flip the Jacobian sign reconstructed from `sfincs_jax`
+    - With those conversions, the snapped W7-X filtered-Nyquist geometry arrays
+      (`B`, derivatives, covariant and contravariant components, Jacobian)
+      matched `sfincs_jax` to roundoff.
+    - Added cached repeated-solve support through
+      `prepare_monoenergetic_system(...)` and `solve_prepared(...)`.
+    - On a local W7-X sample DKES solve at `9 x 11 x 8`, the cached repeated
+      solve reduced steady wall time from about `0.275 s` to about `0.206 s`
+      (`1.34x` speedup).
+  - What did not:
+    - The `sfincs_jax` VMEC geometry path is not in the default CI environment,
+      so the new cross-code geometry test is intentionally skipped unless the
+      local checkout exists.
