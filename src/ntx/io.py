@@ -14,6 +14,7 @@ from .vmec import load_vmec_surface
 __all__ = [
     "load_boozer_modes_csv",
     "load_dkes_surface",
+    "load_magnetic_configuration_surface",
     "load_vmec_surface",
     "write_result_jsonable",
 ]
@@ -59,6 +60,10 @@ _SCALAR_PATTERN = r"(?im)\b{name}\s*=\s*([^,\n/]+)"
 _BORBI_PATTERN = re.compile(
     r"(?im)\bborbi\(\s*([+-]?\d+)\s*,\s*([+-]?\d+)\s*\)\s*=\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[deDE][+-]?\d+)?)"
 )
+_MAGNETIC_MODE_PATTERN = re.compile(
+    r"^\s*([+-]?\d+)\s+([+-]?\d+)\s+([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[deDE][+-]?\d+)?)",
+    re.MULTILINE,
+)
 
 
 def load_dkes_surface(path: str | Path) -> BoozerSurface:
@@ -102,6 +107,47 @@ def load_dkes_surface(path: str | Path) -> BoozerSurface:
         chi_p=-chip,
         b0=b0_matches[0],
         source_path=Path(path).expanduser().resolve(),
+    )
+
+
+def load_magnetic_configuration_surface(path: str | Path) -> BoozerSurface:
+    """Load a text magnetic-configuration file with `m n B_mn` Fourier rows."""
+
+    resolved = Path(path).expanduser().resolve()
+    text = resolved.read_text(encoding="utf-8")
+    nfp = int(_parse_scalar(text, "Number of periods"))
+    psi_p = _parse_scalar(text, "psi_p")
+    chi_p = _parse_scalar(text, "chi_p")
+    iota = _parse_scalar(text, "iota")
+    b0 = _parse_scalar(text, "B00")
+    b_theta = _parse_scalar(text, "B_theta")
+    b_zeta = _parse_scalar(text, "B_zeta")
+
+    marker = "*** Magnetic field strength Fourier modes"
+    if marker not in text:
+        msg = f"missing Fourier-mode section in {resolved}"
+        raise ValueError(msg)
+    section = text.split(marker, maxsplit=1)[1]
+    rows: list[tuple[int, int, float]] = []
+    for m_text, n_text, value_text in _MAGNETIC_MODE_PATTERN.findall(section):
+        rows.append((int(m_text), int(n_text), _parse_float(value_text)))
+    if not rows:
+        msg = f"no Fourier rows found in {resolved}"
+        raise ValueError(msg)
+    rows.sort()
+
+    return BoozerSurface(
+        m=jnp.asarray([row[0] for row in rows], dtype=jnp.int32),
+        n=jnp.asarray([row[1] for row in rows], dtype=jnp.int32),
+        b_cos=jnp.asarray([row[2] for row in rows], dtype=jnp.float64),
+        nfp=nfp,
+        iota=iota,
+        psi_p=psi_p,
+        b_theta=b_theta,
+        b_zeta=b_zeta,
+        chi_p=chi_p,
+        b0=b0,
+        source_path=resolved,
     )
 
 

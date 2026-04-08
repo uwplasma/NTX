@@ -230,10 +230,19 @@ Primary docs:
 Useful analysis scripts:
 
 - `python scripts/compare_archived_benchmarks.py --output-json archived-benchmarks.json`
+- `python scripts/compare_archived_benchmarks.py --case W7X-EIM`
+- `python scripts/compare_archived_benchmarks.py --case W7X-KJM`
+- `python scripts/compare_archived_benchmarks.py --case CIEMAT-QI`
 - `python scripts/profile_runtime.py --output-json runtime-profile.json`
 
 Those two scripts default to `JAX_PLATFORM_NAME=cpu` so they are stable on any
 machine. Override the platform explicitly when you want to force GPU execution.
+
+The archived comparison script now covers the three thesis benchmark families:
+W7-X EIM, W7-X KJM, and CIEMAT-QI. For W7-X EIM and W7-X KJM, NTX matches the
+vendored archived monoenergetic reference tables at the benchmark grids used by
+the thesis, while the DKES and SFINCS comparisons remain useful cross-code
+validation reports rather than equality gates.
 
 ## GPU Runs
 

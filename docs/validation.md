@@ -31,23 +31,43 @@ Run:
 python scripts/compare_archived_benchmarks.py --output-json archived-benchmarks.json
 ```
 
+Or restrict the report to one benchmark family:
+
+```bash
+python scripts/compare_archived_benchmarks.py --case W7X-EIM
+python scripts/compare_archived_benchmarks.py --case W7X-KJM
+python scripts/compare_archived_benchmarks.py --case CIEMAT-QI
+```
+
 This script defaults to `JAX_PLATFORM_NAME=cpu` so the archived comparison does
 not depend on accelerator FFT behavior.
 
-This script evaluates vendored archived DKES and SFINCS tables for:
+This script evaluates vendored archived thesis benchmark tables for:
 
 - W7-X EIM
+- W7-X KJM
 - CIEMAT-QI
 
 and reports:
 
 - the NTX coefficients at the chosen benchmark grid
-- the archived reference coefficients
+- archived DKES and SFINCS coefficients
+- archived monoenergetic reference coefficients when an exact grid-matched
+  reference is vendored
 - relative errors for `D11`, `D31`, and when available `D33`
 
-The current archived comparison is a progress-tracking report, not yet a parity
-gate. The output is intended to show exactly where the dense NTX implementation
-still differs from the converged benchmark curves.
+Current interpretation:
+
+- W7-X EIM: NTX matches the archived monoenergetic reference at the
+  `23 x 55 x 80` grid used by the thesis convergence study, while still showing
+  the expected spread against the archived DKES and SFINCS curves.
+- W7-X KJM: NTX matches the archived monoenergetic reference at the
+  `19 x 79 x 180` benchmark grid, again with visible cross-code spread against
+  DKES and SFINCS.
+- CIEMAT-QI: the archived DKES, SFINCS, and monoenergetic tables are vendored
+  and parsed, but the exact `47 x 215 x 160` NTX solve is substantially heavier
+  than the W7-X cases, so it is best run selectively with `--case CIEMAT-QI`
+  rather than treated as a default smoke check.
 
 ## Runtime Profiling
 

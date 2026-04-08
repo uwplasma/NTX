@@ -4,7 +4,12 @@ from .config import enable_x64
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
 from .inputfiles import load_run_config, run_from_input_file
-from .io import load_boozer_modes_csv, load_dkes_surface, load_vmec_surface
+from .io import (
+    load_boozer_modes_csv,
+    load_dkes_surface,
+    load_magnetic_configuration_surface,
+    load_vmec_surface,
+)
 from .solver import (
     MonoenergeticCase,
     TransportResult,
@@ -24,6 +29,7 @@ __all__ = [
     "load_run_config",
     "load_boozer_modes_csv",
     "load_dkes_surface",
+    "load_magnetic_configuration_surface",
     "load_vmec_surface",
     "onsager_error",
     "run_from_input_file",
