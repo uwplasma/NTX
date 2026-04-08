@@ -9,6 +9,11 @@ from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenerge
 from ntx.geometry import VmecSurface, geometry_on_grid
 
 VMEC_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "wout_w7x_standardConfig.nc"
+QI_VMEC_FIXTURE = (
+    Path(__file__).resolve().parent
+    / "fixtures"
+    / "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
+)
 
 
 def test_load_vmec_surface_and_geometry():
@@ -45,6 +50,16 @@ def test_vmec_mode_filtering_reduces_mode_count():
     full = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, min_bmn_to_load=0.0)
     filtered = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, min_bmn_to_load=1e-2)
     assert filtered.loaded_mode_count < full.loaded_mode_count
+
+
+def test_qi_vmec_surface_loads_with_expected_normalization():
+    surface = load_vmec_surface(QI_VMEC_FIXTURE, psi_n=0.12247**2)
+    assert surface.nfp == 2
+    assert surface.r_n == pytest.approx(0.12247, rel=1e-8)
+    assert surface.r_hat == pytest.approx(surface.aminor_p * surface.r_n)
+    assert surface.loaded_mode_count == 72
+    assert surface.total_mode_count == 162
+    assert surface.transport_psi_scale == pytest.approx(surface.dpsi_hat_dr_hat)
 
 
 def test_vmec_surface_resolves_er_hat_from_transport_scale():
