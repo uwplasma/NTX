@@ -48,8 +48,10 @@ def load_boozer_modes_csv(
         psi_p=psi_p,
         b_theta=b_theta,
         b_zeta=b_zeta,
+        chi_p=iota * psi_p,
         b0=b0,
         stellarator_symmetric=b_sin is None,
+        source_path=Path(path).expanduser().resolve(),
     )
 
 
@@ -97,7 +99,9 @@ def load_dkes_surface(path: str | Path) -> BoozerSurface:
         psi_p=psi_p,
         b_theta=b_theta,
         b_zeta=b_zeta,
+        chi_p=-chip,
         b0=b0_matches[0],
+        source_path=Path(path).expanduser().resolve(),
     )
 
 

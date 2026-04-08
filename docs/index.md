@@ -1,37 +1,30 @@
 # NTX
 
-NTX is a JAX-native solver for monoenergetic neoclassical transport on
-stellarator flux surfaces.
-
-The first solver implements the Legendre-space block-tridiagonal drift-kinetic
-equation formulation from Francisco Javier Escoto López's PhD thesis,
+NTX is a JAX-native monoenergetic neoclassical transport code for stellarator
+flux surfaces. It follows the Legendre-space drift-kinetic formulation
+introduced in Javier Escoto's PhD thesis,
 [`arXiv:2510.27513`](https://arxiv.org/abs/2510.27513).
 
-## Equation
+The current implementation supports:
 
-For each monoenergetic case, NTX solves the truncated Legendre system
+- DKES-style Boozer inputs
+- VMEC `wout` inputs
+- Rich terminal summaries for file-driven runs
+- compressed `.npz` outputs with geometry, metadata, diagnostics, and modes
 
-```text
-L_k f^(k-1) + D_k f^(k) + U_k f^(k+1) = s^(k)
-```
-
-and evaluates the monoenergetic geometric coefficients `D11`, `D31`, `D13`,
-`D33`, and the Spitzer `D33` normalization.
-
-## Primary Endpoint
-
-The main user entrypoint is:
+## Main Entry Point
 
 ```bash
 ntx input.toml
 ```
 
-It prints a Rich terminal summary and writes a compressed `.npz` with the
-resolved inputs, geometry arrays, transport coefficients, residuals, and
-optional low-order Legendre modes.
+## Contents
 
 ```{toctree}
 :maxdepth: 2
 
+install
 input-file
+algorithm
+examples
 ```

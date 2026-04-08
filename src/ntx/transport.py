@@ -17,10 +17,7 @@ def coefficients_from_modes(
 ) -> tuple[Array, Array, Array, Array, Array]:
     """Compute `(D11, D31, D13, D33, D33_spitzer)` from modes 0, 1, and 2."""
 
-    if geom.psi_p is None:
-        msg = "transport coefficients require a geometry with psi_p"
-        raise ValueError(msg)
-    psi_p = geom.psi_p
+    psi_scale = geom.transport_psi_scale
 
     n_theta, n_zeta = geom.b.shape
     f10 = unflatten_fs(f1_modes[0], n_theta, n_zeta)
@@ -38,9 +35,9 @@ def coefficients_from_modes(
     def avg(value: Array) -> Array:
         return jnp.sum(pref * value) * dtheta_dzeta
 
-    d11 = avg(-2.0 * vm0 * f10 - 2.0 * vm2 * f12 / 5.0) / psi_p**2
-    d31 = avg(2.0 * f11 * geom.b / (3.0 * geom.b0)) / psi_p
-    d13 = avg(-2.0 * vm0 * f30 - 2.0 * vm2 * f32 / 5.0) / (psi_p * geom.b0)
+    d11 = avg(-2.0 * vm0 * f10 - 2.0 * vm2 * f12 / 5.0) / psi_scale**2
+    d31 = avg(2.0 * f11 * geom.b / (3.0 * geom.b0)) / psi_scale
+    d13 = avg(-2.0 * vm0 * f30 - 2.0 * vm2 * f32 / 5.0) / (psi_scale * geom.b0)
     d33 = avg(2.0 * geom.b * f31 / (3.0 * geom.b0)) / geom.b0
     d33_spitzer = avg(2.0 * geom.b * (geom.b / (geom.b0 * nu_hat)) / 3.0) / geom.b0
     return d11, d31, d13, d33, d33_spitzer

@@ -104,6 +104,39 @@ def test_cli_dkes_solve_runs():
     assert "D33" in payload
 
 
+def test_cli_vmec_solve_runs():
+    root = Path(__file__).resolve().parents[1]
+    vmec = root / "tests" / "fixtures" / "wout_w7x_standardConfig.nc"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ntx.cli",
+            "solve",
+            "--vmec",
+            str(vmec),
+            "--psi-n",
+            "0.25",
+            "--nu-hat",
+            "1e-3",
+            "--epsi-hat",
+            "1e-3",
+            "--n-theta",
+            "7",
+            "--n-zeta",
+            "9",
+            "--n-xi",
+            "4",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+        env=_env(),
+    )
+    payload = json.loads(proc.stdout)
+    assert "D33" in payload
+
+
 def test_cli_input_file_runs_and_writes_npz(tmp_path):
     input_path = _write_input_toml(tmp_path, verbose=True)
     proc = subprocess.run(

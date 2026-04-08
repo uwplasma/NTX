@@ -1,139 +1,164 @@
 # Input File
 
-The installed executable runs one solve from one TOML file:
+The primary NTX user interface is:
 
 ```bash
 ntx input.toml
 ```
 
-## Structure
+One TOML file defines one solve.
 
-Required tables:
+## Required Tables
 
 - `[surface]`
 - `[grid]`
 - `[case]`
 
-Optional tables:
+## Optional Tables
 
 - `[output]`
 - `[logging]`
 
-## Surface Inputs
+## `[surface]`
 
-### `[surface]`
-
-Common keys:
+### Common Keys
 
 - `type`
   - Required.
   - Allowed values: `"example"`, `"dkes"`, `"vmec"`.
 - `path`
   - Required for `"dkes"` and `"vmec"`.
-  - Path to `ddkes2.data` for `"dkes"`.
-  - Path to `wout_*.nc` for `"vmec"`.
+  - Path is resolved relative to the TOML file location.
 
-DKES/example-specific behavior:
+### `type = "example"`
 
-- `type = "example"`
-  - Uses the built-in analytic test surface.
-- `type = "dkes"`
-  - Loads Boozer harmonics and scalar flux-surface data from the DKES-style
-    input file.
+Uses the built-in analytic surface. No `path` is needed.
 
-VMEC-specific keys:
+### `type = "dkes"`
+
+Reads a DKES-style `ddkes2.data` file and extracts:
+
+- `nfp`
+- `psi_p`
+- `chi_p`
+- `iota`
+- `B_theta`
+- `B_zeta`
+- Boozer Fourier harmonics
+
+### `type = "vmec"`
+
+Reads a VMEC `wout_*.nc` file and extracts:
+
+- Fourier harmonics for `B`
+- Fourier harmonics for the Jacobian
+- covariant and contravariant field components
+- radial-grid metadata
+- selected flux-surface metadata
+
+Additional VMEC keys:
 
 - `psi_n`
-  - Required when `type = "vmec"`.
-  - Normalized toroidal-flux label in `[0, 1]`.
+  - Required.
+  - Requested normalized toroidal-flux label in `[0, 1]`.
 - `vmec_radial_option`
   - Optional, default `0`.
-  - `0`: use the requested `psi_n`.
-  - `1`: snap to the nearest interior VMEC radial surface.
-  - `2`: snap to the nearest VMEC radial surface including endpoints.
+  - `0`: use the requested `psi_n`
+  - `1`: snap to the nearest interior VMEC surface
+  - `2`: snap to the nearest VMEC surface including endpoints
 - `vmec_nyquist_option`
   - Optional, default `1`.
-  - `1`: drop explicit VMEC Nyquist modes.
-  - `2`: keep Nyquist modes.
+  - `1`: drop Nyquist modes
+  - `2`: keep Nyquist modes
 - `min_bmn_to_load`
   - Optional, default `0.0`.
-  - Drops VMEC modes with `|B_mn / B00|` below the threshold.
+  - Drop modes whose `|B_mn / B00|` is below the threshold
 
-## Grid Inputs
-
-### `[grid]`
+## `[grid]`
 
 - `n_theta`
-  - Required integer.
-  - Number of poloidal grid points.
+  - Required integer
 - `n_zeta`
-  - Required integer.
-  - Number of toroidal grid points on one field period.
+  - Required integer
 - `n_xi`
-  - Required integer.
-  - Highest Legendre index retained in the block-tridiagonal recursion.
-  - Must be at least `2`.
+  - Required integer
+  - Must be at least `2`
 - `dtype`
-  - Optional string, default `"float64"`.
-  - JAX dtype name for real arrays.
+  - Optional string, default `"float64"`
 - `x64`
-  - Optional boolean, default `true`.
-  - Enables JAX x64 mode for the solve.
+  - Optional boolean, default `true`
 
-## Case Inputs
-
-### `[case]`
+## `[case]`
 
 - `nu_hat`
-  - Required float.
-  - Monoenergetic collisionality.
+  - Required float
 - `epsi_hat`
-  - Optional float.
-  - Direct normalized radial-electric-field input used internally by the
-    Legendre-space operator.
+  - Optional float
 - `er_hat`
-  - Optional float.
-  - Alternative electric-field input.
-  - Internally converted to `epsi_hat = er_hat / psi_p`.
-  - Only valid when the selected surface provides `psi_p`.
+  - Optional float
+  - Converted internally through `epsi_hat = er_hat / psi_p`
 
 Exactly one of `epsi_hat` and `er_hat` may be set.
 
-For VMEC inputs, use `epsi_hat`. The current VMEC path does not infer a
-`psi_p` normalization for `er_hat`.
+For VMEC inputs, use `epsi_hat`. VMEC input files do not accept `er_hat`.
 
-## Output Inputs
-
-### `[output]`
+## `[output]`
 
 - `npz`
-  - Optional path, default `input_file.with_suffix(".npz")`.
-  - Output file written by `numpy.savez_compressed`.
+  - Optional path
+  - Default: `input.toml` with the suffix changed to `.npz`
 - `include_modes`
-  - Optional boolean, default `true`.
-  - When true, stores the solved low-order `f1_modes` and `f3_modes`.
+  - Optional boolean, default `true`
+  - When true, write `f1_modes` and `f3_modes`
 
-## Logging Inputs
-
-### `[logging]`
+## `[logging]`
 
 - `verbose`
-  - Optional boolean, default `true`.
-  - When true, prints Rich tables for the resolved surface, case, and result.
+  - Optional boolean, default `true`
+  - When true, NTX prints detailed Rich tables describing the solve
 
-## Examples
+## Verbose Terminal Output
+
+Verbose runs print:
+
+- the input file path
+- the surface summary
+- surface metadata from the loaded file
+- geometry statistics on the angular grid
+- the resolved solve parameters
+- the solver/algorithm summary
+- the transport coefficients and residuals
+- the output payload summary
+
+## Example Inputs
+
+### Built-In Surface
+
+```toml
+[surface]
+type = "example"
+
+[grid]
+n_theta = 9
+n_zeta = 9
+n_xi = 8
+
+[case]
+nu_hat = 1e-2
+epsi_hat = 0.0
+```
 
 ### DKES
 
 ```toml
 [surface]
 type = "dkes"
-path = "/path/to/ddkes2.data"
+path = "../tests/fixtures/w7x_eim_sample.ddkes2.data"
 
 [grid]
-n_theta = 19
-n_zeta = 79
-n_xi = 180
+n_theta = 9
+n_zeta = 9
+n_xi = 8
 dtype = "float64"
 x64 = true
 
@@ -142,7 +167,7 @@ nu_hat = 1e-5
 er_hat = 1e-3
 
 [output]
-npz = "w7x_eim_run.npz"
+npz = "outputs/w7x_dkes.npz"
 include_modes = true
 
 [logging]
@@ -154,37 +179,41 @@ verbose = true
 ```toml
 [surface]
 type = "vmec"
-path = "/path/to/wout_w7x_standardConfig.nc"
+path = "../tests/fixtures/wout_w7x_standardConfig.nc"
 psi_n = 0.25
 vmec_radial_option = 0
 vmec_nyquist_option = 1
 min_bmn_to_load = 0.0
 
 [grid]
-n_theta = 19
-n_zeta = 79
-n_xi = 180
+n_theta = 9
+n_zeta = 11
+n_xi = 8
+dtype = "float64"
+x64 = true
 
 [case]
-nu_hat = 1e-5
+nu_hat = 1e-3
 epsi_hat = 1e-3
+
+[output]
+npz = "outputs/w7x_vmec.npz"
+include_modes = true
+
+[logging]
+verbose = true
 ```
 
-## Terminal Output
+## NPZ Contents
 
-`ntx input.toml` prints:
+Every output file includes the run configuration, raw input text, scalar
+metadata, and resolved transport results.
 
-- the input file path
-- the resolved surface summary
-- the resolved solve parameters
-- the transport coefficients
-- the output `.npz` path
-
-## NPZ Outputs
-
-Always written:
+### Core Run Metadata
 
 - `input_path`
+- `input_toml_text`
+- `run_config_json`
 - `surface_type`
 - `surface_path`
 - `surface_psi_n`
@@ -200,10 +229,50 @@ Always written:
 - `epsi_hat_input`
 - `er_hat_input`
 - `epsi_hat_resolved`
+
+### Surface Metadata
+
 - `surface_nfp`
 - `surface_iota`
 - `surface_psi_p`
+- `surface_transport_psi_scale`
 - `surface_b0`
+- `surface_mode_count`
+- `surface_stellarator_symmetric`
+- `surface_metadata_json`
+
+Additional DKES / Boozer keys:
+
+- `surface_b_theta`
+- `surface_b_zeta`
+- `surface_chi_p`
+- `surface_modes_m`
+- `surface_modes_n`
+- `surface_modes_b_cos`
+
+Additional VMEC keys:
+
+- `vmec_requested_psi_n`
+- `vmec_selected_psi_n`
+- `vmec_ns`
+- `vmec_mpol`
+- `vmec_ntor`
+- `vmec_total_mode_count`
+- `vmec_loaded_mode_count`
+- `vmec_psi_a_hat`
+- `vmec_phi_edge`
+- `vmec_aminor_p`
+- `surface_modes_m`
+- `surface_modes_n`
+- `surface_modes_b_cos`
+- `surface_modes_jacobian_cos`
+- `surface_modes_b_sub_theta_cos`
+- `surface_modes_b_sub_zeta_cos`
+- `surface_modes_b_sup_theta_cos`
+- `surface_modes_b_sup_zeta_cos`
+
+### Geometry Arrays
+
 - `theta_grid`
 - `zeta_grid`
 - `b`
@@ -217,6 +286,10 @@ Always written:
 - `radial_drift_spatial`
 - `volume_prime`
 - `b2_mean`
+- `geometry_metadata_json`
+
+### Solver And Result Metadata
+
 - `D11`
 - `D31`
 - `D13`
@@ -224,42 +297,12 @@ Always written:
 - `D33_spitzer`
 - `residual_l2`
 - `onsager_residual`
+- `algorithm_metadata_json`
 - `result_json`
 
-Conditionally written for Boozer/DKES surfaces:
-
-- `surface_b_theta`
-- `surface_b_zeta`
-- `surface_modes_m`
-- `surface_modes_n`
-- `surface_modes_b_cos`
-
-Conditionally written for VMEC surfaces:
-
-- `surface_modes_m`
-- `surface_modes_n`
-- `surface_modes_b_cos`
-- `surface_modes_jacobian_cos`
-- `surface_modes_b_sub_theta_cos`
-- `surface_modes_b_sub_zeta_cos`
-- `surface_modes_b_sup_theta_cos`
-- `surface_modes_b_sup_zeta_cos`
+### Optional Mode Outputs
 
 Only written when `output.include_modes = true`:
 
 - `f1_modes`
 - `f3_modes`
-
-## External Comparison
-
-The installed `ntx` executable does not compare against external tables or
-external solvers.
-
-Use the standalone script instead:
-
-```bash
-python scripts/compare_reference_executable.py input.toml
-```
-
-That script is intentionally outside the installed CLI so the primary endpoint
-remains a pure solver entrypoint.

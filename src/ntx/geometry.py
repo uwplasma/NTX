@@ -23,9 +23,11 @@ class BoozerSurface:
     psi_p: float
     b_theta: float
     b_zeta: float
+    chi_p: float | None = None
     b0: float | None = None
     b_sin: Array | None = None
     stellarator_symmetric: bool = True
+    source_path: Path | None = None
 
     def __post_init__(self) -> None:
         if len(self.m) != len(self.n) or len(self.m) != len(self.b_cos):
@@ -38,8 +40,14 @@ class VmecSurface:
     """Single flux-surface representation loaded from a VMEC `wout` file."""
 
     path: Path
+    requested_psi_n: float
     psi_n: float
     nfp: int
+    ns: int
+    mpol: int
+    ntor: int
+    total_mode_count: int
+    loaded_mode_count: int
     iota: float
     m: Array
     n: Array
@@ -50,7 +58,11 @@ class VmecSurface:
     b_sup_theta_cos: Array
     b_sup_zeta_cos: Array
     b0: float
+    psi_a_hat: float
+    phi_edge: float
+    aminor_p: float | None = None
     psi_p: float | None = None
+    transport_psi_scale: float = 1.0
     stellarator_symmetric: bool = True
 
     def __post_init__(self) -> None:
@@ -76,6 +88,7 @@ class GeometryOnGrid:
     nfp: int
     iota: float
     psi_p: float | None
+    transport_psi_scale: float
     grid: AngularGrid
     theta_2d: Array
     zeta_2d: Array
@@ -103,6 +116,7 @@ def example_surface(dtype=jnp.float64) -> BoozerSurface:
         nfp=5,
         iota=0.85,
         psi_p=1.0,
+        chi_p=0.85,
         b_theta=0.05,
         b_zeta=1.0,
     )
@@ -187,6 +201,7 @@ def _boozer_geometry_on_grid(surface: BoozerSurface, spec) -> GeometryOnGrid:
         nfp=surface.nfp,
         iota=surface.iota,
         psi_p=surface.psi_p,
+        transport_psi_scale=surface.psi_p,
         grid=grid,
         theta_2d=theta_2d,
         zeta_2d=zeta_2d,
@@ -268,6 +283,7 @@ def _vmec_geometry_on_grid(surface: VmecSurface, spec) -> GeometryOnGrid:
         nfp=surface.nfp,
         iota=surface.iota,
         psi_p=surface.psi_p,
+        transport_psi_scale=surface.transport_psi_scale,
         grid=grid,
         theta_2d=theta_2d,
         zeta_2d=zeta_2d,

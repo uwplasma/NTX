@@ -1,0 +1,21 @@
+[surface]
+type = "dkes"
+path = "../tests/fixtures/w7x_eim_sample.ddkes2.data"
+
+[grid]
+n_theta = 9
+n_zeta = 9
+n_xi = 8
+dtype = "float64"
+x64 = true
+
+[case]
+nu_hat = 1e-5
+er_hat = 1e-3
+
+[output]
+npz = "outputs/w7x_dkes.npz"
+include_modes = true
+
+[logging]
+verbose = true
