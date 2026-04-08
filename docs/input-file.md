@@ -256,6 +256,7 @@ metadata, and resolved transport results.
 - `surface_source_name`
 - `surface_source_size_bytes`
 - `surface_source_mtime`
+- `surface_source_sha256`
 - `surface_metadata_json`
 
 Additional DKES / Boozer keys:
@@ -263,6 +264,7 @@ Additional DKES / Boozer keys:
 - `surface_b_theta`
 - `surface_b_zeta`
 - `surface_chi_p`
+- `surface_source_text`
 - `surface_modes_m`
 - `surface_modes_n`
 - `surface_modes_b_cos`

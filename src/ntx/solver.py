@@ -77,13 +77,12 @@ def solve_monoenergetic(
 
     enable_x64(grid.x64)
     geom = geometry_on_grid(surface, grid)
-    ctx = OperatorContext(
-        surface=surface,
-        geometry=geom,
-        nu_hat=jnp.asarray(case.nu_hat, dtype=grid.jax_dtype),
-        epsi_hat=jnp.asarray(
-            case.resolved_epsi_hat(geom.transport_psi_scale), dtype=grid.jax_dtype
-        ),
+    ctx = _operator_context(
+        surface,
+        geom,
+        grid,
+        case.nu_hat,
+        case.resolved_epsi_hat(geom.transport_psi_scale),
     )
     d_theta, d_zeta = derivative_blocks(geom)
     s1, s3 = source_modes(ctx, grid.n_xi)
@@ -136,7 +135,7 @@ def solve_monoenergetic_scan(
         if er_hat is None:
             epsi_values = jnp.zeros_like(nu_values)
         else:
-            if geom.psi_p is None:
+            if geom.transport_psi_scale is None:
                 msg = "er_hat scans require a surface with a transport normalization scale"
                 raise ValueError(msg)
             epsi_values = jnp.asarray(er_hat, dtype=grid.jax_dtype) / geom.transport_psi_scale
@@ -146,17 +145,12 @@ def solve_monoenergetic_scan(
     output_shape = nu_values.shape
 
     def solve_one(nu_value, epsi_value):
-        ctx = OperatorContext(
-            surface=surface,
-            geometry=geom,
-            nu_hat=nu_value,
-            epsi_hat=epsi_value,
-        )
+        ctx = _operator_context(surface, geom, grid, nu_value, epsi_value)
         s1, s3 = source_modes(ctx, grid.n_xi)
         f1_modes, f3_modes = _solve_modes(ctx, grid.n_xi, d_theta, d_zeta, s1, s3)
         return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
 
-    coeffs = jax.vmap(solve_one)(nu_values.ravel(), epsi_values.ravel())
+    coeffs = jax.jit(jax.vmap(solve_one))(nu_values.ravel(), epsi_values.ravel())
     coeffs = coeffs.reshape((*output_shape, 5))
     return {
         "D11": coeffs[..., 0],
@@ -305,8 +299,16 @@ def _residual_norm(
     _ = n_xi
     return jnp.linalg.norm(residual) / jnp.sqrt(residual.size)
 
-
-jit_solve_monoenergetic = jax.jit(
-    solve_monoenergetic,
-    static_argnames=("surface", "grid", "case"),
-)
+def _operator_context(
+    surface: BoozerSurface | VmecSurface,
+    geom,
+    grid: GridSpec,
+    nu_hat,
+    epsi_hat,
+) -> OperatorContext:
+    return OperatorContext(
+        surface=surface,
+        geometry=geom,
+        nu_hat=jnp.asarray(nu_hat, dtype=grid.jax_dtype),
+        epsi_hat=jnp.asarray(epsi_hat, dtype=grid.jax_dtype),
+    )

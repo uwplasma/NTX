@@ -82,6 +82,8 @@ Important environment facts found during planning:
 - [x] Formalize VMEC transport normalization and add a principled `er_hat` path.
 - [x] Add a second VMEC fixture and regression family.
 - [x] Add GPU smoke/regression runs for one DKES case and one VMEC case.
+- [ ] Close the remaining gap to archived DKES and SFINCS benchmark curves.
+- [ ] Push the current scan and GPU performance gains through the full office workflow.
 
 ## Work Log
 
@@ -199,3 +201,53 @@ Important environment facts found during planning:
 - What did not:
   - The office environment still emits a third-party `flatbuffers.compat` deprecation
     warning during pytest. This did not affect correctness and no NTX change was needed.
+
+- Audited the package metadata and removed strict lower bounds on runtime and
+  development dependencies in `pyproject.toml`.
+- Expanded the GitHub Actions CPU workflow to a Python matrix covering `3.10`,
+  `3.11`, and `3.12`, and separated docs into their own job.
+- What worked:
+  - NTX no longer encodes a preferred JAX or NumPy floor in its package metadata.
+  - CI now reflects the supported Python range directly instead of assuming one
+    interpreter version.
+- What did not:
+  - This change still depends on the solver and tests remaining portable across
+    the matrix; the expanded CI needs to stay enabled so future regressions are
+    caught by the workflow rather than by packaging metadata.
+
+- Vendored small archived DKES and SFINCS benchmark tables plus the full
+  W7-X EIM and CIEMAT-QI DKES surfaces into `tests/fixtures/benchmarks/` and
+  `tests/fixtures/`.
+- Added archived benchmark readers in `src/ntx/benchmarks.py` and a standalone
+  comparison script at `scripts/compare_archived_benchmarks.py`.
+- Validation that worked:
+  - The archived reference tables parse reproducibly in tests.
+  - The comparison script produces a structured JSON report for W7-X EIM and
+    CIEMAT-QI.
+- What did not:
+  - NTX is not yet close to the archived converged DKES and SFINCS curves.
+    The current comparison report shows large relative errors, especially for
+    low-collisionality W7-X EIM and for the CIEMAT-QI DKES path. This is now
+    quantified and reproducible, but not solved.
+
+- Found and fixed a real VMEC bug in `solve_monoenergetic_scan`: VMEC `er_hat`
+  scans incorrectly rejected valid surfaces because the scan path checked
+  `psi_p` instead of the resolved VMEC transport scale.
+- Added new VMEC scan coverage in `tests/test_vmec_scan.py` for:
+  - loop-versus-scan agreement
+  - `er_hat` versus explicit `epsi_hat` agreement
+  - W7-X and QI scan regression values
+- Added runtime profiling in `scripts/profile_runtime.py`.
+- Local CPU profiling after jitting the batched scan kernel on 2026-04-08:
+  - case: W7-X VMEC, `GridSpec(9, 11, 6)`, 8-point `nu_hat` scan at `er_hat = 1e-3`
+  - scan compile+run: `1.3269 s`
+  - scan steady-state: `0.2899 s`
+  - Python loop: `2.1097 s`
+  - steady-state scan speedup versus loop: about `7.3x`
+- What worked:
+  - The VMEC scan path now accepts `er_hat` directly.
+  - The jitted scan kernel gives a clear throughput win for repeated solves.
+- What did not:
+  - The single-case dense solve path is still the dominant cost for archived
+    high-resolution DKES comparisons, so the current performance gain helps scans
+    more than it helps the hardest benchmark configurations.

@@ -52,6 +52,8 @@ The repository CPU workflow runs:
 pytest -m "not gpu"
 ```
 
+The GitHub Actions CPU matrix covers Python `3.10`, `3.11`, and `3.12`.
+
 GPU smoke and regression coverage is provided through:
 
 - `tests/test_gpu_smoke.py`
@@ -69,3 +71,9 @@ scripts/sh_office_gpu_smoke.sh
 
 This writes `gpu-smoke-results.json` in the repository root with device
 information, timings, coefficient deltas, and regression summaries.
+
+For local performance profiling on either CPU or GPU:
+
+```bash
+python scripts/profile_runtime.py --output-json runtime-profile.json
+```
