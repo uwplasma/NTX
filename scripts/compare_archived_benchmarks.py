@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """Compare NTX against archived thesis benchmark tables."""
 
 from __future__ import annotations
@@ -33,6 +34,7 @@ from ntx.benchmarks import (
     select_monoenergetic_row,
 )
 from ntx.config import enable_x64
+
 FIXTURES = ROOT / "tests" / "fixtures"
 CASE_BUILDERS = {
     "W7X-EIM": lambda: _compare_w7x_eim(),

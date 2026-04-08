@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """Profile NTX scan throughput against a Python loop."""
 
 from __future__ import annotations
@@ -29,6 +30,7 @@ from ntx import (
     solve_monoenergetic_scan,
 )
 from ntx.config import enable_x64
+
 FIXTURES = ROOT / "tests" / "fixtures"
 
 
