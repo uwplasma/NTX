@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """Compare NTX VMEC geometry against a local sfincs_jax checkout."""
 
 from __future__ import annotations

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """Run NTX GPU smoke/regression cases and write a JSON summary."""
 
 from __future__ import annotations
