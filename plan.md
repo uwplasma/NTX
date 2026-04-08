@@ -168,3 +168,34 @@ Important environment facts found during planning:
   - Actual GPU execution could not be validated in this local session because the available
     JAX environment is CPU-only. The GPU tests were added and skipped cleanly, and the
     `sh office` workflow is now scripted for the next hardware-backed run.
+
+- Office GPU execution completed on 2026-04-08:
+  - host: `office` (`pop-os`)
+  - Python: `3.10.12`
+  - JAX: `0.6.2`
+  - jaxlib: `0.6.2`
+  - backend: `gpu`
+  - device: `cuda:0` (`NVIDIA RTX A4000`)
+- What worked on the office machine:
+  - `ruff check .`
+  - `mypy src/ntx`
+  - `pytest -q` -> `36 passed, 2 skipped`
+  - `pytest -m gpu -q` -> `2 passed`
+  - `python3 -m sphinx -b html docs docs/_build/html`
+  - `python3 scripts/run_gpu_regression.py --output-json gpu-smoke-results.json`
+- GPU regression results from `office`:
+  - `dkes_w7x_smoke`: compile+run `1.444533 s`, steady `0.001732 s`,
+    max relative error `9.439e-09`
+  - `vmec_w7x_smoke`: compile+run `1.589561 s`, steady `0.002774 s`,
+    max relative error `5.681e-13`
+- Follow-up fixes required by the office run:
+  - NTX originally rejected the office GPU Python because the package declared
+    `requires-python >= 3.11`. This was fixed by making NTX explicitly Python 3.10
+    compatible and adding a `tomli` fallback for the TOML loader.
+  - The GPU regression script originally tried to `jit` a function that returned
+    `TransportResult`, which is not a JAX pytree. This was fixed by jitting a helper
+    that returns a plain coefficient vector and by enabling x64 explicitly inside the
+    script before loading surfaces.
+- What did not:
+  - The office environment still emits a third-party `flatbuffers.compat` deprecation
+    warning during pytest. This did not affect correctness and no NTX change was needed.
