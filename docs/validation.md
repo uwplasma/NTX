@@ -132,7 +132,12 @@ Run:
 ```bash
 python scripts/benchmark_against_reference_executable.py --case w7x_eim_er0 --platform cpu
 python scripts/benchmark_against_reference_executable.py --case w7x_eim_er0 --platform gpu --disable-preallocate
+python scripts/benchmark_against_reference_executable.py --case w7x_eim_er0 --platform cpu --mode compiled --skip-reference_executable
 ```
+
+The benchmark harness defaults to `--mode eager`. Use `--mode compiled` only
+when you explicitly want to measure the jitted prepared-solver path on a fixed
+surface and grid.
 
 On `office` on 2026-04-08, for the W7-X EIM `23 x 55 x 80` case at
 `nu_hat = 1e-5`, `er_hat = 0`:
@@ -149,6 +154,27 @@ On `office` on 2026-04-08, for the W7-X EIM `23 x 55 x 80` case at
   - NTX steady run: about `4.37 s`
   - NTX/REFERENCE_EXECUTABLE steady runtime ratio: about `0.87x`
   - sampled NTX GPU memory: about `740 MiB`
+
+On the local macOS CPU run on 2026-04-08, the same W7-X EIM case showed the
+tradeoff between the eager and compiled prepared-solver paths:
+
+- eager mode:
+  - first run: about `8.54 s`
+  - steady run: about `6.44 s`
+- compiled mode:
+  - compile plus first run: about `6.82 s`
+  - steady run: about `5.71 s`
+
+This is a real improvement, but not a dramatic one for the heavy
+`23 x 55 x 80` CPU case. On the `office` CPU host, an attempted repeated
+compiled benchmark run for that same heavy case took long enough to be
+operationally unattractive for the benchmark workflow, so the default harness
+remains eager-mode for same-host comparisons.
+
+The benchmark script test path no longer exercises the heavy W7-X EIM production
+case. It now uses a dedicated `w7x_eim_smoke` benchmark case (`5 x 5 x 4`) so
+CI and office validation keep the CLI coverage without spending minutes inside a
+runtime benchmark.
 
 One CPU tuning attempt that did **not** help:
 

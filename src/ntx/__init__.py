@@ -12,9 +12,11 @@ from .io import (
 )
 from .sfincs_geometry import compare_vmec_geometry_to_sfincs
 from .solver import (
+    CompiledPreparedSolver,
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
     TransportResult,
+    compile_prepared_solver,
     prepare_monoenergetic_system,
     solve_monoenergetic,
     solve_monoenergetic_scan,
@@ -24,11 +26,13 @@ from .transport import onsager_error
 
 __all__ = [
     "BoozerSurface",
+    "CompiledPreparedSolver",
     "GridSpec",
     "MonoenergeticCase",
     "PreparedMonoenergeticSystem",
     "TransportResult",
     "VmecSurface",
+    "compile_prepared_solver",
     "compare_vmec_geometry_to_sfincs",
     "enable_x64",
     "example_surface",

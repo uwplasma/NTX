@@ -86,6 +86,11 @@ Important environment facts found during planning:
   archived solves and a clear interpretation of the DKES/SFINCS spread.
 - [x] Push the current scan and GPU performance gains through the full office workflow.
 - [ ] Close the VMEC cross-code gap now that a direct REFERENCE_EXECUTABLE VMEC comparison path exists.
+- [x] Add a compiled prepared-solver path for repeated fixed-geometry solves.
+- [x] Keep runtime benchmarking honest by leaving eager mode as the default and
+  making compiled mode explicit.
+- [x] Reduce runtime-benchmark test cost by introducing a dedicated smoke
+  benchmark case instead of reusing a production-sized case in tests.
 
 ## Work Log
 
@@ -258,6 +263,67 @@ Important environment facts found during planning:
   scan, and benchmark-script changes.
 - Office environment on 2026-04-08 after this round:
   - host: `office`
+
+- Added `compile_prepared_solver()` to expose a jitted repeated-solve path for a
+  fixed prepared geometry. This keeps the existing eager APIs intact while
+  making the optimized path explicit for repeated solves.
+- Measured the local macOS CPU runtime tradeoff on 2026-04-08 for the W7-X EIM
+  `23 x 55 x 80` case:
+  - eager mode: first `8.54 s`, steady `6.44 s`
+  - compiled mode: first `6.82 s`, steady `5.71 s`
+- What worked:
+  - The compiled prepared-solver path matches the eager solver in tests.
+  - The heavy local CPU case does get a modest runtime reduction from the
+    compiled path.
+- What did not:
+  - The compiled path is not a universal win. On the `office` CPU host, a
+    repeated compiled benchmark attempt for the same heavy case took long enough
+    to be impractical for the benchmark workflow, so the benchmark harness now
+    defaults back to eager mode and treats compiled mode as an explicit option.
+
+- Added an explicit `--mode {eager,compiled}` switch to
+  `scripts/benchmark_against_reference_executable.py`.
+- Added a dedicated benchmark smoke case:
+  - `w7x_eim_smoke`
+  - grid `5 x 5 x 4`
+  - `nu_hat = 1e-5`
+  - `er_hat = 1e-3`
+- Updated `tests/test_benchmark_runtime_script.py` to use the smoke benchmark
+  case instead of the production-sized W7-X EIM case.
+- What worked:
+  - The benchmark script still covers the CLI/runtime JSON path.
+  - The smoke benchmark cuts the local benchmark-script test down to about
+    `18 s` for the combined solver and benchmark-script test file instead of
+    spending most of that time in a production-sized runtime benchmark.
+- What did not:
+  - A full office rerun of the complete test suite still spends substantial
+    wall time on heavy runtime-oriented tests. For the latest branch, the useful
+    office validation set was the changed solver tests, GPU smoke tests, docs
+    build, and the GPU regression script rather than another full remote
+    end-to-end suite pass.
+
+- Office targeted validation on 2026-04-08 after the smoke-benchmark change:
+  - `python3 -m pytest -q tests/test_solver.py tests/test_benchmark_runtime_script.py`
+    -> `8 passed, 1 warning in 41.81 s`
+  - `python3 -m pytest -m gpu -q tests/test_gpu_smoke.py`
+    -> `2 passed, 1 warning in 23.33 s`
+  - `python3 -m sphinx -b html docs docs/_build/html`
+    -> passed
+  - `python3 scripts/run_gpu_regression.py --output-json gpu-smoke-results.json`
+    -> passed
+- Office GPU regression results in that targeted run:
+  - `dkes_w7x_smoke`: compile+run `4.279937 s`, steady `0.004156 s`,
+    max relative error `9.439e-09`
+  - `vmec_w7x_smoke`: compile+run `6.576037 s`, steady `0.006947 s`,
+    max relative error `3.268e-07`
+- What worked:
+  - The changed solver tests, benchmark-script test, GPU smoke tests, docs
+    build, and GPU regression all passed on `office`.
+- What did not:
+  - Repeating the heavy same-host W7-X EIM CPU benchmark on the shared office
+    host was not a good use of wall time once the earlier same-day eager
+    measurements were already in hand, so that rerun was stopped and the prior
+    validated eager benchmark numbers were kept as the reference.
   - Python: `3.10.12`
   
 - Added a standalone runtime benchmark runner:

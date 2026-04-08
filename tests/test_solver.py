@@ -5,6 +5,7 @@ import jax.numpy as jnp
 from ntx import (
     GridSpec,
     MonoenergeticCase,
+    compile_prepared_solver,
     example_surface,
     prepare_monoenergetic_system,
     solve_monoenergetic,
@@ -69,3 +70,14 @@ def test_prepared_system_matches_direct_solve():
     cached = solve_prepared(prepared, case).as_dict()
     for key, value in direct.items():
         assert jnp.allclose(value, cached[key], rtol=1e-12, atol=1e-12)
+
+
+def test_compiled_prepared_solver_matches_eager_solve():
+    surface = example_surface()
+    grid = GridSpec(5, 5, 4)
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    prepared = prepare_monoenergetic_system(surface, grid)
+    eager = solve_prepared(prepared, case).as_dict()
+    compiled = compile_prepared_solver(prepared)(case).as_dict()
+    for key, value in eager.items():
+        assert jnp.allclose(value, compiled[key], rtol=1e-12, atol=1e-12)
