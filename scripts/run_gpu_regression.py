@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import jax
+import jax.numpy as jnp
 from rich.console import Console
 from rich.table import Table
 
@@ -20,6 +21,7 @@ from ntx import (
     load_vmec_surface,
     solve_monoenergetic,
 )
+from ntx.config import enable_x64
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,6 +32,7 @@ def main() -> int:
     args = parser.parse_args()
 
     console = Console()
+    enable_x64(True)
     devices = jax.devices()
     gpu_devices = [device for device in devices if device.platform == "gpu"]
     if not gpu_devices:
@@ -82,20 +85,28 @@ def main() -> int:
         grid = entry["grid"]
         case = entry["case"]
         solve = jax.jit(
-            lambda surface=surface, grid=grid, case=case: solve_monoenergetic(surface, grid, case)
+            lambda surface=surface, grid=grid, case=case: _solve_coeff_vector(surface, grid, case)
         )
 
         t0 = time.perf_counter()
         warm = solve()
-        warm.D33.block_until_ready()
+        warm.block_until_ready()
         compile_and_first_run_s = time.perf_counter() - t0
 
         t1 = time.perf_counter()
-        result = solve()
-        result.D33.block_until_ready()
+        coeffs = solve()
+        coeffs.block_until_ready()
         steady_run_s = time.perf_counter() - t1
 
-        result_dict = result.as_dict()
+        result_dict = {
+            "D11": float(coeffs[0]),
+            "D31": float(coeffs[1]),
+            "D13": float(coeffs[2]),
+            "D33": float(coeffs[3]),
+            "D33_spitzer": float(coeffs[4]),
+            "residual_l2": float(coeffs[5]),
+            "onsager_residual": float(coeffs[6]),
+        }
         deltas = {
             key: float(result_dict[key] - entry["expected"][key]) for key in entry["expected"]
         }
@@ -146,6 +157,20 @@ def main() -> int:
         console.print(f"[bold red]Regression tolerance exceeded:[/bold red] {', '.join(failures)}")
         return 2
     return 0
+
+def _solve_coeff_vector(surface, grid: GridSpec, case: MonoenergeticCase) -> jnp.ndarray:
+    result = solve_monoenergetic(surface, grid, case)
+    return jnp.asarray(
+        [
+            result.D11,
+            result.D31,
+            result.D13,
+            result.D33,
+            result.D33_spitzer,
+            result.residual_l2,
+            result.onsager_residual,
+        ]
+    )
 
 
 if __name__ == "__main__":
