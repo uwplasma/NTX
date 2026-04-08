@@ -40,6 +40,42 @@ case = MonoenergeticCase(nu_hat=1e-5, er_hat=1e-3)
 result = solve_monoenergetic(surface, grid, case)
 ```
 
+## Input Files
+
+The installed executable accepts a single TOML input file:
+
+```bash
+ntx input.toml
+```
+
+```toml
+[surface]
+type = "dkes"
+path = "/path/to/ddkes2.data"
+
+[grid]
+n_theta = 19
+n_zeta = 79
+n_xi = 180
+
+[case]
+nu_hat = 1e-5
+er_hat = 1e-3
+
+[output]
+npz = "run_outputs/w7x_eim.npz"
+include_modes = true
+
+[benchmark]
+reference_table = "/path/to/reference_executable_Monoenergetic_Database.dat"
+
+[logging]
+verbose = true
+```
+
+NTX prints detailed terminal output using Rich and stores the solve results,
+metadata, and optional comparison deltas in the requested `.npz` file.
+
 ## Benchmarks
 
 NTX can read archived REFERENCE_EXECUTABLE-style monoenergetic tables for regression and local

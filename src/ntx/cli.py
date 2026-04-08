@@ -4,17 +4,25 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from .benchmarks import coefficient_errors, nearest_reference_row, read_monoenergetic_table
 from .config import enable_x64
 from .geometry import example_surface
 from .grids import GridSpec
+from .inputfiles import run_from_input_file
 from .io import load_dkes_surface
 from .solver import MonoenergeticCase, solve_monoenergetic
 
 
 def main(argv: list[str] | None = None) -> int:
+    args_list = sys.argv[1:] if argv is None else argv
+    if _looks_like_input_file(args_list):
+        payload = run_from_input_file(args_list[0])
+        print(json.dumps(payload["result"], indent=2, sort_keys=True))
+        return 0
+
     parser = argparse.ArgumentParser(prog="ntx")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -41,7 +49,8 @@ def main(argv: list[str] | None = None) -> int:
         help="print the built-in example Boozer surface",
     )
     inspect_surface.add_argument("--dkes", type=Path, help="path to a DKES-format ddkes2.data file")
-    benchmark = sub.add_parser("benchmark", help="compare an example solve to an external table")
+
+    benchmark = sub.add_parser("benchmark", help="compare a solve to an external table")
     benchmark_surface = benchmark.add_mutually_exclusive_group(required=True)
     benchmark_surface.add_argument(
         "--example",
@@ -60,7 +69,7 @@ def main(argv: list[str] | None = None) -> int:
     benchmark.add_argument("--n-zeta", type=int, default=5)
     benchmark.add_argument("--n-xi", type=int, default=6)
 
-    args = parser.parse_args(argv)
+    args = parser.parse_args(args_list)
     if args.command == "solve":
         enable_x64(True)
         surface = _load_surface(args)
@@ -100,6 +109,13 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     return 1
+
+
+def _looks_like_input_file(argv: list[str]) -> bool:
+    if len(argv) != 1:
+        return False
+    candidate = Path(argv[0]).expanduser()
+    return candidate.suffix == ".toml" and candidate.exists()
 
 
 def _load_surface(args):

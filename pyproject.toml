@@ -16,6 +16,7 @@ dependencies = [
   "jax>=0.4.30",
   "jaxlib>=0.4.30",
   "numpy>=1.26",
+  "rich>=13.7",
   "scipy>=1.11",
   "typing-extensions>=4.10",
 ]
