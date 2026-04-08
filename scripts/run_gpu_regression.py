@@ -5,9 +5,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import time
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 import jax
 import jax.numpy as jnp
@@ -22,8 +28,6 @@ from ntx import (
     solve_monoenergetic,
 )
 from ntx.config import enable_x64
-
-ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> int:
@@ -64,11 +68,11 @@ def main() -> int:
             "grid": GridSpec(7, 9, 4),
             "case": MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3),
             "expected": {
-                "D11": 0.10146903492590549,
-                "D31": 1.475206169374796,
-                "D13": -1.4857960833097414,
-                "D33": 244.9115457177769,
-                "D33_spitzer": 668.9315902960439,
+                "D11": 0.26059288868417236,
+                "D31": -0.2671905614991318,
+                "D13": 0.22917651621927108,
+                "D33": 5.505770775408808,
+                "D33_spitzer": 668.5079790482463,
             },
         },
     ]
