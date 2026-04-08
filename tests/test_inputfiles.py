@@ -73,7 +73,7 @@ def test_load_run_config_requires_vmec_psi_n(tmp_path):
         raise AssertionError("expected VMEC configuration without psi_n to fail")
 
 
-def test_load_run_config_rejects_vmec_er_hat(tmp_path):
+def test_load_run_config_accepts_vmec_er_hat(tmp_path):
     input_path = tmp_path / "vmec.toml"
     input_path.write_text(
         "\n".join(
@@ -95,12 +95,9 @@ def test_load_run_config_rejects_vmec_er_hat(tmp_path):
         ),
         encoding="utf-8",
     )
-    try:
-        load_run_config(input_path)
-    except ValueError as exc:
-        assert "case.epsi_hat" in str(exc)
-    else:
-        raise AssertionError("expected VMEC configuration with er_hat to fail")
+    config = load_run_config(input_path)
+    assert config.case.er_hat == 2e-3
+    assert config.case.epsi_hat is None
 
 
 def test_run_from_input_file_vmec_writes_metadata_npz(tmp_path):
@@ -140,3 +137,7 @@ def test_run_from_input_file_vmec_writes_metadata_npz(tmp_path):
         assert "geometry_metadata_json" in data
         assert "algorithm_metadata_json" in data
         assert np.isnan(data["surface_psi_p"])
+        assert "vmec_r_n" in data
+        assert "vmec_r_hat" in data
+        assert "vmec_dpsi_hat_dr_hat" in data
+        assert "vmec_dr_hat_dpsi_hat" in data

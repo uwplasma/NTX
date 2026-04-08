@@ -60,6 +60,10 @@ class VmecSurface:
     b0: float
     psi_a_hat: float
     phi_edge: float
+    r_n: float
+    r_hat: float
+    dpsi_hat_dr_hat: float
+    dr_hat_dpsi_hat: float
     aminor_p: float | None = None
     psi_p: float | None = None
     transport_psi_scale: float = 1.0

@@ -72,3 +72,47 @@ Important environment facts found during planning:
 - First release scope is monoenergetic geometric coefficients `D11`, `D31`,
   `D13`, `D33` plus `D33_spitzer`; full momentum-restoring transport is deferred
   until after the monoenergetic solver is validated.
+
+## Current Execution Plan
+
+- [x] Establish the initial JAX solver, CLI, docs, CI, and DKES/VMEC support.
+- [x] Add verbose `ntx input.toml` runs and rich `.npz` outputs.
+- [x] Match the DKES path against the external local benchmark code.
+- [x] Add the first VMEC fixture, examples, docs, and regression coverage.
+- [ ] Formalize VMEC transport normalization and add a principled `er_hat` path.
+- [ ] Add a second VMEC fixture and regression family.
+- [ ] Add GPU smoke/regression runs for one DKES case and one VMEC case.
+
+## Work Log
+
+### 2026-04-08
+
+- Confirmed the existing VMEC path still used a placeholder `transport_psi_scale = 1.0`,
+  which kept `epsi_hat` runs workable but made `er_hat` unsupported and left the VMEC
+  transport normalization under-specified.
+- Audited the local `sfincs_jax` VMEC radial conversions. The relevant derivative factors
+  are in `/Users/rogeriojorge/local/tests/sfincs_jax/sfincs_jax/io.py`, where
+  `dpsi_hat/dr_hat = 2 * psi_a_hat * sqrt(psi_n) / a_hat` and
+  `dr_hat/dpsi_hat` is its reciprocal.
+- Verified the local QI VMEC candidates in
+  `/Users/rogeriojorge/local/tests/sfincs_jax/examples/additional_examples/` are
+  stellarator-symmetric (`lasym = 0`) and include `Aminor_p`, so they are suitable
+  for NTX regression coverage.
+- Implemented the VMEC normalization update so NTX now derives:
+  - `r_n = sqrt(psi_n)`
+  - `r_hat = Aminor_p * r_n`
+  - `transport_psi_scale = dpsi_hat/dr_hat`
+  - `dr_hat/dpsi_hat`
+- Implemented VMEC `er_hat` support by resolving `epsi_hat = er_hat / transport_psi_scale`
+  instead of hard-rejecting `er_hat` on VMEC surfaces.
+- Extended the VMEC runtime metadata and `.npz` payload with `r_n`, `r_hat`,
+  `dpsi_hat/dr_hat`, and `dr_hat/dpsi_hat`.
+- Added focused tests for the new VMEC normalization and `er_hat` resolution path.
+- What worked:
+  - The new normalization path is consistent across solver execution, Rich terminal output,
+    and `.npz` output metadata.
+  - Focused tests passed after the patch.
+- What did not:
+  - The previous VMEC regression references are now stale because they were recorded with
+    the old placeholder normalization. They need to be regenerated and updated before the
+    full suite can be considered current again.
