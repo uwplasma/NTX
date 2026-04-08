@@ -7,11 +7,17 @@ import numpy as np
 from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
 
 VMEC_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "wout_w7x_standardConfig.nc"
+QI_VMEC_FIXTURE = (
+    Path(__file__).resolve().parent
+    / "fixtures"
+    / "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
+)
 
 
 def test_vmec_regression_reference_cases():
     cases = [
         (
+            VMEC_FIXTURE,
             dict(psi_n=0.25, vmec_radial_option=0, vmec_nyquist_option=1, min_bmn_to_load=0.0),
             GridSpec(9, 11, 6),
             MonoenergeticCase(nu_hat=1e-3, epsi_hat=0.0),
@@ -26,6 +32,7 @@ def test_vmec_regression_reference_cases():
             },
         ),
         (
+            VMEC_FIXTURE,
             dict(psi_n=0.25, vmec_radial_option=0, vmec_nyquist_option=1, min_bmn_to_load=0.0),
             GridSpec(9, 11, 6),
             MonoenergeticCase(nu_hat=1e-3, epsi_hat=1e-3),
@@ -40,6 +47,7 @@ def test_vmec_regression_reference_cases():
             },
         ),
         (
+            VMEC_FIXTURE,
             dict(psi_n=0.25, vmec_radial_option=0, vmec_nyquist_option=1, min_bmn_to_load=0.0),
             GridSpec(9, 11, 6),
             MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3),
@@ -54,6 +62,7 @@ def test_vmec_regression_reference_cases():
             },
         ),
         (
+            VMEC_FIXTURE,
             dict(psi_n=0.253, vmec_radial_option=1, vmec_nyquist_option=2, min_bmn_to_load=1e-3),
             GridSpec(9, 11, 6),
             MonoenergeticCase(nu_hat=1e-3, epsi_hat=0.0),
@@ -67,9 +76,49 @@ def test_vmec_regression_reference_cases():
                 "onsager_residual": 0.04110944262478222,
             },
         ),
+        (
+            QI_VMEC_FIXTURE,
+            dict(
+                psi_n=0.12247**2,
+                vmec_radial_option=0,
+                vmec_nyquist_option=1,
+                min_bmn_to_load=0.0,
+            ),
+            GridSpec(9, 11, 6),
+            MonoenergeticCase(nu_hat=1e-3, epsi_hat=0.0),
+            {
+                "D11": 1.785555385553368e-05,
+                "D31": 0.00048195121480907905,
+                "D13": -0.00019901773655429882,
+                "D33": 209.9544763442989,
+                "D33_spitzer": 636.1236237952869,
+                "residual_l2": 0.0006053645572013163,
+                "onsager_residual": 0.00028293347825478026,
+            },
+        ),
+        (
+            QI_VMEC_FIXTURE,
+            dict(
+                psi_n=0.12247**2,
+                vmec_radial_option=0,
+                vmec_nyquist_option=1,
+                min_bmn_to_load=0.0,
+            ),
+            GridSpec(9, 11, 6),
+            MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3),
+            {
+                "D11": 1.778129748567723e-05,
+                "D31": 0.00048117892794110684,
+                "D13": -0.00019795231811614087,
+                "D33": 209.95479247294583,
+                "D33_spitzer": 636.1236237952869,
+                "residual_l2": 0.0006047585659399759,
+                "onsager_residual": 0.00028322660982496594,
+            },
+        ),
     ]
-    for surface_kwargs, grid, case, expected in cases:
-        surface = load_vmec_surface(VMEC_FIXTURE, **surface_kwargs)
+    for fixture, surface_kwargs, grid, case, expected in cases:
+        surface = load_vmec_surface(fixture, **surface_kwargs)
         result = solve_monoenergetic(surface, grid, case).as_dict()
         for key, reference in expected.items():
             assert np.isclose(result[key], reference, rtol=1e-10, atol=1e-10), (key, result[key])

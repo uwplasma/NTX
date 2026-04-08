@@ -81,6 +81,7 @@ Important environment facts found during planning:
 - [x] Add the first VMEC fixture, examples, docs, and regression coverage.
 - [ ] Formalize VMEC transport normalization and add a principled `er_hat` path.
 - [ ] Add a second VMEC fixture and regression family.
+- [ ] Add a second VMEC fixture and regression family.
 - [ ] Add GPU smoke/regression runs for one DKES case and one VMEC case.
 
 ## Work Log
@@ -116,3 +117,26 @@ Important environment facts found during planning:
   - The previous VMEC regression references are now stale because they were recorded with
     the old placeholder normalization. They need to be regenerated and updated before the
     full suite can be considered current again.
+
+- Vendored a second VMEC fixture into NTX:
+  `/Users/rogeriojorge/local/.NTX/tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc`.
+- Confirmed the QI fixture solves cleanly on the current VMEC path with:
+  - `psi_n = 0.12247^2`
+  - `nfp = 2`
+  - `loaded_mode_count = 72`
+  - `transport_psi_scale = 0.9673631438898428`
+- Added a QI VMEC example input around the new `er_hat` path:
+  `/Users/rogeriojorge/local/.NTX/examples/qi_vmec_erhat.toml`.
+- Added dedicated QI VMEC tests:
+  - unit coverage in `tests/test_vmec.py`
+  - physics coverage in `tests/test_vmec_qi.py`
+  - regression coverage in `tests/test_vmec_regression.py`
+  - CLI coverage in `tests/test_cli.py`
+- What worked:
+  - The QI fixture provides a genuinely different VMEC family from W7-X while remaining
+    small enough for repository regression coverage.
+  - The new `er_hat` path remains numerically consistent with explicit `epsi_hat` runs on
+    both W7-X and the QI VMEC fixture.
+- What did not:
+  - Documentation and user-facing examples still need to be updated to describe the new
+    QI fixture and the VMEC `er_hat` normalization explicitly.
