@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ntx"
+version = "0.1.0"
+description = "JAX-native monoenergetic neoclassical transport solver"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "UW Plasma" }
+]
+dependencies = [
+  "jax>=0.4.30",
+  "jaxlib>=0.4.30",
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "typing-extensions>=4.10",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "ruff>=0.6",
+  "mypy>=1.10",
+]
+docs = [
+  "sphinx>=7",
+  "myst-parser>=2",
+  "sphinx-rtd-theme>=2",
+]
+io = [
+  "netCDF4>=1.6",
+  "xarray>=2024.1",
+]
+
+[project.scripts]
+ntx = "ntx.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ntx"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+  "gpu: tests that require a JAX GPU device",
+  "benchmark: tests that require external benchmark data or executables",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["ntx"]
+ignore_missing_imports = true
+warn_unused_ignores = true
