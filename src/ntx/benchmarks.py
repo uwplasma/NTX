@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from io import StringIO
 from pathlib import Path
 
 import numpy as np
@@ -62,7 +63,8 @@ def read_sfincs_transport_scan(
 ) -> np.ndarray:
     """Read an archived SFINCS scan with columns `nu / v, D_11, D_31`."""
 
-    raw = np.genfromtxt(path, delimiter=",", skip_header=1)
+    text = Path(path).read_text(encoding="utf-8").replace(",", " ")
+    raw = np.genfromtxt(StringIO(text), skip_header=1)
     raw = np.atleast_2d(raw)
     table = np.zeros(raw.shape[0], dtype=_transport_dtype())
     table["nu_hat"] = raw[:, 0]
@@ -112,6 +114,40 @@ def nearest_reference_row(table: np.ndarray, nu_hat: float, er_hat: float | None
     if er_hat is not None and "er_hat" in names:
         distance = distance + np.abs(table["er_hat"] - er_hat)
     return table[int(np.argmin(distance))]
+
+
+def select_monoenergetic_row(
+    table: np.ndarray,
+    *,
+    nu_hat: float,
+    er_hat: float,
+    n_theta: int | None = None,
+    n_zeta: int | None = None,
+    n_xi: int | None = None,
+    atol: float = 1e-12,
+) -> np.void:
+    """Select a monoenergetic reference row, optionally constraining the grid."""
+
+    mask = np.isclose(table["nu_hat"], nu_hat, atol=atol, rtol=0.0)
+    mask &= np.isclose(table["er_hat"], er_hat, atol=atol, rtol=0.0)
+    if n_theta is not None:
+        mask &= np.isclose(table["n_theta"], n_theta, atol=0.0, rtol=0.0)
+    if n_zeta is not None:
+        mask &= np.isclose(table["n_zeta"], n_zeta, atol=0.0, rtol=0.0)
+    if n_xi is not None:
+        mask &= np.isclose(table["n_xi"], n_xi, atol=0.0, rtol=0.0)
+    matches = np.atleast_1d(table[mask])
+    if matches.size == 0:
+        requested = {
+            "nu_hat": nu_hat,
+            "er_hat": er_hat,
+            "n_theta": n_theta,
+            "n_zeta": n_zeta,
+            "n_xi": n_xi,
+        }
+        msg = f"no monoenergetic row matching {requested}"
+        raise ValueError(msg)
+    return matches[0]
 
 
 def coefficient_errors(result: dict[str, float], row: np.void) -> dict[str, float]:

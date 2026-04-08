@@ -82,7 +82,8 @@ Important environment facts found during planning:
 - [x] Formalize VMEC transport normalization and add a principled `er_hat` path.
 - [x] Add a second VMEC fixture and regression family.
 - [x] Add GPU smoke/regression runs for one DKES case and one VMEC case.
-- [ ] Close the remaining gap to archived DKES and SFINCS benchmark curves.
+- [ ] Finish the archived cross-code benchmark campaign, with exact CIEMAT-QI
+  archived solves and a clear interpretation of the DKES/SFINCS spread.
 - [ ] Push the current scan and GPU performance gains through the full office workflow.
 
 ## Work Log
@@ -258,6 +259,48 @@ Important environment facts found during planning:
   - host: `office`
   - Python: `3.10.12`
   - JAX: `0.6.2`
+
+- Audited the archived benchmark parser against the vendored thesis tables and
+  found a real tooling bug: the archived DKES and SFINCS tables were already in
+  NTX coefficient units, so `compare_archived_benchmarks.py` was incorrectly
+  multiplying them by extra powers of `psi_p`.
+- Confirmed that the archived W7-X EIM benchmark labelled `0.200` actually uses
+  the same DKES magnetic-configuration scalars as the example `s = 0.25`
+  surface:
+  - `psi_p = -0.5237`
+  - `chi_p = 0.4512`
+  - `iota = -0.861561962955891`
+  - `B00 = 2.4311`
+  - `B_zeta = -14.0876`
+- Added a generic text magnetic-configuration loader to NTX so benchmark
+  surfaces archived as Fourier tables can be solved directly without going
+  through DKES or VMEC input formats.
+- Vendored the W7-X KJM archived benchmark family into `tests/fixtures/`,
+  including:
+  - DKES results
+  - SFINCS zero- and finite-electric-field scans
+  - the archived magnetic configuration
+  - the archived monoenergetic reference table
+- Added archived monoenergetic reference tables for W7-X EIM and CIEMAT-QI and
+  extended the benchmark tooling so NTX can compare against:
+  - archived monoenergetic reference tables
+  - archived DKES tables
+  - archived SFINCS tables
+- What worked:
+  - W7-X EIM: at `23 x 55 x 80`, NTX matches the archived monoenergetic
+    reference to floating-point tolerance.
+  - W7-X KJM: at `19 x 79 x 180`, NTX matches the archived monoenergetic
+    reference to floating-point tolerance.
+  - The remaining spread versus archived DKES and SFINCS is now exposed as a
+    real cross-code comparison rather than a parser artifact.
+  - The full test suite remained green after the benchmark-tooling changes:
+    `44 passed, 2 skipped`.
+- What did not:
+  - The exact archived CIEMAT-QI solve at `47 x 215 x 160` is substantially
+    heavier than the W7-X cases. It is now wired into the archived benchmark
+    script, but it is still too slow to treat as a default smoke check and
+    should remain a selective validation run until the dense solver path is
+    sped up further.
   - jaxlib: `0.6.2`
   - backend: `gpu`
   - device: `cuda:0`
