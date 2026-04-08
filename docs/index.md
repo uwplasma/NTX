@@ -21,17 +21,37 @@ for modes needed to evaluate the geometric monoenergetic coefficients
 ## Example
 
 ```python
-from ntx import GridSpec, MonoenergeticCase, example_surface, solve_monoenergetic
+from ntx import (
+    GridSpec,
+    MonoenergeticCase,
+    example_surface,
+    load_dkes_surface,
+    solve_monoenergetic,
+)
 
 surface = example_surface()
 grid = GridSpec(n_theta=5, n_zeta=5, n_xi=6)
 case = MonoenergeticCase(nu_hat=1e-3, er_hat=0.0)
 result = solve_monoenergetic(surface, grid, case)
 print(result.as_dict())
+
+surface = load_dkes_surface("/path/to/ddkes2.data")
+case = MonoenergeticCase(nu_hat=1e-5, er_hat=1e-3)
+result = solve_monoenergetic(surface, grid, case)
 ```
 
 ## Benchmarks
 
-Reference comparisons should be generated from external benchmark runs and kept
-outside the NTX implementation. Large benchmark artifacts should not be committed
-unless deliberately tracked as fixtures.
+NTX can read archived REFERENCE_EXECUTABLE-style monoenergetic tables for regression and local
+benchmark comparisons:
+
+```bash
+ntx benchmark \
+  --dkes /path/to/ddkes2.data \
+  /path/to/reference_executable_Monoenergetic_Database.dat \
+  --nu-hat 1e-5 \
+  --er-hat 1e-3
+```
+
+Large benchmark artifacts should still stay outside the main package unless they
+are intentionally reduced to compact regression fixtures.

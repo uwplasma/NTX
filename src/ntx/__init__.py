@@ -3,6 +3,7 @@
 from .config import enable_x64
 from .geometry import BoozerSurface, example_surface
 from .grids import GridSpec
+from .io import load_boozer_modes_csv, load_dkes_surface
 from .solver import (
     MonoenergeticCase,
     TransportResult,
@@ -18,6 +19,8 @@ __all__ = [
     "TransportResult",
     "enable_x64",
     "example_surface",
+    "load_boozer_modes_csv",
+    "load_dkes_surface",
     "onsager_error",
     "solve_monoenergetic",
     "solve_monoenergetic_scan",

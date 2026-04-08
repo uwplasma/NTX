@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import jax.numpy as jnp
 
 from ntx.geometry import BoozerSurface, evaluate_boozer_modes, example_surface, geometry_on_grid
 from ntx.grids import GridSpec, flux_surface_average
+from ntx.io import load_dkes_surface
 
 
 def test_boozer_mode_evaluation_single_cosine():
@@ -34,3 +37,14 @@ def test_flux_surface_average_of_constant_is_constant():
         geom.grid.dzeta,
     )
     assert jnp.allclose(value, 3.0)
+
+
+def test_load_dkes_surface_matches_reference_executable_sign_convention():
+    fixture = Path(__file__).resolve().parent / "fixtures" / "w7x_eim_sample.ddkes2.data"
+    surface = load_dkes_surface(fixture)
+    assert surface.nfp == 5
+    assert jnp.isclose(surface.psi_p, -0.5237)
+    assert jnp.isclose(surface.iota, -0.8615619629558907)
+    assert jnp.isclose(surface.b0, 2.4311)
+    b00, _, _ = evaluate_boozer_modes(surface, jnp.asarray(0.0), jnp.asarray(0.0))
+    assert jnp.isclose(b00, 2.4093327)

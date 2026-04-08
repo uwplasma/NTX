@@ -13,4 +13,6 @@ pure JAX functions so that the same numerical path can run on CPU or GPU.
 python -m pip install -e ".[dev,docs,io]"
 pytest -m "not gpu"
 ntx solve --example --nu-hat 1e-3 --er-hat 0.0 --n-theta 5 --n-zeta 5 --n-xi 6
+ntx solve --dkes /path/to/ddkes2.data --nu-hat 1e-5 --er-hat 0.0 --n-theta 19 --n-zeta 79 --n-xi 180
+ntx benchmark --dkes /path/to/ddkes2.data /path/to/reference_executable_Monoenergetic_Database.dat --nu-hat 1e-5 --er-hat 1e-3
 ```
