@@ -301,6 +301,22 @@ Important environment facts found during planning:
     script, but it is still too slow to treat as a default smoke check and
     should remain a selective validation run until the dense solver path is
     sped up further.
+
+- Tried a targeted dense-solver speed cleanup in the low-mode back-substitution:
+  - reused LU factors for the saved `k = 0, 1, 2` blocks
+  - solved the `F1` and `F3` right-hand sides together where they share the
+    same LU factor
+- What worked:
+  - The W7-X benchmark outputs stayed unchanged to roundoff after the patch,
+    which confirms the algebraic refactor did not change the physics.
+  - The low-mode solve path is now cheaper and simpler, with fewer repeated LU
+    factorizations.
+- What did not:
+  - The exact CIEMAT-QI archived solve at `47 x 215 x 160`, `nu_hat = 1e-5`,
+    `er_hat = 0` still did not return quickly enough on the local CPU after
+    this cleanup to justify promoting it into the default validation smoke path.
+    More substantial dense-kernel work or a GPU-backed validation path is still
+    needed there.
   - jaxlib: `0.6.2`
   - backend: `gpu`
   - device: `cuda:0`
