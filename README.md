@@ -195,6 +195,52 @@ surface and grid. The standard `solve_monoenergetic()` and `solve_prepared()`
 paths remain the right default for single solves and for heavy CPU benchmark
 cases where XLA compile time may not amortize cleanly.
 
+## Differentiable Core
+
+NTX now has an explicit imported differentiable lane separate from the CLI/file
+lane.
+
+The CLI entrypoint `ntx input.toml` remains optimized for file-based runs,
+verbose terminal output, and `.npz` export. That path is not intended to be
+used under autodiff.
+
+The imported solver path is designed to stay inside JAX once the surface object
+has been constructed:
+
+```python
+from ntx import GridSpec, MonoenergeticCase, example_surface, solve_monoenergetic_internal
+
+surface = example_surface()
+grid = GridSpec(5, 5, 4)
+case = MonoenergeticCase(nu_hat=1e-2, er_hat=1e-3)
+
+Dij, f, s = solve_monoenergetic_internal(surface, grid, case)
+```
+
+Here:
+
+- `Dij` has shape `(3, 3)`
+- `f` and `s` contain the retained low-order mode systems with shape
+  `(3, 3, n_theta * n_zeta)`
+
+This API is the intended starting point for NTX-driven monoenergetic database
+generation inside higher-level JAX workflows such as NEOPAX.
+
+Current differentiability scope:
+
+- gradients through `nu_hat`
+- gradients through `er_hat`
+- gradients through Boozer Fourier coefficients and other surface arrays
+- `jit` over surface arguments in the imported solver path
+
+Current non-differentiable scope:
+
+- text and NetCDF file parsing
+- CLI/config loading
+- Rich terminal output and `.npz` serialization
+- the current VMEC file loader, which uses NumPy/SciPy interpolation and Python
+  scalar coercions
+
 ## Algorithm
 
 For each monoenergetic case, NTX solves
@@ -213,6 +259,11 @@ with:
 
 The current implementation stores the low-order Legendre modes needed for the
 transport coefficients and writes those modes to the output file when requested.
+
+For imported differentiable use, NTX also exposes the low-order internal solve
+output `(Dij, f, s)` directly. This mirrors the shape of the low-level
+monoenergetic solver interface used by other JAX transport workflows while
+keeping the terminal/file interface separate.
 
 On VMEC surfaces, NTX evaluates `B`, the Jacobian, covariant and contravariant
 field components, and the radial transport normalization on the requested

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import jax.numpy as jnp
-from jax import Array
+from jax import Array, tree_util
 
 
 @dataclass(frozen=True)
@@ -35,6 +35,13 @@ class GridSpec:
         return self.n_theta * self.n_zeta
 
 
+tree_util.register_dataclass(
+    GridSpec,
+    data_fields=(),
+    meta_fields=("n_theta", "n_zeta", "n_xi", "dtype", "x64"),
+)
+
+
 @dataclass(frozen=True)
 class AngularGrid:
     theta: Array
@@ -44,6 +51,20 @@ class AngularGrid:
     dtheta_matrix: Array
     dzeta_matrix: Array
     nfp: int
+
+
+tree_util.register_dataclass(
+    AngularGrid,
+    data_fields=(
+        "theta",
+        "zeta",
+        "dtheta",
+        "dzeta",
+        "dtheta_matrix",
+        "dzeta_matrix",
+    ),
+    meta_fields=("nfp",),
+)
 
 
 def periodic_grid(spec: GridSpec, nfp: int) -> AngularGrid:
