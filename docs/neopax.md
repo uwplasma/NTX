@@ -28,10 +28,10 @@ For the current local JAX toolchain, install the geometry and transport stack
 from the local checkouts:
 
 ```bash
-python -m pip install -e /Users/rogeriojorge/local/vmec_jax
-python -m pip install -e /Users/rogeriojorge/local/booz_xform_jax
-python -m pip install -e /Users/rogeriojorge/local/tests/NEOPAX
-python -m pip install -e "/Users/rogeriojorge/local/.NTX[dev,docs,io]"
+python -m pip install -e ../vmec_jax
+python -m pip install -e ../booz_xform_jax
+python -m pip install -e ../tests/NEOPAX
+python -m pip install -e ".[dev,docs,io]"
 ```
 
 ## NTX Scan To NEOPAX
@@ -47,12 +47,13 @@ from ntx import (
     to_neopax_monoenergetic,
 )
 
+neopax_root = Path("../tests/NEOPAX")
 reference = load_neopax_reference_scan(
-    Path("/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5")
+    neopax_root / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
 )
 def surface_loader(rho_value: float):
     return surface_from_vmec_jax_vmec_wout_file(
-        "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+        neopax_root / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc",
         s=rho_value**2,
     )
 
@@ -92,7 +93,7 @@ from ntx import (
 rho = [0.12247, 0.25]
 surfaces = tuple(
     load_vmec_surface(
-        "/Users/rogeriojorge/local/.NTX/tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc",
+        "tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc",
         psi_n=rho_value**2,
     )
     for rho_value in rho
@@ -127,8 +128,8 @@ from ntx import (
 )
 
 scan = build_reference_executable_reference_vmec_scan(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
+    "../tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+    "../tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
     rho=[0.25, 0.5],
     nu_v=[1e-4, 1e-3, 1e-2],
     er_tilde=[0.0, 1e-3, 1e-2],
@@ -178,7 +179,7 @@ import vmec_jax as vj
 from ntx import GridSpec, MonoenergeticCase, solve_monoenergetic, surface_from_vmec_jax_state
 
 run = vj.run_fixed_boundary(
-    "/Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak",
+    "../vmec_jax/examples/data/input.circular_tokamak",
     max_iter=1,
     use_initial_guess=True,
     vmec_project=False,

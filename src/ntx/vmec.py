@@ -33,8 +33,9 @@ def load_vmec_surface(
         import vmec_jax.api as vmec_jax_api
     except ModuleNotFoundError as exc:
         raise ModuleNotFoundError(
-            "load_vmec_surface requires vmec_jax. Install the local package with "
-            "`pip install -e /Users/rogeriojorge/local/vmec_jax`."
+            "load_vmec_surface requires vmec_jax. Install it with "
+            "`pip install vmec_jax`, `pip install -e ../vmec_jax`, "
+            "or `pip install -e '.[geometry]'`."
         ) from exc
 
     wout = vmec_jax_api.read_wout(wout_path)

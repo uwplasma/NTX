@@ -14,15 +14,23 @@ from ntx import (
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
+from ntx._checkout_paths import find_neopax_root
 
-DEFAULT_WOUT = Path(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc"
+NEOPAX_ROOT = find_neopax_root()
+DEFAULT_WOUT = (
+    None
+    if NEOPAX_ROOT is None
+    else NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
 )
-DEFAULT_BOOZ = Path(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc"
+DEFAULT_BOOZ = (
+    None
+    if NEOPAX_ROOT is None
+    else NEOPAX_ROOT / "tests" / "inputs" / "boozmn_wout_W7-X_standard_configuration.nc"
 )
-DEFAULT_REFERENCE = Path(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+DEFAULT_REFERENCE = (
+    None
+    if NEOPAX_ROOT is None
+    else NEOPAX_ROOT / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
 )
 
 
@@ -51,6 +59,11 @@ def main() -> int:
     parser.add_argument("--nz", type=int, default=25)
     parser.add_argument("--nl", type=int, default=64)
     args = parser.parse_args()
+    if args.vmec is None or args.booz is None:
+        raise SystemExit(
+            "Default NEOPAX W7-X fixtures were not found. "
+            "Pass --vmec/--booz explicitly or set NEOPAX_ROOT."
+        )
 
     rho = _parse_list(args.rho)
     nu_v = _parse_list(args.nu_v)

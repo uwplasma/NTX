@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import jax.numpy as jnp
 import pytest
 
@@ -10,21 +8,27 @@ from ntx import (
     solve_monoenergetic,
     surface_from_vmec_jax_wout,
 )
+from ntx._checkout_paths import find_neopax_root, find_simsopt_root
 
-VMEC_INPUT = Path(
-    "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/"
-    "input.W7-X_standard_configuration"
+SIMSOPT_ROOT = find_simsopt_root()
+NEOPAX_ROOT = find_neopax_root()
+VMEC_INPUT = (
+    None
+    if SIMSOPT_ROOT is None
+    else SIMSOPT_ROOT / "tests" / "test_files" / "input.W7-X_standard_configuration"
 )
-WOUT = Path(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/"
-    "wout_W7-X_standard_configuration.nc"
+WOUT = (
+    None
+    if NEOPAX_ROOT is None
+    else NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
 )
-BOOZ = Path(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/"
-    "boozmn_wout_W7-X_standard_configuration.nc"
+BOOZ = (
+    None
+    if NEOPAX_ROOT is None
+    else NEOPAX_ROOT / "tests" / "inputs" / "boozmn_wout_W7-X_standard_configuration.nc"
 )
 
-if not VMEC_INPUT.exists() or not WOUT.exists():
+if VMEC_INPUT is None or WOUT is None or not VMEC_INPUT.exists() or not WOUT.exists():
     pytest.skip("local vmec_jax W7-X inputs are not available", allow_module_level=True)
 
 pytest.importorskip("vmec_jax")

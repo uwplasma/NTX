@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import jax.numpy as jnp
 import pytest
 
@@ -10,13 +8,16 @@ from ntx import (
     solve_monoenergetic,
     surface_from_vmec_jax_vmec_wout_file,
 )
+from ntx._checkout_paths import find_neopax_root
 
-WOUT = Path(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/"
-    "wout_W7-X_standard_configuration.nc"
+NEOPAX_ROOT = find_neopax_root()
+WOUT = (
+    None
+    if NEOPAX_ROOT is None
+    else NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
 )
 
-if not WOUT.exists():
+if WOUT is None or not WOUT.exists():
     pytest.skip("local W7-X wout fixture not available", allow_module_level=True)
 
 pytest.importorskip("vmec_jax")

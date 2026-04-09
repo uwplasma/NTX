@@ -5,15 +5,16 @@ from pathlib import Path
 import pytest
 
 from ntx import GridSpec, compare_vmec_geometry_to_sfincs
+from ntx._checkout_paths import find_sfincs_jax_root
 
 ROOT = Path(__file__).resolve().parent
 W7X_VMEC = ROOT / "fixtures" / "wout_w7x_standardConfig.nc"
 QI_VMEC = ROOT / "fixtures" / "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
-SFINCS_REPO = Path("/Users/rogeriojorge/local/tests/sfincs_jax")
+SFINCS_REPO = find_sfincs_jax_root()
 
 
 pytestmark = pytest.mark.skipif(
-    not SFINCS_REPO.exists(),
+    SFINCS_REPO is None or not SFINCS_REPO.exists(),
     reason="local sfincs_jax checkout not available",
 )
 

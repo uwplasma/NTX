@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 
 import jax.numpy as jnp
 import pytest
@@ -11,9 +10,10 @@ from ntx import (
     surface_from_vmec_jax_vmec_wout_file,
     to_neopax_monoenergetic,
 )
+from ntx._checkout_paths import find_neopax_root
 
-NEOPAX_ROOT = Path("/Users/rogeriojorge/local/tests/NEOPAX")
-if not NEOPAX_ROOT.exists():
+NEOPAX_ROOT = find_neopax_root()
+if NEOPAX_ROOT is None or not NEOPAX_ROOT.exists():
     pytest.skip("local NEOPAX checkout not available", allow_module_level=True)
 
 if str(NEOPAX_ROOT) not in sys.path:

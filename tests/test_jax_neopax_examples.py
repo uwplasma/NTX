@@ -5,16 +5,26 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path("/Users/rogeriojorge/local/.NTX")
-VMEC_JAX_ROOT = Path("/Users/rogeriojorge/local/vmec_jax")
-BOOZ_XFORM_JAX_ROOT = Path("/Users/rogeriojorge/local/booz_xform_jax")
-NEOPAX_ROOT = Path("/Users/rogeriojorge/local/tests/NEOPAX")
+from ntx._checkout_paths import (
+    find_booz_xform_jax_root,
+    find_neopax_root,
+    find_vmec_jax_example_input,
+    find_vmec_jax_root,
+    repo_root,
+)
+
+ROOT = repo_root()
+VMEC_JAX_ROOT = find_vmec_jax_root()
+BOOZ_XFORM_JAX_ROOT = find_booz_xform_jax_root()
+NEOPAX_ROOT = find_neopax_root()
+VMEC_EXAMPLE_INPUT = find_vmec_jax_example_input()
 
 if not (
     ROOT.exists()
-    and VMEC_JAX_ROOT.exists()
-    and BOOZ_XFORM_JAX_ROOT.exists()
-    and NEOPAX_ROOT.exists()
+    and VMEC_JAX_ROOT is not None
+    and BOOZ_XFORM_JAX_ROOT is not None
+    and NEOPAX_ROOT is not None
+    and VMEC_EXAMPLE_INPUT is not None
 ):
     pytest.skip("local JAX integration checkouts are not available", allow_module_level=True)
 
@@ -51,7 +61,7 @@ def test_vmec_jax_booz_xform_jax_ntx_example_runs():
     result = _run(
         ROOT / "examples" / "vmec_jax_booz_xform_jax_ntx.py",
         "--input",
-        "/Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak",
+        str(VMEC_EXAMPLE_INPUT),
         "--s",
         "0.25",
         "--mboz",

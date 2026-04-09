@@ -43,8 +43,9 @@ def load_boozmn_surface(
         from booz_xform_jax import Booz_xform
     except ModuleNotFoundError as exc:
         raise ModuleNotFoundError(
-            "load_boozmn_surface requires booz_xform_jax. Install the local package with "
-            "`pip install -e /Users/rogeriojorge/local/booz_xform_jax`."
+            "load_boozmn_surface requires booz_xform_jax. Install it with "
+            "`pip install booz_xform_jax`, `pip install -e ../booz_xform_jax`, "
+            "or `pip install -e '.[geometry]'`."
         ) from exc
 
     bx = Booz_xform()

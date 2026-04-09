@@ -8,6 +8,7 @@ from typing import Any
 
 import numpy as np
 
+from ._checkout_paths import find_sfincs_jax_root
 from .geometry import geometry_on_grid
 from .grids import GridSpec
 from .vmec import load_vmec_surface
@@ -21,7 +22,7 @@ def compare_vmec_geometry_to_sfincs(
     vmec_radial_option: int = 0,
     vmec_nyquist_option: int = 1,
     min_bmn_to_load: float = 0.0,
-    sfincs_repo: str | Path = "/Users/rogeriojorge/local/tests/sfincs_jax",
+    sfincs_repo: str | Path | None = None,
 ) -> dict[str, Any]:
     """Compare NTX VMEC geometry against sfincs_jax on the same angular grid.
 
@@ -35,7 +36,13 @@ def compare_vmec_geometry_to_sfincs(
     uses ``-psi_a_hat / d_hat``.
     """
 
-    repo = Path(sfincs_repo).expanduser().resolve()
+    repo = (
+        Path(sfincs_repo).expanduser().resolve()
+        if sfincs_repo is not None
+        else find_sfincs_jax_root()
+    )
+    if repo is None:
+        raise FileNotFoundError("sfincs_jax checkout not found")
     if not repo.exists():
         raise FileNotFoundError(str(repo))
     if str(repo) not in sys.path:
