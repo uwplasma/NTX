@@ -47,6 +47,9 @@ ntx = "ntx.cli:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/ntx"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
