@@ -684,3 +684,34 @@ Important environment facts found during planning:
     - Relying on unconditional imports from optional IO code made the public API
       brittle and masked the real packaging boundary. The workflow fix alone
       would have hidden that design problem instead of fixing it.
+- 2026-04-08: hardened the local-only JAX integration tests and re-audited the
+  NEOPAX-facing parity path.
+  - What worked:
+    - Root-caused the remaining GitHub Actions failures after the IO fix to
+      local-only integration tests that imported `NEOPAX` unconditionally at
+      collection time.
+    - Updated the local integration suites to skip cleanly when the expected
+      editable checkouts are not present:
+      - `tests/test_neopax_adapter.py`
+      - `tests/test_boozmn.py`
+      - `tests/test_jax_neopax_examples.py`
+    - Local validation after the skip-guard update still passed:
+      - `ruff check .`
+      - `mypy src/ntx`
+      - `pytest -q` -> `68 passed, 2 skipped`
+    - Re-ran a local W7-X Boozer-to-NEOPAX subset comparison against
+      `/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5`.
+      In NEOPAX storage conventions, `D33` stays within about `11%` to `19%`
+      on the sampled subset, while `D11` and `D13` remain materially offset.
+      That confirms the current gap is physical / normalization-related, not a
+      broken adapter constructor.
+  - What did not:
+    - The fully JAX W7-X `vmec_jax -> booz_xform_jax -> NTX` parity audit is
+      not closed yet. The available W7-X VMEC input file found locally has
+      `cfg.ns = 51`, while the NEOPAX W7-X `wout` has `ns = 201`. Feeding that
+      mismatched pair into `vmec_jax.booz_input.booz_xform_inputs_from_state`
+      fails with an internal broadcast error in the lambda reconstruction path.
+    - Until the exact matching W7-X VMEC input (or an equivalent way to rebuild
+      the required static metadata directly from the `wout`) is identified, the
+      W7-X JAX-native parity test remains blocked on geometry setup rather than
+      on the NTX solver itself.

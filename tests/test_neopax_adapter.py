@@ -13,10 +13,13 @@ from ntx import (
 )
 
 NEOPAX_ROOT = Path("/Users/rogeriojorge/local/tests/NEOPAX")
+if not NEOPAX_ROOT.exists():
+    pytest.skip("local NEOPAX checkout not available", allow_module_level=True)
+
 if str(NEOPAX_ROOT) not in sys.path:
     sys.path.insert(0, str(NEOPAX_ROOT))
 
-import NEOPAX  # noqa: E402
+NEOPAX = pytest.importorskip("NEOPAX")
 
 W7X_WOUT = NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
 W7X_REFERENCE_EXECUTABLE = NEOPAX_ROOT / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
