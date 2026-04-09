@@ -15,8 +15,9 @@ distinct imported geometry lanes:
 1. a direct `vmec_jax` VMEC-harmonic lane, which is the current parity gate for
    NEOPAX-facing W7-X scans
 2. a `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform lane, which remains
-   useful for end-to-end JAX Boozer workflows but is not the primary W7-X
-   NEOPAX reference gate
+   useful for end-to-end JAX Boozer workflows, is validated locally against the
+   file-backed `boozmn` transport reference, but is not the primary W7-X NEOPAX
+   reference gate
 
 NTX also keeps a comparison-only path that mirrors Eduardo Neto's
 `vmec_neopax` REFERENCE_EXECUTABLE branch closely enough to serve as an external reference.
@@ -215,6 +216,9 @@ What is closed:
 - the `vmec_jax -> booz_xform_jax -> NTX` example path runs locally
 - the Boozer `boozmn` loader now interpolates the radial profiles and matches
   the JAX REFERENCE_EXECUTABLE Boozer geometry convention on the shared W7-X test case
+- the `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform lane now matches the
+  file-backed `boozmn` transport reference within about `2%` at two local W7-X
+  operating points covered by `tests/test_vmec_jax_backend.py`
 - the comparison-only W7-X VMEC reference path now matches the existing NEOPAX
   W7-X subset to better than `1e-2` relative error on `D11`, `D13`, `D31`, and
   `D33`
@@ -223,8 +227,5 @@ What is closed:
 
 What is still open:
 
-- the fully JAX `vmec_jax -> booz_xform_jax -> NTX` W7-X Boozer-transform lane
-  is still not the right parity gate for the local NEOPAX reference subset on
-  `D11` and `D13`
 - a QI external reference database parity target is still open, but NTX now has
   a repository-backed QI imported scan and HDF5 round-trip path

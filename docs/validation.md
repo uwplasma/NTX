@@ -52,7 +52,10 @@ The imported `surface_from_vmec_jax_wout(...)` builder now applies the same
 right-handed Boozer handedness convention as `load_boozmn_surface(...)`. On the
 local W7-X `boozmn` reference, the resulting transport coefficients now agree
 within about `2%` on the `13 x 17 x 16` regression grid used in
-`tests/test_vmec_jax_backend.py`.
+`tests/test_vmec_jax_backend.py`. That local regression now covers two
+operating points, `(\nu_hat, \epsilon_\psi) = (1e-4, 0)` and
+`(1e-3, 1e-3)`, so the Boozer-transform lane is treated as its own validated
+workflow rather than as an implied NEOPAX parity path.
 
 For NEOPAX-facing W7-X VMEC scans, the intended imported JAX parity path is now
 the direct VMEC-harmonic builder:

@@ -39,6 +39,12 @@ database subset itself, the intended imported JAX parity path is the direct
 - `surface_from_vmec_jax_vmec_wout(...)`
 - `surface_from_vmec_jax_vmec_wout_file(...)`
 
+NTX now treats these as distinct imported workflows:
+
+- `vmec_jax -> booz_xform_jax -> NTX` is the Boozer-transform lane, validated
+  locally against the `boozmn` transport reference
+- direct `vmec_jax` VMEC harmonics are the W7-X NEOPAX parity lane
+
 ## Install
 
 From a local checkout:

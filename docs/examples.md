@@ -93,6 +93,7 @@ This example:
 - runs a small `vmec_jax` equilibrium solve
 - transforms the selected surface with `booz_xform_jax`
 - solves Escoto's monoenergetic system directly in NTX
+- exercises the Boozer-transform workflow rather than the W7-X NEOPAX parity lane
 
 ## NTX To NEOPAX
 
