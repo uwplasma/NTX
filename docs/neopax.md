@@ -116,6 +116,8 @@ What is closed:
 - the NTX-to-NEOPAX constructor path reproduces the existing NEOPAX/REFERENCE_EXECUTABLE HDF5
   mapping exactly when given the same coefficient tables
 - the `vmec_jax -> booz_xform_jax -> NTX` example path runs locally
+- the Boozer `boozmn` loader now interpolates the radial profiles and matches
+  the JAX REFERENCE_EXECUTABLE Boozer geometry convention on the shared W7-X test case
 - the NTX-generated W7-X subset stays in the same regime as the existing NEOPAX
   reference subset and gives comparable `D33`
 
@@ -123,5 +125,5 @@ What is still open:
 
 - full W7-X and QI VMEC parity between NTX-generated databases and the existing
   NEOPAX reference databases is not closed yet
-- the remaining mismatch is in the VMEC/Boozer normalization and interpretation
-  path, not in the NEOPAX adapter itself
+- the remaining mismatch is in the transport normalization and field-scan
+  interpretation, not in the NEOPAX adapter or the Boozer geometry loader

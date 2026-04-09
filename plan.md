@@ -96,6 +96,8 @@ Important environment facts found during planning:
 - [x] Add an initial `vmec_jax -> booz_xform_jax -> NTX` imported geometry path.
 - [x] Add an explicit NTX-to-NEOPAX monoenergetic database mapping layer.
 - [ ] Replace the remaining legacy file-driven VMEC path with the new JAX-native geometry lane once parity is closed.
+- [ ] Close the remaining W7-X NEOPAX subset mismatch in `D11` and `D13` now
+  that the Boozer geometry convention bug is fixed.
 
 ## Work Log
 
@@ -737,3 +739,38 @@ Important environment facts found during planning:
       parity gap. On the sampled subset the resulting database still shows
       roughly the same `D11` / `D13` offset as the previous mixed-loader path,
       while `D33` remains the closest channel.
+- 2026-04-09: fixed the Boozer `boozmn` geometry convention mismatch against
+  the JAX REFERENCE_EXECUTABLE field loader and re-ran the local validation gates.
+  - What worked:
+    - Root-caused the remaining Boozer-side geometry offset to two issues in
+      `src/ntx/booz.py`:
+      - NTX had been snapping to the nearest stored surface instead of
+        interpolating the scalar Boozer profiles in `s`.
+      - NTX was not applying the handedness/sign convention used by
+        `reference_executable.Field.from_booz_xform(...)` for `iota`, `buco`, and `bvco`.
+    - Updated `load_boozmn_surface(...)` so it now:
+      - interpolates `bmnc`, `iota`, `buco`, and `bvco` in `s`
+      - handles the mixed full-grid / half-grid radial storage used in the
+        local W7-X `boozmn` file
+      - applies the same right-handed sign convention as the JAX REFERENCE_EXECUTABLE loader
+    - Added a direct geometry-regression check in `tests/test_boozmn.py` at
+      both `rho = 0.12247` and `rho = 0.5`.
+    - After the fix, NTX and JAX REFERENCE_EXECUTABLE now agree on the shared W7-X Boozer
+      geometry to the expected numerical tolerance for:
+      - `B`
+      - `B_theta`
+      - `B_zeta`
+      - `iota`
+    - Re-ran the full local validation suite after the loader fix:
+      - `ruff check .`
+      - `mypy src/ntx`
+      - `pytest -q` -> `70 passed, 2 skipped`
+      - `python -m sphinx -b html docs docs/_build/html`
+  - What did not:
+    - The W7-X NEOPAX subset mismatch is not closed by the geometry fix alone.
+      `D33` remains comparatively close, while `D11` and `D13` are still
+      materially offset on the sampled subset.
+    - A direct JAX REFERENCE_EXECUTABLE monoenergetic solve on the archived W7-X `boozmn`
+      file still returns `NaN` because that file carries `phip_b = 0`, so the
+      raw REFERENCE_EXECUTABLE Boozer solve is not yet a usable transport reference on this
+      dataset even though the geometry loader conventions now match.
