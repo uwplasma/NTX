@@ -44,6 +44,12 @@ The file-backed VMEC and Boozer loaders are now explicitly JAX-backed:
 - `load_vmec_surface(...)` reads `wout` files through `vmec_jax`
 - `load_boozmn_surface(...)` reads `boozmn` files through `booz_xform_jax`
 
+The imported `surface_from_vmec_jax_wout(...)` builder now applies the same
+right-handed Boozer handedness convention as `load_boozmn_surface(...)`. On the
+local W7-X `boozmn` reference, the resulting transport coefficients now agree
+within about `2%` on the `13 x 17 x 16` regression grid used in
+`tests/test_vmec_jax_backend.py`.
+
 Direct VMEC comparison against REFERENCE_EXECUTABLE is now a parity check for the reduced-mode
 VMEC convention. The current W7-X reduced-mode VMEC example closes to roundoff
 against the live REFERENCE_EXECUTABLE executable.

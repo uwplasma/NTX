@@ -19,6 +19,10 @@ loader. That closes the geometry-convention mismatch on the shared W7-X Boozer
 test case and leaves the remaining NEOPAX spread in the transport normalization
 and scan conventions rather than in file ingestion.
 
+The imported `vmec_jax -> booz_xform_jax -> NTX` path now uses that same
+handedness convention, so the transformed W7-X surface matches the file-backed
+`boozmn` transport reference on the local regression grid.
+
 ## Install
 
 From a local checkout:

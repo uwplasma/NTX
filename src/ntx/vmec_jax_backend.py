@@ -41,7 +41,7 @@ def surface_from_vmec_jax_state(
         indata=indata,
         signgs=signgs,
     )
-    surface_indices, surface_values = surface_indices_from_static(static, [float(s)])
+    surface_indices, _surface_values = surface_indices_from_static(static, [float(s)])
     constants, grids = prepare_booz_xform_constants_from_inputs(
         inputs=inputs,
         mboz=int(mboz),
@@ -59,6 +59,11 @@ def surface_from_vmec_jax_state(
     bmnc_b = jnp.asarray(out["bmnc_b"])[0]
     ixm_b = jnp.asarray(out["ixm_b"], dtype=jnp.int32)
     ixn_b = jnp.asarray(out["ixn_b"], dtype=jnp.int32)
+    iota, b_theta, b_zeta = _apply_boozer_sign_convention(
+        iota=float(jnp.asarray(out["iota_b"])[0]),
+        b_theta=float(jnp.asarray(out["buco_b"])[0]),
+        b_zeta=float(jnp.asarray(out["bvco_b"])[0]),
+    )
     b0 = bmnc_b[0]
     include = jnp.abs(bmnc_b / b0) >= float(min_bmn_to_load)
     include = include.at[0].set(True)
@@ -67,10 +72,10 @@ def surface_from_vmec_jax_state(
         n=jnp.asarray(jnp.rint(ixn_b[include] / int(inputs.nfp)), dtype=jnp.int32),
         b_cos=bmnc_b[include],
         nfp=int(inputs.nfp),
-        iota=float(jnp.asarray(out["iota_b"])[0]),
+        iota=iota,
         psi_p=float(psi_p),
-        b_theta=float(jnp.asarray(out["buco_b"])[0]),
-        b_zeta=float(jnp.asarray(out["bvco_b"])[0]),
+        b_theta=b_theta,
+        b_zeta=b_zeta,
         b0=float(b0),
         source_path=Path(getattr(indata, "input_filename", "vmec_jax_state")).expanduser(),
     )
@@ -126,3 +131,17 @@ def surface_from_vmec_jax_wout(
         psi_p=psi_p,
         min_bmn_to_load=min_bmn_to_load,
     )
+
+
+def _apply_boozer_sign_convention(
+    *,
+    iota: float,
+    b_theta: float,
+    b_zeta: float,
+) -> tuple[float, float, float]:
+    """Match the right-handed Boozer convention used by the file-backed loader."""
+
+    iota_value = -iota
+    b_theta_value = -b_theta
+    sign = 1.0 if (b_zeta + iota_value * b_theta_value) >= 0.0 else -1.0
+    return iota_value, sign * b_theta_value, sign * b_zeta
