@@ -39,6 +39,7 @@ geometry = [
 ]
 io = [
   "h5py",
+  "netCDF4",
 ]
 
 [project.scripts]

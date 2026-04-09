@@ -18,9 +18,11 @@ from .io import (
 )
 from .neopax import (
     NeopaxScan,
+    build_reference_executable_reference_vmec_scan,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
     to_neopax_monoenergetic,
+    write_neopax_scan_hdf5,
 )
 from .sfincs_geometry import compare_vmec_geometry_to_sfincs
 from .solver import (
@@ -38,6 +40,7 @@ from .solver import (
 )
 from .transport import onsager_error
 from .vmec_jax_backend import surface_from_vmec_jax_state, surface_from_vmec_jax_wout
+from .vmec_reference_executable import ReferenceExecutableVmecFactors, load_vmec_surface_reference_executable_reference, reference_executable_vmec_factors
 
 __all__ = [
     "BoozmnSurface",
@@ -46,11 +49,13 @@ __all__ = [
     "GridSpec",
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
+    "ReferenceExecutableVmecFactors",
     "NeopaxScan",
     "PreparedMonoenergeticSystem",
     "TransportResult",
     "VmecSurface",
     "build_monoenergetic_database_arrays",
+    "build_reference_executable_reference_vmec_scan",
     "build_ntx_neopax_scan",
     "compile_prepared_solver",
     "compare_vmec_geometry_to_sfincs",
@@ -63,6 +68,8 @@ __all__ = [
     "load_magnetic_configuration_surface",
     "load_neopax_reference_scan",
     "load_vmec_surface",
+    "load_vmec_surface_reference_executable_reference",
+    "reference_executable_vmec_factors",
     "onsager_error",
     "prepare_monoenergetic_system",
     "run_from_input_file",
@@ -75,4 +82,5 @@ __all__ = [
     "surface_from_vmec_jax_state",
     "surface_from_vmec_jax_wout",
     "to_neopax_monoenergetic",
+    "write_neopax_scan_hdf5",
 ]
