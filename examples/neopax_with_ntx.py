@@ -16,7 +16,7 @@ from ntx import (  # noqa: E402
     GridSpec,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
-    load_vmec_surface,
+    surface_from_vmec_jax_wout,
     to_neopax_monoenergetic,
 )
 
@@ -24,6 +24,10 @@ from ntx import (  # noqa: E402
 def main() -> None:
     wout = NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
     reference_path = NEOPAX_ROOT / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+    input_path = Path(
+        "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/"
+        "input.W7-X_standard_configuration"
+    )
     reference = load_neopax_reference_scan(reference_path)
 
     rho = reference.rho[:2]
@@ -33,12 +37,12 @@ def main() -> None:
     drds = reference.drds[:2]
 
     def surface_loader(rho_value: float):
-        return load_vmec_surface(
-            wout,
-            psi_n=float(rho_value**2),
-            vmec_radial_option=1,
-            vmec_nyquist_option=2,
-            vmec_mode_convention="filtered_nyquist",
+        return surface_from_vmec_jax_wout(
+            input_path=input_path,
+            wout_path=wout,
+            s=float(rho_value**2),
+            mboz=12,
+            nboz=12,
         )
 
     scan = build_ntx_neopax_scan(

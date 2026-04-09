@@ -37,7 +37,7 @@ from .solver import (
     solve_prepared_internal,
 )
 from .transport import onsager_error
-from .vmec_jax_backend import surface_from_vmec_jax_state
+from .vmec_jax_backend import surface_from_vmec_jax_state, surface_from_vmec_jax_wout
 
 __all__ = [
     "BoozmnSurface",
@@ -73,5 +73,6 @@ __all__ = [
     "solve_prepared_internal",
     "stack_monoenergetic_database_arrays",
     "surface_from_vmec_jax_state",
+    "surface_from_vmec_jax_wout",
     "to_neopax_monoenergetic",
 ]

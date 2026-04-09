@@ -715,3 +715,25 @@ Important environment facts found during planning:
       the required static metadata directly from the `wout`) is identified, the
       W7-X JAX-native parity test remains blocked on geometry setup rather than
       on the NTX solver itself.
+- 2026-04-08: added a WOUT-backed `vmec_jax` helper to keep the JAX geometry
+  lane usable on the local W7-X data.
+  - What worked:
+    - Verified experimentally that rebuilding the VMEC static configuration with
+      `ns = wout.ns` is enough to make
+      `vmec_jax.booz_xform_inputs_from_state(...)` accept the local W7-X
+      reference `wout`.
+    - Added `surface_from_vmec_jax_wout(...)` in
+      `src/ntx/vmec_jax_backend.py`. It:
+      - loads the VMEC input with `vmec_jax.load_config(...)`
+      - loads the `wout` with `vmec_jax.api.read_wout(...)`
+      - rebuilds `cfg` with `ns/mpol/ntor` from the `wout` when needed
+      - constructs the Boozer surface entirely through `vmec_jax` and
+        `booz_xform_jax`
+    - Updated the NEOPAX example to use the new helper, and the example ran
+      locally with the expected output shapes.
+    - Added `tests/test_vmec_jax_backend.py` for the new helper.
+  - What did not:
+    - Using the WOUT-backed helper does not by itself close the W7-X NEOPAX
+      parity gap. On the sampled subset the resulting database still shows
+      roughly the same `D11` / `D13` offset as the previous mixed-loader path,
+      while `D33` remains the closest channel.

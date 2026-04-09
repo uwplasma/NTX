@@ -152,6 +152,7 @@ The imported low-level interface also exposes:
 - `solve_prepared_internal(prepared, case) -> (Dij, f, s)`
 - `build_monoenergetic_database_arrays(surface, grid, nu_hat, ...)`
 - `surface_from_vmec_jax_state(...)`
+- `surface_from_vmec_jax_wout(...)`
 - `build_ntx_neopax_scan(...)`
 - `to_neopax_monoenergetic(...)`
 

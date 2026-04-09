@@ -30,21 +30,22 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
-    load_vmec_surface,
+    surface_from_vmec_jax_wout,
     to_neopax_monoenergetic,
 )
 
 reference = load_neopax_reference_scan(
     Path("/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5")
 )
+input_path = Path("/Users/rogeriojorge/local/tests/simsopt/tests/test_files/input.W7-X_standard_configuration")
 
 def surface_loader(rho_value: float):
-    return load_vmec_surface(
-        "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
-        psi_n=rho_value**2,
-        vmec_radial_option=1,
-        vmec_nyquist_option=2,
-        vmec_mode_convention="filtered_nyquist",
+    return surface_from_vmec_jax_wout(
+        input_path=input_path,
+        wout_path="/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+        s=rho_value**2,
+        mboz=12,
+        nboz=12,
     )
 
 scan = build_ntx_neopax_scan(
@@ -62,6 +63,11 @@ database = to_neopax_monoenergetic(scan, a_b=1.0)
 
 The resulting `database` object is a `NEOPAX.Monoenergetic` instance and can be
 passed directly into NEOPAX flux and transport solvers.
+
+`surface_from_vmec_jax_wout(...)` is the practical WOUT-backed helper for this
+workflow. It keeps the geometry lane inside `vmec_jax` and `booz_xform_jax`,
+and it rebuilds the VMEC static configuration with `ns = wout.ns` when the
+reference `wout` carries a finer radial mesh than the original VMEC input file.
 
 ## VMEC-JAX To NTX
 
