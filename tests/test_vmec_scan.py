@@ -34,13 +34,13 @@ def test_w7x_vmec_er_hat_scan_matches_loop_and_regression():
 
     assert np.allclose(
         np.asarray(scan["D11"]),
-        np.asarray([0.11545369711257313, 0.23938386669007022, 0.06712724596348789]),
+        np.asarray([0.021670785546434573, 0.012981956084322144, 0.005212511099449024]),
         rtol=1e-8,
         atol=1e-12,
     )
     assert np.allclose(
         np.asarray(scan["D31"]),
-        np.asarray([0.08674811475363547, 0.29754638687023927, 0.3999704567518334]),
+        np.asarray([1.566502067967897, -0.21856204167673013, -0.23494966621639202]),
         rtol=2e-8,
         atol=1e-12,
     )

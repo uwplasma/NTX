@@ -14,6 +14,12 @@ Development install:
 python -m pip install -e ".[dev,docs,io]"
 ```
 
+Install the JAX geometry backends:
+
+```bash
+python -m pip install -e ".[geometry]"
+```
+
 ## Dependencies
 
 Core runtime:
@@ -28,7 +34,8 @@ Optional extras:
 
 - `.[dev]` for `pytest`, `ruff`, and `mypy`
 - `.[docs]` for Sphinx docs
-- `.[io]` for additional NetCDF / xarray tooling
+- `.[io]` for HDF5-based integrations
+- `.[geometry]` for `vmec_jax` and `booz_xform_jax`
 
 ## Verification
 
@@ -71,6 +78,10 @@ scripts/sh_office_gpu_smoke.sh
 
 This writes `gpu-smoke-results.json` in the repository root with device
 information, timings, coefficient deltas, and regression summaries.
+
+The supported VMEC and Boozer file readers are the JAX implementations. NTX
+does not depend on the original VMEC or BOOZ_XFORM executables for those file
+paths.
 
 For local performance profiling on either CPU or GPU:
 

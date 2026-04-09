@@ -7,9 +7,11 @@ developed in Javier Escoto's PhD thesis
 
 The current release solves for the monoenergetic geometric coefficients
 `D11`, `D31`, `D13`, `D33`, and the Spitzer `D33` normalization on DKES-style
-Boozer surfaces and on VMEC equilibria. For imported JAX workflows, NTX now
-includes an explicit `vmec_jax -> booz_xform_jax -> NTX` path and a direct
-NTX-to-NEOPAX mapping layer.
+Boozer surfaces and on VMEC equilibria. The VMEC file path is backed by
+`vmec_jax`, and the Boozer file path is backed by `booz_xform_jax`. For
+imported JAX workflows, NTX also includes an explicit
+`vmec_jax -> booz_xform_jax -> NTX` path and a direct NTX-to-NEOPAX mapping
+layer.
 
 For Boozer `boozmn` inputs, NTX now interpolates the file profiles in `s` and
 applies the same handedness/sign convention used by the JAX REFERENCE_EXECUTABLE Boozer field
@@ -25,13 +27,19 @@ From a local checkout:
 python -m pip install -e ".[dev,docs,io]"
 ```
 
+To install the JAX geometry backends directly from GitHub:
+
+```bash
+python -m pip install -e ".[geometry]"
+```
+
 Minimal runtime install:
 
 ```bash
 python -m pip install -e .
 ```
 
-Local JAX geometry / transport stack:
+Full local JAX geometry / transport stack:
 
 ```bash
 python -m pip install -e /Users/rogeriojorge/local/vmec_jax
@@ -87,7 +95,7 @@ NTX accepts three surface families:
 
 - `type = "example"` for the built-in analytic surface
 - `type = "dkes"` for DKES-style `ddkes2.data`
-- `type = "vmec"` for VMEC `wout_*.nc`
+- `type = "vmec"` for VMEC `wout_*.nc` read through `vmec_jax`
 
 Example DKES input:
 
@@ -137,6 +145,9 @@ x64 = true
 nu_hat = 1e-3
 er_hat = 1e-3
 ```
+
+VMEC and Boozer file inputs stay on the Python/JAX lane. NTX does not call the
+original VMEC or BOOZ_XFORM executables when reading these files.
 
 For DKES and Boozer surfaces, NTX resolves `epsi_hat = er_hat / psi_p`.
 
