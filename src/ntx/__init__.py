@@ -40,6 +40,7 @@ from .solver import (
 )
 from .transport import onsager_error
 from .vmec_jax_backend import surface_from_vmec_jax_state, surface_from_vmec_jax_wout
+from .vmec_jax_vmec import surface_from_vmec_jax_vmec_wout, surface_from_vmec_jax_vmec_wout_file
 from .vmec_reference_executable import ReferenceExecutableVmecFactors, load_vmec_surface_reference_executable_reference, reference_executable_vmec_factors
 
 __all__ = [
@@ -81,6 +82,8 @@ __all__ = [
     "stack_monoenergetic_database_arrays",
     "surface_from_vmec_jax_state",
     "surface_from_vmec_jax_wout",
+    "surface_from_vmec_jax_vmec_wout",
+    "surface_from_vmec_jax_vmec_wout_file",
     "to_neopax_monoenergetic",
     "write_neopax_scan_hdf5",
 ]
