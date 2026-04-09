@@ -8,7 +8,7 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
-    load_vmec_surface,
+    surface_from_vmec_jax_vmec_wout_file,
     to_neopax_monoenergetic,
 )
 
@@ -40,19 +40,19 @@ def test_reference_scan_round_trips_into_neopax_constructor():
 @pytest.mark.benchmark
 def test_ntx_scan_maps_into_neopax_and_tracks_reference_subset():
     reference = load_neopax_reference_scan(W7X_REFERENCE_EXECUTABLE)
-    rho = reference.rho[:2]
-    nu_v = reference.nu_v[2:5]
-    Er = reference.Er[:2, :3]
-    Es = reference.Es[:2, :3]
-    drds = reference.drds[:2]
+    rho_idx = jnp.asarray([1, 3])
+    nu_idx = jnp.asarray([5, 7, 9])
+    er_idx = jnp.asarray([0, 7, 9])
+    rho = reference.rho[rho_idx]
+    nu_v = reference.nu_v[nu_idx]
+    Er = reference.Er[rho_idx][:, er_idx]
+    Es = reference.Es[rho_idx][:, er_idx]
+    drds = reference.drds[rho_idx]
 
     def surface_loader(rho_value: float):
-        return load_vmec_surface(
+        return surface_from_vmec_jax_vmec_wout_file(
             W7X_WOUT,
-            psi_n=float(rho_value**2),
-            vmec_radial_option=1,
-            vmec_nyquist_option=2,
-            vmec_mode_convention="filtered_nyquist",
+            s=float(rho_value**2),
         )
 
     scan = build_ntx_neopax_scan(
@@ -62,8 +62,8 @@ def test_ntx_scan_maps_into_neopax_and_tracks_reference_subset():
         Es=Es,
         Er=Er,
         drds=drds,
-        grid=GridSpec(n_theta=17, n_zeta=33, n_xi=60),
-        source_name="w7x_vmec_subset",
+        grid=GridSpec(n_theta=25, n_zeta=25, n_xi=63),
+        source_name="w7x_vmec_jax_vmec_subset",
     )
     database = to_neopax_monoenergetic(scan, a_b=1.0)
     assert database.D11_log.shape == (2, 3, 3)
@@ -76,14 +76,19 @@ def test_ntx_scan_maps_into_neopax_and_tracks_reference_subset():
             Er=Er,
             Es=Es,
             drds=drds,
-            D11=reference.D11[:2, 2:5, :3],
-            D13=reference.D13[:2, 2:5, :3],
-            D33=reference.D33[:2, 2:5, :3],
+            D11=reference.D11[rho_idx][:, nu_idx][:, :, er_idx],
+            D13=reference.D13[rho_idx][:, nu_idx][:, :, er_idx],
+            D33=reference.D33[rho_idx][:, nu_idx][:, :, er_idx],
             source_name="reference_subset",
         ),
         a_b=1.0,
     )
-    # The adapter should preserve the shape and stay in the same regime as the
-    # existing NEOPAX/REFERENCE_EXECUTABLE subset, even though VMEC parity is not exact yet.
-    assert jnp.max(jnp.abs(database.D11_log - reference_database.D11_log)) < 1.0
-    assert jnp.max(jnp.abs(database.D33 - reference_database.D33) / reference_database.D33) < 0.2
+    assert jnp.max(jnp.abs(database.D11_log - reference_database.D11_log)) < 1.0e-2
+    assert jnp.max(jnp.abs(database.D13 - reference_database.D13)) < 1.0e-2
+    assert (
+        jnp.max(
+            jnp.abs(database.D33 - reference_database.D33)
+            / jnp.maximum(jnp.abs(reference_database.D33), 1.0e-12)
+        )
+        < 1.0e-2
+    )
