@@ -12,10 +12,8 @@ from ntx import (
     write_neopax_scan_hdf5,
 )
 
-QI_VMEC = Path(
-    "/Users/rogeriojorge/local/.NTX/tests/fixtures/"
-    "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
-)
+ROOT = Path(__file__).resolve().parents[1]
+QI_VMEC = ROOT / "tests" / "fixtures" / "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
 
 
 def test_qi_neopax_scan_round_trips_through_hdf5(tmp_path):

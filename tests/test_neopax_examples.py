@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path("/Users/rogeriojorge/local/.NTX")
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_qi_neopax_with_ntx_example_runs(tmp_path):
