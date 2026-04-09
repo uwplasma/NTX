@@ -13,6 +13,7 @@ The current implementation supports:
 - `vmec_jax -> booz_xform_jax -> NTX` imported workflows
 - direct `vmec_jax` VMEC-harmonic workflows for NEOPAX scans
 - direct NTX-to-NEOPAX monoenergetic database mapping
+- pure-array imported NEOPAX scan/mapping helpers
 - Rich terminal summaries for file-driven runs
 - compressed `.npz` outputs with geometry, metadata, diagnostics, and modes
 - archived DKES and SFINCS benchmark comparison scripts
