@@ -101,6 +101,8 @@ Important environment facts found during planning:
 - [x] Add a direct `vmec_jax` VMEC-harmonic imported path for NEOPAX-facing scans.
 - [x] Close the W7-X NEOPAX subset on the direct `vmec_jax` VMEC-harmonic path
   to better than `1e-2` relative error.
+- [x] Add a callback-free imported NEOPAX scan builder and pure-array mapping layer.
+- [x] Add a second-family imported NEOPAX example and QI HDF5 round-trip validation.
 - [ ] Close the fully JAX `vmec_jax -> booz_xform_jax -> NTX` W7-X NEOPAX path
   to the same tolerance as the direct VMEC-harmonic and Eduardo-reference paths,
   or explicitly scope it as a separate Boozer-transform validation lane.
@@ -914,3 +916,31 @@ Important environment facts found during planning:
       end-to-end transform workflows, but it needs its own convergence and role
       definition instead of being treated as interchangeable with the direct
       VMEC-harmonic NEOPAX path.
+- 2026-04-09: added a callback-free imported NEOPAX scan path and a QI imported
+  example/round-trip workflow.
+  - What worked:
+    - Added `build_ntx_neopax_scan_from_surfaces(...)` to accept an explicit
+      tuple of NTX surfaces in memory instead of forcing imported workflows
+      through a Python `surface_loader(float(rho))` callback.
+    - Added `scan_to_neopax_arrays(...)` and the `NeopaxMonoenergeticArrays`
+      container so the NEOPAX normalization step can stay in pure JAX arrays
+      before constructing the external `NEOPAX.Monoenergetic` object.
+    - Registered `NeopaxScan` and `NeopaxMonoenergeticArrays` as pytrees.
+    - Added focused imported-path tests:
+      - `tests/test_neopax_arrays.py`
+      - `tests/test_neopax_qi.py`
+    - Added `examples/qi_neopax_with_ntx.py` as a second-family imported VMEC
+      example that:
+      - builds a small QI scan from explicit in-memory surfaces
+      - maps it through `scan_to_neopax_arrays(...)`
+      - writes a NEOPAX-style HDF5 file
+    - Focused validation passed:
+      - `python -m ruff check src/ntx/neopax.py src/ntx/__init__.py tests/test_neopax_arrays.py tests/test_neopax_qi.py`
+      - `python -m mypy src/ntx/neopax.py`
+      - `python -m pytest -q tests/test_neopax_arrays.py tests/test_neopax_qi.py`
+        -> `4 passed`
+      - `python -m pytest -q tests/test_neopax_examples.py` -> `1 passed`
+  - What did not:
+    - This is an imported-API and repository-fixture closure, not an external
+      QI parity closure. There is still no archived or NEOPAX reference QI
+      database in the tree to use as an absolute cross-code target.

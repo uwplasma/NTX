@@ -112,6 +112,22 @@ This example:
 The NEOPAX adapter is intended for imported workflows. The CLI `ntx input.toml`
 remains the right entrypoint for standalone file-driven runs.
 
+## QI NTX To NEOPAX
+
+```bash
+python examples/qi_neopax_with_ntx.py
+```
+
+This example:
+
+- builds a small QI VMEC scan from explicit in-memory NTX surfaces
+- maps the result into pure NEOPAX-style arrays through
+  `scan_to_neopax_arrays(...)`
+- writes a NEOPAX-style HDF5 file without depending on an external reference
+
+Use this example when you want a second imported VMEC family beyond the W7-X
+reference subset.
+
 ## W7-X Reference Database
 
 ```bash

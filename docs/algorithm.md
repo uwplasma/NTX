@@ -168,6 +168,8 @@ The imported low-level interface also exposes:
 - `surface_from_vmec_jax_vmec_wout(...)`
 - `surface_from_vmec_jax_vmec_wout_file(...)`
 - `build_ntx_neopax_scan(...)`
+- `build_ntx_neopax_scan_from_surfaces(...)`
+- `scan_to_neopax_arrays(...)`
 - `to_neopax_monoenergetic(...)`
 
 where `f` and `s` are the retained low-order internal systems needed for the

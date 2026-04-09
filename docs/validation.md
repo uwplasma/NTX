@@ -24,6 +24,8 @@ The VMEC path is covered by:
 - standalone REFERENCE_EXECUTABLE comparison coverage through `scripts/compare_reference_executable.py`
 - standalone `sfincs_jax` geometry comparison coverage through
   `scripts/compare_sfincs_geometry.py` and `tests/test_sfincs_vmec_geometry.py`
+- imported NEOPAX array-path coverage in `tests/test_neopax_arrays.py`
+- QI imported NEOPAX HDF5 round-trip coverage in `tests/test_neopax_qi.py`
 
 The scan tests cover both:
 
@@ -87,6 +89,15 @@ existing NEOPAX reference HDF5 to better than `1e-2` relative error for
 The new direct `vmec_jax` VMEC-harmonic helper is tested separately in
 `tests/test_vmec_jax_vmec.py`, where it matches the validated reference VMEC
 surface to roundoff at the single-surface solve level.
+
+The imported NEOPAX mapping now also has a pure-array lane:
+
+- `build_ntx_neopax_scan_from_surfaces(...)` for explicit in-memory surfaces
+- `scan_to_neopax_arrays(...)` for JAX-friendly NEOPAX normalization
+
+That lane is covered by differentiability tests on the scan electric field and
+by a QI VMEC round-trip test that writes and reloads a NEOPAX-style HDF5 file
+without depending on an external reference database.
 
 For the `sfincs_jax` geometry comparison, NTX applies a toroidal-angle
 convention conversion before comparing arrays:

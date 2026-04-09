@@ -96,6 +96,7 @@ ntx examples/w7x_vmec.toml
 ntx examples/qi_vmec_erhat.toml
 python examples/vmec_jax_booz_xform_jax_ntx.py
 python examples/neopax_with_ntx.py
+python examples/qi_neopax_with_ntx.py
 python examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py \
   --rho 0.25,0.5 --nu-v 1e-4,1e-3 --er-tilde 0.0,1e-3
 ```
@@ -306,7 +307,9 @@ NTX-to-NEOPAX mapping:
 from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
+    build_ntx_neopax_scan_from_surfaces,
     load_neopax_reference_scan,
+    scan_to_neopax_arrays,
     surface_from_vmec_jax_vmec_wout_file,
     to_neopax_monoenergetic,
 )
@@ -335,6 +338,40 @@ database = to_neopax_monoenergetic(scan, a_b=1.0)
 This is now the intended imported JAX W7-X NEOPAX path. On the local reference
 subset, it closes to better than `1e-2` relative error on `D11`, `D13`, `D31`,
 and `D33`.
+
+For imported workflows that already hold the surfaces in memory, NTX also
+exposes a callback-free array path:
+
+```python
+from ntx import (
+    GridSpec,
+    build_ntx_neopax_scan_from_surfaces,
+    load_vmec_surface,
+    scan_to_neopax_arrays,
+)
+
+rho = [0.12247, 0.25]
+surfaces = tuple(
+    load_vmec_surface(
+        "/Users/rogeriojorge/local/.NTX/tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc",
+        psi_n=rho_value**2,
+    )
+    for rho_value in rho
+)
+scan = build_ntx_neopax_scan_from_surfaces(
+    surfaces,
+    rho=rho,
+    nu_v=[1e-4, 1e-3],
+    Es=[[0.0, 5e-4], [0.0, 5e-4]],
+    Er=[[0.0, 5e-4], [0.0, 5e-4]],
+    drds=[1.0, 1.0],
+    grid=GridSpec(n_theta=9, n_zeta=11, n_xi=16),
+)
+arrays = scan_to_neopax_arrays(scan, a_b=1.0)
+```
+
+`scan_to_neopax_arrays(...)` is the JAX-friendly mapping step. It avoids the
+external NEOPAX object construction boundary until the caller actually needs it.
 
 ## Differentiable Core
 

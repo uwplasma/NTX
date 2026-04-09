@@ -75,6 +75,43 @@ This direct `vmec_jax` VMEC-harmonic path matches the local W7-X reference
 subset to better than `1e-2` relative error on `D11`, `D13`, `D31`, and
 `D33`.
 
+## Imported Array Path
+
+When the surfaces are already in memory, NTX can build the scan without a
+Python callback and keep the NEOPAX mapping in pure arrays:
+
+```python
+from ntx import (
+    GridSpec,
+    build_ntx_neopax_scan_from_surfaces,
+    load_vmec_surface,
+    scan_to_neopax_arrays,
+)
+
+rho = [0.12247, 0.25]
+surfaces = tuple(
+    load_vmec_surface(
+        "/Users/rogeriojorge/local/.NTX/tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc",
+        psi_n=rho_value**2,
+    )
+    for rho_value in rho
+)
+scan = build_ntx_neopax_scan_from_surfaces(
+    surfaces,
+    rho=rho,
+    nu_v=[1e-4, 1e-3],
+    Es=[[0.0, 5e-4], [0.0, 5e-4]],
+    Er=[[0.0, 5e-4], [0.0, 5e-4]],
+    drds=[1.0, 1.0],
+    grid=GridSpec(n_theta=9, n_zeta=11, n_xi=16),
+)
+arrays = scan_to_neopax_arrays(scan, a_b=1.0)
+```
+
+This path is intended for imported, differentiable workflows. It keeps the NTX
+scan and NEOPAX normalization in JAX arrays until the caller explicitly asks
+for `NEOPAX.Monoenergetic`.
+
 ## W7-X Reference Database Path
 
 To reproduce the layout and normalization used by
@@ -189,4 +226,5 @@ What is still open:
 - the fully JAX `vmec_jax -> booz_xform_jax -> NTX` W7-X Boozer-transform lane
   is still not the right parity gate for the local NEOPAX reference subset on
   `D11` and `D13`
-- QI VMEC NEOPAX database parity is still open
+- a QI external reference database parity target is still open, but NTX now has
+  a repository-backed QI imported scan and HDF5 round-trip path
