@@ -7,18 +7,26 @@ import argparse
 
 import jax.numpy as jnp
 
+from ntx._checkout_paths import find_vmec_jax_example_input
+
 
 def main() -> None:
+    default_input = find_vmec_jax_example_input()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--input",
-        default="/Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak",
+        default=None if default_input is None else str(default_input),
         help="VMEC input file to solve with vmec_jax.",
     )
     parser.add_argument("--s", type=float, default=0.25, help="Normalized toroidal flux surface.")
     parser.add_argument("--mboz", type=int, default=8)
     parser.add_argument("--nboz", type=int, default=8)
     args = parser.parse_args()
+    if args.input is None:
+        raise SystemExit(
+            "No default vmec_jax example input was found. "
+            "Pass --input explicitly or set VMEC_JAX_ROOT."
+        )
 
     import vmec_jax as vj
 

@@ -4,11 +4,14 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 import jax.numpy as jnp
 
-NEOPAX_ROOT = Path("/Users/rogeriojorge/local/tests/NEOPAX")
+from ntx._checkout_paths import find_neopax_root
+
+NEOPAX_ROOT = find_neopax_root()
+if NEOPAX_ROOT is None:
+    raise SystemExit("NEOPAX checkout not found. Set NEOPAX_ROOT or place it next to NTX.")
 if str(NEOPAX_ROOT) not in sys.path:
     sys.path.insert(0, str(NEOPAX_ROOT))
 

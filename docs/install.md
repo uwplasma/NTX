@@ -71,7 +71,7 @@ A typical GPU session in the office environment is:
 
 ```bash
 sh office
-cd /Users/rogeriojorge/local/.NTX
+cd /path/to/NTX
 python -m pip install -e ".[dev,docs,io]"
 scripts/sh_office_gpu_smoke.sh
 ```

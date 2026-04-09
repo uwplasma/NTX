@@ -1,16 +1,18 @@
-from pathlib import Path
-
 import jax.numpy as jnp
 import pytest
 
 from ntx import GridSpec, MonoenergeticCase, load_boozmn_surface, solve_monoenergetic
+from ntx._checkout_paths import find_reference_executable_f0_root, find_neopax_root
 from ntx.geometry import geometry_on_grid
 
-FIXTURE = Path(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc"
+NEOPAX_ROOT = find_neopax_root()
+FIXTURE = (
+    None
+    if NEOPAX_ROOT is None
+    else NEOPAX_ROOT / "tests" / "inputs" / "boozmn_wout_W7-X_standard_configuration.nc"
 )
 
-if not FIXTURE.exists():
+if FIXTURE is None or not FIXTURE.exists():
     pytest.skip("local Boozer fixture not available", allow_module_level=True)
 
 
@@ -39,8 +41,11 @@ def test_boozmn_surface_solves_finite_transport():
 def test_boozmn_surface_matches_reference_executable_geometry_convention(rho: float):
     import sys
 
-    if "/Users/rogeriojorge/local/tests/reference_executable_f0" not in sys.path:
-        sys.path.insert(0, "/Users/rogeriojorge/local/tests/reference_executable_f0")
+    reference_executable_root = find_reference_executable_f0_root()
+    if reference_executable_root is None:
+        pytest.skip("local reference_executable_f0 checkout not available")
+    if str(reference_executable_root) not in sys.path:
+        sys.path.insert(0, str(reference_executable_root))
     pytest.importorskip("reference_executable")
     import reference_executable  # type: ignore
 
