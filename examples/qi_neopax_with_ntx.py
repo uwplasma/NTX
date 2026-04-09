@@ -16,14 +16,15 @@ from ntx import (
     write_neopax_scan_hdf5,
 )
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--wout",
-        default=(
-            "/Users/rogeriojorge/local/.NTX/tests/fixtures/"
-            "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
+        default=str(
+            ROOT / "tests" / "fixtures" / "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
         ),
         help="QI VMEC wout file to use.",
     )
