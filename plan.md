@@ -96,8 +96,10 @@ Important environment facts found during planning:
 - [x] Add an initial `vmec_jax -> booz_xform_jax -> NTX` imported geometry path.
 - [x] Add an explicit NTX-to-NEOPAX monoenergetic database mapping layer.
 - [x] Replace the legacy VMEC and Boozer file readers with `vmec_jax` and `booz_xform_jax`.
-- [ ] Close the remaining W7-X NEOPAX subset mismatch in `D11` and `D13` now
-  that the Boozer geometry convention bug is fixed.
+- [x] Close the remaining W7-X NEOPAX subset mismatch in `D11` and `D13` on the
+  Eduardo-REFERENCE_EXECUTABLE-reference VMEC database path.
+- [ ] Close the fully JAX `vmec_jax -> booz_xform_jax -> NTX` W7-X NEOPAX path
+  to the same tolerance as the Eduardo-REFERENCE_EXECUTABLE-reference path.
 
 ## Work Log
 
@@ -835,3 +837,44 @@ Important environment facts found during planning:
       the remaining W7-X subset spread against the NEOPAX reference tables.
       The open gap is now in the database/normalization side of that workflow,
       not in the imported JAX Boozer transform itself.
+- 2026-04-09: changed the W7-X NEOPAX parity gate to Eduardo Neto's
+  `vmec_neopax` REFERENCE_EXECUTABLE workflow and closed the reference subset mismatch.
+  - What worked:
+    - Cloned `/Users/rogeriojorge/local/tests/reference_executable_edu` on branch
+      `vmec_neopax` at commit `27d4bc2` and audited:
+      - `Examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
+      - `reference_executable/_field.py::Field.from_vmec_s(...)`
+    - Root-caused the important reference conventions:
+      - use `xm_nyq`, `xn_nyq`
+      - interpolate VMEC Fourier coefficients on the half grid
+      - negate `iota`
+      - negate the toroidal mode sign when mapping into NTX
+      - keep `jacobian_cos = +gmnc`
+      - use `B0 = max(abs(b_mnc))`
+      - keep `transport_psi_scale = 1` for this comparison lane
+      - map REFERENCE_EXECUTABLE `nl` to NTX `n_xi = nl - 1`
+    - Added `src/ntx/vmec_reference_executable.py` with:
+      - `load_vmec_surface_reference_executable_reference(...)`
+      - `reference_executable_vmec_factors(...)`
+    - Extended `src/ntx/neopax.py` with:
+      - `build_reference_executable_reference_vmec_scan(...)`
+      - `write_neopax_scan_hdf5(...)`
+    - Added the NTX replacement script:
+      `examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
+    - Added `tests/test_reference_executable_reference_vmec.py`, covering:
+      - VMEC geometry parity against Eduardo's `Field.from_vmec_s(...)`
+      - a hard single-point transport parity check against
+        `monoenergetic_dke_solve_internal(...)`
+      - subset database parity against
+        `/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5`
+      - example-script HDF5 generation
+    - The W7-X subset now matches the existing NEOPAX reference HDF5 to better
+      than `1e-2` relative error for `D11`, `D13`, `D31`, and `D33`.
+  - What did not:
+    - `python -m pip install -e /Users/rogeriojorge/local/tests/reference_executable_edu`
+      is still not viable because Eduardo's fork is not packaged as an editable
+      project. The local source checkout works through `PYTHONPATH`, which is
+      how the parity tests currently run.
+    - This closes the reference-comparison lane, not the fully JAX
+      `vmec_jax -> booz_xform_jax -> NTX` W7-X NEOPAX lane. That lane still
+      needs a separate normalization/convergence audit.

@@ -108,3 +108,22 @@ This example:
 
 The NEOPAX adapter is intended for imported workflows. The CLI `ntx input.toml`
 remains the right entrypoint for standalone file-driven runs.
+
+## W7-X Reference Database
+
+```bash
+python examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py \
+  --rho 0.25,0.5 --nu-v 1e-4,1e-3 --er-tilde 0.0,1e-3
+```
+
+This example mirrors the W7-X VMEC database workflow used by Eduardo Neto's
+`vmec_neopax` REFERENCE_EXECUTABLE branch:
+
+- VMEC harmonics come from the `wout` file
+- Boozer-side conversion factors come from the `boozmn` file
+- the output is a NEOPAX-style HDF5 table with `D11`, `D13`, `D31`, `D33`, and
+  the stored electric-field conversion factors
+
+Use this example when you want direct parity against the existing W7-X NEOPAX
+reference database rather than the fully JAX `vmec_jax -> booz_xform_jax`
+geometry lane.

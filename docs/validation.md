@@ -19,6 +19,8 @@ The VMEC path is covered by:
 - scan coverage in `tests/test_vmec_scan.py`
 - `vmec_jax -> booz_xform_jax -> NTX` convergence checks in
   `tests/test_vmec_jax_backend.py`
+- Eduardo-REFERENCE_EXECUTABLE-reference VMEC geometry, single-point transport, subset
+  database, and script coverage in `tests/test_reference_executable_reference_vmec.py`
 - standalone REFERENCE_EXECUTABLE comparison coverage through `scripts/compare_reference_executable.py`
 - standalone `sfincs_jax` geometry comparison coverage through
   `scripts/compare_sfincs_geometry.py` and `tests/test_sfincs_vmec_geometry.py`
@@ -53,6 +55,23 @@ within about `2%` on the `13 x 17 x 16` regression grid used in
 Direct VMEC comparison against REFERENCE_EXECUTABLE is now a parity check for the reduced-mode
 VMEC convention. The current W7-X reduced-mode VMEC example closes to roundoff
 against the live REFERENCE_EXECUTABLE executable.
+
+For the W7-X NEOPAX VMEC database specifically, NTX now also has a
+comparison-only reference lane that mirrors Eduardo Neto's `vmec_neopax`
+workflow:
+
+- `load_vmec_surface_reference_executable_reference(...)`
+- `reference_executable_vmec_factors(...)`
+- `build_reference_executable_reference_vmec_scan(...)`
+- `examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
+
+That path uses the same VMEC sign convention as `Field.from_vmec_s(...)`, the
+same Boozer-side electric-field conversion factors from the `boozmn` file, and
+the same Legendre resolution convention with `nl -> n_xi = nl - 1`.
+
+On the local W7-X subset used in the regression tests, this path matches the
+existing NEOPAX reference HDF5 to better than `1e-2` relative error for
+`D11`, `D13`, `D31`, and `D33`.
 
 For the `sfincs_jax` geometry comparison, NTX applies a toroidal-angle
 convention conversion before comparing arrays:

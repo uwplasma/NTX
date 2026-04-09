@@ -13,11 +13,22 @@ imported JAX workflows, NTX also includes an explicit
 `vmec_jax -> booz_xform_jax -> NTX` path and a direct NTX-to-NEOPAX mapping
 layer.
 
-For Boozer `boozmn` inputs, NTX now interpolates the file profiles in `s` and
-applies the same handedness/sign convention used by the JAX REFERENCE_EXECUTABLE Boozer field
-loader. That closes the geometry-convention mismatch on the shared W7-X Boozer
-test case and leaves the remaining NEOPAX spread in the transport normalization
-and scan conventions rather than in file ingestion.
+For reference-grade W7-X VMEC to NEOPAX comparisons, NTX now also includes a
+comparison-only path that mirrors Eduardo Neto's `vmec_neopax` REFERENCE_EXECUTABLE branch:
+
+- VMEC surfaces loaded from `wout` through `netCDF4`
+- Boozer-side electric-field and normalization factors loaded from `boozmn`
+- the same VMEC sign and interpolation conventions as
+  `Field.from_vmec_s(...)`
+- the same Legendre-resolution convention, with `nl` mapped to
+  `GridSpec.n_xi = nl - 1`
+
+That path is exposed through:
+
+- `load_vmec_surface_reference_executable_reference(...)`
+- `reference_executable_vmec_factors(...)`
+- `build_reference_executable_reference_vmec_scan(...)`
+- `examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
 
 The imported `vmec_jax -> booz_xform_jax -> NTX` path now uses that same
 handedness convention, so the transformed W7-X surface matches the file-backed
@@ -49,7 +60,7 @@ Full local JAX geometry / transport stack:
 python -m pip install -e /Users/rogeriojorge/local/vmec_jax
 python -m pip install -e /Users/rogeriojorge/local/booz_xform_jax
 python -m pip install -e /Users/rogeriojorge/local/tests/NEOPAX
-python -m pip install -e /Users/rogeriojorge/local/.NTX"[dev,docs,io]"
+python -m pip install -e "/Users/rogeriojorge/local/.NTX[dev,docs,io]"
 ```
 
 Primary checks:
@@ -80,6 +91,8 @@ ntx examples/w7x_vmec.toml
 ntx examples/qi_vmec_erhat.toml
 python examples/vmec_jax_booz_xform_jax_ntx.py
 python examples/neopax_with_ntx.py
+python examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py \
+  --rho 0.25,0.5 --nu-v 1e-4,1e-3 --er-tilde 0.0,1e-3
 ```
 
 `ntx` prints a detailed Rich run summary and writes a compressed `.npz` with:
@@ -260,6 +273,27 @@ result = solve_monoenergetic(
     MonoenergeticCase(nu_hat=1e-4, epsi_hat=0.0),
 )
 ```
+
+Reference W7-X VMEC to NEOPAX path:
+
+```python
+from ntx import build_reference_executable_reference_vmec_scan, to_neopax_monoenergetic
+
+scan = build_reference_executable_reference_vmec_scan(
+    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
+    rho=[0.25, 0.5],
+    nu_v=[1e-4, 1e-3, 1e-2],
+    er_tilde=[0.0, 1e-3, 1e-2],
+    nt=25,
+    nz=25,
+    nl=64,
+)
+database = to_neopax_monoenergetic(scan, a_b=float(scan.a_b))
+```
+
+This is the parity path against the existing W7-X NEOPAX database generated
+from Eduardo Neto's REFERENCE_EXECUTABLE `vmec_neopax` workflow.
 
 NTX-to-NEOPAX mapping:
 
