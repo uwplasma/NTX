@@ -17,10 +17,13 @@ from .io import (
     load_vmec_surface,
 )
 from .neopax import (
+    NeopaxMonoenergeticArrays,
     NeopaxScan,
     build_reference_executable_reference_vmec_scan,
     build_ntx_neopax_scan,
+    build_ntx_neopax_scan_from_surfaces,
     load_neopax_reference_scan,
+    scan_to_neopax_arrays,
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
@@ -51,6 +54,7 @@ __all__ = [
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
     "ReferenceExecutableVmecFactors",
+    "NeopaxMonoenergeticArrays",
     "NeopaxScan",
     "PreparedMonoenergeticSystem",
     "TransportResult",
@@ -58,6 +62,7 @@ __all__ = [
     "build_monoenergetic_database_arrays",
     "build_reference_executable_reference_vmec_scan",
     "build_ntx_neopax_scan",
+    "build_ntx_neopax_scan_from_surfaces",
     "compile_prepared_solver",
     "compare_vmec_geometry_to_sfincs",
     "enable_x64",
@@ -74,6 +79,7 @@ __all__ = [
     "onsager_error",
     "prepare_monoenergetic_system",
     "run_from_input_file",
+    "scan_to_neopax_arrays",
     "solve_monoenergetic",
     "solve_monoenergetic_internal",
     "solve_monoenergetic_scan",
