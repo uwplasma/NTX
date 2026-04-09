@@ -1,6 +1,11 @@
 """JAX-native monoenergetic neoclassical transport solver."""
 
 from .config import enable_x64
+from .database import (
+    MonoenergeticDatabaseArrays,
+    build_monoenergetic_database_arrays,
+    stack_monoenergetic_database_arrays,
+)
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
 from .inputfiles import load_run_config, run_from_input_file
@@ -31,9 +36,11 @@ __all__ = [
     "CompiledPreparedSolver",
     "GridSpec",
     "MonoenergeticCase",
+    "MonoenergeticDatabaseArrays",
     "PreparedMonoenergeticSystem",
     "TransportResult",
     "VmecSurface",
+    "build_monoenergetic_database_arrays",
     "compile_prepared_solver",
     "compare_vmec_geometry_to_sfincs",
     "enable_x64",
@@ -51,4 +58,5 @@ __all__ = [
     "solve_monoenergetic_scan",
     "solve_prepared",
     "solve_prepared_internal",
+    "stack_monoenergetic_database_arrays",
 ]

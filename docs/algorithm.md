@@ -148,9 +148,12 @@ The imported low-level interface also exposes:
 
 - `solve_monoenergetic_internal(surface, grid, case) -> (Dij, f, s)`
 - `solve_prepared_internal(prepared, case) -> (Dij, f, s)`
+- `build_monoenergetic_database_arrays(surface, grid, nu_hat, ...)`
 
 where `f` and `s` are the retained low-order internal systems needed for the
-monoenergetic coefficient evaluation.
+monoenergetic coefficient evaluation, and the database builder returns
+tensor-product in-memory scan arrays over `(nu_hat, scan_field)` for one
+surface.
 
 For file-driven runs, NTX also writes geometry statistics, surface metadata, and
 algorithm metadata into the output `.npz`.

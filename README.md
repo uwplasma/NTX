@@ -226,6 +226,25 @@ Here:
 This API is the intended starting point for NTX-driven monoenergetic database
 generation inside higher-level JAX workflows such as NEOPAX.
 
+For scan-based imported workflows, NTX also provides an in-memory database
+builder:
+
+```python
+from ntx import GridSpec, build_monoenergetic_database_arrays, example_surface
+import jax.numpy as jnp
+
+database = build_monoenergetic_database_arrays(
+    example_surface(),
+    GridSpec(5, 5, 4),
+    nu_hat=jnp.asarray([1e-2, 2e-2]),
+    er_hat=jnp.asarray([0.0, 1e-3]),
+)
+```
+
+This returns a `MonoenergeticDatabaseArrays` object with tensor-product scan
+arrays such as `D11`, `D13`, and `D33` over `(nu_hat, scan_field)` for one
+surface, entirely in memory.
+
 Current differentiability scope:
 
 - gradients through `nu_hat`
