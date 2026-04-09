@@ -11,6 +11,12 @@ Boozer surfaces and on VMEC equilibria. For imported JAX workflows, NTX now
 includes an explicit `vmec_jax -> booz_xform_jax -> NTX` path and a direct
 NTX-to-NEOPAX mapping layer.
 
+For Boozer `boozmn` inputs, NTX now interpolates the file profiles in `s` and
+applies the same handedness/sign convention used by the JAX REFERENCE_EXECUTABLE Boozer field
+loader. That closes the geometry-convention mismatch on the shared W7-X Boozer
+test case and leaves the remaining NEOPAX spread in the transport normalization
+and scan conventions rather than in file ingestion.
+
 ## Install
 
 From a local checkout:

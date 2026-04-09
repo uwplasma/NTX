@@ -80,29 +80,60 @@ def load_boozmn_surface(
     if bmnc.ndim != 2:
         raise ValueError("expected bmnc_b to be a 2D `(surface, mode)` array")
     ns_b, mode_count = bmnc.shape
-    s_grid: NDArray[np.float64]
-    if phi_b is not None and phi_b.shape[0] == ns_b:
-        s_grid = np.asarray(phi_b / float(phi_b[-1]), dtype=np.float64)
+    s_grid_full: NDArray[np.float64]
+    if phi_b is not None and phi_b.shape[0] == ns_b + 1:
+        s_grid_full = np.asarray(phi_b / float(phi_b[-1]), dtype=np.float64)
+        s_grid_modes = s_grid_full[1:]
+    elif phi_b is not None and phi_b.shape[0] == ns_b:
+        s_grid_full = np.asarray(phi_b / float(phi_b[-1]), dtype=np.float64)
+        s_grid_modes = s_grid_full
     else:
-        s_grid = np.asarray(
-            (np.arange(ns_b, dtype=np.float64) + 1.0) / float(ns_b + 1),
+        s_grid_full = np.asarray(
+            np.linspace(0.0, 1.0, ns_b + 1, dtype=np.float64),
             dtype=np.float64,
         )
-    rho_grid = np.sqrt(np.clip(s_grid, 0.0, None))
+        s_grid_modes = np.asarray(
+            (np.arange(ns_b, dtype=np.float64) + 1.0) / float(ns_b),
+            dtype=np.float64,
+        )
+    rho_grid = np.sqrt(np.clip(s_grid_modes, 0.0, None))
 
     idx: int
     if surface_index is not None:
         idx = int(surface_index)
+        s_value = float(s_grid_modes[idx])
     elif s is not None:
-        idx = int(np.argmin(np.abs(s_grid - float(s))))
+        s_value = float(s)
+        idx = int(np.argmin(np.abs(s_grid_modes - s_value)))
     else:
         assert rho is not None
+        s_value = float(rho) ** 2
         idx = int(np.argmin(np.abs(rho_grid - float(rho))))
 
     if idx < 0 or idx >= ns_b:
         raise IndexError(f"surface_index {idx} is outside [0, {ns_b})")
 
-    bmn = bmnc[idx]
+    if surface_index is not None:
+        bmn = bmnc[idx]
+        full_idx = min(idx + 1, iota.shape[0] - 1)
+        iota_value = float(iota[full_idx])
+        buco_value = float(buco[full_idx])
+        bvco_value = float(bvco[full_idx])
+    else:
+        bmn = np.vstack(
+            [np.interp(s_value, s_grid_modes, bmnc[:, mode]) for mode in range(mode_count)]
+        ).reshape(-1)
+        iota_value = float(np.interp(s_value, s_grid_full, iota))
+        buco_value = float(np.interp(s_value, s_grid_full, buco))
+        bvco_value = float(np.interp(s_value, s_grid_full, bvco))
+
+    # Match the right-handed sign convention used in the JAX REFERENCE_EXECUTABLE field loader.
+    iota_value = -iota_value
+    buco_value = -buco_value
+    sign = 1.0 if (bvco_value + iota_value * buco_value) >= 0.0 else -1.0
+    buco_value *= sign
+    bvco_value *= sign
+
     b0 = float(bmn[0])
     if b0 == 0.0:
         raise ValueError("Boozer mode (m,n)=(0,0) is zero on the selected surface")
@@ -115,18 +146,18 @@ def load_boozmn_surface(
         n=jnp.asarray(np.rint(xn[include] / nfp).astype(np.int32), dtype=jnp.int32),
         b_cos=jnp.asarray(bmn[include]),
         nfp=nfp,
-        iota=float(iota[idx]),
+        iota=iota_value,
         psi_p=psi_p,
-        b_theta=float(buco[idx]),
-        b_zeta=float(bvco[idx]),
+        b_theta=buco_value,
+        b_zeta=bvco_value,
         b0=b0,
         source_path=booz_path,
     )
     return BoozmnSurface(
         surface=surface,
         path=booz_path,
-        s=float(s_grid[idx]),
-        rho=float(rho_grid[idx]),
+        s=s_value,
+        rho=float(np.sqrt(max(s_value, 0.0))),
         surface_index=idx,
         mode_count=int(np.count_nonzero(include)),
     )
