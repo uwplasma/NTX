@@ -1,12 +1,16 @@
 from pathlib import Path
 
 import jax.numpy as jnp
+import pytest
 
 from ntx import GridSpec, MonoenergeticCase, load_boozmn_surface, solve_monoenergetic
 
 FIXTURE = Path(
     "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc"
 )
+
+if not FIXTURE.exists():
+    pytest.skip("local Boozer fixture not available", allow_module_level=True)
 
 
 def test_load_boozmn_surface_by_rho_and_s_are_consistent():

@@ -3,13 +3,27 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path("/Users/rogeriojorge/local/.NTX")
+VMEC_JAX_ROOT = Path("/Users/rogeriojorge/local/vmec_jax")
+BOOZ_XFORM_JAX_ROOT = Path("/Users/rogeriojorge/local/booz_xform_jax")
+NEOPAX_ROOT = Path("/Users/rogeriojorge/local/tests/NEOPAX")
+
+if not (
+    ROOT.exists()
+    and VMEC_JAX_ROOT.exists()
+    and BOOZ_XFORM_JAX_ROOT.exists()
+    and NEOPAX_ROOT.exists()
+):
+    pytest.skip("local JAX integration checkouts are not available", allow_module_level=True)
+
 PYTHONPATH = os.pathsep.join(
     [
         str(ROOT / "src"),
-        "/Users/rogeriojorge/local/vmec_jax",
-        "/Users/rogeriojorge/local/booz_xform_jax",
-        "/Users/rogeriojorge/local/tests/NEOPAX",
+        str(VMEC_JAX_ROOT),
+        str(BOOZ_XFORM_JAX_ROOT),
+        str(NEOPAX_ROOT),
     ]
 )
 
