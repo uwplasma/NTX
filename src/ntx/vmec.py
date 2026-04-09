@@ -6,6 +6,7 @@ from pathlib import Path
 
 import jax.numpy as jnp
 import numpy as np
+from numpy.typing import NDArray
 from scipy.io import netcdf_file
 
 from .geometry import VmecSurface
@@ -243,6 +244,7 @@ def _select_mode_set(
     option: int,
     mode_convention: str,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    selected_indices: NDArray[np.int32]
     if option == 1:
         if mode_convention == "reduced":
             if coeff_mode_m.shape[0] < base_mode_m.shape[0]:
@@ -256,7 +258,7 @@ def _select_mode_set(
         include = (np.abs(coeff_mode_m) < int(mpol)) & (
             np.abs(coeff_mode_n / float(nfp)) <= float(ntor)
         )
-        selected_indices = np.nonzero(include)[0].astype(np.int32)
+        selected_indices = np.flatnonzero(include).astype(np.int32)
         return (
             coeff_mode_m[selected_indices],
             coeff_mode_n[selected_indices],

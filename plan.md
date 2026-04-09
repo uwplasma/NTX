@@ -660,3 +660,27 @@ Important environment facts found during planning:
     - The `sfincs_jax` VMEC geometry path is not in the default CI environment,
       so the new cross-code geometry test is intentionally skipped unless the
       local checkout exists.
+- 2026-04-08: fixed the broken CI/CD path introduced by the new Boozer loader.
+  - What worked:
+    - Root-caused the failed GitHub Actions run to two independent issues:
+      - the test workflow installed only `.[dev]`, but the public NTX import
+        path now exposes the Boozer loader, and the original implementation
+        imported `netCDF4` at module import time.
+      - Python 3.10 `mypy` rejected a couple of NumPy stub inferences in
+        `src/ntx/vmec.py` and `src/ntx/booz.py`.
+    - Fixed the workflow to install `.[dev,io]` for the matrix test jobs, which
+      matches the real test surface area now covered in CI.
+    - Made `src/ntx/booz.py` import `netCDF4` lazily inside
+      `load_boozmn_surface(...)`, so `import ntx` no longer fails when the IO
+      extras are absent.
+    - Resolved the Python 3.10 typing failures by pinning the relevant NumPy
+      array/scalar expectations explicitly.
+    - Local validation after the fix passed:
+      - `ruff check .`
+      - `mypy src/ntx`
+      - `pytest -q` -> `68 passed, 2 skipped`
+      - `python -m sphinx -b html docs docs/_build/html`
+  - What did not:
+    - Relying on unconditional imports from optional IO code made the public API
+      brittle and masked the real packaging boundary. The workflow fix alone
+      would have hidden that design problem instead of fixing it.

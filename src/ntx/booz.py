@@ -7,7 +7,7 @@ from pathlib import Path
 
 import jax.numpy as jnp
 import numpy as np
-from netCDF4 import Dataset
+from numpy.typing import NDArray
 
 from .geometry import BoozerSurface
 
@@ -55,6 +55,14 @@ def load_boozmn_surface(
     if selectors != 1:
         raise ValueError("set exactly one of s, rho, or surface_index")
 
+    try:
+        from netCDF4 import Dataset
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "load_boozmn_surface requires the optional 'io' dependencies. "
+            "Install NTX with `pip install ntx[io]`."
+        ) from exc
+
     with Dataset(booz_path) as ds:
         xm = np.asarray(ds.variables["ixm_b"][:]).reshape(-1)
         xn = np.asarray(ds.variables["ixn_b"][:]).reshape(-1)
@@ -72,12 +80,17 @@ def load_boozmn_surface(
     if bmnc.ndim != 2:
         raise ValueError("expected bmnc_b to be a 2D `(surface, mode)` array")
     ns_b, mode_count = bmnc.shape
+    s_grid: NDArray[np.float64]
     if phi_b is not None and phi_b.shape[0] == ns_b:
-        s_grid = phi_b / float(phi_b[-1])
+        s_grid = np.asarray(phi_b / float(phi_b[-1]), dtype=np.float64)
     else:
-        s_grid = (np.arange(ns_b, dtype=np.float64) + 1.0) / float(ns_b + 1)
+        s_grid = np.asarray(
+            (np.arange(ns_b, dtype=np.float64) + 1.0) / float(ns_b + 1),
+            dtype=np.float64,
+        )
     rho_grid = np.sqrt(np.clip(s_grid, 0.0, None))
 
+    idx: int
     if surface_index is not None:
         idx = int(surface_index)
     elif s is not None:
