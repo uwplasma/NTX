@@ -758,8 +758,11 @@ Important environment facts found during planning:
     - After the fix, NTX and JAX REFERENCE_EXECUTABLE now agree on the shared W7-X Boozer
       geometry to the expected numerical tolerance for:
       - `B`
+      - `dB/dtheta`
+      - `dB/dzeta`
       - `B_theta`
       - `B_zeta`
+      - `B x grad(psi) . grad(B) / B^3`
       - `iota`
     - Re-ran the full local validation suite after the loader fix:
       - `ruff check .`
