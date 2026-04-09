@@ -1,5 +1,6 @@
 """JAX-native monoenergetic neoclassical transport solver."""
 
+from .booz import BoozmnSurface, load_boozmn_surface
 from .config import enable_x64
 from .database import (
     MonoenergeticDatabaseArrays,
@@ -14,6 +15,12 @@ from .io import (
     load_dkes_surface,
     load_magnetic_configuration_surface,
     load_vmec_surface,
+)
+from .neopax import (
+    NeopaxScan,
+    build_ntx_neopax_scan,
+    load_neopax_reference_scan,
+    to_neopax_monoenergetic,
 )
 from .sfincs_geometry import compare_vmec_geometry_to_sfincs
 from .solver import (
@@ -30,25 +37,31 @@ from .solver import (
     solve_prepared_internal,
 )
 from .transport import onsager_error
+from .vmec_jax_backend import surface_from_vmec_jax_state
 
 __all__ = [
+    "BoozmnSurface",
     "BoozerSurface",
     "CompiledPreparedSolver",
     "GridSpec",
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
+    "NeopaxScan",
     "PreparedMonoenergeticSystem",
     "TransportResult",
     "VmecSurface",
     "build_monoenergetic_database_arrays",
+    "build_ntx_neopax_scan",
     "compile_prepared_solver",
     "compare_vmec_geometry_to_sfincs",
     "enable_x64",
     "example_surface",
+    "load_boozmn_surface",
     "load_run_config",
     "load_boozer_modes_csv",
     "load_dkes_surface",
     "load_magnetic_configuration_surface",
+    "load_neopax_reference_scan",
     "load_vmec_surface",
     "onsager_error",
     "prepare_monoenergetic_system",
@@ -59,4 +72,6 @@ __all__ = [
     "solve_prepared",
     "solve_prepared_internal",
     "stack_monoenergetic_database_arrays",
+    "surface_from_vmec_jax_state",
+    "to_neopax_monoenergetic",
 ]
