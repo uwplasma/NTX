@@ -809,3 +809,29 @@ Important environment facts found during planning:
       imported JAX transform lane. The immediate remaining work is to raise the
       Boozer transform resolution and normalization audit there rather than to
       re-open the file readers.
+- 2026-04-09: closed the handedness bug in the imported
+  `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform lane.
+  - What worked:
+    - Root-caused the remaining imported-JAX parity gap to the Boozer sign
+      convention in `surface_from_vmec_jax_state(...)`.
+    - The transformed surface carried the opposite signs for `iota` and
+      `B_zeta` relative to the file-backed `boozmn` loader. Applying the same
+      right-handed convention used in `src/ntx/booz.py` collapses the transport
+      mismatch on the local W7-X Boozer reference.
+    - Added a dedicated regression in `tests/test_vmec_jax_backend.py` that
+      compares the imported JAX transform lane directly against
+      `load_boozmn_surface(...)` on the W7-X `boozmn` reference at
+      `13 x 17 x 16`, requiring all four transport channels to agree within
+      `2%`.
+    - Re-ran the focused parity suite:
+      - `pytest -q tests/test_vmec_jax_backend.py tests/test_boozmn.py tests/test_neopax_adapter.py`
+        -> `9 passed`
+    - Re-evaluated the local NTX-to-NEOPAX W7-X subset after the sign fix:
+      - max `|D11_log - reference|` on the sampled subset: about `0.979`
+      - max relative `D33` difference on the sampled subset: about `10.7%`
+      - max absolute `D13` difference on the sampled subset: about `1.42`
+  - What did not:
+    - This fix closes the Boozer handedness problem, but it does not eliminate
+      the remaining W7-X subset spread against the NEOPAX reference tables.
+      The open gap is now in the database/normalization side of that workflow,
+      not in the imported JAX Boozer transform itself.

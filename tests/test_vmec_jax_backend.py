@@ -3,7 +3,13 @@ from pathlib import Path
 import jax.numpy as jnp
 import pytest
 
-from ntx import GridSpec, MonoenergeticCase, solve_monoenergetic, surface_from_vmec_jax_wout
+from ntx import (
+    GridSpec,
+    MonoenergeticCase,
+    load_boozmn_surface,
+    solve_monoenergetic,
+    surface_from_vmec_jax_wout,
+)
 
 VMEC_INPUT = Path(
     "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/"
@@ -12,6 +18,10 @@ VMEC_INPUT = Path(
 WOUT = Path(
     "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/"
     "wout_W7-X_standard_configuration.nc"
+)
+BOOZ = Path(
+    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/"
+    "boozmn_wout_W7-X_standard_configuration.nc"
 )
 
 if not VMEC_INPUT.exists() or not WOUT.exists():
@@ -63,3 +73,25 @@ def test_surface_from_vmec_jax_wout_converges_with_grid_refinement():
     assert jnp.all(jnp.isfinite(fine_values))
     relative = jnp.abs((fine_values - coarse_values) / jnp.maximum(jnp.abs(fine_values), 1.0))
     assert jnp.max(relative) < 0.35
+
+
+def test_surface_from_vmec_jax_wout_matches_boozmn_transport():
+    if not BOOZ.exists():
+        pytest.skip("local boozmn fixture is not available")
+
+    booz_surface = load_boozmn_surface(BOOZ, rho=0.5).surface
+    jax_surface = surface_from_vmec_jax_wout(
+        input_path=VMEC_INPUT,
+        wout_path=WOUT,
+        s=0.25,
+        mboz=24,
+        nboz=24,
+    )
+    spec = GridSpec(n_theta=13, n_zeta=17, n_xi=16, dtype=jnp.float32)
+    case = MonoenergeticCase(nu_hat=1.0e-3, epsi_hat=1.0e-3)
+    booz_result = solve_monoenergetic(booz_surface, spec, case)
+    jax_result = solve_monoenergetic(jax_surface, spec, case)
+    booz_values = jnp.asarray([booz_result.D11, booz_result.D31, booz_result.D13, booz_result.D33])
+    jax_values = jnp.asarray([jax_result.D11, jax_result.D31, jax_result.D13, jax_result.D33])
+    relative = jnp.abs((jax_values - booz_values) / jnp.maximum(jnp.abs(booz_values), 1.0))
+    assert jnp.max(relative) < 0.02
