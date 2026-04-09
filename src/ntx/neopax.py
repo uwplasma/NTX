@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import jax.numpy as jnp
-from jax import Array
+from jax import Array, tree_util
 
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
@@ -49,6 +49,63 @@ class NeopaxScan:
     fac_dkes_to_d31star: Array | None = None
     fac_dkes_to_d33star: Array | None = None
     source_name: str | None = None
+
+
+tree_util.register_dataclass(
+    NeopaxScan,
+    data_fields=(
+        "rho",
+        "nu_v",
+        "Er",
+        "Es",
+        "drds",
+        "D11",
+        "D13",
+        "D33",
+        "D31",
+        "Er_tilde",
+        "Er_to_Ertilde",
+        "dr_tildedr",
+        "dr_tildeds",
+        "a_b",
+        "psia",
+        "b00",
+        "r00",
+        "boozer_i",
+        "boozer_g",
+        "iota",
+        "fac_reference_executable_to_sfincs_11",
+        "fac_reference_executable_to_sfincs_31",
+        "fac_reference_executable_to_sfincs_33",
+        "fac_sfincs_to_dkes_11",
+        "fac_sfincs_to_dkes_31",
+        "fac_sfincs_to_dkes_33",
+        "fac_dkes_to_d11star",
+        "fac_dkes_to_d31star",
+        "fac_dkes_to_d33star",
+    ),
+    meta_fields=("source_name",),
+)
+
+
+@dataclass(frozen=True)
+class NeopaxMonoenergeticArrays:
+    """Pure-array NEOPAX mapping payload for differentiable imported workflows."""
+
+    a_b: Array
+    rho: Array
+    nu_log: Array
+    Er_list: Array
+    D11_log: Array
+    D13: Array
+    D33: Array
+
+
+tree_util.register_dataclass(
+    NeopaxMonoenergeticArrays,
+    data_fields=("a_b", "rho", "nu_log", "Er_list", "D11_log", "D13", "D33"),
+    meta_fields=(),
+)
 
 
 def load_neopax_reference_scan(path: str | Path) -> NeopaxScan:
@@ -126,12 +183,55 @@ def build_ntx_neopax_scan(
     if drds_arr.shape[0] != rho_arr.shape[0]:
         raise ValueError("drds must have the same length as rho")
 
+    surfaces = tuple(surface_loader(float(rho_value)) for rho_value in rho_arr)
+    return build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho_arr,
+        nu_v=nu_arr,
+        Es=es_arr,
+        Er=er_arr,
+        drds=drds_arr,
+        grid=grid,
+        source_name=source_name,
+    )
+
+
+def build_ntx_neopax_scan_from_surfaces(
+    surfaces: tuple[BoozerSurface | VmecSurface, ...],
+    *,
+    rho: Array,
+    nu_v: Array,
+    Es: Array,
+    Er: Array,
+    drds: Array,
+    grid: GridSpec,
+    source_name: str | None = None,
+) -> NeopaxScan:
+    """Build a NEOPAX-style scan from an explicit tuple of NTX surfaces.
+
+    This is the intended imported path when the caller already has surface
+    objects in memory and wants to avoid a Python callback boundary.
+    """
+
+    rho_arr = jnp.asarray(rho)
+    nu_arr = jnp.asarray(nu_v)
+    es_arr = jnp.asarray(Es)
+    er_arr = jnp.asarray(Er)
+    drds_arr = jnp.asarray(drds)
+    if len(surfaces) != rho_arr.shape[0]:
+        raise ValueError("number of surfaces must match rho length")
+    if es_arr.shape != er_arr.shape:
+        raise ValueError("Es and Er must have the same shape")
+    if es_arr.shape[0] != rho_arr.shape[0]:
+        raise ValueError("Es/Er first dimension must match rho")
+    if drds_arr.shape[0] != rho_arr.shape[0]:
+        raise ValueError("drds must have the same length as rho")
+
     d11_list = []
     d13_list = []
     d33_list = []
-    for idx, rho_value in enumerate(rho_arr):
-        surface = surface_loader(float(rho_value))
-        nu_grid, es_grid = jnp.meshgrid(nu_arr, es_arr[idx], indexing="ij")
+    for surface, es_row in zip(surfaces, es_arr, strict=True):
+        nu_grid, es_grid = jnp.meshgrid(nu_arr, es_row, indexing="ij")
         coeffs = solve_monoenergetic_scan(surface, grid, nu_grid, epsi_hat=es_grid)
         d11_list.append(coeffs["D11"])
         d13_list.append(coeffs["D13"])
@@ -273,6 +373,40 @@ def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
     return output_path
 
 
+def scan_to_neopax_arrays(scan: NeopaxScan, *, a_b: float | Array) -> NeopaxMonoenergeticArrays:
+    """Map NTX scan data into the pure arrays consumed by `NEOPAX.Monoenergetic`.
+
+    This path is JAX-friendly and is the right place to keep imported,
+    differentiable workflows before constructing the external NEOPAX object.
+    """
+
+    rho = jnp.asarray(scan.rho)
+    nu_v = jnp.asarray(scan.nu_v)
+    er = jnp.asarray(scan.Er)
+    drds = jnp.asarray(scan.drds)
+    d11 = jnp.asarray(scan.D11)
+    d13 = jnp.asarray(scan.D13)
+    d33 = jnp.asarray(scan.D33)
+    a_b_value = jnp.asarray(a_b)
+
+    er0 = er[0]
+    er_list = jnp.stack(
+        [
+            jnp.log10(jnp.maximum(1.0e-8, jnp.abs(er0) / (a_b_value * rho_value)))
+            for rho_value in rho
+        ]
+    )
+    return NeopaxMonoenergeticArrays(
+        a_b=a_b_value,
+        rho=rho,
+        nu_log=jnp.log10(nu_v),
+        Er_list=er_list,
+        D11_log=jnp.log10(d11 * drds[:, None, None] ** 2),
+        D13=d13 * drds[:, None, None],
+        D33=d33 * nu_v[None, :, None],
+    )
+
+
 def to_neopax_monoenergetic(scan: NeopaxScan, *, a_b: float):
     """Construct `NEOPAX.Monoenergetic` from NTX scan data.
 
@@ -285,30 +419,16 @@ def to_neopax_monoenergetic(scan: NeopaxScan, *, a_b: float):
     except ImportError as exc:  # pragma: no cover - exercised when NEOPAX exists locally
         raise ImportError("NEOPAX is required for `to_neopax_monoenergetic`") from exc
 
-    rho = jnp.asarray(scan.rho)
-    nu_v = jnp.asarray(scan.nu_v)
-    er = jnp.asarray(scan.Er)
-    drds = jnp.asarray(scan.drds)
-    d11 = jnp.asarray(scan.D11)
-    d13 = jnp.asarray(scan.D13)
-    d33 = jnp.asarray(scan.D33)
-
-    er_list = jnp.zeros((rho.shape[0], er.shape[1]), dtype=er.dtype)
-    d11_scaled = d11 * drds[:, None, None] ** 2
-    d13_scaled = d13 * drds[:, None, None]
-    d33_scaled = d33 * nu_v[None, :, None]
-    er0 = er[0]
-    for j in range(rho.shape[0]):
-        er_list = er_list.at[j].set(jnp.log10(jnp.maximum(1.0e-8, jnp.abs(er0) / (a_b * rho[j]))))
+    arrays = scan_to_neopax_arrays(scan, a_b=a_b)
 
     return NEOPAX.Monoenergetic(
         a_b=float(a_b),
-        rho=rho,
-        nu_log=jnp.log10(nu_v),
-        Er_list=er_list,
-        D11_log=jnp.log10(d11_scaled),
-        D13=d13_scaled,
-        D33=d33_scaled,
+        rho=arrays.rho,
+        nu_log=arrays.nu_log,
+        Er_list=arrays.Er_list,
+        D11_log=arrays.D11_log,
+        D13=arrays.D13,
+        D33=arrays.D33,
     )
 
 
