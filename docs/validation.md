@@ -17,6 +17,8 @@ The VMEC path is covered by:
 - QI-specific checks in `tests/test_vmec_qi.py`
 - regression snapshots in `tests/test_vmec_regression.py`
 - scan coverage in `tests/test_vmec_scan.py`
+- `vmec_jax -> booz_xform_jax -> NTX` convergence checks in
+  `tests/test_vmec_jax_backend.py`
 - standalone REFERENCE_EXECUTABLE comparison coverage through `scripts/compare_reference_executable.py`
 - standalone `sfincs_jax` geometry comparison coverage through
   `scripts/compare_sfincs_geometry.py` and `tests/test_sfincs_vmec_geometry.py`
@@ -36,6 +38,11 @@ The VMEC loader also distinguishes between:
 
 This distinction is covered in `tests/test_vmec.py` so changes in VMEC mode
 selection do not silently alter the active spectral set.
+
+The file-backed VMEC and Boozer loaders are now explicitly JAX-backed:
+
+- `load_vmec_surface(...)` reads `wout` files through `vmec_jax`
+- `load_boozmn_surface(...)` reads `boozmn` files through `booz_xform_jax`
 
 Direct VMEC comparison against REFERENCE_EXECUTABLE is now a parity check for the reduced-mode
 VMEC convention. The current W7-X reduced-mode VMEC example closes to roundoff

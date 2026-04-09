@@ -1,4 +1,4 @@
-"""Boozer-surface helpers backed by booz_xform_jax-compatible files."""
+"""Boozer-surface helpers backed by `booz_xform_jax`."""
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ from pathlib import Path
 
 import jax.numpy as jnp
 import numpy as np
-from numpy.typing import NDArray
 
 from .geometry import BoozerSurface
 
@@ -33,22 +32,7 @@ def load_boozmn_surface(
     psi_p: float = 1.0,
     min_bmn_to_load: float = 0.0,
 ) -> BoozmnSurface:
-    """Load one surface from a Boozer `boozmn` netCDF file.
-
-    Parameters
-    ----------
-    path:
-        Path to a `boozmn_*.nc` or equivalent file.
-    s, rho, surface_index:
-        Select exactly one surface using normalized toroidal flux, normalized
-        minor radius, or the 0-based stored surface index.
-    psi_p:
-        Poloidal-flux normalization used when converting `er_hat` to
-        `epsi_hat`. This quantity is not needed when solving directly in
-        `epsi_hat`.
-    min_bmn_to_load:
-        Drop small `|B_{mn}|/B00` coefficients after loading.
-    """
+    """Load one surface from a Boozer `boozmn` file through `booz_xform_jax`."""
 
     booz_path = Path(path).expanduser().resolve()
     selectors = sum(value is not None for value in (s, rho, surface_index))
@@ -56,55 +40,46 @@ def load_boozmn_surface(
         raise ValueError("set exactly one of s, rho, or surface_index")
 
     try:
-        from netCDF4 import Dataset
+        from booz_xform_jax import Booz_xform
     except ModuleNotFoundError as exc:
         raise ModuleNotFoundError(
-            "load_boozmn_surface requires the optional 'io' dependencies. "
-            "Install NTX with `pip install ntx[io]`."
+            "load_boozmn_surface requires booz_xform_jax. Install the local package with "
+            "`pip install -e /Users/rogeriojorge/local/booz_xform_jax`."
         ) from exc
 
-    with Dataset(booz_path) as ds:
-        xm = np.asarray(ds.variables["ixm_b"][:]).reshape(-1)
-        xn = np.asarray(ds.variables["ixn_b"][:]).reshape(-1)
-        bmnc = np.asarray(ds.variables["bmnc_b"][:])
-        iota = np.asarray(ds.variables["iota_b"][:]).reshape(-1)
-        buco = np.asarray(ds.variables["buco_b"][:]).reshape(-1)
-        bvco = np.asarray(ds.variables["bvco_b"][:]).reshape(-1)
-        nfp = int(np.asarray(ds.variables["nfp_b"][:]).reshape(()))
-        phi_b = (
-            np.asarray(ds.variables["phi_b"][:]).reshape(-1)
-            if "phi_b" in ds.variables
-            else None
-        )
+    bx = Booz_xform()
+    bx.verbose = 0
+    bx.read_boozmn(str(booz_path))
+
+    xm = np.asarray(bx.xm_b, dtype=np.int32).reshape(-1)
+    xn = np.asarray(bx.xn_b, dtype=np.int32).reshape(-1)
+    bmnc = np.asarray(bx.bmnc_b, dtype=np.float64).T
+    iota = np.asarray(bx.iota, dtype=np.float64).reshape(-1)
+    buco = np.asarray(bx.Boozer_I_all, dtype=np.float64).reshape(-1)
+    bvco = np.asarray(bx.Boozer_G_all, dtype=np.float64).reshape(-1)
+    phi_attr = getattr(bx, "phi", None)
+    phi = None if phi_attr is None else np.asarray(phi_attr, dtype=np.float64).reshape(-1)
+    s_grid = (
+        np.asarray(phi / float(phi[-1]), dtype=np.float64)
+        if phi is not None and phi.size == bmnc.shape[0]
+        else np.asarray(bx.s_in, dtype=np.float64).reshape(-1)
+    )
+    nfp = int(np.asarray(bx.nfp).reshape(()))
 
     if bmnc.ndim != 2:
-        raise ValueError("expected bmnc_b to be a 2D `(surface, mode)` array")
+        raise ValueError("expected booz_xform_jax bmnc_b to be a 2D `(surface, mode)` array")
     ns_b, mode_count = bmnc.shape
-    s_grid_full: NDArray[np.float64]
-    if phi_b is not None and phi_b.shape[0] == ns_b + 1:
-        s_grid_full = np.asarray(phi_b / float(phi_b[-1]), dtype=np.float64)
-        s_grid_modes = s_grid_full[1:]
-    elif phi_b is not None and phi_b.shape[0] == ns_b:
-        s_grid_full = np.asarray(phi_b / float(phi_b[-1]), dtype=np.float64)
-        s_grid_modes = s_grid_full
-    else:
-        s_grid_full = np.asarray(
-            np.linspace(0.0, 1.0, ns_b + 1, dtype=np.float64),
-            dtype=np.float64,
-        )
-        s_grid_modes = np.asarray(
-            (np.arange(ns_b, dtype=np.float64) + 1.0) / float(ns_b),
-            dtype=np.float64,
-        )
-    rho_grid = np.sqrt(np.clip(s_grid_modes, 0.0, None))
+    if s_grid.shape[0] != ns_b:
+        raise ValueError("booz_xform_jax radial grid length does not match bmnc_b")
+    rho_grid = np.sqrt(np.clip(s_grid, 0.0, None))
 
     idx: int
     if surface_index is not None:
         idx = int(surface_index)
-        s_value = float(s_grid_modes[idx])
+        s_value = float(s_grid[idx])
     elif s is not None:
         s_value = float(s)
-        idx = int(np.argmin(np.abs(s_grid_modes - s_value)))
+        idx = int(np.argmin(np.abs(s_grid - s_value)))
     else:
         assert rho is not None
         s_value = float(rho) ** 2
@@ -115,17 +90,16 @@ def load_boozmn_surface(
 
     if surface_index is not None:
         bmn = bmnc[idx]
-        full_idx = min(idx + 1, iota.shape[0] - 1)
-        iota_value = float(iota[full_idx])
-        buco_value = float(buco[full_idx])
-        bvco_value = float(bvco[full_idx])
+        iota_value = float(iota[idx])
+        buco_value = float(buco[idx])
+        bvco_value = float(bvco[idx])
     else:
         bmn = np.vstack(
-            [np.interp(s_value, s_grid_modes, bmnc[:, mode]) for mode in range(mode_count)]
+            [np.interp(s_value, s_grid, bmnc[:, mode]) for mode in range(mode_count)]
         ).reshape(-1)
-        iota_value = float(np.interp(s_value, s_grid_full, iota))
-        buco_value = float(np.interp(s_value, s_grid_full, buco))
-        bvco_value = float(np.interp(s_value, s_grid_full, bvco))
+        iota_value = float(np.interp(s_value, s_grid, iota))
+        buco_value = float(np.interp(s_value, s_grid, buco))
+        bvco_value = float(np.interp(s_value, s_grid, bvco))
 
     # Match the right-handed sign convention used in the JAX REFERENCE_EXECUTABLE field loader.
     iota_value = -iota_value

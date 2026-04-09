@@ -95,7 +95,7 @@ Important environment facts found during planning:
 - [x] Add a pure-JAX in-memory monoenergetic database builder for NEOPAX-facing workflows.
 - [x] Add an initial `vmec_jax -> booz_xform_jax -> NTX` imported geometry path.
 - [x] Add an explicit NTX-to-NEOPAX monoenergetic database mapping layer.
-- [ ] Replace the remaining legacy file-driven VMEC path with the new JAX-native geometry lane once parity is closed.
+- [x] Replace the legacy VMEC and Boozer file readers with `vmec_jax` and `booz_xform_jax`.
 - [ ] Close the remaining W7-X NEOPAX subset mismatch in `D11` and `D13` now
   that the Boozer geometry convention bug is fixed.
 
@@ -777,3 +777,35 @@ Important environment facts found during planning:
       file still returns `NaN` because that file carries `phip_b = 0`, so the
       raw REFERENCE_EXECUTABLE Boozer solve is not yet a usable transport reference on this
       dataset even though the geometry loader conventions now match.
+- 2026-04-09: moved the file-backed VMEC and Boozer loaders fully onto the JAX
+  geometry stack and refreshed the W7-X VMEC regression fixture.
+  - What worked:
+    - Replaced the direct VMEC `wout` parser in `src/ntx/vmec.py` with
+      `vmec_jax.api.read_wout(...)`.
+    - Replaced the direct Boozer `boozmn` parser in `src/ntx/booz.py` with
+      `booz_xform_jax.Booz_xform.read_boozmn(...)`.
+    - Confirmed that the old vendored W7-X `wout` fixture was not compatible
+      with `vmec_jax` because it lacked the `chipf` data expected by the modern
+      reader, then replaced it with the compatible W7-X `wout` from the local
+      NEOPAX inputs.
+    - Re-ran the focused regression gates on the new loader path:
+      - `pytest -q tests/test_vmec.py tests/test_boozmn.py tests/test_vmec_regression.py tests/test_vmec_physics.py tests/test_vmec_qi.py tests/test_sfincs_vmec_geometry.py`
+        -> `19 passed`
+    - Verified that the `sfincs_jax` geometry comparison still closes on the
+      VMEC path after the `vmec_jax` swap, so the new loader preserves the
+      geometry conventions already used in the research workflow.
+    - Added a dedicated `vmec_jax -> booz_xform_jax -> NTX` convergence check
+      in `tests/test_vmec_jax_backend.py`.
+    - Updated GitHub Actions so the CPU test matrix installs `vmec_jax` and
+      `booz_xform_jax` from GitHub before running the NTX suite.
+  - What did not:
+    - The file-backed reduced-mode VMEC path and the explicit
+      `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform path are not
+      transport-equivalent on the sampled W7-X case. The JAX transform path
+      uses far fewer Boozer modes on the current `mboz/nboz` settings and still
+      shows large `D11`, `D13`, and sign-level `D31` differences relative to
+      the VMEC harmonic path.
+    - That means the solver-side parity question is not yet closed for the
+      imported JAX transform lane. The immediate remaining work is to raise the
+      Boozer transform resolution and normalization audit there rather than to
+      re-open the file readers.

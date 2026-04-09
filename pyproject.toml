@@ -33,10 +33,12 @@ docs = [
   "myst-parser",
   "sphinx-rtd-theme",
 ]
+geometry = [
+  "vmec_jax @ git+https://github.com/uwplasma/vmec_jax.git",
+  "booz_xform_jax @ git+https://github.com/uwplasma/booz_xform_jax.git",
+]
 io = [
   "h5py",
-  "netCDF4",
-  "xarray",
 ]
 
 [project.scripts]

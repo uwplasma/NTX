@@ -5,10 +5,11 @@ from pathlib import Path
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from scipy.io import netcdf_file
 
 from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
 from ntx.geometry import VmecSurface, geometry_on_grid
+
+vmec_jax = pytest.importorskip("vmec_jax.api")
 
 VMEC_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "wout_w7x_standardConfig.nc"
 QI_VMEC_FIXTURE = (
@@ -67,8 +68,8 @@ def test_qi_vmec_surface_loads_with_expected_normalization():
 def test_vmec_nyquist_option_switches_total_mode_count():
     primary = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, vmec_nyquist_option=1)
     nyquist = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, vmec_nyquist_option=2)
-    assert primary.total_mode_count == 288
-    assert nyquist.total_mode_count == 574
+    assert primary.total_mode_count == 200
+    assert nyquist.total_mode_count == 338
     assert primary.loaded_mode_count < nyquist.loaded_mode_count
 
 
@@ -83,8 +84,8 @@ def test_vmec_reduced_mode_convention_truncates_coefficients_by_position():
             strict=True,
         )
     }
-    assert mode_lookup[(2, -12)] == pytest.approx(-0.1290792429334510)
-    assert mode_lookup[(0, 1)] == pytest.approx(0.1255195172274547)
+    assert mode_lookup[(2, -10)] == pytest.approx(-0.00032672568019339693)
+    assert mode_lookup[(0, 1)] == pytest.approx(0.1250109798003415)
 
 
 def test_vmec_filtered_nyquist_convention_uses_filtered_nyquist_coefficients():
@@ -94,12 +95,12 @@ def test_vmec_filtered_nyquist_convention_uses_filtered_nyquist_coefficients():
         vmec_nyquist_option=1,
         vmec_mode_convention="filtered_nyquist",
     )
-    with netcdf_file(VMEC_FIXTURE, "r", mmap=False) as handle:
-        nfp = int(np.asarray(handle.variables["nfp"].data).reshape(()))
-        mpol = int(np.asarray(handle.variables["mpol"].data).reshape(()))
-        ntor = int(np.asarray(handle.variables["ntor"].data).reshape(()))
-        xm_nyq = np.asarray(handle.variables["xm_nyq"].data, dtype=np.int32)
-        xn_nyq = np.asarray(handle.variables["xn_nyq"].data, dtype=np.int32)
+    wout = vmec_jax.read_wout(VMEC_FIXTURE)
+    nfp = int(wout.nfp)
+    mpol = int(wout.mpol)
+    ntor = int(wout.ntor)
+    xm_nyq = np.asarray(wout.xm_nyq, dtype=np.int32)
+    xn_nyq = np.asarray(wout.xn_nyq, dtype=np.int32)
 
     include = (np.abs(xm_nyq) < mpol) & (np.abs(xn_nyq / float(nfp)) <= float(ntor))
     selected = np.nonzero(include)[0]
@@ -116,9 +117,9 @@ def test_vmec_filtered_nyquist_convention_uses_filtered_nyquist_coefficients():
             strict=True,
         )
     }
-    assert mode_lookup[(0, 0)] == pytest.approx(2.7846035563558886)
-    assert mode_lookup[(2, -12)] == pytest.approx(-0.00014346214156386845, rel=5e-5)
-    assert mode_lookup[(0, 1)] == pytest.approx(0.1255195172274547)
+    assert mode_lookup[(0, 0)] == pytest.approx(2.784452946874408)
+    assert mode_lookup[(2, -10)] == pytest.approx(-0.0010011342034427848, rel=5e-5)
+    assert mode_lookup[(0, 1)] == pytest.approx(0.1250109798003415)
 
 
 def test_vmec_surface_resolves_er_hat_from_transport_scale():

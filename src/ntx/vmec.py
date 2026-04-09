@@ -1,4 +1,4 @@
-"""VMEC `wout` helpers for NTX flux-surface inputs."""
+"""VMEC `wout` helpers for NTX flux-surface inputs backed by `vmec_jax`."""
 
 from __future__ import annotations
 
@@ -6,8 +6,6 @@ from pathlib import Path
 
 import jax.numpy as jnp
 import numpy as np
-from numpy.typing import NDArray
-from scipy.io import netcdf_file
 
 from .geometry import VmecSurface
 
@@ -23,49 +21,52 @@ def load_vmec_surface(
 ) -> VmecSurface:
     """Load one VMEC flux surface from a `wout_*.nc` file.
 
-    Notes
-    -----
-    This loader keeps the coefficient-selection logic close to established
-    stellarator transport workflows while using a minimal netCDF reader.
+    NTX now sources the VMEC data through `vmec_jax` rather than through a
+    separate local netCDF parser.
     """
 
     wout_path = Path(path).expanduser().resolve()
     if not wout_path.exists():
         raise FileNotFoundError(str(wout_path))
 
-    with netcdf_file(wout_path, "r", mmap=False) as handle:
-        nfp = int(_read_scalar(handle, "nfp"))
-        ns = int(_read_scalar(handle, "ns"))
-        mpol = int(_read_scalar(handle, "mpol"))
-        ntor = int(_read_scalar(handle, "ntor"))
-        lasym = bool(int(np.asarray(_read_var(handle, "lasym__logical__")).reshape(())))
-        if lasym:
-            raise NotImplementedError("VMEC lasym=true inputs are not supported yet")
+    try:
+        import vmec_jax.api as vmec_jax_api
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "load_vmec_surface requires vmec_jax. Install the local package with "
+            "`pip install -e /Users/rogeriojorge/local/vmec_jax`."
+        ) from exc
 
-        phi = _read_var(handle, "phi").astype(np.float64)
-        psi_n_grid = phi / float(phi[-1])
-        iota_key = "iota_f" if "iota_f" in handle.variables else "iotas"
-        iota_grid = _read_var(handle, iota_key).astype(np.float64)
-        aminor_p = (
-            float(_read_scalar(handle, "Aminor_p"))
-            if "Aminor_p" in handle.variables
-            else None
-        )
+    wout = vmec_jax_api.read_wout(wout_path)
+    if bool(wout.lasym):
+        raise NotImplementedError("VMEC lasym=true inputs are not supported yet")
 
-        base_mode_m = _read_var(handle, "xm").astype(np.int32)
-        base_mode_n = _read_var(handle, "xn").astype(np.int32)
-        coeff_mode_m = _read_var(
-            handle, "xm_nyq" if "xm_nyq" in handle.variables else "xm"
-        ).astype(np.int32)
-        coeff_mode_n = _read_var(
-            handle, "xn_nyq" if "xn_nyq" in handle.variables else "xn"
-        ).astype(np.int32)
-        bmnc = _read_modes(handle, "bmnc")
-        gmnc = _read_modes(handle, "gmnc")
-        bsubumnc = _read_modes(handle, "bsubumnc")
-        bsubvmnc = _read_modes(handle, "bsubvmnc")
-        bsupumnc = _read_modes(handle, "bsupumnc")
-        bsupvmnc = _read_modes(handle, "bsupvmnc")
+    nfp = int(wout.nfp)
+    ns = int(wout.ns)
+    mpol = int(wout.mpol)
+    ntor = int(wout.ntor)
+    phi = np.asarray(wout.phi, dtype=np.float64)
+    psi_n_grid = phi / float(phi[-1])
+    iota_full = _iota_grid_from_wout(wout)
+    aminor_p = float(np.asarray(wout.Aminor_p).reshape(()))
+
+    base_mode_m = np.asarray(wout.xm, dtype=np.int32)
+    base_mode_n = np.asarray(wout.xn, dtype=np.int32)
+    coeff_mode_m = np.asarray(
+        getattr(wout, "xm_nyq", wout.xm),
+        dtype=np.int32,
+    )
+    coeff_mode_n = np.asarray(
+        getattr(wout, "xn_nyq", wout.xn),
+        dtype=np.int32,
+    )
+
+    bmnc = _mode_major(wout.bmnc)
+    gmnc = _mode_major(wout.gmnc)
+    bsubumnc = _mode_major(wout.bsubumnc)
+    bsubvmnc = _mode_major(wout.bsubvmnc)
+    bsupumnc = _mode_major(wout.bsupumnc)
+    bsupvmnc = _mode_major(wout.bsupvmnc)
 
     if ns < 2:
         raise ValueError("VMEC input must contain at least two radial surfaces")
@@ -74,6 +75,7 @@ def load_vmec_surface(
     target_psi_n = _resolve_psi_n(psi_n_grid, float(psi_n), int(vmec_radial_option))
     if target_psi_n <= 0.0:
         raise ValueError("VMEC transport normalization requires surface.psi_n > 0")
+
     radial_grid = psi_n_grid[1:]
     selected_mode_m, selected_mode_n, selected_indices = _select_mode_set(
         base_mode_m,
@@ -100,7 +102,7 @@ def load_vmec_surface(
     b_sup_zeta_interp = _interp_mode_columns(
         radial_grid, bsupvmnc[selected_indices, 1:], target_psi_n
     )
-    iota = _interp_1d(radial_grid, iota_grid[1:], target_psi_n)
+    iota = _interp_1d(radial_grid, iota_full[1:], target_psi_n)
 
     if selected_mode_m.shape[0] != b_interp.shape[0]:
         raise ValueError("VMEC mode-number arrays do not match Fourier coefficient arrays")
@@ -110,7 +112,7 @@ def load_vmec_surface(
     b0 = float(b_interp[0])
     if b0 == 0.0:
         raise ValueError("VMEC mode (0,0) has zero magnetic-field strength")
-    if aminor_p is None or aminor_p == 0.0:
+    if aminor_p == 0.0:
         raise ValueError("VMEC input must provide a nonzero Aminor_p for transport normalization")
 
     r_n = float(np.sqrt(target_psi_n))
@@ -157,21 +159,20 @@ def load_vmec_surface(
     )
 
 
-def _read_var(handle, name: str) -> np.ndarray:
-    if name not in handle.variables:
-        raise KeyError(f"missing variable {name!r} in VMEC file")
-    return np.asarray(handle.variables[name].data)
+def _mode_major(values) -> np.ndarray:
+    array = np.asarray(values, dtype=np.float64)
+    if array.ndim != 2:
+        raise ValueError("expected a 2D `(radius, mode)` array from vmec_jax")
+    return array.T
 
 
-def _read_scalar(handle, name: str) -> float:
-    return float(np.asarray(_read_var(handle, name)).reshape(()))
-
-
-def _read_modes(handle, name: str) -> np.ndarray:
-    values = _read_var(handle, name).astype(np.float64)
-    if values.ndim != 2:
-        raise ValueError(f"expected {name} to be a 2D array")
-    return values.T
+def _iota_grid_from_wout(wout) -> np.ndarray:
+    for name in ("iota_f", "iotaf", "iotas"):
+        if hasattr(wout, name):
+            values = np.asarray(getattr(wout, name), dtype=np.float64)
+            if values.size > 0:
+                return values
+    raise ValueError("vmec_jax wout data does not provide an iota profile")
 
 
 def _resolve_psi_n(psi_n_grid: np.ndarray, psi_n: float, option: int) -> float:
@@ -244,7 +245,7 @@ def _select_mode_set(
     option: int,
     mode_convention: str,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    selected_indices: NDArray[np.int32]
+    selected_indices: np.ndarray
     if option == 1:
         if mode_convention == "reduced":
             if coeff_mode_m.shape[0] < base_mode_m.shape[0]:
@@ -258,12 +259,9 @@ def _select_mode_set(
         include = (np.abs(coeff_mode_m) < int(mpol)) & (
             np.abs(coeff_mode_n / float(nfp)) <= float(ntor)
         )
-        selected_indices = np.flatnonzero(include).astype(np.int32)
-        return (
-            coeff_mode_m[selected_indices],
-            coeff_mode_n[selected_indices],
-            selected_indices,
-        )
+        selected_indices = np.nonzero(include)[0].astype(np.int32)
+        return coeff_mode_m[include], coeff_mode_n[include], selected_indices
     if option == 2:
-        return coeff_mode_m, coeff_mode_n, np.arange(coeff_mode_m.size, dtype=np.int32)
+        selected_indices = np.arange(coeff_mode_m.size, dtype=np.int32)
+        return coeff_mode_m, coeff_mode_n, selected_indices
     raise ValueError("vmec_nyquist_option must be 1 or 2")
