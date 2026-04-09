@@ -11,6 +11,7 @@ The current implementation supports:
 - VMEC `wout` inputs
 - VMEC `er_hat` normalization from `psi_a_hat`, `psi_n`, and `Aminor_p`
 - `vmec_jax -> booz_xform_jax -> NTX` imported workflows
+- direct `vmec_jax` VMEC-harmonic workflows for NEOPAX scans
 - direct NTX-to-NEOPAX monoenergetic database mapping
 - Rich terminal summaries for file-driven runs
 - compressed `.npz` outputs with geometry, metadata, diagnostics, and modes

@@ -52,6 +52,17 @@ local W7-X `boozmn` reference, the resulting transport coefficients now agree
 within about `2%` on the `13 x 17 x 16` regression grid used in
 `tests/test_vmec_jax_backend.py`.
 
+For NEOPAX-facing W7-X VMEC scans, the intended imported JAX parity path is now
+the direct VMEC-harmonic builder:
+
+- `surface_from_vmec_jax_vmec_wout(...)`
+- `surface_from_vmec_jax_vmec_wout_file(...)`
+
+That path reads the `wout` through `vmec_jax`, uses the same half-grid
+interpolation and VMEC sign conventions as the validated W7-X reference lane,
+and avoids introducing an extra Boozer-transform interpretation step into the
+NEOPAX subset comparison.
+
 Direct VMEC comparison against REFERENCE_EXECUTABLE is now a parity check for the reduced-mode
 VMEC convention. The current W7-X reduced-mode VMEC example closes to roundoff
 against the live REFERENCE_EXECUTABLE executable.
@@ -72,6 +83,10 @@ the same Legendre resolution convention with `nl -> n_xi = nl - 1`.
 On the local W7-X subset used in the regression tests, this path matches the
 existing NEOPAX reference HDF5 to better than `1e-2` relative error for
 `D11`, `D13`, `D31`, and `D33`.
+
+The new direct `vmec_jax` VMEC-harmonic helper is tested separately in
+`tests/test_vmec_jax_vmec.py`, where it matches the validated reference VMEC
+surface to roundoff at the single-surface solve level.
 
 For the `sfincs_jax` geometry comparison, NTX applies a toroidal-angle
 convention conversion before comparing arrays:

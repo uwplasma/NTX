@@ -73,6 +73,7 @@ NTX now distinguishes between:
 - a file-driven CLI layer for terminal runs and serialized outputs
 - a differentiable imported core for JAX-native use
 - a VMEC/Boozer imported path built around `vmec_jax` and `booz_xform_jax`
+- a direct `vmec_jax` VMEC-harmonic imported path for NEOPAX-facing scans
 
 The imported core supports:
 
@@ -91,6 +92,17 @@ The imported VMEC/Boozer path is:
 This keeps the performance-oriented CLI path separate from the JAX-native
 imported path without forcing the terminal runner to satisfy autodiff
 constraints.
+
+For NEOPAX-facing W7-X VMEC scans, NTX also supports a direct imported VMEC
+harmonic path:
+
+1. read the `wout` with `vmec_jax.api.read_wout`
+2. interpolate the half-grid VMEC Fourier harmonics at the requested `s`
+3. apply the same sign conventions used by the validated W7-X reference path
+4. solve the monoenergetic equation in NTX from the resulting VMEC harmonics
+
+This is the current parity path for the local W7-X NEOPAX subset because it
+avoids adding a Boozer-transform interpretation layer to that comparison.
 
 ## Geometry
 
@@ -153,6 +165,8 @@ The imported low-level interface also exposes:
 - `build_monoenergetic_database_arrays(surface, grid, nu_hat, ...)`
 - `surface_from_vmec_jax_state(...)`
 - `surface_from_vmec_jax_wout(...)`
+- `surface_from_vmec_jax_vmec_wout(...)`
+- `surface_from_vmec_jax_vmec_wout_file(...)`
 - `build_ntx_neopax_scan(...)`
 - `to_neopax_monoenergetic(...)`
 

@@ -9,9 +9,17 @@ The intended workflow is:
 3. evaluate fluxes or solve transport equations in NEOPAX without going through
    an intermediate HDF5 file
 
-For the W7-X VMEC database used in current NEOPAX tests, NTX also has a
-comparison-only path that mirrors Eduardo Neto's `vmec_neopax` REFERENCE_EXECUTABLE branch
-closely enough to serve as a parity gate.
+For the W7-X VMEC database used in current NEOPAX tests, NTX now has two
+distinct imported geometry lanes:
+
+1. a direct `vmec_jax` VMEC-harmonic lane, which is the current parity gate for
+   NEOPAX-facing W7-X scans
+2. a `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform lane, which remains
+   useful for end-to-end JAX Boozer workflows but is not the primary W7-X
+   NEOPAX reference gate
+
+NTX also keeps a comparison-only path that mirrors Eduardo Neto's
+`vmec_neopax` REFERENCE_EXECUTABLE branch closely enough to serve as an external reference.
 
 ## Local Install
 
@@ -34,32 +42,27 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_wout,
+    surface_from_vmec_jax_vmec_wout_file,
     to_neopax_monoenergetic,
 )
 
 reference = load_neopax_reference_scan(
     Path("/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5")
 )
-input_path = Path("/Users/rogeriojorge/local/tests/simsopt/tests/test_files/input.W7-X_standard_configuration")
-
 def surface_loader(rho_value: float):
-    return surface_from_vmec_jax_wout(
-        input_path=input_path,
-        wout_path="/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+    return surface_from_vmec_jax_vmec_wout_file(
+        "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
         s=rho_value**2,
-        mboz=12,
-        nboz=12,
     )
 
 scan = build_ntx_neopax_scan(
     surface_loader,
-    rho=reference.rho[:2],
-    nu_v=reference.nu_v[2:5],
-    Es=reference.Es[:2, :3],
-    Er=reference.Er[:2, :3],
-    drds=reference.drds[:2],
-    grid=GridSpec(n_theta=17, n_zeta=33, n_xi=60),
+    rho=reference.rho[[1, 3]],
+    nu_v=reference.nu_v[[5, 7, 9]],
+    Es=reference.Es[[1, 3]][:, [0, 7, 9]],
+    Er=reference.Er[[1, 3]][:, [0, 7, 9]],
+    drds=reference.drds[[1, 3]],
+    grid=GridSpec(n_theta=25, n_zeta=25, n_xi=63),
 )
 
 database = to_neopax_monoenergetic(scan, a_b=1.0)
@@ -67,6 +70,10 @@ database = to_neopax_monoenergetic(scan, a_b=1.0)
 
 The resulting `database` object is a `NEOPAX.Monoenergetic` instance and can be
 passed directly into NEOPAX flux and transport solvers.
+
+This direct `vmec_jax` VMEC-harmonic path matches the local W7-X reference
+subset to better than `1e-2` relative error on `D11`, `D13`, `D31`, and
+`D33`.
 
 ## W7-X Reference Database Path
 
@@ -113,10 +120,14 @@ python examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate
   --rho 0.25,0.5 --nu-v 1e-4,1e-3 --er-tilde 0.0,1e-3
 ```
 
-`surface_from_vmec_jax_wout(...)` is the practical WOUT-backed helper for this
-workflow. It keeps the geometry lane inside `vmec_jax` and `booz_xform_jax`,
-and it rebuilds the VMEC static configuration with `ns = wout.ns` when the
-reference `wout` carries a finer radial mesh than the original VMEC input file.
+`surface_from_vmec_jax_vmec_wout_file(...)` is the practical WOUT-backed helper
+for the imported W7-X NEOPAX path. It reads the `wout` through `vmec_jax` and
+builds the VMEC harmonic surface directly, matching the reference sign,
+interpolation, and harmonic conventions without going through a Boozer
+transform.
+
+`surface_from_vmec_jax_wout(...)` remains available for imported
+`vmec_jax -> booz_xform_jax -> NTX` Boozer workflows.
 
 ## VMEC-JAX To NTX
 
@@ -175,6 +186,7 @@ What is closed:
 
 What is still open:
 
-- the fully JAX `vmec_jax -> booz_xform_jax -> NTX` W7-X NEOPAX lane still
-  needs to be closed to the same level as the comparison-only reference path
+- the fully JAX `vmec_jax -> booz_xform_jax -> NTX` W7-X Boozer-transform lane
+  is still not the right parity gate for the local NEOPAX reference subset on
+  `D11` and `D13`
 - QI VMEC NEOPAX database parity is still open

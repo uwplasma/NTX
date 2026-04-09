@@ -98,8 +98,12 @@ Important environment facts found during planning:
 - [x] Replace the legacy VMEC and Boozer file readers with `vmec_jax` and `booz_xform_jax`.
 - [x] Close the remaining W7-X NEOPAX subset mismatch in `D11` and `D13` on the
   Eduardo-REFERENCE_EXECUTABLE-reference VMEC database path.
+- [x] Add a direct `vmec_jax` VMEC-harmonic imported path for NEOPAX-facing scans.
+- [x] Close the W7-X NEOPAX subset on the direct `vmec_jax` VMEC-harmonic path
+  to better than `1e-2` relative error.
 - [ ] Close the fully JAX `vmec_jax -> booz_xform_jax -> NTX` W7-X NEOPAX path
-  to the same tolerance as the Eduardo-REFERENCE_EXECUTABLE-reference path.
+  to the same tolerance as the direct VMEC-harmonic and Eduardo-reference paths,
+  or explicitly scope it as a separate Boozer-transform validation lane.
 
 ## Work Log
 
@@ -878,3 +882,35 @@ Important environment facts found during planning:
     - This closes the reference-comparison lane, not the fully JAX
       `vmec_jax -> booz_xform_jax -> NTX` W7-X NEOPAX lane. That lane still
       needs a separate normalization/convergence audit.
+- 2026-04-09: added a direct `vmec_jax` VMEC-harmonic imported lane for the
+  W7-X NEOPAX parity workflow and moved the parity gate onto that path.
+  - What worked:
+    - Audited the remaining imported-JAX mismatch and showed that the fully JAX
+      `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform lane is not the
+      right parity gate for the local W7-X NEOPAX subset on `D11` and `D13`,
+      even after the handedness fix.
+    - Confirmed the direct VMEC harmonic interpretation is the stable parity
+      path by building the surface from `vmec_jax.api.read_wout(...)` and
+      matching the validated reference VMEC solve to roundoff at fixed
+      `s`, `nu_hat`, and `epsi_hat`.
+    - Added `src/ntx/vmec_jax_vmec.py` with:
+      - `surface_from_vmec_jax_vmec_wout(...)`
+      - `surface_from_vmec_jax_vmec_wout_file(...)`
+    - Updated the imported NEOPAX-facing example and adapter tests to use this
+      direct VMEC harmonic path:
+      - `examples/neopax_with_ntx.py`
+      - `tests/test_neopax_adapter.py`
+      - `tests/test_vmec_jax_vmec.py`
+    - The imported W7-X subset built through `vmec_jax` now matches the local
+      NEOPAX reference subset to better than `1e-2` relative error for `D11`,
+      `D13`, `D31`, and `D33`.
+    - Focused validation passed:
+      - `python -m ruff check src/ntx/vmec_jax_vmec.py src/ntx/__init__.py examples/neopax_with_ntx.py tests/test_neopax_adapter.py tests/test_vmec_jax_vmec.py`
+      - `python -m pytest -q tests/test_vmec_jax_vmec.py tests/test_neopax_adapter.py`
+        -> `4 passed`
+  - What did not:
+    - This does not make the `vmec_jax -> booz_xform_jax -> NTX` Boozer lane a
+      W7-X NEOPAX parity path. That lane remains useful for direct Boozer and
+      end-to-end transform workflows, but it needs its own convergence and role
+      definition instead of being treated as interchangeable with the direct
+      VMEC-harmonic NEOPAX path.
