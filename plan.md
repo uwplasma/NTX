@@ -92,7 +92,7 @@ Important environment facts found during planning:
 - [x] Reduce runtime-benchmark test cost by introducing a dedicated smoke
   benchmark case instead of reusing a production-sized case in tests.
 - [x] Prove that the imported NTX core can differentiate through Boozer solves.
-- [ ] Add a pure-JAX in-memory monoenergetic database builder for NEOPAX.
+- [x] Add a pure-JAX in-memory monoenergetic database builder for NEOPAX-facing workflows.
 - [ ] Add a differentiable VMEC array-builder path separate from the file loader.
 
 ## Work Log
@@ -297,6 +297,21 @@ Important environment facts found during planning:
   - this means the correct next step is not to force autodiff through the file
     loader, but to add a separate pure-JAX VMEC-array builder for in-memory use
     in higher-level JAX workflows
+
+- Added an in-memory scan/database layer in `src/ntx/database.py`:
+  - `MonoenergeticDatabaseArrays`
+  - `build_monoenergetic_database_arrays(...)`
+  - `stack_monoenergetic_database_arrays(...)`
+- The builder produces tensor-product scan arrays over `(nu_hat, scan_field)`
+  for one surface, entirely in memory, using the existing differentiable
+  `solve_monoenergetic_scan(...)` path.
+- Validation that worked:
+  - database-shape and stacking tests in `tests/test_database.py`
+  - gradient through the scan-field axis in the new database builder
+- What did not:
+  - this is not yet a direct NEOPAX adapter, because the NEOPAX-side
+    normalization and database-field conventions still need an explicit mapping
+    layer on top of these raw NTX scan arrays
 
 - Revalidated the updated code on the office GPU machine after the packaging,
   scan, and benchmark-script changes.
