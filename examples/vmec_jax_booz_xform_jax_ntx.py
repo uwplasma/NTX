@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a small `vmec_jax -> booz_xform_jax -> NTX` solve."""
+"""Run a small `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform solve."""
 
 from __future__ import annotations
 
@@ -48,6 +48,7 @@ def main() -> None:
         MonoenergeticCase(nu_hat=1.0e-4, epsi_hat=0.0),
     )
     print("surface:", args.s)
+    print("workflow: vmec_jax -> booz_xform_jax -> NTX")
     print("D11:", float(result.D11))
     print("D13:", float(result.D13))
     print("D33:", float(result.D33))

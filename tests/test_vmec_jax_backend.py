@@ -75,7 +75,14 @@ def test_surface_from_vmec_jax_wout_converges_with_grid_refinement():
     assert jnp.max(relative) < 0.35
 
 
-def test_surface_from_vmec_jax_wout_matches_boozmn_transport():
+@pytest.mark.parametrize(
+    ("nu_hat", "epsi_hat"),
+    [
+        (1.0e-4, 0.0),
+        (1.0e-3, 1.0e-3),
+    ],
+)
+def test_surface_from_vmec_jax_wout_matches_boozmn_transport(nu_hat: float, epsi_hat: float):
     if not BOOZ.exists():
         pytest.skip("local boozmn fixture is not available")
 
@@ -88,7 +95,7 @@ def test_surface_from_vmec_jax_wout_matches_boozmn_transport():
         nboz=24,
     )
     spec = GridSpec(n_theta=13, n_zeta=17, n_xi=16, dtype=jnp.float32)
-    case = MonoenergeticCase(nu_hat=1.0e-3, epsi_hat=1.0e-3)
+    case = MonoenergeticCase(nu_hat=nu_hat, epsi_hat=epsi_hat)
     booz_result = solve_monoenergetic(booz_surface, spec, case)
     jax_result = solve_monoenergetic(jax_surface, spec, case)
     booz_values = jnp.asarray([booz_result.D11, booz_result.D31, booz_result.D13, booz_result.D33])
