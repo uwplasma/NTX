@@ -34,6 +34,7 @@ docs = [
   "sphinx-rtd-theme",
 ]
 io = [
+  "h5py",
   "netCDF4",
   "xarray",
 ]

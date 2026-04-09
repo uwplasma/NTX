@@ -79,3 +79,32 @@ case = MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3)
 result = solve_monoenergetic(surface, grid, case)
 print(result.as_dict())
 ```
+
+## VMEC-JAX To NTX
+
+```bash
+python examples/vmec_jax_booz_xform_jax_ntx.py \
+  --input /Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak \
+  --s 0.25 --mboz 6 --nboz 0
+```
+
+This example:
+
+- runs a small `vmec_jax` equilibrium solve
+- transforms the selected surface with `booz_xform_jax`
+- solves Escoto's monoenergetic system directly in NTX
+
+## NTX To NEOPAX
+
+```bash
+python examples/neopax_with_ntx.py
+```
+
+This example:
+
+- loads the W7-X NEOPAX reference scan layout
+- rebuilds a small subset with NTX
+- maps the result directly into `NEOPAX.Monoenergetic`
+
+The NEOPAX adapter is intended for imported workflows. The CLI `ntx input.toml`
+remains the right entrypoint for standalone file-driven runs.

@@ -72,6 +72,7 @@ NTX now distinguishes between:
 
 - a file-driven CLI layer for terminal runs and serialized outputs
 - a differentiable imported core for JAX-native use
+- a VMEC/Boozer imported path built around `vmec_jax` and `booz_xform_jax`
 
 The imported core supports:
 
@@ -80,14 +81,15 @@ The imported core supports:
 - gradients with respect to `er_hat`
 - gradients with respect to surface Fourier coefficients
 
-The current differentiable VMEC story is intentionally split:
+The imported VMEC/Boozer path is:
 
-- the file loader is not differentiable
-- the downstream operator assembly and solve are differentiable once a
-  `VmecSurface` object with JAX arrays already exists
+1. solve or load a VMEC equilibrium in `vmec_jax`
+2. construct Boozer inputs with `vmec_jax.booz_xform_inputs_from_state`
+3. transform with `booz_xform_jax`
+4. solve the monoenergetic equation in NTX from the resulting Boozer harmonics
 
-This split is the right foundation for coupling NTX to upstream JAX equilibrium
-or geometry providers without forcing the CLI/file path to carry autodiff
+This keeps the performance-oriented CLI path separate from the JAX-native
+imported path without forcing the terminal runner to satisfy autodiff
 constraints.
 
 ## Geometry
@@ -149,6 +151,9 @@ The imported low-level interface also exposes:
 - `solve_monoenergetic_internal(surface, grid, case) -> (Dij, f, s)`
 - `solve_prepared_internal(prepared, case) -> (Dij, f, s)`
 - `build_monoenergetic_database_arrays(surface, grid, nu_hat, ...)`
+- `surface_from_vmec_jax_state(...)`
+- `build_ntx_neopax_scan(...)`
+- `to_neopax_monoenergetic(...)`
 
 where `f` and `s` are the retained low-order internal systems needed for the
 monoenergetic coefficient evaluation, and the database builder returns

@@ -93,7 +93,9 @@ Important environment facts found during planning:
   benchmark case instead of reusing a production-sized case in tests.
 - [x] Prove that the imported NTX core can differentiate through Boozer solves.
 - [x] Add a pure-JAX in-memory monoenergetic database builder for NEOPAX-facing workflows.
-- [ ] Add a differentiable VMEC array-builder path separate from the file loader.
+- [x] Add an initial `vmec_jax -> booz_xform_jax -> NTX` imported geometry path.
+- [x] Add an explicit NTX-to-NEOPAX monoenergetic database mapping layer.
+- [ ] Replace the remaining legacy file-driven VMEC path with the new JAX-native geometry lane once parity is closed.
 
 ## Work Log
 
@@ -211,6 +213,60 @@ Important environment facts found during planning:
 - What did not:
   - The office environment still emits a third-party `flatbuffers.compat` deprecation
     warning during pytest. This did not affect correctness and no NTX change was needed.
+
+- Added a new imported JAX geometry lane:
+  - `src/ntx/vmec_jax_backend.py`
+  - `examples/vmec_jax_booz_xform_jax_ntx.py`
+- Added a new Boozer-file helper for `boozmn` surfaces:
+  - `src/ntx/booz.py`
+  - `tests/test_boozmn.py`
+- Added an explicit NTX-to-NEOPAX mapping layer:
+  - `src/ntx/neopax.py`
+  - `examples/neopax_with_ntx.py`
+  - `tests/test_neopax_adapter.py`
+- Local validation that worked for the new layer:
+  - `pytest -q tests/test_boozmn.py tests/test_neopax_adapter.py` -> `4 passed`
+  - `ruff check` on the new modules and tests
+  - `mypy src/ntx`
+- Quantified current W7-X subset behavior for the NEOPAX adapter path:
+  - the NTX-to-NEOPAX constructor reproduces the existing NEOPAX/REFERENCE_EXECUTABLE HDF5
+    mapping exactly when fed the reference HDF5 arrays
+  - for an NTX-generated W7-X subset built from the VMEC file path with
+    `vmec_nyquist_option = 2` and `vmec_mode_convention = "filtered_nyquist"`,
+    the mapped `D33` stayed within 20% of the reference subset and the mapped
+    `D11_log` stayed within 1 dex
+- What worked:
+  - the adapter itself is correct and explicit, without going through an
+    intermediate HDF5 file
+  - the `vmec_jax -> booz_xform_jax -> NTX` example runs locally and gives a
+    viable imported path for end-to-end JAX workflows
+- What did not:
+  - full W7-X VMEC parity is not closed yet
+  - a naive direct Boozer-surface solve from the archived `boozmn` file gave
+    materially worse agreement than the existing VMEC file path, so the legacy
+    VMEC loader cannot be removed until the new JAX-native geometry lane is
+    benchmarked more carefully against the reference databases
+
+- Installed-stack validation on 2026-04-08:
+  - `python -m pip install -e /Users/rogeriojorge/local/vmec_jax` succeeded
+  - `python -m pip install -e /Users/rogeriojorge/local/tests/NEOPAX` succeeded
+  - `python -m pip install -e /Users/rogeriojorge/local/.NTX` succeeded
+  - `python -m pip install -e /Users/rogeriojorge/local/booz_xform_jax` failed
+    because `src/booz_xform_jax.egg-info` is owned by `root`, so setuptools
+    could not update its timestamp during build
+- Important environment result after the NEOPAX install:
+  - NEOPAX downgraded the active stack to `jax==0.5.0`, `jaxlib==0.5.0`, and
+    `numpy==2.2.2`
+  - NTX still passed `pytest -q` in that installed environment:
+    `68 passed, 2 skipped`
+- What worked:
+  - NTX remains compatible with the JAX version that the local NEOPAX package
+    currently installs
+  - the imported modules `ntx`, `vmec_jax`, `NEOPAX`, and `booz_xform_jax`
+    all resolved successfully after the install pass
+- What did not:
+  - the local `booz_xform_jax` repo needs packaging/ownership cleanup if it is
+    to be installed cleanly with `pip -e` instead of being imported from source
 
 - Audited the package metadata and removed strict lower bounds on runtime and
   development dependencies in `pyproject.toml`.
