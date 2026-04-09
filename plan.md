@@ -103,9 +103,9 @@ Important environment facts found during planning:
   to better than `1e-2` relative error.
 - [x] Add a callback-free imported NEOPAX scan builder and pure-array mapping layer.
 - [x] Add a second-family imported NEOPAX example and QI HDF5 round-trip validation.
-- [ ] Close the fully JAX `vmec_jax -> booz_xform_jax -> NTX` W7-X NEOPAX path
-  to the same tolerance as the direct VMEC-harmonic and Eduardo-reference paths,
-  or explicitly scope it as a separate Boozer-transform validation lane.
+- [x] Scope the fully JAX `vmec_jax -> booz_xform_jax -> NTX` workflow as a
+  separate Boozer-transform validation lane distinct from the W7-X NEOPAX
+  parity path.
 
 ## Work Log
 
@@ -944,3 +944,33 @@ Important environment facts found during planning:
     - This is an imported-API and repository-fixture closure, not an external
       QI parity closure. There is still no archived or NEOPAX reference QI
       database in the tree to use as an absolute cross-code target.
+- 2026-04-09: fixed the CI failure from the new QI imported tests and scoped
+  the Boozer-transform lane explicitly.
+  - What worked:
+    - Audited the failed GitHub Actions runs `24203941953` and `24203949237`
+      and traced the breakage to macOS-specific absolute paths introduced in:
+      - `tests/test_neopax_examples.py`
+      - `tests/test_neopax_qi.py`
+      - `examples/qi_neopax_with_ntx.py`
+    - Replaced those hard-coded paths with repository-relative paths derived
+      from `Path(__file__).resolve()`, making the new QI imported example and
+      test portable across CI runners.
+    - Strengthened the local Boozer-transform regression in
+      `tests/test_vmec_jax_backend.py` so the
+      `vmec_jax -> booz_xform_jax -> NTX` lane is checked against the file-backed
+      `boozmn` transport reference at two operating points instead of one.
+    - Updated the docs and plan so this lane is now explicitly treated as a
+      separate validated Boozer-transform workflow, not as a hidden W7-X NEOPAX
+      parity promise.
+    - Validation that worked:
+      - `python -m pytest -q tests/test_neopax_examples.py tests/test_neopax_qi.py`
+        -> `2 passed`
+      - `python -m pytest -q tests/test_vmec_jax_backend.py` -> `4 passed`
+      - `python -m ruff check .`
+      - `python -m mypy src/ntx`
+      - `python -m pytest -q` -> `84 passed, 2 skipped`
+      - `python -m sphinx -b html docs docs/_build/html`
+  - What did not:
+    - The GitHub-hosted runners still do not provide an external QI reference
+      database, so the QI imported path remains a repository-backed round-trip
+      validation rather than a cross-code parity gate.
