@@ -7,7 +7,9 @@ developed in Javier Escoto's PhD thesis
 
 The current release solves for the monoenergetic geometric coefficients
 `D11`, `D31`, `D13`, `D33`, and the Spitzer `D33` normalization on DKES-style
-Boozer surfaces and on VMEC `wout` equilibria.
+Boozer surfaces and on VMEC equilibria. For imported JAX workflows, NTX now
+includes an explicit `vmec_jax -> booz_xform_jax -> NTX` path and a direct
+NTX-to-NEOPAX mapping layer.
 
 ## Install
 
@@ -21,6 +23,15 @@ Minimal runtime install:
 
 ```bash
 python -m pip install -e .
+```
+
+Local JAX geometry / transport stack:
+
+```bash
+python -m pip install -e /Users/rogeriojorge/local/vmec_jax
+python -m pip install -e /Users/rogeriojorge/local/booz_xform_jax
+python -m pip install -e /Users/rogeriojorge/local/tests/NEOPAX
+python -m pip install -e /Users/rogeriojorge/local/.NTX"[dev,docs,io]"
 ```
 
 Primary checks:
@@ -49,6 +60,8 @@ ntx examples/example_surface.toml
 ntx examples/w7x_dkes.toml
 ntx examples/w7x_vmec.toml
 ntx examples/qi_vmec_erhat.toml
+python examples/vmec_jax_booz_xform_jax_ntx.py
+python examples/neopax_with_ntx.py
 ```
 
 `ntx` prints a detailed Rich run summary and writes a compressed `.npz` with:
@@ -195,6 +208,74 @@ surface and grid. The standard `solve_monoenergetic()` and `solve_prepared()`
 paths remain the right default for single solves and for heavy CPU benchmark
 cases where XLA compile time may not amortize cleanly.
 
+Imported JAX VMEC/Boozer path:
+
+```python
+import vmec_jax as vj
+
+from ntx import GridSpec, MonoenergeticCase, solve_monoenergetic, surface_from_vmec_jax_state
+
+run = vj.run_fixed_boundary(
+    "/Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak",
+    max_iter=1,
+    use_initial_guess=True,
+    vmec_project=False,
+    verbose=True,
+)
+geom = vj.eval_geom(run.state, run.static)
+signgs = vj.signgs_from_sqrtg(geom.sqrtg, axis_index=1)
+surface = surface_from_vmec_jax_state(
+    state=run.state,
+    static=run.static,
+    indata=run.indata,
+    signgs=int(signgs),
+    s=0.25,
+    mboz=6,
+    nboz=0,
+)
+result = solve_monoenergetic(
+    surface,
+    GridSpec(n_theta=17, n_zeta=17, n_xi=40),
+    MonoenergeticCase(nu_hat=1e-4, epsi_hat=0.0),
+)
+```
+
+NTX-to-NEOPAX mapping:
+
+```python
+from ntx import (
+    GridSpec,
+    build_ntx_neopax_scan,
+    load_neopax_reference_scan,
+    load_vmec_surface,
+    to_neopax_monoenergetic,
+)
+
+reference = load_neopax_reference_scan(
+    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+)
+
+def surface_loader(rho_value: float):
+    return load_vmec_surface(
+        "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+        psi_n=rho_value**2,
+        vmec_radial_option=1,
+        vmec_nyquist_option=2,
+        vmec_mode_convention="filtered_nyquist",
+    )
+
+scan = build_ntx_neopax_scan(
+    surface_loader,
+    rho=reference.rho[:2],
+    nu_v=reference.nu_v[2:5],
+    Es=reference.Es[:2, :3],
+    Er=reference.Er[:2, :3],
+    drds=reference.drds[:2],
+    grid=GridSpec(n_theta=17, n_zeta=33, n_xi=60),
+)
+database = to_neopax_monoenergetic(scan, a_b=1.0)
+```
+
 ## Differentiable Core
 
 NTX now has an explicit imported differentiable lane separate from the CLI/file
@@ -257,8 +338,7 @@ Current non-differentiable scope:
 - text and NetCDF file parsing
 - CLI/config loading
 - Rich terminal output and `.npz` serialization
-- the current VMEC file loader, which uses NumPy/SciPy interpolation and Python
-  scalar coercions
+- legacy file-driven VMEC helpers used for existing regression fixtures
 
 ## Algorithm
 
