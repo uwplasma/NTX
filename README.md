@@ -68,10 +68,10 @@ python -m pip install -e .
 Full local JAX geometry / transport stack:
 
 ```bash
-python -m pip install -e /Users/rogeriojorge/local/vmec_jax
-python -m pip install -e /Users/rogeriojorge/local/booz_xform_jax
-python -m pip install -e /Users/rogeriojorge/local/tests/NEOPAX
-python -m pip install -e "/Users/rogeriojorge/local/.NTX[dev,docs,io]"
+python -m pip install -e ../vmec_jax
+python -m pip install -e ../booz_xform_jax
+python -m pip install -e ../tests/NEOPAX
+python -m pip install -e ".[dev,docs,io]"
 ```
 
 Primary checks:
@@ -262,7 +262,7 @@ import vmec_jax as vj
 from ntx import GridSpec, MonoenergeticCase, solve_monoenergetic, surface_from_vmec_jax_state
 
 run = vj.run_fixed_boundary(
-    "/Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak",
+    "../vmec_jax/examples/data/input.circular_tokamak",
     max_iter=1,
     use_initial_guess=True,
     vmec_project=False,
@@ -292,8 +292,8 @@ Reference W7-X VMEC to NEOPAX path:
 from ntx import build_reference_executable_reference_vmec_scan, to_neopax_monoenergetic
 
 scan = build_reference_executable_reference_vmec_scan(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
+    "../tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+    "../tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
     rho=[0.25, 0.5],
     nu_v=[1e-4, 1e-3, 1e-2],
     er_tilde=[0.0, 1e-3, 1e-2],
@@ -321,11 +321,11 @@ from ntx import (
 )
 
 reference = load_neopax_reference_scan(
-    "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+    "../tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5"
 )
 def surface_loader(rho_value: float):
     return surface_from_vmec_jax_vmec_wout_file(
-        "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+        "../tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
         s=rho_value**2,
     )
 
@@ -359,7 +359,7 @@ from ntx import (
 rho = [0.12247, 0.25]
 surfaces = tuple(
     load_vmec_surface(
-        "/Users/rogeriojorge/local/.NTX/tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc",
+        "tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc",
         psi_n=rho_value**2,
     )
     for rho_value in rho
@@ -499,26 +499,26 @@ For VMEC runs, the output also includes:
 
 Repository examples:
 
-- [examples/example_surface.toml](/Users/rogeriojorge/local/.NTX/examples/example_surface.toml)
-- [examples/w7x_dkes.toml](/Users/rogeriojorge/local/.NTX/examples/w7x_dkes.toml)
-- [examples/w7x_vmec.toml](/Users/rogeriojorge/local/.NTX/examples/w7x_vmec.toml)
-- [examples/w7x_vmec_filtered.toml](/Users/rogeriojorge/local/.NTX/examples/w7x_vmec_filtered.toml)
-- [examples/qi_vmec_erhat.toml](/Users/rogeriojorge/local/.NTX/examples/qi_vmec_erhat.toml)
+- [examples/example_surface.toml](examples/example_surface.toml)
+- [examples/w7x_dkes.toml](examples/w7x_dkes.toml)
+- [examples/w7x_vmec.toml](examples/w7x_vmec.toml)
+- [examples/w7x_vmec_filtered.toml](examples/w7x_vmec_filtered.toml)
+- [examples/qi_vmec_erhat.toml](examples/qi_vmec_erhat.toml)
 
 Validation and benchmark scripts:
 
-- [scripts/compare_archived_benchmarks.py](/Users/rogeriojorge/local/.NTX/scripts/compare_archived_benchmarks.py)
-- [scripts/compare_reference_executable.py](/Users/rogeriojorge/local/.NTX/scripts/compare_reference_executable.py)
-- [scripts/benchmark_against_reference_executable.py](/Users/rogeriojorge/local/.NTX/scripts/benchmark_against_reference_executable.py)
+- [scripts/compare_archived_benchmarks.py](scripts/compare_archived_benchmarks.py)
+- [scripts/compare_reference_executable.py](scripts/compare_reference_executable.py)
+- [scripts/benchmark_against_reference_executable.py](scripts/benchmark_against_reference_executable.py)
 
 Primary docs:
 
-- [docs/install.md](/Users/rogeriojorge/local/.NTX/docs/install.md)
-- [docs/input-file.md](/Users/rogeriojorge/local/.NTX/docs/input-file.md)
-- [docs/algorithm.md](/Users/rogeriojorge/local/.NTX/docs/algorithm.md)
-- [docs/examples.md](/Users/rogeriojorge/local/.NTX/docs/examples.md)
-- [docs/validation.md](/Users/rogeriojorge/local/.NTX/docs/validation.md)
-- [docs/gpu.md](/Users/rogeriojorge/local/.NTX/docs/gpu.md)
+- [docs/install.md](docs/install.md)
+- [docs/input-file.md](docs/input-file.md)
+- [docs/algorithm.md](docs/algorithm.md)
+- [docs/examples.md](docs/examples.md)
+- [docs/validation.md](docs/validation.md)
+- [docs/gpu.md](docs/gpu.md)
 
 Useful analysis scripts:
 
@@ -537,6 +537,19 @@ vendored archived monoenergetic reference tables at the benchmark grids used by
 the thesis, while the DKES and SFINCS comparisons remain useful cross-code
 validation reports rather than equality gates.
 
+The repository also now carries three additional omnigenous VMEC families from
+the local `omnigenity_optimization` study set:
+
+- QA: `tests/fixtures/wout_nfp3_QA_fixed_resolution_final.nc` with matching
+  `boozmn`
+- QH: `tests/fixtures/wout_nfp3_QH_fixed_resolution_final.nc` with matching
+  `boozmn`
+- QI: `tests/fixtures/wout_nfp3_QI_fixed_resolution_final.nc`
+
+QA and QH extend the fully JAX `vmec_jax -> booz_xform_jax -> NTX`
+transform-vs-Boozer validation lane. QI extends the VMEC-harmonic and imported
+NEOPAX-array validation lane beyond W7-X.
+
 ## GPU Runs
 
 CPU CI keeps running `pytest -m "not gpu"`.
@@ -545,7 +558,7 @@ For a GPU check in your office environment:
 
 ```bash
 sh office
-cd /Users/rogeriojorge/local/.NTX
+cd /path/to/NTX
 python -m pip install -e ".[dev,docs,io]"
 scripts/sh_office_gpu_smoke.sh
 ```
