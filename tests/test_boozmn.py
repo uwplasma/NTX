@@ -47,8 +47,12 @@ def test_boozmn_surface_matches_reference_executable_geometry_convention(rho: fl
     field = reference_executable.Field.from_booz_xform(str(FIXTURE), s=rho**2, ntheta=17, nzeta=33, cutoff=0.0)
     payload = load_boozmn_surface(FIXTURE, rho=rho)
     geom = geometry_on_grid(payload.surface, GridSpec(n_theta=17, n_zeta=33, n_xi=10))
+    reference_executable_radial_drift = field.BxgradpsidotgradB / field.Bmag**3
 
     assert jnp.allclose(geom.b, field.Bmag, rtol=5.0e-5, atol=1.0e-7)
+    assert jnp.allclose(geom.d_b_dtheta, field.dBdt, rtol=5.0e-4, atol=2.0e-6)
+    assert jnp.allclose(geom.d_b_dzeta, field.dBdz, rtol=5.0e-4, atol=2.0e-6)
     assert jnp.allclose(geom.b_sub_theta, field.B_sub_t, rtol=5.0e-5, atol=1.0e-12)
     assert jnp.allclose(geom.b_sub_zeta, field.B_sub_z, rtol=5.0e-5, atol=1.0e-12)
+    assert jnp.allclose(-geom.radial_drift_spatial, reference_executable_radial_drift, rtol=5.0e-4, atol=2.0e-7)
     assert jnp.allclose(geom.iota, field.iota, rtol=5.0e-5, atol=1.0e-7)
