@@ -10,8 +10,8 @@ The current release solves for the monoenergetic geometric coefficients
 Boozer surfaces and on VMEC equilibria. The VMEC file path is backed by
 `vmec_jax`, and the Boozer file path is backed by `booz_xform_jax`. For
 imported JAX workflows, NTX also includes an explicit
-`vmec_jax -> booz_xform_jax -> NTX` path and a direct NTX-to-NEOPAX mapping
-layer.
+`vmec_jax -> booz_xform_jax -> NTX` path, a direct `vmec_jax` VMEC-harmonic
+path for NEOPAX-facing scans, and a direct NTX-to-NEOPAX mapping layer.
 
 For reference-grade W7-X VMEC to NEOPAX comparisons, NTX now also includes a
 comparison-only path that mirrors Eduardo Neto's `vmec_neopax` REFERENCE_EXECUTABLE branch:
@@ -32,7 +32,12 @@ That path is exposed through:
 
 The imported `vmec_jax -> booz_xform_jax -> NTX` path now uses that same
 handedness convention, so the transformed W7-X surface matches the file-backed
-`boozmn` transport reference on the local regression grid.
+`boozmn` transport reference on the local regression grid. For the W7-X NEOPAX
+database subset itself, the intended imported JAX parity path is the direct
+`vmec_jax` VMEC-harmonic builder:
+
+- `surface_from_vmec_jax_vmec_wout(...)`
+- `surface_from_vmec_jax_vmec_wout_file(...)`
 
 ## Install
 
@@ -302,35 +307,34 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_wout,
+    surface_from_vmec_jax_vmec_wout_file,
     to_neopax_monoenergetic,
 )
 
 reference = load_neopax_reference_scan(
     "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5"
 )
-input_path = "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/input.W7-X_standard_configuration"
-
 def surface_loader(rho_value: float):
-    return surface_from_vmec_jax_wout(
-        input_path=input_path,
-        wout_path="/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+    return surface_from_vmec_jax_vmec_wout_file(
+        "/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
         s=rho_value**2,
-        mboz=12,
-        nboz=12,
     )
 
 scan = build_ntx_neopax_scan(
     surface_loader,
-    rho=reference.rho[:2],
-    nu_v=reference.nu_v[2:5],
-    Es=reference.Es[:2, :3],
-    Er=reference.Er[:2, :3],
-    drds=reference.drds[:2],
-    grid=GridSpec(n_theta=17, n_zeta=33, n_xi=60),
+    rho=reference.rho[[1, 3]],
+    nu_v=reference.nu_v[[5, 7, 9]],
+    Es=reference.Es[[1, 3]][:, [0, 7, 9]],
+    Er=reference.Er[[1, 3]][:, [0, 7, 9]],
+    drds=reference.drds[[1, 3]],
+    grid=GridSpec(n_theta=25, n_zeta=25, n_xi=63),
 )
 database = to_neopax_monoenergetic(scan, a_b=1.0)
 ```
+
+This is now the intended imported JAX W7-X NEOPAX path. On the local reference
+subset, it closes to better than `1e-2` relative error on `D11`, `D13`, `D31`,
+and `D33`.
 
 ## Differentiable Core
 

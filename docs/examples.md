@@ -103,8 +103,11 @@ python examples/neopax_with_ntx.py
 This example:
 
 - loads the W7-X NEOPAX reference scan layout
-- rebuilds a small subset with NTX through `surface_from_vmec_jax_wout(...)`
+- rebuilds a small subset with NTX through
+  `surface_from_vmec_jax_vmec_wout_file(...)`
 - maps the result directly into `NEOPAX.Monoenergetic`
+- closes the local W7-X subset to better than `1e-2` relative error on
+  `D11`, `D13`, `D31`, and `D33`
 
 The NEOPAX adapter is intended for imported workflows. The CLI `ntx input.toml`
 remains the right entrypoint for standalone file-driven runs.
@@ -125,5 +128,6 @@ This example mirrors the W7-X VMEC database workflow used by Eduardo Neto's
   the stored electric-field conversion factors
 
 Use this example when you want direct parity against the existing W7-X NEOPAX
-reference database rather than the fully JAX `vmec_jax -> booz_xform_jax`
-geometry lane.
+reference database. Use the separate `vmec_jax -> booz_xform_jax` example when
+you specifically want the Boozer-transform JAX lane rather than the W7-X NEOPAX
+parity lane.
