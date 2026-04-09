@@ -84,7 +84,7 @@ print(result.as_dict())
 
 ```bash
 python examples/vmec_jax_booz_xform_jax_ntx.py \
-  --input /Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak \
+  --input ../vmec_jax/examples/data/input.circular_tokamak \
   --s 0.25 --mboz 6 --nboz 0
 ```
 
@@ -128,6 +128,20 @@ This example:
 
 Use this example when you want a second imported VMEC family beyond the W7-X
 reference subset.
+
+## Omnigenous Validation Fixtures
+
+The repository includes three additional VMEC families copied from the local
+`omnigenity_optimization` study set:
+
+- QA: `tests/fixtures/wout_nfp3_QA_fixed_resolution_final.nc`
+- QH: `tests/fixtures/wout_nfp3_QH_fixed_resolution_final.nc`
+- QI: `tests/fixtures/wout_nfp3_QI_fixed_resolution_final.nc`
+
+The QA and QH families include matching `boozmn` files and are used in the test
+suite as extra `vmec_jax -> booz_xform_jax -> NTX` transform-vs-Boozer checks.
+The QI family extends the imported VMEC-harmonic and NEOPAX-array validation
+coverage beyond the original W7-X/QI fixtures already in the repository.
 
 ## W7-X Reference Database
 

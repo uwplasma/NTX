@@ -3,16 +3,15 @@
 ## Summary
 
 Build `NTX` as a new JAX-native neoclassical transport code in
-`/Users/rogeriojorge/local/.NTX`, with a private GitHub repo at
-`github.com/uwplasma/NTX`. The implementation is based on Escoto's Legendre-space
-monoenergetic DKE formulation from arXiv:2510.27513. The existing local
-`/Users/rogeriojorge/local/tests/REFERENCE_EXECUTABLE` checkout is used only as an external
-numerical benchmark.
+the local NTX checkout, with a private GitHub repo at `github.com/uwplasma/NTX`.
+The implementation is based on Escoto's Legendre-space monoenergetic DKE
+formulation from arXiv:2510.27513. The existing local REFERENCE_EXECUTABLE checkout is used
+only as an external numerical benchmark.
 
 Important environment facts found during planning:
 
-- Local thesis PDF exists at `/Users/rogeriojorge/local/tests/Escoto_Thesis.pdf`.
-- Local benchmark checkout exists at `/Users/rogeriojorge/local/tests/REFERENCE_EXECUTABLE`,
+- Local thesis PDF exists in the local research workspace.
+- Local benchmark checkout exists in the local research workspace,
   commit `428ca44`, with sample W7-X EIM outputs.
 - `gh` is authenticated with `repo` and `workflow` scopes, so repo creation
   should work if the account has `uwplasma` permission.
@@ -106,6 +105,8 @@ Important environment facts found during planning:
 - [x] Scope the fully JAX `vmec_jax -> booz_xform_jax -> NTX` workflow as a
   separate Boozer-transform validation lane distinct from the W7-X NEOPAX
   parity path.
+- [x] Scrub machine-specific absolute paths from source, tests, examples, and docs.
+- [x] Add QA, QH, and QI omnigenous validation fixtures from the local study set.
 
 ## Work Log
 
@@ -115,11 +116,11 @@ Important environment facts found during planning:
   which kept `epsi_hat` runs workable but made `er_hat` unsupported and left the VMEC
   transport normalization under-specified.
 - Audited the local `sfincs_jax` VMEC radial conversions. The relevant derivative factors
-  are in `/Users/rogeriojorge/local/tests/sfincs_jax/sfincs_jax/io.py`, where
+  are in the local `sfincs_jax` checkout, where
   `dpsi_hat/dr_hat = 2 * psi_a_hat * sqrt(psi_n) / a_hat` and
   `dr_hat/dpsi_hat` is its reciprocal.
 - Verified the local QI VMEC candidates in
-  `/Users/rogeriojorge/local/tests/sfincs_jax/examples/additional_examples/` are
+  the local `sfincs_jax` additional examples are
   stellarator-symmetric (`lasym = 0`) and include `Aminor_p`, so they are suitable
   for NTX regression coverage.
 - Implemented the VMEC normalization update so NTX now derives:
@@ -142,14 +143,14 @@ Important environment facts found during planning:
     full suite can be considered current again.
 
 - Vendored a second VMEC fixture into NTX:
-  `/Users/rogeriojorge/local/.NTX/tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc`.
+  `tests/fixtures/wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc`.
 - Confirmed the QI fixture solves cleanly on the current VMEC path with:
   - `psi_n = 0.12247^2`
   - `nfp = 2`
   - `loaded_mode_count = 72`
   - `transport_psi_scale = 0.9673631438898428`
 - Added a QI VMEC example input around the new `er_hat` path:
-  `/Users/rogeriojorge/local/.NTX/examples/qi_vmec_erhat.toml`.
+  `examples/qi_vmec_erhat.toml`.
 - Added dedicated QI VMEC tests:
   - unit coverage in `tests/test_vmec.py`
   - physics coverage in `tests/test_vmec_qi.py`
@@ -258,10 +259,10 @@ Important environment facts found during planning:
     benchmarked more carefully against the reference databases
 
 - Installed-stack validation on 2026-04-08:
-  - `python -m pip install -e /Users/rogeriojorge/local/vmec_jax` succeeded
-  - `python -m pip install -e /Users/rogeriojorge/local/tests/NEOPAX` succeeded
-  - `python -m pip install -e /Users/rogeriojorge/local/.NTX` succeeded
-  - `python -m pip install -e /Users/rogeriojorge/local/booz_xform_jax` failed
+  - `python -m pip install -e ../vmec_jax` succeeded
+  - `python -m pip install -e ../tests/NEOPAX` succeeded
+  - `python -m pip install -e .` succeeded
+  - `python -m pip install -e ../booz_xform_jax` failed
     because `src/booz_xform_jax.egg-info` is owned by `root`, so setuptools
     could not update its timestamp during build
 - Important environment result after the NEOPAX install:
@@ -329,8 +330,8 @@ Important environment facts found during planning:
     more than it helps the hardest benchmark configurations.
 
 - Audited the differentiability requirements against:
-  - `/Users/rogeriojorge/local/tests/NEOPAX`
-  - `/Users/rogeriojorge/local/tests/reference_executable_f0`
+  - `tests/NEOPAX`
+  - `tests/reference_executable_f0`
 - Confirmed the key NEOPAX integration point is still the monoenergetic
   database abstraction in `NEOPAX/_database.py`, and that the commented
   lower-level path there expects a Python-callable monoenergetic solver similar
@@ -447,7 +448,7 @@ Important environment facts found during planning:
   - Python: `3.10.12`
   
 - Added a standalone runtime benchmark runner:
-  - `/Users/rogeriojorge/local/.NTX/scripts/benchmark_against_reference_executable.py`
+  - `scripts/benchmark_against_reference_executable.py`
   - test coverage in `tests/test_benchmark_runtime_script.py`
 - What worked:
   - the benchmark payload now records `xla_preallocate`
@@ -460,9 +461,9 @@ Important environment facts found during planning:
 
 - Built REFERENCE_EXECUTABLE successfully on `office` using the local miniforge `qh-gpu`
   toolchain:
-  - `gfortran`: `/home/rjorge/miniforge3/envs/qh-gpu/bin/gfortran`
-  - NetCDF Fortran include: `/home/rjorge/miniforge3/envs/qh-gpu/include`
-  - NetCDF Fortran lib: `/home/rjorge/miniforge3/envs/qh-gpu/lib`
+  - `gfortran`: the office GPU environment compiler
+  - NetCDF Fortran include: the office GPU environment include directory
+  - NetCDF Fortran lib: the office GPU environment library directory
 - What worked:
   - same-host NTX versus REFERENCE_EXECUTABLE runtime comparisons are now reproducible on
     `office`
@@ -710,7 +711,7 @@ Important environment facts found during planning:
       - `mypy src/ntx`
       - `pytest -q` -> `68 passed, 2 skipped`
     - Re-ran a local W7-X Boozer-to-NEOPAX subset comparison against
-      `/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5`.
+      `tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5`.
       In NEOPAX storage conventions, `D33` stays within about `11%` to `19%`
       on the sampled subset, while `D11` and `D13` remain materially offset.
       That confirms the current gap is physical / normalization-related, not a
@@ -846,7 +847,7 @@ Important environment facts found during planning:
 - 2026-04-09: changed the W7-X NEOPAX parity gate to Eduardo Neto's
   `vmec_neopax` REFERENCE_EXECUTABLE workflow and closed the reference subset mismatch.
   - What worked:
-    - Cloned `/Users/rogeriojorge/local/tests/reference_executable_edu` on branch
+    - Cloned the local `reference_executable_edu` checkout on branch
       `vmec_neopax` at commit `27d4bc2` and audited:
       - `Examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
       - `reference_executable/_field.py::Field.from_vmec_s(...)`
@@ -872,12 +873,12 @@ Important environment facts found during planning:
       - a hard single-point transport parity check against
         `monoenergetic_dke_solve_internal(...)`
       - subset database parity against
-        `/Users/rogeriojorge/local/tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5`
+        `tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5`
       - example-script HDF5 generation
     - The W7-X subset now matches the existing NEOPAX reference HDF5 to better
       than `1e-2` relative error for `D11`, `D13`, `D31`, and `D33`.
   - What did not:
-    - `python -m pip install -e /Users/rogeriojorge/local/tests/reference_executable_edu`
+    - `python -m pip install -e ../tests/reference_executable_edu`
       is still not viable because Eduardo's fork is not packaged as an editable
       project. The local source checkout works through `PYTHONPATH`, which is
       how the parity tests currently run.
@@ -974,3 +975,30 @@ Important environment facts found during planning:
     - The GitHub-hosted runners still do not provide an external QI reference
       database, so the QI imported path remains a repository-backed round-trip
       validation rather than a cross-code parity gate.
+- 2026-04-09: removed machine-specific absolute paths from the repo and added
+  QA/QH/QI omnigenous validation families.
+  - What worked:
+    - Added `src/ntx/_checkout_paths.py` so tests, examples, and optional local
+      integrations discover sibling checkouts through environment variables or
+      workspace-relative defaults rather than hard-coded machine paths.
+    - Updated the optional `vmec_jax`, `booz_xform_jax`, `NEOPAX`,
+      `sfincs_jax`, and REFERENCE_EXECUTABLE integration points to use the new helper.
+    - Added repository fixtures from the local `omnigenity_optimization` study
+      set:
+      - `tests/fixtures/wout_nfp3_QA_fixed_resolution_final.nc`
+      - `tests/fixtures/boozmn_nfp3_QA_fixed_resolution_final.nc`
+      - `tests/fixtures/wout_nfp3_QH_fixed_resolution_final.nc`
+      - `tests/fixtures/boozmn_nfp3_QH_fixed_resolution_final.nc`
+      - `tests/fixtures/wout_nfp3_QI_fixed_resolution_final.nc`
+      - matching VMEC input files for QA, QH, and QI
+    - Added `tests/test_omnigenity_cases.py`, covering:
+      - QA/QH transform-vs-Boozer transport checks at two operating points
+      - QI VMEC-harmonic parity against the comparison-reference loader
+      - QI imported NEOPAX-array scan coverage
+    - Focused validation passed:
+      - `python -m pytest -q tests/test_omnigenity_cases.py tests/test_vmec_jax_backend.py tests/test_jax_neopax_examples.py tests/test_reference_executable_reference_vmec.py`
+        -> `17 passed`
+  - What did not:
+    - QA and QH extend the transform-vs-Boozer validation lane, but they still
+      do not have external NEOPAX-style reference databases in the repository,
+      so they are not database-parity gates yet.

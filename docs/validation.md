@@ -93,6 +93,20 @@ The new direct `vmec_jax` VMEC-harmonic helper is tested separately in
 `tests/test_vmec_jax_vmec.py`, where it matches the validated reference VMEC
 surface to roundoff at the single-surface solve level.
 
+NTX now also carries three additional omnigenous VMEC families from the local
+`omnigenity_optimization` study set:
+
+- QA and QH, each with both `wout` and `boozmn` fixtures
+- QI, with a `wout` fixture and imported NEOPAX-array scan coverage
+
+Those fixtures are covered in `tests/test_omnigenity_cases.py`. On the current
+`13 x 17 x 16` transform regression grid, the fully JAX
+`vmec_jax -> booz_xform_jax -> NTX` lane stays within about `6.3%` on QA and
+about `3.5%` on QH relative to the file-backed Boozer transport reference. The
+omnigenous QI `wout` fixture also closes to roundoff against the
+comparison-reference VMEC-harmonic loader and produces finite imported
+NEOPAX-array scans.
+
 The imported NEOPAX mapping now also has a pure-array lane:
 
 - `build_ntx_neopax_scan_from_surfaces(...)` for explicit in-memory surfaces
