@@ -103,7 +103,7 @@ python examples/neopax_with_ntx.py
 This example:
 
 - loads the W7-X NEOPAX reference scan layout
-- rebuilds a small subset with NTX
+- rebuilds a small subset with NTX through `surface_from_vmec_jax_wout(...)`
 - maps the result directly into `NEOPAX.Monoenergetic`
 
 The NEOPAX adapter is intended for imported workflows. The CLI `ntx input.toml`
