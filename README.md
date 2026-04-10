@@ -5,6 +5,10 @@ flux surfaces. It implements the Legendre-space block-tridiagonal formulation
 developed in Javier Escoto's PhD thesis
 ([arXiv:2510.27513](https://arxiv.org/abs/2510.27513)).
 
+The repository is now also wired for shipping as a Python package, with wheel
+and sdist builds, package-install smoke tests in CI, and a tag-driven GitHub
+release workflow for distribution artifacts.
+
 The current release solves for the monoenergetic geometric coefficients
 `D11`, `D31`, `D13`, `D33`, and the Spitzer `D33` normalization on DKES-style
 Boozer surfaces and on VMEC equilibria. The VMEC file path is backed by
@@ -79,6 +83,13 @@ Minimal runtime install:
 python -m pip install -e .
 ```
 
+Build and install a release artifact locally:
+
+```bash
+python -m build
+python -m pip install dist/*.whl
+```
+
 Full local JAX geometry / transport stack:
 
 ```bash
@@ -95,9 +106,12 @@ ruff check .
 mypy src/ntx
 pytest -q
 sphinx-build -b html docs docs/_build/html
+python -m build
+python -m twine check dist/*
 ```
 
-GitHub Actions runs the CPU suite across Python `3.10`, `3.11`, and `3.12`.
+GitHub Actions runs the CPU suite across Python `3.10`, `3.11`, and `3.12`,
+and separately validates wheel/sdist builds plus clean-install smoke tests.
 
 ## Quick Start
 
@@ -105,6 +119,12 @@ The main entrypoint is:
 
 ```bash
 ntx input.toml
+```
+
+An equivalent module entrypoint is also available:
+
+```bash
+python -m ntx input.toml
 ```
 
 Repository examples:
