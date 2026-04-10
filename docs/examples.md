@@ -143,6 +143,16 @@ suite as extra `vmec_jax -> booz_xform_jax -> NTX` transform-vs-Boozer checks.
 The QI family extends the imported VMEC-harmonic and NEOPAX-array validation
 coverage beyond the original W7-X/QI fixtures already in the repository.
 
+The repository also vendors external REFERENCE_EXECUTABLE subset databases for these families
+under `tests/fixtures/benchmarks/omnigenity/`. Refresh them with:
+
+```bash
+python scripts/generate_reference_executable_omnigenity_references.py
+```
+
+Those subsets are the current cross-code parity gate for QA and QH, plus the
+parity-safe `rho = 0.5` subset for QI.
+
 ## W7-X Reference Database
 
 ```bash

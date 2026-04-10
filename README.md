@@ -45,6 +45,20 @@ NTX now treats these as distinct imported workflows:
   locally against the `boozmn` transport reference
 - direct `vmec_jax` VMEC harmonics are the W7-X NEOPAX parity lane
 
+NTX also now carries external REFERENCE_EXECUTABLE-generated omnigenous subset databases for
+three additional VMEC families:
+
+- QA: `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qa_subset.h5`
+- QH: `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qh_subset.h5`
+- QI: `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qi_subset.h5`
+
+These are generated from the local Eduardo-REFERENCE_EXECUTABLE checkout with
+`scripts/generate_reference_executable_omnigenity_references.py`. QA and QH close on the
+subset to within about `3e-2` relative error on `D11`, `D13`, `D31`, and
+`D33`. The current QI subset is intentionally limited to `rho = 0.5`, where
+the NTX/REFERENCE_EXECUTABLE comparison closes to roundoff. The `rho = 0.25` QI point
+remains an open solver-side audit and is tracked in `plan.md`.
+
 ## Install
 
 From a local checkout:
@@ -105,6 +119,7 @@ python examples/neopax_with_ntx.py
 python examples/qi_neopax_with_ntx.py
 python examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py \
   --rho 0.25,0.5 --nu-v 1e-4,1e-3 --er-tilde 0.0,1e-3
+python scripts/generate_reference_executable_omnigenity_references.py
 ```
 
 `ntx` prints a detailed Rich run summary and writes a compressed `.npz` with:

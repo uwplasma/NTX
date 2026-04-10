@@ -107,6 +107,8 @@ Important environment facts found during planning:
   parity path.
 - [x] Scrub machine-specific absolute paths from source, tests, examples, and docs.
 - [x] Add QA, QH, and QI omnigenous validation fixtures from the local study set.
+- [x] Generate external REFERENCE_EXECUTABLE subset databases for QA, QH, and a parity-safe QI subset.
+- [ ] Close the remaining QI `rho = 0.25` solver-side mismatch on the Eduardo-REFERENCE_EXECUTABLE-reference VMEC path.
 
 ## Work Log
 
@@ -257,6 +259,41 @@ Important environment facts found during planning:
     materially worse agreement than the existing VMEC file path, so the legacy
     VMEC loader cannot be removed until the new JAX-native geometry lane is
     benchmarked more carefully against the reference databases
+
+### 2026-04-09
+
+- Generated the missing omnigenous QI `boozmn` fixture locally through
+  `booz_xform_jax` and added it to `tests/fixtures/`.
+- Found and fixed two packed-radial-grid bugs:
+  - `src/ntx/vmec_reference_executable.py` now reads `jlist` from packed `boozmn` files and
+    interpolates the reference factors on the actual packed-surface grid.
+  - `src/ntx/booz.py` now falls back to netCDF `jlist` metadata when the
+    `booz_xform_jax` radial profile length does not match `bmnc_b`, which is
+    required for the generated omnigenous QI `boozmn` file.
+- Verified that the remaining omnigenous QI spread is not a geometry problem:
+  - `load_vmec_surface_reference_executable_reference(...)` matches Eduardo REFERENCE_EXECUTABLE
+    `Field.from_vmec_s(...)` to roundoff on the QI geometry arrays.
+  - The solver-side transport coefficients still show a large mismatch at
+    `rho = 0.25`.
+- Generated external REFERENCE_EXECUTABLE subset databases under
+  `tests/fixtures/benchmarks/omnigenity/` with
+  `scripts/generate_reference_executable_omnigenity_references.py`:
+  - `reference_executable_external_qa_subset.h5`
+  - `reference_executable_external_qh_subset.h5`
+  - `reference_executable_external_qi_subset.h5`
+- Added `tests/test_reference_executable_reference_omnigenity.py`, which now checks:
+  - the generated QI `boozmn` fixture loads successfully through NTX
+  - QA external subset parity to about `2e-2`
+  - QH external subset parity to about `3e-2`
+  - QI external subset parity at `rho = 0.5` to roundoff
+- What worked:
+  - QA and QH now have real external REFERENCE_EXECUTABLE reference subsets vendored in the
+    repository, not just internal transport-lane comparisons.
+  - The QI family now also has an external subset reference, but only for the
+    `rho = 0.5` point where NTX and REFERENCE_EXECUTABLE agree.
+- What did not:
+  - QI at `rho = 0.25` still differs strongly from REFERENCE_EXECUTABLE even after enforcing
+    x64 and confirming geometry parity. This remains an open solver-side audit.
 
 - Installed-stack validation on 2026-04-08:
   - `python -m pip install -e ../vmec_jax` succeeded
