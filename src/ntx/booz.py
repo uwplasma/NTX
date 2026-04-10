@@ -60,9 +60,9 @@ def load_boozmn_surface(
     bvco = np.asarray(bx.Boozer_G_all, dtype=np.float64).reshape(-1)
     phi_attr = getattr(bx, "phi", None)
     phi = None if phi_attr is None else np.asarray(phi_attr, dtype=np.float64).reshape(-1)
-    s_grid = (
+    s_profile = (
         np.asarray(phi / float(phi[-1]), dtype=np.float64)
-        if phi is not None and phi.size == bmnc.shape[0]
+        if phi is not None and phi.size > 0
         else np.asarray(bx.s_in, dtype=np.float64).reshape(-1)
     )
     nfp = int(np.asarray(bx.nfp).reshape(()))
@@ -70,17 +70,19 @@ def load_boozmn_surface(
     if bmnc.ndim != 2:
         raise ValueError("expected booz_xform_jax bmnc_b to be a 2D `(surface, mode)` array")
     ns_b, mode_count = bmnc.shape
-    if s_grid.shape[0] != ns_b:
-        raise ValueError("booz_xform_jax radial grid length does not match bmnc_b")
-    rho_grid = np.sqrt(np.clip(s_grid, 0.0, None))
+    if s_profile.shape[0] == ns_b:
+        s_bmn = s_profile
+    else:
+        s_bmn = _packed_surface_grid(booz_path, ns_b)
+    rho_grid = np.sqrt(np.clip(s_bmn, 0.0, None))
 
     idx: int
     if surface_index is not None:
         idx = int(surface_index)
-        s_value = float(s_grid[idx])
+        s_value = float(s_bmn[idx])
     elif s is not None:
         s_value = float(s)
-        idx = int(np.argmin(np.abs(s_grid - s_value)))
+        idx = int(np.argmin(np.abs(s_bmn - s_value)))
     else:
         assert rho is not None
         s_value = float(rho) ** 2
@@ -91,16 +93,13 @@ def load_boozmn_surface(
 
     if surface_index is not None:
         bmn = bmnc[idx]
-        iota_value = float(iota[idx])
-        buco_value = float(buco[idx])
-        bvco_value = float(bvco[idx])
     else:
         bmn = np.vstack(
-            [np.interp(s_value, s_grid, bmnc[:, mode]) for mode in range(mode_count)]
+            [np.interp(s_value, s_bmn, bmnc[:, mode]) for mode in range(mode_count)]
         ).reshape(-1)
-        iota_value = float(np.interp(s_value, s_grid, iota))
-        buco_value = float(np.interp(s_value, s_grid, buco))
-        bvco_value = float(np.interp(s_value, s_grid, bvco))
+    iota_value = float(np.interp(s_value, s_profile, iota))
+    buco_value = float(np.interp(s_value, s_profile, buco))
+    bvco_value = float(np.interp(s_value, s_profile, bvco))
 
     # Match the right-handed sign convention used in the JAX REFERENCE_EXECUTABLE field loader.
     iota_value = -iota_value
@@ -136,3 +135,32 @@ def load_boozmn_surface(
         surface_index=idx,
         mode_count=int(np.count_nonzero(include)),
     )
+
+
+def _packed_surface_grid(path: Path, ns_b: int) -> np.ndarray:
+    """Return the radial grid for packed Boozer mode arrays."""
+
+    try:
+        from netCDF4 import Dataset
+    except ModuleNotFoundError as exc:
+        raise ValueError(
+            "booz_xform_jax radial grid length does not match bmnc_b and netCDF4 is not "
+            "available to read packed-surface metadata."
+        ) from exc
+
+    with Dataset(path, mode="r") as handle:
+        if "jlist" not in handle.variables:
+            raise ValueError("booz_xform_jax radial grid length does not match bmnc_b")
+        jlist = np.asarray(handle.variables["jlist"][:], dtype=np.int64).reshape(-1)
+        if jlist.shape[0] != ns_b:
+            raise ValueError("packed Boozer surface metadata does not match bmnc_b")
+        if "buco_b" in handle.variables:
+            ns_full = int(handle.variables["buco_b"].shape[0])
+        elif "ns_b" in handle.variables:
+            ns_full = int(np.asarray(handle.variables["ns_b"][:]).reshape(()))
+        else:
+            raise ValueError("unable to determine packed Boozer radial resolution")
+    if ns_full < 2:
+        raise ValueError("packed Boozer radial resolution must be at least 2")
+    s_full = np.linspace(0.0, 1.0, ns_full, dtype=np.float64)
+    return s_full[jlist - 1]

@@ -66,6 +66,14 @@ def find_neopax_root() -> Path | None:
     return _discover("NEOPAX_ROOT", "tests/NEOPAX", "NEOPAX")
 
 
+def find_omnigenity_optimization_root() -> Path | None:
+    return _discover(
+        "OMNIGENITY_OPTIMIZATION_ROOT",
+        "omnigenity_optimization",
+        "tests/omnigenity_optimization",
+    )
+
+
 def find_sfincs_jax_root() -> Path | None:
     return _discover("SFINCS_JAX_ROOT", "tests/sfincs_jax", "sfincs_jax")
 
