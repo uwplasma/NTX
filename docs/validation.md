@@ -202,11 +202,10 @@ Current interpretation:
 Run:
 
 ```bash
-python scripts/profile_runtime.py --output-json runtime-profile.json
+python scripts/profile_runtime.py --backend cpu --output-json runtime-profile.json
 ```
 
-This script also defaults to `JAX_PLATFORM_NAME=cpu`. Override the environment
-when you want a GPU-specific profile.
+Choose `--backend gpu` when you want a GPU-specific profile.
 
 This profiles the batched scan path against a Python loop for one DKES case and
 one VMEC case, and writes:
@@ -219,6 +218,29 @@ one VMEC case, and writes:
 
 The current scan implementation uses a jitted batched kernel, which is the main
 throughput path for parameter scans on both CPU and GPU.
+
+Final office hardware validation on 2026-04-10 used the updated GPU entrypoints
+with `XLA_PYTHON_CLIENT_PREALLOCATE=false` to avoid shared-device allocation
+failures. The resulting office GPU checks closed with:
+
+- `pytest -m gpu -q tests/test_gpu_smoke.py` -> `2 passed`
+- `scripts/run_gpu_regression.py`:
+  - DKES smoke steady time: `0.0553 s`, max relative error `9.44e-09`
+  - VMEC smoke steady time: `0.0563 s`, max relative error `1.03e-12`
+- `scripts/profile_runtime.py --backend cpu`:
+  - DKES 8-case scan steady time: `0.979 s`
+  - VMEC 8-case scan steady time: `1.130 s`
+- `scripts/profile_runtime.py --backend gpu`:
+  - DKES 8-case scan steady time: `1.566 s`
+  - VMEC 8-case scan steady time: `1.280 s`
+
+Interpretation:
+
+- the GPU lane is numerically correct on real hardware
+- the small smoke cases remain CPU-favorable because launch and transfer
+  overheads dominate
+- the batched GPU scan path is stable and useful, but the current smoke grids
+  are too small to make GPU wall time beat CPU wall time
 
 NTX also now exposes a prepared-system path that caches the geometry and
 derivative blocks for repeated solves. On a local W7-X sample solve at
