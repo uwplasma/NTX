@@ -1,4 +1,4 @@
-"""NTX replacement for Eduardo's REFERENCE_EXECUTABLE W7-X VMEC monoenergetic database script."""
+"""Generate a W7-X VMEC validation database with NTX."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from ntx import (  # noqa: E402
-    build_reference_executable_reference_vmec_scan,
+    build_reference_vmec_scan,
     enable_x64,
     load_neopax_reference_scan,
     to_neopax_monoenergetic,
@@ -75,7 +75,7 @@ def main() -> int:
     nu_v = _parse_list(args.nu_v)
     er_tilde = _parse_list(args.er_tilde)
 
-    scan = build_reference_executable_reference_vmec_scan(
+    scan = build_reference_vmec_scan(
         args.vmec,
         args.booz,
         rho=rho,

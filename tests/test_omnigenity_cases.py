@@ -9,7 +9,7 @@ from ntx import (
     build_ntx_neopax_scan_from_surfaces,
     load_boozmn_surface,
     load_vmec_surface,
-    load_vmec_surface_reference_executable_reference,
+    load_vmec_surface_reference,
     scan_to_neopax_arrays,
     solve_monoenergetic,
     surface_from_vmec_jax_vmec_wout_file,
@@ -81,7 +81,7 @@ def test_omnigenity_transform_lane_matches_boozmn_transport(
 
 def test_omnigenity_qi_vmec_harmonic_lane_matches_reference_loader():
     direct = surface_from_vmec_jax_vmec_wout_file(QI_WOUT, s=0.25)
-    reference = load_vmec_surface_reference_executable_reference(QI_WOUT, s=0.25)
+    reference = load_vmec_surface_reference(QI_WOUT, s=0.25)
     result_direct = solve_monoenergetic(
         direct,
         GridSpec(n_theta=25, n_zeta=25, n_xi=24, dtype=jnp.float32),

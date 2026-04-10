@@ -4,7 +4,7 @@ import pytest
 from ntx import (
     GridSpec,
     MonoenergeticCase,
-    load_vmec_surface_reference_executable_reference,
+    load_vmec_surface_reference,
     solve_monoenergetic,
     surface_from_vmec_jax_vmec_wout_file,
 )
@@ -25,7 +25,7 @@ pytest.importorskip("vmec_jax")
 
 def test_surface_from_vmec_jax_vmec_wout_file_matches_reference_transport():
     direct = surface_from_vmec_jax_vmec_wout_file(WOUT, s=0.25)
-    reference = load_vmec_surface_reference_executable_reference(WOUT, s=0.25)
+    reference = load_vmec_surface_reference(WOUT, s=0.25)
     result_direct = solve_monoenergetic(
         direct,
         GridSpec(n_theta=25, n_zeta=25, n_xi=63),
@@ -50,7 +50,7 @@ def test_surface_from_vmec_jax_vmec_wout_file_matches_reference_transport():
 
 def test_surface_from_vmec_jax_vmec_wout_file_preserves_reference_metadata():
     direct = surface_from_vmec_jax_vmec_wout_file(WOUT, s=0.25)
-    reference = load_vmec_surface_reference_executable_reference(WOUT, s=0.25)
+    reference = load_vmec_surface_reference(WOUT, s=0.25)
     assert direct.nfp == reference.nfp
     assert direct.ns == reference.ns
     assert direct.total_mode_count == reference.total_mode_count

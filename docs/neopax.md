@@ -12,15 +12,15 @@ The intended workflow is:
 For the W7-X VMEC database used in current NEOPAX tests, NTX now has two
 distinct imported geometry lanes:
 
-1. a direct `vmec_jax` VMEC-harmonic lane, which is the current parity gate for
-   NEOPAX-facing W7-X scans
+1. a direct `vmec_jax` VMEC-harmonic lane, which is the current validation gate
+   for NEOPAX-facing W7-X scans
 2. a `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform lane, which remains
    useful for end-to-end JAX Boozer workflows, is validated locally against the
    file-backed `boozmn` transport reference, but is not the primary W7-X NEOPAX
    reference gate
 
-NTX also keeps a comparison-only path that mirrors Eduardo Neto's
-`vmec_neopax` REFERENCE_EXECUTABLE branch closely enough to serve as an external reference.
+NTX also keeps a comparison-only path aligned with the external W7-X validation
+workflow.
 
 ## Local Install
 
@@ -28,17 +28,15 @@ For the current local JAX toolchain, install the geometry and transport stack
 from the local checkouts:
 
 ```bash
-python -m pip install -e ../vmec_jax
-python -m pip install -e ../booz_xform_jax
-python -m pip install -e ../tests/NEOPAX
+python -m pip install -e <vmec_jax-checkout>
+python -m pip install -e <booz_xform_jax-checkout>
+python -m pip install -e <neopax-checkout>
 python -m pip install -e ".[dev,docs,io]"
 ```
 
 ## NTX Scan To NEOPAX
 
 ```python
-from pathlib import Path
-
 from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
@@ -47,13 +45,12 @@ from ntx import (
     to_neopax_monoenergetic,
 )
 
-neopax_root = Path("../tests/NEOPAX")
 reference = load_neopax_reference_scan(
-    neopax_root / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+    "<neopax-checkout>/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5"
 )
 def surface_loader(rho_value: float):
     return surface_from_vmec_jax_vmec_wout_file(
-        neopax_root / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc",
+        "<neopax-checkout>/tests/inputs/wout_W7-X_standard_configuration.nc",
         s=rho_value**2,
     )
 
@@ -73,7 +70,7 @@ database = to_neopax_monoenergetic(scan, a_b=1.0)
 The resulting `database` object is a `NEOPAX.Monoenergetic` instance and can be
 passed directly into NEOPAX flux and transport solvers.
 
-This direct `vmec_jax` VMEC-harmonic path matches the local W7-X reference
+This direct `vmec_jax` VMEC-harmonic path matches the local W7-X validation
 subset to better than `1e-2` relative error on `D11`, `D13`, `D31`, and
 `D33`.
 
@@ -116,20 +113,19 @@ for `NEOPAX.Monoenergetic`.
 
 ## W7-X Reference Database Path
 
-To reproduce the layout and normalization used by
-`Examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
-from Eduardo Neto's REFERENCE_EXECUTABLE fork:
+To reproduce the layout and normalization used by the existing W7-X NEOPAX
+reference database workflow:
 
 ```python
 from ntx import (
-    build_reference_executable_reference_vmec_scan,
+    build_reference_vmec_scan,
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
 
-scan = build_reference_executable_reference_vmec_scan(
-    "../tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
-    "../tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
+scan = build_reference_vmec_scan(
+    "<neopax-checkout>/tests/inputs/wout_W7-X_standard_configuration.nc",
+    "<neopax-checkout>/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
     rho=[0.25, 0.5],
     nu_v=[1e-4, 1e-3, 1e-2],
     er_tilde=[0.0, 1e-3, 1e-2],
@@ -145,10 +141,10 @@ write_neopax_scan_hdf5(scan, "Dij_NEOPAX_subset_ntx.h5")
 Important conventions in this path:
 
 - VMEC surfaces are loaded from the `wout` file with the same conventions as
-  `Field.from_vmec_s(...)`
+  the validated reference workflow
 - Boozer-side electric-field conversion factors come from the `boozmn` file
 - `nl` maps to `GridSpec.n_xi = nl - 1`
-- the stored HDF5 datasets follow the REFERENCE_EXECUTABLE/NEOPAX layout:
+- the stored HDF5 datasets follow the reference NEOPAX layout:
   `rho`, `nu_v`, `Er`, `Er_tilde`, `Es`, `drds`, `D11`, `D13`, `D31`, `D33`,
   and the Boozer-side conversion factors
 
@@ -161,7 +157,7 @@ python examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate
 
 `surface_from_vmec_jax_vmec_wout_file(...)` is the practical WOUT-backed helper
 for the imported W7-X NEOPAX path. It reads the `wout` through `vmec_jax` and
-builds the VMEC harmonic surface directly, matching the reference sign,
+builds the VMEC harmonic surface directly, matching the validation sign,
 interpolation, and harmonic conventions without going through a Boozer
 transform.
 
@@ -179,7 +175,7 @@ import vmec_jax as vj
 from ntx import GridSpec, MonoenergeticCase, solve_monoenergetic, surface_from_vmec_jax_state
 
 run = vj.run_fixed_boundary(
-    "../vmec_jax/examples/data/input.circular_tokamak",
+    "<vmec_jax-checkout>/examples/data/input.circular_tokamak",
     max_iter=1,
     use_initial_guess=True,
     vmec_project=False,
@@ -212,15 +208,15 @@ foundation for end-to-end differentiable NEOPAX workflows.
 
 What is closed:
 
-- the NTX-to-NEOPAX constructor path reproduces the existing NEOPAX/REFERENCE_EXECUTABLE HDF5
+- the NTX-to-NEOPAX constructor path reproduces the existing NEOPAX HDF5
   mapping exactly when given the same coefficient tables
 - the `vmec_jax -> booz_xform_jax -> NTX` example path runs locally
 - the Boozer `boozmn` loader now interpolates the radial profiles and matches
-  the JAX REFERENCE_EXECUTABLE Boozer geometry convention on the shared W7-X test case
+  the validated external Boozer geometry convention on the shared W7-X test case
 - the `vmec_jax -> booz_xform_jax -> NTX` Boozer-transform lane now matches the
   file-backed `boozmn` transport reference within about `2%` at two local W7-X
   operating points covered by `tests/test_vmec_jax_backend.py`
-- the comparison-only W7-X VMEC reference path now matches the existing NEOPAX
+- the comparison-only W7-X VMEC validation path now matches the existing NEOPAX
   W7-X subset to better than `1e-2` relative error on `D11`, `D13`, `D31`, and
   `D33`
 - the NTX replacement script for the W7-X VMEC database writes the same HDF5

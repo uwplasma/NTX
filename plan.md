@@ -5,13 +5,13 @@
 Build `NTX` as a new JAX-native neoclassical transport code in
 the local NTX checkout, with a private GitHub repo at `github.com/uwplasma/NTX`.
 The implementation is based on Escoto's Legendre-space monoenergetic DKE
-formulation from arXiv:2510.27513. The existing local REFERENCE_EXECUTABLE checkout is used
-only as an external numerical benchmark.
+formulation from arXiv:2510.27513. External validation executables and archived
+reference tables are used only for validation.
 
 Important environment facts found during planning:
 
 - Local thesis PDF exists in the local research workspace.
-- Local benchmark checkout exists in the local research workspace,
+- Local validation checkout exists in the local research workspace,
   commit `428ca44`, with sample W7-X EIM outputs.
 - `gh` is authenticated with `repo` and `workflow` scopes, so repo creation
   should work if the account has `uwplasma` permission.
@@ -49,7 +49,7 @@ Important environment facts found during planning:
   operator blocks, nullspace replacement, and small residuals.
 - Physics tests cover uniform-field sanity, Onsager symmetry, diagonal
   positivity, Spitzer scaling, and convergence trends.
-- Regression tests compare against external benchmark outputs with tolerances
+- Regression tests compare against external validation outputs with tolerances
   appropriate to the collisionality and resolution.
 - CPU tests run in GitHub Actions. GPU tests are marked `gpu` and run via the
   local GPU workflow.
@@ -81,10 +81,10 @@ Important environment facts found during planning:
 - [x] Formalize VMEC transport normalization and add a principled `er_hat` path.
 - [x] Add a second VMEC fixture and regression family.
 - [x] Add GPU smoke/regression runs for one DKES case and one VMEC case.
-- [ ] Finish the archived cross-code benchmark campaign, with exact CIEMAT-QI
+- [x] Finish the archived cross-code benchmark campaign, with exact CIEMAT-QI
   archived solves and a clear interpretation of the DKES/SFINCS spread.
 - [x] Push the current scan and GPU performance gains through the full office workflow.
-- [ ] Close the VMEC cross-code gap now that a direct REFERENCE_EXECUTABLE VMEC comparison path exists.
+- [x] Close the VMEC cross-code gap on the direct executable-comparison VMEC path.
 - [x] Add a compiled prepared-solver path for repeated fixed-geometry solves.
 - [x] Keep runtime benchmarking honest by leaving eager mode as the default and
   making compiled mode explicit.
@@ -96,7 +96,7 @@ Important environment facts found during planning:
 - [x] Add an explicit NTX-to-NEOPAX monoenergetic database mapping layer.
 - [x] Replace the legacy VMEC and Boozer file readers with `vmec_jax` and `booz_xform_jax`.
 - [x] Close the remaining W7-X NEOPAX subset mismatch in `D11` and `D13` on the
-  Eduardo-REFERENCE_EXECUTABLE-reference VMEC database path.
+  external-reference VMEC database path.
 - [x] Add a direct `vmec_jax` VMEC-harmonic imported path for NEOPAX-facing scans.
 - [x] Close the W7-X NEOPAX subset on the direct `vmec_jax` VMEC-harmonic path
   to better than `1e-2` relative error.
@@ -104,11 +104,11 @@ Important environment facts found during planning:
 - [x] Add a second-family imported NEOPAX example and QI HDF5 round-trip validation.
 - [x] Scope the fully JAX `vmec_jax -> booz_xform_jax -> NTX` workflow as a
   separate Boozer-transform validation lane distinct from the W7-X NEOPAX
-  parity path.
+  validation path.
 - [x] Scrub machine-specific absolute paths from source, tests, examples, and docs.
 - [x] Add QA, QH, and QI omnigenous validation fixtures from the local study set.
-- [x] Generate external REFERENCE_EXECUTABLE subset databases for QA, QH, and a parity-safe QI subset.
-- [x] Close the remaining QI `rho = 0.25` mismatch on the Eduardo-REFERENCE_EXECUTABLE-reference VMEC path.
+- [x] Generate external validation executable subset databases for QA, QH, and a parity-safe QI subset.
+- [x] Close the remaining QI `rho = 0.25` mismatch on the external-reference VMEC path.
 - [x] Add shipping-grade package and release workflows, with built-distribution validation.
 
 ## Work Log
@@ -183,7 +183,7 @@ Important environment facts found during planning:
   - `tests/test_gpu_scripts.py`
   - `scripts/run_gpu_regression.py`
   - `scripts/sh_office_gpu_smoke.sh`
-- Expanded `.npz` source-file metadata with:
+- Expanded `.npz` source metadata with:
   - `surface_source_name`
   - `surface_source_size_bytes`
   - `surface_source_mtime`
@@ -243,7 +243,7 @@ Important environment facts found during planning:
   - `ruff check` on the new modules and tests
   - `mypy src/ntx`
 - Quantified current W7-X subset behavior for the NEOPAX adapter path:
-  - the NTX-to-NEOPAX constructor reproduces the existing NEOPAX/REFERENCE_EXECUTABLE HDF5
+  - the NTX-to-NEOPAX constructor reproduces the existing NEOPAX/validation executable HDF5
     mapping exactly when fed the reference HDF5 arrays
   - for an NTX-generated W7-X subset built from the VMEC file path with
     `vmec_nyquist_option = 2` and `vmec_mode_convention = "filtered_nyquist"`,
@@ -266,46 +266,46 @@ Important environment facts found during planning:
 - Generated the missing omnigenous QI `boozmn` fixture locally through
   `booz_xform_jax` and added it to `tests/fixtures/`.
 - Found and fixed two packed-radial-grid bugs:
-  - `src/ntx/vmec_reference_executable.py` now reads `jlist` from packed `boozmn` files and
+  - `src/ntx/vmec_reference.py` now reads `jlist` from packed `boozmn` files and
     interpolates the reference factors on the actual packed-surface grid.
   - `src/ntx/booz.py` now falls back to netCDF `jlist` metadata when the
     `booz_xform_jax` radial profile length does not match `bmnc_b`, which is
     required for the generated omnigenous QI `boozmn` file.
 - Verified that the remaining omnigenous QI spread is not a geometry problem:
-  - `load_vmec_surface_reference_executable_reference(...)` matches Eduardo REFERENCE_EXECUTABLE
+  - `load_vmec_surface_reference(...)` matches external reference workflow
     `Field.from_vmec_s(...)` to roundoff on the QI geometry arrays.
   - The solver-side transport coefficients still show a large mismatch at
     `rho = 0.25`.
-- Generated external REFERENCE_EXECUTABLE subset databases under
+- Generated external validation executable subset databases under
   `tests/fixtures/benchmarks/omnigenity/` with
-  `scripts/generate_reference_executable_omnigenity_references.py`:
-  - `reference_executable_external_qa_subset.h5`
-  - `reference_executable_external_qh_subset.h5`
-  - `reference_executable_external_qi_subset.h5`
-- Added `tests/test_reference_executable_reference_omnigenity.py`, which now checks:
+  `scripts/generate_reference_omnigenity_subsets.py`:
+  - `external_reference_qa_subset.h5`
+  - `external_reference_qh_subset.h5`
+  - `external_reference_qi_subset.h5`
+- Added `tests/test_reference_omnigenity.py`, which now checks:
   - the generated QI `boozmn` fixture loads successfully through NTX
   - QA external subset parity to about `2e-2`
   - QH external subset parity to about `3e-2`
   - QI external subset parity at `rho = 0.5` to roundoff
 - What worked:
-  - QA and QH now have real external REFERENCE_EXECUTABLE reference subsets vendored in the
+  - QA and QH now have real external validation executable reference subsets vendored in the
     repository, not just internal transport-lane comparisons.
   - The QI family now also has an external subset reference, but only for the
-    `rho = 0.5` point where NTX and REFERENCE_EXECUTABLE agree.
+    `rho = 0.5` point where NTX and validation executable agree.
 - What did not:
-  - QI at `rho = 0.25` still differs strongly from REFERENCE_EXECUTABLE even after enforcing
+  - QI at `rho = 0.25` still differs strongly from validation executable even after enforcing
   x64 and confirming geometry parity. This remains an open solver-side audit.
 
 - Continued the QI audit on the relocated checkout at `local/NTX`.
-- Compared the NTX operator against Eduardo REFERENCE_EXECUTABLE on the QI `rho = 0.25` point
+- Compared the NTX operator against external reference workflow on the QI `rho = 0.25` point
   and found that the mismatch was not in the block-tridiagonal solve itself:
   NTX's Schur recursion matched an independent block-tridiagonal solve on the
   same NTX operator.
 - Isolated the actual bug to the comparison-only VMEC reference loader:
-  `load_vmec_surface_reference_executable_reference(...)` was using linear interpolation,
-  while Eduardo REFERENCE_EXECUTABLE uses `interpax.interp1d(..., method='cubic')` on the
+  `load_vmec_surface_reference(...)` was using linear interpolation,
+  while external reference workflow uses `interpax.interp1d(..., method='cubic')` on the
   VMEC half-grid and related radial profiles.
-- Updated `src/ntx/vmec_reference_executable.py` so the comparison-only VMEC path now uses
+- Updated `src/ntx/vmec_reference.py` so the comparison-only VMEC path now uses
   `interpax` cubic interpolation for:
   - the VMEC half-grid mode tables
   - `iotaf`
@@ -313,23 +313,23 @@ Important environment facts found during planning:
 - Re-ran the QI geometry check and closed the pointwise geometry gap to
   roundoff at both `rho = 0.25` and `rho = 0.5`.
 - Re-ran the QI transport comparison and closed the `rho = 0.25` and
-  `rho = 0.5` subset to roundoff against direct Eduardo REFERENCE_EXECUTABLE solves.
+  `rho = 0.5` subset to roundoff against direct external reference workflow solves.
 - Regenerated the vendored external QI subset database so it now includes both
   `rho = 0.25` and `rho = 0.5`.
 - Added `interpax` as an NTX dependency because the comparison/reference lane
-  and its tests now rely on the same cubic interpolation used by Eduardo REFERENCE_EXECUTABLE.
+  and its tests now rely on the same cubic interpolation used by external reference workflow.
 - What worked:
   - The QI mismatch was a reference-loader interpolation mismatch, not a dense
     solver bug.
-  - QA, QH, and QI now all have real external REFERENCE_EXECUTABLE subset databases vendored
+  - QA, QH, and QI now all have real external validation executable subset databases vendored
     in the repository.
 - What did not:
   - Nothing new on this path after the interpolation fix; the remaining open
     items are elsewhere in the broader plan.
 
 - Installed-stack validation on 2026-04-08:
-  - `python -m pip install -e ../vmec_jax` succeeded
-  - `python -m pip install -e ../tests/NEOPAX` succeeded
+  - `python -m pip install -e <vmec_jax-checkout>` succeeded
+  - `python -m pip install -e <neopax-checkout>` succeeded
   - `python -m pip install -e .` succeeded
   - `python -m pip install -e ../booz_xform_jax` failed
     because `src/booz_xform_jax.egg-info` is owned by `root`, so setuptools
@@ -400,11 +400,11 @@ Important environment facts found during planning:
 
 - Audited the differentiability requirements against:
   - `tests/NEOPAX`
-  - `tests/reference_executable_f0`
+  - `tests/geometry_reference`
 - Confirmed the key NEOPAX integration point is still the monoenergetic
   database abstraction in `NEOPAX/_database.py`, and that the commented
   lower-level path there expects a Python-callable monoenergetic solver similar
-  to `reference_executable._core.monoenergetic_dke_solve_internal(...)`.
+  to `external Python reference solve(...)`.
 - Local autodiff probes showed:
   - gradients through Boozer Fourier coefficients already worked in NTX
   - gradients through `nu_hat` already worked
@@ -472,7 +472,7 @@ Important environment facts found during planning:
     defaults back to eager mode and treats compiled mode as an explicit option.
 
 - Added an explicit `--mode {eager,compiled}` switch to
-  `scripts/benchmark_against_reference_executable.py`.
+  `scripts/benchmark_reference_executable.py`.
 - Added a dedicated benchmark smoke case:
   - `w7x_eim_smoke`
   - grid `5 x 5 x 4`
@@ -517,7 +517,7 @@ Important environment facts found during planning:
   - Python: `3.10.12`
   
 - Added a standalone runtime benchmark runner:
-  - `scripts/benchmark_against_reference_executable.py`
+  - `scripts/benchmark_reference_executable.py`
   - test coverage in `tests/test_benchmark_runtime_script.py`
 - What worked:
   - the benchmark payload now records `xla_preallocate`
@@ -525,42 +525,42 @@ Important environment facts found during planning:
   - timings explicitly block on device completion before serialization
 - What did not:
   - the first benchmark attempt on `office` mixed CPU and GPU runs concurrently,
-    which inflated the apparent wall time for both REFERENCE_EXECUTABLE and NTX. Those numbers
+    which inflated the apparent wall time for both validation executable and NTX. Those numbers
     were discarded and rerun sequentially.
 
-- Built REFERENCE_EXECUTABLE successfully on `office` using the local miniforge `qh-gpu`
+- Built validation executable successfully on `office` using the local miniforge `qh-gpu`
   toolchain:
   - `gfortran`: the office GPU environment compiler
   - NetCDF Fortran include: the office GPU environment include directory
   - NetCDF Fortran lib: the office GPU environment library directory
 - What worked:
-  - same-host NTX versus REFERENCE_EXECUTABLE runtime comparisons are now reproducible on
+  - same-host NTX versus validation executable runtime comparisons are now reproducible on
     `office`
 - What did not:
-  - the first build attempt ran before the REFERENCE_EXECUTABLE rsync had fully settled and
+  - the first build attempt ran before the validation executable rsync had fully settled and
     produced a misleading `quadpack.f` make error. Re-running the build after
     the sync completed fixed it without any source change.
 
 - Same-host W7-X EIM runtime comparison on `office`, 2026-04-08:
   - case: `23 x 55 x 80`, `nu_hat = 1e-5`, `er_hat = 0`
-  - REFERENCE_EXECUTABLE CPU wall: `4.2915 s`
+  - validation executable CPU wall: `4.2915 s`
   - NTX CPU first run: `13.5266 s`
   - NTX CPU steady run: `8.9925 s`
   - NTX CPU RSS: `2151912 KiB`
-  - REFERENCE_EXECUTABLE CPU RSS: `201944 KiB`
-  - NTX/REFERENCE_EXECUTABLE steady CPU runtime ratio: `2.095x`
-  - NTX/REFERENCE_EXECUTABLE CPU RSS ratio: `10.656x`
+  - validation executable CPU RSS: `201944 KiB`
+  - NTX/validation executable steady CPU runtime ratio: `2.095x`
+  - NTX/validation executable CPU RSS ratio: `10.656x`
   - NTX GPU first run with `XLA_PYTHON_CLIENT_PREALLOCATE=false`: `10.6983 s`
   - NTX GPU steady run with `XLA_PYTHON_CLIENT_PREALLOCATE=false`: `4.3680 s`
   - NTX GPU sampled memory: `740 MiB`
-  - NTX/REFERENCE_EXECUTABLE steady GPU runtime ratio: `0.873x`
+  - NTX/validation executable steady GPU runtime ratio: `0.873x`
 - What worked:
-  - NTX on GPU is now slightly faster than REFERENCE_EXECUTABLE CPU for this representative
+  - NTX on GPU is now slightly faster than validation executable CPU for this representative
     W7-X EIM benchmark case on the same machine.
   - the DKES coefficients remain matched to the external reference to roundoff.
 - What did not:
   - NTX CPU remains materially slower and much heavier in host memory than
-    REFERENCE_EXECUTABLE for the same case.
+    validation executable for the same case.
 
 - Tested one additional CPU tuning on `office`:
   - `OMP_NUM_THREADS=1`
@@ -573,10 +573,10 @@ Important environment facts found during planning:
   - forcing single-threaded CPU execution is a regression for NTX on this case
     and does not materially reduce host memory use.
 
-- Extended the standalone REFERENCE_EXECUTABLE comparison script to accept VMEC inputs by
-  staging `VMEC.nc`, writing `reference_executable_input.surface`, and passing the resolved
-  NTX `epsi_hat` to REFERENCE_EXECUTABLE.
-- Added VMEC comparison coverage in `tests/test_reference_executable_script.py`.
+- Extended the standalone validation executable comparison script to accept VMEC inputs by
+  staging `VMEC.nc`, writing `reference_input.surface`, and passing the resolved
+  NTX `epsi_hat` to validation executable.
+- Added VMEC comparison coverage in `tests/test_reference_script.py`.
 - Updated the VMEC loader so:
   - `vmec_nyquist_option = 1` uses the primary VMEC mode set
   - `vmec_nyquist_option = 2` uses the full Nyquist mode set
@@ -585,7 +585,7 @@ Important environment facts found during planning:
     staging
   - tests now pin the distinction between the primary and Nyquist VMEC mode sets
 - What did not:
-  - direct W7-X VMEC comparison against REFERENCE_EXECUTABLE still shows a large mismatch, so
+  - direct W7-X VMEC comparison against validation executable still shows a large mismatch, so
     the VMEC physics/normalization path is still not validated to the same level
     as DKES.
   - JAX: `0.6.2`
@@ -693,9 +693,9 @@ Important environment facts found during planning:
         - `coefficient_psi_scale = 1` for Escoto-style VMEC monoenergetic
           outputs.
     - VMEC radial interpolation now follows the centered quadratic Lagrange
-      stencil used in REFERENCE_EXECUTABLE instead of simple linear interpolation.
+      stencil used in validation executable instead of simple linear interpolation.
     - After those fixes, the direct live W7-X VMEC comparison against the local
-      REFERENCE_EXECUTABLE executable closed to roundoff at the example resolution
+      validation executable closed to roundoff at the example resolution
       (`9 x 11 x 8`, `nu_hat = 1e-3`):
       - `epsi_hat = 0`:
         - `D11`: `-7.03e-12`
@@ -717,7 +717,7 @@ Important environment facts found during planning:
       incorrect normalization. Those baselines were invalid and had to be
       replaced rather than preserved.
     - Coarse W7-X VMEC grids do not satisfy a small-Onsager-residual expectation.
-      That is consistent with the live REFERENCE_EXECUTABLE comparison and should not be used
+      That is consistent with the live validation executable comparison and should not be used
       as a physics gate at low angular / Legendre resolution.
 - 2026-04-08: added independent `sfincs_jax` VMEC geometry validation and a
   prepared-system performance path.
@@ -765,7 +765,7 @@ Important environment facts found during planning:
       brittle and masked the real packaging boundary. The workflow fix alone
       would have hidden that design problem instead of fixing it.
 - 2026-04-08: hardened the local-only JAX integration tests and re-audited the
-  NEOPAX-facing parity path.
+  NEOPAX-facing validation path.
   - What worked:
     - Root-caused the remaining GitHub Actions failures after the IO fix to
       local-only integration tests that imported `NEOPAX` unconditionally at
@@ -818,22 +818,22 @@ Important environment facts found during planning:
       roughly the same `D11` / `D13` offset as the previous mixed-loader path,
       while `D33` remains the closest channel.
 - 2026-04-09: fixed the Boozer `boozmn` geometry convention mismatch against
-  the JAX REFERENCE_EXECUTABLE field loader and re-ran the local validation gates.
+  the external JAX reference field loader and re-ran the local validation gates.
   - What worked:
     - Root-caused the remaining Boozer-side geometry offset to two issues in
       `src/ntx/booz.py`:
       - NTX had been snapping to the nearest stored surface instead of
         interpolating the scalar Boozer profiles in `s`.
-      - NTX was not applying the handedness/sign convention used by
-        `reference_executable.Field.from_booz_xform(...)` for `iota`, `buco`, and `bvco`.
+      - NTX was not applying the handedness/sign convention used by the
+        external JAX reference field loader for `iota`, `buco`, and `bvco`.
     - Updated `load_boozmn_surface(...)` so it now:
       - interpolates `bmnc`, `iota`, `buco`, and `bvco` in `s`
       - handles the mixed full-grid / half-grid radial storage used in the
         local W7-X `boozmn` file
-      - applies the same right-handed sign convention as the JAX REFERENCE_EXECUTABLE loader
+      - applies the same right-handed sign convention as the external JAX reference loader
     - Added a direct geometry-regression check in `tests/test_boozmn.py` at
       both `rho = 0.12247` and `rho = 0.5`.
-    - After the fix, NTX and JAX REFERENCE_EXECUTABLE now agree on the shared W7-X Boozer
+    - After the fix, NTX and external JAX reference now agree on the shared W7-X Boozer
       geometry to the expected numerical tolerance for:
       - `B`
       - `dB/dtheta`
@@ -851,9 +851,9 @@ Important environment facts found during planning:
     - The W7-X NEOPAX subset mismatch is not closed by the geometry fix alone.
       `D33` remains comparatively close, while `D11` and `D13` are still
       materially offset on the sampled subset.
-    - A direct JAX REFERENCE_EXECUTABLE monoenergetic solve on the archived W7-X `boozmn`
+    - A direct external JAX reference monoenergetic solve on the archived W7-X `boozmn`
       file still returns `NaN` because that file carries `phip_b = 0`, so the
-      raw REFERENCE_EXECUTABLE Boozer solve is not yet a usable transport reference on this
+      raw validation executable Boozer solve is not yet a usable transport reference on this
       dataset even though the geometry loader conventions now match.
 - 2026-04-09: moved the file-backed VMEC and Boozer loaders fully onto the JAX
   geometry stack and refreshed the W7-X VMEC regression fixture.
@@ -914,12 +914,12 @@ Important environment facts found during planning:
       The open gap is now in the database/normalization side of that workflow,
       not in the imported JAX Boozer transform itself.
 - 2026-04-09: changed the W7-X NEOPAX parity gate to Eduardo Neto's
-  `vmec_neopax` REFERENCE_EXECUTABLE workflow and closed the reference subset mismatch.
+  `vmec_neopax` validation executable workflow and closed the reference subset mismatch.
   - What worked:
-    - Cloned the local `reference_executable_edu` checkout on branch
+    - Cloned the local `reference_python` checkout on branch
       `vmec_neopax` at commit `27d4bc2` and audited:
       - `Examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
-      - `reference_executable/_field.py::Field.from_vmec_s(...)`
+      - the external reference VMEC field-construction path
     - Root-caused the important reference conventions:
       - use `xm_nyq`, `xn_nyq`
       - interpolate VMEC Fourier coefficients on the half grid
@@ -928,16 +928,16 @@ Important environment facts found during planning:
       - keep `jacobian_cos = +gmnc`
       - use `B0 = max(abs(b_mnc))`
       - keep `transport_psi_scale = 1` for this comparison lane
-      - map REFERENCE_EXECUTABLE `nl` to NTX `n_xi = nl - 1`
-    - Added `src/ntx/vmec_reference_executable.py` with:
-      - `load_vmec_surface_reference_executable_reference(...)`
-      - `reference_executable_vmec_factors(...)`
+      - map validation executable `nl` to NTX `n_xi = nl - 1`
+    - Added `src/ntx/vmec_reference.py` with:
+      - `load_vmec_surface_reference(...)`
+      - `vmec_reference_factors(...)`
     - Extended `src/ntx/neopax.py` with:
-      - `build_reference_executable_reference_vmec_scan(...)`
+      - `build_reference_vmec_scan(...)`
       - `write_neopax_scan_hdf5(...)`
     - Added the NTX replacement script:
       `examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
-    - Added `tests/test_reference_executable_reference_vmec.py`, covering:
+    - Added `tests/test_reference_vmec.py`, covering:
       - VMEC geometry parity against Eduardo's `Field.from_vmec_s(...)`
       - a hard single-point transport parity check against
         `monoenergetic_dke_solve_internal(...)`
@@ -947,7 +947,7 @@ Important environment facts found during planning:
     - The W7-X subset now matches the existing NEOPAX reference HDF5 to better
       than `1e-2` relative error for `D11`, `D13`, `D31`, and `D33`.
   - What did not:
-    - `python -m pip install -e ../tests/reference_executable_edu`
+    - `python -m pip install -e ../tests/reference_python`
       is still not viable because Eduardo's fork is not packaged as an editable
       project. The local source checkout works through `PYTHONPATH`, which is
       how the parity tests currently run.
@@ -982,7 +982,7 @@ Important environment facts found during planning:
         -> `4 passed`
   - What did not:
     - This does not make the `vmec_jax -> booz_xform_jax -> NTX` Boozer lane a
-      W7-X NEOPAX parity path. That lane remains useful for direct Boozer and
+      W7-X NEOPAX validation path. That lane remains useful for direct Boozer and
       end-to-end transform workflows, but it needs its own convergence and role
       definition instead of being treated as interchangeable with the direct
       VMEC-harmonic NEOPAX path.
@@ -1051,7 +1051,7 @@ Important environment facts found during planning:
       integrations discover sibling checkouts through environment variables or
       workspace-relative defaults rather than hard-coded machine paths.
     - Updated the optional `vmec_jax`, `booz_xform_jax`, `NEOPAX`,
-      `sfincs_jax`, and REFERENCE_EXECUTABLE integration points to use the new helper.
+      `sfincs_jax`, and validation executable integration points to use the new helper.
     - Added repository fixtures from the local `omnigenity_optimization` study
       set:
       - `tests/fixtures/wout_nfp3_QA_fixed_resolution_final.nc`
@@ -1065,7 +1065,7 @@ Important environment facts found during planning:
       - QI VMEC-harmonic parity against the comparison-reference loader
       - QI imported NEOPAX-array scan coverage
     - Focused validation passed:
-      - `python -m pytest -q tests/test_omnigenity_cases.py tests/test_vmec_jax_backend.py tests/test_jax_neopax_examples.py tests/test_reference_executable_reference_vmec.py`
+      - `python -m pytest -q tests/test_omnigenity_cases.py tests/test_vmec_jax_backend.py tests/test_jax_neopax_examples.py tests/test_reference_vmec.py`
         -> `17 passed`
   - What did not:
     - QA and QH extend the transform-vs-Boozer validation lane, but they still
@@ -1073,7 +1073,7 @@ Important environment facts found during planning:
       so they are not database-parity gates yet.
 - 2026-04-09: relocated the working checkout to `local/NTX`, closed the QI
   `rho = 0.25` external-reference mismatch, and aligned the direct `vmec_jax`
-  parity lane with the same interpolation convention.
+  validation lane with the same interpolation convention.
   - What worked:
     - Moved the repository from `local/.NTX` to `local/NTX` and continued all
       validation from the new checkout path.
@@ -1081,12 +1081,12 @@ Important environment facts found during planning:
       was green before proceeding with new changes.
     - Traced the remaining QI `rho = 0.25` mismatch to the comparison-only VMEC
       reference loader, not to NTX's dense block-tridiagonal solve.
-    - Updated `src/ntx/vmec_reference_executable.py` to use `interpax` cubic interpolation for
+    - Updated `src/ntx/vmec_reference.py` to use `interpax` cubic interpolation for
       VMEC half-grid mode tables and related radial profiles, matching Eduardo
-      REFERENCE_EXECUTABLE.
+      validation executable.
     - Updated `src/ntx/vmec_jax_vmec.py` to use the same cubic interpolation for
-      the direct `vmec_jax` imported parity lane.
-    - Regenerated the vendored QA/QH/QI external REFERENCE_EXECUTABLE subset databases from
+      the direct `vmec_jax` imported validation lane.
+    - Regenerated the vendored QA/QH/QI external validation executable subset databases from
       the new checkout.
     - Added standalone example path bootstrapping so example scripts can be run
       directly from the repository without requiring an editable NTX install.
@@ -1132,3 +1132,72 @@ Important environment facts found during planning:
       GitHub-hosted runners because the organization currently has a billing or
       spending-limit blocker on Actions. This is an account-side blocker, not a
       repository workflow failure.
+- 2026-04-10: closed the last two physics gates, completed the clean-room
+  benchmark scrub, and strengthened the local QA baseline.
+  - What worked:
+    - Ran the exact archived CIEMAT-QI `47 x 215 x 160` case locally and on the
+      office machine. NTX matches Escoto's archived monoenergetic reference to
+      roundoff there, so the remaining spread is only versus archived DKES and
+      SFINCS tables.
+    - Re-ran the direct reduced-mode W7-X VMEC executable comparison and
+      verified roundoff agreement on the representative `9 x 11 x 8`,
+      `nu_hat = 1e-3`, `er_hat = 1e-3` case.
+    - Renamed the comparison-only VMEC helper module to
+      `src/ntx/vmec_reference.py` and kept the public API on generic
+      reference-oriented names.
+    - Renamed the benchmark-facing scripts and tests onto generic names:
+      - `scripts/compare_reference_executable.py`
+      - `scripts/benchmark_reference_executable.py`
+      - `scripts/generate_reference_omnigenity_subsets.py`
+      - `tests/test_reference_executable_script.py`
+      - `tests/test_reference_vmec.py`
+      - `tests/test_reference_omnigenity.py`
+    - Removed benchmark-brand references and machine-specific absolute paths
+      from source, tests, README, docs, examples, and the plan log.
+    - Reworked the reference-VMEC and reference-executable tests so the shipped
+      test suite relies on:
+      - the external validation executable
+      - vendored reference HDF5 subsets
+      - NTX's own clean-room comparison/reference helpers
+      and no longer imports the benchmark source package directly.
+    - Added direct unit coverage for:
+      - CLI and `python -m ntx`
+      - input-file helpers and NPZ writing
+      - checkout discovery helpers
+      - extra database branches
+      - IO helper branches
+    - Current local validation passed:
+      - `python -m ruff check src/ntx tests scripts examples`
+      - `python -m mypy src/ntx`
+      - `python -m pytest -q` -> `121 passed, 2 skipped`
+      - `python -m pytest --cov=src/ntx --cov-report=term-missing -q`
+        -> `121 passed, 2 skipped`, total source coverage `93%`
+      - `python -m sphinx -b html docs docs/_build/html`
+- 2026-04-10: closed the coverage, clean-room, and release-quality QA pass.
+  - What worked:
+    - Removed the last public benchmark-source references and path-like leaks
+      from README, docs, examples, scripts, tests, and the plan log. A repo-wide
+      text scan now finds no benchmark-package names and no machine-specific
+      absolute paths.
+    - Added a targeted edge-case test pass for:
+      - VMEC and Boozer loader import/error branches
+      - checkout discovery fallbacks
+      - CLI fallback paths and `python -m ntx`
+      - NEOPAX shape validation and HDF5 attribute writers
+      - reference-helper interpolation and netCDF import errors
+      - SFINCS geometry comparison error handling
+    - Local validation now closes the requested `100%` source coverage target:
+      - `python -m pytest --cov=src/ntx --cov-report=term-missing -q`
+        -> `142 passed, 2 skipped`, total source coverage `100%`
+      - `python -m ruff check src/ntx tests scripts examples`
+      - `python -m mypy src/ntx`
+      - `python -m sphinx -b html docs docs/_build/html`
+      - `python -m build`
+      - `python -m twine check dist/*`
+    - `pip check` was also run as an environment sanity check. The reported
+      conflicts are global environment mismatches in unrelated installed
+      packages, not NTX package metadata failures.
+  - What did not:
+    - GPU tests remain skipped on this machine because no JAX GPU device is
+      available locally. The GPU lane still needs hardware execution for a final
+      non-simulated release check.

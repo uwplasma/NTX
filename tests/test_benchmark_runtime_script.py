@@ -15,17 +15,17 @@ def _env() -> dict[str, str]:
     return env
 
 
-def test_benchmark_against_reference_executable_script_cpu_skip_mode(tmp_path):
+def test_benchmark_reference_executable_script_cpu_skip_mode(tmp_path):
     output_path = tmp_path / "benchmark.json"
     proc = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "benchmark_against_reference_executable.py"),
+            str(ROOT / "scripts" / "benchmark_reference_executable.py"),
             "--case",
             "w7x_eim_smoke",
             "--platform",
             "cpu",
-            "--skip-reference_executable",
+            "--skip-reference",
             "--disable-preallocate",
             "--output-json",
             str(output_path),

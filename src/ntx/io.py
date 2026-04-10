@@ -69,8 +69,8 @@ _MAGNETIC_MODE_PATTERN = re.compile(
 def load_dkes_surface(path: str | Path) -> BoozerSurface:
     """Load a DKES-format `ddkes2.data` flux surface.
 
-    REFERENCE_EXECUTABLE stores the scalar geometry using the `datain` namelist and interprets
-    the Fourier entries as `borbi(n, m) = B_mn`.
+    The scalar geometry is stored in the `datain` namelist and the Fourier
+    entries are interpreted as `borbi(n, m) = B_mn`.
     """
 
     text = Path(path).read_text(encoding="utf-8")

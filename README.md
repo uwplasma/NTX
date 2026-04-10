@@ -11,33 +11,33 @@ release workflow for distribution artifacts.
 
 The current release solves for the monoenergetic geometric coefficients
 `D11`, `D31`, `D13`, `D33`, and the Spitzer `D33` normalization on DKES-style
-Boozer surfaces and on VMEC equilibria. The VMEC file path is backed by
-`vmec_jax`, and the Boozer file path is backed by `booz_xform_jax`. For
-imported JAX workflows, NTX also includes an explicit
-`vmec_jax -> booz_xform_jax -> NTX` path, a direct `vmec_jax` VMEC-harmonic
-path for NEOPAX-facing scans, and a direct NTX-to-NEOPAX mapping layer.
+Boozer surfaces and on VMEC equilibria. VMEC inputs are backed by `vmec_jax`,
+and Boozer inputs are backed by `booz_xform_jax`. For imported JAX workflows,
+NTX also includes an explicit `vmec_jax -> booz_xform_jax -> NTX` lane, a
+direct `vmec_jax` VMEC-harmonic lane for NEOPAX-facing scans, and a direct
+NTX-to-NEOPAX mapping layer.
 
-For reference-grade W7-X VMEC to NEOPAX comparisons, NTX now also includes a
-comparison-only path that mirrors Eduardo Neto's `vmec_neopax` REFERENCE_EXECUTABLE branch:
+For reference-grade W7-X VMEC to NEOPAX comparisons, NTX also includes a
+comparison-only lane aligned with the validated external reference workflow:
 
 - VMEC surfaces loaded from `wout` through `netCDF4`
 - Boozer-side electric-field and normalization factors loaded from `boozmn`
-- the same VMEC sign and interpolation conventions as
-  `Field.from_vmec_s(...)`
+- the same VMEC sign and interpolation conventions as the external reference
+  workflow
 - the same Legendre-resolution convention, with `nl` mapped to
   `GridSpec.n_xi = nl - 1`
 
 That path is exposed through:
 
-- `load_vmec_surface_reference_executable_reference(...)`
-- `reference_executable_vmec_factors(...)`
-- `build_reference_executable_reference_vmec_scan(...)`
+- `load_vmec_surface_reference(...)`
+- `vmec_reference_factors(...)`
+- `build_reference_vmec_scan(...)`
 - `examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py`
 
 The imported `vmec_jax -> booz_xform_jax -> NTX` path now uses that same
 handedness convention, so the transformed W7-X surface matches the file-backed
 `boozmn` transport reference on the local regression grid. For the W7-X NEOPAX
-database subset itself, the intended imported JAX parity path is the direct
+database subset itself, the intended imported JAX validation path is the direct
 `vmec_jax` VMEC-harmonic builder:
 
 - `surface_from_vmec_jax_vmec_wout(...)`
@@ -47,21 +47,21 @@ NTX now treats these as distinct imported workflows:
 
 - `vmec_jax -> booz_xform_jax -> NTX` is the Boozer-transform lane, validated
   locally against the `boozmn` transport reference
-- direct `vmec_jax` VMEC harmonics are the W7-X NEOPAX parity lane
+- direct `vmec_jax` VMEC harmonics are the W7-X NEOPAX validation lane
 
-NTX also now carries external REFERENCE_EXECUTABLE-generated omnigenous subset databases for
-three additional VMEC families:
+NTX also carries external-reference omnigenous subset databases for three
+additional VMEC families:
 
-- QA: `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qa_subset.h5`
-- QH: `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qh_subset.h5`
-- QI: `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qi_subset.h5`
+- QA: `tests/fixtures/benchmarks/omnigenity/external_reference_qa_subset.h5`
+- QH: `tests/fixtures/benchmarks/omnigenity/external_reference_qh_subset.h5`
+- QI: `tests/fixtures/benchmarks/omnigenity/external_reference_qi_subset.h5`
 
-These are generated from the local Eduardo-REFERENCE_EXECUTABLE checkout with
-`scripts/generate_reference_executable_omnigenity_references.py`. QA and QH close on the
+These are generated for external validation with
+`scripts/generate_reference_omnigenity_subsets.py`. QA and QH close on the
 subset to within about `3e-2` relative error on `D11`, `D13`, `D31`, and
 `D33`. QI now also closes on the vendored `rho = 0.25, 0.5` subset after
-matching Eduardo REFERENCE_EXECUTABLE' cubic VMEC half-grid interpolation in the
-comparison-only reference lane.
+matching the reference workflow's cubic VMEC half-grid interpolation in the
+comparison-only validation lane.
 
 ## Install
 
@@ -93,9 +93,9 @@ python -m pip install dist/*.whl
 Full local JAX geometry / transport stack:
 
 ```bash
-python -m pip install -e ../vmec_jax
-python -m pip install -e ../booz_xform_jax
-python -m pip install -e ../tests/NEOPAX
+python -m pip install -e <vmec_jax-checkout>
+python -m pip install -e <booz_xform_jax-checkout>
+python -m pip install -e <neopax-checkout>
 python -m pip install -e ".[dev,docs,io]"
 ```
 
@@ -139,14 +139,14 @@ python examples/neopax_with_ntx.py
 python examples/qi_neopax_with_ntx.py
 python examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py \
   --rho 0.25,0.5 --nu-v 1e-4,1e-3 --er-tilde 0.0,1e-3
-python scripts/generate_reference_executable_omnigenity_references.py
+python scripts/generate_reference_omnigenity_subsets.py --reference-exe <external-validation-executable>
 ```
 
 `ntx` prints a detailed Rich run summary and writes a compressed `.npz` with:
 
 - the resolved inputs
-- source-file metadata
-- source-file checksums
+- source metadata
+- source checksums
 - surface metadata
 - geometry arrays on the angular grid
 - transport coefficients
@@ -297,7 +297,7 @@ import vmec_jax as vj
 from ntx import GridSpec, MonoenergeticCase, solve_monoenergetic, surface_from_vmec_jax_state
 
 run = vj.run_fixed_boundary(
-    "../vmec_jax/examples/data/input.circular_tokamak",
+    "<vmec_jax-checkout>/examples/data/input.circular_tokamak",
     max_iter=1,
     use_initial_guess=True,
     vmec_project=False,
@@ -324,11 +324,11 @@ result = solve_monoenergetic(
 Reference W7-X VMEC to NEOPAX path:
 
 ```python
-from ntx import build_reference_executable_reference_vmec_scan, to_neopax_monoenergetic
+from ntx import build_reference_vmec_scan, to_neopax_monoenergetic
 
-scan = build_reference_executable_reference_vmec_scan(
-    "../tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
-    "../tests/NEOPAX/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
+scan = build_reference_vmec_scan(
+    "<neopax-checkout>/tests/inputs/wout_W7-X_standard_configuration.nc",
+    "<neopax-checkout>/tests/inputs/boozmn_wout_W7-X_standard_configuration.nc",
     rho=[0.25, 0.5],
     nu_v=[1e-4, 1e-3, 1e-2],
     er_tilde=[0.0, 1e-3, 1e-2],
@@ -339,8 +339,7 @@ scan = build_reference_executable_reference_vmec_scan(
 database = to_neopax_monoenergetic(scan, a_b=float(scan.a_b))
 ```
 
-This is the parity path against the existing W7-X NEOPAX database generated
-from Eduardo Neto's REFERENCE_EXECUTABLE `vmec_neopax` workflow.
+This is the validation path against the existing W7-X NEOPAX reference database.
 
 NTX-to-NEOPAX mapping:
 
@@ -356,11 +355,11 @@ from ntx import (
 )
 
 reference = load_neopax_reference_scan(
-    "../tests/NEOPAX/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+    "<neopax-checkout>/tests/inputs/Dij_NEOPAX_FULL_S_NEW_W7X.h5"
 )
 def surface_loader(rho_value: float):
     return surface_from_vmec_jax_vmec_wout_file(
-        "../tests/NEOPAX/tests/inputs/wout_W7-X_standard_configuration.nc",
+        "<neopax-checkout>/tests/inputs/wout_W7-X_standard_configuration.nc",
         s=rho_value**2,
     )
 
@@ -511,7 +510,7 @@ angular grid before assembling the Legendre blocks.
 The `.npz` payload includes:
 
 - run configuration and raw input text
-- source filename, file size, modification time, and SHA-256 checksum
+- source details including filename, size, modification time, and SHA-256 checksum
 - surface metadata and geometry metadata as JSON
 - algorithm metadata
 - angular grids and geometry arrays
@@ -544,7 +543,6 @@ Validation and benchmark scripts:
 
 - [scripts/compare_archived_benchmarks.py](scripts/compare_archived_benchmarks.py)
 - [scripts/compare_reference_executable.py](scripts/compare_reference_executable.py)
-- [scripts/benchmark_against_reference_executable.py](scripts/benchmark_against_reference_executable.py)
 
 Primary docs:
 
@@ -593,7 +591,7 @@ For a GPU check in your office environment:
 
 ```bash
 sh office
-cd /path/to/NTX
+cd <ntx-checkout>
 python -m pip install -e ".[dev,docs,io]"
 scripts/sh_office_gpu_smoke.sh
 ```
