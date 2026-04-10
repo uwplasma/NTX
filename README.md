@@ -593,5 +593,18 @@ For a GPU check in your office environment:
 sh office
 cd <ntx-checkout>
 python -m pip install -e ".[dev,docs,io]"
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
 scripts/sh_office_gpu_smoke.sh
 ```
+
+For runtime profiling, choose the backend explicitly:
+
+```bash
+python scripts/profile_runtime.py --backend cpu --output-json runtime-profile.json
+python scripts/profile_runtime.py --backend gpu --output-json runtime-profile-gpu.json
+```
+
+The final office hardware validation on 2026-04-10 closed with `2 passed` on
+the GPU smoke pytest run, and the regression script matched the DKES and VMEC
+smoke references to `9.44e-09` and `1.03e-12` maximum relative error,
+respectively.

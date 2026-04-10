@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
+
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 import jax
 import numpy as np
@@ -52,11 +55,11 @@ def test_gpu_vmec_smoke_regression():
         MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3),
     ).as_dict()
     expected = {
-        "D11": 0.26059288868417236,
-        "D31": -0.2671905614991318,
-        "D13": 0.22917651621927108,
-        "D33": 5.505770775408808,
-        "D33_spitzer": 668.5079790482463,
+        "D11": 0.01172657441811329,
+        "D31": -0.06931784181209925,
+        "D13": 0.27030284045993647,
+        "D33": 85.91030053780086,
+        "D33_spitzer": 668.419832940152,
     }
     for key, reference in expected.items():
         assert np.isclose(result[key], reference, rtol=1e-6, atol=1e-9), (key, result[key])

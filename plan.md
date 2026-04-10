@@ -110,6 +110,8 @@ Important environment facts found during planning:
 - [x] Generate external validation executable subset databases for QA, QH, and a parity-safe QI subset.
 - [x] Close the remaining QI `rho = 0.25` mismatch on the external-reference VMEC path.
 - [x] Add shipping-grade package and release workflows, with built-distribution validation.
+- [x] Finish final GPU hardware validation on the office machine and stabilize
+  the shared-GPU runtime path.
 
 ## Work Log
 
@@ -227,6 +229,48 @@ Important environment facts found during planning:
 - What did not:
   - The office environment still emits a third-party `flatbuffers.compat` deprecation
     warning during pytest. This did not affect correctness and no NTX change was needed.
+
+### 2026-04-10
+
+- Re-ran final GPU hardware validation on `office` from the current `main`
+  checkout after the shipping pass.
+- Synced the current NTX checkout to the office machine, installed
+  `.[dev,docs,io]`, and confirmed JAX saw two CUDA devices.
+- Updated stale VMEC smoke reference values in:
+  - `tests/test_gpu_smoke.py`
+  - `scripts/run_gpu_regression.py`
+  Those stale values were causing false GPU failures even though the actual
+  office GPU solve matched the current local solver output.
+- Hardened the GPU entrypoints by setting
+  `XLA_PYTHON_CLIENT_PREALLOCATE=false` before importing JAX in:
+  - `tests/test_gpu_smoke.py`
+  - `scripts/run_gpu_regression.py`
+  - `scripts/profile_runtime.py`
+  This fixed the shared-device `RESOURCE_EXHAUSTED`, cuFFT plan, and cubin-load
+  allocation failures seen in the first office rerun.
+- Added an explicit `--backend {cpu,gpu}` flag to
+  `scripts/profile_runtime.py` and added a focused backend-mismatch regression
+  in `tests/test_profile_script.py`.
+- What worked on office on 2026-04-10:
+  - `python3 -m pytest -m gpu -q tests/test_gpu_smoke.py` -> `2 passed`
+  - `python3 scripts/run_gpu_regression.py --output-json gpu-smoke-results.json`
+  - `python3 scripts/profile_runtime.py --backend cpu --output-json runtime-profile-cpu.json`
+  - `python3 scripts/profile_runtime.py --backend gpu --output-json runtime-profile-gpu.json`
+- Office GPU regression results:
+  - DKES smoke: steady `0.0553 s`, max relative error `9.44e-09`
+  - VMEC smoke: steady `0.0563 s`, max relative error `1.03e-12`
+- Office runtime profile results:
+  - CPU DKES 8-case scan steady: `0.979 s`
+  - CPU VMEC 8-case scan steady: `1.130 s`
+  - GPU DKES 8-case scan steady: `1.566 s`
+  - GPU VMEC 8-case scan steady: `1.280 s`
+- Interpretation:
+  - the GPU lane is numerically closed on real hardware
+  - at the current smoke-grid sizes, CPU remains faster for steady-state wall
+    time
+  - the batched GPU scan path is stable, but not yet the throughput winner on
+    these small grids
+  - the preallocation fix is required for reliable shared-GPU execution
 
 - Added a new imported JAX geometry lane:
   - `src/ntx/vmec_jax_backend.py`

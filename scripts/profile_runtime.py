@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from time import perf_counter
 
-os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
+os.environ.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -37,12 +37,25 @@ FIXTURES = ROOT / "tests" / "fixtures"
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--backend",
+        choices=("cpu", "gpu"),
+        default=None,
+        help="requested JAX backend for the profiling run",
+    )
+    parser.add_argument(
         "--output-json",
         type=Path,
         default=None,
         help="optional path for the JSON summary",
     )
     args = parser.parse_args(argv)
+    if args.backend is not None:
+        if args.backend == "gpu" and not any(device.platform == "gpu" for device in jax.devices()):
+            raise SystemExit("requested --backend=gpu but no JAX GPU device is available")
+        if jax.default_backend() != args.backend:
+            raise SystemExit(
+                f"requested --backend={args.backend} but JAX initialized {jax.default_backend()}"
+            )
     enable_x64(True)
 
     nu = jnp.logspace(-4, -2, 8)
