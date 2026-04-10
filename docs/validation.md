@@ -116,6 +116,33 @@ That lane is covered by differentiability tests on the scan electric field and
 by a QI VMEC round-trip test that writes and reloads a NEOPAX-style HDF5 file
 without depending on an external reference database.
 
+NTX now also vendors REFERENCE_EXECUTABLE-generated external reference subsets for the same
+omnigenous families:
+
+- `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qa_subset.h5`
+- `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qh_subset.h5`
+- `tests/fixtures/benchmarks/omnigenity/reference_executable_external_qi_subset.h5`
+
+Generate or refresh them with:
+
+```bash
+python scripts/generate_reference_executable_omnigenity_references.py
+```
+
+These subset databases are compared directly against
+`build_reference_executable_reference_vmec_scan(...)` in
+`tests/test_reference_executable_reference_omnigenity.py`.
+
+Current interpretation:
+
+- QA: closes to within about `2e-2` relative error on the external subset
+- QH: closes to within about `3e-2` relative error on the external subset
+- QI: the vendored external subset is currently restricted to `rho = 0.5`,
+  where the NTX/REFERENCE_EXECUTABLE comparison closes to roundoff
+- QI at `rho = 0.25` is still an open solver-side mismatch; the VMEC geometry
+  itself already matches REFERENCE_EXECUTABLE to roundoff, so the remaining spread is not a
+  file-format or coordinate-convention issue
+
 For the `sfincs_jax` geometry comparison, NTX applies a toroidal-angle
 convention conversion before comparing arrays:
 
