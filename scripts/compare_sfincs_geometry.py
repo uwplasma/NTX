@@ -15,6 +15,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from ntx import GridSpec, compare_vmec_geometry_to_sfincs
+from ntx._checkout_paths import find_sfincs_jax_root
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -30,10 +31,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--sfincs-repo",
         type=Path,
-        default=Path("/Users/rogeriojorge/local/tests/sfincs_jax"),
+        default=find_sfincs_jax_root(),
         help="path to a local sfincs_jax checkout",
     )
     args = parser.parse_args(argv)
+    if args.sfincs_repo is None:
+        raise SystemExit("sfincs_jax checkout not found; pass --sfincs-repo explicitly")
 
     payload = compare_vmec_geometry_to_sfincs(
         wout_path=args.wout,

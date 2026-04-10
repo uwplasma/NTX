@@ -34,7 +34,7 @@ KJM_SURFACE = ROOT / "fixtures" / "w7x_kjm_s0204.magnetic_configuration.dat"
 
 
 def test_read_reference_table_and_compare(tmp_path):
-    fixture = ROOT / "fixtures" / "reference_executable_reference_sample.dat"
+    fixture = ROOT / "fixtures" / "external_reference_sample.dat"
     path = tmp_path / "reference.dat"
     path.write_text(fixture.read_text(encoding="utf-8"), encoding="utf-8")
     table = read_monoenergetic_table(path)

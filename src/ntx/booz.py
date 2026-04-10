@@ -101,7 +101,7 @@ def load_boozmn_surface(
     buco_value = float(np.interp(s_value, s_profile, buco))
     bvco_value = float(np.interp(s_value, s_profile, bvco))
 
-    # Match the right-handed sign convention used in the JAX REFERENCE_EXECUTABLE field loader.
+    # Match the right-handed Boozer convention used by the external benchmark lane.
     iota_value = -iota_value
     buco_value = -buco_value
     sign = 1.0 if (bvco_value + iota_value * buco_value) >= 0.0 else -1.0

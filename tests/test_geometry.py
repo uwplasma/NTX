@@ -39,7 +39,7 @@ def test_flux_surface_average_of_constant_is_constant():
     assert jnp.allclose(value, 3.0)
 
 
-def test_load_dkes_surface_matches_reference_executable_sign_convention():
+def test_load_dkes_surface_matches_reference_sign_convention():
     fixture = Path(__file__).resolve().parent / "fixtures" / "w7x_eim_sample.ddkes2.data"
     surface = load_dkes_surface(fixture)
     assert surface.nfp == 5

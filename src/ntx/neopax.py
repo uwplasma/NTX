@@ -12,7 +12,7 @@ from jax import Array, tree_util
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from .solver import solve_monoenergetic_scan
-from .vmec_reference_executable import load_vmec_surface_reference_executable_reference, reference_executable_vmec_factors
+from .vmec_reference import load_vmec_surface_reference, vmec_reference_factors
 
 
 @dataclass(frozen=True)
@@ -39,9 +39,9 @@ class NeopaxScan:
     boozer_i: Array | None = None
     boozer_g: Array | None = None
     iota: Array | None = None
-    fac_reference_executable_to_sfincs_11: Array | None = None
-    fac_reference_executable_to_sfincs_31: Array | None = None
-    fac_reference_executable_to_sfincs_33: Array | None = None
+    fac_reference_to_sfincs_11: Array | None = None
+    fac_reference_to_sfincs_31: Array | None = None
+    fac_reference_to_sfincs_33: Array | None = None
     fac_sfincs_to_dkes_11: Array | None = None
     fac_sfincs_to_dkes_31: Array | None = None
     fac_sfincs_to_dkes_33: Array | None = None
@@ -74,9 +74,9 @@ tree_util.register_dataclass(
         "boozer_i",
         "boozer_g",
         "iota",
-        "fac_reference_executable_to_sfincs_11",
-        "fac_reference_executable_to_sfincs_31",
-        "fac_reference_executable_to_sfincs_33",
+        "fac_reference_to_sfincs_11",
+        "fac_reference_to_sfincs_31",
+        "fac_reference_to_sfincs_33",
         "fac_sfincs_to_dkes_11",
         "fac_sfincs_to_dkes_31",
         "fac_sfincs_to_dkes_33",
@@ -109,7 +109,7 @@ tree_util.register_dataclass(
 
 
 def load_neopax_reference_scan(path: str | Path) -> NeopaxScan:
-    """Load a NEOPAX/REFERENCE_EXECUTABLE-style HDF5 monoenergetic table."""
+    """Load a NEOPAX-style HDF5 monoenergetic table."""
 
     import h5py
 
@@ -134,9 +134,9 @@ def load_neopax_reference_scan(path: str | Path) -> NeopaxScan:
             boozer_i=_optional_dataset(handle, "I"),
             boozer_g=_optional_dataset(handle, "G"),
             iota=_optional_dataset(handle, "iota"),
-            fac_reference_executable_to_sfincs_11=_optional_dataset(handle, "Fac_REFERENCE_EXECUTABLE_TO_SFINCS_11"),
-            fac_reference_executable_to_sfincs_31=_optional_dataset(handle, "Fac_REFERENCE_EXECUTABLE_TO_SFINCS_31"),
-            fac_reference_executable_to_sfincs_33=_optional_dataset(handle, "Fac_REFERENCE_EXECUTABLE_TO_SFINCS_33"),
+            fac_reference_to_sfincs_11=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_11"),
+            fac_reference_to_sfincs_31=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_31"),
+            fac_reference_to_sfincs_33=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_33"),
             fac_sfincs_to_dkes_11=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_11"),
             fac_sfincs_to_dkes_31=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_31"),
             fac_sfincs_to_dkes_33=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_33"),
@@ -250,7 +250,7 @@ def build_ntx_neopax_scan_from_surfaces(
     )
 
 
-def build_reference_executable_reference_vmec_scan(
+def build_reference_vmec_scan(
     vmec_path: str | Path,
     booz_path: str | Path,
     *,
@@ -263,13 +263,13 @@ def build_reference_executable_reference_vmec_scan(
     min_bmn_to_load: float = 0.0,
     source_name: str | None = None,
 ) -> NeopaxScan:
-    """Build the W7-X VMEC monoenergetic database using Eduardo's REFERENCE_EXECUTABLE conventions."""
+    """Build the W7-X VMEC monoenergetic reference database scan."""
 
     rho_arr = jnp.asarray(rho)
     nu_arr = jnp.asarray(nu_v)
     er_tilde_arr = jnp.asarray(er_tilde)
     grid = GridSpec(n_theta=int(nt), n_zeta=int(nz), n_xi=int(nl) - 1)
-    factors = reference_executable_vmec_factors(vmec_path, booz_path, rho_arr)
+    factors = vmec_reference_factors(vmec_path, booz_path, rho_arr)
 
     es = er_tilde_arr[None, :] * factors.dr_tildeds[:, None] * factors.b00[:, None]
     er = er_tilde_arr[None, :] * factors.dr_tildedr[:, None] * factors.b00[:, None]
@@ -283,7 +283,7 @@ def build_reference_executable_reference_vmec_scan(
     d13_list = []
     d33_list = []
     for rho_value, es_row in zip(rho_arr, es, strict=True):
-        surface = load_vmec_surface_reference_executable_reference(
+        surface = load_vmec_surface_reference(
             vmec_path,
             s=float(rho_value**2),
             min_bmn_to_load=min_bmn_to_load,
@@ -316,9 +316,9 @@ def build_reference_executable_reference_vmec_scan(
         boozer_i=factors.boozer_i,
         boozer_g=factors.boozer_g,
         iota=factors.iota,
-        fac_reference_executable_to_sfincs_11=factors.fac_reference_executable_to_sfincs_11,
-        fac_reference_executable_to_sfincs_31=factors.fac_reference_executable_to_sfincs_31,
-        fac_reference_executable_to_sfincs_33=factors.fac_reference_executable_to_sfincs_33,
+        fac_reference_to_sfincs_11=factors.fac_reference_to_sfincs_11,
+        fac_reference_to_sfincs_31=factors.fac_reference_to_sfincs_31,
+        fac_reference_to_sfincs_33=factors.fac_reference_to_sfincs_33,
         fac_sfincs_to_dkes_11=factors.fac_sfincs_to_dkes_11,
         fac_sfincs_to_dkes_31=factors.fac_sfincs_to_dkes_31,
         fac_sfincs_to_dkes_33=factors.fac_sfincs_to_dkes_33,
@@ -330,7 +330,7 @@ def build_reference_executable_reference_vmec_scan(
 
 
 def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
-    """Write a NEOPAX/REFERENCE_EXECUTABLE-style HDF5 file from a scan payload."""
+    """Write a NEOPAX-style HDF5 file from a scan payload."""
 
     import h5py
 
@@ -355,9 +355,9 @@ def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
         _write_dataset(handle, "I", scan.boozer_i)
         _write_dataset(handle, "G", scan.boozer_g)
         _write_dataset(handle, "iota", scan.iota)
-        _write_dataset(handle, "Fac_REFERENCE_EXECUTABLE_TO_SFINCS_11", scan.fac_reference_executable_to_sfincs_11)
-        _write_dataset(handle, "Fac_REFERENCE_EXECUTABLE_TO_SFINCS_31", scan.fac_reference_executable_to_sfincs_31)
-        _write_dataset(handle, "Fac_REFERENCE_EXECUTABLE_TO_SFINCS_33", scan.fac_reference_executable_to_sfincs_33)
+        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_11", scan.fac_reference_to_sfincs_11)
+        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_31", scan.fac_reference_to_sfincs_31)
+        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_33", scan.fac_reference_to_sfincs_33)
         _write_dataset(handle, "Fac_SFINCS_TO_DKES_11", scan.fac_sfincs_to_dkes_11)
         _write_dataset(handle, "Fac_SFINCS_TO_DKES_31", scan.fac_sfincs_to_dkes_31)
         _write_dataset(handle, "Fac_SFINCS_TO_DKES_33", scan.fac_sfincs_to_dkes_33)
@@ -410,7 +410,7 @@ def scan_to_neopax_arrays(scan: NeopaxScan, *, a_b: float | Array) -> NeopaxMono
 def to_neopax_monoenergetic(scan: NeopaxScan, *, a_b: float):
     """Construct `NEOPAX.Monoenergetic` from NTX scan data.
 
-    This mapping follows NEOPAX's current REFERENCE_EXECUTABLE database conventions exactly,
+    This mapping follows the current NEOPAX monoenergetic database conventions,
     including the stored `drds` and `nu_v` rescalings.
     """
 

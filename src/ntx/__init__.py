@@ -21,9 +21,9 @@ from .io import (
 from .neopax import (
     NeopaxMonoenergeticArrays,
     NeopaxScan,
-    build_reference_executable_reference_vmec_scan,
     build_ntx_neopax_scan,
     build_ntx_neopax_scan_from_surfaces,
+    build_reference_vmec_scan,
     load_neopax_reference_scan,
     scan_to_neopax_arrays,
     to_neopax_monoenergetic,
@@ -46,7 +46,11 @@ from .solver import (
 from .transport import onsager_error
 from .vmec_jax_backend import surface_from_vmec_jax_state, surface_from_vmec_jax_wout
 from .vmec_jax_vmec import surface_from_vmec_jax_vmec_wout, surface_from_vmec_jax_vmec_wout_file
-from .vmec_reference_executable import ReferenceExecutableVmecFactors, load_vmec_surface_reference_executable_reference, reference_executable_vmec_factors
+from .vmec_reference import (
+    VmecReferenceFactors,
+    load_vmec_surface_reference,
+    vmec_reference_factors,
+)
 
 try:
     __version__ = version("ntx")
@@ -61,14 +65,14 @@ __all__ = [
     "GridSpec",
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
-    "ReferenceExecutableVmecFactors",
+    "VmecReferenceFactors",
     "NeopaxMonoenergeticArrays",
     "NeopaxScan",
     "PreparedMonoenergeticSystem",
     "TransportResult",
     "VmecSurface",
     "build_monoenergetic_database_arrays",
-    "build_reference_executable_reference_vmec_scan",
+    "build_reference_vmec_scan",
     "build_ntx_neopax_scan",
     "build_ntx_neopax_scan_from_surfaces",
     "compile_prepared_solver",
@@ -82,8 +86,8 @@ __all__ = [
     "load_magnetic_configuration_surface",
     "load_neopax_reference_scan",
     "load_vmec_surface",
-    "load_vmec_surface_reference_executable_reference",
-    "reference_executable_vmec_factors",
+    "load_vmec_surface_reference",
+    "vmec_reference_factors",
     "onsager_error",
     "prepare_monoenergetic_system",
     "run_from_input_file",

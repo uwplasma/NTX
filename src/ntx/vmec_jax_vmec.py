@@ -19,8 +19,8 @@ def surface_from_vmec_jax_vmec_wout(
 ) -> VmecSurface:
     """Build a VMEC harmonic surface from an in-memory `vmec_jax` wout object.
 
-    This path matches the VMEC harmonic conventions used by Eduardo Neto's
-    `vmec_neopax` REFERENCE_EXECUTABLE branch while staying inside the `vmec_jax` stack for
+    This path matches the VMEC harmonic conventions used by the external W7-X
+    reference-database workflow while staying inside the `vmec_jax` stack for
     file decoding and in-memory data access.
     """
 

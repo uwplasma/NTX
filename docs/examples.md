@@ -84,7 +84,7 @@ print(result.as_dict())
 
 ```bash
 python examples/vmec_jax_booz_xform_jax_ntx.py \
-  --input ../vmec_jax/examples/data/input.circular_tokamak \
+  --input <vmec_jax-checkout>/examples/data/input.circular_tokamak \
   --s 0.25 --mboz 6 --nboz 0
 ```
 
@@ -93,7 +93,7 @@ This example:
 - runs a small `vmec_jax` equilibrium solve
 - transforms the selected surface with `booz_xform_jax`
 - solves Escoto's monoenergetic system directly in NTX
-- exercises the Boozer-transform workflow rather than the W7-X NEOPAX parity lane
+- exercises the Boozer-transform workflow rather than the W7-X NEOPAX validation lane
 
 ## NTX To NEOPAX
 
@@ -143,32 +143,32 @@ suite as extra `vmec_jax -> booz_xform_jax -> NTX` transform-vs-Boozer checks.
 The QI family extends the imported VMEC-harmonic and NEOPAX-array validation
 coverage beyond the original W7-X/QI fixtures already in the repository.
 
-The repository also vendors external REFERENCE_EXECUTABLE subset databases for these families
-under `tests/fixtures/benchmarks/omnigenity/`. Refresh them with:
+The repository also vendors external-validation subset databases for these
+families. Refresh them with:
 
 ```bash
-python scripts/generate_reference_executable_omnigenity_references.py
+python scripts/generate_reference_omnigenity_subsets.py
 ```
 
 Those subsets are the current cross-code parity gate for QA and QH, plus the
 parity-safe `rho = 0.5` subset for QI.
 
-## W7-X Reference Database
+## W7-X Reference Validation
 
 ```bash
 python examples/DKES_like_database/Test_Monoenergetic_database_VMEC_s_coordinate_W7X.py \
   --rho 0.25,0.5 --nu-v 1e-4,1e-3 --er-tilde 0.0,1e-3
 ```
 
-This example mirrors the W7-X VMEC database workflow used by Eduardo Neto's
-`vmec_neopax` REFERENCE_EXECUTABLE branch:
+This example mirrors the W7-X VMEC database workflow used by the existing
+reference NEOPAX dataset:
 
 - VMEC harmonics come from the `wout` file
 - Boozer-side conversion factors come from the `boozmn` file
 - the output is a NEOPAX-style HDF5 table with `D11`, `D13`, `D31`, `D33`, and
   the stored electric-field conversion factors
 
-Use this example when you want direct parity against the existing W7-X NEOPAX
-reference database. Use the separate `vmec_jax -> booz_xform_jax` example when
-you specifically want the Boozer-transform JAX lane rather than the W7-X NEOPAX
-parity lane.
+Use this example when you want direct validation against the existing W7-X
+NEOPAX reference database. Use the separate `vmec_jax -> booz_xform_jax`
+example when you specifically want the Boozer-transform JAX lane rather than
+the W7-X NEOPAX validation lane.

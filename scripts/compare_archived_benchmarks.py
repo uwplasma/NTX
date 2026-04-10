@@ -115,7 +115,7 @@ def _compare_w7x_eim() -> dict[str, object]:
             )
     return {
         "name": "W7X-EIM",
-        "surface_path": str(FIXTURES / "w7x_eim_full.ddkes2.data"),
+        "surface_path": "w7x_eim_full.ddkes2.data",
         "grid": {"n_theta": 23, "n_zeta": 55, "n_xi": 80},
         "comparisons": comparisons,
     }
@@ -167,7 +167,7 @@ def _compare_w7x_kjm() -> dict[str, object]:
         )
     return {
         "name": "W7X-KJM",
-        "surface_path": str(FIXTURES / "w7x_kjm_s0204.magnetic_configuration.dat"),
+        "surface_path": "w7x_kjm_s0204.magnetic_configuration.dat",
         "grid": {"n_theta": 19, "n_zeta": 79, "n_xi": 180},
         "comparisons": comparisons,
     }
@@ -217,7 +217,7 @@ def _compare_ciemat_qi() -> dict[str, object]:
         comparisons.append(comparison)
     return {
         "name": "CIEMAT-QI",
-        "surface_path": str(FIXTURES / "ciemat_qi_s0250.ddkes2.data"),
+        "surface_path": "ciemat_qi_s0250.ddkes2.data",
         "grid": {"n_theta": 47, "n_zeta": 215, "n_xi": 160},
         "comparisons": comparisons,
     }
