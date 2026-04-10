@@ -4,10 +4,17 @@
 from __future__ import annotations
 
 import argparse
+import sys
+from pathlib import Path
 
 import jax.numpy as jnp
 
-from ntx._checkout_paths import find_vmec_jax_example_input
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from ntx._checkout_paths import find_vmec_jax_example_input  # noqa: E402
 
 
 def main() -> None:

@@ -55,9 +55,9 @@ three additional VMEC families:
 These are generated from the local Eduardo-REFERENCE_EXECUTABLE checkout with
 `scripts/generate_reference_executable_omnigenity_references.py`. QA and QH close on the
 subset to within about `3e-2` relative error on `D11`, `D13`, `D31`, and
-`D33`. The current QI subset is intentionally limited to `rho = 0.5`, where
-the NTX/REFERENCE_EXECUTABLE comparison closes to roundoff. The `rho = 0.25` QI point
-remains an open solver-side audit and is tracked in `plan.md`.
+`D33`. QI now also closes on the vendored `rho = 0.25, 0.5` subset after
+matching Eduardo REFERENCE_EXECUTABLE' cubic VMEC half-grid interpolation in the
+comparison-only reference lane.
 
 ## Install
 

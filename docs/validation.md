@@ -137,11 +137,9 @@ Current interpretation:
 
 - QA: closes to within about `2e-2` relative error on the external subset
 - QH: closes to within about `3e-2` relative error on the external subset
-- QI: the vendored external subset is currently restricted to `rho = 0.5`,
-  where the NTX/REFERENCE_EXECUTABLE comparison closes to roundoff
-- QI at `rho = 0.25` is still an open solver-side mismatch; the VMEC geometry
-  itself already matches REFERENCE_EXECUTABLE to roundoff, so the remaining spread is not a
-  file-format or coordinate-convention issue
+- QI: closes on the vendored `rho = 0.25, 0.5` subset after switching the
+  comparison-only VMEC reference loader to the same cubic half-grid
+  interpolation used by Eduardo REFERENCE_EXECUTABLE
 
 For the `sfincs_jax` geometry comparison, NTX applies a toroidal-angle
 convention conversion before comparing arrays:

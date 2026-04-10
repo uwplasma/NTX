@@ -15,6 +15,7 @@ authors = [
 dependencies = [
   "jax",
   "jaxlib",
+  "interpax",
   "numpy",
   "rich",
   "scipy",

@@ -4,10 +4,16 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 import jax.numpy as jnp
 
-from ntx._checkout_paths import find_neopax_root
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from ntx._checkout_paths import find_neopax_root  # noqa: E402
 
 NEOPAX_ROOT = find_neopax_root()
 if NEOPAX_ROOT is None:

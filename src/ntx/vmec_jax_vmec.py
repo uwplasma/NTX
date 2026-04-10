@@ -53,7 +53,7 @@ def surface_from_vmec_jax_vmec_wout(
     bsubvmnc = _interp_mode_columns(
         s_half, np.asarray(wout.bsubvmnc, dtype=np.float64)[1:, :], s
     )
-    iota = -float(np.interp(float(s), s_full, np.asarray(wout.iotaf, dtype=np.float64)))
+    iota = -float(_interp_profile(s_full, np.asarray(wout.iotaf, dtype=np.float64), s))
 
     b0 = float(np.max(np.abs(bmnc)))
     if b0 == 0.0:
@@ -127,6 +127,16 @@ def surface_from_vmec_jax_vmec_wout_file(
 def _interp_mode_columns(x: np.ndarray, values: np.ndarray, xq: float) -> np.ndarray:
     if values.ndim != 2:
         raise ValueError("expected a 2D `(radius, mode)` array")
-    return np.asarray(
-        [np.interp(float(xq), x, values[:, index]) for index in range(values.shape[1])]
+    return np.asarray(_interp_profile(x, values, xq), dtype=np.float64)
+
+
+def _interp_profile(x: np.ndarray, values: np.ndarray, xq):
+    import interpax
+
+    return interpax.interp1d(
+        jnp.asarray(xq, dtype=jnp.float64),
+        jnp.asarray(x, dtype=jnp.float64),
+        jnp.asarray(values, dtype=jnp.float64),
+        method="cubic",
+        extrap=True,
     )

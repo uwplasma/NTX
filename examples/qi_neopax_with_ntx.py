@@ -4,19 +4,23 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import jax.numpy as jnp
 
-from ntx import (
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from ntx import (  # noqa: E402
     GridSpec,
     build_ntx_neopax_scan_from_surfaces,
     load_vmec_surface,
     scan_to_neopax_arrays,
     write_neopax_scan_hdf5,
 )
-
-ROOT = Path(__file__).resolve().parents[1]
 
 
 def parse_args() -> argparse.Namespace:
