@@ -109,6 +109,7 @@ Important environment facts found during planning:
 - [x] Add QA, QH, and QI omnigenous validation fixtures from the local study set.
 - [x] Generate external REFERENCE_EXECUTABLE subset databases for QA, QH, and a parity-safe QI subset.
 - [x] Close the remaining QI `rho = 0.25` mismatch on the Eduardo-REFERENCE_EXECUTABLE-reference VMEC path.
+- [x] Add shipping-grade package and release workflows, with built-distribution validation.
 
 ## Work Log
 
@@ -1099,3 +1100,33 @@ Important environment facts found during planning:
       warning for `actions/checkout@v4` and `actions/setup-python@v5`; this is
       not an NTX code failure, but the workflow should be bumped when the
       action authors publish their next stable versions.
+
+- 2026-04-10: added the first shipping-oriented package and release lane.
+  - What worked:
+    - Added shipping metadata to `pyproject.toml`, including classifiers,
+      keywords, package URLs, and build/test-publish development tools.
+    - Added `src/ntx/__main__.py` so the installed package supports both:
+      - `ntx ...`
+      - `python -m ntx ...`
+    - Added release-facing repository files:
+      - `LICENSE`
+      - `CHANGELOG.md`
+      - `docs/release.md`
+    - Added CI workflows:
+      - `tests.yml` updated to `actions/checkout@v5` and `actions/setup-python@v6`
+      - `package.yml` for wheel/sdist build, `twine check`, and clean-install
+        smoke tests across Python `3.10` to `3.12`
+      - `release.yml` for tag-driven GitHub release artifact publishing
+    - Added shipping tests in `tests/test_packaging.py`.
+    - Local shipping validation passed:
+      - `python -m ruff check .`
+      - `python -m mypy src/ntx`
+      - `python -m pytest -q` -> `96 passed, 2 skipped`
+      - `python -m sphinx -b html docs docs/_build/html`
+      - `python -m build`
+      - `python -m twine check dist/*`
+      - clean wheel install smoke test
+      - clean sdist install smoke test
+  - What did not:
+    - Nothing substantive in the shipping lane after the patch. The next work
+      is broader release hardening, not a broken packaging path.

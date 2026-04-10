@@ -1,5 +1,7 @@
 """JAX-native monoenergetic neoclassical transport solver."""
 
+from importlib.metadata import PackageNotFoundError, version
+
 from .booz import BoozmnSurface, load_boozmn_surface
 from .config import enable_x64
 from .database import (
@@ -46,7 +48,13 @@ from .vmec_jax_backend import surface_from_vmec_jax_state, surface_from_vmec_jax
 from .vmec_jax_vmec import surface_from_vmec_jax_vmec_wout, surface_from_vmec_jax_vmec_wout_file
 from .vmec_reference_executable import ReferenceExecutableVmecFactors, load_vmec_surface_reference_executable_reference, reference_executable_vmec_factors
 
+try:
+    __version__ = version("ntx")
+except PackageNotFoundError:
+    __version__ = "0.1.0"
+
 __all__ = [
+    "__version__",
     "BoozmnSurface",
     "BoozerSurface",
     "CompiledPreparedSolver",

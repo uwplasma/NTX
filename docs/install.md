@@ -8,6 +8,27 @@ Runtime install:
 python -m pip install -e .
 ```
 
+Installed package entrypoints:
+
+```bash
+ntx --help
+python -m ntx --help
+```
+
+## From A Built Distribution
+
+Build wheel and sdist:
+
+```bash
+python -m build
+```
+
+Install the built wheel:
+
+```bash
+python -m pip install dist/*.whl
+```
+
 Development install:
 
 ```bash
@@ -44,6 +65,8 @@ ruff check .
 mypy src/ntx
 pytest -q
 sphinx-build -b html docs docs/_build/html
+python -m build
+python -m twine check dist/*
 ```
 
 ## CPU And GPU
