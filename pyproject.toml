@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://ntx.readthedocs.io"
+Documentation = "https://github.com/uwplasma/NTX/tree/main/docs"
 Changelog = "https://github.com/uwplasma/NTX/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]

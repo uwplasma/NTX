@@ -1128,5 +1128,7 @@ Important environment facts found during planning:
       - clean wheel install smoke test
       - clean sdist install smoke test
   - What did not:
-    - Nothing substantive in the shipping lane after the patch. The next work
-      is broader release hardening, not a broken packaging path.
+    - The first pushed `tests` and `package` workflow runs did not start on
+      GitHub-hosted runners because the organization currently has a billing or
+      spending-limit blocker on Actions. This is an account-side blocker, not a
+      repository workflow failure.
