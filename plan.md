@@ -108,7 +108,7 @@ Important environment facts found during planning:
 - [x] Scrub machine-specific absolute paths from source, tests, examples, and docs.
 - [x] Add QA, QH, and QI omnigenous validation fixtures from the local study set.
 - [x] Generate external REFERENCE_EXECUTABLE subset databases for QA, QH, and a parity-safe QI subset.
-- [ ] Close the remaining QI `rho = 0.25` solver-side mismatch on the Eduardo-REFERENCE_EXECUTABLE-reference VMEC path.
+- [x] Close the remaining QI `rho = 0.25` mismatch on the Eduardo-REFERENCE_EXECUTABLE-reference VMEC path.
 
 ## Work Log
 
@@ -293,7 +293,38 @@ Important environment facts found during planning:
     `rho = 0.5` point where NTX and REFERENCE_EXECUTABLE agree.
 - What did not:
   - QI at `rho = 0.25` still differs strongly from REFERENCE_EXECUTABLE even after enforcing
-    x64 and confirming geometry parity. This remains an open solver-side audit.
+  x64 and confirming geometry parity. This remains an open solver-side audit.
+
+- Continued the QI audit on the relocated checkout at `local/NTX`.
+- Compared the NTX operator against Eduardo REFERENCE_EXECUTABLE on the QI `rho = 0.25` point
+  and found that the mismatch was not in the block-tridiagonal solve itself:
+  NTX's Schur recursion matched an independent block-tridiagonal solve on the
+  same NTX operator.
+- Isolated the actual bug to the comparison-only VMEC reference loader:
+  `load_vmec_surface_reference_executable_reference(...)` was using linear interpolation,
+  while Eduardo REFERENCE_EXECUTABLE uses `interpax.interp1d(..., method='cubic')` on the
+  VMEC half-grid and related radial profiles.
+- Updated `src/ntx/vmec_reference_executable.py` so the comparison-only VMEC path now uses
+  `interpax` cubic interpolation for:
+  - the VMEC half-grid mode tables
+  - `iotaf`
+  - the Boozer-side `B00`, `R00`, `I`, `G`, and `iota` conversion profiles
+- Re-ran the QI geometry check and closed the pointwise geometry gap to
+  roundoff at both `rho = 0.25` and `rho = 0.5`.
+- Re-ran the QI transport comparison and closed the `rho = 0.25` and
+  `rho = 0.5` subset to roundoff against direct Eduardo REFERENCE_EXECUTABLE solves.
+- Regenerated the vendored external QI subset database so it now includes both
+  `rho = 0.25` and `rho = 0.5`.
+- Added `interpax` as an NTX dependency because the comparison/reference lane
+  and its tests now rely on the same cubic interpolation used by Eduardo REFERENCE_EXECUTABLE.
+- What worked:
+  - The QI mismatch was a reference-loader interpolation mismatch, not a dense
+    solver bug.
+  - QA, QH, and QI now all have real external REFERENCE_EXECUTABLE subset databases vendored
+    in the repository.
+- What did not:
+  - Nothing new on this path after the interpolation fix; the remaining open
+    items are elsewhere in the broader plan.
 
 - Installed-stack validation on 2026-04-08:
   - `python -m pip install -e ../vmec_jax` succeeded
@@ -1039,3 +1070,32 @@ Important environment facts found during planning:
     - QA and QH extend the transform-vs-Boozer validation lane, but they still
       do not have external NEOPAX-style reference databases in the repository,
       so they are not database-parity gates yet.
+- 2026-04-09: relocated the working checkout to `local/NTX`, closed the QI
+  `rho = 0.25` external-reference mismatch, and aligned the direct `vmec_jax`
+  parity lane with the same interpolation convention.
+  - What worked:
+    - Moved the repository from `local/.NTX` to `local/NTX` and continued all
+      validation from the new checkout path.
+    - Verified the last pre-push GitHub Actions run from the relocated checkout
+      was green before proceeding with new changes.
+    - Traced the remaining QI `rho = 0.25` mismatch to the comparison-only VMEC
+      reference loader, not to NTX's dense block-tridiagonal solve.
+    - Updated `src/ntx/vmec_reference_executable.py` to use `interpax` cubic interpolation for
+      VMEC half-grid mode tables and related radial profiles, matching Eduardo
+      REFERENCE_EXECUTABLE.
+    - Updated `src/ntx/vmec_jax_vmec.py` to use the same cubic interpolation for
+      the direct `vmec_jax` imported parity lane.
+    - Regenerated the vendored QA/QH/QI external REFERENCE_EXECUTABLE subset databases from
+      the new checkout.
+    - Added standalone example path bootstrapping so example scripts can be run
+      directly from the repository without requiring an editable NTX install.
+    - Validation passed from `local/NTX`:
+      - `python -m ruff check .`
+      - `python -m mypy src/ntx`
+      - `python -m pytest -q` -> `94 passed, 2 skipped`
+      - `python -m sphinx -b html docs docs/_build/html`
+  - What did not:
+    - The GitHub-hosted workflow still emits the upstream Node 20 deprecation
+      warning for `actions/checkout@v4` and `actions/setup-python@v5`; this is
+      not an NTX code failure, but the workflow should be bumped when the
+      action authors publish their next stable versions.

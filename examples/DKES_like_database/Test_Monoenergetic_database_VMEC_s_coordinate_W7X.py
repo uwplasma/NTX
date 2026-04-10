@@ -3,18 +3,24 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import jax.numpy as jnp
 
-from ntx import (
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from ntx import (  # noqa: E402
     build_reference_executable_reference_vmec_scan,
     enable_x64,
     load_neopax_reference_scan,
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
-from ntx._checkout_paths import find_neopax_root
+from ntx._checkout_paths import find_neopax_root  # noqa: E402
 
 NEOPAX_ROOT = find_neopax_root()
 DEFAULT_WOUT = (
