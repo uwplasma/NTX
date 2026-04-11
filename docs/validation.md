@@ -19,12 +19,13 @@ The default test suite covers:
 - imported NEOPAX-array and HDF5 mapping helpers
 - `vmec_jax` and `booz_xform_jax` integration points
 - serial versus device-parallel scan equivalence
+- serial versus multiprocess scan equivalence
 
 ## Current Local Status
 
 Latest local suite:
 
-- `99 passed, 2 skipped`
+- `101 passed, 2 skipped`
 
 The two skipped tests are the GPU smoke tests on non-GPU machines.
 
@@ -69,6 +70,7 @@ To profile device-parallel scans:
 
 ```bash
 python scripts/profile_parallel_runtime.py --output-json parallel-runtime.json
+python scripts/profile_multiprocess_runtime.py --backend cpu --workers 2
 ```
 
 On a local workstation, host-device emulation can be forced in a fresh process:
@@ -77,10 +79,16 @@ On a local workstation, host-device emulation can be forced in a fresh process:
 XLA_FLAGS=--xla_force_host_platform_device_count=4 python scripts/profile_parallel_runtime.py
 ```
 
-On office hardware, the profiler reports both visible GPUs and the subset that
-passes an NTX smoke solve. Under the current office stack, `cuda:1` is visible
-to JAX but does not pass the NTX dense-solve smoke check, so the guarded
-parallel helper excludes it automatically.
+On office hardware, the single-process profiler reports both visible GPUs and
+the subset that passes an NTX smoke solve. Under the current office stack,
+`cuda:1` is visible to JAX but does not pass the NTX dense-solve smoke check in
+single-process mode, so the guarded parallel helper excludes it automatically.
+
+The multiprocess profiler shows that both office GPUs are numerically healthy
+when each worker process is pinned to one GPU with `CUDA_VISIBLE_DEVICES`. For
+the repository smoke grids that path is still slower than the serial batched
+scan, so it should be treated as a throughput lane for larger jobs rather than
+the default path for small scans.
 
 ## NEOPAX Compatibility
 

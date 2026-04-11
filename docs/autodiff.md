@@ -20,6 +20,7 @@ The figure is written to:
 
 ```text
 docs/_static/autodiff_inverse_problem.png
+docs/_static/autodiff_inverse_problem.pdf
 ```
 
 It shows:
@@ -45,6 +46,7 @@ The figure is written to:
 
 ```text
 docs/_static/autodiff_neopax_profiles.png
+docs/_static/autodiff_neopax_profiles.pdf
 ```
 
 It shows:
@@ -58,17 +60,24 @@ It shows:
 
 ## Parallel Execution
 
-Large scans do not need to stay on one device. NTX now provides a
-device-parallel scan helper:
+Large scans do not need to stay on one device. NTX currently exposes two
+parallel paths:
 
 ```python
 from ntx import solve_monoenergetic_parallel_scan
+from ntx import solve_monoenergetic_multiprocess_scan
 ```
+
+`solve_monoenergetic_parallel_scan(...)` keeps execution inside one Python
+process and is the lightest-weight option when all visible devices are healthy.
+`solve_monoenergetic_multiprocess_scan(...)` runs one worker process per device
+and is the robust option when the platform shows process-local solver behavior.
 
 For local profiling:
 
 ```bash
 python scripts/profile_parallel_runtime.py --output-json parallel-runtime.json
+python scripts/profile_multiprocess_runtime.py --backend cpu --workers 2
 ```
 
 For multi-CPU emulation on a workstation, start the script in a fresh process
@@ -78,5 +87,9 @@ with:
 XLA_FLAGS=--xla_force_host_platform_device_count=4 python scripts/profile_parallel_runtime.py
 ```
 
-The same API is intended to scale to multi-GPU runs on machines with multiple
-visible accelerators.
+On the office workstation, the single-process path exposes a cuSolver failure
+mode on `cuda:1`, while the multiprocess pinned-device path is numerically
+correct on both GPUs. For the repository smoke cases the multiprocess path is
+still slower than the serial batched solve because worker startup dominates, so
+it should be treated as a throughput lane for larger scans rather than a
+default for small studies.

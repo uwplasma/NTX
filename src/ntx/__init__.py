@@ -34,6 +34,7 @@ from .neopax import (
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
+from .parallel import solve_monoenergetic_multiprocess_scan
 from .solver import (
     CompiledPreparedSolver,
     MonoenergeticCase,
@@ -93,6 +94,7 @@ __all__ = [
     "scan_to_neopax_arrays",
     "solve_monoenergetic",
     "solve_monoenergetic_internal",
+    "solve_monoenergetic_multiprocess_scan",
     "solve_monoenergetic_parallel_scan",
     "solve_monoenergetic_scan",
     "solve_prepared",
