@@ -24,7 +24,7 @@ The default test suite covers:
 
 Latest local suite:
 
-- `94 passed, 2 skipped`
+- `99 passed, 2 skipped`
 
 The two skipped tests are the GPU smoke tests on non-GPU machines.
 
