@@ -2,6 +2,12 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
+from .autodiff import (
+    InverseProblemResult,
+    NeopaxProfileAutodiffResult,
+    example_inverse_problem,
+    example_neopax_profile_autodiff,
+)
 from .booz import BoozmnSurface, load_boozmn_surface
 from .config import enable_x64
 from .database import (
@@ -34,9 +40,11 @@ from .solver import (
     PreparedMonoenergeticSystem,
     TransportResult,
     compile_prepared_solver,
+    local_parallel_device_count,
     prepare_monoenergetic_system,
     solve_monoenergetic,
     solve_monoenergetic_internal,
+    solve_monoenergetic_parallel_scan,
     solve_monoenergetic_scan,
     solve_prepared,
     solve_prepared_internal,
@@ -76,12 +84,14 @@ __all__ = [
     "load_magnetic_configuration_surface",
     "load_neopax_reference_scan",
     "load_vmec_surface",
+    "local_parallel_device_count",
     "onsager_error",
     "prepare_monoenergetic_system",
     "run_from_input_file",
     "scan_to_neopax_arrays",
     "solve_monoenergetic",
     "solve_monoenergetic_internal",
+    "solve_monoenergetic_parallel_scan",
     "solve_monoenergetic_scan",
     "solve_prepared",
     "solve_prepared_internal",
@@ -92,4 +102,8 @@ __all__ = [
     "surface_from_vmec_jax_vmec_wout_file",
     "to_neopax_monoenergetic",
     "write_neopax_scan_hdf5",
+    "InverseProblemResult",
+    "NeopaxProfileAutodiffResult",
+    "example_inverse_problem",
+    "example_neopax_profile_autodiff",
 ]

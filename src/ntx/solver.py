@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -289,46 +290,76 @@ def solve_monoenergetic_scan(
     """Vectorized scan over collisionality and radial electric field."""
 
     prepared = prepare_monoenergetic_system(surface, grid)
-    geom = prepared.geometry
-    if epsi_hat is not None and er_hat is not None:
-        msg = "set only one of epsi_hat or er_hat"
+    nu_values, epsi_values, output_shape = _resolved_scan_inputs(
+        prepared,
+        grid,
+        nu_hat,
+        epsi_hat,
+        er_hat,
+    )
+    coeffs = _scan_coefficients_serial(prepared, nu_values.ravel(), epsi_values.ravel())
+    return _coefficients_dict(coeffs.reshape((*output_shape, 5)))
+
+
+def solve_monoenergetic_parallel_scan(
+    surface: BoozerSurface | VmecSurface,
+    grid: GridSpec,
+    nu_hat: Array,
+    *,
+    epsi_hat: Array | None = None,
+    er_hat: Array | None = None,
+    num_devices: int | None = None,
+) -> dict[str, Array]:
+    """Device-parallel scan over collisionality and radial electric field.
+
+    This path shards the flattened scan across local devices using `jax.pmap`.
+    It is intended for larger scans where compile overhead can be amortized.
+    """
+
+    prepared = prepare_monoenergetic_system(surface, grid)
+    nu_values, epsi_values, output_shape = _resolved_scan_inputs(
+        prepared,
+        grid,
+        nu_hat,
+        epsi_hat,
+        er_hat,
+    )
+    flat_nu = nu_values.ravel()
+    flat_epsi = epsi_values.ravel()
+    available_devices = jax.local_device_count()
+    device_count = available_devices if num_devices is None else min(num_devices, available_devices)
+    if device_count < 1:
+        msg = "no local JAX devices are available for parallel execution"
         raise ValueError(msg)
-    nu_values = jnp.asarray(nu_hat, dtype=grid.jax_dtype)
-    if epsi_hat is None:
-        if er_hat is None:
-            epsi_values = jnp.zeros_like(nu_values)
-        else:
-            if geom.transport_psi_scale is None:
-                msg = "er_hat scans require a surface with a transport normalization scale"
-                raise ValueError(msg)
-            epsi_values = jnp.asarray(er_hat, dtype=grid.jax_dtype) / geom.transport_psi_scale
-    else:
-        epsi_values = jnp.asarray(epsi_hat, dtype=grid.jax_dtype)
-    nu_values, epsi_values = jnp.broadcast_arrays(nu_values, epsi_values)
-    output_shape = nu_values.shape
+    if flat_nu.size == 0:
+        coeffs = jnp.zeros((*output_shape, 5), dtype=grid.jax_dtype)
+        return _coefficients_dict(coeffs)
+    if device_count == 1:
+        coeffs = _scan_coefficients_serial(prepared, flat_nu, flat_epsi)
+        return _coefficients_dict(coeffs.reshape((*output_shape, 5)))
 
-    def solve_one(nu_value, epsi_value):
-        ctx = _operator_context(prepared.surface, geom, grid, nu_value, epsi_value)
-        s1, s3 = source_modes(ctx, grid.n_xi)
-        f1_modes, f3_modes = _solve_modes(
-            ctx,
-            grid.n_xi,
-            prepared.d_theta,
-            prepared.d_zeta,
-            s1,
-            s3,
-        )
-        return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
+    shard_count = min(device_count, flat_nu.size)
+    shard_size = math.ceil(flat_nu.size / shard_count)
+    padded_size = shard_size * shard_count
+    pad = padded_size - flat_nu.size
+    if pad:
+        flat_nu = jnp.pad(flat_nu, (0, pad), mode="edge")
+        flat_epsi = jnp.pad(flat_epsi, (0, pad), mode="edge")
+    nu_shards = flat_nu.reshape((shard_count, shard_size))
+    epsi_shards = flat_epsi.reshape((shard_count, shard_size))
 
-    coeffs = jax.jit(jax.vmap(solve_one))(nu_values.ravel(), epsi_values.ravel())
-    coeffs = coeffs.reshape((*output_shape, 5))
-    return {
-        "D11": coeffs[..., 0],
-        "D31": coeffs[..., 1],
-        "D13": coeffs[..., 2],
-        "D33": coeffs[..., 3],
-        "D33_spitzer": coeffs[..., 4],
-    }
+    solve_batch = jax.pmap(
+        lambda nu_batch, epsi_batch: _scan_coefficients_serial(prepared, nu_batch, epsi_batch)
+    )
+    coeffs = solve_batch(nu_shards, epsi_shards).reshape((padded_size, 5))
+    coeffs = coeffs[: nu_values.size]
+    return _coefficients_dict(coeffs.reshape((*output_shape, 5)))
+
+
+def local_parallel_device_count() -> int:
+    """Return the number of local devices available to JAX parallel scans."""
+
+    return jax.local_device_count()
 
 
 def _solve_modes(
@@ -504,3 +535,63 @@ def _operator_context(
         nu_hat=jnp.asarray(nu_hat, dtype=grid.jax_dtype),
         epsi_hat=jnp.asarray(epsi_hat, dtype=grid.jax_dtype),
     )
+
+
+def _resolved_scan_inputs(
+    prepared: PreparedMonoenergeticSystem,
+    grid: GridSpec,
+    nu_hat: Array,
+    epsi_hat: Array | None,
+    er_hat: Array | None,
+) -> tuple[Array, Array, tuple[int, ...]]:
+    geom = prepared.geometry
+    if epsi_hat is not None and er_hat is not None:
+        msg = "set only one of epsi_hat or er_hat"
+        raise ValueError(msg)
+    nu_values = jnp.asarray(nu_hat, dtype=grid.jax_dtype)
+    if epsi_hat is None:
+        if er_hat is None:
+            epsi_values = jnp.zeros_like(nu_values)
+        else:
+            if geom.transport_psi_scale is None:
+                msg = "er_hat scans require a surface with a transport normalization scale"
+                raise ValueError(msg)
+            epsi_values = jnp.asarray(er_hat, dtype=grid.jax_dtype) / geom.transport_psi_scale
+    else:
+        epsi_values = jnp.asarray(epsi_hat, dtype=grid.jax_dtype)
+    nu_values, epsi_values = jnp.broadcast_arrays(nu_values, epsi_values)
+    return nu_values, epsi_values, nu_values.shape
+
+
+def _scan_coefficients_serial(
+    prepared: PreparedMonoenergeticSystem,
+    nu_values: Array,
+    epsi_values: Array,
+) -> Array:
+    geom = prepared.geometry
+    grid = prepared.grid
+
+    def solve_one(nu_value, epsi_value):
+        ctx = _operator_context(prepared.surface, geom, grid, nu_value, epsi_value)
+        s1, s3 = source_modes(ctx, grid.n_xi)
+        f1_modes, f3_modes = _solve_modes(
+            ctx,
+            grid.n_xi,
+            prepared.d_theta,
+            prepared.d_zeta,
+            s1,
+            s3,
+        )
+        return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
+
+    return jax.jit(jax.vmap(solve_one))(nu_values, epsi_values)
+
+
+def _coefficients_dict(coeffs: Array) -> dict[str, Array]:
+    return {
+        "D11": coeffs[..., 0],
+        "D31": coeffs[..., 1],
+        "D13": coeffs[..., 2],
+        "D33": coeffs[..., 3],
+        "D33_spitzer": coeffs[..., 4],
+    }

@@ -13,10 +13,12 @@ The default test suite covers:
 - Fourier-series evaluation and flux-surface averages
 - operator assembly and nullspace handling
 - dense block-tridiagonal solves
+- autodiff inverse and profile-analysis helper workflows
 - DKES-style, magnetic-configuration, VMEC, and Boozer file loaders
 - TOML input parsing and `.npz` output writing
 - imported NEOPAX-array and HDF5 mapping helpers
 - `vmec_jax` and `booz_xform_jax` integration points
+- serial versus device-parallel scan equivalence
 
 ## Current Local Status
 
@@ -62,6 +64,18 @@ python scripts/profile_runtime.py --backend gpu --output-json runtime-profile-gp
 
 This profiles batched scans against a Python loop for one DKES-style case and
 one VMEC case using the NTX-owned sample fixtures.
+
+To profile device-parallel scans:
+
+```bash
+python scripts/profile_parallel_runtime.py --output-json parallel-runtime.json
+```
+
+On a local workstation, host-device emulation can be forced in a fresh process:
+
+```bash
+XLA_FLAGS=--xla_force_host_platform_device_count=4 python scripts/profile_parallel_runtime.py
+```
 
 ## NEOPAX Compatibility
 

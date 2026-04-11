@@ -50,3 +50,21 @@ This example:
 - maps the result into NEOPAX-style arrays
 
 Use it as the minimal reference for NTX-to-NEOPAX coupling.
+
+## Autodiff Inverse Problem
+
+```bash
+python examples/autodiff_inverse_problem.py
+```
+
+This writes `docs/_static/autodiff_inverse_problem.png` and shows recovery of a
+surface harmonic from synthetic transport data using JAX gradients.
+
+## Autodiff NEOPAX Profiles
+
+```bash
+python examples/neopax_autodiff_profiles.py
+```
+
+This writes `docs/_static/autodiff_neopax_profiles.png` and shows a
+low-dimensional electric-field profile inversion on NEOPAX-style arrays.

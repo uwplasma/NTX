@@ -41,12 +41,14 @@ Changelog = "https://github.com/uwplasma/NTX/blob/main/CHANGELOG.md"
 [project.optional-dependencies]
 dev = [
   "build",
+  "matplotlib",
   "pytest",
   "ruff",
   "twine",
   "mypy",
 ]
 docs = [
+  "matplotlib",
   "sphinx",
   "myst-parser",
   "sphinx-rtd-theme",
