@@ -38,9 +38,20 @@ python scripts/profile_parallel_runtime.py --output-json parallel-runtime.json
 This is intended for multi-device CPU or GPU jobs when scan throughput matters
 more than single-case latency.
 
+The helper now performs an NTX smoke check on local devices before using them.
+If a visible device fails that check, it is excluded from the parallel solve
+instead of silently returning bad coefficients.
+
 ## Current Hardware Interpretation
 
 The current GPU lane is numerically stable and validated on office hardware.
 For the small repository smoke cases, CPU remains faster in steady-state wall
 time. That is expected: these grids are small enough that GPU launch and
 transfer overheads dominate.
+
+For the new parallel profiler on office:
+
+- JAX sees two GPUs
+- only one passes the NTX dense-solve smoke check under the current stack
+- the guarded parallel path therefore runs on the healthy subset and preserves
+  correct coefficients

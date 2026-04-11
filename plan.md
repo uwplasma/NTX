@@ -73,3 +73,14 @@ formulation described in Javier Escoto's PhD thesis:
 - Result so far: the new multi-device path is correct and already modestly
   beneficial on a forced 4-device CPU setup for the sample scans. The next real
   validation step is multi-GPU execution on office.
+- office multi-GPU validation completed:
+  - two GPUs are visible to JAX: `cuda:0`, `cuda:1`
+  - only one GPU passes the NTX dense-solve smoke test under the current office
+    software stack, so the parallel helper now excludes unhealthy devices
+  - GPU sample timings with `healthy_parallel_device_count = 1`:
+    - DKES sample: parallel steady `4.283 s` versus serial `3.682 s`
+    - VMEC sample: parallel steady `3.236 s` versus serial `4.233 s`
+- Current interpretation:
+  - the parallel execution layer is now numerically guarded and safe to use
+  - true multi-GPU scaling remains blocked on office by one unhealthy GPU for
+    the NTX dense solve, not by incorrect NTX output on the healthy subset
