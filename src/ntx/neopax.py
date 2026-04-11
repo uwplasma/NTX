@@ -12,7 +12,6 @@ from jax import Array, tree_util
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from .solver import solve_monoenergetic_scan
-from .vmec_reference import load_vmec_surface_reference, vmec_reference_factors
 
 
 @dataclass(frozen=True)
@@ -248,86 +247,6 @@ def build_ntx_neopax_scan_from_surfaces(
         D33=jnp.stack(d33_list),
         source_name=source_name,
     )
-
-
-def build_reference_vmec_scan(
-    vmec_path: str | Path,
-    booz_path: str | Path,
-    *,
-    rho: Array,
-    nu_v: Array,
-    er_tilde: Array,
-    nt: int = 25,
-    nz: int = 25,
-    nl: int = 64,
-    min_bmn_to_load: float = 0.0,
-    source_name: str | None = None,
-) -> NeopaxScan:
-    """Build the W7-X VMEC monoenergetic reference database scan."""
-
-    rho_arr = jnp.asarray(rho)
-    nu_arr = jnp.asarray(nu_v)
-    er_tilde_arr = jnp.asarray(er_tilde)
-    grid = GridSpec(n_theta=int(nt), n_zeta=int(nz), n_xi=int(nl) - 1)
-    factors = vmec_reference_factors(vmec_path, booz_path, rho_arr)
-
-    es = er_tilde_arr[None, :] * factors.dr_tildeds[:, None] * factors.b00[:, None]
-    er = er_tilde_arr[None, :] * factors.dr_tildedr[:, None] * factors.b00[:, None]
-    er_to_er_tilde = jnp.broadcast_to(
-        1.0 / factors.dr_tildedr[:, None],
-        es.shape,
-    )
-
-    d11_list = []
-    d31_list = []
-    d13_list = []
-    d33_list = []
-    for rho_value, es_row in zip(rho_arr, es, strict=True):
-        surface = load_vmec_surface_reference(
-            vmec_path,
-            s=float(rho_value**2),
-            min_bmn_to_load=min_bmn_to_load,
-        )
-        nu_grid, es_grid = jnp.meshgrid(nu_arr, es_row, indexing="ij")
-        coeffs = solve_monoenergetic_scan(surface, grid, nu_grid, epsi_hat=es_grid)
-        d11_list.append(coeffs["D11"])
-        d31_list.append(coeffs["D31"])
-        d13_list.append(coeffs["D13"])
-        d33_list.append(coeffs["D33"])
-
-    return NeopaxScan(
-        rho=rho_arr,
-        nu_v=nu_arr,
-        Er=er,
-        Es=es,
-        drds=factors.drds,
-        D11=jnp.stack(d11_list),
-        D31=jnp.stack(d31_list),
-        D13=jnp.stack(d13_list),
-        D33=jnp.stack(d33_list),
-        Er_tilde=er_tilde_arr,
-        Er_to_Ertilde=er_to_er_tilde,
-        dr_tildedr=factors.dr_tildedr,
-        dr_tildeds=factors.dr_tildeds,
-        a_b=factors.a_b,
-        psia=factors.psia,
-        b00=factors.b00,
-        r00=factors.r00,
-        boozer_i=factors.boozer_i,
-        boozer_g=factors.boozer_g,
-        iota=factors.iota,
-        fac_reference_to_sfincs_11=factors.fac_reference_to_sfincs_11,
-        fac_reference_to_sfincs_31=factors.fac_reference_to_sfincs_31,
-        fac_reference_to_sfincs_33=factors.fac_reference_to_sfincs_33,
-        fac_sfincs_to_dkes_11=factors.fac_sfincs_to_dkes_11,
-        fac_sfincs_to_dkes_31=factors.fac_sfincs_to_dkes_31,
-        fac_sfincs_to_dkes_33=factors.fac_sfincs_to_dkes_33,
-        fac_dkes_to_d11star=factors.fac_dkes_to_d11star,
-        fac_dkes_to_d31star=factors.fac_dkes_to_d31star,
-        fac_dkes_to_d33star=factors.fac_dkes_to_d33star,
-        source_name=source_name,
-    )
-
 
 def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
     """Write a NEOPAX-style HDF5 file from a scan payload."""

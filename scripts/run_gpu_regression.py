@@ -49,34 +49,34 @@ def main() -> int:
 
     cases = [
         {
-            "name": "dkes_w7x_smoke",
+            "name": "dkes_sample_smoke",
             "surface": load_dkes_surface(
-                ROOT / "tests" / "fixtures" / "w7x_eim_sample.ddkes2.data"
+                ROOT / "tests" / "fixtures" / "sample_surface.ddkes2.data"
             ),
             "grid": GridSpec(5, 5, 4),
             "case": MonoenergeticCase(nu_hat=1e-5, er_hat=1e-3),
             "expected": {
-                "D11": 0.0049033269042189735,
-                "D31": 0.018601911381559297,
-                "D13": -0.01605008327701478,
-                "D33": 73.37743322156562,
-                "D33_spitzer": 66287.9511900434,
+                "D11": 0.009946201075081042,
+                "D31": -0.1730016494448131,
+                "D13": 0.17343732611105203,
+                "D33": 301.4317825260738,
+                "D33_spitzer": 66281.10706157789,
             },
         },
         {
-            "name": "vmec_w7x_smoke",
+            "name": "vmec_sample_smoke",
             "surface": load_vmec_surface(
-                ROOT / "tests" / "fixtures" / "wout_w7x_standardConfig.nc",
+                ROOT / "tests" / "fixtures" / "sample_wout.nc",
                 psi_n=0.25,
             ),
             "grid": GridSpec(7, 9, 4),
             "case": MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3),
             "expected": {
-                "D11": 0.01172657441811329,
-                "D31": -0.06931784181209925,
-                "D13": 0.27030284045993647,
-                "D33": 85.91030053780086,
-                "D33_spitzer": 668.419832940152,
+                "D11": 0.00361648346226114,
+                "D31": -0.2275162433552811,
+                "D13": 0.2283028547367527,
+                "D33": 306.55649447515026,
+                "D33_spitzer": 665.6060710173264,
             },
         },
     ]

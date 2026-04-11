@@ -65,15 +65,15 @@ def main(argv: list[str] | None = None) -> int:
         "devices": [str(device) for device in jax.devices()],
         "cases": [
             _profile_case(
-                "dkes_w7x_scan",
-                load_dkes_surface(FIXTURES / "w7x_eim_full.ddkes2.data"),
+                "dkes_sample_scan",
+                load_dkes_surface(FIXTURES / "sample_surface.ddkes2.data"),
                 GridSpec(9, 11, 6),
                 nu,
                 er,
             ),
             _profile_case(
-                "vmec_w7x_scan",
-                load_vmec_surface(FIXTURES / "wout_w7x_standardConfig.nc", psi_n=0.25),
+                "vmec_sample_scan",
+                load_vmec_surface(FIXTURES / "sample_wout.nc", psi_n=0.25),
                 GridSpec(9, 11, 6),
                 nu,
                 er,

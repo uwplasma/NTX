@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 
 from ntx.inputfiles import load_run_config, run_from_input_file
-
-VMEC_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "wout_w7x_standardConfig.nc"
+from tests.fixture_data import SAMPLE_WOUT
 
 
 def test_load_run_config_vmec_parses_surface_options(tmp_path):
@@ -110,7 +107,7 @@ def test_run_from_input_file_vmec_writes_metadata_npz(tmp_path):
             [
                 "[surface]",
                 'type = "vmec"',
-                f'path = "{VMEC_FIXTURE}"',
+                f'path = "{SAMPLE_WOUT}"',
                 "psi_n = 0.25",
                 "",
                 "[grid]",
@@ -140,7 +137,7 @@ def test_run_from_input_file_vmec_writes_metadata_npz(tmp_path):
         assert "geometry_metadata_json" in data
         assert "algorithm_metadata_json" in data
         assert np.isnan(data["surface_psi_p"])
-        assert data["surface_source_name"] == "wout_w7x_standardConfig.nc"
+        assert data["surface_source_name"] == "sample_wout.nc"
         assert data["surface_source_size_bytes"] > 0.0
         assert data["surface_coefficient_psi_scale"] == 1.0
         assert "vmec_r_n" in data

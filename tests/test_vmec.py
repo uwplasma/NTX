@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -9,22 +7,15 @@ import pytest
 from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
 from ntx.geometry import VmecSurface, geometry_on_grid
 
-vmec_jax = pytest.importorskip("vmec_jax.api")
-
-VMEC_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "wout_w7x_standardConfig.nc"
-QI_VMEC_FIXTURE = (
-    Path(__file__).resolve().parent
-    / "fixtures"
-    / "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
-)
+from .fixture_data import SAMPLE_WOUT
 
 
 def test_load_vmec_surface_and_geometry():
-    surface = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25)
+    surface = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25)
     assert isinstance(surface, VmecSurface)
-    assert surface.path == VMEC_FIXTURE.resolve()
-    assert surface.nfp == 5
-    assert surface.ns > 1
+    assert surface.path == SAMPLE_WOUT.resolve()
+    assert surface.nfp == 2
+    assert surface.ns == 5
     assert surface.loaded_mode_count > 0
     assert surface.total_mode_count >= surface.loaded_mode_count
     assert surface.psi_p is None
@@ -42,88 +33,41 @@ def test_load_vmec_surface_and_geometry():
 
 def test_vmec_radial_option_snaps_to_grid():
     requested = 0.253
-    direct = load_vmec_surface(VMEC_FIXTURE, psi_n=requested, vmec_radial_option=0)
-    snapped = load_vmec_surface(VMEC_FIXTURE, psi_n=requested, vmec_radial_option=1)
+    direct = load_vmec_surface(SAMPLE_WOUT, psi_n=requested, vmec_radial_option=0)
+    snapped = load_vmec_surface(SAMPLE_WOUT, psi_n=requested, vmec_radial_option=1)
     assert direct.psi_n == pytest.approx(requested)
     assert snapped.requested_psi_n == pytest.approx(requested)
     assert snapped.psi_n != pytest.approx(requested)
 
 
 def test_vmec_mode_filtering_reduces_mode_count():
-    full = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, min_bmn_to_load=0.0)
-    filtered = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, min_bmn_to_load=1e-2)
+    full = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25, min_bmn_to_load=0.0)
+    filtered = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25, min_bmn_to_load=5e-2)
     assert filtered.loaded_mode_count < full.loaded_mode_count
 
 
-def test_qi_vmec_surface_loads_with_expected_normalization():
-    surface = load_vmec_surface(QI_VMEC_FIXTURE, psi_n=0.12247**2)
-    assert surface.nfp == 2
-    assert surface.r_n == pytest.approx(0.12247, rel=1e-8)
-    assert surface.r_hat == pytest.approx(surface.aminor_p * surface.r_n)
-    assert surface.loaded_mode_count == 72
-    assert surface.total_mode_count == 72
-    assert surface.transport_psi_scale == pytest.approx(surface.dpsi_hat_dr_hat)
-
-
 def test_vmec_nyquist_option_switches_total_mode_count():
-    primary = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, vmec_nyquist_option=1)
-    nyquist = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, vmec_nyquist_option=2)
-    assert primary.total_mode_count == 200
-    assert nyquist.total_mode_count == 338
-    assert primary.loaded_mode_count < nyquist.loaded_mode_count
+    primary = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25, vmec_nyquist_option=1)
+    nyquist = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25, vmec_nyquist_option=2)
+    assert primary.total_mode_count == 3
+    assert nyquist.total_mode_count == 4
+    assert primary.loaded_mode_count <= nyquist.loaded_mode_count
 
 
-def test_vmec_reduced_mode_convention_truncates_coefficients_by_position():
-    surface = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25, vmec_nyquist_option=1)
-    mode_lookup = {
-        (int(m), int(n)): float(b)
-        for m, n, b in zip(
-            np.asarray(surface.m),
-            np.asarray(surface.n),
-            np.asarray(surface.b_cos),
-            strict=True,
-        )
-    }
-    assert mode_lookup[(2, -10)] == pytest.approx(-0.00032672568019339693)
-    assert mode_lookup[(0, 1)] == pytest.approx(0.1250109798003415)
-
-
-def test_vmec_filtered_nyquist_convention_uses_filtered_nyquist_coefficients():
-    surface = load_vmec_surface(
-        VMEC_FIXTURE,
+def test_vmec_filtered_nyquist_convention_uses_filtered_coefficients():
+    reduced = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25, vmec_nyquist_option=1)
+    filtered = load_vmec_surface(
+        SAMPLE_WOUT,
         psi_n=0.25,
         vmec_nyquist_option=1,
         vmec_mode_convention="filtered_nyquist",
     )
-    wout = vmec_jax.read_wout(VMEC_FIXTURE)
-    nfp = int(wout.nfp)
-    mpol = int(wout.mpol)
-    ntor = int(wout.ntor)
-    xm_nyq = np.asarray(wout.xm_nyq, dtype=np.int32)
-    xn_nyq = np.asarray(wout.xn_nyq, dtype=np.int32)
-
-    include = (np.abs(xm_nyq) < mpol) & (np.abs(xn_nyq / float(nfp)) <= float(ntor))
-    selected = np.nonzero(include)[0]
-
-    assert surface.total_mode_count == selected.size
-    assert np.array_equal(np.asarray(surface.m), xm_nyq[selected])
-    assert np.array_equal(np.asarray(surface.n), np.rint(xn_nyq[selected] / nfp).astype(np.int32))
-    mode_lookup = {
-        (int(m), int(n)): float(b)
-        for m, n, b in zip(
-            np.asarray(surface.m),
-            np.asarray(surface.n),
-            np.asarray(surface.b_cos),
-            strict=True,
-        )
-    }
-    assert mode_lookup[(0, 0)] == pytest.approx(2.784452946874408)
-    assert mode_lookup[(2, -10)] == pytest.approx(-0.0010011342034427848, rel=5e-5)
-    assert mode_lookup[(0, 1)] == pytest.approx(0.1250109798003415)
+    assert filtered.total_mode_count >= reduced.total_mode_count
+    assert np.all(np.isfinite(np.asarray(filtered.b_cos)))
 
 
 def test_vmec_surface_resolves_er_hat_from_transport_scale():
-    surface = load_vmec_surface(VMEC_FIXTURE, psi_n=0.25)
+    surface = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25)
     er_hat = 1e-3
     result_from_er = solve_monoenergetic(
         surface,

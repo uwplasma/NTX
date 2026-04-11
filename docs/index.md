@@ -1,23 +1,17 @@
 # NTX
 
-NTX is a JAX-native monoenergetic neoclassical transport code for stellarator
-flux surfaces. It follows the Legendre-space drift-kinetic formulation
-introduced in Javier Escoto's PhD thesis,
-[`arXiv:2510.27513`](https://arxiv.org/abs/2510.27513).
+NTX is a JAX-native monoenergetic neoclassical transport solver based on the
+Legendre-space drift-kinetic formulation in Javier Escoto's PhD thesis,
+[arXiv:2510.27513](https://arxiv.org/abs/2510.27513).
 
-The current implementation supports:
+The current codebase supports:
 
+- built-in analytic sample surfaces
 - DKES-style Boozer inputs
-- VMEC `wout` inputs
-- VMEC `er_hat` normalization from `psi_a_hat`, `psi_n`, and `Aminor_p`
-- `vmec_jax -> booz_xform_jax -> NTX` imported workflows
-- direct `vmec_jax` VMEC-harmonic workflows for NEOPAX scans
-- direct NTX-to-NEOPAX monoenergetic database mapping
-- pure-array imported NEOPAX scan/mapping helpers
-- Rich terminal summaries for file-driven runs
-- compressed `.npz` outputs with geometry, metadata, diagnostics, and modes
-- archived DKES and SFINCS benchmark comparison scripts
-- runtime profiling scripts for CPU and GPU scans
+- VMEC `wout` inputs through `vmec_jax`
+- Boozer `boozmn` inputs through `booz_xform_jax`
+- direct NEOPAX-style scan and HDF5 mapping helpers
+- CPU and GPU execution through the same JAX solver path
 
 ## Main Entry Point
 

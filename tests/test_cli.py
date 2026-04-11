@@ -8,17 +8,17 @@ from pathlib import Path
 
 import numpy as np
 
+from tests.fixture_data import SAMPLE_DKES, SAMPLE_WOUT
+
 
 def _write_input_toml(tmp_path: Path, *, verbose: bool) -> Path:
-    root = Path(__file__).resolve().parents[1]
-    dkes = root / "tests" / "fixtures" / "w7x_eim_sample.ddkes2.data"
     input_path = tmp_path / "run.toml"
     input_path.write_text(
         "\n".join(
             [
                 "[surface]",
                 'type = "dkes"',
-                f'path = "{dkes}"',
+                f'path = "{SAMPLE_DKES}"',
                 "",
                 "[grid]",
                 "n_theta = 5",
@@ -76,8 +76,6 @@ def test_cli_example_solve_runs():
 
 
 def test_cli_dkes_solve_runs():
-    root = Path(__file__).resolve().parents[1]
-    dkes = root / "tests" / "fixtures" / "w7x_eim_sample.ddkes2.data"
     proc = subprocess.run(
         [
             sys.executable,
@@ -85,7 +83,7 @@ def test_cli_dkes_solve_runs():
             "ntx.cli",
             "solve",
             "--dkes",
-            str(dkes),
+            str(SAMPLE_DKES),
             "--nu-hat",
             "1e-5",
             "--n-theta",
@@ -105,8 +103,6 @@ def test_cli_dkes_solve_runs():
 
 
 def test_cli_vmec_solve_runs():
-    root = Path(__file__).resolve().parents[1]
-    vmec = root / "tests" / "fixtures" / "wout_w7x_standardConfig.nc"
     proc = subprocess.run(
         [
             sys.executable,
@@ -114,7 +110,7 @@ def test_cli_vmec_solve_runs():
             "ntx.cli",
             "solve",
             "--vmec",
-            str(vmec),
+            str(SAMPLE_WOUT),
             "--psi-n",
             "0.25",
             "--nu-hat",
@@ -137,9 +133,7 @@ def test_cli_vmec_solve_runs():
     assert "D33" in payload
 
 
-def test_cli_qi_vmec_er_hat_solve_runs():
-    root = Path(__file__).resolve().parents[1]
-    vmec = root / "tests" / "fixtures" / "wout_QI_nfp2_stable_Er_006_000043_hires_scaled.nc"
+def test_cli_vmec_er_hat_solve_runs():
     proc = subprocess.run(
         [
             sys.executable,
@@ -147,9 +141,9 @@ def test_cli_qi_vmec_er_hat_solve_runs():
             "ntx.cli",
             "solve",
             "--vmec",
-            str(vmec),
+            str(SAMPLE_WOUT),
             "--psi-n",
-            str(0.12247**2),
+            "0.25",
             "--nu-hat",
             "1e-3",
             "--er-hat",

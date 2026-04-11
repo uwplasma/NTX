@@ -17,12 +17,7 @@ def surface_from_vmec_jax_vmec_wout(
     source_path: str | Path | None = None,
     min_bmn_to_load: float = 0.0,
 ) -> VmecSurface:
-    """Build a VMEC harmonic surface from an in-memory `vmec_jax` wout object.
-
-    This path matches the VMEC harmonic conventions used by the external W7-X
-    reference-database workflow while staying inside the `vmec_jax` stack for
-    file decoding and in-memory data access.
-    """
+    """Build a VMEC harmonic surface from an in-memory `vmec_jax` wout object."""
 
     if not 0.0 <= float(s) <= 1.0:
         raise ValueError("s must be between 0 and 1")

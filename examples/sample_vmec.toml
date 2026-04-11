@@ -1,0 +1,20 @@
+[surface]
+type = "vmec"
+path = "../tests/fixtures/sample_wout.nc"
+psi_n = 0.25
+
+[grid]
+n_theta = 7
+n_zeta = 9
+n_xi = 6
+
+[case]
+nu_hat = 1e-3
+er_hat = 1e-3
+
+[output]
+npz = "outputs/sample_vmec.npz"
+include_modes = true
+
+[logging]
+verbose = true

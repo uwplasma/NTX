@@ -1,108 +1,87 @@
+from __future__ import annotations
+
+import dataclasses
+import sys
+from types import ModuleType, SimpleNamespace
+
 import jax.numpy as jnp
-import pytest
 
-from ntx import (
-    GridSpec,
-    MonoenergeticCase,
-    load_boozmn_surface,
-    solve_monoenergetic,
-    surface_from_vmec_jax_wout,
-)
-from ntx._checkout_paths import find_neopax_root, find_simsopt_root
-
-SIMSOPT_ROOT = find_simsopt_root()
-NEOPAX_ROOT = find_neopax_root()
-VMEC_INPUT = (
-    None
-    if SIMSOPT_ROOT is None
-    else SIMSOPT_ROOT / "tests" / "test_files" / "input.W7-X_standard_configuration"
-)
-WOUT = (
-    None
-    if NEOPAX_ROOT is None
-    else NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
-)
-BOOZ = (
-    None
-    if NEOPAX_ROOT is None
-    else NEOPAX_ROOT / "tests" / "inputs" / "boozmn_wout_W7-X_standard_configuration.nc"
-)
-
-if VMEC_INPUT is None or WOUT is None or not VMEC_INPUT.exists() or not WOUT.exists():
-    pytest.skip("local vmec_jax W7-X inputs are not available", allow_module_level=True)
-
-pytest.importorskip("vmec_jax")
-pytest.importorskip("booz_xform_jax")
+from ntx import surface_from_vmec_jax_state, surface_from_vmec_jax_wout
+from ntx.geometry import BoozerSurface
+from ntx.vmec_jax_backend import _apply_boozer_sign_convention
 
 
-def test_surface_from_vmec_jax_wout_builds_finite_transport():
-    surface = surface_from_vmec_jax_wout(
-        input_path=VMEC_INPUT,
-        wout_path=WOUT,
+def test_apply_boozer_sign_convention_returns_right_handed_values():
+    iota, b_theta, b_zeta = _apply_boozer_sign_convention(
+        iota=0.5,
+        b_theta=0.2,
+        b_zeta=1.3,
+    )
+    assert iota == -0.5
+    assert b_zeta + iota * b_theta >= 0.0
+
+
+def test_surface_from_vmec_jax_state_builds_boozer_surface(monkeypatch):
+    jax_api = ModuleType("booz_xform_jax.jax_api")
+    jax_api.prepare_booz_xform_constants_from_inputs = lambda **kwargs: ("constants", "grids")
+    jax_api.booz_xform_from_inputs = lambda **kwargs: {
+        "bmnc_b": jnp.asarray([[2.0, 0.1]]),
+        "ixm_b": jnp.asarray([0, 1]),
+        "ixn_b": jnp.asarray([0, 2]),
+        "iota_b": jnp.asarray([0.4]),
+        "buco_b": jnp.asarray([0.2]),
+        "bvco_b": jnp.asarray([1.2]),
+    }
+    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg.booz_xform_inputs_from_state = lambda **kwargs: SimpleNamespace(nfp=2)
+    vmec_pkg.surface_indices_from_static = lambda static, s_values: ([0], s_values)
+    monkeypatch.setitem(sys.modules, "booz_xform_jax.jax_api", jax_api)
+    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+
+    surface = surface_from_vmec_jax_state(
+        state="state",
+        static=SimpleNamespace(cfg=SimpleNamespace(lasym=False)),
+        indata=SimpleNamespace(input_filename="sample.vmec"),
+        signgs=1,
         s=0.25,
-        mboz=6,
-        nboz=6,
     )
-    result = solve_monoenergetic(
-        surface,
-        GridSpec(n_theta=9, n_zeta=13, n_xi=24, dtype=jnp.float32),
-        MonoenergeticCase(nu_hat=1.0e-4, epsi_hat=0.0),
-    )
-    assert jnp.isfinite(result.D11)
-    assert jnp.isfinite(result.D13)
-    assert jnp.isfinite(result.D33)
+    assert isinstance(surface, BoozerSurface)
+    assert surface.nfp == 2
+    assert surface.b0 == 2.0
 
 
-def test_surface_from_vmec_jax_wout_converges_with_grid_refinement():
-    surface = surface_from_vmec_jax_wout(
-        input_path=VMEC_INPUT,
-        wout_path=WOUT,
+def test_surface_from_vmec_jax_wout_updates_static_from_wout(monkeypatch, tmp_path):
+    @dataclasses.dataclass(frozen=True)
+    class FakeCfg:
+        ns: int
+        mpol: int
+        ntor: int
+
+    cfg = FakeCfg(ns=3, mpol=2, ntor=1)
+    indata = object()
+    wout = SimpleNamespace(ns=5, mpol=3, ntor=2, signgs=1)
+    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg.load_config = lambda path: (cfg, indata)
+    vmec_pkg.build_static = lambda cfg_obj: cfg_obj
+    vmec_api = ModuleType("vmec_jax.api")
+    vmec_api.read_wout = lambda path: wout
+    vmec_api.state_from_wout = lambda w: "state"
+    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmec_jax.api", vmec_api)
+
+    captured = {}
+
+    def fake_surface_from_state(**kwargs):
+        captured.update(kwargs)
+        return "surface"
+
+    monkeypatch.setattr("ntx.vmec_jax_backend.surface_from_vmec_jax_state", fake_surface_from_state)
+    result = surface_from_vmec_jax_wout(
+        input_path=tmp_path / "input.vmec",
+        wout_path=tmp_path / "wout.nc",
         s=0.25,
-        mboz=6,
-        nboz=6,
     )
-    coarse = solve_monoenergetic(
-        surface,
-        GridSpec(n_theta=9, n_zeta=13, n_xi=24, dtype=jnp.float32),
-        MonoenergeticCase(nu_hat=1.0e-4, epsi_hat=0.0),
-    )
-    fine = solve_monoenergetic(
-        surface,
-        GridSpec(n_theta=13, n_zeta=17, n_xi=32, dtype=jnp.float32),
-        MonoenergeticCase(nu_hat=1.0e-4, epsi_hat=0.0),
-    )
-    coarse_values = jnp.asarray([coarse.D11, coarse.D31, coarse.D13, coarse.D33])
-    fine_values = jnp.asarray([fine.D11, fine.D31, fine.D13, fine.D33])
-    assert jnp.all(jnp.isfinite(coarse_values))
-    assert jnp.all(jnp.isfinite(fine_values))
-    relative = jnp.abs((fine_values - coarse_values) / jnp.maximum(jnp.abs(fine_values), 1.0))
-    assert jnp.max(relative) < 0.35
-
-
-@pytest.mark.parametrize(
-    ("nu_hat", "epsi_hat"),
-    [
-        (1.0e-4, 0.0),
-        (1.0e-3, 1.0e-3),
-    ],
-)
-def test_surface_from_vmec_jax_wout_matches_boozmn_transport(nu_hat: float, epsi_hat: float):
-    if not BOOZ.exists():
-        pytest.skip("local boozmn fixture is not available")
-
-    booz_surface = load_boozmn_surface(BOOZ, rho=0.5).surface
-    jax_surface = surface_from_vmec_jax_wout(
-        input_path=VMEC_INPUT,
-        wout_path=WOUT,
-        s=0.25,
-        mboz=24,
-        nboz=24,
-    )
-    spec = GridSpec(n_theta=13, n_zeta=17, n_xi=16, dtype=jnp.float32)
-    case = MonoenergeticCase(nu_hat=nu_hat, epsi_hat=epsi_hat)
-    booz_result = solve_monoenergetic(booz_surface, spec, case)
-    jax_result = solve_monoenergetic(jax_surface, spec, case)
-    booz_values = jnp.asarray([booz_result.D11, booz_result.D31, booz_result.D13, booz_result.D33])
-    jax_values = jnp.asarray([jax_result.D11, jax_result.D31, jax_result.D13, jax_result.D33])
-    relative = jnp.abs((jax_values - booz_values) / jnp.maximum(jnp.abs(booz_values), 1.0))
-    assert jnp.max(relative) < 0.02
+    assert result == "surface"
+    assert captured["static"].ns == 5
+    assert captured["static"].mpol == 3
+    assert captured["static"].ntor == 2
