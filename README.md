@@ -111,7 +111,7 @@ optional NEOPAX HDF5 compatibility checks.
 
 Current local status:
 
-- `94 passed, 2 skipped`
+- `99 passed, 2 skipped`
 - GPU smoke tests are skipped on non-GPU machines
 - office GPU hardware validation is documented in `docs/gpu.md`
 
