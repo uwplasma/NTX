@@ -40,11 +40,11 @@ def test_flux_surface_average_of_constant_is_constant():
 
 
 def test_load_dkes_surface_matches_reference_sign_convention():
-    fixture = Path(__file__).resolve().parent / "fixtures" / "w7x_eim_sample.ddkes2.data"
+    fixture = Path(__file__).resolve().parent / "fixtures" / "sample_surface.ddkes2.data"
     surface = load_dkes_surface(fixture)
-    assert surface.nfp == 5
-    assert jnp.isclose(surface.psi_p, -0.5237)
-    assert jnp.isclose(surface.iota, -0.8615619629558907)
-    assert jnp.isclose(surface.b0, 2.4311)
+    assert surface.nfp == 2
+    assert jnp.isclose(surface.psi_p, 1.25)
+    assert jnp.isclose(surface.iota, 0.4)
+    assert jnp.isclose(surface.b0, 2.4)
     b00, _, _ = evaluate_boozer_modes(surface, jnp.asarray(0.0), jnp.asarray(0.0))
-    assert jnp.isclose(b00, 2.4093327)
+    assert jnp.isclose(b00, 2.57)

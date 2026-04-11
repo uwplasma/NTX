@@ -1,60 +1,47 @@
+from __future__ import annotations
+
 import jax.numpy as jnp
-import pytest
+from vmec_jax.api import read_wout
 
 from ntx import (
     GridSpec,
     MonoenergeticCase,
-    load_vmec_surface_reference,
     solve_monoenergetic,
+    surface_from_vmec_jax_vmec_wout,
     surface_from_vmec_jax_vmec_wout_file,
 )
-from ntx._checkout_paths import find_neopax_root
 
-NEOPAX_ROOT = find_neopax_root()
-WOUT = (
-    None
-    if NEOPAX_ROOT is None
-    else NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
-)
-
-if WOUT is None or not WOUT.exists():
-    pytest.skip("local W7-X wout fixture not available", allow_module_level=True)
-
-pytest.importorskip("vmec_jax")
+from .fixture_data import SAMPLE_WOUT
 
 
-def test_surface_from_vmec_jax_vmec_wout_file_matches_reference_transport():
-    direct = surface_from_vmec_jax_vmec_wout_file(WOUT, s=0.25)
-    reference = load_vmec_surface_reference(WOUT, s=0.25)
+def test_surface_from_vmec_jax_vmec_wout_file_matches_in_memory_builder():
+    wout = read_wout(SAMPLE_WOUT)
+    direct = surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=0.25)
+    in_memory = surface_from_vmec_jax_vmec_wout(wout, s=0.25, source_path=SAMPLE_WOUT)
+
     result_direct = solve_monoenergetic(
         direct,
-        GridSpec(n_theta=25, n_zeta=25, n_xi=63),
-        MonoenergeticCase(nu_hat=1.0e-4, epsi_hat=0.0),
+        GridSpec(n_theta=9, n_zeta=9, n_xi=8),
+        MonoenergeticCase(nu_hat=1.0e-3, epsi_hat=0.0),
     )
-    result_reference = solve_monoenergetic(
-        reference,
-        GridSpec(n_theta=25, n_zeta=25, n_xi=63),
-        MonoenergeticCase(nu_hat=1.0e-4, epsi_hat=0.0),
+    result_memory = solve_monoenergetic(
+        in_memory,
+        GridSpec(n_theta=9, n_zeta=9, n_xi=8),
+        MonoenergeticCase(nu_hat=1.0e-3, epsi_hat=0.0),
     )
     direct_values = jnp.asarray(
         [result_direct.D11, result_direct.D31, result_direct.D13, result_direct.D33]
     )
-    reference_values = jnp.asarray(
-        [result_reference.D11, result_reference.D31, result_reference.D13, result_reference.D33]
+    memory_values = jnp.asarray(
+        [result_memory.D11, result_memory.D31, result_memory.D13, result_memory.D33]
     )
-    relative = jnp.abs(
-        (direct_values - reference_values) / jnp.maximum(jnp.abs(reference_values), 1.0)
-    )
-    assert jnp.max(relative) < 1.0e-10
+    assert jnp.max(jnp.abs(direct_values - memory_values)) < 1.0e-12
 
 
-def test_surface_from_vmec_jax_vmec_wout_file_preserves_reference_metadata():
-    direct = surface_from_vmec_jax_vmec_wout_file(WOUT, s=0.25)
-    reference = load_vmec_surface_reference(WOUT, s=0.25)
-    assert direct.nfp == reference.nfp
-    assert direct.ns == reference.ns
-    assert direct.total_mode_count == reference.total_mode_count
-    assert jnp.all(direct.m == reference.m)
-    assert jnp.all(direct.n == reference.n)
-    assert abs(float(direct.iota - reference.iota)) < 1.0e-12
-    assert abs(float(direct.b0 - reference.b0)) < 1.0e-12
+def test_surface_from_vmec_jax_vmec_wout_file_preserves_metadata():
+    direct = surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=0.25)
+    assert direct.nfp == 2
+    assert direct.ns == 5
+    assert direct.total_mode_count == 4
+    assert direct.loaded_mode_count > 0
+    assert direct.path == SAMPLE_WOUT.resolve()

@@ -1,0 +1,12 @@
+Number of periods = 2
+psi_p = 1.25
+chi_p = -0.5
+iota = 0.4
+B00 = 2.4
+B_theta = 0.15
+B_zeta = 1.4
+*** Magnetic field strength Fourier modes
+0 0 2.4
+0 1 0.12
+1 0 0.08
+1 -1 -0.03

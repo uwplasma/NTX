@@ -34,8 +34,8 @@ from ntx.inputfiles import (
 from ntx.solver import MonoenergeticCase, solve_monoenergetic
 
 ROOT = Path(__file__).resolve().parents[1]
-DKES = ROOT / "tests" / "fixtures" / "w7x_eim_sample.ddkes2.data"
-VMEC = ROOT / "tests" / "fixtures" / "wout_w7x_standardConfig.nc"
+DKES = ROOT / "tests" / "fixtures" / "sample_surface.ddkes2.data"
+VMEC = ROOT / "tests" / "fixtures" / "sample_wout.nc"
 
 
 def _example_config(

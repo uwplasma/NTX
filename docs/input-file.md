@@ -173,7 +173,7 @@ epsi_hat = 0.0
 ```toml
 [surface]
 type = "dkes"
-path = "../tests/fixtures/w7x_eim_sample.ddkes2.data"
+path = "../tests/fixtures/sample_surface.ddkes2.data"
 
 [grid]
 n_theta = 9
@@ -187,7 +187,7 @@ nu_hat = 1e-5
 er_hat = 1e-3
 
 [output]
-npz = "outputs/w7x_dkes.npz"
+npz = "outputs/sample_dkes.npz"
 include_modes = true
 
 [logging]
@@ -199,7 +199,7 @@ verbose = true
 ```toml
 [surface]
 type = "vmec"
-path = "../tests/fixtures/wout_w7x_standardConfig.nc"
+path = "../tests/fixtures/sample_wout.nc"
 psi_n = 0.25
 vmec_radial_option = 0
 vmec_nyquist_option = 1
@@ -217,7 +217,7 @@ nu_hat = 1e-3
 er_hat = 1e-3
 
 [output]
-npz = "outputs/w7x_vmec.npz"
+npz = "outputs/sample_vmec.npz"
 include_modes = true
 
 [logging]

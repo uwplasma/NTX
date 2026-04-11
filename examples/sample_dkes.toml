@@ -1,0 +1,19 @@
+[surface]
+type = "dkes"
+path = "../tests/fixtures/sample_surface.ddkes2.data"
+
+[grid]
+n_theta = 7
+n_zeta = 9
+n_xi = 6
+
+[case]
+nu_hat = 1e-3
+er_hat = 1e-3
+
+[output]
+npz = "outputs/sample_dkes.npz"
+include_modes = true
+
+[logging]
+verbose = true

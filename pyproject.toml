@@ -84,7 +84,6 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 markers = [
   "gpu: tests that require a JAX GPU device",
-  "benchmark: tests that require external benchmark data or executables",
 ]
 
 [tool.ruff]

@@ -14,8 +14,8 @@ from ntx.io import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-DKES = ROOT / "tests" / "fixtures" / "w7x_eim_sample.ddkes2.data"
-MAGNETIC = ROOT / "tests" / "fixtures" / "w7x_kjm_s0204.magnetic_configuration.dat"
+DKES = ROOT / "tests" / "fixtures" / "sample_surface.ddkes2.data"
+MAGNETIC = ROOT / "tests" / "fixtures" / "sample_magnetic_configuration.dat"
 
 
 def test_load_boozer_modes_csv_accepts_whitespace_table(tmp_path):
@@ -37,8 +37,8 @@ def test_load_boozer_modes_csv_rejects_missing_columns(tmp_path):
 def test_dkes_and_magnetic_loaders_and_jsonable():
     dkes = load_dkes_surface(DKES)
     magnetic = load_magnetic_configuration_surface(MAGNETIC)
-    assert dkes.nfp == 5
-    assert magnetic.nfp == 5
+    assert dkes.nfp == 2
+    assert magnetic.nfp == 2
     result = write_result_jsonable(type("R", (), {"as_dict": lambda self: {"D11": 1.0}})())
     assert result == {"D11": 1.0}
 

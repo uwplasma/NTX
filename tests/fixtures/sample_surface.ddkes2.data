@@ -1,0 +1,11 @@
+&datain
+ nzperiod = 2,
+ psip = 1.25,
+ chip = -0.5,
+ btheta = 0.15,
+ bzeta = 1.4,
+/
+ borbi(0,0) = 2.4
+ borbi(0,1) = 0.12
+ borbi(1,0) = 0.08
+ borbi(-1,1) = -0.03

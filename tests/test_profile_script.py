@@ -26,7 +26,7 @@ def test_profile_runtime_script_runs(tmp_path):
     )
     payload = json.loads(proc.stdout)
     assert output_json.exists()
-    assert {case["name"] for case in payload["cases"]} == {"dkes_w7x_scan", "vmec_w7x_scan"}
+    assert {case["name"] for case in payload["cases"]} == {"dkes_sample_scan", "vmec_sample_scan"}
     assert all(case["scan_steady_seconds"] > 0.0 for case in payload["cases"])
 
 

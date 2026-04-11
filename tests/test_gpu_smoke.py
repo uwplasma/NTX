@@ -18,8 +18,8 @@ from ntx import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-DKES_FIXTURE = ROOT / "tests" / "fixtures" / "w7x_eim_sample.ddkes2.data"
-VMEC_FIXTURE = ROOT / "tests" / "fixtures" / "wout_w7x_standardConfig.nc"
+DKES_FIXTURE = ROOT / "tests" / "fixtures" / "sample_surface.ddkes2.data"
+VMEC_FIXTURE = ROOT / "tests" / "fixtures" / "sample_wout.nc"
 
 
 def _require_gpu() -> None:
@@ -36,11 +36,11 @@ def test_gpu_dkes_smoke_regression():
         MonoenergeticCase(nu_hat=1e-5, er_hat=1e-3),
     ).as_dict()
     expected = {
-        "D11": 0.0049033269042189735,
-        "D31": 0.018601911381559297,
-        "D13": -0.01605008327701478,
-        "D33": 73.37743322156562,
-        "D33_spitzer": 66287.9511900434,
+        "D11": 0.009946201075081042,
+        "D31": -0.1730016494448131,
+        "D13": 0.17343732611105203,
+        "D33": 301.4317825260738,
+        "D33_spitzer": 66281.10706157789,
     }
     for key, reference in expected.items():
         assert np.isclose(result[key], reference, rtol=1e-6, atol=1e-9), (key, result[key])
@@ -55,11 +55,11 @@ def test_gpu_vmec_smoke_regression():
         MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3),
     ).as_dict()
     expected = {
-        "D11": 0.01172657441811329,
-        "D31": -0.06931784181209925,
-        "D13": 0.27030284045993647,
-        "D33": 85.91030053780086,
-        "D33_spitzer": 668.419832940152,
+        "D11": 0.00361648346226114,
+        "D31": -0.2275162433552811,
+        "D13": 0.2283028547367527,
+        "D33": 306.55649447515026,
+        "D33_spitzer": 665.6060710173264,
     }
     for key, reference in expected.items():
         assert np.isclose(result[key], reference, rtol=1e-6, atol=1e-9), (key, result[key])
