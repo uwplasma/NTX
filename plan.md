@@ -32,10 +32,10 @@ formulation described in Javier Escoto's PhD thesis:
 
 ## Next Development Lane
 
-- [ ] Add an autodiff validation example based on Escoto's formulation that solves
+- [x] Add an autodiff validation example based on Escoto's formulation that solves
   a research-relevant inverse problem or sensitivity-analysis task and produces
   publication-ready figures.
-- [ ] Add an autodiff NEOPAX-profile example showing how NTX-generated
+- [x] Add an autodiff NEOPAX-profile example showing how NTX-generated
   monoenergetic data can be used in NEOPAX-style profile analysis with
   publication-ready figures.
 - [x] Add explicit device-parallel execution for large scans across multiple CPU
