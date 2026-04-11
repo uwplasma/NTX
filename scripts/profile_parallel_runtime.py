@@ -23,6 +23,7 @@ import jax.numpy as jnp
 
 from ntx import (
     GridSpec,
+    healthy_parallel_device_count,
     load_dkes_surface,
     load_vmec_surface,
     local_parallel_device_count,
@@ -43,6 +44,7 @@ def main(argv: list[str] | None = None) -> int:
     er = jnp.linspace(0.0, 2e-3, 16)
     payload = {
         "backend": jax.default_backend(),
+        "healthy_parallel_device_count": healthy_parallel_device_count(),
         "local_device_count": local_parallel_device_count(),
         "devices": [str(device) for device in jax.local_devices()],
         "cases": [

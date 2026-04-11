@@ -5,7 +5,6 @@ from __future__ import annotations
 import sys
 from dataclasses import dataclass, replace
 
-import interpax
 import jax
 import jax.numpy as jnp
 from jax import Array, tree_util
@@ -293,6 +292,8 @@ def _evaluate_d33_profile(
     nu_value: Array,
     er_profile: Array,
 ) -> Array:
+    import interpax
+
     log_nu = jnp.log10(jnp.maximum(nu_value, 1e-12))
 
     def per_radius(index, er_value):

@@ -77,6 +77,11 @@ On a local workstation, host-device emulation can be forced in a fresh process:
 XLA_FLAGS=--xla_force_host_platform_device_count=4 python scripts/profile_parallel_runtime.py
 ```
 
+On office hardware, the profiler reports both visible GPUs and the subset that
+passes an NTX smoke solve. Under the current office stack, `cuda:1` is visible
+to JAX but does not pass the NTX dense-solve smoke check, so the guarded
+parallel helper excludes it automatically.
+
 ## NEOPAX Compatibility
 
 NEOPAX compatibility is validated through:
