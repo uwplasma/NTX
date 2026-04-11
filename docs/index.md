@@ -27,6 +27,7 @@ ntx input.toml
 install
 input-file
 algorithm
+autodiff
 examples
 validation
 neopax

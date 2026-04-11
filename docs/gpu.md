@@ -26,6 +26,18 @@ scripts/sh_office_gpu_smoke.sh
 - solved coefficients
 - max relative error against NTX-owned smoke references
 
+## Device-Parallel Scans
+
+For larger scans, NTX also exposes a device-parallel scan path through
+`solve_monoenergetic_parallel_scan(...)` and the profiling helper:
+
+```bash
+python scripts/profile_parallel_runtime.py --output-json parallel-runtime.json
+```
+
+This is intended for multi-device CPU or GPU jobs when scan throughput matters
+more than single-case latency.
+
 ## Current Hardware Interpretation
 
 The current GPU lane is numerically stable and validated on office hardware.

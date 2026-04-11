@@ -92,6 +92,18 @@ python examples/neopax_with_ntx.py
 
 builds a small VMEC scan and maps it into NEOPAX-style arrays.
 
+Autodiff examples:
+
+```bash
+python examples/autodiff_inverse_problem.py
+python examples/neopax_autodiff_profiles.py
+```
+
+These write polished figures into `docs/_static/` and demonstrate:
+
+- parameter recovery from synthetic transport data
+- profile sensitivity and inversion on NEOPAX-style monoenergetic arrays
+
 ## Validation
 
 The repository validation now stays entirely inside NTX-owned fixtures plus
@@ -108,6 +120,7 @@ Current local status:
 - [Install](docs/install.md)
 - [Input File](docs/input-file.md)
 - [Algorithm](docs/algorithm.md)
+- [Autodiff](docs/autodiff.md)
 - [Examples](docs/examples.md)
 - [Validation](docs/validation.md)
 - [NEOPAX](docs/neopax.md)
