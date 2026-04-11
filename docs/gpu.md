@@ -42,6 +42,17 @@ The helper now performs an NTX smoke check on local devices before using them.
 If a visible device fails that check, it is excluded from the parallel solve
 instead of silently returning bad coefficients.
 
+NTX also provides a separate multiprocess path:
+
+```bash
+python scripts/profile_multiprocess_runtime.py --backend gpu --workers 2
+```
+
+That path runs one Python worker per GPU with process-local
+`CUDA_VISIBLE_DEVICES` pinning. It is the current robust route for office
+hardware because it avoids the single-process cuSolver failure mode seen on
+`cuda:1`.
+
 ## Current Hardware Interpretation
 
 The current GPU lane is numerically stable and validated on office hardware.
@@ -49,9 +60,23 @@ For the small repository smoke cases, CPU remains faster in steady-state wall
 time. That is expected: these grids are small enough that GPU launch and
 transfer overheads dominate.
 
-For the new parallel profiler on office:
+For the single-process profiler on office:
 
 - JAX sees two GPUs
 - only one passes the NTX dense-solve smoke check under the current stack
 - the guarded parallel path therefore runs on the healthy subset and preserves
   correct coefficients
+
+For the multiprocess profiler on office:
+
+- both GPUs execute correctly when pinned to separate worker processes
+- coefficient deltas are zero at the repository smoke-case tolerance
+- wall time is still worse than the serial batched solve for the small smoke
+  grids because process launch and per-worker compilation dominate
+
+So the current guidance is:
+
+- use the serial batched JAX scan for small and medium studies
+- use the guarded single-process path only when all visible devices are healthy
+- use the multiprocess path for larger multi-GPU throughput workloads or for
+  platforms that need strict one-process-per-GPU isolation

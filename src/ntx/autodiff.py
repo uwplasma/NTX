@@ -59,6 +59,8 @@ class NeopaxProfileAutodiffResult:
     rho: Array
     target_er_profile: Array
     fitted_er_profile: Array
+    target_d11_profile: Array
+    fitted_d11_profile: Array
     target_d33_profile: Array
     fitted_d33_profile: Array
     sensitivity_matrix: Array
@@ -73,6 +75,8 @@ tree_util.register_dataclass(
         "rho",
         "target_er_profile",
         "fitted_er_profile",
+        "target_d11_profile",
+        "fitted_d11_profile",
         "target_d33_profile",
         "fitted_d33_profile",
         "sensitivity_matrix",
@@ -216,16 +220,27 @@ def example_neopax_profile_autodiff(
     target_params = jnp.asarray([1.4e-3, -6.0e-4], dtype=rho_grid.dtype)
     initial_params = jnp.asarray([5.0e-4, 2.0e-4], dtype=rho_grid.dtype)
     target_er_profile = _er_profile(rho_grid, target_params)
+    target_d11_profile = _evaluate_d11_profile(arrays, rho_grid, nu_value, target_er_profile)
     target_d33_profile = _evaluate_d33_profile(arrays, rho_grid, nu_value, target_er_profile)
 
     def loss_fn(params):
+        trial_er = _er_profile(rho_grid, params)
+        fitted_d11 = _evaluate_d11_profile(arrays, rho_grid, nu_value, trial_er)
         fitted = _evaluate_d33_profile(
             arrays,
             rho_grid,
             nu_value,
-            _er_profile(rho_grid, params),
+            trial_er,
         )
-        return jnp.mean((fitted - target_d33_profile) ** 2)
+        d11_residual = (
+            jnp.log10(jnp.maximum(fitted_d11, 1e-30))
+            - jnp.log10(jnp.maximum(target_d11_profile, 1e-30))
+        )
+        d33_residual = (fitted - target_d33_profile) / jnp.maximum(
+            jnp.abs(target_d33_profile),
+            1e-12,
+        )
+        return jnp.mean(d11_residual**2) + jnp.mean(d33_residual**2)
 
     def step(params, _):
         loss, grad = jax.value_and_grad(loss_fn)(params)
@@ -240,6 +255,7 @@ def example_neopax_profile_autodiff(
     )
     parameter_history, loss_history = history
     fitted_er_profile = _er_profile(rho_grid, fitted_params)
+    fitted_d11_profile = _evaluate_d11_profile(arrays, rho_grid, nu_value, fitted_er_profile)
     fitted_d33_profile = _evaluate_d33_profile(arrays, rho_grid, nu_value, fitted_er_profile)
     sensitivity_matrix = jax.jacrev(
         lambda params: _evaluate_d33_profile(
@@ -257,6 +273,8 @@ def example_neopax_profile_autodiff(
         rho=rho_grid,
         target_er_profile=target_er_profile,
         fitted_er_profile=fitted_er_profile,
+        target_d11_profile=target_d11_profile,
+        fitted_d11_profile=fitted_d11_profile,
         target_d33_profile=target_d33_profile,
         fitted_d33_profile=fitted_d33_profile,
         sensitivity_matrix=sensitivity_matrix,
@@ -306,6 +324,30 @@ def _evaluate_d33_profile(
             extrap=True,
         )
         return interpolator(log_nu, er_log)
+
+    return jax.vmap(per_radius)(jnp.arange(rho.size), er_profile)
+
+
+def _evaluate_d11_profile(
+    arrays: NeopaxMonoenergeticArrays,
+    rho: Array,
+    nu_value: Array,
+    er_profile: Array,
+) -> Array:
+    import interpax
+
+    log_nu = jnp.log10(jnp.maximum(nu_value, 1e-12))
+
+    def per_radius(index, er_value):
+        radius_scale = jnp.maximum(arrays.a_b * rho[index], 1e-8)
+        er_log = jnp.log10(jnp.maximum(1e-8, jnp.abs(er_value / radius_scale)))
+        interpolator = interpax.Interpolator2D(
+            arrays.nu_log,
+            arrays.Er_list[index],
+            arrays.D11_log[index],
+            extrap=True,
+        )
+        return 10.0 ** interpolator(log_nu, er_log)
 
     return jax.vmap(per_radius)(jnp.arange(rho.size), er_profile)
 

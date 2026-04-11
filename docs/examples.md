@@ -58,7 +58,8 @@ python examples/autodiff_inverse_problem.py
 ```
 
 This writes `docs/_static/autodiff_inverse_problem.png` and shows recovery of a
-surface harmonic from synthetic transport data using JAX gradients.
+surface harmonic from synthetic transport data using JAX gradients. A matching
+PDF is also written for manuscript workflows.
 
 ## Autodiff NEOPAX Profiles
 
@@ -67,4 +68,5 @@ python examples/neopax_autodiff_profiles.py
 ```
 
 This writes `docs/_static/autodiff_neopax_profiles.png` and shows a
-low-dimensional electric-field profile inversion on NEOPAX-style arrays.
+low-dimensional electric-field profile inversion on NEOPAX-style arrays. A
+matching PDF is also written for manuscript workflows.

@@ -38,12 +38,12 @@ formulation described in Javier Escoto's PhD thesis:
 - [ ] Add an autodiff NEOPAX-profile example showing how NTX-generated
   monoenergetic data can be used in NEOPAX-style profile analysis with
   publication-ready figures.
-- [ ] Add explicit device-parallel execution for large scans across multiple CPU
+- [x] Add explicit device-parallel execution for large scans across multiple CPU
   or GPU devices while preserving the differentiable imported lane.
-- [ ] Validate the new parallel execution path on:
+- [x] Validate the new parallel execution path on:
   - local multi-CPU runs using forced host-device counts
   - office multi-GPU runs using the two visible accelerators
-- [ ] Benchmark serial versus device-parallel scan throughput and document when
+- [x] Benchmark serial versus device-parallel scan throughput and document when
   the added parallelism is actually beneficial.
 
 ## Active Work Log
@@ -84,3 +84,26 @@ formulation described in Javier Escoto's PhD thesis:
   - the parallel execution layer is now numerically guarded and safe to use
   - true multi-GPU scaling remains blocked on office by one unhealthy GPU for
     the NTX dense solve, not by incorrect NTX output on the healthy subset
+- Added a separate multiprocess path,
+  `solve_monoenergetic_multiprocess_scan(...)`, that assigns one worker process
+  per device and pins GPU visibility with `CUDA_VISIBLE_DEVICES`.
+- office root-cause result:
+  - `cuda:1` is not intrinsically unhealthy
+  - the failure is specific to the single-process multi-GPU cuSolver path
+  - the multiprocess pinned-device lane is numerically correct on both office
+    GPUs
+- office multiprocess timings for the repository smoke scans:
+  - DKES sample: multiprocess `44.015 s` versus serial `26.716 s`
+  - VMEC sample: multiprocess `64.883 s` versus serial `5.589 s`
+- Current interpretation after the multiprocess audit:
+  - true two-GPU correctness is now closed
+  - the repository smoke scans are too small to amortize process launch and
+    per-worker compilation overhead
+  - the multiprocess path is therefore a throughput option for larger scans,
+    not the default path for small interactive studies
+- Refined the autodiff figures and regenerated both PNG and PDF assets for:
+  - `docs/_static/autodiff_inverse_problem.*`
+  - `docs/_static/autodiff_neopax_profiles.*`
+- Updated the NEOPAX-style autodiff inversion to fit both `D11` and `D33`
+  profiles, which materially improved recovery of the target electric-field
+  profile and made the example suitable for publication-facing documentation.

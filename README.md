@@ -103,6 +103,7 @@ These write polished figures into `docs/_static/` and demonstrate:
 
 - parameter recovery from synthetic transport data
 - profile sensitivity and inversion on NEOPAX-style monoenergetic arrays
+- both PNG and PDF figure export for manuscript-ready workflows
 
 ## Validation
 
@@ -111,7 +112,7 @@ optional NEOPAX HDF5 compatibility checks.
 
 Current local status:
 
-- `99 passed, 2 skipped`
+- `101 passed, 2 skipped`
 - GPU smoke tests are skipped on non-GPU machines
 - office GPU hardware validation is documented in `docs/gpu.md`
 
