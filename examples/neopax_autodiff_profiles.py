@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -48,6 +49,14 @@ def _configure_style() -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output-prefix",
+        type=Path,
+        default=ROOT / "docs" / "_static" / "autodiff_neopax_profiles",
+        help="Prefix for PNG and PDF outputs.",
+    )
+    args = parser.parse_args()
     enable_x64(True)
     _configure_style()
     scan = load_neopax_reference_scan(ROOT / "tests" / "fixtures" / "sample_neopax_scan.h5")
@@ -68,10 +77,9 @@ def main() -> None:
         steps=128,
     )
 
-    output_dir = ROOT / "docs" / "_static"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_png = output_dir / "autodiff_neopax_profiles.png"
-    output_pdf = output_dir / "autodiff_neopax_profiles.pdf"
+    output_png = args.output_prefix.with_suffix(".png")
+    output_pdf = args.output_prefix.with_suffix(".pdf")
+    output_png.parent.mkdir(parents=True, exist_ok=True)
 
     fig, axes = plt.subplots(2, 2, constrained_layout=True)
     iterations = np.arange(1, len(result.loss_history) + 1)

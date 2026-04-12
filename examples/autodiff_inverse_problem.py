@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -44,13 +45,20 @@ def _configure_style() -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output-prefix",
+        type=Path,
+        default=ROOT / "docs" / "_static" / "autodiff_inverse_problem",
+        help="Prefix for PNG and PDF outputs.",
+    )
+    args = parser.parse_args()
     enable_x64(True)
     _configure_style()
     result = example_inverse_problem(grid=GridSpec(7, 9, 6))
-    output_dir = ROOT / "docs" / "_static"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_png = output_dir / "autodiff_inverse_problem.png"
-    output_pdf = output_dir / "autodiff_inverse_problem.pdf"
+    output_png = args.output_prefix.with_suffix(".png")
+    output_pdf = args.output_prefix.with_suffix(".pdf")
+    output_png.parent.mkdir(parents=True, exist_ok=True)
 
     fig, axes = plt.subplots(1, 3, constrained_layout=True)
 

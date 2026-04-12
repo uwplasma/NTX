@@ -136,3 +136,20 @@ formulation described in Javier Escoto's PhD thesis:
 - Current publication inventory is now sufficient to start a methods-paper
   draft. The only optional missing figure is an application-specific science
   result, which is not required for the NTX methods manuscript itself.
+- Added a science/application figure for differentiable bootstrap-current
+  optimization:
+  - `examples/bootstrap_current_optimization.py`
+  - `docs/_static/bootstrap_current_optimization.*`
+  - uses a VMEC-derived radial surface family
+  - optimizes one dominant non-axisymmetric harmonic to increase a weighted
+    bootstrap-current proxy
+  - annotates representative serial and multiprocess scan timings
+- Added an output-inspection plotting example:
+  - `examples/plot_output_npz.py`
+  - `docs/_static/output_file_summary.*`
+  - turns a CLI `.npz` payload into a four-panel publication-style summary
+- Updated the publication bundle generator so the science figure is part of the
+  default figure inventory.
+- Expanded the user-facing docs and README so they now start from the simplest
+  `ntx input.toml` workflow, then cover Python solves, scans, parallelization,
+  NEOPAX coupling, autodiff, output plotting, and manuscript figures.

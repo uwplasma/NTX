@@ -7,6 +7,10 @@
     "docs/_static/autodiff_neopax_profiles.png",
     "docs/_static/autodiff_neopax_profiles.pdf"
   ],
+  "science": [
+    "docs/_static/bootstrap_current_optimization.png",
+    "docs/_static/bootstrap_current_optimization.pdf"
+  ],
   "validation": [
     "docs/_static/validation_summary.png",
     "docs/_static/validation_summary.pdf"

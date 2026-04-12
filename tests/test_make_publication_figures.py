@@ -17,7 +17,7 @@ def test_make_publication_figures_subset_writes_manifest(tmp_path):
             "--output-dir",
             str(output_dir),
             "--figures",
-            "validation,performance_smoke",
+            "validation,science",
         ],
         check=True,
         text=True,
@@ -27,8 +27,8 @@ def test_make_publication_figures_subset_writes_manifest(tmp_path):
     manifest_path = output_dir / "publication_figure_manifest.json"
     assert manifest_path.exists()
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"validation", "performance_smoke"}
+    assert set(payload) == {"validation", "science"}
     assert output_dir.joinpath("validation_summary.png").exists()
     assert output_dir.joinpath("validation_summary.pdf").exists()
-    assert output_dir.joinpath("performance_scaling_smoke.png").exists()
-    assert output_dir.joinpath("performance_scaling_smoke.pdf").exists()
+    assert output_dir.joinpath("bootstrap_current_optimization.png").exists()
+    assert output_dir.joinpath("bootstrap_current_optimization.pdf").exists()
