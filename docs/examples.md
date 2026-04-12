@@ -79,3 +79,23 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads and is the recommended path for manuscript-ready performance plots.
+
+## Validation Summary
+
+```bash
+python examples/validation_summary.py
+```
+
+This writes `docs/_static/validation_summary.png` and
+`docs/_static/validation_summary.pdf`. It is the recommended core validation
+figure for a methods paper because it combines transport trends, Onsager
+closure, and Legendre convergence.
+
+## Full Publication Bundle
+
+```bash
+python examples/make_publication_figures.py
+```
+
+This regenerates the full manuscript-ready figure bundle and writes a manifest
+to `docs/_static/publication_figure_manifest.json`.
