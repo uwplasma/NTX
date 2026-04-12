@@ -229,6 +229,15 @@ verbose = true
 Every output file includes the run configuration, raw input text, scalar
 metadata, and resolved transport results.
 
+To inspect an output file graphically:
+
+```bash
+python examples/plot_output_npz.py path/to/output.npz
+```
+
+This writes a publication-style PNG/PDF panel figure summarizing the solved
+surface, the drift source, the transport coefficients, and the run diagnostics.
+
 ### Core Run Metadata
 
 - `input_path`

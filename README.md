@@ -1,17 +1,53 @@
 # NTX
 
 NTX is a JAX-native monoenergetic neoclassical transport solver for stellarator
-flux surfaces. It implements the Legendre-space block-tridiagonal formulation
-described in Javier Escoto's PhD thesis:
-[arXiv:2510.27513](https://arxiv.org/abs/2510.27513).
+flux surfaces. It implements the Legendre-space formulation in Javier Escoto's
+PhD thesis: [arXiv:2510.27513](https://arxiv.org/abs/2510.27513).
 
-NTX has two intended usage lanes:
+NTX has two main lanes:
 
-- a fast command-line workflow for file-driven runs
-- an imported Python workflow for batched scans, NEOPAX coupling, and
-  differentiable JAX pipelines
+- a file-driven CLI for fast production runs
+- an imported Python/JAX lane for scans, autodiff, NEOPAX coupling, and
+  parallel throughput workflows
 
-## Install
+## Fastest Start
+
+Install the package:
+
+```bash
+python -m pip install ntx
+```
+
+Run the smallest bundled case:
+
+```bash
+ntx examples/example_surface.toml
+```
+
+That command:
+
+- prints a Rich summary to the terminal
+- solves one monoenergetic transport case
+- writes a compressed `.npz` output file next to the input TOML
+
+Run a slightly more realistic DKES-style example:
+
+```bash
+ntx examples/sample_dkes.toml
+```
+
+Inspect the `.npz` output with the plotting example:
+
+```bash
+python examples/plot_output_npz.py examples/outputs/sample_dkes.npz
+```
+
+This writes:
+
+- `docs/_static/output_file_summary.png`
+- `docs/_static/output_file_summary.pdf`
+
+## Installation
 
 Basic install:
 
@@ -19,29 +55,72 @@ Basic install:
 python -m pip install ntx
 ```
 
-Editable local install:
+Local editable install with test and docs tools:
 
 ```bash
 python -m pip install -e ".[dev,docs,io]"
 ```
 
-To use VMEC and Boozer JAX-backed geometry helpers:
+Install the JAX VMEC and Boozer geometry helpers:
 
 ```bash
 python -m pip install -e ".[geometry]"
 ```
 
-## Quick Start
+## Main Inputs
 
-CLI:
+The primary user entrypoint is:
 
 ```bash
-ntx examples/example_surface.toml
+ntx input.toml
+```
+
+Each input file defines:
+
+- a surface source
+- a spectral/angular grid
+- one monoenergetic case
+- output and logging options
+
+Bundled surface sources:
+
+- built-in analytic example
+- DKES-style `ddkes2.data`
+- VMEC `wout_*.nc`
+- Boozer `boozmn` files through the Python/JAX geometry helpers
+
+See [docs/input-file.md](docs/input-file.md) for the complete schema.
+
+## Main Outputs
+
+Every CLI run writes a compressed `.npz` file containing:
+
+- `D11`, `D31`, `D13`, `D33`, `D33_spitzer`
+- residual and Onsager diagnostics
+- resolved electric-field normalization
+- angular geometry arrays such as `theta_grid`, `zeta_grid`, `b`,
+  `radial_drift_spatial`
+- optional low-order Legendre modes
+- serialized run metadata and input text
+
+The plotting helper:
+
+```bash
+python examples/plot_output_npz.py path/to/output.npz
+```
+
+turns that payload into a four-panel publication-style summary figure.
+
+## Ways To Run NTX
+
+### 1. CLI solve from TOML
+
+```bash
 ntx examples/sample_dkes.toml
 ntx examples/sample_vmec.toml
 ```
 
-Python:
+### 2. Python single-case solve
 
 ```python
 from ntx import GridSpec, MonoenergeticCase, example_surface, solve_monoenergetic
@@ -54,29 +133,43 @@ result = solve_monoenergetic(surface, grid, case)
 print(result.D11, result.D13, result.D33)
 ```
 
-## Supported Inputs
+### 3. Batched JAX scans
 
-- built-in analytic sample surface
-- DKES-style `ddkes2.data` Boozer harmonics
-- text magnetic-configuration Fourier tables
-- VMEC `wout` files through `vmec_jax`
-- Boozer `boozmn` files through `booz_xform_jax`
+```python
+import jax.numpy as jnp
+from ntx import GridSpec, example_surface, solve_monoenergetic_scan
 
-## Outputs
+surface = example_surface()
+grid = GridSpec(9, 11, 8)
+nu_hat = jnp.logspace(-4, -2, 8)
+epsi_hat = jnp.zeros_like(nu_hat)
+coefficients = solve_monoenergetic_scan(surface, grid, nu_hat, epsi_hat=epsi_hat)
+```
 
-`ntx input.toml` prints a Rich terminal summary and writes a compressed `.npz`
-payload containing:
+### 4. Multiprocess throughput scans
 
-- solved transport coefficients
-- residual and Onsager diagnostics
-- resolved electric-field normalization
-- surface metadata
-- geometry metadata
-- optional low-order Legendre modes
+```python
+import jax.numpy as jnp
+from ntx import GridSpec, example_surface, solve_monoenergetic_multiprocess_scan
 
-## NEOPAX
+surface = example_surface()
+grid = GridSpec(9, 11, 8)
+nu_hat = jnp.logspace(-4, -2, 32)
+epsi_hat = jnp.zeros_like(nu_hat)
+coefficients = solve_monoenergetic_multiprocess_scan(
+    surface,
+    grid,
+    nu_hat,
+    epsi_hat=epsi_hat,
+    backend="cpu",
+    workers=4,
+)
+```
 
-NTX includes direct mapping helpers for NEOPAX-style monoenergetic databases:
+### 5. NEOPAX coupling
+
+NTX exposes direct monoenergetic scan builders and mapping helpers for
+NEOPAX-style databases:
 
 - `build_ntx_neopax_scan(...)`
 - `build_ntx_neopax_scan_from_surfaces(...)`
@@ -84,44 +177,82 @@ NTX includes direct mapping helpers for NEOPAX-style monoenergetic databases:
 - `to_neopax_monoenergetic(...)`
 - `write_neopax_scan_hdf5(...)`
 
-The example script:
+Minimal example:
 
 ```bash
 python examples/neopax_with_ntx.py
 ```
 
-builds a small VMEC scan and maps it into NEOPAX-style arrays.
+### 6. Differentiable workflows
 
-Autodiff examples:
+Inverse and sensitivity examples:
 
 ```bash
 python examples/autodiff_inverse_problem.py
 python examples/neopax_autodiff_profiles.py
-python examples/validation_summary.py
-python examples/performance_scaling.py --cpu-json ... --gpu-json ...
+python examples/bootstrap_current_optimization.py
+```
+
+These examples generate manuscript-quality figures in `docs/_static/`.
+
+## Parallelization
+
+NTX supports:
+
+- serial batched JAX scans for small and medium studies
+- multiprocess multi-device scans for throughput-oriented workloads
+
+The current measured guidance is:
+
+- use serial batched JAX as the default
+- use the multiprocess lane when scan sizes are large enough to amortize
+  process-launch and compilation costs
+
+See:
+
+- [docs/gpu.md](docs/gpu.md)
+- [docs/performance.md](docs/performance.md)
+
+## Autodiff And NEOPAX
+
+NTX is designed to be usable inside differentiable JAX pipelines. The imported
+lane supports:
+
+- `jit`
+- `vmap`
+- differentiation with respect to transport inputs and geometry coefficients
+- NEOPAX-style database generation entirely in Python
+
+The most relevant examples are:
+
+- `examples/neopax_autodiff_profiles.py`
+- `examples/bootstrap_current_optimization.py`
+- `examples/neopax_with_ntx.py`
+
+## Publication Figures
+
+Generate the full manuscript-ready figure bundle:
+
+```bash
 python examples/make_publication_figures.py
 ```
 
-These write polished figures into `docs/_static/` and demonstrate:
+This regenerates:
 
-- transport-coefficient trends, Onsager closure, and Legendre convergence on
-  repository sample surfaces
-- parameter recovery from synthetic transport data
-- profile sensitivity and inversion on NEOPAX-style monoenergetic arrays
-- both PNG and PDF figure export for manuscript-ready workflows
-- serial-versus-multiprocess scaling on CPU and GPU
-- one-command regeneration of the manuscript figure bundle
+- validation figures
+- autodiff inverse and profile figures
+- bootstrap-current optimization science figure
+- CPU/GPU performance scaling figures
+
+and writes a manifest to `docs/_static/publication_figure_manifest.json`.
 
 ## Validation
 
-The repository validation now stays entirely inside NTX-owned fixtures plus
-optional NEOPAX HDF5 compatibility checks.
-
 Current local status:
 
-- `105 passed, 2 skipped`
-- GPU smoke tests are skipped on non-GPU machines
-- office GPU hardware validation is documented in `docs/gpu.md`
+- `108 passed, 2 skipped`
+- full validation remains local-first because hosted CI is billing-blocked
+- office GPU validation is documented in [docs/gpu.md](docs/gpu.md)
 
 ## Documentation
 

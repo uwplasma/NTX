@@ -1,32 +1,52 @@
 # Examples
 
-## Built-In Surface
+This page lists the main ways to run NTX, from the smallest CLI solve to the
+publication-figure scripts.
+
+## 1. Simplest CLI Run
 
 ```bash
 ntx examples/example_surface.toml
 ```
 
-This is the smallest end-to-end run and does not require any external files.
+This is the smallest end-to-end solve. It requires no external files and is the
+best first command to confirm that NTX is installed correctly.
 
-## DKES-Style Surface
+## 2. DKES-Style CLI Run
 
 ```bash
 ntx examples/sample_dkes.toml
 ```
 
-This uses the repository sample `ddkes2.data` fixture and writes a `.npz`
-result under `examples/outputs/`.
+This writes a compressed `.npz` result under `examples/outputs/`.
 
-## VMEC Surface
+## 3. VMEC CLI Run
 
 ```bash
 ntx examples/sample_vmec.toml
 ```
 
-This uses the repository sample `wout` fixture and exercises the VMEC
-normalization path.
+This exercises the VMEC normalization path on the bundled sample `wout` file.
 
-## Python API
+## 4. Open And Plot An Output File
+
+```bash
+python examples/plot_output_npz.py examples/outputs/sample_dkes.npz
+```
+
+This reads an NTX `.npz` payload and writes:
+
+- `docs/_static/output_file_summary.png`
+- `docs/_static/output_file_summary.pdf`
+
+The output figure contains:
+
+- magnetic-field strength on the angular grid
+- the radial-drift source on the same grid
+- the solved transport coefficients
+- a run-summary panel with key diagnostics
+
+## 5. Python Single-Case Solve
 
 ```python
 from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
@@ -37,7 +57,7 @@ case = MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3)
 result = solve_monoenergetic(surface, grid, case)
 ```
 
-## NEOPAX Mapping
+## 6. NEOPAX Mapping
 
 ```bash
 python examples/neopax_with_ntx.py
@@ -45,57 +65,73 @@ python examples/neopax_with_ntx.py
 
 This example:
 
-- loads a small NEOPAX-style HDF5 table
-- builds an NTX VMEC scan from the sample `wout`
-- maps the result into NEOPAX-style arrays
+- loads a VMEC equilibrium
+- builds an NTX monoenergetic scan
+- maps that scan into NEOPAX-style arrays
 
 Use it as the minimal reference for NTX-to-NEOPAX coupling.
 
-## Autodiff Inverse Problem
+## 7. Autodiff Inverse Problem
 
 ```bash
 python examples/autodiff_inverse_problem.py
 ```
 
-This writes `docs/_static/autodiff_inverse_problem.png` and shows recovery of a
-surface harmonic from synthetic transport data using JAX gradients. A matching
-PDF is also written for manuscript workflows.
+This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
+recovery of a Boozer harmonic from synthetic transport data using JAX
+gradients.
 
-## Autodiff NEOPAX Profiles
+## 8. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py
 ```
 
-This writes `docs/_static/autodiff_neopax_profiles.png` and shows a
-low-dimensional electric-field profile inversion on NEOPAX-style arrays. A
-matching PDF is also written for manuscript workflows.
+This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
+a low-dimensional electric-field profile inversion on NEOPAX-style
+monoenergetic arrays.
 
-## Performance Scaling
+## 9. Science Case: Bootstrap-Current Optimization
+
+```bash
+python examples/bootstrap_current_optimization.py
+```
+
+This writes `docs/_static/bootstrap_current_optimization.{png,pdf}` and shows a
+differentiable geometry-control problem:
+
+- a VMEC-derived radial surface family
+- one dominant non-axisymmetric harmonic used as the control variable
+- autodiff optimization of a weighted bootstrap-current proxy
+- explicit serial-versus-multiprocess timing annotations
+
+This is the main application/science-case figure for a methods paper centered
+on bootstrap-current analysis and optimization.
+
+## 10. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 ```
 
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
-payloads and is the recommended path for manuscript-ready performance plots.
+payloads.
 
-## Validation Summary
+## 11. Validation Summary
 
 ```bash
 python examples/validation_summary.py
 ```
 
-This writes `docs/_static/validation_summary.png` and
-`docs/_static/validation_summary.pdf`. It is the recommended core validation
-figure for a methods paper because it combines transport trends, Onsager
-closure, and Legendre convergence.
+This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
+core validation figure for a methods paper because it combines transport
+trends, Onsager closure, and Legendre convergence.
 
-## Full Publication Bundle
+## 12. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py
 ```
 
-This regenerates the full manuscript-ready figure bundle and writes a manifest
-to `docs/_static/publication_figure_manifest.json`.
+This regenerates the manuscript-ready figure bundle and writes a manifest to
+`docs/_static/publication_figure_manifest.json`.

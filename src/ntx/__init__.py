@@ -3,8 +3,10 @@
 from importlib.metadata import PackageNotFoundError, version
 
 from .autodiff import (
+    BootstrapOptimizationResult,
     InverseProblemResult,
     NeopaxProfileAutodiffResult,
+    example_bootstrap_current_optimization,
     example_inverse_problem,
     example_neopax_profile_autodiff,
 )
@@ -64,6 +66,7 @@ __all__ = [
     "__version__",
     "BoozmnSurface",
     "BoozerSurface",
+    "BootstrapOptimizationResult",
     "CompiledPreparedSolver",
     "GridSpec",
     "MonoenergeticCase",
@@ -79,6 +82,7 @@ __all__ = [
     "compile_prepared_solver",
     "enable_x64",
     "example_surface",
+    "example_bootstrap_current_optimization",
     "load_boozmn_surface",
     "load_run_config",
     "load_boozer_modes_csv",
@@ -108,6 +112,8 @@ __all__ = [
     "write_neopax_scan_hdf5",
     "InverseProblemResult",
     "NeopaxProfileAutodiffResult",
+    "BootstrapOptimizationResult",
     "example_inverse_problem",
     "example_neopax_profile_autodiff",
+    "example_bootstrap_current_optimization",
 ]

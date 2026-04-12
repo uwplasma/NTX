@@ -34,7 +34,7 @@ def main() -> None:
     parser.add_argument(
         "--figures",
         type=str,
-        default="inverse,profiles,validation,performance_smoke,performance_heavy",
+        default="inverse,profiles,science,validation,performance_smoke,performance_heavy",
         help="Comma-separated subset of figures to generate.",
     )
     args = parser.parse_args()
@@ -45,17 +45,45 @@ def main() -> None:
     manifest: dict[str, list[str]] = {}
 
     if "inverse" in selected:
-        _run([sys.executable, str(ROOT / "examples" / "autodiff_inverse_problem.py")])
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "autodiff_inverse_problem.py"),
+                "--output-prefix",
+                str(output_dir / "autodiff_inverse_problem"),
+            ]
+        )
         manifest["inverse"] = [
             _manifest_path(output_dir / "autodiff_inverse_problem.png"),
             _manifest_path(output_dir / "autodiff_inverse_problem.pdf"),
         ]
 
     if "profiles" in selected:
-        _run([sys.executable, str(ROOT / "examples" / "neopax_autodiff_profiles.py")])
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "neopax_autodiff_profiles.py"),
+                "--output-prefix",
+                str(output_dir / "autodiff_neopax_profiles"),
+            ]
+        )
         manifest["profiles"] = [
             _manifest_path(output_dir / "autodiff_neopax_profiles.png"),
             _manifest_path(output_dir / "autodiff_neopax_profiles.pdf"),
+        ]
+
+    if "science" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "bootstrap_current_optimization.py"),
+                "--output-prefix",
+                str(output_dir / "bootstrap_current_optimization"),
+            ]
+        )
+        manifest["science"] = [
+            _manifest_path(output_dir / "bootstrap_current_optimization.png"),
+            _manifest_path(output_dir / "bootstrap_current_optimization.pdf"),
         ]
 
     if "validation" in selected:
