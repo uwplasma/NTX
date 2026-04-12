@@ -183,6 +183,12 @@ Minimal example:
 python examples/neopax_with_ntx.py
 ```
 
+Bootstrap-current example from VMEC or direct Boozer input:
+
+```bash
+python examples/bootstrap_current_from_vmec_or_boozmn.py
+```
+
 ### 6. Differentiable workflows
 
 Inverse and sensitivity examples:
@@ -225,6 +231,7 @@ lane supports:
 
 The most relevant examples are:
 
+- `examples/bootstrap_current_from_vmec_or_boozmn.py`
 - `examples/neopax_autodiff_profiles.py`
 - `examples/bootstrap_current_optimization.py`
 - `examples/neopax_with_ntx.py`

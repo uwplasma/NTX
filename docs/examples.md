@@ -71,7 +71,26 @@ This example:
 
 Use it as the minimal reference for NTX-to-NEOPAX coupling.
 
-## 7. Autodiff Inverse Problem
+## 7. Bootstrap Current From VMEC Or Boozmn
+
+```bash
+python examples/bootstrap_current_from_vmec_or_boozmn.py
+```
+
+This example is the most direct answer to the common workflow:
+
+- start from a VMEC `wout` file and use `vmec_jax`
+- or, if a Boozer `boozmn` file already exists, use `booz_xform_jax` output directly
+- build an NTX monoenergetic database
+- map that database into NEOPAX and compute a bootstrap-current profile
+- compare the result against a local reference database and, when available, a
+  local SFINCS-JAX `transportMatrix` output
+
+Use `--surface-source vmec` to force the VMEC-harmonic lane or
+`--surface-source boozmn` to force the direct Boozer lane when both files are
+available.
+
+## 8. Autodiff Inverse Problem
 
 ```bash
 python examples/autodiff_inverse_problem.py
@@ -81,7 +100,7 @@ This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
 recovery of a Boozer harmonic from synthetic transport data using JAX
 gradients.
 
-## 8. Autodiff NEOPAX Profiles
+## 9. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py
@@ -91,7 +110,7 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 9. Science Case: Bootstrap-Current Optimization
+## 10. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py
@@ -108,7 +127,7 @@ differentiable geometry-control problem:
 This is the main application/science-case figure for a methods paper centered
 on bootstrap-current analysis and optimization.
 
-## 10. Performance Scaling
+## 11. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -117,7 +136,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 11. Validation Summary
+## 12. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -127,7 +146,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 12. Full Publication Bundle
+## 13. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py
