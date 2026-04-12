@@ -25,7 +25,7 @@ The default test suite covers:
 
 Latest local suite:
 
-- `103 passed, 2 skipped`
+- `105 passed, 2 skipped`
 
 The two skipped tests are the GPU smoke tests on non-GPU machines.
 
@@ -92,6 +92,9 @@ the default path for small scans.
 
 The current CPU/GPU scaling figure workflow is documented in
 [`Performance`](performance.md).
+
+The publication-ready validation summary figure is documented in
+[`Manuscript Figures`](manuscript.md).
 
 ## NEOPAX Compatibility
 

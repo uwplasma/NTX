@@ -45,6 +45,9 @@ formulation described in Javier Escoto's PhD thesis:
   - office multi-GPU runs using the two visible accelerators
 - [x] Benchmark serial versus device-parallel scan throughput and document when
   the added parallelism is actually beneficial.
+- [x] Add a manuscript-ready validation summary figure and a one-command figure
+  bundle generator so the publication assets can be regenerated directly from
+  the repository.
 
 ## Active Work Log
 
@@ -124,3 +127,12 @@ formulation described in Javier Escoto's PhD thesis:
   used to generate them:
   - `docs/_static/performance_scaling_smoke.*`
   - `docs/_static/performance_scaling_heavy.*`
+- Added a manuscript-facing validation figure:
+  - `examples/validation_summary.py`
+  - `docs/_static/validation_summary.*`
+- Added a one-command figure bundle generator:
+  - `examples/make_publication_figures.py`
+  - `docs/_static/publication_figure_manifest.json`
+- Current publication inventory is now sufficient to start a methods-paper
+  draft. The only optional missing figure is an application-specific science
+  result, which is not required for the NTX methods manuscript itself.

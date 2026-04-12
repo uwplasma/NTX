@@ -1,0 +1,22 @@
+{
+  "inverse": [
+    "docs/_static/autodiff_inverse_problem.png",
+    "docs/_static/autodiff_inverse_problem.pdf"
+  ],
+  "profiles": [
+    "docs/_static/autodiff_neopax_profiles.png",
+    "docs/_static/autodiff_neopax_profiles.pdf"
+  ],
+  "validation": [
+    "docs/_static/validation_summary.png",
+    "docs/_static/validation_summary.pdf"
+  ],
+  "performance_smoke": [
+    "docs/_static/performance_scaling_smoke.png",
+    "docs/_static/performance_scaling_smoke.pdf"
+  ],
+  "performance_heavy": [
+    "docs/_static/performance_scaling_heavy.png",
+    "docs/_static/performance_scaling_heavy.pdf"
+  ]
+}

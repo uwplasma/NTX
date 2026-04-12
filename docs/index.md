@@ -33,5 +33,6 @@ validation
 neopax
 gpu
 performance
+manuscript
 release
 ```
