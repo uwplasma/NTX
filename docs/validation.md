@@ -25,7 +25,7 @@ The default test suite covers:
 
 Latest local suite:
 
-- `101 passed, 2 skipped`
+- `103 passed, 2 skipped`
 
 The two skipped tests are the GPU smoke tests on non-GPU machines.
 
@@ -89,6 +89,9 @@ when each worker process is pinned to one GPU with `CUDA_VISIBLE_DEVICES`. For
 the repository smoke grids that path is still slower than the serial batched
 scan, so it should be treated as a throughput lane for larger jobs rather than
 the default path for small scans.
+
+The current CPU/GPU scaling figure workflow is documented in
+[`Performance`](performance.md).
 
 ## NEOPAX Compatibility
 

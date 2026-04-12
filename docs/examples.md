@@ -70,3 +70,12 @@ python examples/neopax_autodiff_profiles.py
 This writes `docs/_static/autodiff_neopax_profiles.png` and shows a
 low-dimensional electric-field profile inversion on NEOPAX-style arrays. A
 matching PDF is also written for manuscript workflows.
+
+## Performance Scaling
+
+```bash
+python examples/performance_scaling.py --cpu-json ... --gpu-json ...
+```
+
+This writes publication-style CPU/GPU scaling figures from benchmark JSON
+payloads and is the recommended path for manuscript-ready performance plots.

@@ -32,5 +32,6 @@ examples
 validation
 neopax
 gpu
+performance
 release
 ```

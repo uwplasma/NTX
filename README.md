@@ -97,6 +97,7 @@ Autodiff examples:
 ```bash
 python examples/autodiff_inverse_problem.py
 python examples/neopax_autodiff_profiles.py
+python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 ```
 
 These write polished figures into `docs/_static/` and demonstrate:
@@ -104,6 +105,7 @@ These write polished figures into `docs/_static/` and demonstrate:
 - parameter recovery from synthetic transport data
 - profile sensitivity and inversion on NEOPAX-style monoenergetic arrays
 - both PNG and PDF figure export for manuscript-ready workflows
+- serial-versus-multiprocess scaling on CPU and GPU
 
 ## Validation
 
@@ -112,7 +114,7 @@ optional NEOPAX HDF5 compatibility checks.
 
 Current local status:
 
-- `101 passed, 2 skipped`
+- `103 passed, 2 skipped`
 - GPU smoke tests are skipped on non-GPU machines
 - office GPU hardware validation is documented in `docs/gpu.md`
 
@@ -126,4 +128,5 @@ Current local status:
 - [Validation](docs/validation.md)
 - [NEOPAX](docs/neopax.md)
 - [GPU](docs/gpu.md)
+- [Performance](docs/performance.md)
 - [Release](docs/release.md)
