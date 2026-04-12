@@ -80,3 +80,6 @@ So the current guidance is:
 - use the guarded single-process path only when all visible devices are healthy
 - use the multiprocess path for larger multi-GPU throughput workloads or for
   platforms that need strict one-process-per-GPU isolation
+
+The current scaling figures and JSON payloads are documented in
+[`Performance`](performance.md).

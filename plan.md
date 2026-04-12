@@ -107,3 +107,20 @@ formulation described in Javier Escoto's PhD thesis:
 - Updated the NEOPAX-style autodiff inversion to fit both `D11` and `D33`
   profiles, which materially improved recovery of the target electric-field
   profile and made the example suitable for publication-facing documentation.
+- Added explicit scaling benchmark and plotting workflows:
+  - `scripts/benchmark_scaling.py`
+  - `examples/performance_scaling.py`
+- Collected smoke-grid DKES scaling data:
+  - local CPU `9 x 11 x 6`: serial batched remains faster than multiprocess up
+    through `256` cases
+  - office GPU `9 x 11 x 6`: serial batched remains faster than multiprocess in
+    the tested range after the smallest startup-dominated point
+- Collected heavier-grid DKES scaling data:
+  - local CPU `17 x 25 x 16`: multiprocess approaches parity by `32` cases and
+    wins by `64` cases (`1.79x` speedup)
+  - office GPU `17 x 25 x 16`: multiprocess remains slower than serial through
+    `64` cases under the current shared-office stack
+- Added publication-style performance figures and committed the JSON payloads
+  used to generate them:
+  - `docs/_static/performance_scaling_smoke.*`
+  - `docs/_static/performance_scaling_heavy.*`

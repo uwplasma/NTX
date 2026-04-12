@@ -1,0 +1,50 @@
+{
+  "backend": "gpu",
+  "devices": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "grid": {
+    "n_theta": 17,
+    "n_xi": 16,
+    "n_zeta": 25
+  },
+  "healthy_parallel_device_count": 1,
+  "local_device_count": 2,
+  "results": [
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 2.463835357957578e-09,
+      "multiprocess_cases_per_second": 0.608218488076835,
+      "multiprocess_seconds": 26.306336150009884,
+      "multiprocess_speedup_vs_serial": 0.1968113184774334,
+      "num_cases": 16,
+      "serial_cases_per_second": 3.0903633631547156,
+      "serial_seconds": 5.177384701994015
+    },
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 1.314273845309799e-08,
+      "multiprocess_cases_per_second": 4.781529186558577,
+      "multiprocess_seconds": 6.692419674014673,
+      "multiprocess_speedup_vs_serial": 0.3154651212611362,
+      "num_cases": 32,
+      "serial_cases_per_second": 15.157077167337675,
+      "serial_seconds": 2.111224983993452
+    },
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 3.3123299658655014e-08,
+      "multiprocess_cases_per_second": 9.110098963122008,
+      "multiprocess_seconds": 7.025170665991027,
+      "multiprocess_speedup_vs_serial": 0.4235861469424724,
+      "num_cases": 64,
+      "serial_cases_per_second": 21.507074839157237,
+      "serial_seconds": 2.9757649740204215
+    }
+  ],
+  "sizes": [
+    16,
+    32,
+    64
+  ],
+  "surface": "dkes",
+  "workers": 2
+}

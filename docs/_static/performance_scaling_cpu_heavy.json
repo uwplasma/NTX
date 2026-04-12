@@ -1,0 +1,52 @@
+{
+  "backend": "cpu",
+  "devices": [
+    "TFRT_CPU_0",
+    "TFRT_CPU_1",
+    "TFRT_CPU_2",
+    "TFRT_CPU_3"
+  ],
+  "grid": {
+    "n_theta": 17,
+    "n_xi": 16,
+    "n_zeta": 25
+  },
+  "healthy_parallel_device_count": 4,
+  "local_device_count": 4,
+  "results": [
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 1.7257422157967994e-09,
+      "multiprocess_cases_per_second": 4.064876056999209,
+      "multiprocess_seconds": 3.9361593750072643,
+      "multiprocess_speedup_vs_serial": 0.5663079358947514,
+      "num_cases": 16,
+      "serial_cases_per_second": 7.177854660604066,
+      "serial_seconds": 2.2290782910131384
+    },
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 1.8722081662758683e-09,
+      "multiprocess_cases_per_second": 7.03174426983208,
+      "multiprocess_seconds": 4.550791207992006,
+      "multiprocess_speedup_vs_serial": 0.9392915824172573,
+      "num_cases": 32,
+      "serial_cases_per_second": 7.486220893980502,
+      "serial_seconds": 4.274519875005353
+    },
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 0.0,
+      "multiprocess_cases_per_second": 12.670366628188662,
+      "multiprocess_seconds": 5.051156125002308,
+      "multiprocess_speedup_vs_serial": 1.7904466542288835,
+      "num_cases": 64,
+      "serial_cases_per_second": 7.076651291599405,
+      "serial_seconds": 9.043825583998114
+    }
+  ],
+  "sizes": [
+    16,
+    32,
+    64
+  ],
+  "surface": "dkes",
+  "workers": 4
+}

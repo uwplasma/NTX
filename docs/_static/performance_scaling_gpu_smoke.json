@@ -1,0 +1,70 @@
+{
+  "backend": "gpu",
+  "devices": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "grid": {
+    "n_theta": 9,
+    "n_xi": 6,
+    "n_zeta": 11
+  },
+  "healthy_parallel_device_count": 1,
+  "local_device_count": 2,
+  "results": [
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 0.0,
+      "multiprocess_cases_per_second": 1.0749683977817628,
+      "multiprocess_seconds": 7.442079242988257,
+      "multiprocess_speedup_vs_serial": 1.2272248466879012,
+      "num_cases": 8,
+      "serial_cases_per_second": 0.8759343495064852,
+      "serial_seconds": 9.133104558015475
+    },
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 1.0269562977782698e-15,
+      "multiprocess_cases_per_second": 2.515796039839905,
+      "multiprocess_seconds": 6.35981603700202,
+      "multiprocess_speedup_vs_serial": 0.22318873199194106,
+      "num_cases": 16,
+      "serial_cases_per_second": 11.27205669115386,
+      "serial_seconds": 1.4194392770004924
+    },
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 0.0,
+      "multiprocess_cases_per_second": 2.979849085955714,
+      "multiprocess_seconds": 10.738798870996106,
+      "multiprocess_speedup_vs_serial": 0.1280710749420104,
+      "num_cases": 32,
+      "serial_cases_per_second": 23.26715136345164,
+      "serial_seconds": 1.3753295149945188
+    },
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 1.3322676295501878e-15,
+      "multiprocess_cases_per_second": 4.687788024749148,
+      "multiprocess_seconds": 13.652494451991515,
+      "multiprocess_speedup_vs_serial": 0.18708792968059385,
+      "num_cases": 64,
+      "serial_cases_per_second": 25.05660323866099,
+      "serial_seconds": 2.5542169219988864
+    },
+    {
+      "max_abs_delta_serial_vs_multiprocess_d11": 9.159339953157541e-16,
+      "multiprocess_cases_per_second": 1.6833694673748922,
+      "multiprocess_seconds": 76.03797174699139,
+      "multiprocess_speedup_vs_serial": 0.22477336984842272,
+      "num_cases": 128,
+      "serial_cases_per_second": 7.489185522778267,
+      "serial_seconds": 17.091311146010412
+    }
+  ],
+  "sizes": [
+    8,
+    16,
+    32,
+    64,
+    128
+  ],
+  "surface": "dkes",
+  "workers": 2
+}
