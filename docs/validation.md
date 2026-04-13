@@ -25,7 +25,7 @@ The default test suite covers:
 
 Latest local suite:
 
-- `108 passed, 2 skipped`
+- `110 passed, 2 skipped`
 
 The two skipped tests are the GPU smoke tests on non-GPU machines.
 
@@ -95,6 +95,15 @@ The current CPU/GPU scaling figure workflow is documented in
 
 The publication-ready validation summary figure is documented in
 [`Manuscript Figures`](manuscript.md).
+
+For a W7-X imported-workflow validation figure, run:
+
+```bash
+python examples/bootstrap_current_from_vmec_or_boozmn.py
+```
+
+That example writes a radial bootstrap-current comparison figure plus a JSON
+summary of pointwise and profile errors.
 
 ## NEOPAX Compatibility
 

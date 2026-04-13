@@ -1,0 +1,38 @@
+{
+  "geometry_mode": "boozmn",
+  "wout": "wout_W7-X_standard_configuration.nc",
+  "boozmn": "boozmn_wout_W7-X_standard_configuration.nc",
+  "reference_database": "Dij_NEOPAX_FULL_S_NEW_W7X.h5",
+  "sfincs_output": "sfincsOutput_jax.h5",
+  "point": {
+    "rho": 0.5,
+    "nu_hat": 1e-05,
+    "epsi_hat": 0.0,
+    "D11": 0.029639180509865394,
+    "D13": -0.13635215512808904,
+    "D31": 0.13750334527892605,
+    "D33": 35674.81154324524
+  },
+  "reference_point": {
+    "rho": 0.5,
+    "nu_hat": 9.999999747378752e-06,
+    "epsi_hat": 0.0,
+    "D11": 0.20113343000411987,
+    "D13": -0.35394617915153503,
+    "D33": 37933.0859375,
+    "D31": 0.3397376835346222
+  },
+  "bootstrap": {
+    "max_relative_error": 0.25353459485718605
+  },
+  "radial_accuracy": {
+    "D11": 0.8095914151873613,
+    "D13": 8.091220232644789,
+    "D31": 4.87344713673728,
+    "D33": 0.49854604010577785
+  },
+  "sfincs": null,
+  "figure_png": "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
+  "figure_pdf": "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf",
+  "reference_source": "external NEOPAX-style database"
+}
