@@ -183,15 +183,15 @@ Minimal example:
 python examples/neopax_with_ntx.py
 ```
 
-Bootstrap-current example from VMEC or direct Boozer input:
+Bootstrap-current proxy example from VMEC or direct Boozer input:
 
 ```bash
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
 
-When both `wout` and `boozmn` are available, the example uses the direct
-Boozer path by default because that is currently the tighter W7-X
-bootstrap-current comparison lane.
+The script solves a fixed-collisionality NTX radial family, plots
+`D11`, `D13`, `nu_hat * D33`, and a compact bootstrap-current proxy, and writes
+PNG, PDF, and JSON outputs next to the configured `OUTPUT_PREFIX`.
 
 The example writes:
 
@@ -199,7 +199,23 @@ The example writes:
 - `docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf`
 - `docs/_static/bootstrap_current_from_vmec_or_boozmn.json`
 
-![W7-X bootstrap-current comparison](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
+![NTX bootstrap-current proxy profile](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
+
+W7-X bootstrap-current convergence audit:
+
+```bash
+python examples/bootstrap_current_reference_audit_w7x.py
+```
+
+This script rebuilds the W7-X imported workflow on a reduced reference scan,
+computes the bootstrap-current profile through NEOPAX, and writes a
+publication-ready convergence figure:
+
+- `docs/_static/bootstrap_current_reference_audit_w7x.png`
+- `docs/_static/bootstrap_current_reference_audit_w7x.pdf`
+- `docs/_static/bootstrap_current_reference_audit_w7x.json`
+
+![W7-X bootstrap-current convergence](docs/_static/bootstrap_current_reference_audit_w7x.png)
 
 ### 6. Differentiable workflows
 
@@ -263,19 +279,26 @@ This regenerates:
 - bootstrap-current optimization science figure
 - CPU/GPU performance scaling figures
 
-For the W7-X bootstrap-current validation figure:
+For the pure NTX bootstrap-current proxy figure:
 
 ```bash
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
 
-and writes a manifest to `docs/_static/publication_figure_manifest.json`.
+For the W7-X imported-workflow reference audit:
+
+```bash
+python examples/bootstrap_current_reference_audit_w7x.py
+```
+
+and the publication bundle manifest is written to
+`docs/_static/publication_figure_manifest.json`.
 
 ## Validation
 
 Current local status:
 
-- `110 passed, 2 skipped`
+- `113 passed, 2 skipped`
 - full validation remains local-first because hosted CI is billing-blocked
 - office GPU validation is documented in [docs/gpu.md](docs/gpu.md)
 

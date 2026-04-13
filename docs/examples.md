@@ -77,19 +77,16 @@ Use it as the minimal reference for NTX-to-NEOPAX coupling.
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
 
-This example is the most direct answer to the common workflow:
+This example is the shortest NTX-only workflow:
 
 - start from a VMEC `wout` file and use `vmec_jax`
 - or, if a Boozer `boozmn` file already exists, use `booz_xform_jax` output directly
-- build an NTX monoenergetic database
-- map that database into NEOPAX and compute a bootstrap-current profile
-- compare the result against a local reference database and, when available, a
-  local SFINCS-JAX `transportMatrix` output
+- solve a fixed-collisionality NTX radial family
+- plot `D11`, `D13`, `nu_hat * D33`, and a compact bootstrap-current proxy
 
-When both files are available, the example prefers the direct Boozer lane in
-`auto` mode because that is currently the tighter W7-X bootstrap-current
-comparison path. Use `--surface-source vmec` to force the VMEC-harmonic lane or
-`--surface-source boozmn` to force the direct Boozer lane explicitly.
+All user inputs live at the top of the file. The script prefers direct Boozer
+input in `auto` mode when a `boozmn` file is available and otherwise falls back
+to the VMEC-harmonic lane.
 
 It writes:
 
@@ -97,9 +94,25 @@ It writes:
 - `docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf`
 - `docs/_static/bootstrap_current_from_vmec_or_boozmn.json`
 
-![W7-X bootstrap-current validation](_static/bootstrap_current_from_vmec_or_boozmn.png)
+![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
 
-## 8. Autodiff Inverse Problem
+## 8. W7-X Reference Audit
+
+```bash
+python examples/bootstrap_current_reference_audit_w7x.py
+```
+
+This optional audit script compares the direct VMEC NTX lane against the local
+W7-X reference database on a reduced reference scan, evaluates the resulting
+bootstrap-current profile through NEOPAX, and writes a convergence figure:
+
+- `docs/_static/bootstrap_current_reference_audit_w7x.png`
+- `docs/_static/bootstrap_current_reference_audit_w7x.pdf`
+- `docs/_static/bootstrap_current_reference_audit_w7x.json`
+
+![W7-X bootstrap-current convergence](_static/bootstrap_current_reference_audit_w7x.png)
+
+## 9. Autodiff Inverse Problem
 
 ```bash
 python examples/autodiff_inverse_problem.py
@@ -109,7 +122,7 @@ This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
 recovery of a Boozer harmonic from synthetic transport data using JAX
 gradients.
 
-## 9. Autodiff NEOPAX Profiles
+## 10. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py

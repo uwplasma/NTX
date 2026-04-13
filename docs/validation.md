@@ -25,7 +25,7 @@ The default test suite covers:
 
 Latest local suite:
 
-- `110 passed, 2 skipped`
+- `113 passed, 2 skipped`
 
 The two skipped tests are the GPU smoke tests on non-GPU machines.
 
@@ -96,14 +96,24 @@ The current CPU/GPU scaling figure workflow is documented in
 The publication-ready validation summary figure is documented in
 [`Manuscript Figures`](manuscript.md).
 
-For a W7-X imported-workflow validation figure, run:
+For the pure NTX radial-profile figure, run:
 
 ```bash
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
 
-That example writes a radial bootstrap-current comparison figure plus a JSON
-summary of pointwise and profile errors.
+That example writes a radial bootstrap-current-proxy figure plus a JSON summary
+of the solved profiles.
+
+For the W7-X imported-workflow benchmark audit, run:
+
+```bash
+python examples/bootstrap_current_reference_audit_w7x.py
+```
+
+That audit uses the direct VMEC lane, rebuilds the reduced W7-X reference scan
+at three NTX resolutions, and writes a bootstrap-current convergence figure plus
+a JSON summary of the profile errors.
 
 ## NEOPAX Compatibility
 

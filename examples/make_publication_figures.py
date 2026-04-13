@@ -34,7 +34,10 @@ def main() -> None:
     parser.add_argument(
         "--figures",
         type=str,
-        default="inverse,profiles,science,validation,performance_smoke,performance_heavy",
+        default=(
+            "inverse,profiles,science,validation,"
+            "bootstrap_proxy,w7x_audit,performance_smoke,performance_heavy"
+        ),
         help="Comma-separated subset of figures to generate.",
     )
     args = parser.parse_args()
@@ -98,6 +101,40 @@ def main() -> None:
         manifest["validation"] = [
             _manifest_path(output_dir / "validation_summary.png"),
             _manifest_path(output_dir / "validation_summary.pdf"),
+        ]
+
+    if "bootstrap_proxy" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "bootstrap_current_from_vmec_or_boozmn.py"),
+            ]
+        )
+        for suffix in (".png", ".pdf", ".json"):
+            source = ROOT / "docs" / "_static" / f"bootstrap_current_from_vmec_or_boozmn{suffix}"
+            target = output_dir / source.name
+            target.write_bytes(source.read_bytes())
+        manifest["bootstrap_proxy"] = [
+            _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.png"),
+            _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.pdf"),
+            _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.json"),
+        ]
+
+    if "w7x_audit" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "bootstrap_current_reference_audit_w7x.py"),
+            ]
+        )
+        for suffix in (".png", ".pdf", ".json"):
+            source = ROOT / "docs" / "_static" / f"bootstrap_current_reference_audit_w7x{suffix}"
+            target = output_dir / source.name
+            target.write_bytes(source.read_bytes())
+        manifest["w7x_audit"] = [
+            _manifest_path(output_dir / "bootstrap_current_reference_audit_w7x.png"),
+            _manifest_path(output_dir / "bootstrap_current_reference_audit_w7x.pdf"),
+            _manifest_path(output_dir / "bootstrap_current_reference_audit_w7x.json"),
         ]
 
     smoke_cpu = ROOT / "docs" / "_static" / "performance_scaling_cpu_smoke.json"
