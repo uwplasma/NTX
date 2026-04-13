@@ -17,11 +17,12 @@ examples.
    - science/application figure for differentiable bootstrap-current
      optimization
 5. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
-   - W7-X bootstrap-current validation figure from VMEC/Boozer input
-     propagated through the NTX-to-NEOPAX workflow
-6. `performance_scaling_smoke.{png,pdf}`
+   - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
+6. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+   - W7-X imported-workflow audit against the local reference database
+7. `performance_scaling_smoke.{png,pdf}`
    - CPU/GPU scaling on the repository smoke grid
-7. `performance_scaling_heavy.{png,pdf}`
+8. `performance_scaling_heavy.{png,pdf}`
    - heavier-grid scaling where throughput effects are visible
 
 Together these figures cover:
@@ -30,7 +31,8 @@ Together these figures cover:
 - validation and convergence
 - differentiable inverse and profile problems
 - a science-facing bootstrap-current optimization workflow
-- a W7-X bootstrap-current validation figure tied to the imported workflow
+- a pure NTX radial-profile figure
+- a W7-X imported-workflow audit figure
 - practical performance guidance
 
 ## One-Command Figure Bundle
@@ -74,7 +76,7 @@ It uses:
 This is the recommended figure for a paper focused on differentiable bootstrap
 current analysis and optimization with NTX.
 
-## W7-X Validation Figure
+## NTX Bootstrap-Current Proxy Figure
 
 ```bash
 python examples/bootstrap_current_from_vmec_or_boozmn.py
@@ -88,8 +90,26 @@ docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf
 docs/_static/bootstrap_current_from_vmec_or_boozmn.json
 ```
 
-It is the recommended companion figure when the paper needs an explicit
-W7-X-style imported-workflow validation panel in addition to the more general
-methods and optimization figures.
+It is the recommended figure when the paper needs a compact NTX-only radial
+profile panel without bringing in the external database workflow.
 
-![W7-X bootstrap-current validation](_static/bootstrap_current_from_vmec_or_boozmn.png)
+![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
+
+## W7-X Reference Audit Figure
+
+```bash
+python examples/bootstrap_current_reference_audit_w7x.py
+```
+
+This writes:
+
+```text
+docs/_static/bootstrap_current_reference_audit_w7x.png
+docs/_static/bootstrap_current_reference_audit_w7x.pdf
+docs/_static/bootstrap_current_reference_audit_w7x.json
+```
+
+Use this figure when the paper needs an explicit W7-X imported-workflow
+bootstrap-current convergence panel alongside the NTX-only methods figures.
+
+![W7-X bootstrap-current convergence](_static/bootstrap_current_reference_audit_w7x.png)

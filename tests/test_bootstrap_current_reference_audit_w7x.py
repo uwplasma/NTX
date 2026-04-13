@@ -5,6 +5,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+from ntx._checkout_paths import find_neopax_root
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -16,14 +20,15 @@ def _example_env() -> dict[str, str]:
     return env
 
 
-def test_bootstrap_current_example_runs(tmp_path):
-    output_prefix = tmp_path / "bootstrap_proxy"
-    script = (ROOT / "examples" / "bootstrap_current_from_vmec_or_boozmn.py").read_text()
+@pytest.mark.skipif(find_neopax_root() is None, reason="requires local W7-X reference inputs")
+def test_bootstrap_current_reference_audit_runs(tmp_path):
+    output_prefix = tmp_path / "w7x_audit"
+    script = (ROOT / "examples" / "bootstrap_current_reference_audit_w7x.py").read_text()
     script = script.replace(
-        'OUTPUT_PREFIX = ROOT / "docs" / "_static" / "bootstrap_current_from_vmec_or_boozmn"',
+        'OUTPUT_PREFIX = ROOT / "docs" / "_static" / "bootstrap_current_reference_audit_w7x"',
         f'OUTPUT_PREFIX = Path(r"{output_prefix}")',
     )
-    run_path = tmp_path / "bootstrap_current_from_vmec_or_boozmn.py"
+    run_path = tmp_path / "bootstrap_current_reference_audit_w7x.py"
     run_path.write_text(script)
     subprocess.run(
         [sys.executable, str(run_path)],

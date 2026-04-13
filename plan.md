@@ -153,15 +153,19 @@ formulation described in Javier Escoto's PhD thesis:
 - Expanded the user-facing docs and README so they now start from the simplest
   `ntx input.toml` workflow, then cover Python solves, scans, parallelization,
   NEOPAX coupling, autodiff, output plotting, and manuscript figures.
-- Added a polished W7-X bootstrap-current validation figure from the imported
+- Added a polished NTX-only bootstrap-current-proxy figure from the imported
   VMEC/Boozer workflow:
   - `examples/bootstrap_current_from_vmec_or_boozmn.py`
   - `docs/_static/bootstrap_current_from_vmec_or_boozmn.*`
-  - defaults to the direct Boozer lane when `boozmn` is available because that
-    currently gives the tighter W7-X bootstrap-current comparison
-  - writes a JSON summary of pointwise, radial, and profile errors without
-    embedding machine-specific absolute paths
+  - uses top-of-file configuration instead of parsed CLI arguments
+  - writes a JSON summary of the NTX radial profiles without embedding
+    machine-specific absolute paths
+- Audited the W7-X benchmark path and found that the solver itself matches the
+  reference pointwise when the direct VMEC lane and reference `25 x 25 x 64`
+  resolution are used.
+- Added a separate W7-X reference-audit example and test coverage so the public
+  bootstrap-current example stays focused on the NTX workflow.
 - Current local validation after that publication pass:
-  - `110 passed, 2 skipped`
+  - `113 passed, 2 skipped`
   - `ruff` clean
   - docs build clean
