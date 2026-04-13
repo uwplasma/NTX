@@ -29,6 +29,8 @@ formulation described in Javier Escoto's PhD thesis:
 - keep synthetic loader fixtures minimal and readable
 - keep NEOPAX mapping helpers aligned with the active NEOPAX interface
 - continue profiling larger production grids when performance work is needed
+- keep the documentation synchronized with the shipped solver interfaces and
+  publication-figure scripts
 
 ## Next Development Lane
 
@@ -119,8 +121,8 @@ formulation described in Javier Escoto's PhD thesis:
   - office GPU `9 x 11 x 6`: serial batched remains faster than multiprocess in
     the tested range after the smallest startup-dominated point
 - Collected heavier-grid DKES scaling data:
-  - local CPU `17 x 25 x 16`: multiprocess approaches parity by `32` cases and
-    wins by `64` cases (`1.79x` speedup)
+  - local CPU `17 x 25 x 16`: multiprocess is close to the serial batched path
+    by `32` cases and wins by `64` cases (`1.79x` speedup)
   - office GPU `17 x 25 x 16`: multiprocess remains slower than serial through
     `64` cases under the current shared-office stack
 - Added publication-style performance figures and committed the JSON payloads
@@ -161,11 +163,23 @@ formulation described in Javier Escoto's PhD thesis:
   - writes a JSON summary of the NTX radial profiles without embedding
     machine-specific absolute paths
 - Audited the W7-X benchmark path and found that the solver itself matches the
-  reference pointwise when the direct VMEC lane and reference `25 x 25 x 64`
-  resolution are used.
+  benchmark pointwise when the direct VMEC lane and `25 x 25 x 64` resolution
+  are used.
 - Added a separate W7-X reference-audit example and test coverage so the public
   bootstrap-current example stays focused on the NTX workflow.
 - Current local validation after that publication pass:
   - `113 passed, 2 skipped`
   - `ruff` clean
   - docs build clean
+- Began the final documentation expansion to make NTX standalone and ship-ready
+  as a solver package rather than only a code-and-figures repository.
+- Added dedicated documentation pages for:
+  - physics model and equations
+  - geometry loading and normalization
+  - numerics and algorithms
+  - source-code mapping
+  - testing and QA
+  - literature and package references
+- Reworked the landing page and README so they now start from the smallest
+  install-and-run workflow before moving into Python solves, scans, autodiff,
+  NEOPAX coupling, and throughput-oriented parallel execution.

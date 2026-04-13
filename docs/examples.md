@@ -96,15 +96,15 @@ It writes:
 
 ![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
 
-## 8. W7-X Reference Audit
+## 8. W7-X Bootstrap-Current Convergence Audit
 
 ```bash
 python examples/bootstrap_current_reference_audit_w7x.py
 ```
 
-This optional audit script compares the direct VMEC NTX lane against the local
-W7-X reference database on a reduced reference scan, evaluates the resulting
-bootstrap-current profile through NEOPAX, and writes a convergence figure:
+This optional audit script rebuilds a reduced W7-X scan at several NTX
+resolutions, evaluates the resulting bootstrap-current profile through the
+imported workflow, and writes a convergence figure:
 
 - `docs/_static/bootstrap_current_reference_audit_w7x.png`
 - `docs/_static/bootstrap_current_reference_audit_w7x.pdf`
@@ -132,7 +132,7 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 10. Science Case: Bootstrap-Current Optimization
+## 11. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py
@@ -149,7 +149,7 @@ differentiable geometry-control problem:
 This is the main application/science-case figure for a methods paper centered
 on bootstrap-current analysis and optimization.
 
-## 11. Performance Scaling
+## 12. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -158,7 +158,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 12. Validation Summary
+## 13. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -168,7 +168,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 13. Full Publication Bundle
+## 14. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py

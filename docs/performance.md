@@ -58,7 +58,8 @@ docs/_static/performance_scaling_heavy.pdf
 Interpretation:
 
 - on the heavier DKES grid `17 x 25 x 16`, the local 4-worker CPU multiprocess
-  lane approaches parity by `32` cases and becomes faster by `64` cases
+  lane is close to the serial batched path by `32` cases and becomes faster by
+  `64` cases
 - on the same heavier grid, the office 2-GPU multiprocess lane remains slower
   than serial in the tested range under the current shared-office software and
   hardware stack

@@ -1,131 +1,140 @@
 # Validation
 
-NTX validation is organized around three layers:
+NTX validation is organized around four layers:
 
 1. unit and regression tests in `tests/`
-2. file-loader and CLI checks using NTX-owned synthetic fixtures
-3. GPU smoke and runtime checks for CPU/GPU execution stability
+2. workflow and convergence examples in `examples/`
+3. CPU/GPU runtime checks
+4. downstream database and profile checks through NEOPAX
+
+## Validation Philosophy
+
+NTX is validated as a standalone solver. The repository therefore emphasizes:
+
+- internal numerical consistency
+- convergence behavior
+- trustworthy geometry loading
+- end-to-end workflow checks
+- imported JAX workflows
+- CPU/GPU execution stability
+
+Independent comparisons are useful, but they are treated as trust-building
+studies rather than as the definition of NTX itself.
 
 ## What Is Covered
 
-The default test suite covers:
+The maintained suite covers:
 
 - Fourier-series evaluation and flux-surface averages
 - operator assembly and nullspace handling
 - dense block-tridiagonal solves
-- autodiff inverse and profile-analysis helper workflows
-- DKES-style, magnetic-configuration, VMEC, and Boozer file loaders
+- scan helpers and prepared-solver reuse
+- autodiff inverse and profile-analysis workflows
+- DKES-style, VMEC, and Boozer file loaders
 - TOML input parsing and `.npz` output writing
 - imported NEOPAX-array and HDF5 mapping helpers
 - `vmec_jax` and `booz_xform_jax` integration points
-- serial versus device-parallel scan equivalence
-- serial versus multiprocess scan equivalence
+- serial versus parallel-scan equivalence
+- example and publication-figure regeneration
 
-## Current Local Status
+## Core Physics Checks
 
-Latest local suite:
+### Onsager Closure
 
-- `113 passed, 2 skipped`
+Every solve reports:
 
-The two skipped tests are the GPU smoke tests on non-GPU machines.
+```{math}
+|D_{13} + D_{31}|
+```
 
-## GPU Validation
+This is the main scalar physics sanity check exposed directly by NTX.
 
-Run:
+### Resolution Convergence
+
+The W7-X imported workflow is audited with:
+
+```bash
+python examples/bootstrap_current_reference_audit_w7x.py
+```
+
+This script rebuilds a reduced W7-X scan at several NTX resolutions, evaluates
+the resulting bootstrap-current profile, and writes a publication-ready
+convergence figure.
+
+### End-To-End Bootstrap-Current Workflow
+
+The pure NTX radial-profile workflow is:
+
+```bash
+python examples/bootstrap_current_from_vmec_or_boozmn.py
+```
+
+That script demonstrates the direct path from VMEC or Boozer input to radial
+profiles of:
+
+- `D11`
+- `D13`
+- `nu_hat * D33`
+- a compact bootstrap-current proxy
+
+## CPU And GPU Validation
+
+Run the GPU smoke checks with:
 
 ```bash
 python -m pytest -m gpu -q
 python scripts/run_gpu_regression.py --output-json gpu-smoke-results.json
 ```
 
-The GPU regression script reports:
-
-- active backend and devices
-- first-run compile time
-- steady-state solve time
-- coefficient deltas against NTX-owned smoke references
-
-For office hardware runs, set:
-
-```bash
-export XLA_PYTHON_CLIENT_PREALLOCATE=false
-```
-
-The NTX GPU entrypoints already default this internally to avoid shared-device
-allocation failures.
-
-## Runtime Profiling
-
-Run:
+Profile runtime with:
 
 ```bash
 python scripts/profile_runtime.py --backend cpu --output-json runtime-profile.json
 python scripts/profile_runtime.py --backend gpu --output-json runtime-profile-gpu.json
 ```
 
-This profiles batched scans against a Python loop for one DKES-style case and
-one VMEC case using the NTX-owned sample fixtures.
-
-To profile device-parallel scans:
+Profile the two parallel execution layers with:
 
 ```bash
 python scripts/profile_parallel_runtime.py --output-json parallel-runtime.json
 python scripts/profile_multiprocess_runtime.py --backend cpu --workers 2
+python scripts/profile_multiprocess_runtime.py --backend gpu --workers 2
 ```
 
-On a local workstation, host-device emulation can be forced in a fresh process:
+For shared GPU systems, use:
 
 ```bash
-XLA_FLAGS=--xla_force_host_platform_device_count=4 python scripts/profile_parallel_runtime.py
+export XLA_PYTHON_CLIENT_PREALLOCATE=false
 ```
 
-On office hardware, the single-process profiler reports both visible GPUs and
-the subset that passes an NTX smoke solve. Under the current office stack,
-`cuda:1` is visible to JAX but does not pass the NTX dense-solve smoke check in
-single-process mode, so the guarded parallel helper excludes it automatically.
+## Practical Performance Conclusion
 
-The multiprocess profiler shows that both office GPUs are numerically healthy
-when each worker process is pinned to one GPU with `CUDA_VISIBLE_DEVICES`. For
-the repository smoke grids that path is still slower than the serial batched
-scan, so it should be treated as a throughput lane for larger jobs rather than
-the default path for small scans.
+The current measured guidance is:
 
-The current CPU/GPU scaling figure workflow is documented in
-[`Performance`](performance.md).
+- use serial batched JAX for small and medium studies
+- use the multiprocess lane for larger throughput-oriented runs
 
-The publication-ready validation summary figure is documented in
-[`Manuscript Figures`](manuscript.md).
-
-For the pure NTX radial-profile figure, run:
-
-```bash
-python examples/bootstrap_current_from_vmec_or_boozmn.py
-```
-
-That example writes a radial bootstrap-current-proxy figure plus a JSON summary
-of the solved profiles.
-
-For the W7-X imported-workflow benchmark audit, run:
-
-```bash
-python examples/bootstrap_current_reference_audit_w7x.py
-```
-
-That audit uses the direct VMEC lane, rebuilds the reduced W7-X reference scan
-at three NTX resolutions, and writes a bootstrap-current convergence figure plus
-a JSON summary of the profile errors.
+Details and figures are in [Performance](performance.md).
 
 ## NEOPAX Compatibility
 
-NEOPAX compatibility is validated through:
+NTX-to-NEOPAX compatibility is exercised through:
 
 - `tests/test_neopax_adapter.py`
 - `tests/test_neopax_arrays.py`
 - `tests/test_neopax_qi.py`
 
-Those tests check:
+These tests cover:
 
-- NEOPAX-style HDF5 loading
+- HDF5 loading and writing
 - pure-array scan mapping
 - imported surface scans mapped into NEOPAX normalization
-- HDF5 round-trips through `write_neopax_scan_hdf5(...)`
+- round-trips through `write_neopax_scan_hdf5(...)`
+
+## Optional External Consistency Studies
+
+When an independent transport workflow such as
+[SFINCS-JAX](https://github.com/uwplasma/sfincs_jax) is available in the local
+research environment, NTX studies can also be checked against it. Those
+comparisons are useful for confidence, but they are not required to run NTX or
+to understand the code.

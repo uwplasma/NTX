@@ -1,116 +1,90 @@
-# Install
+# Installation
 
-## From Source
+## Basic Install
 
-Runtime install:
-
-```bash
-python -m pip install -e .
-```
-
-Installed package entrypoints:
+Install NTX from PyPI:
 
 ```bash
-ntx --help
-python -m ntx --help
+python -m pip install ntx
 ```
 
-## From A Built Distribution
+This is enough for:
 
-Build wheel and sdist:
+- `ntx input.toml`
+- Python imports for the core solver
+- bundled analytic and DKES-style examples
 
-```bash
-python -m build
-```
+## Development Install
 
-Install the built wheel:
-
-```bash
-python -m pip install dist/*.whl
-```
-
-Development install:
+For tests, linting, and docs:
 
 ```bash
 python -m pip install -e ".[dev,docs,io]"
 ```
 
-Install the JAX geometry backends:
+## Geometry Extras
+
+To use VMEC `wout` files and Boozer `boozmn` files through the JAX geometry
+helpers:
 
 ```bash
 python -m pip install -e ".[geometry]"
 ```
 
-## Dependencies
+That installs the dependencies used by:
 
-Core runtime:
+- [`src/ntx/vmec.py`](../src/ntx/vmec.py)
+- [`src/ntx/booz.py`](../src/ntx/booz.py)
 
-- `jax`
-- `jaxlib`
-- `numpy`
-- `scipy`
-- `rich`
+## Optional Runtime Extras
 
-Optional extras:
+### NEOPAX coupling
 
-- `.[dev]` for `pytest`, `ruff`, and `mypy`
-- `.[docs]` for Sphinx docs
-- `.[io]` for HDF5-based integrations
-- `.[geometry]` for `vmec_jax` and `booz_xform_jax`
+Install [NEOPAX](https://github.com/uwplasma/NEOPAX) in the active
+environment if you want to convert NTX scan data directly into NEOPAX
+monoenergetic objects.
 
-## Verification
+### GPU execution
+
+Install a JAX build compatible with your accelerator stack. NTX itself does not
+pin a GPU-specific JAX wheel.
+
+## First Run
+
+After installation:
 
 ```bash
-ruff check .
-mypy src/ntx
-pytest -q
-sphinx-build -b html docs docs/_build/html
+ntx examples/example_surface.toml
+```
+
+That should:
+
+1. print a Rich run summary
+2. solve one sample monoenergetic problem
+3. write `examples/example_surface.npz`
+
+Then inspect the result:
+
+```bash
+python examples/plot_output_npz.py examples/example_surface.npz
+```
+
+## Local Quality Checks
+
+Run the standard local checks:
+
+```bash
+python -m ruff check .
+python -m mypy src/ntx
+python -m pytest -q
+python -m sphinx -b html docs docs/_build/html
+```
+
+## Build A Distribution
+
+```bash
 python -m build
 python -m twine check dist/*
 ```
 
-## CPU And GPU
-
-NTX uses JAX arrays throughout, so the same solver path can run on CPU or GPU.
-
-For production physics runs, keep `x64 = true` in the input file unless you are
-deliberately testing reduced precision.
-
-The repository CPU workflow runs:
-
-```bash
-pytest -m "not gpu"
-```
-
-The GitHub Actions CPU matrix covers Python `3.10`, `3.11`, and `3.12`.
-
-GPU smoke and regression coverage is provided through:
-
-- `tests/test_gpu_smoke.py`
-- `scripts/run_gpu_regression.py`
-- `scripts/sh_office_gpu_smoke.sh`
-
-A typical GPU session in the office environment is:
-
-```bash
-sh office
-cd /path/to/NTX
-python -m pip install -e ".[dev,docs,io]"
-scripts/sh_office_gpu_smoke.sh
-```
-
-This writes `gpu-smoke-results.json` in the repository root with device
-information, timings, coefficient deltas, and regression summaries.
-
-The supported VMEC and Boozer file readers are the JAX implementations. NTX
-does not depend on the original VMEC or BOOZ_XFORM executables for those file
-paths.
-
-For local performance profiling on either CPU or GPU:
-
-```bash
-python scripts/profile_runtime.py --output-json runtime-profile.json
-```
-
-This script defaults to `JAX_PLATFORM_NAME=cpu`. Set `JAX_PLATFORM_NAME=gpu`
-explicitly if you want to profile the GPU backend instead.
+The release workflow is documented in [Release](release.md).

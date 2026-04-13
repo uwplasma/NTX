@@ -19,7 +19,7 @@ examples.
 5. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
 6. `bootstrap_current_reference_audit_w7x.{png,pdf}`
-   - W7-X imported-workflow audit against the local reference database
+   - W7-X imported-workflow bootstrap-current convergence audit
 7. `performance_scaling_smoke.{png,pdf}`
    - CPU/GPU scaling on the repository smoke grid
 8. `performance_scaling_heavy.{png,pdf}`
@@ -32,7 +32,7 @@ Together these figures cover:
 - differentiable inverse and profile problems
 - a science-facing bootstrap-current optimization workflow
 - a pure NTX radial-profile figure
-- a W7-X imported-workflow audit figure
+- a W7-X imported-workflow convergence figure
 - practical performance guidance
 
 ## One-Command Figure Bundle
@@ -95,7 +95,7 @@ profile panel without bringing in the external database workflow.
 
 ![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
 
-## W7-X Reference Audit Figure
+## W7-X Bootstrap-Current Convergence Figure
 
 ```bash
 python examples/bootstrap_current_reference_audit_w7x.py
