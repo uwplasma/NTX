@@ -58,16 +58,6 @@ def find_neopax_root() -> Path | None:
     return _discover("NEOPAX_ROOT", "tests/NEOPAX", "NEOPAX")
 
 
-def find_reference_root() -> Path | None:
-    return _discover(
-        "REFERENCE_ROOT",
-        "tests/reference_edu",
-        "reference_edu",
-        "tests/reference_f0",
-        "reference_f0",
-    )
-
-
 def find_sfincs_jax_root() -> Path | None:
     return _discover("SFINCS_JAX_ROOT", "tests/sfincs_jax", "sfincs_jax")
 

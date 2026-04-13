@@ -43,7 +43,6 @@ from ntx import (  # noqa: E402
     to_neopax_monoenergetic,
 )
 from ntx._checkout_paths import (  # noqa: E402
-    find_reference_root,
     find_neopax_root,
     find_sfincs_jax_root,
 )
@@ -213,19 +212,32 @@ def _subsample_indices(length: int, stride: int) -> np.ndarray:
     return np.unique(indices)
 
 
+def _summary_path(path: Path | None) -> str | None:
+    if path is None:
+        return None
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        return str(candidate)
+    resolved = candidate.expanduser().resolve()
+    try:
+        return str(resolved.relative_to(ROOT))
+    except ValueError:
+        return resolved.name
+
+
 def _surface_loader(wout: Path | None, boozmn: Path | None, *, preferred: str = "auto"):
     if preferred not in {"auto", "vmec", "boozmn"}:
         raise ValueError(f"unsupported surface source {preferred!r}")
-    if preferred in {"auto", "vmec"} and wout is not None:
-        def loader(rho_value: float):
-            return surface_from_vmec_jax_vmec_wout_file(wout, s=float(rho_value**2))
-
-        return loader, "vmec_jax"
     if preferred in {"auto", "boozmn"} and boozmn is not None:
         def loader(rho_value: float):
             return load_boozmn_surface(boozmn, rho=float(rho_value)).surface
 
         return loader, "boozmn"
+    if preferred in {"auto", "vmec"} and wout is not None:
+        def loader(rho_value: float):
+            return surface_from_vmec_jax_vmec_wout_file(wout, s=float(rho_value**2))
+
+        return loader, "vmec_jax"
     raise ValueError("need either `--wout` or `--boozmn`")
 
 
@@ -320,18 +332,24 @@ def _load_reference_to_sfincs_factors(path: Path, rho: float) -> tuple[float, fl
         rho_grid = np.asarray(handle["rho"], dtype=np.float64)
         rho_index = int(np.argmin(np.abs(rho_grid - rho)))
         names = [
-            ("Fac_REFERENCE_TO_SFINCS_11", "Fac_REFERENCE_TO_SFINCS_11"),
-            ("Fac_REFERENCE_TO_SFINCS_31", "Fac_REFERENCE_TO_SFINCS_31"),
-            ("Fac_REFERENCE_TO_SFINCS_33", "Fac_REFERENCE_TO_SFINCS_33"),
+            "Fac_REFERENCE_TO_SFINCS_11",
+            "Fac_REFERENCE_TO_SFINCS_31",
+            "Fac_REFERENCE_TO_SFINCS_33",
         ]
         values: list[float] = []
-        for aliases in names:
-            for name in aliases:
-                if name in handle:
-                    values.append(float(np.asarray(handle[name])[rho_index]))
-                    break
-            else:
+        for name in names:
+            if name in handle:
+                values.append(float(np.asarray(handle[name])[rho_index]))
+                continue
+            suffix = name.split("Fac_REFERENCE", 1)[-1]
+            matches = sorted(
+                dataset_name
+                for dataset_name in handle.keys()
+                if dataset_name.startswith("Fac_") and dataset_name.endswith(suffix)
+            )
+            if not matches:
                 return None
+            values.append(float(np.asarray(handle[matches[0]])[rho_index]))
     return tuple(values)
 
 
@@ -410,18 +428,62 @@ def _reference_point_from_scan(
     return values
 
 
+def _series_from_scan(
+    scan: NeopaxScan,
+    *,
+    nu_hat: float,
+    epsi_hat: float,
+) -> dict[str, np.ndarray]:
+    rho = np.asarray(scan.rho, dtype=np.float64)
+    nu_grid = np.asarray(scan.nu_v, dtype=np.float64)
+    es_grid = np.asarray(scan.Es, dtype=np.float64)
+    nu_index = int(np.argmin(np.abs(nu_grid - nu_hat)))
+    d31_scan = scan.D31 if scan.D31 is not None else scan.D13
+    es_selected = np.empty_like(rho)
+    d11 = np.empty_like(rho)
+    d13 = np.empty_like(rho)
+    d31 = np.empty_like(rho)
+    d33 = np.empty_like(rho)
+    for index in range(rho.size):
+        es_index = int(np.argmin(np.abs(es_grid[index] - epsi_hat)))
+        es_selected[index] = es_grid[index, es_index]
+        d11[index] = np.asarray(scan.D11)[index, nu_index, es_index]
+        d13[index] = np.asarray(scan.D13)[index, nu_index, es_index]
+        d31[index] = np.asarray(d31_scan)[index, nu_index, es_index]
+        d33[index] = np.asarray(scan.D33)[index, nu_index, es_index]
+    return {
+        "rho": rho,
+        "nu_hat": np.full_like(rho, nu_grid[nu_index]),
+        "epsi_hat": es_selected,
+        "D11": d11,
+        "D13": d13,
+        "D31": d31,
+        "D33": d33,
+    }
+
+
 def _plot_summary(
     *,
     output_prefix: Path,
     bootstrap_payload: dict[str, np.ndarray] | None,
+    radial_payload: dict[str, np.ndarray] | None,
     point_payload: dict[str, float],
     point_reference_payload: dict[str, float] | None,
     sfincs_payload: dict[str, object] | None,
 ) -> None:
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
-    fig, axes = plt.subplots(1, 3, figsize=(13.0, 4.2), constrained_layout=True, dpi=160)
+    plt.rcParams.update(
+        {
+            "font.size": 10,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+            "axes.titleweight": "semibold",
+        }
+    )
+    fig, axes = plt.subplots(2, 2, figsize=(11.0, 8.0), constrained_layout=True, dpi=180)
+    axes = np.asarray(axes)
 
-    ax = axes[0]
+    ax = axes[0, 0]
     coeff_labels = ["D11", "D13", "D31", "D33"]
     ntx_values = np.array(
         [
@@ -433,8 +495,6 @@ def _plot_summary(
         dtype=np.float64,
     )
     x = np.arange(len(coeff_labels))
-    width = 0.34
-    ax.bar(x - 0.5 * width, ntx_values, width=width, label="NTX", color="#1f77b4")
     if point_reference_payload is not None:
         ref_values = np.array(
             [
@@ -445,14 +505,26 @@ def _plot_summary(
             ],
             dtype=np.float64,
         )
-        ax.bar(x + 0.5 * width, ref_values, width=width, label="Reference", color="#d62728")
         max_rel = np.max(np.abs(ntx_values - ref_values) / np.maximum(np.abs(ref_values), 1.0e-12))
-        title = f"Pointwise Coefficients (max rel. error = {max_rel:.2e})"
+        ratios = ntx_values / np.where(np.abs(ref_values) > 1.0e-12, ref_values, np.nan)
+        bars = ax.bar(x, ratios, width=0.55, color="#1f77b4", alpha=0.9)
+        ax.axhline(1.0, color="#d62728", linestyle="--", linewidth=1.6, label="Reference = 1")
+        for bar, ratio in zip(bars, ratios, strict=True):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                ratio,
+                f"{ratio:.2f}",
+                ha="center",
+                va="bottom" if ratio >= 0 else "top",
+                fontsize=8,
+            )
+        title = f"Pointwise Coefficient Ratios at $\\rho={point_payload['rho']:.2f}$"
     else:
         title = "NTX Monoenergetic Coefficients"
+        ax.bar(x, ntx_values, width=0.55, color="#1f77b4", alpha=0.9)
     ax.set_xticks(x, coeff_labels)
     ax.set_title(title)
-    ax.set_ylabel("Coefficient value")
+    ax.set_ylabel("NTX / reference")
     ax.grid(alpha=0.25, axis="y")
     note = (
         f"rho={point_payload['rho']:.3f}\n"
@@ -461,9 +533,24 @@ def _plot_summary(
     )
     ax.text(0.02, 0.98, note, transform=ax.transAxes, va="top", ha="left", fontsize=9)
     if point_reference_payload is not None:
-        ax.legend(frameon=False, fontsize=9)
+        ax.legend(frameon=False, fontsize=9, loc="lower left")
+        ax.text(
+            0.98,
+            0.98,
+            f"max rel. error = {max_rel:.2e}",
+            transform=ax.transAxes,
+            va="top",
+            ha="right",
+            fontsize=9,
+            bbox={"facecolor": "white", "alpha": 0.85, "edgecolor": "none"},
+        )
+        ax.set_ylim(
+            min(-0.2, float(np.nanmin(ratios)) * 1.15),
+            max(1.8, float(np.nanmax(ratios)) * 1.15),
+        )
+    ax.text(0.01, 1.03, "a", transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
 
-    ax = axes[1]
+    ax = axes[0, 1]
     if bootstrap_payload is None:
         ax.text(0.5, 0.5, "Bootstrap-current comparison skipped", ha="center", va="center")
         ax.axis("off")
@@ -497,41 +584,102 @@ def _plot_summary(
             ha="left",
             fontsize=9,
         )
+    ax.text(0.01, 1.03, "b", transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
 
-    ax = axes[2]
-    if sfincs_payload is None:
-        ax.text(0.5, 0.5, "SFINCS-JAX comparison skipped", ha="center", va="center")
+    ax = axes[1, 0]
+    if radial_payload is None:
+        ax.text(0.5, 0.5, "Radial coefficient comparison skipped", ha="center", va="center")
         ax.axis("off")
     else:
-        sfincs_matrix = np.asarray(sfincs_payload["transport_matrix"], dtype=np.float64)
-        ntx_matrix = np.asarray(sfincs_payload["ntx_matrix"], dtype=np.float64)
-        error_matrix = ntx_matrix - sfincs_matrix
-        im = ax.imshow(error_matrix, cmap="coolwarm")
-        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-        ax.set_xticks([0, 1], labels=["11/13", "31/33"])
-        ax.set_yticks([0, 1], labels=["row 1", "row 2"])
-        ax.set_title("NTX - SFINCS-JAX Matrix")
-        for i in range(2):
-            for j in range(2):
-                ax.text(
-                    j,
-                    i,
-                    f"{error_matrix[i, j]:+.2e}",
-                    ha="center",
-                    va="center",
-                    color="black",
-                    fontsize=9,
-                )
-        ax.text(
-            0.02,
-            0.98,
-            f"max rel. error = {sfincs_payload['max_relative_error']:.2e}",
-            transform=ax.transAxes,
-            va="top",
-            ha="left",
-            fontsize=9,
-            bbox={"facecolor": "white", "alpha": 0.8, "edgecolor": "none"},
+        rho = radial_payload["rho"]
+        ax.plot(
+            rho,
+            radial_payload["D11_ntx"],
+            color="#1f77b4",
+            linewidth=2.4,
+            label=r"NTX $D_{11}$",
         )
+        ax.plot(
+            rho,
+            radial_payload["D11_reference"],
+            color="#1f77b4",
+            linestyle="--",
+            linewidth=2.0,
+            label=r"Reference $D_{11}$",
+        )
+        ax.set_xlabel(r"$\rho$")
+        ax.set_ylabel(r"$D_{11}$", color="#1f77b4")
+        ax.tick_params(axis="y", labelcolor="#1f77b4")
+        ax.grid(alpha=0.25)
+        twin = ax.twinx()
+        twin.plot(
+            rho,
+            radial_payload["D33_ntx"],
+            color="#d62728",
+            linewidth=2.4,
+            label=r"NTX $D_{33}$",
+        )
+        twin.plot(
+            rho,
+            radial_payload["D33_reference"],
+            color="#d62728",
+            linestyle="--",
+            linewidth=2.0,
+            label=r"Reference $D_{33}$",
+        )
+        twin.set_ylabel(r"$D_{33}$", color="#d62728")
+        twin.tick_params(axis="y", labelcolor="#d62728")
+        handles_1, labels_1 = ax.get_legend_handles_labels()
+        handles_2, labels_2 = twin.get_legend_handles_labels()
+        ax.legend(
+            handles_1 + handles_2,
+            labels_1 + labels_2,
+            frameon=False,
+            fontsize=8,
+            loc="upper left",
+        )
+        ax.set_title(
+            "Radial Coefficient Comparison\n"
+            + rf"$\hat\nu \approx {float(radial_payload['nu_hat'][0]):.1e}$, "
+            + rf"$\hat E_\psi \approx {float(np.median(radial_payload['epsi_hat'])):.1e}$"
+        )
+    ax.text(0.01, 1.03, "c", transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
+
+    ax = axes[1, 1]
+    if radial_payload is None:
+        ax.text(0.5, 0.5, "Relative-error summary skipped", ha="center", va="center")
+        ax.axis("off")
+    else:
+        rho = radial_payload["rho"]
+        for key, color in [
+            ("D11", "#1f77b4"),
+            ("D13", "#ff7f0e"),
+            ("D31", "#2ca02c"),
+            ("D33", "#d62728"),
+        ]:
+            reference = np.asarray(radial_payload[f"{key}_reference"], dtype=np.float64)
+            ntx = np.asarray(radial_payload[f"{key}_ntx"], dtype=np.float64)
+            rel = np.abs(ntx - reference) / np.maximum(np.abs(reference), 1.0e-12)
+            ax.semilogy(rho, rel, linewidth=2.2, color=color, label=rf"${key}$")
+        ax.set_xlabel(r"$\rho$")
+        ax.set_ylabel("Relative error")
+        ax.set_title("Radial Accuracy Summary")
+        ax.grid(alpha=0.25, which="both")
+        ax.legend(frameon=False, fontsize=9, ncol=2, loc="upper left")
+        if sfincs_payload is not None:
+            ax.text(
+                0.98,
+                0.04,
+                "SFINCS-JAX point audit\n"
+                + rf"$\rho={point_payload['rho']:.2f}$, "
+                + rf"max rel. error = {float(sfincs_payload['max_relative_error']):.2e}",
+                transform=ax.transAxes,
+                ha="right",
+                va="bottom",
+                fontsize=8.5,
+                bbox={"facecolor": "white", "alpha": 0.9, "edgecolor": "#bbbbbb"},
+            )
+    ax.text(0.01, 1.03, "d", transform=ax.transAxes, fontsize=12, fontweight="bold", va="bottom")
 
     png_path = output_prefix.with_suffix(".png")
     pdf_path = output_prefix.with_suffix(".pdf")
@@ -584,6 +732,7 @@ def main() -> None:
     )
 
     bootstrap_payload: dict[str, np.ndarray] | None = None
+    radial_payload: dict[str, np.ndarray] | None = None
     if (
         not args.skip_bootstrap
         and args.wout is not None
@@ -651,6 +800,29 @@ def main() -> None:
                 "reference_current": reference_current,
                 "max_relative_error": np.asarray(max_rel),
             }
+            radial_reference = _series_from_scan(
+                reference_scan,
+                nu_hat=float(args.nu_hat),
+                epsi_hat=float(args.epsi_hat),
+            )
+            radial_ntx = _series_from_scan(
+                ntx_scan,
+                nu_hat=float(args.nu_hat),
+                epsi_hat=float(args.epsi_hat),
+            )
+            radial_payload = {
+                "rho": radial_ntx["rho"],
+                "nu_hat": radial_ntx["nu_hat"],
+                "epsi_hat": radial_ntx["epsi_hat"],
+                "D11_ntx": radial_ntx["D11"],
+                "D13_ntx": radial_ntx["D13"],
+                "D31_ntx": radial_ntx["D31"],
+                "D33_ntx": radial_ntx["D33"],
+                "D11_reference": radial_reference["D11"],
+                "D13_reference": radial_reference["D13"],
+                "D31_reference": radial_reference["D31"],
+                "D33_reference": radial_reference["D33"],
+            }
         except Exception as exc:  # pragma: no cover - depends on external VMEC/NEOPAX files
             print(f"Skipping bootstrap-current comparison: {exc}")
 
@@ -669,6 +841,7 @@ def main() -> None:
     _plot_summary(
         output_prefix=args.output_prefix,
         bootstrap_payload=bootstrap_payload,
+        radial_payload=radial_payload,
         point_payload=point_payload,
         point_reference_payload=point_reference_payload,
         sfincs_payload=sfincs_payload,
@@ -676,17 +849,26 @@ def main() -> None:
 
     summary = {
         "geometry_mode": mode,
-        "wout": None if args.wout is None else str(args.wout),
-        "boozmn": None if args.boozmn is None else str(args.boozmn),
-        "reference_database": (
-            None if args.reference_database is None else str(args.reference_database)
-        ),
-        "sfincs_output": None if args.sfincs_output is None else str(args.sfincs_output),
+        "wout": _summary_path(args.wout),
+        "boozmn": _summary_path(args.boozmn),
+        "reference_database": _summary_path(args.reference_database),
+        "sfincs_output": _summary_path(args.sfincs_output),
         "point": point_payload,
         "reference_point": point_reference_payload,
         "bootstrap": None
         if bootstrap_payload is None
         else {"max_relative_error": float(bootstrap_payload["max_relative_error"])},
+        "radial_accuracy": None
+        if radial_payload is None
+        else {
+            name: float(
+                np.max(
+                    np.abs(radial_payload[f"{name}_ntx"] - radial_payload[f"{name}_reference"])
+                    / np.maximum(np.abs(radial_payload[f"{name}_reference"]), 1.0e-12)
+                )
+            )
+            for name in ("D11", "D13", "D31", "D33")
+        },
         "sfincs": None
         if sfincs_payload is None
         else {
@@ -694,12 +876,11 @@ def main() -> None:
             "epsi_hat": float(sfincs_payload["epsi_hat"]),
             "max_relative_error": float(sfincs_payload["max_relative_error"]),
         },
-        "figure_png": str(args.output_prefix.with_suffix(".png")),
-        "figure_pdf": str(args.output_prefix.with_suffix(".pdf")),
+        "figure_png": _summary_path(args.output_prefix.with_suffix(".png")),
+        "figure_pdf": _summary_path(args.output_prefix.with_suffix(".pdf")),
         "reference_source": (
-            "reference-style NEOPAX database" if args.reference_database is not None else None
+            "external NEOPAX-style database" if args.reference_database is not None else None
         ),
-        "reference_checkout_found": find_reference_root() is not None,
     }
     json_path = args.output_prefix.with_suffix(".json")
     json_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
@@ -740,6 +921,18 @@ def main() -> None:
         print(
             "Bootstrap-current max relative error:",
             f"{float(bootstrap_payload['max_relative_error']):.3e}",
+        )
+    if radial_payload is not None:
+        radial_errors = []
+        for name in ("D11", "D13", "D31", "D33"):
+            rel = np.max(
+                np.abs(radial_payload[f"{name}_ntx"] - radial_payload[f"{name}_reference"])
+                / np.maximum(np.abs(radial_payload[f"{name}_reference"]), 1.0e-12)
+            )
+            radial_errors.append(f"{name}={float(rel):.3e}")
+        print(
+            "Radial coefficient max relative errors:",
+            " ".join(radial_errors),
         )
     if sfincs_payload is not None:
         print(

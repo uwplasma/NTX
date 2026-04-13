@@ -189,6 +189,18 @@ Bootstrap-current example from VMEC or direct Boozer input:
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
 
+When both `wout` and `boozmn` are available, the example uses the direct
+Boozer path by default because that is currently the tighter W7-X
+bootstrap-current comparison lane.
+
+The example writes:
+
+- `docs/_static/bootstrap_current_from_vmec_or_boozmn.png`
+- `docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf`
+- `docs/_static/bootstrap_current_from_vmec_or_boozmn.json`
+
+![W7-X bootstrap-current comparison](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
+
 ### 6. Differentiable workflows
 
 Inverse and sensitivity examples:
@@ -251,13 +263,19 @@ This regenerates:
 - bootstrap-current optimization science figure
 - CPU/GPU performance scaling figures
 
+For the W7-X bootstrap-current validation figure:
+
+```bash
+python examples/bootstrap_current_from_vmec_or_boozmn.py
+```
+
 and writes a manifest to `docs/_static/publication_figure_manifest.json`.
 
 ## Validation
 
 Current local status:
 
-- `108 passed, 2 skipped`
+- `110 passed, 2 skipped`
 - full validation remains local-first because hosted CI is billing-blocked
 - office GPU validation is documented in [docs/gpu.md](docs/gpu.md)
 

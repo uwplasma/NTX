@@ -86,9 +86,18 @@ This example is the most direct answer to the common workflow:
 - compare the result against a local reference database and, when available, a
   local SFINCS-JAX `transportMatrix` output
 
-Use `--surface-source vmec` to force the VMEC-harmonic lane or
-`--surface-source boozmn` to force the direct Boozer lane when both files are
-available.
+When both files are available, the example prefers the direct Boozer lane in
+`auto` mode because that is currently the tighter W7-X bootstrap-current
+comparison path. Use `--surface-source vmec` to force the VMEC-harmonic lane or
+`--surface-source boozmn` to force the direct Boozer lane explicitly.
+
+It writes:
+
+- `docs/_static/bootstrap_current_from_vmec_or_boozmn.png`
+- `docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf`
+- `docs/_static/bootstrap_current_from_vmec_or_boozmn.json`
+
+![W7-X bootstrap-current validation](_static/bootstrap_current_from_vmec_or_boozmn.png)
 
 ## 8. Autodiff Inverse Problem
 
