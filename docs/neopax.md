@@ -1,7 +1,33 @@
 # NEOPAX
 
-NTX can be used as the monoenergetic coefficient provider for NEOPAX-style
-workflows.
+NTX can act as the monoenergetic coefficient provider for
+[NEOPAX](https://github.com/uwplasma/NEOPAX) workflows.
+
+This page describes the interfaces exposed by [`src/ntx/neopax.py`](../src/ntx/neopax.py)
+and when to use each of them.
+
+## Main Objects
+
+### `NeopaxScan`
+
+Structured scan payload storing:
+
+- `rho`
+- `nu_v`
+- `Er`
+- `Es`
+- `drds`
+- `D11`
+- `D13`
+- `D33`
+
+plus optional metadata and normalization arrays.
+
+### `NeopaxMonoenergeticArrays`
+
+Pure-array payload designed for imported JAX workflows. This is the preferred
+object when the caller wants to stay in array land and avoid a hard dependency
+on the NEOPAX Python package.
 
 ## Main Helpers
 
@@ -10,24 +36,24 @@ workflows.
 - `scan_to_neopax_arrays(...)`
 - `to_neopax_monoenergetic(...)`
 - `write_neopax_scan_hdf5(...)`
+- `load_neopax_reference_scan(...)`
 
-## Imported Workflow
-
-Typical pattern:
+## Typical Imported Workflow
 
 ```python
+import jax.numpy as jnp
 from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
-    surface_from_vmec_jax_vmec_wout_file,
     scan_to_neopax_arrays,
+    surface_from_vmec_jax_vmec_wout_file,
 )
 
-rho = ...
-nu_v = ...
-Es = ...
-Er = ...
-drds = ...
+rho = jnp.linspace(0.2, 0.8, 5)
+nu_v = jnp.logspace(-5, -2, 8)
+Es = jnp.zeros((rho.size, 6))
+Er = jnp.zeros_like(Es)
+drds = jnp.ones_like(rho)
 
 def surface_loader(rho_value: float):
     return surface_from_vmec_jax_vmec_wout_file("wout.nc", s=float(rho_value**2))
@@ -39,15 +65,35 @@ scan = build_ntx_neopax_scan(
     Es=Es,
     Er=Er,
     drds=drds,
-    grid=GridSpec(n_theta=9, n_zeta=11, n_xi=12),
+    grid=GridSpec(n_theta=17, n_zeta=25, n_xi=32),
 )
 
 arrays = scan_to_neopax_arrays(scan, a_b=1.0)
 ```
 
+## Explicit-Surface Workflow
+
+If the surfaces are already in memory, avoid the callback boundary:
+
+```python
+from ntx import build_ntx_neopax_scan_from_surfaces
+
+scan = build_ntx_neopax_scan_from_surfaces(
+    surfaces,
+    rho=rho,
+    nu_v=nu_v,
+    Es=Es,
+    Er=Er,
+    drds=drds,
+    grid=grid,
+)
+```
+
+This is the cleaner choice for JAX-native surface-generation pipelines.
+
 ## HDF5 Workflow
 
-Load an existing NEOPAX-style table:
+Load a NEOPAX-style monoenergetic table:
 
 ```python
 from ntx import load_neopax_reference_scan
@@ -63,8 +109,32 @@ from ntx import write_neopax_scan_hdf5
 write_neopax_scan_hdf5(scan, "monoenergetic_out.h5")
 ```
 
-## Notes
+## Conversion Layers
 
-- `scan_to_neopax_arrays(...)` is the JAX-friendly path.
-- `to_neopax_monoenergetic(...)` is the convenience path when the `NEOPAX`
-  Python package is installed in the active environment.
+### JAX-friendly path
+
+`scan_to_neopax_arrays(...)`
+
+Use this when:
+
+- the next step is still JAX-based
+- gradients matter
+- the caller wants direct access to the normalized arrays
+
+### Convenience object path
+
+`to_neopax_monoenergetic(...)`
+
+Use this when the NEOPAX package is installed and the goal is to hand the data
+to NEOPAX directly as a Python object.
+
+## What NTX Supplies To NEOPAX
+
+NTX supplies the monoenergetic geometric coefficients on the requested radial,
+collisionality, and electric-field grid. NEOPAX then uses those tables in its
+own higher-level transport workflow.
+
+That separation of responsibility is deliberate:
+
+- NTX owns the monoenergetic solve
+- NEOPAX owns the radial multi-species transport layer

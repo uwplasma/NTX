@@ -1,18 +1,19 @@
 # NTX
 
 NTX is a JAX-native monoenergetic neoclassical transport solver for stellarator
-flux surfaces. It implements the Legendre-space formulation in Javier Escoto's
-PhD thesis: [arXiv:2510.27513](https://arxiv.org/abs/2510.27513).
+flux surfaces. It implements the Legendre-space formulation described in Javier
+Escoto's PhD thesis, [Fast monoenergetic neoclassical transport coefficients in
+stellarators](https://arxiv.org/abs/2510.27513).
 
-NTX has two main lanes:
+NTX is intended to be useful in two modes:
 
-- a file-driven CLI for fast production runs
-- an imported Python/JAX lane for scans, autodiff, NEOPAX coupling, and
-  parallel throughput workflows
+- a straightforward command-line workflow for production solves
+- an imported Python/JAX workflow for scans, autodiff, optimization, NEOPAX
+  coupling, and throughput-oriented parallel execution
 
 ## Fastest Start
 
-Install the package:
+Install:
 
 ```bash
 python -m pip install ntx
@@ -27,25 +28,31 @@ ntx examples/example_surface.toml
 That command:
 
 - prints a Rich summary to the terminal
-- solves one monoenergetic transport case
-- writes a compressed `.npz` output file next to the input TOML
+- solves one monoenergetic case
+- writes `examples/example_surface.npz`
 
-Run a slightly more realistic DKES-style example:
-
-```bash
-ntx examples/sample_dkes.toml
-```
-
-Inspect the `.npz` output with the plotting example:
+Inspect the output graphically:
 
 ```bash
-python examples/plot_output_npz.py examples/outputs/sample_dkes.npz
+python examples/plot_output_npz.py examples/example_surface.npz
 ```
 
-This writes:
+This writes a publication-style multi-panel summary figure.
 
-- `docs/_static/output_file_summary.png`
-- `docs/_static/output_file_summary.pdf`
+![NTX output summary](docs/_static/output_file_summary.png)
+
+## What NTX Computes
+
+For a single flux surface and monoenergetic case, NTX computes:
+
+- `D11`
+- `D31`
+- `D13`
+- `D33`
+- `D33_spitzer`
+
+plus diagnostics and, optionally, the low-order Legendre modes used in the
+coefficient calculation.
 
 ## Installation
 
@@ -55,61 +62,71 @@ Basic install:
 python -m pip install ntx
 ```
 
-Local editable install with test and docs tools:
+Editable install with test and docs tools:
 
 ```bash
 python -m pip install -e ".[dev,docs,io]"
 ```
 
-Install the JAX VMEC and Boozer geometry helpers:
+Install the VMEC/Boozer geometry helpers:
 
 ```bash
 python -m pip install -e ".[geometry]"
 ```
 
-## Main Inputs
+## Simplest Way To Run The Code
 
-The primary user entrypoint is:
+The main command is:
 
 ```bash
 ntx input.toml
 ```
 
-Each input file defines:
+Minimal input file:
 
-- a surface source
-- a spectral/angular grid
-- one monoenergetic case
-- output and logging options
+```toml
+[surface]
+type = "example"
 
-Bundled surface sources:
+[grid]
+n_theta = 9
+n_zeta = 9
+n_xi = 8
 
-- built-in analytic example
-- DKES-style `ddkes2.data`
-- VMEC `wout_*.nc`
-- Boozer `boozmn` files through the Python/JAX geometry helpers
-
-See [docs/input-file.md](docs/input-file.md) for the complete schema.
-
-## Main Outputs
-
-Every CLI run writes a compressed `.npz` file containing:
-
-- `D11`, `D31`, `D13`, `D33`, `D33_spitzer`
-- residual and Onsager diagnostics
-- resolved electric-field normalization
-- angular geometry arrays such as `theta_grid`, `zeta_grid`, `b`,
-  `radial_drift_spatial`
-- optional low-order Legendre modes
-- serialized run metadata and input text
-
-The plotting helper:
-
-```bash
-python examples/plot_output_npz.py path/to/output.npz
+[case]
+nu_hat = 1e-2
+epsi_hat = 0.0
 ```
 
-turns that payload into a four-panel publication-style summary figure.
+The CLI writes a compressed `.npz` file containing:
+
+- transport coefficients
+- residual and Onsager diagnostics
+- resolved electric-field normalization
+- geometry arrays on the angular grid
+- run metadata and the original input text
+
+## Main Inputs
+
+The CLI supports:
+
+- the built-in analytic sample surface
+- DKES-style Boozer harmonic files
+- VMEC `wout` files through `vmec_jax`
+
+Imported Python workflows additionally support direct Boozer-file loading and
+in-memory surface construction.
+
+Important numerical knobs:
+
+- `n_theta`, `n_zeta`, `n_xi`
+- `nu_hat`
+- `epsi_hat` or `er_hat`
+- VMEC radial and mode-selection options
+
+Full schema:
+
+- [docs/input-file.md](docs/input-file.md)
 
 ## Ways To Run NTX
 
@@ -126,35 +143,35 @@ ntx examples/sample_vmec.toml
 from ntx import GridSpec, MonoenergeticCase, example_surface, solve_monoenergetic
 
 surface = example_surface()
-grid = GridSpec(n_theta=9, n_zeta=11, n_xi=12)
+grid = GridSpec(n_theta=17, n_zeta=25, n_xi=32)
 case = MonoenergeticCase(nu_hat=1e-3, epsi_hat=0.0)
 result = solve_monoenergetic(surface, grid, case)
 
-print(result.D11, result.D13, result.D33)
+print(result.D11, result.D31, result.D13, result.D33)
 ```
 
-### 3. Batched JAX scans
+### 3. Batched differentiable JAX scans
 
 ```python
 import jax.numpy as jnp
 from ntx import GridSpec, example_surface, solve_monoenergetic_scan
 
 surface = example_surface()
-grid = GridSpec(9, 11, 8)
-nu_hat = jnp.logspace(-4, -2, 8)
+grid = GridSpec(17, 25, 16)
+nu_hat = jnp.logspace(-5, -2, 8)
 epsi_hat = jnp.zeros_like(nu_hat)
 coefficients = solve_monoenergetic_scan(surface, grid, nu_hat, epsi_hat=epsi_hat)
 ```
 
-### 4. Multiprocess throughput scans
+### 4. Throughput-oriented multiprocess scans
 
 ```python
 import jax.numpy as jnp
 from ntx import GridSpec, example_surface, solve_monoenergetic_multiprocess_scan
 
 surface = example_surface()
-grid = GridSpec(9, 11, 8)
-nu_hat = jnp.logspace(-4, -2, 32)
+grid = GridSpec(17, 25, 16)
+nu_hat = jnp.logspace(-5, -2, 64)
 epsi_hat = jnp.zeros_like(nu_hat)
 coefficients = solve_monoenergetic_multiprocess_scan(
     surface,
@@ -168,8 +185,8 @@ coefficients = solve_monoenergetic_multiprocess_scan(
 
 ### 5. NEOPAX coupling
 
-NTX exposes direct monoenergetic scan builders and mapping helpers for
-NEOPAX-style databases:
+NTX exposes direct scan builders and mapping helpers for NEOPAX-style
+monoenergetic databases:
 
 - `build_ntx_neopax_scan(...)`
 - `build_ntx_neopax_scan_from_surfaces(...)`
@@ -177,49 +194,15 @@ NEOPAX-style databases:
 - `to_neopax_monoenergetic(...)`
 - `write_neopax_scan_hdf5(...)`
 
-Minimal example:
+Run:
 
 ```bash
 python examples/neopax_with_ntx.py
 ```
 
-Bootstrap-current proxy example from VMEC or direct Boozer input:
+### 6. Autodiff and optimization workflows
 
-```bash
-python examples/bootstrap_current_from_vmec_or_boozmn.py
-```
-
-The script solves a fixed-collisionality NTX radial family, plots
-`D11`, `D13`, `nu_hat * D33`, and a compact bootstrap-current proxy, and writes
-PNG, PDF, and JSON outputs next to the configured `OUTPUT_PREFIX`.
-
-The example writes:
-
-- `docs/_static/bootstrap_current_from_vmec_or_boozmn.png`
-- `docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf`
-- `docs/_static/bootstrap_current_from_vmec_or_boozmn.json`
-
-![NTX bootstrap-current proxy profile](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
-
-W7-X bootstrap-current convergence audit:
-
-```bash
-python examples/bootstrap_current_reference_audit_w7x.py
-```
-
-This script rebuilds the W7-X imported workflow on a reduced reference scan,
-computes the bootstrap-current profile through NEOPAX, and writes a
-publication-ready convergence figure:
-
-- `docs/_static/bootstrap_current_reference_audit_w7x.png`
-- `docs/_static/bootstrap_current_reference_audit_w7x.pdf`
-- `docs/_static/bootstrap_current_reference_audit_w7x.json`
-
-![W7-X bootstrap-current convergence](docs/_static/bootstrap_current_reference_audit_w7x.png)
-
-### 6. Differentiable workflows
-
-Inverse and sensitivity examples:
+Run:
 
 ```bash
 python examples/autodiff_inverse_problem.py
@@ -227,91 +210,91 @@ python examples/neopax_autodiff_profiles.py
 python examples/bootstrap_current_optimization.py
 ```
 
-These examples generate manuscript-quality figures in `docs/_static/`.
+These generate publication-ready figures for:
 
-## Parallelization
+- inverse problems
+- sensitivity analysis
+- differentiable bootstrap-current optimization
 
-NTX supports:
+## Bootstrap-Current Examples
 
-- serial batched JAX scans for small and medium studies
-- multiprocess multi-device scans for throughput-oriented workloads
-
-The current measured guidance is:
-
-- use serial batched JAX as the default
-- use the multiprocess lane when scan sizes are large enough to amortize
-  process-launch and compilation costs
-
-See:
-
-- [docs/gpu.md](docs/gpu.md)
-- [docs/performance.md](docs/performance.md)
-
-## Autodiff And NEOPAX
-
-NTX is designed to be usable inside differentiable JAX pipelines. The imported
-lane supports:
-
-- `jit`
-- `vmap`
-- differentiation with respect to transport inputs and geometry coefficients
-- NEOPAX-style database generation entirely in Python
-
-The most relevant examples are:
-
-- `examples/bootstrap_current_from_vmec_or_boozmn.py`
-- `examples/neopax_autodiff_profiles.py`
-- `examples/bootstrap_current_optimization.py`
-- `examples/neopax_with_ntx.py`
-
-## Publication Figures
-
-Generate the full manuscript-ready figure bundle:
-
-```bash
-python examples/make_publication_figures.py
-```
-
-This regenerates:
-
-- validation figures
-- autodiff inverse and profile figures
-- bootstrap-current optimization science figure
-- CPU/GPU performance scaling figures
-
-For the pure NTX bootstrap-current proxy figure:
+Pure NTX workflow from VMEC or Boozer input to radial profiles:
 
 ```bash
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
 
-For the W7-X imported-workflow reference audit:
+This plots:
+
+- `D11`
+- `D13`
+- `nu_hat * D33`
+- a compact bootstrap-current proxy
+
+![NTX bootstrap-current profile](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
+
+W7-X bootstrap-current convergence audit:
 
 ```bash
 python examples/bootstrap_current_reference_audit_w7x.py
 ```
 
-and the publication bundle manifest is written to
-`docs/_static/publication_figure_manifest.json`.
+This rebuilds a reduced W7-X scan at several NTX resolutions and writes a
+publication-ready convergence figure:
 
-## Validation
+![W7-X bootstrap-current convergence](docs/_static/bootstrap_current_reference_audit_w7x.png)
 
-Current local status:
+## Parallelization
 
-- `113 passed, 2 skipped`
-- full validation remains local-first because hosted CI is billing-blocked
-- office GPU validation is documented in [docs/gpu.md](docs/gpu.md)
+NTX supports:
+
+- serial batched JAX scans
+- guarded single-process device-parallel scans
+- multiprocess CPU/GPU scans for larger throughput jobs
+
+Current practical guidance:
+
+- use serial batched JAX for small and medium studies
+- use the multiprocess lane for larger throughput-oriented jobs
+
+See:
+
+- [docs/performance.md](docs/performance.md)
+- [docs/gpu.md](docs/gpu.md)
+
+## NEOPAX Connection
+
+NTX is designed to provide monoenergetic coefficient tables to
+[NEOPAX](https://github.com/uwplasma/NEOPAX). The dedicated interface is
+documented in:
+
+- [docs/neopax.md](docs/neopax.md)
 
 ## Documentation
 
-- [Install](docs/install.md)
-- [Input File](docs/input-file.md)
-- [Algorithm](docs/algorithm.md)
-- [Autodiff](docs/autodiff.md)
-- [Examples](docs/examples.md)
-- [Validation](docs/validation.md)
-- [NEOPAX](docs/neopax.md)
+The full documentation in [`docs/`](docs/) covers:
+
+- [installation](docs/install.md)
+- [input schema and outputs](docs/input-file.md)
+- [physics model and equations](docs/physics.md)
+- [geometry handling](docs/geometry.md)
+- [algorithm overview](docs/algorithm.md)
+- [numerics and algorithms](docs/numerics.md)
+- [source-code map](docs/source-map.md)
+- [examples](docs/examples.md)
+- [validation](docs/validation.md)
+- [testing and QA](docs/testing.md)
+- [NEOPAX workflows](docs/neopax.md)
 - [GPU](docs/gpu.md)
-- [Performance](docs/performance.md)
-- [Manuscript Figures](docs/manuscript.md)
-- [Release](docs/release.md)
+- [performance](docs/performance.md)
+- [publication figures](docs/manuscript.md)
+- [literature](docs/literature.md)
+
+## Local Quality Checks
+
+```bash
+python -m ruff check .
+python -m mypy src/ntx
+python -m pytest -q
+python -m sphinx -b html docs docs/_build/html
+```

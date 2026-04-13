@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit W7-X bootstrap-current convergence against the local reference database."""
+"""Audit W7-X bootstrap-current convergence on the bundled benchmark scan."""
 # ruff: noqa: I001
 
 from __future__ import annotations
