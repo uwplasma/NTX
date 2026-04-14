@@ -81,6 +81,8 @@ The per-radius electric-field solve currently applies damped Newton updates to
 - `solve_ambipolar_er_profile(...)`
 - `solve_ambipolar_profile_family(...)`
 - `bootstrap_current_objective(...)`
+- `apply_profile_control(...)`
+- `optimize_profile_control(...)`
 
 ## Typical Workflow
 
@@ -194,6 +196,50 @@ It shows:
 - the final ambipolar residual norm across that family
 
 ![Ambipolar profile family](_static/ambipolar_profile_family.png)
+
+## Differentiable Profile-Control Optimization
+
+On top of the family solve, NTX now exposes a scalar control optimization:
+
+```{math}
+\mathcal J(c) = \int w(r) J_{\mathrm{bs,proxy}}(r;c)^2\,dr
++ \lambda \left\langle R(r;c)^2 \right\rangle,
+```
+
+where `c` is a scalar profile control, `w(r)` is an optional radial weight, and
+`\lambda` is a residual penalty.
+
+The corresponding helpers are:
+
+- `ProfileControlSpec`
+- `apply_profile_control(...)`
+- `optimize_profile_control(...)`
+
+The repository example
+
+```bash
+python examples/profile_control_optimization.py
+```
+
+writes:
+
+```text
+docs/_static/profile_control_optimization.png
+docs/_static/profile_control_optimization.pdf
+```
+
+It shows:
+
+- objective descent across optimization iterations
+- scalar control updates
+- the best solved ambipolar field profile
+- the best bootstrap-current proxy profile
+
+The implementation lives entirely in
+[`src/ntx/profiles.py`](../src/ntx/profiles.py), so the optimization stays in
+the imported JAX lane instead of leaving the NTX runtime.
+
+![Profile control optimization](_static/profile_control_optimization.png)
 
 ## Source-Code Map
 

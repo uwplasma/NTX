@@ -1,48 +1,6 @@
 {
-  "inverse": [
-    "docs/_static/autodiff_inverse_problem.png",
-    "docs/_static/autodiff_inverse_problem.pdf"
-  ],
-  "profiles": [
-    "docs/_static/autodiff_neopax_profiles.png",
-    "docs/_static/autodiff_neopax_profiles.pdf"
-  ],
-  "ambipolar": [
-    "docs/_static/ambipolar_profile.png",
-    "docs/_static/ambipolar_profile.pdf"
-  ],
-  "ambipolar_family": [
-    "docs/_static/ambipolar_profile_family.png",
-    "docs/_static/ambipolar_profile_family.pdf"
-  ],
-  "derivative_benchmark": [
-    "docs/_static/derivative_path_benchmark.png",
-    "docs/_static/derivative_path_benchmark.pdf"
-  ],
-  "science": [
-    "docs/_static/bootstrap_current_optimization.png",
-    "docs/_static/bootstrap_current_optimization.pdf"
-  ],
-  "validation": [
-    "docs/_static/validation_summary.png",
-    "docs/_static/validation_summary.pdf"
-  ],
-  "bootstrap_proxy": [
-    "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
-    "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf",
-    "docs/_static/bootstrap_current_from_vmec_or_boozmn.json"
-  ],
-  "w7x_audit": [
-    "docs/_static/bootstrap_current_reference_audit_w7x.png",
-    "docs/_static/bootstrap_current_reference_audit_w7x.pdf",
-    "docs/_static/bootstrap_current_reference_audit_w7x.json"
-  ],
-  "performance_smoke": [
-    "docs/_static/performance_scaling_smoke.png",
-    "docs/_static/performance_scaling_smoke.pdf"
-  ],
-  "performance_heavy": [
-    "docs/_static/performance_scaling_heavy.png",
-    "docs/_static/performance_scaling_heavy.pdf"
+  "profile_control": [
+    "docs/_static/profile_control_optimization.png",
+    "docs/_static/profile_control_optimization.pdf"
   ]
 }

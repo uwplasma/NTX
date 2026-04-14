@@ -128,12 +128,20 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
   - `solve_ambipolar_profile_family(...)`
   - `bootstrap_current_objective(...)`
   - a first control-parameter family workflow for profile studies
+- Added a differentiable scalar-control optimization layer on top of the same
+  profile closure:
+  - `ProfileControlSpec`
+  - `apply_profile_control(...)`
+  - `optimize_profile_control(...)`
 - Added the repository example:
   - `examples/ambipolar_profile.py`
   - `docs/_static/ambipolar_profile.*`
 - Added the family-profile figure workflow:
   - `examples/ambipolar_profile_family.py`
   - `docs/_static/ambipolar_profile_family.*`
+- Added the optimization-facing profile figure workflow:
+  - `examples/profile_control_optimization.py`
+  - `docs/_static/profile_control_optimization.*`
 - Added two autodiff helper workflows:
   - a one-parameter inverse problem on the analytic surface
   - a NEOPAX-style electric-field profile inversion on NTX-generated scan data

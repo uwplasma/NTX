@@ -213,7 +213,24 @@ differentiable geometry-control problem:
 This is the main application/science-case figure for a methods paper centered
 on bootstrap-current analysis and optimization.
 
-## 16. Performance Scaling
+## 16. Profile-Control Optimization
+
+```bash
+python examples/profile_control_optimization.py
+```
+
+This writes:
+
+- `docs/_static/profile_control_optimization.png`
+- `docs/_static/profile_control_optimization.pdf`
+
+and demonstrates:
+
+- building a differentiable scalar control on top of the profile closure
+- optimizing that control directly against a bootstrap-current objective
+- reusing the ambipolar solve inside a JAX optimization loop
+
+## 17. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -222,7 +239,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 17. Validation Summary
+## 18. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -232,7 +249,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 18. Full Publication Bundle
+## 19. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py
