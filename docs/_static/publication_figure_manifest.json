@@ -7,6 +7,10 @@
     "docs/_static/autodiff_neopax_profiles.png",
     "docs/_static/autodiff_neopax_profiles.pdf"
   ],
+  "ambipolar": [
+    "docs/_static/ambipolar_profile.png",
+    "docs/_static/ambipolar_profile.pdf"
+  ],
   "derivative_benchmark": [
     "docs/_static/derivative_path_benchmark.png",
     "docs/_static/derivative_path_benchmark.pdf"
