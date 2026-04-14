@@ -145,13 +145,14 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         species_profiles,
         control_spec,
         control_initial=control_initial,
-        learning_rate=0.12,
+        learning_rate=0.08,
         optimization_steps=10,
         solve_steps=12,
         damping=0.7,
         weight=weight,
         residual_penalty=0.5,
         control_penalty=1.0e-2,
+        control_bound=0.20,
     )
     best_er = np.asarray(result.best_profile.er_profile)
     best_current = np.asarray(result.best_profile.bootstrap_current_proxy)
@@ -178,6 +179,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     axes[0, 0].set_xlabel("Optimization iteration")
     axes[0, 0].set_ylabel("Basis coefficient")
     axes[0, 0].set_title("Basis-control history")
+    axes[0, 0].set_ylim(-0.22, 0.22)
     axes[0, 0].legend(loc="best", ncol=3)
 
     for index in range(basis_np.shape[0]):

@@ -124,12 +124,13 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         species_profiles,
         control_spec,
         control_initial=0.20,
-        learning_rate=0.18,
+        learning_rate=0.10,
         optimization_steps=10,
         solve_steps=12,
         damping=0.7,
         weight=weight,
         residual_penalty=0.5,
+        control_bound=0.35,
     )
 
     control_history = np.asarray(result.control_history)
@@ -172,6 +173,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     axes[0, 0].set_xlabel("Optimization iteration")
     axes[0, 0].set_ylabel("Objective")
     axes[0, 0].set_title("Control optimization history")
+    axes[0, 0].set_yscale("log")
     axes[0, 0].legend(loc="best")
 
     axes[0, 1].plot(

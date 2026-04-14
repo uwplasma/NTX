@@ -275,6 +275,15 @@ The profile objective then becomes
 + \mu \|\mathbf c\|_2^2.
 ```
 
+In the current implementation, the optimization step is stabilized in two ways:
+
+- the control update uses a normalized gradient direction rather than the raw
+  gradient magnitude
+- a small backtracking line search rejects steps that increase the objective
+
+This keeps the public examples in a physically interpretable regime even when
+the bootstrap-current proxy changes rapidly with control amplitude.
+
 The corresponding helpers are:
 
 - `ProfileBasisControlSpec`
@@ -314,7 +323,95 @@ transport-relaxation loop. NTX now exposes
 - `solve_profile_transport_loop(...)`
 
 The closure updates the profile-force proxies explicitly after each ambipolar
-solve:
+solve, using prescribed source and target channels:
+
+```{math}
+A_{1,a}^{(n+1)}(r) =
+A_{1,a}^{(n)}(r) -
+\alpha^{(\Gamma)}_a(r)\,
+\widetilde{\Delta\Gamma}_a^{(n)}(r),
+```
+
+```{math}
+A_{3,a}^{(n+1)}(r) =
+A_{3,a}^{(n)}(r) -
+\alpha^{(J)}_a(r)\,
+\widetilde{\Delta J}_a^{(n)}(r),
+```
+
+where the normalized mismatches are
+
+```{math}
+\Delta\Gamma_a^{(n)}(r) =
+\Gamma_a^{(n)}(r)
+- \Gamma_{a,\mathrm{target}}(r)
+- \Gamma_{a,\mathrm{source}}(r),
+```
+
+```{math}
+\Delta J_a^{(n)}(r) =
+J_a^{(n)}(r)
+- J_{a,\mathrm{target}}(r)
+- J_{a,\mathrm{source}}(r),
+```
+
+```{math}
+\widetilde{\Delta\Gamma}_a^{(n)}(r) =
+\mathrm{clip}\!\left(
+\frac{\Delta\Gamma_a^{(n)}(r)}
+{\max\!\bigl(\sqrt{\langle (\Delta\Gamma_a^{(n)})^2\rangle_r},\,\epsilon_a^{(\Gamma)}(r)\bigr)},
+-u_{\max,a}^{(\Gamma)}(r),
+u_{\max,a}^{(\Gamma)}(r)
+\right),
+```
+
+```{math}
+\widetilde{\Delta J}_a^{(n)}(r) =
+\mathrm{clip}\!\left(
+\frac{\Delta J_a^{(n)}(r)}
+{\max\!\bigl(\sqrt{\langle (\Delta J_a^{(n)})^2\rangle_r},\,\epsilon_a^{(J)}(r)\bigr)},
+-u_{\max,a}^{(J)}(r),
+u_{\max,a}^{(J)}(r)
+\right).
+```
+
+The loop records a quadratic transport mismatch loss,
+
+```{math}
+\mathcal L_{\mathrm{transport}}^{(n)} =
+\left\langle
+\sum_a
+\left(\Delta\Gamma_a^{(n)}\right)^2 +
+\left(\Delta J_a^{(n)}\right)^2
+\right\rangle_r,
+```
+
+with the plotted diagnostics shown as relative metrics normalized by the first
+iteration. This makes the figure easier to interpret than the older raw-value
+version, which could be dominated by one channel scale.
+
+The closure-spec fields are therefore:
+
+- `particle_relaxation`
+- `current_relaxation`
+- `particle_target`
+- `current_target`
+- `particle_source`
+- `current_source`
+- `normalization_floor`
+- `max_normalized_update`
+
+The simple default update is still explicit, but it is now much more robust for
+publication-facing profile studies.
+
+The corresponding helpers are:
+
+- `ProfileTransportClosureSpec`
+- `profile_transport_loss(...)`
+- `advance_profile_transport(...)`
+- `solve_profile_transport_loop(...)`
+
+The old raw-update form,
 
 ```{math}
 A_{1,a}^{(n+1)}(r) =
@@ -328,19 +425,8 @@ A_{3,a}^{(n)}(r) -
 \alpha^{(J)}_a(r)\left[J_a^{(n)}(r)-J_{a,\mathrm{target}}(r)\right].
 ```
 
-The loop also records a quadratic transport mismatch loss,
-
-```{math}
-\mathcal L_{\mathrm{transport}}^{(n)} =
-\left\langle
-\sum_a
-\left(\Gamma_a^{(n)}-\Gamma_{a,\mathrm{target}}\right)^2 +
-\left(J_a^{(n)}-J_{a,\mathrm{target}}\right)^2
-\right\rangle_r,
-```
-
-so the user can inspect whether the profile closure is converging before moving
-to a more complete transport model.
+is retained only as intuition. The shipped implementation uses the normalized
+source/target mismatch form above.
 
 The repository example
 

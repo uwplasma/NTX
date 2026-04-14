@@ -63,20 +63,42 @@ def _transport_closure(rho):
     return ProfileTransportClosureSpec(
         particle_relaxation=jnp.asarray(
             [
-                0.14 + 0.02 * rho,
-                0.08 + 0.01 * rho,
+                0.05 + 0.01 * rho,
+                0.03 + 0.005 * rho,
             ],
             dtype=rho.dtype,
         ),
         current_relaxation=jnp.asarray(
             [
-                0.10 + 0.02 * (1.0 - rho),
-                0.04 + 0.01 * rho,
+                0.04 + 0.01 * (1.0 - rho),
+                0.02 + 0.005 * rho,
             ],
             dtype=rho.dtype,
         ),
-        particle_target=0.0,
-        current_target=0.0,
+        particle_target=jnp.asarray(
+            [
+                -0.02 * (1.0 - rho),
+                0.015 * (1.0 - 0.5 * rho),
+            ],
+            dtype=rho.dtype,
+        ),
+        current_target=jnp.asarray(
+            [
+                -0.015 * (1.0 - 0.3 * rho),
+                0.010 * (1.0 - 0.2 * rho),
+            ],
+            dtype=rho.dtype,
+        ),
+        particle_source=jnp.asarray(
+            [
+                0.004 * jnp.ones_like(rho),
+                -0.003 * jnp.ones_like(rho),
+            ],
+            dtype=rho.dtype,
+        ),
+        current_source=0.0,
+        normalization_floor=0.05,
+        max_normalized_update=0.25,
         closure_name="radial proxy transport",
     )
 
@@ -126,10 +148,22 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
 
     iterations = jnp.arange(1, TRANSPORT_ITERATIONS + 1)
     ambipolar_norm = jnp.linalg.norm(result.ambipolar_residual_history, axis=1)
+    relative_transport_loss = result.transport_loss_history / result.transport_loss_history[0]
+    relative_ambipolar_norm = ambipolar_norm / ambipolar_norm[0]
     axes[1, 0].plot(
-        iterations, result.transport_loss_history, marker="o", lw=2.5, label="transport loss"
+        iterations,
+        relative_transport_loss,
+        marker="o",
+        lw=2.5,
+        label="relative transport loss",
     )
-    axes[1, 0].plot(iterations, ambipolar_norm, marker="s", lw=2.0, label="ambipolar residual norm")
+    axes[1, 0].plot(
+        iterations,
+        relative_ambipolar_norm,
+        marker="s",
+        lw=2.0,
+        label="relative ambipolar residual",
+    )
 
     species_names = ("electron A1", "electron A3", "ion A1", "ion A3")
     final_a1 = result.species_a1_history[-1]
@@ -150,7 +184,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
 
     axes[1, 0].set_title("Transport Iteration Metrics")
     axes[1, 0].set_xlabel("iteration")
-    axes[1, 0].set_ylabel("loss")
+    axes[1, 0].set_ylabel("relative metric")
     axes[1, 0].set_yscale("log")
     axes[1, 0].legend(frameon=False)
 

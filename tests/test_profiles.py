@@ -222,12 +222,14 @@ def test_profile_control_application_and_optimization_return_finite_results():
         solve_steps=6,
         damping=0.7,
         residual_penalty=0.5,
+        control_bound=0.3,
     )
     assert isinstance(result, ProfileControlOptimizationResult)
     assert result.control_history.shape == (5,)
     assert result.best_profile.er_profile.shape == scan.rho.shape
     assert jnp.all(jnp.isfinite(result.objective_history))
     assert jnp.isfinite(result.best_control)
+    assert jnp.max(jnp.abs(result.control_history)) <= 0.3 + 1.0e-12
 
 
 def test_profile_control_spec_shape_mismatch_raises():
@@ -274,12 +276,14 @@ def test_profile_basis_control_application_and_optimization_return_finite_result
         damping=0.7,
         residual_penalty=0.5,
         control_penalty=1.0e-2,
+        control_bound=0.25,
     )
     assert isinstance(result, ProfileBasisOptimizationResult)
     assert result.control_history.shape == (5, 2)
     assert result.best_control.shape == (2,)
     assert result.best_profile.er_profile.shape == scan.rho.shape
     assert jnp.all(jnp.isfinite(result.objective_history))
+    assert jnp.max(jnp.abs(result.control_history)) <= 0.25 + 1.0e-12
 
 
 def test_profile_basis_control_shape_mismatch_raises():
@@ -303,8 +307,11 @@ def test_profile_transport_loop_returns_finite_histories():
     closure = ProfileTransportClosureSpec(
         particle_relaxation=jnp.asarray([[0.10, 0.11, 0.12], [0.05, 0.06, 0.07]]),
         current_relaxation=jnp.asarray([[0.08, 0.07, 0.06], [0.03, 0.03, 0.03]]),
-        particle_target=0.0,
+        particle_target=jnp.asarray([[0.01, 0.01, 0.01], [0.0, 0.0, 0.0]]),
         current_target=0.0,
+        particle_source=jnp.asarray([[0.0, 0.0, 0.0], [0.005, 0.005, 0.005]]),
+        normalization_floor=0.1,
+        max_normalized_update=0.2,
     )
     profile = solve_ambipolar_er_profile(scan, species_profiles, steps=6)
     loss = profile_transport_loss(profile, closure)
@@ -325,6 +332,7 @@ def test_profile_transport_loop_returns_finite_histories():
     assert result.species_a1_history.shape == (4, 2, scan.rho.size)
     assert result.species_a3_history.shape == (4, 2, scan.rho.size)
     assert jnp.all(jnp.isfinite(result.transport_loss_history))
+    assert result.transport_loss_history[-1] <= result.transport_loss_history[0] + 1.0e-12
 
 
 def test_profile_transport_closure_shape_mismatch_raises():
