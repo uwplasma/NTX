@@ -79,6 +79,8 @@ The per-radius electric-field solve currently applies damped Newton updates to
 - `evaluate_species_current_response(...)`
 - `ambipolar_residual_profile(...)`
 - `solve_ambipolar_er_profile(...)`
+- `solve_ambipolar_profile_family(...)`
+- `bootstrap_current_objective(...)`
 
 ## Typical Workflow
 
@@ -152,6 +154,46 @@ It shows:
 - the nonlinear solve history
 
 ![Ambipolar profile](_static/ambipolar_profile.png)
+
+## Control-Parameter Families
+
+NTX also exposes a small family-solve layer:
+
+```{math}
+\mathcal J(c) = \int w(r) J_{\mathrm{bs,proxy}}(r;c)^2\,dr,
+```
+
+where `c` is any explicit profile control and `w(r)` is an optional radial
+weight.
+
+Use:
+
+- `solve_ambipolar_profile_family(...)` to solve several profile closures on the
+  same NTX scan
+- `bootstrap_current_objective(...)` to reduce one solved current profile to a
+  scalar optimization objective
+
+The repository example
+
+```bash
+python examples/ambipolar_profile_family.py
+```
+
+writes:
+
+```text
+docs/_static/ambipolar_profile_family.png
+docs/_static/ambipolar_profile_family.pdf
+```
+
+It shows:
+
+- the family of solved `E_r(r)` profiles
+- the resulting family of bootstrap-current proxies
+- a scalar objective landscape across the control parameter
+- the final ambipolar residual norm across that family
+
+![Ambipolar profile family](_static/ambipolar_profile_family.png)
 
 ## Source-Code Map
 

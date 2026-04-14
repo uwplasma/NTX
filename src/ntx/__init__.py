@@ -40,13 +40,16 @@ from .neopax import (
 )
 from .parallel import solve_monoenergetic_multiprocess_scan
 from .profiles import (
+    AmbipolarProfileFamilyResult,
     AmbipolarProfileResult,
     MonoenergeticSpeciesProfile,
     ambipolar_residual_profile,
+    bootstrap_current_objective,
     evaluate_scan_channel,
     evaluate_species_current_response,
     evaluate_species_particle_flux,
     solve_ambipolar_er_profile,
+    solve_ambipolar_profile_family,
 )
 from .solver import (
     CompiledPreparedSolver,
@@ -80,6 +83,7 @@ __all__ = [
     "BoozmnSurface",
     "BoozerSurface",
     "BootstrapOptimizationResult",
+    "AmbipolarProfileFamilyResult",
     "AmbipolarProfileResult",
     "CompiledPreparedSolver",
     "DerivativeAuditResult",
@@ -114,6 +118,7 @@ __all__ = [
     "local_parallel_device_count",
     "onsager_error",
     "ambipolar_residual_profile",
+    "bootstrap_current_objective",
     "prepare_monoenergetic_system",
     "run_from_input_file",
     "scan_to_neopax_arrays",
@@ -132,6 +137,7 @@ __all__ = [
     "surface_from_vmec_jax_vmec_wout",
     "surface_from_vmec_jax_vmec_wout_file",
     "solve_ambipolar_er_profile",
+    "solve_ambipolar_profile_family",
     "to_neopax_monoenergetic",
     "write_neopax_scan_hdf5",
     "InverseProblemResult",

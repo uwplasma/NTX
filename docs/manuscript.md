@@ -28,6 +28,8 @@ examples.
    - heavier-grid scaling where throughput effects are visible
 10. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
+11. `ambipolar_profile_family.{png,pdf}`
+   - control-parameter family of ambipolar closures and scalar bootstrap-current objective
 
 Together these figures cover:
 
@@ -38,6 +40,7 @@ Together these figures cover:
 - a science-facing bootstrap-current optimization workflow
 - a pure NTX radial-profile figure
 - a profile-grade ambipolar and bootstrap-current-proxy workflow
+- a control-parameter family view of the same profile-grade closure
 - a W7-X imported-workflow convergence figure
 - practical performance guidance
 
@@ -136,6 +139,25 @@ entirely from NTX scan data, including the solved `E_r(r)` profile and the
 resulting bootstrap-current proxy.
 
 ![Ambipolar profile](_static/ambipolar_profile.png)
+
+## Ambipolar Profile Family Figure
+
+```bash
+python examples/ambipolar_profile_family.py
+```
+
+This writes:
+
+```text
+docs/_static/ambipolar_profile_family.png
+docs/_static/ambipolar_profile_family.pdf
+```
+
+Use this figure when the paper needs an optimization-facing profile figure that
+shows how a scalar control changes the solved `E_r(r)` and bootstrap-current
+proxy profiles, while also exposing a one-dimensional objective landscape.
+
+![Ambipolar profile family](_static/ambipolar_profile_family.png)
 
 ## W7-X Bootstrap-Current Convergence Figure
 

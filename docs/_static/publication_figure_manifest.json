@@ -11,6 +11,10 @@
     "docs/_static/ambipolar_profile.png",
     "docs/_static/ambipolar_profile.pdf"
   ],
+  "ambipolar_family": [
+    "docs/_static/ambipolar_profile_family.png",
+    "docs/_static/ambipolar_profile_family.pdf"
+  ],
   "derivative_benchmark": [
     "docs/_static/derivative_path_benchmark.png",
     "docs/_static/derivative_path_benchmark.pdf"

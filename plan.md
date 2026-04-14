@@ -124,9 +124,16 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
   - species-profile closures for `\Gamma_a(r)` and `J_a(r)`
   - a per-radius ambipolar `E_r(r)` solve on NTX scan data
   - a bootstrap-current proxy profile returned from the same solve
+- Extended that imported profile API with:
+  - `solve_ambipolar_profile_family(...)`
+  - `bootstrap_current_objective(...)`
+  - a first control-parameter family workflow for profile studies
 - Added the repository example:
   - `examples/ambipolar_profile.py`
   - `docs/_static/ambipolar_profile.*`
+- Added the family-profile figure workflow:
+  - `examples/ambipolar_profile_family.py`
+  - `docs/_static/ambipolar_profile_family.*`
 - Added two autodiff helper workflows:
   - a one-parameter inverse problem on the analytic surface
   - a NEOPAX-style electric-field profile inversion on NTX-generated scan data

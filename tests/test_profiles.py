@@ -4,18 +4,22 @@ from dataclasses import replace
 
 import jax
 import jax.numpy as jnp
+import pytest
 
 from ntx import (
+    AmbipolarProfileFamilyResult,
     AmbipolarProfileResult,
     GridSpec,
     MonoenergeticSpeciesProfile,
     ambipolar_residual_profile,
+    bootstrap_current_objective,
     build_ntx_neopax_scan_from_surfaces,
     evaluate_scan_channel,
     evaluate_species_current_response,
     evaluate_species_particle_flux,
     example_surface,
     solve_ambipolar_er_profile,
+    solve_ambipolar_profile_family,
 )
 
 
@@ -128,3 +132,58 @@ def test_ambipolar_residual_profile_has_expected_shape():
     residual = ambipolar_residual_profile(scan, _species_profiles(), er_profile=er_profile)
     assert residual.shape == scan.rho.shape
     assert jnp.all(jnp.isfinite(residual))
+
+
+def test_profile_family_solver_and_bootstrap_objective_return_finite_results():
+    scan = _example_scan()
+    control = jnp.asarray([-0.2, 0.0, 0.2])
+    electron, ion = _species_profiles()
+    family = tuple(
+        (
+            replace(electron, A3=electron.A3 * (1.0 + scale)),
+            replace(ion, A1=ion.A1 * (1.0 - 0.5 * scale)),
+        )
+        for scale in control
+    )
+    result = solve_ambipolar_profile_family(scan, family, control=control, steps=6)
+    assert isinstance(result, AmbipolarProfileFamilyResult)
+    assert result.er_profile.shape == (control.size, scan.rho.size)
+    assert result.bootstrap_current_proxy.shape == (control.size, scan.rho.size)
+    objective = bootstrap_current_objective(scan.rho, result.bootstrap_current_proxy[1])
+    assert jnp.isfinite(objective)
+
+
+def test_profile_helpers_cover_error_branches_and_d31_fallback():
+    scan = _example_scan()
+    scan = replace(scan, D31=None)
+    species = _species_profiles()[0]
+    er_profile = jnp.asarray([-4.0e-4, 0.0, 4.0e-4])
+    current = evaluate_species_current_response(scan, species, er_profile=er_profile)
+    assert current.shape == scan.rho.shape
+    with pytest.raises(ValueError, match="unsupported channel"):
+        evaluate_scan_channel(
+            scan,
+            "bad",
+            jnp.asarray(scan.rho),
+            species.nu_v,
+            er_profile,
+        )
+    with pytest.raises(ValueError, match="rho must match scan.rho shape"):
+        evaluate_scan_channel(
+            scan,
+            "D11",
+            jnp.asarray([0.5]),
+            jnp.asarray([1.0e-3]),
+            jnp.asarray([0.0]),
+        )
+    with pytest.raises(ValueError, match="profile field must be scalar or match rho shape"):
+        evaluate_species_particle_flux(
+            scan,
+            replace(species, A1=jnp.asarray([1.0, 2.0])),
+            er_profile=er_profile,
+        )
+    with pytest.raises(ValueError, match="bootstrap_current_proxy must match rho shape"):
+        bootstrap_current_objective(
+            scan.rho,
+            jnp.asarray([1.0, 2.0]),
+        )
