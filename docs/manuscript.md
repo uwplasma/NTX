@@ -13,16 +13,18 @@ examples.
    - inverse recovery of a surface harmonic from synthetic transport data
 3. `autodiff_neopax_profiles.{png,pdf}`
    - autodiff-based profile inversion on NEOPAX-style arrays
-4. `bootstrap_current_optimization.{png,pdf}`
+4. `derivative_path_benchmark.{png,pdf}`
+   - prepared-derivative timing and agreement against direct reverse-mode
+5. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-5. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+6. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-6. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+7. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-7. `performance_scaling_smoke.{png,pdf}`
+8. `performance_scaling_smoke.{png,pdf}`
    - CPU/GPU scaling on the repository smoke grid
-8. `performance_scaling_heavy.{png,pdf}`
+9. `performance_scaling_heavy.{png,pdf}`
    - heavier-grid scaling where throughput effects are visible
 
 Together these figures cover:
@@ -30,6 +32,7 @@ Together these figures cover:
 - formulation and numerical behavior
 - validation and convergence
 - differentiable inverse and profile problems
+- derivative cost for prepared optimization workflows
 - a science-facing bootstrap-current optimization workflow
 - a pure NTX radial-profile figure
 - a W7-X imported-workflow convergence figure
@@ -75,6 +78,23 @@ It uses:
 
 This is the recommended figure for a paper focused on differentiable bootstrap
 current analysis and optimization with NTX.
+
+## Prepared-Derivative Efficiency Figure
+
+```bash
+python examples/derivative_path_benchmark.py
+```
+
+This writes:
+
+```text
+docs/_static/derivative_path_benchmark.png
+docs/_static/derivative_path_benchmark.pdf
+```
+
+Use this figure when the paper needs an explicit statement of how NTX moves from
+plain reverse-mode to a prepared differentiable workflow that is better suited
+to repeated optimization scans.
 
 ## NTX Bootstrap-Current Proxy Figure
 

@@ -35,7 +35,7 @@ def main() -> None:
         "--figures",
         type=str,
         default=(
-            "inverse,profiles,science,validation,"
+            "inverse,profiles,derivative_benchmark,science,validation,"
             "bootstrap_proxy,w7x_audit,performance_smoke,performance_heavy"
         ),
         help="Comma-separated subset of figures to generate.",
@@ -73,6 +73,22 @@ def main() -> None:
         manifest["profiles"] = [
             _manifest_path(output_dir / "autodiff_neopax_profiles.png"),
             _manifest_path(output_dir / "autodiff_neopax_profiles.pdf"),
+        ]
+
+    if "derivative_benchmark" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "derivative_path_benchmark.py"),
+            ]
+        )
+        for suffix in (".png", ".pdf"):
+            source = ROOT / "docs" / "_static" / f"derivative_path_benchmark{suffix}"
+            target = output_dir / source.name
+            target.write_bytes(source.read_bytes())
+        manifest["derivative_benchmark"] = [
+            _manifest_path(output_dir / "derivative_path_benchmark.png"),
+            _manifest_path(output_dir / "derivative_path_benchmark.pdf"),
         ]
 
     if "science" in selected:

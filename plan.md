@@ -92,6 +92,10 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 - [x] Introduce a first custom-VJP contract point for the prepared coefficient
   solve so the backward rule can later be swapped to a true implicit or adjoint
   derivative without changing user-facing optimization scripts.
+- [x] Replace the placeholder reverse-mode backward rule for case parameters with
+  an exact tangent-linear sensitivity path for the prepared dense solve.
+- [x] Add a user-facing derivative benchmark that compares direct reverse-mode
+  and prepared custom-VJP derivatives on the same coefficient scan.
 - [ ] Replace the current exact custom-VJP backward rule with a true
   implicit-derivative prototype for the prepared dense solve and benchmark it
   against the current reverse-mode path.
@@ -108,6 +112,10 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 - Added the first device-parallel scan helper,
   `solve_monoenergetic_parallel_scan(...)`, using `jax.pmap` over the flattened
   scan.
+- Replaced the original prepared custom-VJP backward rule with exact
+  tangent-linear sensitivities for `nu_hat` and `E_r`/`E_\psi`, and added a
+  benchmark example that times the prepared derivative path against direct
+  reverse-mode on the same prepared solve.
 - Added two autodiff helper workflows:
   - a one-parameter inverse problem on the analytic surface
   - a NEOPAX-style electric-field profile inversion on NTX-generated scan data

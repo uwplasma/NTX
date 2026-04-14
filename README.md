@@ -208,6 +208,7 @@ Run:
 python examples/autodiff_inverse_problem.py
 python examples/neopax_autodiff_profiles.py
 python examples/derivative_audit.py
+python examples/derivative_path_benchmark.py
 python examples/bootstrap_current_optimization.py
 ```
 
@@ -216,6 +217,7 @@ These generate publication-ready figures for:
 - inverse problems
 - sensitivity analysis
 - direct autodiff versus finite-difference derivative audits
+- direct reverse-mode versus prepared custom-VJP derivative timing
 - differentiable bootstrap-current optimization
 
 For lower-level imported workflows, the prepared differentiable interface now
@@ -224,6 +226,7 @@ includes:
 - `prepare_monoenergetic_system(...)`
 - `solve_prepared_coefficient_vector(...)`
 - `solve_prepared_coefficient_vector_vjp(...)`
+- `examples/derivative_path_benchmark.py`
 
 ## Bootstrap-Current Examples
 
