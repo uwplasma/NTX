@@ -1,12 +1,12 @@
-# NTX Finalization Plan
+# NTX Research Plan
 
 ## Goal
 
-Ship NTX as a clean JAX-native implementation of the monoenergetic transport
-formulation described in Javier Escoto's PhD thesis:
+Operate NTX as a research-grade JAX-native implementation of the
+monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 [arXiv:2510.27513](https://arxiv.org/abs/2510.27513).
 
-## Final State
+## Shipped Base State
 
 - [x] JAX-native monoenergetic solver
 - [x] CLI entry point: `ntx input.toml`
@@ -24,6 +24,42 @@ formulation described in Javier Escoto's PhD thesis:
 - GPU smoke tests are available and skip cleanly on non-GPU machines
 - office GPU hardware validation closed successfully with the NTX-owned smoke cases
 
+## Research-Grade Open Lanes
+
+- [ ] optimization-grade dense-solve derivatives:
+  - add an implicit or adjoint derivative path for the prepared monoenergetic
+    solve
+  - validate it against direct autodiff and finite differences
+  - benchmark gradient cost and memory against current reverse-mode JAX
+- [ ] profile-grade transport workflows:
+  - promote ambipolar `E_r(r)` and bootstrap-current self-consistency to
+    first-class imported APIs
+  - keep the NEOPAX coupling layer clean and differentiable
+- [ ] broaden geometry studies:
+  - support hidden-symmetry, omnigenous, and piecewise-omnigenous research
+    campaigns with in-memory geometry perturbations
+- [ ] production throughput:
+  - improve prepared-geometry reuse and large scan throughput
+  - benchmark CPU, GPU, and multiprocess crossover points on production grids
+- [ ] physics expansion:
+  - stage momentum-restoring and higher-level transport closures after the
+    derivative and profile lanes are stable
+
+## Research References
+
+- Javier Escoto thesis:
+  [arXiv:2510.27513](https://arxiv.org/abs/2510.27513)
+- adjoint neoclassical optimization:
+  [arXiv:1904.06430](https://arxiv.org/abs/1904.06430)
+- differentiable programming for plasma workflows:
+  [arXiv:2410.11161](https://arxiv.org/abs/2410.11161)
+- zero-bootstrap-current piecewise omnigenity:
+  [arXiv:2505.02546](https://arxiv.org/abs/2505.02546)
+- hidden-symmetry optimization:
+  [arXiv:2502.09350](https://arxiv.org/abs/2502.09350)
+- combined omnigenity and piecewise omnigenity:
+  [arXiv:2603.12139](https://arxiv.org/abs/2603.12139)
+
 ## Remaining Maintenance Work
 
 - keep synthetic loader fixtures minimal and readable
@@ -32,7 +68,7 @@ formulation described in Javier Escoto's PhD thesis:
 - keep the documentation synchronized with the shipped solver interfaces and
   publication-figure scripts
 
-## Next Development Lane
+## Started Research Lane
 
 - [x] Add an autodiff validation example based on Escoto's formulation that solves
   a research-relevant inverse problem or sensitivity-analysis task and produces
@@ -50,6 +86,11 @@ formulation described in Javier Escoto's PhD thesis:
 - [x] Add a manuscript-ready validation summary figure and a one-command figure
   bundle generator so the publication assets can be regenerated directly from
   the repository.
+- [x] Add a derivative-audit workflow that compares direct JAX gradients against
+  centered finite differences before introducing an implicit/adjoint derivative
+  path.
+- [ ] Implement the first implicit-derivative prototype for the prepared dense
+  solve and benchmark it against the current direct-autodiff path.
 
 ## Active Work Log
 
@@ -183,3 +224,15 @@ formulation described in Javier Escoto's PhD thesis:
 - Reworked the landing page and README so they now start from the smallest
   install-and-run workflow before moving into Python solves, scans, autodiff,
   NEOPAX coupling, and throughput-oriented parallel execution.
+- Audited the next research-grade gaps against nearby transport/profile tools
+  and the current literature:
+  - profile tools expect clean radial-normalization-aware database interfaces
+  - practical multi-GPU throughput is strongest as one worker per case or scan
+    point rather than one large sharded solve
+  - adjoint or implicit derivatives should be introduced only after direct
+    autodiff is checked carefully against finite differences
+- Started the first concrete research-grade deliverable:
+  - added a derivative-audit workflow for `D11` and `D33` sensitivities with
+    respect to a Boozer harmonic amplitude and the radial electric field
+  - this establishes the validation baseline for a future custom-VJP or
+    implicit derivative path in the dense prepared solve

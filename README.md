@@ -207,6 +207,7 @@ Run:
 ```bash
 python examples/autodiff_inverse_problem.py
 python examples/neopax_autodiff_profiles.py
+python examples/derivative_audit.py
 python examples/bootstrap_current_optimization.py
 ```
 
@@ -214,6 +215,7 @@ These generate publication-ready figures for:
 
 - inverse problems
 - sensitivity analysis
+- direct autodiff versus finite-difference derivative audits
 - differentiable bootstrap-current optimization
 
 ## Bootstrap-Current Examples
@@ -281,12 +283,14 @@ The full documentation in [`docs/`](docs/) covers:
 - [algorithm overview](docs/algorithm.md)
 - [numerics and algorithms](docs/numerics.md)
 - [source-code map](docs/source-map.md)
+- [autodiff workflows](docs/autodiff.md)
 - [examples](docs/examples.md)
 - [validation](docs/validation.md)
 - [testing and QA](docs/testing.md)
 - [NEOPAX workflows](docs/neopax.md)
 - [GPU](docs/gpu.md)
 - [performance](docs/performance.md)
+- [research roadmap](docs/research-roadmap.md)
 - [publication figures](docs/manuscript.md)
 - [literature](docs/literature.md)
 

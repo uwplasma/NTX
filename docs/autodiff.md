@@ -31,6 +31,37 @@ It shows:
 
 ![Autodiff inverse problem](_static/autodiff_inverse_problem.png)
 
+## Derivative Audit
+
+The script:
+
+```bash
+python examples/derivative_audit.py
+```
+
+compares direct JAX gradients of the dense monoenergetic solve against centered
+finite differences for two practically important controls:
+
+- a Boozer harmonic amplitude at fixed electric field,
+- and the radial electric field at fixed collisionality.
+
+The figure is written to:
+
+```text
+docs/_static/derivative_audit.png
+docs/_static/derivative_audit.pdf
+```
+
+It shows:
+
+- gradient magnitude across collisionality for `D11` and `D33`,
+- relative mismatch between autodiff and finite differences,
+- electric-field sensitivities across `\hat E_r`,
+- and the current numerical agreement before the future implicit-derivative
+  path is introduced.
+
+![Derivative audit](_static/derivative_audit.png)
+
 ## NEOPAX-Style Profile Example
 
 The script:

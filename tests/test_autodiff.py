@@ -4,8 +4,10 @@ import jax.numpy as jnp
 
 from ntx import (
     BootstrapOptimizationResult,
+    DerivativeAuditResult,
     GridSpec,
     example_bootstrap_current_optimization,
+    example_derivative_audit,
     example_inverse_problem,
     example_neopax_profile_autodiff,
     load_neopax_reference_scan,
@@ -72,3 +74,28 @@ def test_bootstrap_current_optimization_improves_weighted_objective():
     assert float(result.objective_history[-1]) >= float(result.objective_history[0])
     assert not jnp.isclose(result.optimized_scale, result.baseline_scale)
     assert jnp.all(jnp.isfinite(result.optimized_current_profile))
+
+
+def test_derivative_audit_matches_finite_difference():
+    result = example_derivative_audit(grid=GridSpec(7, 9, 6))
+    assert isinstance(result, DerivativeAuditResult)
+    amplitude_d11_error = jnp.max(
+        jnp.abs(result.autodiff_d11_da - result.finite_difference_d11_da)
+        / jnp.maximum(jnp.abs(result.finite_difference_d11_da), 1e-30)
+    )
+    amplitude_d33_error = jnp.max(
+        jnp.abs(result.autodiff_d33_da - result.finite_difference_d33_da)
+        / jnp.maximum(jnp.abs(result.finite_difference_d33_da), 1e-30)
+    )
+    er_d11_error = jnp.max(
+        jnp.abs(result.autodiff_d11_der - result.finite_difference_d11_der)
+        / jnp.maximum(jnp.abs(result.finite_difference_d11_der), 1e-30)
+    )
+    er_d33_error = jnp.max(
+        jnp.abs(result.autodiff_d33_der - result.finite_difference_d33_der)
+        / jnp.maximum(jnp.abs(result.finite_difference_d33_der), 1e-30)
+    )
+    assert amplitude_d11_error < 5e-2
+    assert amplitude_d33_error < 5e-2
+    assert er_d11_error < 5e-2
+    assert er_d33_error < 5e-2
