@@ -135,6 +135,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `profile_control_optimization.py`
 - `profile_basis_optimization.py`
 - `profile_transport_loop.py`
+- `primitive_profile_transport.py`
 - `plot_output_npz.py`
 
 The figure bundle generator is:

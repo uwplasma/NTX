@@ -19,6 +19,7 @@ import numpy as np  # noqa: E402
 from ntx import (  # noqa: E402
     GridSpec,
     MonoenergeticSpeciesProfile,
+    ambipolar_residual_profile,
     bootstrap_current_objective,
     build_ntx_neopax_scan_from_surfaces,
     example_surface,
@@ -124,6 +125,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         control=CONTROL,
         steps=12,
         damping=0.7,
+        smoothing_strength=1.0,
     )
     objectives = jnp.asarray(
         [
@@ -134,28 +136,51 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     best = int(jnp.argmin(objectives))
     control_np = np.asarray(family.control)
     rho_np = np.asarray(rho)
-    er_profiles = np.asarray(family.er_profile)
     current_profiles = np.asarray(family.bootstrap_current_proxy)
     residual_norm = np.linalg.norm(np.asarray(family.ambipolar_residual), axis=1)
     objectives_np = np.asarray(objectives)
+    residual_landscape = []
+    for species_profiles in _species_family(rho):
+        residual_landscape.append(
+            [
+                float(
+                    np.linalg.norm(
+                        np.asarray(
+                            ambipolar_residual_profile(
+                                scan,
+                                species_profiles,
+                                er_profile=jnp.full_like(rho, er_value),
+                            )
+                        )
+                    )
+                )
+                for er_value in np.asarray(er_axis)
+            ]
+        )
+    residual_landscape = np.asarray(residual_landscape)
 
     colors = plt.cm.cividis(np.linspace(0.08, 0.92, control_np.size))
     fig, axes = plt.subplots(2, 2, constrained_layout=True)
 
-    for color, control_value, profile in zip(colors, control_np, er_profiles, strict=True):
+    for color, control_value, profile_loss in zip(
+        colors,
+        control_np,
+        residual_landscape,
+        strict=True,
+    ):
         axes[0, 0].plot(
-            rho_np,
-            profile,
+            np.asarray(er_axis),
+            profile_loss,
             color=color,
             lw=2.0,
             marker="o",
-            ms=4.5,
+            ms=4.0,
             label=fr"$c={control_value:+.2f}$",
         )
-    axes[0, 0].set_xlabel(r"$\rho$")
-    axes[0, 0].set_ylabel(r"Solved $\hat E_r$")
-    axes[0, 0].set_title("Ambipolar field family")
-    axes[0, 0].legend(loc="best", ncol=2)
+    axes[0, 0].set_xlabel(r"Uniform trial $\hat E_r$")
+    axes[0, 0].set_ylabel(r"$\|R(\rho,\hat E_r)\|_2$")
+    axes[0, 0].set_title("Residual landscape across controls")
+    axes[0, 0].legend(loc="best", fontsize=8)
 
     for color, control_value, profile in zip(colors, control_np, current_profiles, strict=True):
         axes[0, 1].plot(

@@ -48,7 +48,7 @@ DEFAULT_BOOZMN = (
 SURFACE_SOURCE = "auto"  # "auto", "vmec", or "boozmn"
 WOUT_PATH = DEFAULT_WOUT
 BOOZMN_PATH = DEFAULT_BOOZMN
-RHO_GRID = np.linspace(0.15, 0.9, 9)
+RHO_GRID = np.linspace(0.15, 0.85, 8)
 NU_HAT = 1.0e-5
 ER_HAT = 0.0
 GRID = GridSpec(n_theta=25, n_zeta=25, n_xi=40)
@@ -123,6 +123,8 @@ def solve_profiles() -> dict[str, np.ndarray | str | float]:
 
 def plot_profiles(data: dict[str, np.ndarray | str | float]) -> None:
     rho = np.asarray(data["rho"])
+    density = np.asarray(data["density"])
+    temperature = np.asarray(data["temperature"])
     fig, axes = plt.subplots(2, 2, figsize=(10.4, 7.6), constrained_layout=True)
 
     axes[0, 0].plot(rho, np.asarray(data["b0"]), color="#1f77b4", lw=2.3)
@@ -132,10 +134,22 @@ def plot_profiles(data: dict[str, np.ndarray | str | float]) -> None:
     ax_iota.plot(rho, np.abs(np.asarray(data["iota"])), color="#ff7f0e", lw=2.0, ls="--")
     ax_iota.set_ylabel(r"$|\iota|$")
 
-    axes[0, 1].plot(rho, np.asarray(data["d11"]), color="#2ca02c", lw=2.3, label=r"$D_{11}$")
-    axes[0, 1].plot(rho, np.asarray(data["d13"]), color="#d62728", lw=2.3, label=r"$D_{13}$")
-    axes[0, 1].set_title("Monoenergetic Response")
-    axes[0, 1].set_ylabel("Coefficient")
+    axes[0, 1].plot(
+        rho,
+        density / density.max(),
+        color="#2ca02c",
+        lw=2.3,
+        label=r"$n / n(0)$",
+    )
+    axes[0, 1].plot(
+        rho,
+        temperature / temperature.max(),
+        color="#d62728",
+        lw=2.3,
+        label=r"$T / T(0)$",
+    )
+    axes[0, 1].set_title("Radial profile inputs")
+    axes[0, 1].set_ylabel("Normalized amplitude")
     axes[0, 1].legend(frameon=False)
 
     axes[1, 0].plot(
@@ -144,6 +158,14 @@ def plot_profiles(data: dict[str, np.ndarray | str | float]) -> None:
         color="#9467bd",
         lw=2.4,
         label=rf"$\hat{{\nu}} D_{{33}}$ at $\hat{{\nu}}={NU_HAT:.0e}$",
+    )
+    axes[1, 0].plot(
+        rho,
+        np.asarray(data["d11"]),
+        color="#1f77b4",
+        lw=2.0,
+        ls="--",
+        label=r"$D_{11}$",
     )
     axes[1, 0].set_title("Parallel-Flow Drive")
     axes[1, 0].set_xlabel(r"$\rho$")

@@ -11,18 +11,23 @@ from ntx import (
     AmbipolarProfileResult,
     GridSpec,
     MonoenergeticSpeciesProfile,
+    PrimitiveProfileTransportIterationResult,
+    PrimitiveSpeciesProfile,
     ProfileBasisControlSpec,
     ProfileBasisOptimizationResult,
     ProfileControlOptimizationResult,
     ProfileControlSpec,
     ProfileTransportClosureSpec,
     ProfileTransportIterationResult,
+    advance_primitive_profile_transport,
     advance_profile_transport,
     ambipolar_residual_profile,
     apply_profile_basis_control,
     apply_profile_control,
     bootstrap_current_objective,
     build_ntx_neopax_scan_from_surfaces,
+    build_species_profile_from_primitives,
+    build_species_profiles_from_primitives,
     evaluate_scan_channel,
     evaluate_species_current_response,
     evaluate_species_particle_flux,
@@ -32,6 +37,7 @@ from ntx import (
     profile_transport_loss,
     solve_ambipolar_er_profile,
     solve_ambipolar_profile_family,
+    solve_primitive_profile_transport_loop,
     solve_profile_transport_loop,
 )
 
@@ -351,3 +357,86 @@ def test_profile_transport_closure_shape_mismatch_raises():
                 current_relaxation=0.1,
             ),
         )
+
+
+def test_build_species_profiles_from_primitives_returns_finite_forces():
+    scan = _example_scan()
+    rho = jnp.asarray(scan.rho)
+    primitive = PrimitiveSpeciesProfile(
+        charge=-1.0,
+        nu_v=jnp.asarray([4.0e-4, 6.0e-4, 8.0e-4]),
+        density=jnp.asarray([1.0, 0.95, 0.90]),
+        temperature=jnp.asarray([1.1, 1.0, 0.92]),
+        electrostatic_prefactor=0.2,
+        name="electron",
+    )
+    species = build_species_profile_from_primitives(
+        rho,
+        primitive,
+        er_profile=jnp.asarray([-3.0e-4, 0.0, 3.0e-4]),
+    )
+    family = build_species_profiles_from_primitives(
+        rho,
+        (primitive,),
+        er_profile=jnp.asarray([-3.0e-4, 0.0, 3.0e-4]),
+    )
+    assert species.A1.shape == rho.shape
+    assert species.A3.shape == rho.shape
+    assert jnp.all(jnp.isfinite(species.A1))
+    assert jnp.all(jnp.isfinite(species.A3))
+    assert len(family) == 1
+
+
+def test_primitive_profile_transport_loop_returns_finite_histories():
+    scan = _example_scan()
+    rho = jnp.asarray(scan.rho)
+    primitives = (
+        PrimitiveSpeciesProfile(
+            charge=-1.0,
+            nu_v=jnp.asarray([4.0e-4, 6.0e-4, 8.0e-4]),
+            density=jnp.asarray([1.0, 0.95, 0.92]),
+            temperature=jnp.asarray([1.1, 1.0, 0.96]),
+            electrostatic_prefactor=0.15,
+            name="electron",
+        ),
+        PrimitiveSpeciesProfile(
+            charge=1.0,
+            nu_v=jnp.asarray([2.0e-3, 2.5e-3, 3.0e-3]),
+            density=jnp.asarray([0.92, 0.90, 0.88]),
+            temperature=jnp.asarray([0.85, 0.82, 0.80]),
+            electrostatic_prefactor=0.10,
+            name="ion",
+        ),
+    )
+    closure = ProfileTransportClosureSpec(
+        particle_relaxation=0.04,
+        current_relaxation=0.03,
+        particle_target=0.0,
+        current_target=0.0,
+        particle_source=0.0,
+        current_source=0.0,
+        normalization_floor=0.05,
+        max_normalized_update=0.15,
+    )
+    initial_profile = solve_ambipolar_er_profile(
+        scan,
+        build_species_profiles_from_primitives(rho, primitives, er_profile=jnp.zeros_like(rho)),
+        steps=4,
+        smoothing_strength=0.35,
+    )
+    advanced = advance_primitive_profile_transport(primitives, initial_profile, closure)
+    result = solve_primitive_profile_transport_loop(
+        scan,
+        primitives,
+        closure,
+        iterations=4,
+        solve_steps=4,
+        damping=0.7,
+        smoothing_strength=0.35,
+    )
+    assert advanced[0].density.shape == rho.shape
+    assert isinstance(result, PrimitiveProfileTransportIterationResult)
+    assert result.er_profile_history.shape == (4, rho.size)
+    assert result.species_density_history.shape == (4, 2, rho.size)
+    assert result.species_temperature_history.shape == (4, 2, rho.size)
+    assert jnp.all(jnp.isfinite(result.transport_loss_history))

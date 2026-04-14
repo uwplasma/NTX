@@ -214,6 +214,7 @@ python examples/ambipolar_profile_family.py
 python examples/profile_control_optimization.py
 python examples/profile_basis_optimization.py
 python examples/profile_transport_loop.py
+python examples/primitive_profile_transport.py
 python examples/bootstrap_current_optimization.py
 ```
 
@@ -223,11 +224,12 @@ These generate publication-ready figures for:
 - sensitivity analysis
 - direct autodiff versus finite-difference derivative audits
 - direct reverse-mode versus prepared custom-VJP derivative timing
-- ambipolar electric-field and bootstrap-current-proxy profile solves
+- ambipolar residual landscapes and bootstrap-current-proxy profile solves
 - controlled families of ambipolar and bootstrap-current-proxy profiles
 - differentiable optimization of scalar profile controls
 - low-dimensional radial-basis optimization of profile controls
-- explicit transport-relaxation iteration of the radial profile closure
+- explicit accepted-step transport iteration of the radial profile closure
+- primitive density/temperature transport workflows driven by NTX scan data
 - differentiable bootstrap-current optimization
 
 For lower-level imported workflows, the prepared differentiable interface now
@@ -247,11 +249,16 @@ includes:
 - `advance_profile_transport(...)`
 - `profile_transport_loss(...)`
 - `solve_profile_transport_loop(...)`
+- `PrimitiveSpeciesProfile`
+- `build_species_profiles_from_primitives(...)`
+- `advance_primitive_profile_transport(...)`
+- `solve_primitive_profile_transport_loop(...)`
 - `examples/ambipolar_profile.py`
 - `examples/ambipolar_profile_family.py`
 - `examples/profile_control_optimization.py`
 - `examples/profile_basis_optimization.py`
 - `examples/profile_transport_loop.py`
+- `examples/primitive_profile_transport.py`
 
 ## Bootstrap-Current Examples
 
@@ -263,9 +270,9 @@ python examples/bootstrap_current_from_vmec_or_boozmn.py
 
 This plots:
 
-- `D11`
-- `D13`
-- `nu_hat * D33`
+- magnetic geometry
+- normalized density and temperature profile inputs
+- `D11` together with `nu_hat * D33`
 - a compact bootstrap-current proxy
 
 ![NTX bootstrap-current profile](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
