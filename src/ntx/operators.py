@@ -94,6 +94,37 @@ def operator_blocks(
     )
 
 
+def parameter_derivative_blocks(
+    ctx: OperatorContext,
+    k: int | Array,
+    d_theta: Array,
+    d_zeta: Array,
+) -> tuple[Array, Array]:
+    """Construct dense `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks."""
+
+    g = ctx.geometry
+    kf = jnp.asarray(k, dtype=g.b.dtype)
+    zeros = jnp.zeros_like(g.b)
+    nu_coefficients = _pack(
+        {
+            "theta": zeros,
+            "zeta": zeros,
+            "value": 0.5 * kf * (kf + 1.0) * jnp.ones_like(g.b),
+        }
+    )
+    epsi_coefficients = _pack(
+        {
+            "theta": -g.b_sub_zeta / (g.jacobian * g.b2_mean),
+            "zeta": g.b_sub_theta / (g.jacobian * g.b2_mean),
+            "value": zeros,
+        }
+    )
+    return (
+        build_block(nu_coefficients, d_theta, d_zeta),
+        build_block(epsi_coefficients, d_theta, d_zeta),
+    )
+
+
 def apply_nullspace_condition(
     d_block: Array,
     u_block: Array | None = None,
