@@ -23,6 +23,7 @@ from .operators import (
     apply_nullspace_condition,
     derivative_blocks,
     operator_blocks,
+    parameter_derivative_blocks,
     source_modes,
 )
 from .transport import coefficients_from_modes, onsager_error
@@ -32,9 +33,9 @@ from .transport import coefficients_from_modes, onsager_error
 class MonoenergeticCase:
     """Monoenergetic DKE parameters."""
 
-    nu_hat: float
-    epsi_hat: float | None = None
-    er_hat: float | None = None
+    nu_hat: float | Array
+    epsi_hat: float | Array | None = None
+    er_hat: float | Array | None = None
 
     def resolved_epsi_hat(self, transport_psi_scale: float | Array | None) -> Array:
         if self.epsi_hat is not None and self.er_hat is not None:
@@ -211,10 +212,10 @@ def compile_prepared_solver(
 def _solve_prepared_coefficient_vector_vjp_fwd(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
-) -> tuple[Array, tuple[Array, Array, Array | None, bool, bool]]:
+) -> tuple[Array, tuple[Array, Array, Array | None, bool, bool, Array, Array]]:
     transport_scale = prepared.geometry.transport_psi_scale
     resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
-    coefficients = _solve_prepared_coefficient_vector_raw(
+    coefficients, dcoeff_dnu, dcoeff_depsi = _prepared_case_parameter_sensitivities(
         prepared,
         case.nu_hat,
         resolved_epsi_hat,
@@ -225,25 +226,19 @@ def _solve_prepared_coefficient_vector_vjp_fwd(
         None if transport_scale is None else jnp.asarray(transport_scale),
         case.epsi_hat is not None,
         case.er_hat is not None,
+        dcoeff_dnu,
+        dcoeff_depsi,
     )
 
 
 def _solve_prepared_coefficient_vector_vjp_bwd(
     prepared: PreparedMonoenergeticSystem,
-    residuals: tuple[Array, Array, Array | None, bool, bool],
+    residuals: tuple[Array, Array, Array | None, bool, bool, Array, Array],
     coefficient_bar: Array,
 ) -> tuple[MonoenergeticCase]:
-    nu_hat, resolved_epsi_hat, transport_scale, uses_epsi_hat, uses_er_hat = residuals
-    _, pullback = jax.vjp(
-        lambda trial_nu_hat, trial_epsi_hat: _solve_prepared_coefficient_vector_raw(
-            prepared,
-            trial_nu_hat,
-            trial_epsi_hat,
-        ),
-        nu_hat,
-        resolved_epsi_hat,
-    )
-    nu_bar, epsi_bar = pullback(coefficient_bar)
+    _, _, transport_scale, uses_epsi_hat, uses_er_hat, dcoeff_dnu, dcoeff_depsi = residuals
+    nu_bar = jnp.vdot(coefficient_bar, dcoeff_dnu)
+    epsi_bar = jnp.vdot(coefficient_bar, dcoeff_depsi)
     if uses_epsi_hat:
         return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None),)
     if uses_er_hat:
@@ -280,6 +275,53 @@ def _solve_prepared_coefficient_vector_raw(
 ) -> Array:
     values = _solve_prepared_arrays_from_values(prepared, nu_hat, epsi_hat)
     return jnp.stack(values[:5])
+
+
+def _prepared_case_parameter_sensitivities(
+    prepared: PreparedMonoenergeticSystem,
+    nu_hat,
+    epsi_hat,
+) -> tuple[Array, Array, Array]:
+    geom = prepared.geometry
+    grid = prepared.grid
+    ctx = _operator_context(
+        prepared.surface,
+        geom,
+        grid,
+        nu_hat,
+        epsi_hat,
+    )
+    s1, s3 = source_modes(ctx, grid.n_xi)
+    (
+        f1_modes,
+        f3_modes,
+        f1_modes_nu,
+        f3_modes_nu,
+        f1_modes_epsi,
+        f3_modes_epsi,
+    ) = _solve_modes_case_parameter_sensitivities(
+        ctx,
+        grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+        s1,
+        s3,
+    )
+    def coefficient_fn(modes1, modes3, nu_value):
+        return jnp.stack(coefficients_from_modes(geom, modes1, modes3, nu_value))
+
+    coefficients = coefficient_fn(f1_modes, f3_modes, ctx.nu_hat)
+    dcoeff_dnu = jax.jvp(
+        coefficient_fn,
+        (f1_modes, f3_modes, ctx.nu_hat),
+        (f1_modes_nu, f3_modes_nu, jnp.asarray(1.0, dtype=grid.jax_dtype)),
+    )[1]
+    dcoeff_depsi = jax.jvp(
+        coefficient_fn,
+        (f1_modes, f3_modes, ctx.nu_hat),
+        (f1_modes_epsi, f3_modes_epsi, jnp.asarray(0.0, dtype=grid.jax_dtype)),
+    )[1]
+    return coefficients, dcoeff_dnu, dcoeff_depsi
 
 
 def _solve_prepared_arrays(
@@ -614,6 +656,261 @@ def _solve_modes(
     f1.append(f23[:, 0])
     f3.append(f23[:, 1])
     return jnp.stack(f1), jnp.stack(f3)
+
+
+def _solve_modes_case_parameter_sensitivities(
+    ctx: OperatorContext,
+    n_xi: int,
+    d_theta: Array,
+    d_zeta: Array,
+    s1: Array,
+    s3: Array,
+) -> tuple[Array, Array, Array, Array, Array, Array]:
+    """Return low modes and exact tangents with respect to `nu_hat` and `epsi_hat`."""
+
+    lower_terminal, delta, lower_next = _terminal_delta(ctx, n_xi, d_theta, d_zeta)
+    delta_nu, delta_epsi = parameter_derivative_blocks(ctx, n_xi, d_theta, d_zeta)
+    x = lu_solve(lu_factor(delta), lower_next)
+    x_nu = lu_solve(lu_factor(delta), -delta_nu @ x)
+    x_epsi = lu_solve(lu_factor(delta), -delta_epsi @ x)
+
+    n_fs = delta.shape[0]
+    saved_delta_init = jnp.zeros((3, n_fs, n_fs), dtype=delta.dtype)
+    saved_delta_nu_init = jnp.zeros((3, n_fs, n_fs), dtype=delta.dtype)
+    saved_delta_epsi_init = jnp.zeros((3, n_fs, n_fs), dtype=delta.dtype)
+    saved_lower_init = jnp.zeros((3, n_fs, n_fs), dtype=delta.dtype)
+    saved_upper_init = jnp.zeros((3, n_fs, n_fs), dtype=delta.dtype)
+    if n_xi == 2:
+        saved_delta_init = saved_delta_init.at[2].set(delta)
+        saved_delta_nu_init = saved_delta_nu_init.at[2].set(delta_nu)
+        saved_delta_epsi_init = saved_delta_epsi_init.at[2].set(delta_epsi)
+        saved_lower_init = saved_lower_init.at[2].set(lower_terminal)
+
+    def zero_first_row(block: Array) -> Array:
+        return block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
+
+    def scan_step(carry, k):
+        (
+            x_prev,
+            x_prev_nu,
+            x_prev_epsi,
+            saved_delta,
+            saved_delta_nu,
+            saved_delta_epsi,
+            saved_lower,
+            saved_upper,
+        ) = carry
+        lower, diagonal, upper = operator_blocks(ctx, k, d_theta, d_zeta)
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(ctx, k, d_theta, d_zeta)
+
+        def fix_nullspace(args):
+            diagonal_in, upper_in, diagonal_nu_in, diagonal_epsi_in = args
+            diagonal_fixed, upper_fixed = apply_nullspace_condition(diagonal_in, upper_in)
+            assert upper_fixed is not None
+            return (
+                diagonal_fixed,
+                upper_fixed,
+                zero_first_row(diagonal_nu_in),
+                zero_first_row(diagonal_epsi_in),
+            )
+
+        diagonal, upper, diagonal_nu, diagonal_epsi = jax.lax.cond(
+            k == 0,
+            fix_nullspace,
+            lambda args: args,
+            (diagonal, upper, diagonal_nu, diagonal_epsi),
+        )
+        delta_k = diagonal - upper @ x_prev
+        delta_k_nu = diagonal_nu - upper @ x_prev_nu
+        delta_k_epsi = diagonal_epsi - upper @ x_prev_epsi
+
+        def save_needed(args):
+            (
+                saved_delta_in,
+                saved_delta_nu_in,
+                saved_delta_epsi_in,
+                saved_lower_in,
+                saved_upper_in,
+            ) = args
+            return (
+                saved_delta_in.at[k].set(delta_k),
+                saved_delta_nu_in.at[k].set(delta_k_nu),
+                saved_delta_epsi_in.at[k].set(delta_k_epsi),
+                saved_lower_in.at[k].set(lower),
+                saved_upper_in.at[k].set(upper),
+            )
+
+        saved_delta, saved_delta_nu, saved_delta_epsi, saved_lower, saved_upper = jax.lax.cond(
+            k <= 2,
+            save_needed,
+            lambda args: args,
+            (
+                saved_delta,
+                saved_delta_nu,
+                saved_delta_epsi,
+                saved_lower,
+                saved_upper,
+            ),
+        )
+
+        def solve_x(args):
+            delta_in, delta_nu_in, delta_epsi_in = args
+            x_next = lu_solve(lu_factor(delta_in), lower)
+            x_next_nu = lu_solve(lu_factor(delta_in), -delta_nu_in @ x_next)
+            x_next_epsi = lu_solve(lu_factor(delta_in), -delta_epsi_in @ x_next)
+            return x_next, x_next_nu, x_next_epsi
+
+        x_next, x_next_nu, x_next_epsi = jax.lax.cond(
+            k > 0,
+            solve_x,
+            lambda _: (x_prev, x_prev_nu, x_prev_epsi),
+            (delta_k, delta_k_nu, delta_k_epsi),
+        )
+        return (
+            x_next,
+            x_next_nu,
+            x_next_epsi,
+            saved_delta,
+            saved_delta_nu,
+            saved_delta_epsi,
+            saved_lower,
+            saved_upper,
+        ), None
+
+    ks = jnp.arange(n_xi - 1, -1, -1)
+    (
+        _,
+        _,
+        _,
+        saved_delta,
+        saved_delta_nu,
+        saved_delta_epsi,
+        saved_lower,
+        saved_upper,
+    ), _ = jax.lax.scan(
+        scan_step,
+        (
+            x,
+            x_nu,
+            x_epsi,
+            saved_delta_init,
+            saved_delta_nu_init,
+            saved_delta_epsi_init,
+            saved_lower_init,
+            saved_upper_init,
+        ),
+        ks,
+    )
+
+    def solve_with_tangent(delta_block, delta_tangent, rhs, rhs_tangent):
+        value = lu_solve(lu_factor(delta_block), rhs)
+        tangent = lu_solve(lu_factor(delta_block), rhs_tangent - delta_tangent @ value)
+        return value, tangent
+
+    sigma1_2 = s1[2]
+    sigma3_1 = s3[1]
+    zeros_rhs = jnp.zeros_like(sigma1_2)
+
+    y1, y1_nu = solve_with_tangent(saved_delta[2], saved_delta_nu[2], sigma1_2, zeros_rhs)
+    _, y1_epsi = solve_with_tangent(saved_delta[2], saved_delta_epsi[2], sigma1_2, zeros_rhs)
+    sigma1_1 = s1[1] - saved_upper[1] @ y1
+    sigma1_1_nu = -(saved_upper[1] @ y1_nu)
+    sigma1_1_epsi = -(saved_upper[1] @ y1_epsi)
+
+    y13, y13_nu = solve_with_tangent(
+        saved_delta[1],
+        saved_delta_nu[1],
+        jnp.stack((sigma1_1, sigma3_1), axis=-1),
+        jnp.stack((sigma1_1_nu, zeros_rhs), axis=-1),
+    )
+    _, y13_epsi = solve_with_tangent(
+        saved_delta[1],
+        saved_delta_epsi[1],
+        jnp.stack((sigma1_1, sigma3_1), axis=-1),
+        jnp.stack((sigma1_1_epsi, zeros_rhs), axis=-1),
+    )
+    y1 = y13[:, 0]
+    y3 = y13[:, 1]
+    y1_nu = y13_nu[:, 0]
+    y3_nu = y13_nu[:, 1]
+    y1_epsi = y13_epsi[:, 0]
+    y3_epsi = y13_epsi[:, 1]
+
+    sigma1_0 = s1[0] - saved_upper[0] @ y1
+    sigma3_0 = s3[0] - saved_upper[0] @ y3
+    sigma1_0_nu = -(saved_upper[0] @ y1_nu)
+    sigma3_0_nu = -(saved_upper[0] @ y3_nu)
+    sigma1_0_epsi = -(saved_upper[0] @ y1_epsi)
+    sigma3_0_epsi = -(saved_upper[0] @ y3_epsi)
+
+    f03, f03_nu = solve_with_tangent(
+        saved_delta[0],
+        saved_delta_nu[0],
+        jnp.stack((sigma1_0, sigma3_0), axis=-1),
+        jnp.stack((sigma1_0_nu, sigma3_0_nu), axis=-1),
+    )
+    _, f03_epsi = solve_with_tangent(
+        saved_delta[0],
+        saved_delta_epsi[0],
+        jnp.stack((sigma1_0, sigma3_0), axis=-1),
+        jnp.stack((sigma1_0_epsi, sigma3_0_epsi), axis=-1),
+    )
+
+    rhs_13 = jnp.stack(
+        (
+            sigma1_1 - saved_lower[1] @ f03[:, 0],
+            sigma3_1 - saved_lower[1] @ f03[:, 1],
+        ),
+        axis=-1,
+    )
+    rhs_13_nu = jnp.stack(
+        (
+            sigma1_1_nu - saved_lower[1] @ f03_nu[:, 0],
+            -(saved_lower[1] @ f03_nu[:, 1]),
+        ),
+        axis=-1,
+    )
+    rhs_13_epsi = jnp.stack(
+        (
+            sigma1_1_epsi - saved_lower[1] @ f03_epsi[:, 0],
+            -(saved_lower[1] @ f03_epsi[:, 1]),
+        ),
+        axis=-1,
+    )
+    f13, f13_nu = solve_with_tangent(saved_delta[1], saved_delta_nu[1], rhs_13, rhs_13_nu)
+    _, f13_epsi = solve_with_tangent(saved_delta[1], saved_delta_epsi[1], rhs_13, rhs_13_epsi)
+
+    rhs_23 = jnp.stack(
+        (
+            sigma1_2 - saved_lower[2] @ f13[:, 0],
+            -(saved_lower[2] @ f13[:, 1]),
+        ),
+        axis=-1,
+    )
+    rhs_23_nu = jnp.stack(
+        (
+            -(saved_lower[2] @ f13_nu[:, 0]),
+            -(saved_lower[2] @ f13_nu[:, 1]),
+        ),
+        axis=-1,
+    )
+    rhs_23_epsi = jnp.stack(
+        (
+            -(saved_lower[2] @ f13_epsi[:, 0]),
+            -(saved_lower[2] @ f13_epsi[:, 1]),
+        ),
+        axis=-1,
+    )
+    f23, f23_nu = solve_with_tangent(saved_delta[2], saved_delta_nu[2], rhs_23, rhs_23_nu)
+    _, f23_epsi = solve_with_tangent(saved_delta[2], saved_delta_epsi[2], rhs_23, rhs_23_epsi)
+
+    f1 = jnp.stack((f03[:, 0], f13[:, 0], f23[:, 0]))
+    f3 = jnp.stack((f03[:, 1], f13[:, 1], f23[:, 1]))
+    f1_nu = jnp.stack((f03_nu[:, 0], f13_nu[:, 0], f23_nu[:, 0]))
+    f3_nu = jnp.stack((f03_nu[:, 1], f13_nu[:, 1], f23_nu[:, 1]))
+    f1_epsi = jnp.stack((f03_epsi[:, 0], f13_epsi[:, 0], f23_epsi[:, 0]))
+    f3_epsi = jnp.stack((f03_epsi[:, 1], f13_epsi[:, 1], f23_epsi[:, 1]))
+    return f1, f3, f1_nu, f3_nu, f1_epsi, f3_epsi
 
 
 def _terminal_delta(
