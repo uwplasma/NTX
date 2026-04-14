@@ -26,6 +26,8 @@ examples.
    - CPU/GPU scaling on the repository smoke grid
 9. `performance_scaling_heavy.{png,pdf}`
    - heavier-grid scaling where throughput effects are visible
+10. `ambipolar_profile.{png,pdf}`
+   - profile-grade ambipolar electric-field solve and bootstrap-current proxy
 
 Together these figures cover:
 
@@ -35,6 +37,7 @@ Together these figures cover:
 - derivative cost for prepared optimization workflows
 - a science-facing bootstrap-current optimization workflow
 - a pure NTX radial-profile figure
+- a profile-grade ambipolar and bootstrap-current-proxy workflow
 - a W7-X imported-workflow convergence figure
 - practical performance guidance
 
@@ -114,6 +117,25 @@ It is the recommended figure when the paper needs a compact NTX-only radial
 profile panel without bringing in the external database workflow.
 
 ![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
+
+## Ambipolar Profile Figure
+
+```bash
+python examples/ambipolar_profile.py
+```
+
+This writes:
+
+```text
+docs/_static/ambipolar_profile.png
+docs/_static/ambipolar_profile.pdf
+```
+
+Use this figure when the paper needs a profile-grade closure panel built
+entirely from NTX scan data, including the solved `E_r(r)` profile and the
+resulting bootstrap-current proxy.
+
+![Ambipolar profile](_static/ambipolar_profile.png)
 
 ## W7-X Bootstrap-Current Convergence Figure
 

@@ -161,6 +161,24 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
+## 13. Ambipolar Profile
+
+```bash
+python examples/ambipolar_profile.py
+```
+
+This writes:
+
+- `docs/_static/ambipolar_profile.png`
+- `docs/_static/ambipolar_profile.pdf`
+
+and demonstrates:
+
+- building a radial NTX scan from explicit in-memory surfaces
+- defining two species profiles with `A1(r)`, `A3(r)`, and `\nu_v(r)`
+- solving a per-radius ambipolar `E_r(r)` profile
+- evaluating the resulting bootstrap-current proxy profile
+
 ## 12. Science Case: Bootstrap-Current Optimization
 
 ```bash

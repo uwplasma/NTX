@@ -120,6 +120,13 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 - Replaced the tangent-linear backward rule with an implicit-adjoint block solve
   for the prepared dense system, keeping the same public custom-VJP interface
   and benchmark figure.
+- Added the first profile-grade imported API in `src/ntx/profiles.py`:
+  - species-profile closures for `\Gamma_a(r)` and `J_a(r)`
+  - a per-radius ambipolar `E_r(r)` solve on NTX scan data
+  - a bootstrap-current proxy profile returned from the same solve
+- Added the repository example:
+  - `examples/ambipolar_profile.py`
+  - `docs/_static/ambipolar_profile.*`
 - Added two autodiff helper workflows:
   - a one-parameter inverse problem on the analytic surface
   - a NEOPAX-style electric-field profile inversion on NTX-generated scan data

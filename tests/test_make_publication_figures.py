@@ -57,3 +57,27 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(tmp_path):
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.png").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.pdf").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.json").exists()
+
+
+def test_make_publication_figures_ambipolar_subset_writes_manifest(tmp_path):
+    output_dir = tmp_path / "figures"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "examples" / "make_publication_figures.py"),
+            "--output-dir",
+            str(output_dir),
+            "--figures",
+            "ambipolar",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+
+    manifest_path = output_dir / "publication_figure_manifest.json"
+    assert manifest_path.exists()
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert set(payload) == {"ambipolar"}
+    assert output_dir.joinpath("ambipolar_profile.png").exists()
+    assert output_dir.joinpath("ambipolar_profile.pdf").exists()

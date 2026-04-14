@@ -70,6 +70,8 @@ parallel-throughput workflows.
 - [Numerics And Algorithms](numerics.md): discretization, dense solve, and
   JAX/parallel execution
 - [Source-Code Map](source-map.md): where each model component lives in `src/`
+- [Autodiff](autodiff.md): inverse problems, derivative audits, and prepared derivatives
+- [Profiles](profiles.md): ambipolar electric-field and bootstrap-current proxy workflows
 - [Examples](examples.md): runnable workflows and figure generators
 - [Validation](validation.md): current status and benchmark philosophy
 - [Testing And QA](testing.md): test structure and quality gates
@@ -93,6 +95,7 @@ algorithm
 numerics
 source-map
 autodiff
+profiles
 examples
 validation
 testing

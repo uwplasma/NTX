@@ -38,6 +38,11 @@ on the NEOPAX Python package.
 - `write_neopax_scan_hdf5(...)`
 - `load_neopax_reference_scan(...)`
 
+The imported profile layer in [`src/ntx/profiles.py`](../src/ntx/profiles.py)
+builds directly on `NeopaxScan` when the next step is an ambipolar or
+bootstrap-current-proxy solve instead of immediate export into the external
+package object.
+
 ## Typical Imported Workflow
 
 ```python
@@ -138,3 +143,16 @@ That separation of responsibility is deliberate:
 
 - NTX owns the monoenergetic solve
 - NEOPAX owns the radial multi-species transport layer
+
+## Profile-Grade Imported Workflows
+
+When the next step is still inside NTX, use the profile helpers on top of the
+scan payload:
+
+- `evaluate_scan_channel(...)`
+- `evaluate_species_particle_flux(...)`
+- `evaluate_species_current_response(...)`
+- `ambipolar_residual_profile(...)`
+- `solve_ambipolar_er_profile(...)`
+
+Those helpers are documented on the [Profiles](profiles.md) page.
