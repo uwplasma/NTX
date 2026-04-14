@@ -15,6 +15,9 @@ from ntx import (
     ProfileBasisOptimizationResult,
     ProfileControlOptimizationResult,
     ProfileControlSpec,
+    ProfileTransportClosureSpec,
+    ProfileTransportIterationResult,
+    advance_profile_transport,
     ambipolar_residual_profile,
     apply_profile_basis_control,
     apply_profile_control,
@@ -26,8 +29,10 @@ from ntx import (
     example_surface,
     optimize_profile_basis_control,
     optimize_profile_control,
+    profile_transport_loss,
     solve_ambipolar_er_profile,
     solve_ambipolar_profile_family,
+    solve_profile_transport_loop,
 )
 
 
@@ -288,5 +293,53 @@ def test_profile_basis_control_shape_mismatch_raises():
                 basis=basis,
                 a1_response=jnp.asarray([[0.0], [0.0]]),
                 a3_response=jnp.asarray([[1.0], [0.0]]),
+            ),
+        )
+
+
+def test_profile_transport_loop_returns_finite_histories():
+    scan = _example_scan()
+    species_profiles = _species_profiles()
+    closure = ProfileTransportClosureSpec(
+        particle_relaxation=jnp.asarray([[0.10, 0.11, 0.12], [0.05, 0.06, 0.07]]),
+        current_relaxation=jnp.asarray([[0.08, 0.07, 0.06], [0.03, 0.03, 0.03]]),
+        particle_target=0.0,
+        current_target=0.0,
+    )
+    profile = solve_ambipolar_er_profile(scan, species_profiles, steps=6)
+    loss = profile_transport_loss(profile, closure)
+    advanced = advance_profile_transport(species_profiles, profile, closure)
+    result = solve_profile_transport_loop(
+        scan,
+        species_profiles,
+        closure,
+        iterations=4,
+        solve_steps=6,
+        damping=0.7,
+    )
+    assert jnp.isfinite(loss)
+    assert advanced[0].A1.shape == species_profiles[0].A1.shape
+    assert isinstance(result, ProfileTransportIterationResult)
+    assert result.er_profile_history.shape == (4, scan.rho.size)
+    assert result.bootstrap_current_proxy_history.shape == (4, scan.rho.size)
+    assert result.species_a1_history.shape == (4, 2, scan.rho.size)
+    assert result.species_a3_history.shape == (4, 2, scan.rho.size)
+    assert jnp.all(jnp.isfinite(result.transport_loss_history))
+
+
+def test_profile_transport_closure_shape_mismatch_raises():
+    scan = _example_scan()
+    species_profiles = _species_profiles()
+    profile = solve_ambipolar_er_profile(scan, species_profiles, steps=4)
+    with pytest.raises(
+        ValueError,
+        match="transport field must be scalar, per-species, per-radius, or species-by-radius",
+    ):
+        advance_profile_transport(
+            species_profiles,
+            profile,
+            ProfileTransportClosureSpec(
+                particle_relaxation=jnp.asarray([0.1, 0.2, 0.3, 0.4]),
+                current_relaxation=0.1,
             ),
         )

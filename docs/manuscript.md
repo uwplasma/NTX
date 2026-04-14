@@ -34,6 +34,8 @@ examples.
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
 13. `profile_basis_optimization.{png,pdf}`
    - low-dimensional radial-basis optimization of the same profile closure
+14. `profile_transport_loop.{png,pdf}`
+   - explicit self-consistent transport-relaxation iteration on the same profile closure
 
 Together these figures cover:
 
@@ -47,6 +49,7 @@ Together these figures cover:
 - a control-parameter family view of the same profile-grade closure
 - a direct optimization view of the profile-grade closure
 - a low-dimensional multi-parameter version of that optimization
+- a self-consistent transport-relaxation view of the same closure
 - a W7-X imported-workflow convergence figure
 - practical performance guidance
 
@@ -202,6 +205,26 @@ one scalar amplitude while still keeping the optimization space compact and
 interpretable.
 
 ![Profile basis optimization](_static/profile_basis_optimization.png)
+
+## Profile Transport Loop Figure
+
+```bash
+python examples/profile_transport_loop.py
+```
+
+This writes:
+
+```text
+docs/_static/profile_transport_loop.png
+docs/_static/profile_transport_loop.pdf
+```
+
+Use this figure when the paper needs a self-consistent profile-transport panel
+instead of a pure control-optimization panel. It shows how the ambipolar field,
+bootstrap-current proxy, and thermodynamic-force profiles evolve under an
+explicit transport-relaxation iteration.
+
+![Profile transport loop](_static/profile_transport_loop.png)
 
 ## W7-X Bootstrap-Current Convergence Figure
 

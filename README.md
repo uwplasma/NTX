@@ -213,6 +213,7 @@ python examples/ambipolar_profile.py
 python examples/ambipolar_profile_family.py
 python examples/profile_control_optimization.py
 python examples/profile_basis_optimization.py
+python examples/profile_transport_loop.py
 python examples/bootstrap_current_optimization.py
 ```
 
@@ -226,6 +227,7 @@ These generate publication-ready figures for:
 - controlled families of ambipolar and bootstrap-current-proxy profiles
 - differentiable optimization of scalar profile controls
 - low-dimensional radial-basis optimization of profile controls
+- explicit transport-relaxation iteration of the radial profile closure
 - differentiable bootstrap-current optimization
 
 For lower-level imported workflows, the prepared differentiable interface now
@@ -242,10 +244,14 @@ includes:
 - `optimize_profile_control(...)`
 - `apply_profile_basis_control(...)`
 - `optimize_profile_basis_control(...)`
+- `advance_profile_transport(...)`
+- `profile_transport_loss(...)`
+- `solve_profile_transport_loop(...)`
 - `examples/ambipolar_profile.py`
 - `examples/ambipolar_profile_family.py`
 - `examples/profile_control_optimization.py`
 - `examples/profile_basis_optimization.py`
+- `examples/profile_transport_loop.py`
 
 ## Bootstrap-Current Examples
 

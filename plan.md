@@ -149,6 +149,13 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 - Added the low-dimensional basis-optimization workflow:
   - `examples/profile_basis_optimization.py`
   - `docs/_static/profile_basis_optimization.*`
+- Added a simple profile-transport relaxation workflow:
+  - `ProfileTransportClosureSpec`
+  - `profile_transport_loss(...)`
+  - `advance_profile_transport(...)`
+  - `solve_profile_transport_loop(...)`
+  - `examples/profile_transport_loop.py`
+  - `docs/_static/profile_transport_loop.*`
 - Added two autodiff helper workflows:
   - a one-parameter inverse problem on the analytic surface
   - a NEOPAX-style electric-field profile inversion on NTX-generated scan data

@@ -23,6 +23,10 @@
     "docs/_static/profile_basis_optimization.png",
     "docs/_static/profile_basis_optimization.pdf"
   ],
+  "profile_transport": [
+    "docs/_static/profile_transport_loop.png",
+    "docs/_static/profile_transport_loop.pdf"
+  ],
   "derivative_benchmark": [
     "docs/_static/derivative_path_benchmark.png",
     "docs/_static/derivative_path_benchmark.pdf"
