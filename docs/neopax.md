@@ -160,5 +160,8 @@ scan payload:
 - `optimize_profile_control(...)`
 - `apply_profile_basis_control(...)`
 - `optimize_profile_basis_control(...)`
+- `advance_profile_transport(...)`
+- `profile_transport_loss(...)`
+- `solve_profile_transport_loop(...)`
 
 Those helpers are documented on the [Profiles](profiles.md) page.

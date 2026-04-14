@@ -86,6 +86,10 @@ The per-radius electric-field solve currently applies damped Newton updates to
 - `ProfileBasisControlSpec`
 - `apply_profile_basis_control(...)`
 - `optimize_profile_basis_control(...)`
+- `ProfileTransportClosureSpec`
+- `profile_transport_loss(...)`
+- `advance_profile_transport(...)`
+- `solve_profile_transport_loop(...)`
 
 ## Typical Workflow
 
@@ -298,6 +302,68 @@ It shows:
 - the optimized bootstrap-current proxy profile
 
 ![Profile basis optimization](_static/profile_basis_optimization.png)
+
+## Profile Transport Relaxation Loop
+
+The next step beyond explicit control families is a simple self-consistent
+transport-relaxation loop. NTX now exposes
+
+- `ProfileTransportClosureSpec`
+- `profile_transport_loss(...)`
+- `advance_profile_transport(...)`
+- `solve_profile_transport_loop(...)`
+
+The closure updates the profile-force proxies explicitly after each ambipolar
+solve:
+
+```{math}
+A_{1,a}^{(n+1)}(r) =
+A_{1,a}^{(n)}(r) -
+\alpha^{(\Gamma)}_a(r)\left[\Gamma_a^{(n)}(r)-\Gamma_{a,\mathrm{target}}(r)\right],
+```
+
+```{math}
+A_{3,a}^{(n+1)}(r) =
+A_{3,a}^{(n)}(r) -
+\alpha^{(J)}_a(r)\left[J_a^{(n)}(r)-J_{a,\mathrm{target}}(r)\right].
+```
+
+The loop also records a quadratic transport mismatch loss,
+
+```{math}
+\mathcal L_{\mathrm{transport}}^{(n)} =
+\left\langle
+\sum_a
+\left(\Gamma_a^{(n)}-\Gamma_{a,\mathrm{target}}\right)^2 +
+\left(J_a^{(n)}-J_{a,\mathrm{target}}\right)^2
+\right\rangle_r,
+```
+
+so the user can inspect whether the profile closure is converging before moving
+to a more complete transport model.
+
+The repository example
+
+```bash
+python examples/profile_transport_loop.py
+```
+
+writes:
+
+```text
+docs/_static/profile_transport_loop.png
+docs/_static/profile_transport_loop.pdf
+```
+
+It shows:
+
+- the evolution of the solved ambipolar `E_r(r)` profile across transport
+  iterations
+- the corresponding bootstrap-current proxy history
+- the transport-loss and ambipolar-residual histories
+- the final `A1(r)` and `A3(r)` profiles for each species
+
+![Profile transport loop](_static/profile_transport_loop.png)
 
 ## Source-Code Map
 

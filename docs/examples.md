@@ -248,7 +248,25 @@ and demonstrates:
 - retaining a compact, publication-grade figure for a higher-dimensional
   optimization workflow
 
-## 18. Performance Scaling
+## 18. Profile Transport Loop
+
+```bash
+python examples/profile_transport_loop.py
+```
+
+This writes:
+
+- `docs/_static/profile_transport_loop.png`
+- `docs/_static/profile_transport_loop.pdf`
+
+and demonstrates:
+
+- iterating a simple self-consistent profile closure on top of the ambipolar
+  solve
+- updating `A1(r)` and `A3(r)` directly from transport mismatches
+- tracking transport-loss descent together with ambipolar closure
+
+## 19. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -257,7 +275,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 19. Validation Summary
+## 20. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -267,7 +285,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 20. Full Publication Bundle
+## 21. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py

@@ -169,6 +169,57 @@ tree_util.register_dataclass(
 )
 
 
+@dataclass(frozen=True)
+class ProfileTransportClosureSpec:
+    """Relaxation closure for iterating profile proxies toward transport targets."""
+
+    particle_relaxation: Array
+    current_relaxation: Array
+    particle_target: float | Array = 0.0
+    current_target: float | Array = 0.0
+    closure_name: str = "transport loop"
+
+
+tree_util.register_dataclass(
+    ProfileTransportClosureSpec,
+    data_fields=(
+        "particle_relaxation",
+        "current_relaxation",
+        "particle_target",
+        "current_target",
+    ),
+    meta_fields=("closure_name",),
+)
+
+
+@dataclass(frozen=True)
+class ProfileTransportIterationResult:
+    """History of a simple self-consistent profile transport relaxation loop."""
+
+    er_profile_history: Array
+    ambipolar_residual_history: Array
+    bootstrap_current_proxy_history: Array
+    transport_loss_history: Array
+    species_a1_history: Array
+    species_a3_history: Array
+    best_profile: AmbipolarProfileResult
+
+
+tree_util.register_dataclass(
+    ProfileTransportIterationResult,
+    data_fields=(
+        "er_profile_history",
+        "ambipolar_residual_history",
+        "bootstrap_current_proxy_history",
+        "transport_loss_history",
+        "species_a1_history",
+        "species_a3_history",
+        "best_profile",
+    ),
+    meta_fields=(),
+)
+
+
 def evaluate_scan_channel(
     scan: NeopaxScan,
     channel: str,
@@ -612,6 +663,125 @@ def optimize_profile_basis_control(
     )
 
 
+def profile_transport_loss(
+    profile: AmbipolarProfileResult,
+    closure_spec: ProfileTransportClosureSpec,
+) -> Array:
+    """Quadratic transport mismatch loss for a solved ambipolar profile."""
+
+    species_flux = jnp.asarray(profile.species_particle_flux)
+    species_current = jnp.asarray(profile.species_current_response)
+    particle_target = _broadcast_species_transport_field(
+        closure_spec.particle_target,
+        species_flux.shape[0],
+        jnp.asarray(profile.rho),
+    )
+    current_target = _broadcast_species_transport_field(
+        closure_spec.current_target,
+        species_current.shape[0],
+        jnp.asarray(profile.rho),
+    )
+    particle_mismatch = species_flux - particle_target
+    current_mismatch = species_current - current_target
+    return jnp.mean(particle_mismatch**2 + current_mismatch**2)
+
+
+def advance_profile_transport(
+    species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
+    profile: AmbipolarProfileResult,
+    closure_spec: ProfileTransportClosureSpec,
+) -> tuple[MonoenergeticSpeciesProfile, ...]:
+    """Apply one explicit transport-relaxation update to `A1` and `A3`."""
+
+    species_count = len(species_profiles)
+    rho = jnp.asarray(profile.rho)
+    species_flux = jnp.asarray(profile.species_particle_flux)
+    species_current = jnp.asarray(profile.species_current_response)
+    if species_flux.shape[0] != species_count or species_current.shape[0] != species_count:
+        raise ValueError("profile species arrays must match the number of species")
+    particle_relaxation = _broadcast_species_transport_field(
+        closure_spec.particle_relaxation,
+        species_count,
+        rho,
+    )
+    current_relaxation = _broadcast_species_transport_field(
+        closure_spec.current_relaxation,
+        species_count,
+        rho,
+    )
+    particle_target = _broadcast_species_transport_field(
+        closure_spec.particle_target,
+        species_count,
+        rho,
+    )
+    current_target = _broadcast_species_transport_field(
+        closure_spec.current_target,
+        species_count,
+        rho,
+    )
+    return tuple(
+        replace(
+            species,
+            A1=jnp.asarray(species.A1)
+            - particle_relaxation[index] * (species_flux[index] - particle_target[index]),
+            A3=jnp.asarray(species.A3)
+            - current_relaxation[index] * (species_current[index] - current_target[index]),
+        )
+        for index, species in enumerate(species_profiles)
+    )
+
+
+def solve_profile_transport_loop(
+    scan: NeopaxScan,
+    species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
+    closure_spec: ProfileTransportClosureSpec,
+    *,
+    iterations: int = 8,
+    er_initial: Array | None = None,
+    solve_steps: int = 16,
+    damping: float = 0.8,
+) -> ProfileTransportIterationResult:
+    """Iterate a simple self-consistent profile transport closure."""
+
+    species_state = species_profiles
+    er_seed = er_initial
+    profile_history: list[AmbipolarProfileResult] = []
+    loss_history: list[Array] = []
+    a1_history: list[Array] = []
+    a3_history: list[Array] = []
+
+    for _ in range(iterations):
+        profile = solve_ambipolar_er_profile(
+            scan,
+            species_state,
+            er_initial=er_seed,
+            steps=solve_steps,
+            damping=damping,
+        )
+        profile_history.append(profile)
+        loss_history.append(profile_transport_loss(profile, closure_spec))
+        a1_history.append(jnp.stack([jnp.asarray(species.A1) for species in species_state]))
+        a3_history.append(jnp.stack([jnp.asarray(species.A3) for species in species_state]))
+        species_state = advance_profile_transport(species_state, profile, closure_spec)
+        er_seed = profile.er_profile
+
+    loss_array = jnp.stack(loss_history)
+    best_index = int(jnp.argmin(loss_array))
+    return ProfileTransportIterationResult(
+        er_profile_history=jnp.stack([profile.er_profile for profile in profile_history]),
+        ambipolar_residual_history=jnp.stack(
+            [profile.ambipolar_residual for profile in profile_history]
+        ),
+        bootstrap_current_proxy_history=jnp.stack(
+            [profile.bootstrap_current_proxy for profile in profile_history]
+        ),
+        transport_loss_history=loss_array,
+        species_a1_history=jnp.stack(a1_history),
+        species_a3_history=jnp.stack(a3_history),
+        best_profile=profile_history[best_index],
+    )
+
+
 def bootstrap_current_objective(
     rho: Array,
     bootstrap_current_proxy: Array,
@@ -638,6 +808,26 @@ def _broadcast_profile_field(values, rho: Array) -> Array:
     if array.shape == rho.shape:
         return array
     raise ValueError("profile field must be scalar or match rho shape")
+
+
+def _broadcast_species_transport_field(
+    values,
+    species_count: int,
+    rho: Array,
+) -> Array:
+    array = jnp.asarray(values)
+    radial_size = int(jnp.asarray(rho).size)
+    if array.ndim == 0:
+        return jnp.full((species_count, radial_size), array)
+    if array.ndim == 1 and array.shape == (species_count,):
+        return jnp.repeat(array[:, None], radial_size, axis=1)
+    if array.ndim == 1 and array.shape == (radial_size,):
+        return jnp.repeat(array[None, :], species_count, axis=0)
+    if array.shape == (species_count, radial_size):
+        return array
+    raise ValueError(
+        "transport field must be scalar, per-species, per-radius, or species-by-radius"
+    )
 
 
 def _basis_profile_modifier(control: Array, response: Array, basis: Array) -> Array:

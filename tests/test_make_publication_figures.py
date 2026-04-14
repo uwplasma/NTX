@@ -153,3 +153,27 @@ def test_make_publication_figures_profile_basis_subset_writes_manifest(tmp_path)
     assert set(payload) == {"profile_basis"}
     assert output_dir.joinpath("profile_basis_optimization.png").exists()
     assert output_dir.joinpath("profile_basis_optimization.pdf").exists()
+
+
+def test_make_publication_figures_profile_transport_subset_writes_manifest(tmp_path):
+    output_dir = tmp_path / "figures"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "examples" / "make_publication_figures.py"),
+            "--output-dir",
+            str(output_dir),
+            "--figures",
+            "profile_transport",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+
+    manifest_path = output_dir / "publication_figure_manifest.json"
+    assert manifest_path.exists()
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert set(payload) == {"profile_transport"}
+    assert output_dir.joinpath("profile_transport_loop.png").exists()
+    assert output_dir.joinpath("profile_transport_loop.pdf").exists()
