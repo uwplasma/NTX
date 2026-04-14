@@ -33,11 +33,13 @@
   ],
   "derivative_benchmark": [
     "docs/_static/derivative_path_benchmark.png",
-    "docs/_static/derivative_path_benchmark.pdf"
+    "docs/_static/derivative_path_benchmark.pdf",
+    "docs/_static/derivative_path_benchmark.json"
   ],
   "science": [
     "docs/_static/bootstrap_current_optimization.png",
-    "docs/_static/bootstrap_current_optimization.pdf"
+    "docs/_static/bootstrap_current_optimization.pdf",
+    "docs/_static/bootstrap_current_optimization.json"
   ],
   "validation": [
     "docs/_static/validation_summary.png",

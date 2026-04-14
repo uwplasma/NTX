@@ -178,13 +178,14 @@ def main() -> None:
                 str(ROOT / "examples" / "derivative_path_benchmark.py"),
             ]
         )
-        for suffix in (".png", ".pdf"):
+        for suffix in (".png", ".pdf", ".json"):
             source = ROOT / "docs" / "_static" / f"derivative_path_benchmark{suffix}"
             target = output_dir / source.name
             target.write_bytes(source.read_bytes())
         manifest["derivative_benchmark"] = [
             _manifest_path(output_dir / "derivative_path_benchmark.png"),
             _manifest_path(output_dir / "derivative_path_benchmark.pdf"),
+            _manifest_path(output_dir / "derivative_path_benchmark.json"),
         ]
 
     if "science" in selected:
@@ -199,6 +200,7 @@ def main() -> None:
         manifest["science"] = [
             _manifest_path(output_dir / "bootstrap_current_optimization.png"),
             _manifest_path(output_dir / "bootstrap_current_optimization.pdf"),
+            _manifest_path(output_dir / "bootstrap_current_optimization.json"),
         ]
 
     if "validation" in selected:

@@ -1,0 +1,58 @@
+{
+  "wout": "wout_W7-X_standard_configuration.nc",
+  "label": "W7-X standard configuration",
+  "grid": {
+    "n_theta": 7,
+    "n_zeta": 9,
+    "n_xi": 6
+  },
+  "rho": [
+    0.15,
+    0.25,
+    0.35000000000000003,
+    0.45,
+    0.55,
+    0.65,
+    0.75
+  ],
+  "baseline_scale": 1.0,
+  "optimized_scale": 1.2331759062023178,
+  "harmonic_m": 0,
+  "harmonic_n": -1,
+  "harmonic_reference_value": 0.1239973319665038,
+  "weighted_baseline_current": 2.9590674866957384e+18,
+  "weighted_optimized_current": 3.282843100599233e+18,
+  "weighted_gain": 1.10941812424327,
+  "serial_scan_seconds": 1.709677749999173,
+  "parallel_scan_seconds": 2.811376083000141,
+  "objective_history": [
+    2.6333020456169494,
+    3.0421405208917305,
+    3.160671615387428,
+    3.1945491148480754,
+    3.2088231906014695,
+    3.2162182991017145,
+    3.220541336498956,
+    3.223275641780351,
+    3.2251034950668576,
+    3.226376463011448,
+    3.227291323649418,
+    3.22796537675064
+  ],
+  "gradient_history": [
+    1.0271103368944208,
+    0.6303951430174501,
+    0.33156222343267777,
+    0.21131916433560088,
+    0.15024844842708565,
+    0.11390715342789913,
+    0.09003476927989391,
+    0.07327263347128586,
+    0.06092689828630593,
+    0.05150181341616424,
+    0.04410303633458179,
+    0.03816428563448398
+  ],
+  "figure_png": "/Users/rogeriojorge/local/NTX/docs/_static/bootstrap_current_optimization.png",
+  "figure_pdf": "/Users/rogeriojorge/local/NTX/docs/_static/bootstrap_current_optimization.pdf"
+}

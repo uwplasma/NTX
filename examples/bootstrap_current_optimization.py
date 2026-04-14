@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
@@ -313,8 +314,37 @@ def main() -> None:
 
     fig.savefig(output_png)
     fig.savefig(output_pdf)
+    summary = {
+        "wout": wout_path.name,
+        "label": label,
+        "grid": {
+            "n_theta": grid.n_theta,
+            "n_zeta": grid.n_zeta,
+            "n_xi": grid.n_xi,
+        },
+        "rho": np.asarray(result.rho).tolist(),
+        "baseline_scale": float(result.baseline_scale),
+        "optimized_scale": float(result.optimized_scale),
+        "harmonic_m": int(result.harmonic_m),
+        "harmonic_n": int(result.harmonic_n),
+        "harmonic_reference_value": float(result.harmonic_reference_value),
+        "weighted_baseline_current": float(baseline_weighted),
+        "weighted_optimized_current": float(optimized_weighted),
+        "weighted_gain": float(weighted_gain),
+        "serial_scan_seconds": float(result.serial_seconds),
+        "parallel_scan_seconds": float(result.parallel_seconds),
+        "objective_history": objective_history.tolist(),
+        "gradient_history": gradient_history.tolist(),
+        "figure_png": str(output_png),
+        "figure_pdf": str(output_pdf),
+    }
+    args.output_prefix.with_suffix(".json").write_text(
+        json.dumps(summary, indent=2),
+        encoding="utf-8",
+    )
     print(f"Wrote {output_png}")
     print(f"Wrote {output_pdf}")
+    print(f"Wrote {args.output_prefix.with_suffix('.json')}")
 
 
 if __name__ == "__main__":

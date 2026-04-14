@@ -154,6 +154,9 @@ This writes `docs/_static/derivative_path_benchmark.{png,pdf}` and times:
 
 on the same `D33` electric-field derivative scan.
 
+It also writes `docs/_static/derivative_path_benchmark.json` for manuscript
+tables and reproducibility notes.
+
 ## 12. Autodiff NEOPAX Profiles
 
 ```bash
@@ -217,6 +220,9 @@ differentiable geometry-control problem:
 
 This is the main application/science-case figure for a methods paper centered
 on bootstrap-current analysis and optimization.
+
+It also writes `docs/_static/bootstrap_current_optimization.json` for the
+manuscript table builder.
 
 ## 16. Profile-Control Optimization
 
@@ -320,3 +326,10 @@ python examples/make_publication_figures.py
 
 This regenerates the manuscript-ready figure bundle and writes a manifest to
 `docs/_static/publication_figure_manifest.json`.
+
+To build manuscript tables and reproducibility metadata from the current
+validated assets, run:
+
+```bash
+python scripts/build_manuscript_artifacts.py
+```
