@@ -51,12 +51,14 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `2bed83314955a1d122fcedc6def1db350c24f70d` |
+| Commit | `86347863bdd8b8d819d007fe17d6e32d629f7345` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
 | NumPy | `2.4.4` |
 | Platform | `macOS-14.4.1-arm64-arm-64bit` |
-| Figure bundle | `python examples/make_publication_figures.py` |
+| Figure bundle | `python examples/make_publication_figures.py --figures main_text,supplement` |
+| Main-text figures | `python examples/make_publication_figures.py --figures main_text` |
+| Supplement figures | `python examples/make_publication_figures.py --figures supplement` |
 | Artifact tables | `python scripts/build_manuscript_artifacts.py` |
-| Validation subset | `python -m pytest -q tests/test_w7x_reference_benchmark.py tests/test_derivative_path_benchmark_example.py tests/test_bootstrap_current_optimization_example.py tests/test_make_publication_figures.py` |
+| Validation subset | `python -m pytest -q tests/test_w7x_reference_benchmark.py tests/test_derivative_path_benchmark_example.py tests/test_bootstrap_current_optimization_example.py tests/test_manuscript_artifacts_script.py tests/test_make_publication_figures.py -k "subset_writes_manifest or bootstrap_subset_writes_manifest"` |

@@ -11,6 +11,45 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+FIGURE_PRESETS = {
+    "all": {
+        "inverse",
+        "profiles",
+        "ambipolar",
+        "ambipolar_family",
+        "profile_control",
+        "profile_basis",
+        "profile_transport",
+        "primitive_transport",
+        "derivative_benchmark",
+        "science",
+        "validation",
+        "bootstrap_proxy",
+        "w7x_audit",
+        "performance_smoke",
+        "performance_heavy",
+    },
+    "main_text": {
+        "validation",
+        "w7x_audit",
+        "derivative_benchmark",
+        "science",
+        "performance_heavy",
+        "primitive_transport",
+    },
+    "supplement": {
+        "inverse",
+        "profiles",
+        "ambipolar",
+        "ambipolar_family",
+        "profile_control",
+        "profile_basis",
+        "profile_transport",
+        "bootstrap_proxy",
+        "performance_smoke",
+    },
+}
+
 
 def _run(command: list[str]) -> None:
     subprocess.run(command, check=True, cwd=ROOT)
@@ -34,17 +73,17 @@ def main() -> None:
     parser.add_argument(
         "--figures",
         type=str,
-        default=(
-            "inverse,profiles,ambipolar,ambipolar_family,profile_control,profile_basis,profile_transport,primitive_transport,derivative_benchmark,science,validation,"
-            "bootstrap_proxy,w7x_audit,performance_smoke,performance_heavy"
-        ),
+        default="all",
         help="Comma-separated subset of figures to generate.",
     )
     args = parser.parse_args()
 
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    selected = {item.strip() for item in args.figures.split(",") if item.strip()}
+    selected_tokens = {item.strip() for item in args.figures.split(",") if item.strip()}
+    selected: set[str] = set()
+    for token in selected_tokens:
+        selected.update(FIGURE_PRESETS.get(token, {token}))
     manifest: dict[str, list[str]] = {}
 
     if "inverse" in selected:

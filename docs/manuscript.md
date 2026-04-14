@@ -3,7 +3,30 @@
 NTX now includes a manuscript-ready figure bundle built directly from repository
 examples.
 
-## Recommended Figure Set
+## Curated Figure Set
+
+### Main Text
+
+1. `validation_summary.{png,pdf}`
+2. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+3. `derivative_path_benchmark.{png,pdf,json}`
+4. `bootstrap_current_optimization.{png,pdf,json}`
+5. `performance_scaling_heavy.{png,pdf}`
+6. `primitive_profile_transport.{png,pdf}`
+
+### Supplement
+
+1. `autodiff_inverse_problem.{png,pdf}`
+2. `autodiff_neopax_profiles.{png,pdf}`
+3. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+4. `performance_scaling_smoke.{png,pdf}`
+5. `ambipolar_profile.{png,pdf}`
+6. `ambipolar_profile_family.{png,pdf}`
+7. `profile_control_optimization.{png,pdf}`
+8. `profile_basis_optimization.{png,pdf}`
+9. `profile_transport_loop.{png,pdf}`
+
+## Full Figure Inventory
 
 1. `validation_summary.{png,pdf}`
    - transport-curve behavior on the sample DKES-style and VMEC surfaces
@@ -87,10 +110,16 @@ This writes the full figure set into `docs/_static/` and also creates:
 docs/_static/publication_figure_manifest.json
 ```
 
-Generate a subset:
+Generate the frozen main-text set:
 
 ```bash
-python examples/make_publication_figures.py --figures validation,science
+python examples/make_publication_figures.py --figures main_text
+```
+
+Generate the supplement set:
+
+```bash
+python examples/make_publication_figures.py --figures supplement
 ```
 
 ## Science Figure
