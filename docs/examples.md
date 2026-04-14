@@ -122,7 +122,22 @@ This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
 recovery of a Boozer harmonic from synthetic transport data using JAX
 gradients.
 
-## 10. Autodiff NEOPAX Profiles
+## 10. Autodiff Derivative Audit
+
+```bash
+python examples/derivative_audit.py
+```
+
+This writes `docs/_static/derivative_audit.{png,pdf}` and compares direct JAX
+gradients of the dense solve against centered finite differences for:
+
+- `D11` and `D33` sensitivities to a Boozer harmonic amplitude
+- `D11` and `D33` sensitivities to the radial electric field
+
+This is the current validation baseline for the future implicit-derivative
+implementation.
+
+## 11. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py
@@ -132,7 +147,7 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 11. Science Case: Bootstrap-Current Optimization
+## 12. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py
@@ -149,7 +164,7 @@ differentiable geometry-control problem:
 This is the main application/science-case figure for a methods paper centered
 on bootstrap-current analysis and optimization.
 
-## 12. Performance Scaling
+## 13. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -158,7 +173,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 13. Validation Summary
+## 14. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -168,7 +183,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 14. Full Publication Bundle
+## 15. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py

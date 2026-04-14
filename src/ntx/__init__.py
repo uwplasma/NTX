@@ -4,9 +4,11 @@ from importlib.metadata import PackageNotFoundError, version
 
 from .autodiff import (
     BootstrapOptimizationResult,
+    DerivativeAuditResult,
     InverseProblemResult,
     NeopaxProfileAutodiffResult,
     example_bootstrap_current_optimization,
+    example_derivative_audit,
     example_inverse_problem,
     example_neopax_profile_autodiff,
 )
@@ -68,6 +70,7 @@ __all__ = [
     "BoozerSurface",
     "BootstrapOptimizationResult",
     "CompiledPreparedSolver",
+    "DerivativeAuditResult",
     "GridSpec",
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
@@ -81,6 +84,7 @@ __all__ = [
     "build_ntx_neopax_scan_from_surfaces",
     "compile_prepared_solver",
     "enable_x64",
+    "example_derivative_audit",
     "example_surface",
     "example_bootstrap_current_optimization",
     "load_boozmn_surface",

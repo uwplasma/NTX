@@ -76,6 +76,7 @@ parallel-throughput workflows.
 - [NEOPAX](neopax.md): imported database-building workflows
 - [GPU](gpu.md): hardware execution notes
 - [Performance](performance.md): throughput guidance and scaling figures
+- [Research Roadmap](research-roadmap.md): next research-grade development lanes
 - [Manuscript Figures](manuscript.md): publication-ready figure inventory
 - [Literature](literature.md): thesis and package links
 
@@ -98,6 +99,7 @@ testing
 neopax
 gpu
 performance
+research-roadmap
 manuscript
 literature
 release
