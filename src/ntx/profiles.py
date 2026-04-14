@@ -177,6 +177,10 @@ class ProfileTransportClosureSpec:
     current_relaxation: Array
     particle_target: float | Array = 0.0
     current_target: float | Array = 0.0
+    particle_source: float | Array = 0.0
+    current_source: float | Array = 0.0
+    normalization_floor: float | Array = 1.0
+    max_normalized_update: float | Array = 0.35
     closure_name: str = "transport loop"
 
 
@@ -187,6 +191,10 @@ tree_util.register_dataclass(
         "current_relaxation",
         "particle_target",
         "current_target",
+        "particle_source",
+        "current_source",
+        "normalization_floor",
+        "max_normalized_update",
     ),
     meta_fields=("closure_name",),
 )
@@ -467,6 +475,8 @@ def optimize_profile_control(
     damping: float = 0.8,
     weight: Array | None = None,
     residual_penalty: float = 1.0,
+    control_bound: float | Array | None = 0.6,
+    backtracking_steps: int = 5,
 ) -> ProfileControlOptimizationResult:
     """Optimize a scalar profile control against the bootstrap-current objective."""
 
@@ -506,7 +516,38 @@ def optimize_profile_control(
             scalar_objective,
             has_aux=True,
         )(control_value)
-        next_control = control_value - lr * gradient
+        grad_scale = jnp.maximum(jnp.abs(gradient), jnp.asarray(1.0, dtype=dtype))
+
+        def clip_control(value):
+            if control_bound is None:
+                return value
+            bound = jnp.asarray(control_bound, dtype=dtype)
+            return jnp.clip(value, -bound, bound)
+
+        def backtrack_step(step_index, state):
+            best_control, best_objective, accepted = state
+            factor = 0.5**step_index
+            candidate = clip_control(control_value - factor * lr * gradient / grad_scale)
+            candidate_objective, _ = objective_and_profile(candidate, er_seed)
+            take = (~accepted) & (candidate_objective <= objective)
+            next_best_control = jnp.where(take, candidate, best_control)
+            next_best_objective = jnp.where(take, candidate_objective, best_objective)
+            next_accepted = accepted | take
+            return next_best_control, next_best_objective, next_accepted
+
+        initial_candidate = clip_control(control_value - lr * gradient / grad_scale)
+        initial_objective, _ = objective_and_profile(initial_candidate, er_seed)
+        next_control, _, accepted = jax.lax.fori_loop(
+            1,
+            backtracking_steps,
+            backtrack_step,
+            (
+                initial_candidate,
+                initial_objective,
+                initial_objective <= objective,
+            ),
+        )
+        next_control = jnp.where(accepted, next_control, control_value)
         return (next_control, profile.er_profile), (
             control_value,
             objective,
@@ -586,6 +627,8 @@ def optimize_profile_basis_control(
     weight: Array | None = None,
     residual_penalty: float = 1.0,
     control_penalty: float = 1.0e-2,
+    control_bound: float | Array | None = 0.4,
+    backtracking_steps: int = 5,
 ) -> ProfileBasisOptimizationResult:
     """Optimize a vector radial-basis control against the profile objective."""
 
@@ -627,7 +670,38 @@ def optimize_profile_basis_control(
             vector_objective,
             has_aux=True,
         )(control_value)
-        next_control = control_value - lr * gradient
+        grad_norm = jnp.maximum(jnp.linalg.norm(gradient), jnp.asarray(1.0, dtype=dtype))
+
+        def clip_control(value):
+            if control_bound is None:
+                return value
+            bound = jnp.asarray(control_bound, dtype=dtype)
+            return jnp.clip(value, -bound, bound)
+
+        def backtrack_step(step_index, state):
+            best_control, best_objective, accepted = state
+            factor = 0.5**step_index
+            candidate = clip_control(control_value - factor * lr * gradient / grad_norm)
+            candidate_objective, _ = objective_and_profile(candidate, er_seed)
+            take = (~accepted) & (candidate_objective <= objective)
+            next_best_control = jnp.where(take, candidate, best_control)
+            next_best_objective = jnp.where(take, candidate_objective, best_objective)
+            next_accepted = accepted | take
+            return next_best_control, next_best_objective, next_accepted
+
+        initial_candidate = clip_control(control_value - lr * gradient / grad_norm)
+        initial_objective, _ = objective_and_profile(initial_candidate, er_seed)
+        next_control, _, accepted = jax.lax.fori_loop(
+            1,
+            backtracking_steps,
+            backtrack_step,
+            (
+                initial_candidate,
+                initial_objective,
+                initial_objective <= objective,
+            ),
+        )
+        next_control = jnp.where(accepted, next_control, control_value)
         return (next_control, profile.er_profile), (
             control_value,
             objective,
@@ -669,20 +743,7 @@ def profile_transport_loss(
 ) -> Array:
     """Quadratic transport mismatch loss for a solved ambipolar profile."""
 
-    species_flux = jnp.asarray(profile.species_particle_flux)
-    species_current = jnp.asarray(profile.species_current_response)
-    particle_target = _broadcast_species_transport_field(
-        closure_spec.particle_target,
-        species_flux.shape[0],
-        jnp.asarray(profile.rho),
-    )
-    current_target = _broadcast_species_transport_field(
-        closure_spec.current_target,
-        species_current.shape[0],
-        jnp.asarray(profile.rho),
-    )
-    particle_mismatch = species_flux - particle_target
-    current_mismatch = species_current - current_target
+    particle_mismatch, current_mismatch = _transport_mismatch(profile, closure_spec)
     return jnp.mean(particle_mismatch**2 + current_mismatch**2)
 
 
@@ -709,23 +770,42 @@ def advance_profile_transport(
         species_count,
         rho,
     )
-    particle_target = _broadcast_species_transport_field(
-        closure_spec.particle_target,
+    normalization_floor = _broadcast_species_transport_field(
+        closure_spec.normalization_floor,
         species_count,
         rho,
     )
-    current_target = _broadcast_species_transport_field(
-        closure_spec.current_target,
+    max_update = _broadcast_species_transport_field(
+        closure_spec.max_normalized_update,
         species_count,
         rho,
+    )
+    particle_mismatch, current_mismatch = _transport_mismatch(profile, closure_spec)
+    particle_scale = jnp.maximum(
+        jnp.sqrt(jnp.mean(particle_mismatch**2, axis=1, keepdims=True)),
+        normalization_floor,
+    )
+    current_scale = jnp.maximum(
+        jnp.sqrt(jnp.mean(current_mismatch**2, axis=1, keepdims=True)),
+        normalization_floor,
+    )
+    normalized_particle = jnp.clip(
+        particle_mismatch / particle_scale,
+        -max_update,
+        max_update,
+    )
+    normalized_current = jnp.clip(
+        current_mismatch / current_scale,
+        -max_update,
+        max_update,
     )
     return tuple(
         replace(
             species,
             A1=jnp.asarray(species.A1)
-            - particle_relaxation[index] * (species_flux[index] - particle_target[index]),
+            - particle_relaxation[index] * normalized_particle[index],
             A3=jnp.asarray(species.A3)
-            - current_relaxation[index] * (species_current[index] - current_target[index]),
+            - current_relaxation[index] * normalized_current[index],
         )
         for index, species in enumerate(species_profiles)
     )
@@ -828,6 +908,38 @@ def _broadcast_species_transport_field(
     raise ValueError(
         "transport field must be scalar, per-species, per-radius, or species-by-radius"
     )
+
+
+def _transport_mismatch(
+    profile: AmbipolarProfileResult,
+    closure_spec: ProfileTransportClosureSpec,
+) -> tuple[Array, Array]:
+    species_flux = jnp.asarray(profile.species_particle_flux)
+    species_current = jnp.asarray(profile.species_current_response)
+    rho = jnp.asarray(profile.rho)
+    particle_target = _broadcast_species_transport_field(
+        closure_spec.particle_target,
+        species_flux.shape[0],
+        rho,
+    )
+    current_target = _broadcast_species_transport_field(
+        closure_spec.current_target,
+        species_current.shape[0],
+        rho,
+    )
+    particle_source = _broadcast_species_transport_field(
+        closure_spec.particle_source,
+        species_flux.shape[0],
+        rho,
+    )
+    current_source = _broadcast_species_transport_field(
+        closure_spec.current_source,
+        species_current.shape[0],
+        rho,
+    )
+    particle_mismatch = species_flux - particle_target - particle_source
+    current_mismatch = species_current - current_target - current_source
+    return particle_mismatch, current_mismatch
 
 
 def _basis_profile_modifier(control: Array, response: Array, basis: Array) -> Array:
