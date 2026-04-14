@@ -33,3 +33,25 @@ def test_fixture_path_and_workspace_helpers():
     assert fixture.name == "sample_surface.ddkes2.data"
     assert isinstance(cp.workspace_root(), Path)
     assert cp.find_vmec_jax_example_input("does-not-exist") is None
+
+
+def test_workspace_checkout_candidates_and_missing_optional_roots(monkeypatch, tmp_path):
+    repo = tmp_path / "NTX"
+    repo_src = repo / "src" / "ntx"
+    repo_src.mkdir(parents=True)
+    sibling = tmp_path / "alpha"
+    sibling.mkdir()
+    tests_dir = tmp_path / "tests"
+    tests_dir.mkdir()
+    nested = tests_dir / "beta"
+    nested.mkdir()
+
+    monkeypatch.setattr(cp, "repo_root", lambda: repo)
+    monkeypatch.setattr(cp, "workspace_root", lambda: tmp_path)
+
+    candidates = cp._workspace_checkout_candidates()
+    resolved = {path.resolve() for path in candidates}
+    assert sibling.resolve() in resolved
+    assert nested.resolve() in resolved
+    assert repo.resolve() not in resolved
+    assert cp.find_simsopt_root() is None
