@@ -96,8 +96,8 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
   an exact tangent-linear sensitivity path for the prepared dense solve.
 - [x] Add a user-facing derivative benchmark that compares direct reverse-mode
   and prepared custom-VJP derivatives on the same coefficient scan.
-- [ ] Replace the current exact custom-VJP backward rule with a true
-  implicit-derivative prototype for the prepared dense solve and benchmark it
+- [x] Replace the current exact custom-VJP backward rule with a true
+  implicit-adjoint derivative for the prepared dense solve and benchmark it
   against the current reverse-mode path.
 
 ## Active Work Log
@@ -112,10 +112,14 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 - Added the first device-parallel scan helper,
   `solve_monoenergetic_parallel_scan(...)`, using `jax.pmap` over the flattened
   scan.
-- Replaced the original prepared custom-VJP backward rule with exact
-  tangent-linear sensitivities for `nu_hat` and `E_r`/`E_\psi`, and added a
-  benchmark example that times the prepared derivative path against direct
-  reverse-mode on the same prepared solve.
+- Replaced the original prepared custom-VJP backward rule first with exact
+  tangent-linear sensitivities for `nu_hat` and `E_r`/`E_\psi`, then with an
+  implicit-adjoint block solve, and added a benchmark example that times the
+  prepared derivative path against direct reverse-mode on the same prepared
+  solve.
+- Replaced the tangent-linear backward rule with an implicit-adjoint block solve
+  for the prepared dense system, keeping the same public custom-VJP interface
+  and benchmark figure.
 - Added two autodiff helper workflows:
   - a one-parameter inverse problem on the analytic surface
   - a NEOPAX-style electric-field profile inversion on NTX-generated scan data
@@ -246,13 +250,13 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 - Started the first concrete research-grade deliverable:
   - added a derivative-audit workflow for `D11` and `D33` sensitivities with
     respect to a Boozer harmonic amplitude and the radial electric field
-  - this establishes the validation baseline for a future custom-VJP or
-    implicit derivative path in the dense prepared solve
+  - this establishes the validation baseline for the prepared implicit-adjoint
+    derivative path in the dense prepared solve
 - Added the first explicit derivative contract point in `src/ntx/solver.py`:
   - `solve_prepared_coefficient_vector(...)`
   - `solve_prepared_coefficient_vector_vjp(...)`
 - Current state of that work:
   - the new custom-VJP wrapper is exact and validated against the direct solve
-  - it does not yet reduce backward cost
-  - it exists so the future implicit or adjoint derivative can replace the
-    current backward rule without forcing another API change on users
+  - it now uses an implicit-adjoint block solve for case-parameter gradients
+  - the same public API remains in place for future specialization of that
+    adjoint without forcing another API change on users

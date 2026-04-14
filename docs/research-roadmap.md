@@ -111,9 +111,10 @@ NTX now also exposes an explicit custom-VJP contract point in
 - `solve_prepared_coefficient_vector(...)`
 - `solve_prepared_coefficient_vector_vjp(...)`
 
-The current backward rule is still exact reverse-mode differentiation of the
-raw prepared coefficient kernel. The point of this interface is to give NTX a
-stable place to swap in a true implicit or adjoint derivative next.
+The current backward rule now uses an implicit-adjoint block solve for the
+prepared dense system. The next derivative step is to specialize that adjoint
+further so it reuses even more of the prepared factorization and reduces memory
+pressure on larger optimization scans.
 
 ## Phase 2: Profile-Grade Transport Workflows
 

@@ -388,7 +388,7 @@ def example_derivative_audit(
 ) -> DerivativeAuditResult:
     """Compare direct JAX gradients against finite differences.
 
-    This is the first validation layer for the future implicit/adjoint solve.
+    This is the first validation layer for the prepared implicit-adjoint solve.
     It keeps the current reverse-mode path honest on a compact test problem
     before introducing custom VJP logic for larger optimization loops.
     """
