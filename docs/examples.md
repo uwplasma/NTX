@@ -137,7 +137,21 @@ gradients of the dense solve against centered finite differences for:
 This is the current validation baseline for the future implicit-derivative
 implementation.
 
-## 11. Autodiff NEOPAX Profiles
+## 11. Prepared-Derivative Benchmark
+
+```bash
+python examples/derivative_path_benchmark.py
+```
+
+This writes `docs/_static/derivative_path_benchmark.{png,pdf}` and times:
+
+- direct reverse-mode through `solve_prepared_coefficient_vector(...)`
+- the prepared custom-VJP path through
+  `solve_prepared_coefficient_vector_vjp(...)`
+
+on the same `D33` electric-field derivative scan.
+
+## 12. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py

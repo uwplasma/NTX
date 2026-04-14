@@ -95,9 +95,15 @@ First deliverables:
 3. tests comparing direct autodiff and implicit gradients on small systems,
 4. runtime and memory comparisons for direct versus implicit differentiation.
 
-The first step is already started in NTX with the derivative-audit workflow in
-[`examples/derivative_audit.py`](../examples/derivative_audit.py), documented in
-the [Autodiff](autodiff.md) and [Examples](examples.md) pages.
+The first step is already started in NTX with:
+
+- the derivative-audit workflow in
+  [`examples/derivative_audit.py`](../examples/derivative_audit.py),
+- and the prepared-derivative timing study in
+  [`examples/derivative_path_benchmark.py`](../examples/derivative_path_benchmark.py),
+
+both documented in the [Autodiff](autodiff.md) and [Examples](examples.md)
+pages.
 
 NTX now also exposes an explicit custom-VJP contract point in
 [`src/ntx/solver.py`](../src/ntx/solver.py):

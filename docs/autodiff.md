@@ -80,6 +80,42 @@ It shows:
 
 ![Derivative audit](_static/derivative_audit.png)
 
+## Prepared-Derivative Benchmark
+
+The script:
+
+```bash
+python examples/derivative_path_benchmark.py
+```
+
+keeps the same prepared surface and the same `D33` electric-field derivative,
+then times two user-visible paths:
+
+- direct reverse-mode through `solve_prepared_coefficient_vector(...)`,
+- and the prepared custom-VJP path through
+  `solve_prepared_coefficient_vector_vjp(...)`.
+
+The example is intentionally explicit. It shows how to:
+
+- prepare a reusable system with `prepare_monoenergetic_system(...)`,
+- define scalar coefficient objectives,
+- wrap them with `jax.grad(...)` and `jax.vmap(...)`,
+- JIT the resulting scan kernels,
+- and compare timing and agreement on the same `\hat E_r` scan.
+
+The figure is written to:
+
+```text
+docs/_static/derivative_path_benchmark.png
+docs/_static/derivative_path_benchmark.pdf
+```
+
+It shows:
+
+- best-of-three wall times versus scan size,
+- speedup of the prepared custom-VJP path,
+- and the max relative mismatch between the two derivative paths.
+
 ## NEOPAX-Style Profile Example
 
 The script:

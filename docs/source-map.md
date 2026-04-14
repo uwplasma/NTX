@@ -128,6 +128,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `autodiff_inverse_problem.py`
 - `neopax_autodiff_profiles.py`
 - `derivative_audit.py`
+- `derivative_path_benchmark.py`
 - `plot_output_npz.py`
 
 The figure bundle generator is:
