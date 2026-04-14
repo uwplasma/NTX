@@ -35,7 +35,7 @@ def main() -> None:
         "--figures",
         type=str,
         default=(
-            "inverse,profiles,ambipolar,ambipolar_family,profile_control,profile_basis,profile_transport,derivative_benchmark,science,validation,"
+            "inverse,profiles,ambipolar,ambipolar_family,profile_control,profile_basis,profile_transport,primitive_transport,derivative_benchmark,science,validation,"
             "bootstrap_proxy,w7x_audit,performance_smoke,performance_heavy"
         ),
         help="Comma-separated subset of figures to generate.",
@@ -153,6 +153,22 @@ def main() -> None:
         manifest["profile_transport"] = [
             _manifest_path(output_dir / "profile_transport_loop.png"),
             _manifest_path(output_dir / "profile_transport_loop.pdf"),
+        ]
+
+    if "primitive_transport" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "primitive_profile_transport.py"),
+            ]
+        )
+        for suffix in (".png", ".pdf"):
+            source = ROOT / "docs" / "_static" / f"primitive_profile_transport{suffix}"
+            target = output_dir / source.name
+            target.write_bytes(source.read_bytes())
+        manifest["primitive_transport"] = [
+            _manifest_path(output_dir / "primitive_profile_transport.png"),
+            _manifest_path(output_dir / "primitive_profile_transport.pdf"),
         ]
 
     if "derivative_benchmark" in selected:

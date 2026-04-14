@@ -24,13 +24,13 @@ from ntx.config import enable_x64  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "profile_transport_loop"
 
-GRID = GridSpec(7, 9, 6)
-SOLVE_STEPS = 10
-TRANSPORT_ITERATIONS = 8
+GRID = GridSpec(5, 7, 5, dtype="float32")
+SOLVE_STEPS = 6
+TRANSPORT_ITERATIONS = 5
 
 
 def _surface_family(rho_values):
-    base = example_surface()
+    base = example_surface(dtype=GRID.jax_dtype)
     return tuple(
         replace(base, b_cos=base.b_cos.at[1].set(base.b_cos[1] * (1.0 + 0.12 * float(rho))))
         for rho in rho_values
@@ -104,13 +104,27 @@ def _transport_closure(rho):
 
 
 def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
-    enable_x64(True)
+    enable_x64(False)
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
-    rho = jnp.linspace(0.2, 0.9, 8, dtype=jnp.float64)
-    nu_v = jnp.asarray([3.0e-4, 1.0e-3, 3.0e-3, 1.0e-2], dtype=jnp.float64)
+    rho = jnp.linspace(0.2, 0.82, 6, dtype=GRID.jax_dtype)
+    nu_v = jnp.asarray([3.0e-4, 1.0e-3, 3.0e-3], dtype=GRID.jax_dtype)
     er_axis = jnp.asarray(
-        [-3.0e-3, -1.0e-3, -3.0e-4, 0.0, 3.0e-4, 1.0e-3, 3.0e-3],
-        dtype=jnp.float64,
+        [
+            -3.0e-3,
+            -2.0e-3,
+            -1.2e-3,
+            -7.5e-4,
+            -3.0e-4,
+            -1.0e-4,
+            0.0,
+            1.0e-4,
+            3.0e-4,
+            7.5e-4,
+            1.2e-3,
+            2.0e-3,
+            3.0e-3,
+        ],
+        dtype=GRID.jax_dtype,
     )
     surfaces = _surface_family(rho)
     er_grid = jnp.tile(er_axis[None, :], (rho.size, 1))
@@ -131,6 +145,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         iterations=TRANSPORT_ITERATIONS,
         solve_steps=SOLVE_STEPS,
         damping=0.75,
+        smoothing_strength=0.55,
     )
 
     fig, axes = plt.subplots(2, 2, figsize=(11.0, 8.0), constrained_layout=True)
@@ -138,7 +153,13 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
 
     for idx in range(TRANSPORT_ITERATIONS):
         label = f"iter {idx + 1}"
-        axes[0, 0].plot(rho, result.er_profile_history[idx], color=colors[idx], lw=2.0, label=label)
+        axes[0, 0].plot(
+            rho,
+            result.ambipolar_residual_history[idx],
+            color=colors[idx],
+            lw=2.0,
+            label=label,
+        )
         axes[0, 1].plot(
             rho,
             result.bootstrap_current_proxy_history[idx],
@@ -173,9 +194,9 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     axes[1, 1].plot(rho, final_a1[1], lw=2.5, label=species_names[2])
     axes[1, 1].plot(rho, final_a3[1], lw=2.5, label=species_names[3])
 
-    axes[0, 0].set_title("Ambipolar Electric Field")
+    axes[0, 0].set_title("Ambipolar Residual Evolution")
     axes[0, 0].set_xlabel(r"$\rho$")
-    axes[0, 0].set_ylabel(r"$E_r$")
+    axes[0, 0].set_ylabel(r"$R(\rho)$")
     axes[0, 0].legend(frameon=False, fontsize=8, ncol=2)
 
     axes[0, 1].set_title("Bootstrap-Current Proxy Evolution")

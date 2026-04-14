@@ -24,10 +24,11 @@ from ntx import (  # noqa: E402
     build_ntx_neopax_scan_from_surfaces,
     example_surface,
     optimize_profile_control,
+    solve_ambipolar_er_profile,
 )
 from ntx.config import enable_x64  # noqa: E402
 
-GRID = GridSpec(7, 9, 6)
+GRID = GridSpec(9, 11, 8)
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "profile_control_optimization"
 HARMONIC_INDEX = 1
 
@@ -79,7 +80,21 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     rho = jnp.linspace(0.2, 0.8, 6, dtype=GRID.jax_dtype)
     nu_v = jnp.asarray([3.0e-4, 1.0e-3, 3.0e-3, 1.0e-2], dtype=GRID.jax_dtype)
     er_axis = jnp.asarray(
-        [-3.0e-3, -1.0e-3, -3.0e-4, 0.0, 3.0e-4, 1.0e-3, 3.0e-3],
+        [
+            -3.0e-3,
+            -2.0e-3,
+            -1.2e-3,
+            -7.5e-4,
+            -3.0e-4,
+            -1.0e-4,
+            0.0,
+            1.0e-4,
+            3.0e-4,
+            7.5e-4,
+            1.2e-3,
+            2.0e-3,
+            3.0e-3,
+        ],
         dtype=GRID.jax_dtype,
     )
     er_grid = jnp.tile(er_axis[None, :], (rho.size, 1))
@@ -128,9 +143,17 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         optimization_steps=10,
         solve_steps=12,
         damping=0.7,
+        smoothing_strength=0.45,
         weight=weight,
         residual_penalty=0.5,
         control_bound=0.35,
+    )
+    baseline_profile = solve_ambipolar_er_profile(
+        scan,
+        species_profiles,
+        steps=12,
+        damping=0.7,
+        smoothing_strength=0.45,
     )
 
     control_history = np.asarray(result.control_history)
@@ -139,7 +162,9 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     residual_history = np.asarray(result.residual_norm_history)
     best_profile = result.best_profile
     best_current = np.asarray(best_profile.bootstrap_current_proxy)
-    best_er = np.asarray(best_profile.er_profile)
+    baseline_current = np.asarray(baseline_profile.bootstrap_current_proxy)
+    best_residual = np.asarray(best_profile.ambipolar_residual)
+    baseline_residual = np.asarray(baseline_profile.ambipolar_residual)
     rho_np = np.asarray(rho)
     weight_np = np.asarray(weight)
     best_objective = float(
@@ -189,12 +214,47 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     axes[0, 1].set_ylabel(control_spec.control_name)
     axes[0, 1].set_title("Scalar control evolution")
 
-    axes[1, 0].plot(rho_np, best_er, color="#CC79A7", lw=2.3, marker="o", ms=5)
+    axes[1, 0].plot(
+        rho_np,
+        baseline_residual,
+        color="#9ca3af",
+        lw=2.0,
+        marker="o",
+        ms=4.5,
+        label="baseline",
+    )
+    axes[1, 0].plot(
+        rho_np,
+        best_residual,
+        color="#CC79A7",
+        lw=2.3,
+        marker="D",
+        ms=4.5,
+        label="optimized",
+    )
     axes[1, 0].set_xlabel(r"$\rho$")
-    axes[1, 0].set_ylabel(r"Solved $\hat E_r$")
-    axes[1, 0].set_title("Best ambipolar field profile")
+    axes[1, 0].set_ylabel(r"$R(\rho)$")
+    axes[1, 0].set_title("Residual-profile reduction")
+    axes[1, 0].legend(loc="best")
 
-    axes[1, 1].plot(rho_np, best_current, color="#0072B2", lw=2.3, marker="s", ms=5)
+    axes[1, 1].plot(
+        rho_np,
+        baseline_current,
+        color="#9ca3af",
+        lw=2.0,
+        marker="o",
+        ms=4.5,
+        label="baseline",
+    )
+    axes[1, 1].plot(
+        rho_np,
+        best_current,
+        color="#0072B2",
+        lw=2.3,
+        marker="s",
+        ms=5,
+        label="optimized",
+    )
     axes[1, 1].fill_between(
         rho_np,
         0.0,
@@ -206,6 +266,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     axes[1, 1].set_xlabel(r"$\rho$")
     axes[1, 1].set_ylabel("Bootstrap-current proxy")
     axes[1, 1].set_title("Best current profile")
+    axes[1, 1].legend(loc="best")
     axes[1, 1].text(
         0.04,
         0.95,

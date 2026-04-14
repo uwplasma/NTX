@@ -156,6 +156,13 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
   - `solve_profile_transport_loop(...)`
   - `examples/profile_transport_loop.py`
   - `docs/_static/profile_transport_loop.*`
+- Added a primitive-profile transport workflow:
+  - `PrimitiveSpeciesProfile`
+  - `build_species_profiles_from_primitives(...)`
+  - `advance_primitive_profile_transport(...)`
+  - `solve_primitive_profile_transport_loop(...)`
+  - `examples/primitive_profile_transport.py`
+  - `docs/_static/primitive_profile_transport.*`
 - Added two autodiff helper workflows:
   - a one-parameter inverse problem on the analytic surface
   - a NEOPAX-style electric-field profile inversion on NTX-generated scan data
@@ -296,3 +303,18 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
   - it now uses an implicit-adjoint block solve for case-parameter gradients
   - the same public API remains in place for future specialization of that
     adjoint without forcing another API change on users
+- Tightened the profile-grade figure set after a full visual audit of the
+  example outputs:
+  - replaced trivial zero-field panels with residual-landscape and closure
+    diagnostics in the ambipolar examples
+  - refocused the primitive-profile figure on initial-versus-final closure
+    profiles and derived monoenergetic forces
+  - simplified the NTX-only bootstrap-current figure so it now shows geometry,
+    profile inputs, smooth transport channels, and the current proxy instead of
+    the noisier raw coefficient mix
+- Strengthened the explicit profile-transport workflow itself:
+  - added accepted-step updates to `solve_profile_transport_loop(...)`
+  - added the same accepted-step logic to
+    `solve_primitive_profile_transport_loop(...)`
+  - kept the public source/target closure interface unchanged while making the
+    shipped examples materially more stable and more defensible

@@ -15,7 +15,7 @@ The current closure uses:
 
 - monoenergetic particle-flux proxies
 - monoenergetic parallel-current proxies
-- a per-radius ambipolar electric-field solve on a precomputed NTX scan
+- a smooth ambipolar electric-field profile solve on a precomputed NTX scan
 
 ## Main Objects
 
@@ -69,8 +69,25 @@ and the current profile proxy is
 J_{\mathrm{bs,proxy}}(r) = \sum_a J_a(r).
 ```
 
-The per-radius electric-field solve currently applies damped Newton updates to
-`R(r)` on the precomputed `E_r` scan stored in the NTX scan payload.
+The ambipolar electric-field profile is obtained by minimizing a smooth radial
+objective on the precomputed `E_r` scan stored in the NTX scan payload:
+
+```{math}
+\mathcal L_E[\hat E_r]
+=
+\left\langle R(r;\hat E_r)^2 \right\rangle_r
++ \lambda_E
+\left\langle
+\left(\partial_r \hat E_r\right)^2
++ \tfrac12\left(\partial_r^2 \hat E_r\right)^2
+\right\rangle_r,
+```
+
+where `\lambda_E` is the user-controlled smoothing weight exposed through
+`smoothing_strength`. NTX then applies bounded backtracking updates to the full
+profile vector rather than solving each radius independently. This suppresses
+the checkerboard artifacts that appear when adjacent radii are updated without
+any radial regularization.
 
 ## Main Helpers
 
@@ -157,10 +174,10 @@ docs/_static/ambipolar_profile.pdf
 
 It shows:
 
-- the solved `E_r(r)` profile
+- the ambipolar residual landscape over the scanned `E_r` axis
 - the bootstrap-current proxy profile
 - species particle-flux proxies and the charge-weighted residual
-- the nonlinear solve history
+- the integrated ambipolar landscape used by the smooth-profile solver
 
 ![Ambipolar profile](_static/ambipolar_profile.png)
 
@@ -197,7 +214,7 @@ docs/_static/ambipolar_profile_family.pdf
 
 It shows:
 
-- the family of solved `E_r(r)` profiles
+- the integrated residual landscape across the control family
 - the resulting family of bootstrap-current proxies
 - a scalar objective landscape across the control parameter
 - the final ambipolar residual norm across that family
@@ -239,7 +256,7 @@ It shows:
 
 - objective descent across optimization iterations
 - scalar control updates
-- the best solved ambipolar field profile
+- the residual-profile reduction relative to the uncontrolled baseline
 - the best bootstrap-current proxy profile
 
 The implementation lives entirely in
@@ -307,7 +324,7 @@ It shows:
 
 - the basis-coefficient history
 - the basis functions and the final optimized modifier
-- the optimized ambipolar `E_r(r)` profile
+- the residual-profile reduction relative to the uncontrolled baseline
 - the optimized bootstrap-current proxy profile
 
 ![Profile basis optimization](_static/profile_basis_optimization.png)
@@ -386,9 +403,11 @@ The loop records a quadratic transport mismatch loss,
 \right\rangle_r,
 ```
 
-with the plotted diagnostics shown as relative metrics normalized by the first
-iteration. This makes the figure easier to interpret than the older raw-value
-version, which could be dominated by one channel scale.
+Each explicit update is then checked with a short backtracking acceptance rule:
+the next state is kept only if the recomputed transport loss does not increase.
+This makes the shipped workflow materially stronger than the older pure proxy
+relaxation loop and removes the large runaway profiles that were easy to
+trigger in coarse public examples.
 
 The closure-spec fields are therefore:
 
@@ -410,6 +429,11 @@ The corresponding helpers are:
 - `profile_transport_loss(...)`
 - `advance_profile_transport(...)`
 - `solve_profile_transport_loop(...)`
+- `PrimitiveSpeciesProfile`
+- `build_species_profile_from_primitives(...)`
+- `build_species_profiles_from_primitives(...)`
+- `advance_primitive_profile_transport(...)`
+- `solve_primitive_profile_transport_loop(...)`
 
 The old raw-update form,
 
@@ -443,13 +467,77 @@ docs/_static/profile_transport_loop.pdf
 
 It shows:
 
-- the evolution of the solved ambipolar `E_r(r)` profile across transport
-  iterations
+- the ambipolar residual evolution across accepted transport iterations
 - the corresponding bootstrap-current proxy history
 - the transport-loss and ambipolar-residual histories
 - the final `A1(r)` and `A3(r)` profiles for each species
 
 ![Profile transport loop](_static/profile_transport_loop.png)
+
+## Primitive Density And Temperature Transport
+
+NTX also now supports a stronger imported workflow in which the thermodynamic
+forces are reconstructed from primitive density and temperature profiles rather
+than updated directly. For one species,
+
+```{math}
+A_{3,a}(r) = \frac{d \ln T_a}{dr},
+```
+
+```{math}
+A_{1,a}(r) =
+\frac{d \ln n_a}{dr}
+- \frac{3}{2}\frac{d \ln T_a}{dr}
++ C_{E,a}(r) Z_a E_r(r),
+```
+
+where `C_{E,a}(r)` is the user-supplied electrostatic prefactor. This mapping
+is implemented by:
+
+- `PrimitiveSpeciesProfile`
+- `build_species_profile_from_primitives(...)`
+- `build_species_profiles_from_primitives(...)`
+
+The primitive closure uses the same normalized transport mismatches as the
+explicit `A1/A3` loop but updates the primitive fields multiplicatively:
+
+```{math}
+n_a^{(n+1)}(r)
+=
+n_a^{(n)}(r)
+\exp\!\left[-\alpha_a^{(\Gamma)}(r)\widetilde{\Delta\Gamma}_a^{(n)}(r)\right],
+```
+
+```{math}
+T_a^{(n+1)}(r)
+=
+T_a^{(n)}(r)
+\exp\!\left[-\alpha_a^{(J)}(r)\widetilde{\Delta J}_a^{(n)}(r)\right].
+```
+
+This keeps density and temperature positive while still feeding their gradients
+back into the ambipolar closure through `A1(r)` and `A3(r)`.
+
+The repository example
+
+```bash
+python examples/primitive_profile_transport.py
+```
+
+writes:
+
+```text
+docs/_static/primitive_profile_transport.png
+docs/_static/primitive_profile_transport.pdf
+```
+
+and shows:
+
+- the initial-versus-final primitive ambipolar residual and current profiles
+- the derived monoenergetic force profiles reconstructed from the primitive state
+- final density and temperature profiles for each species
+
+![Primitive profile transport](_static/primitive_profile_transport.png)
 
 ## Source-Code Map
 

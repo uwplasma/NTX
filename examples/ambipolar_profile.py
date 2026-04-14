@@ -19,6 +19,7 @@ import numpy as np  # noqa: E402
 from ntx import (  # noqa: E402
     GridSpec,
     MonoenergeticSpeciesProfile,
+    ambipolar_residual_profile,
     build_ntx_neopax_scan_from_surfaces,
     example_surface,
     solve_ambipolar_er_profile,
@@ -111,6 +112,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         (electron, ion),
         steps=12,
         damping=0.7,
+        smoothing_strength=1.0,
     )
 
     rho_np = np.asarray(result.rho)
@@ -121,14 +123,33 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     ion_flux = np.asarray(result.species_particle_flux[1])
     electron_current = np.asarray(result.species_current_response[0])
     ion_current = np.asarray(result.species_current_response[1])
-    loss_history = np.asarray(result.loss_history)
+    residual_scan = np.asarray(
+        [
+            ambipolar_residual_profile(
+                scan,
+                (electron, ion),
+                er_profile=jnp.full_like(rho, er_value),
+            )
+            for er_value in er_axis
+        ]
+    )
+    residual_norm_scan = np.linalg.norm(residual_scan, axis=1)
 
     fig, axes = plt.subplots(2, 2, constrained_layout=True)
 
-    axes[0, 0].plot(rho_np, er_profile, color="#0072B2", lw=2.3, marker="o", ms=5)
+    im = axes[0, 0].imshow(
+        np.abs(residual_scan),
+        aspect="auto",
+        origin="lower",
+        extent=(rho_np[0], rho_np[-1], float(er_axis[0]), float(er_axis[-1])),
+        cmap="magma_r",
+    )
+    axes[0, 0].plot(rho_np, er_profile, color="white", lw=2.2, marker="o", ms=4.5)
     axes[0, 0].set_xlabel(r"$\rho$")
-    axes[0, 0].set_ylabel(r"Solved $\hat E_r$")
-    axes[0, 0].set_title("Ambipolar electric-field profile")
+    axes[0, 0].set_ylabel(r"$\hat E_r$")
+    axes[0, 0].set_title("Residual landscape and selected profile")
+    cbar = fig.colorbar(im, ax=axes[0, 0], fraction=0.048, pad=0.03)
+    cbar.set_label(r"$|R(\rho,\hat E_r)|$")
 
     axes[0, 1].plot(rho_np, jbs, color="#D55E00", lw=2.3, marker="s", ms=5, label="total")
     axes[0, 1].plot(rho_np, electron_current, color="#0072B2", lw=1.7, ls="--", label="electron")
@@ -169,17 +190,18 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     axes[1, 0].set_title("Ambipolar residual closure")
     axes[1, 0].legend(loc="best")
 
-    axes[1, 1].semilogy(
-        np.arange(1, loss_history.size + 1),
-        loss_history,
+    axes[1, 1].plot(
+        np.asarray(er_axis),
+        residual_norm_scan,
         color="#CC79A7",
         lw=2.3,
         marker="D",
         ms=4.5,
     )
-    axes[1, 1].set_xlabel("Newton iteration")
-    axes[1, 1].set_ylabel(r"$\langle R^2 \rangle$")
-    axes[1, 1].set_title("Per-profile solve history")
+    axes[1, 1].axvline(float(np.mean(er_profile)), color="#111827", lw=1.5, ls=":")
+    axes[1, 1].set_xlabel(r"Uniform trial $\hat E_r$")
+    axes[1, 1].set_ylabel(r"$\|R(\rho,\hat E_r)\|_2$")
+    axes[1, 1].set_title("Integrated ambipolar landscape")
     axes[1, 1].text(
         0.04,
         0.95,

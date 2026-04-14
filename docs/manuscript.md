@@ -36,6 +36,8 @@ examples.
    - low-dimensional radial-basis optimization of the same profile closure
 14. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
+15. `primitive_profile_transport.{png,pdf}`
+   - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
 
@@ -50,6 +52,7 @@ Together these figures cover:
 - a direct optimization view of the profile-grade closure
 - a low-dimensional multi-parameter version of that optimization
 - a self-consistent transport-relaxation view of the same closure
+- a primitive-profile transport view with positive density and temperature updates
 - a W7-X imported-workflow convergence figure
 - practical performance guidance
 
@@ -126,7 +129,9 @@ docs/_static/bootstrap_current_from_vmec_or_boozmn.json
 ```
 
 It is the recommended figure when the paper needs a compact NTX-only radial
-profile panel without bringing in the external database workflow.
+profile panel without bringing in the external database workflow. The panel
+stays close to directly interpretable quantities: geometry, profile inputs,
+parallel-flow drive, and the resulting bootstrap-current proxy.
 
 ![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
 
@@ -144,8 +149,8 @@ docs/_static/ambipolar_profile.pdf
 ```
 
 Use this figure when the paper needs a profile-grade closure panel built
-entirely from NTX scan data, including the solved `E_r(r)` profile and the
-resulting bootstrap-current proxy.
+entirely from NTX scan data, including the ambipolar residual landscape over
+the scanned `E_r` axis and the resulting bootstrap-current proxy.
 
 ![Ambipolar profile](_static/ambipolar_profile.png)
 
@@ -163,8 +168,9 @@ docs/_static/ambipolar_profile_family.pdf
 ```
 
 Use this figure when the paper needs an optimization-facing profile figure that
-shows how a scalar control changes the solved `E_r(r)` and bootstrap-current
-proxy profiles, while also exposing a one-dimensional objective landscape.
+shows how a scalar control changes the residual landscape and the
+bootstrap-current proxy profiles, while also exposing a one-dimensional
+objective landscape.
 
 ![Ambipolar profile family](_static/ambipolar_profile_family.png)
 
@@ -220,11 +226,33 @@ docs/_static/profile_transport_loop.pdf
 ```
 
 Use this figure when the paper needs a self-consistent profile-transport panel
-instead of a pure control-optimization panel. It shows how the ambipolar field,
-bootstrap-current proxy, and thermodynamic-force profiles evolve under an
-explicit transport-relaxation iteration.
+instead of a pure control-optimization panel. It shows how the ambipolar
+residual, bootstrap-current proxy, and thermodynamic-force profiles evolve
+under an accepted-step transport-relaxation iteration.
 
 ![Profile transport loop](_static/profile_transport_loop.png)
+
+## Primitive Profile Transport Figure
+
+```bash
+python examples/primitive_profile_transport.py
+```
+
+This writes:
+
+```text
+docs/_static/primitive_profile_transport.png
+docs/_static/primitive_profile_transport.pdf
+```
+
+Use this figure when the paper needs to move beyond direct `A1/A3` proxy
+updates and show a primitive profile workflow in which density and temperature
+remain positive and feed back into the ambipolar closure through reconstructed
+thermodynamic forces. The panel is now framed around initial-versus-final
+closure profiles and the derived monoenergetic forces rather than a noisy
+iteration trace.
+
+![Primitive profile transport](_static/primitive_profile_transport.png)
 
 ## W7-X Bootstrap-Current Convergence Figure
 

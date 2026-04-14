@@ -82,7 +82,8 @@ This example is the shortest NTX-only workflow:
 - start from a VMEC `wout` file and use `vmec_jax`
 - or, if a Boozer `boozmn` file already exists, use `booz_xform_jax` output directly
 - solve a fixed-collisionality NTX radial family
-- plot `D11`, `D13`, `nu_hat * D33`, and a compact bootstrap-current proxy
+- plot magnetic geometry, radial profile inputs, `D11`, `nu_hat * D33`, and a compact
+  bootstrap-current proxy
 
 All user inputs live at the top of the file. The script prefers direct Boozer
 input in `auto` mode when a `boozmn` file is available and otherwise falls back
@@ -176,7 +177,8 @@ and demonstrates:
 
 - building a radial NTX scan from explicit in-memory surfaces
 - defining two species profiles with `A1(r)`, `A3(r)`, and `\nu_v(r)`
-- solving a per-radius ambipolar `E_r(r)` profile
+- visualizing the residual landscape over the scanned `E_r` axis
+- solving a smooth ambipolar `E_r(r)` profile with radial regularization
 - evaluating the resulting bootstrap-current proxy profile
 
 ## 14. Ambipolar Profile Family
@@ -193,6 +195,7 @@ This writes:
 and demonstrates:
 
 - solving a small family of ambipolar closures on one NTX radial scan
+- comparing the integrated residual landscapes across explicit profile controls
 - evaluating a bootstrap-current objective across that family
 - selecting the best control point from a scalar objective landscape
 
@@ -264,9 +267,28 @@ and demonstrates:
 - iterating a simple self-consistent profile closure on top of the ambipolar
   solve
 - updating `A1(r)` and `A3(r)` directly from transport mismatches
-- tracking transport-loss descent together with ambipolar closure
+- tracking accepted-step transport-loss descent together with the ambipolar closure
 
-## 19. Performance Scaling
+## 19. Primitive Profile Transport
+
+```bash
+python examples/primitive_profile_transport.py
+```
+
+This writes:
+
+- `docs/_static/primitive_profile_transport.png`
+- `docs/_static/primitive_profile_transport.pdf`
+
+and demonstrates:
+
+- reconstructing `A1(r)` and `A3(r)` from primitive density and temperature
+  profiles
+- comparing initial and final residual/current profiles for the primitive closure
+- updating density and temperature instead of force proxies directly
+- exposing the derived monoenergetic force profiles alongside the final primitive state
+
+## 20. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -275,7 +297,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 20. Validation Summary
+## 21. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -285,7 +307,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 21. Full Publication Bundle
+## 22. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py
