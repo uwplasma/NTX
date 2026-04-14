@@ -218,6 +218,13 @@ These generate publication-ready figures for:
 - direct autodiff versus finite-difference derivative audits
 - differentiable bootstrap-current optimization
 
+For lower-level imported workflows, the prepared differentiable interface now
+includes:
+
+- `prepare_monoenergetic_system(...)`
+- `solve_prepared_coefficient_vector(...)`
+- `solve_prepared_coefficient_vector_vjp(...)`
+
 ## Bootstrap-Current Examples
 
 Pure NTX workflow from VMEC or Boozer input to radial profiles:

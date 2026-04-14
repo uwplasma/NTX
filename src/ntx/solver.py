@@ -7,7 +7,7 @@ import warnings
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import lru_cache, partial
 
 import jax
 import jax.numpy as jnp
@@ -160,6 +160,34 @@ def solve_prepared_internal(
     return dij, values[9], values[10]
 
 
+def solve_prepared_coefficient_vector(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> Array:
+    """Return the coefficient vector `[D11, D31, D13, D33, D33_spitzer]`."""
+
+    return _solve_prepared_coefficient_vector_raw(
+        prepared,
+        case.nu_hat,
+        case.resolved_epsi_hat(prepared.geometry.transport_psi_scale),
+    )
+
+
+@partial(jax.custom_vjp, nondiff_argnums=(0,))
+def solve_prepared_coefficient_vector_vjp(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> Array:
+    """Coefficient-vector solve with an explicit custom-VJP contract point.
+
+    The current backward pass still differentiates the raw coefficient kernel
+    exactly. This keeps the public API stable while NTX transitions toward an
+    implicit or adjoint derivative for the prepared dense solve.
+    """
+
+    return solve_prepared_coefficient_vector(prepared, case)
+
+
 def compile_prepared_solver(
     prepared: PreparedMonoenergeticSystem,
 ) -> CompiledPreparedSolver:
@@ -180,6 +208,57 @@ def compile_prepared_solver(
     return solve
 
 
+def _solve_prepared_coefficient_vector_vjp_fwd(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> tuple[Array, tuple[Array, Array, Array | None, bool, bool]]:
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    coefficients = _solve_prepared_coefficient_vector_raw(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    return coefficients, (
+        jnp.asarray(case.nu_hat),
+        resolved_epsi_hat,
+        None if transport_scale is None else jnp.asarray(transport_scale),
+        case.epsi_hat is not None,
+        case.er_hat is not None,
+    )
+
+
+def _solve_prepared_coefficient_vector_vjp_bwd(
+    prepared: PreparedMonoenergeticSystem,
+    residuals: tuple[Array, Array, Array | None, bool, bool],
+    coefficient_bar: Array,
+) -> tuple[MonoenergeticCase]:
+    nu_hat, resolved_epsi_hat, transport_scale, uses_epsi_hat, uses_er_hat = residuals
+    _, pullback = jax.vjp(
+        lambda trial_nu_hat, trial_epsi_hat: _solve_prepared_coefficient_vector_raw(
+            prepared,
+            trial_nu_hat,
+            trial_epsi_hat,
+        ),
+        nu_hat,
+        resolved_epsi_hat,
+    )
+    nu_bar, epsi_bar = pullback(coefficient_bar)
+    if uses_epsi_hat:
+        return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None),)
+    if uses_er_hat:
+        assert transport_scale is not None
+        er_bar = epsi_bar / transport_scale
+        return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=er_bar),)
+    return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),)
+
+
+solve_prepared_coefficient_vector_vjp.defvjp(
+    _solve_prepared_coefficient_vector_vjp_fwd,
+    _solve_prepared_coefficient_vector_vjp_bwd,
+)
+
+
 def _transport_result_from_arrays(values: tuple[Array, ...]) -> TransportResult:
     return TransportResult(
         D11=values[0],
@@ -192,6 +271,15 @@ def _transport_result_from_arrays(values: tuple[Array, ...]) -> TransportResult:
         residual_l2=values[7],
         onsager_residual=values[8],
     )
+
+
+def _solve_prepared_coefficient_vector_raw(
+    prepared: PreparedMonoenergeticSystem,
+    nu_hat,
+    epsi_hat,
+) -> Array:
+    values = _solve_prepared_arrays_from_values(prepared, nu_hat, epsi_hat)
+    return jnp.stack(values[:5])
 
 
 def _solve_prepared_arrays(

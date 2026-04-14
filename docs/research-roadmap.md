@@ -99,6 +99,16 @@ The first step is already started in NTX with the derivative-audit workflow in
 [`examples/derivative_audit.py`](../examples/derivative_audit.py), documented in
 the [Autodiff](autodiff.md) and [Examples](examples.md) pages.
 
+NTX now also exposes an explicit custom-VJP contract point in
+[`src/ntx/solver.py`](../src/ntx/solver.py):
+
+- `solve_prepared_coefficient_vector(...)`
+- `solve_prepared_coefficient_vector_vjp(...)`
+
+The current backward rule is still exact reverse-mode differentiation of the
+raw prepared coefficient kernel. The point of this interface is to give NTX a
+stable place to swap in a true implicit or adjoint derivative next.
+
 ## Phase 2: Profile-Grade Transport Workflows
 
 NTX already exports NEOPAX-compatible monoenergetic arrays and HDF5 scans in:
