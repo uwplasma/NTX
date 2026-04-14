@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import sys
+from types import ModuleType
+
 import jax.numpy as jnp
 
 from ntx import (
@@ -13,6 +16,7 @@ from ntx import (
     load_neopax_reference_scan,
     surface_from_vmec_jax_vmec_wout_file,
 )
+from ntx.autodiff import _maybe_import_neopax
 
 from .fixture_data import SAMPLE_NEOPAX, SAMPLE_WOUT
 
@@ -99,3 +103,24 @@ def test_derivative_audit_matches_finite_difference():
     assert amplitude_d33_error < 5e-2
     assert er_d11_error < 5e-2
     assert er_d33_error < 5e-2
+
+
+def test_maybe_import_neopax_uses_sys_path_fallback(monkeypatch, tmp_path):
+    root = tmp_path / "NEOPAX"
+    root.mkdir()
+    fake_module = ModuleType("NEOPAX")
+    monkeypatch.setattr("ntx.autodiff.find_neopax_root", lambda: root)
+    monkeypatch.delitem(sys.modules, "NEOPAX", raising=False)
+
+    original_import = __import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "NEOPAX":
+            if str(root) not in sys.path:
+                raise ModuleNotFoundError("NEOPAX")
+            return fake_module
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+    imported = _maybe_import_neopax()
+    assert imported is fake_module
