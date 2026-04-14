@@ -134,8 +134,8 @@ gradients of the dense solve against centered finite differences for:
 - `D11` and `D33` sensitivities to a Boozer harmonic amplitude
 - `D11` and `D33` sensitivities to the radial electric field
 
-This is the current validation baseline for the future implicit-derivative
-implementation.
+This is the validation baseline for the current prepared implicit-adjoint
+derivative implementation.
 
 ## 11. Prepared-Derivative Benchmark
 

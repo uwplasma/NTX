@@ -59,9 +59,9 @@ from ntx import (
 )
 ```
 
-That is the intended contract point for future implicit or adjoint derivatives:
-the forward solve remains the same, while the backward rule can be upgraded
-without changing user-facing optimization scripts.
+That is the contract point for the prepared implicit-adjoint derivative path:
+the forward solve remains the same, while the backward rule stays isolated from
+user-facing optimization scripts.
 
 The figure is written to:
 
@@ -75,8 +75,8 @@ It shows:
 - gradient magnitude across collisionality for `D11` and `D33`,
 - relative mismatch between autodiff and finite differences,
 - electric-field sensitivities across `\hat E_r`,
-- and the current numerical agreement before the future implicit-derivative
-  path is introduced.
+- and the current numerical agreement used to validate the prepared
+  implicit-adjoint path.
 
 ![Derivative audit](_static/derivative_audit.png)
 
