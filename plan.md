@@ -318,3 +318,11 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
     `solve_primitive_profile_transport_loop(...)`
   - kept the public source/target closure interface unchanged while making the
     shipped examples materially more stable and more defensible
+- Extended that stabilized workflow into a stronger primitive transport lane:
+  - added explicit density/temperature source-target closure terms
+  - added radial smoothing to both force-proxy and primitive-profile updates
+  - rebuilt the primitive force construction from smoothed radial gradients
+- Tightened the NTX-only bootstrap-current example again:
+  - replaced coarse finite-difference profile gradients with analytic ones
+  - restricted the public figure to an interior radial window so the example
+    does not advertise boundary artifacts as physics

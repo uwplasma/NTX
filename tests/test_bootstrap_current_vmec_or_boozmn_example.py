@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -36,3 +37,8 @@ def test_bootstrap_current_example_runs(tmp_path):
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()
     assert output_prefix.with_suffix(".json").exists()
+    payload = json.loads(output_prefix.with_suffix(".json").read_text())
+    profile = payload["bootstrap_current_proxy"]
+    assert len(profile) == 10
+    assert max(abs(value) for value in profile) <= 1.0 + 1.0e-12
+    assert max(abs(profile[index + 1] - profile[index]) for index in range(len(profile) - 1)) < 0.5

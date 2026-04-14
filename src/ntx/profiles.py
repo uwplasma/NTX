@@ -210,6 +210,15 @@ class ProfileTransportClosureSpec:
     current_source: float | Array = 0.0
     normalization_floor: float | Array = 1.0
     max_normalized_update: float | Array = 0.35
+    density_relaxation: float | Array = 0.0
+    temperature_relaxation: float | Array = 0.0
+    density_target: float | Array = 0.0
+    temperature_target: float | Array = 0.0
+    density_source: float | Array = 0.0
+    temperature_source: float | Array = 0.0
+    primitive_normalization_floor: float | Array = 1.0
+    max_primitive_normalized_update: float | Array = 0.20
+    radial_smoothing_strength: float | Array = 0.0
     closure_name: str = "transport loop"
 
 
@@ -224,6 +233,15 @@ tree_util.register_dataclass(
         "current_source",
         "normalization_floor",
         "max_normalized_update",
+        "density_relaxation",
+        "temperature_relaxation",
+        "density_target",
+        "temperature_target",
+        "density_source",
+        "temperature_source",
+        "primitive_normalization_floor",
+        "max_primitive_normalized_update",
+        "radial_smoothing_strength",
     ),
     meta_fields=("closure_name",),
 )
@@ -878,13 +896,22 @@ def advance_profile_transport(
         normalization_floor=normalization_floor,
         max_update=max_update,
     )
+    smoothing_strength = _broadcast_species_transport_field(
+        closure_spec.radial_smoothing_strength,
+        species_count,
+        rho,
+    )
     return tuple(
         replace(
             species,
-            A1=jnp.asarray(species.A1)
-            - particle_relaxation[index] * normalized_particle[index],
-            A3=jnp.asarray(species.A3)
-            - current_relaxation[index] * normalized_current[index],
+            A1=_smooth_radial_profile(
+                jnp.asarray(species.A1) - particle_relaxation[index] * normalized_particle[index],
+                jnp.mean(smoothing_strength[index]),
+            ),
+            A3=_smooth_radial_profile(
+                jnp.asarray(species.A3) - current_relaxation[index] * normalized_current[index],
+                jnp.mean(smoothing_strength[index]),
+            ),
         )
         for index, species in enumerate(species_profiles)
     )
@@ -919,23 +946,67 @@ def advance_primitive_profile_transport(
         species_count,
         rho,
     )
+    density_relaxation = _broadcast_species_transport_field(
+        closure_spec.density_relaxation,
+        species_count,
+        rho,
+    )
+    temperature_relaxation = _broadcast_species_transport_field(
+        closure_spec.temperature_relaxation,
+        species_count,
+        rho,
+    )
+    primitive_normalization_floor = _broadcast_species_transport_field(
+        closure_spec.primitive_normalization_floor,
+        species_count,
+        rho,
+    )
+    max_primitive_update = _broadcast_species_transport_field(
+        closure_spec.max_primitive_normalized_update,
+        species_count,
+        rho,
+    )
+    radial_smoothing = _broadcast_species_transport_field(
+        closure_spec.radial_smoothing_strength,
+        species_count,
+        rho,
+    )
     normalized_particle, normalized_current = _normalized_transport_updates(
         profile,
         closure_spec,
         normalization_floor=normalization_floor,
         max_update=max_update,
     )
+    normalized_density, normalized_temperature = _normalized_primitive_updates(
+        primitive_profiles,
+        closure_spec,
+        rho=rho,
+        normalization_floor=primitive_normalization_floor,
+        max_update=max_primitive_update,
+    )
     return tuple(
         replace(
             primitive,
             density=jnp.maximum(
-                jnp.asarray(primitive.density)
-                * jnp.exp(-particle_relaxation[index] * normalized_particle[index]),
+                _smooth_radial_profile(
+                    jnp.asarray(primitive.density)
+                    * jnp.exp(
+                        -particle_relaxation[index] * normalized_particle[index]
+                        - density_relaxation[index] * normalized_density[index]
+                    ),
+                    jnp.mean(radial_smoothing[index]),
+                ),
                 jnp.asarray(1.0e-8, dtype=rho.dtype),
             ),
             temperature=jnp.maximum(
-                jnp.asarray(primitive.temperature)
-                * jnp.exp(-current_relaxation[index] * normalized_current[index]),
+                _smooth_radial_profile(
+                    jnp.asarray(primitive.temperature)
+                    * jnp.exp(
+                        -current_relaxation[index] * normalized_current[index]
+                        - temperature_relaxation[index] * normalized_temperature[index]
+                    ),
+                    jnp.mean(radial_smoothing[index]),
+                ),
                 jnp.asarray(1.0e-8, dtype=rho.dtype),
             ),
         )
@@ -1087,7 +1158,7 @@ def solve_primitive_profile_transport_loop(
                 ]
             )
         )
-        current_loss = profile_transport_loss(profile, closure_spec)
+        current_loss = primitive_profile_transport_loss(profile, primitive_state, closure_spec)
         loss_history.append(current_loss)
         if best_profile is None or best_loss is None or bool(current_loss < best_loss):
             best_profile = profile
@@ -1117,7 +1188,11 @@ def solve_primitive_profile_transport_loop(
                 damping=damping,
                 smoothing_strength=smoothing_strength,
             )
-            candidate_loss = profile_transport_loss(candidate_profile, closure_spec)
+            candidate_loss = primitive_profile_transport_loss(
+                candidate_profile,
+                candidate_primitive,
+                closure_spec,
+            )
             if bool(candidate_loss <= current_loss + 1.0e-12):
                 next_primitive_state = candidate_primitive
                 next_er_seed = candidate_profile.er_profile
@@ -1192,7 +1267,8 @@ def build_species_profile_from_primitives(
     prefactor = _broadcast_profile_field(primitive.electrostatic_prefactor, rho_arr)
 
     def grad(values):
-        return jnp.gradient(values, rho_arr)
+        safe_values = _smooth_radial_profile(values, jnp.asarray(0.35, dtype=rho_arr.dtype))
+        return jnp.gradient(safe_values, rho_arr)
 
     log_density_grad = grad(
         jnp.log(jnp.maximum(density, jnp.asarray(1.0e-12, dtype=rho_arr.dtype)))
@@ -1320,6 +1396,55 @@ def _normalized_transport_updates(
     return normalized_particle, normalized_current
 
 
+def primitive_profile_transport_loss(
+    profile: AmbipolarProfileResult,
+    primitive_profiles: tuple[PrimitiveSpeciesProfile, ...],
+    closure_spec: ProfileTransportClosureSpec,
+) -> Array:
+    """Combined profile-transport loss including primitive source/target closure."""
+
+    base_loss = profile_transport_loss(profile, closure_spec)
+    species_count = len(primitive_profiles)
+    rho = jnp.asarray(profile.rho)
+    normalization_floor = _broadcast_species_transport_field(
+        closure_spec.primitive_normalization_floor,
+        species_count,
+        rho,
+    )
+    max_update = _broadcast_species_transport_field(
+        closure_spec.max_primitive_normalized_update,
+        species_count,
+        rho,
+    )
+    normalized_density, normalized_temperature = _normalized_primitive_updates(
+        primitive_profiles,
+        closure_spec,
+        rho=rho,
+        normalization_floor=normalization_floor,
+        max_update=max_update,
+    )
+    smoothing_strength = _broadcast_species_transport_field(
+        closure_spec.radial_smoothing_strength,
+        species_count,
+        rho,
+    )
+    smoothness = jnp.asarray(0.0, dtype=rho.dtype)
+    for index, primitive in enumerate(primitive_profiles):
+        density = jnp.asarray(primitive.density)
+        temperature = jnp.asarray(primitive.temperature)
+        density_smooth = density - _smooth_radial_profile(
+            density,
+            jnp.mean(smoothing_strength[index]),
+        )
+        temperature_smooth = temperature - _smooth_radial_profile(
+            temperature,
+            jnp.mean(smoothing_strength[index]),
+        )
+        smoothness = smoothness + jnp.mean(density_smooth**2 + temperature_smooth**2)
+    primitive_loss = jnp.mean(normalized_density**2 + normalized_temperature**2)
+    return base_loss + primitive_loss + 0.25 * smoothness
+
+
 def _basis_profile_modifier(control: Array, response: Array, basis: Array) -> Array:
     return jnp.tensordot(control * response, basis, axes=1)
 
@@ -1332,7 +1457,79 @@ def _scaled_transport_closure(
         closure_spec,
         particle_relaxation=jnp.asarray(closure_spec.particle_relaxation) * factor,
         current_relaxation=jnp.asarray(closure_spec.current_relaxation) * factor,
+        density_relaxation=jnp.asarray(closure_spec.density_relaxation) * factor,
+        temperature_relaxation=jnp.asarray(closure_spec.temperature_relaxation) * factor,
     )
+
+
+def _primitive_mismatch(
+    primitive_profiles: tuple[PrimitiveSpeciesProfile, ...],
+    closure_spec: ProfileTransportClosureSpec,
+    rho: Array,
+) -> tuple[Array, Array]:
+    species_count = len(primitive_profiles)
+    density_target = _broadcast_species_transport_field(
+        closure_spec.density_target,
+        species_count,
+        rho,
+    )
+    temperature_target = _broadcast_species_transport_field(
+        closure_spec.temperature_target,
+        species_count,
+        rho,
+    )
+    density_source = _broadcast_species_transport_field(
+        closure_spec.density_source,
+        species_count,
+        rho,
+    )
+    temperature_source = _broadcast_species_transport_field(
+        closure_spec.temperature_source,
+        species_count,
+        rho,
+    )
+    density = jnp.stack(
+        [_broadcast_profile_field(primitive.density, rho) for primitive in primitive_profiles]
+    )
+    temperature = jnp.stack(
+        [
+            _broadcast_profile_field(primitive.temperature, rho)
+            for primitive in primitive_profiles
+        ]
+    )
+    density_mismatch = density - density_target - density_source
+    temperature_mismatch = temperature - temperature_target - temperature_source
+    return density_mismatch, temperature_mismatch
+
+
+def _normalized_primitive_updates(
+    primitive_profiles: tuple[PrimitiveSpeciesProfile, ...],
+    closure_spec: ProfileTransportClosureSpec,
+    *,
+    rho: Array,
+    normalization_floor: Array,
+    max_update: Array,
+) -> tuple[Array, Array]:
+    density_mismatch, temperature_mismatch = _primitive_mismatch(
+        primitive_profiles,
+        closure_spec,
+        jnp.asarray(rho),
+    )
+    density_scale = jnp.maximum(
+        jnp.sqrt(jnp.mean(density_mismatch**2, axis=1, keepdims=True)),
+        normalization_floor,
+    )
+    temperature_scale = jnp.maximum(
+        jnp.sqrt(jnp.mean(temperature_mismatch**2, axis=1, keepdims=True)),
+        normalization_floor,
+    )
+    normalized_density = jnp.clip(density_mismatch / density_scale, -max_update, max_update)
+    normalized_temperature = jnp.clip(
+        temperature_mismatch / temperature_scale,
+        -max_update,
+        max_update,
+    )
+    return normalized_density, normalized_temperature
 
 
 def _channel_data(scan: NeopaxScan, channel: str) -> Array:
