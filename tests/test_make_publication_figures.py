@@ -81,3 +81,27 @@ def test_make_publication_figures_ambipolar_subset_writes_manifest(tmp_path):
     assert set(payload) == {"ambipolar"}
     assert output_dir.joinpath("ambipolar_profile.png").exists()
     assert output_dir.joinpath("ambipolar_profile.pdf").exists()
+
+
+def test_make_publication_figures_ambipolar_family_subset_writes_manifest(tmp_path):
+    output_dir = tmp_path / "figures"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "examples" / "make_publication_figures.py"),
+            "--output-dir",
+            str(output_dir),
+            "--figures",
+            "ambipolar_family",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+
+    manifest_path = output_dir / "publication_figure_manifest.json"
+    assert manifest_path.exists()
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert set(payload) == {"ambipolar_family"}
+    assert output_dir.joinpath("ambipolar_profile_family.png").exists()
+    assert output_dir.joinpath("ambipolar_profile_family.pdf").exists()

@@ -154,5 +154,7 @@ scan payload:
 - `evaluate_species_current_response(...)`
 - `ambipolar_residual_profile(...)`
 - `solve_ambipolar_er_profile(...)`
+- `solve_ambipolar_profile_family(...)`
+- `bootstrap_current_objective(...)`
 
 Those helpers are documented on the [Profiles](profiles.md) page.

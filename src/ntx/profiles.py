@@ -60,6 +60,30 @@ tree_util.register_dataclass(
 )
 
 
+@dataclass(frozen=True)
+class AmbipolarProfileFamilyResult:
+    """Stacked ambipolar-profile solutions across a control-parameter family."""
+
+    control: Array
+    er_profile: Array
+    ambipolar_residual: Array
+    bootstrap_current_proxy: Array
+    loss_history: Array
+
+
+tree_util.register_dataclass(
+    AmbipolarProfileFamilyResult,
+    data_fields=(
+        "control",
+        "er_profile",
+        "ambipolar_residual",
+        "bootstrap_current_proxy",
+        "loss_history",
+    ),
+    meta_fields=(),
+)
+
+
 def evaluate_scan_channel(
     scan: NeopaxScan,
     channel: str,
@@ -233,6 +257,61 @@ def solve_ambipolar_er_profile(
         species_current_response=species_current,
         loss_history=loss_history,
     )
+
+
+def solve_ambipolar_profile_family(
+    scan: NeopaxScan,
+    species_profiles_family: tuple[tuple[MonoenergeticSpeciesProfile, ...], ...],
+    *,
+    control: Array | None = None,
+    er_initial: Array | None = None,
+    steps: int = 16,
+    damping: float = 0.8,
+) -> AmbipolarProfileFamilyResult:
+    """Solve a family of ambipolar profiles across explicit profile controls."""
+
+    family_results = [
+        solve_ambipolar_er_profile(
+            scan,
+            species_profiles,
+            er_initial=er_initial,
+            steps=steps,
+            damping=damping,
+        )
+        for species_profiles in species_profiles_family
+    ]
+    if control is None:
+        control_array = jnp.arange(len(family_results), dtype=jnp.asarray(scan.rho).dtype)
+    else:
+        control_array = jnp.asarray(control)
+    return AmbipolarProfileFamilyResult(
+        control=control_array,
+        er_profile=jnp.stack([result.er_profile for result in family_results]),
+        ambipolar_residual=jnp.stack([result.ambipolar_residual for result in family_results]),
+        bootstrap_current_proxy=jnp.stack(
+            [result.bootstrap_current_proxy for result in family_results]
+        ),
+        loss_history=jnp.stack([result.loss_history for result in family_results]),
+    )
+
+
+def bootstrap_current_objective(
+    rho: Array,
+    bootstrap_current_proxy: Array,
+    *,
+    weight: Array | None = None,
+) -> Array:
+    """Return a weighted quadratic radial objective for a bootstrap-current profile."""
+
+    rho_arr = jnp.asarray(rho)
+    profile = jnp.asarray(bootstrap_current_proxy)
+    if profile.shape != rho_arr.shape:
+        raise ValueError("bootstrap_current_proxy must match rho shape")
+    if weight is None:
+        weight_arr = jnp.ones_like(rho_arr)
+    else:
+        weight_arr = _broadcast_profile_field(weight, rho_arr)
+    return jnp.trapezoid(weight_arr * profile**2, rho_arr)
 
 
 def _broadcast_profile_field(values, rho: Array) -> Array:

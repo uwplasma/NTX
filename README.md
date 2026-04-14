@@ -210,6 +210,7 @@ python examples/neopax_autodiff_profiles.py
 python examples/derivative_audit.py
 python examples/derivative_path_benchmark.py
 python examples/ambipolar_profile.py
+python examples/ambipolar_profile_family.py
 python examples/bootstrap_current_optimization.py
 ```
 
@@ -220,6 +221,7 @@ These generate publication-ready figures for:
 - direct autodiff versus finite-difference derivative audits
 - direct reverse-mode versus prepared custom-VJP derivative timing
 - ambipolar electric-field and bootstrap-current-proxy profile solves
+- controlled families of ambipolar and bootstrap-current-proxy profiles
 - differentiable bootstrap-current optimization
 
 For lower-level imported workflows, the prepared differentiable interface now
@@ -230,7 +232,10 @@ includes:
 - `solve_prepared_coefficient_vector_vjp(...)`
 - `examples/derivative_path_benchmark.py`
 - `solve_ambipolar_er_profile(...)`
+- `solve_ambipolar_profile_family(...)`
+- `bootstrap_current_objective(...)`
 - `examples/ambipolar_profile.py`
+- `examples/ambipolar_profile_family.py`
 
 ## Bootstrap-Current Examples
 

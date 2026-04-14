@@ -179,7 +179,24 @@ and demonstrates:
 - solving a per-radius ambipolar `E_r(r)` profile
 - evaluating the resulting bootstrap-current proxy profile
 
-## 12. Science Case: Bootstrap-Current Optimization
+## 14. Ambipolar Profile Family
+
+```bash
+python examples/ambipolar_profile_family.py
+```
+
+This writes:
+
+- `docs/_static/ambipolar_profile_family.png`
+- `docs/_static/ambipolar_profile_family.pdf`
+
+and demonstrates:
+
+- solving a small family of ambipolar closures on one NTX radial scan
+- evaluating a bootstrap-current objective across that family
+- selecting the best control point from a scalar objective landscape
+
+## 15. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py
@@ -196,7 +213,7 @@ differentiable geometry-control problem:
 This is the main application/science-case figure for a methods paper centered
 on bootstrap-current analysis and optimization.
 
-## 13. Performance Scaling
+## 16. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -205,7 +222,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 14. Validation Summary
+## 17. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -215,7 +232,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 15. Full Publication Bundle
+## 18. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py
