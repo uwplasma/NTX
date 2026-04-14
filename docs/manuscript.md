@@ -30,6 +30,8 @@ examples.
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
 11. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
+12. `profile_control_optimization.{png,pdf}`
+   - differentiable optimization of a scalar profile control on top of the ambipolar closure
 
 Together these figures cover:
 
@@ -41,6 +43,7 @@ Together these figures cover:
 - a pure NTX radial-profile figure
 - a profile-grade ambipolar and bootstrap-current-proxy workflow
 - a control-parameter family view of the same profile-grade closure
+- a direct optimization view of the profile-grade closure
 - a W7-X imported-workflow convergence figure
 - practical performance guidance
 
@@ -158,6 +161,25 @@ shows how a scalar control changes the solved `E_r(r)` and bootstrap-current
 proxy profiles, while also exposing a one-dimensional objective landscape.
 
 ![Ambipolar profile family](_static/ambipolar_profile_family.png)
+
+## Profile-Control Optimization Figure
+
+```bash
+python examples/profile_control_optimization.py
+```
+
+This writes:
+
+```text
+docs/_static/profile_control_optimization.png
+docs/_static/profile_control_optimization.pdf
+```
+
+Use this figure when the paper needs a direct optimization panel on top of the
+profile closure itself, rather than the separate geometry-control science
+figure.
+
+![Profile control optimization](_static/profile_control_optimization.png)
 
 ## W7-X Bootstrap-Current Convergence Figure
 

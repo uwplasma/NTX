@@ -132,6 +132,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `derivative_path_benchmark.py`
 - `ambipolar_profile.py`
 - `ambipolar_profile_family.py`
+- `profile_control_optimization.py`
 - `plot_output_npz.py`
 
 The figure bundle generator is:

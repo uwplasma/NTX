@@ -11,13 +11,17 @@ from ntx import (
     AmbipolarProfileResult,
     GridSpec,
     MonoenergeticSpeciesProfile,
+    ProfileControlOptimizationResult,
+    ProfileControlSpec,
     ambipolar_residual_profile,
+    apply_profile_control,
     bootstrap_current_objective,
     build_ntx_neopax_scan_from_surfaces,
     evaluate_scan_channel,
     evaluate_species_current_response,
     evaluate_species_particle_flux,
     example_surface,
+    optimize_profile_control,
     solve_ambipolar_er_profile,
     solve_ambipolar_profile_family,
 )
@@ -186,4 +190,44 @@ def test_profile_helpers_cover_error_branches_and_d31_fallback():
         bootstrap_current_objective(
             scan.rho,
             jnp.asarray([1.0, 2.0]),
+        )
+
+
+def test_profile_control_application_and_optimization_return_finite_results():
+    scan = _example_scan()
+    species_profiles = _species_profiles()
+    control_spec = ProfileControlSpec(
+        a1_response=jnp.asarray([0.0, -0.5]),
+        a3_response=jnp.asarray([1.0, 0.0]),
+        control_name="shape",
+    )
+    controlled = apply_profile_control(species_profiles, 0.1, control_spec)
+    assert controlled[0].A3.shape == species_profiles[0].A3.shape
+    assert controlled[1].A1.shape == species_profiles[1].A1.shape
+    result = optimize_profile_control(
+        scan,
+        species_profiles,
+        control_spec,
+        control_initial=0.2,
+        optimization_steps=5,
+        solve_steps=6,
+        damping=0.7,
+        residual_penalty=0.5,
+    )
+    assert isinstance(result, ProfileControlOptimizationResult)
+    assert result.control_history.shape == (5,)
+    assert result.best_profile.er_profile.shape == scan.rho.shape
+    assert jnp.all(jnp.isfinite(result.objective_history))
+    assert jnp.isfinite(result.best_control)
+
+
+def test_profile_control_spec_shape_mismatch_raises():
+    with pytest.raises(ValueError, match="control_spec must match the number of species"):
+        apply_profile_control(
+            _species_profiles(),
+            0.0,
+            ProfileControlSpec(
+                a1_response=jnp.asarray([1.0]),
+                a3_response=jnp.asarray([1.0]),
+            ),
         )

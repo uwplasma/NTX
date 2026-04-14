@@ -156,5 +156,7 @@ scan payload:
 - `solve_ambipolar_er_profile(...)`
 - `solve_ambipolar_profile_family(...)`
 - `bootstrap_current_objective(...)`
+- `apply_profile_control(...)`
+- `optimize_profile_control(...)`
 
 Those helpers are documented on the [Profiles](profiles.md) page.

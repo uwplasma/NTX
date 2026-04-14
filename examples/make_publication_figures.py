@@ -35,7 +35,7 @@ def main() -> None:
         "--figures",
         type=str,
         default=(
-            "inverse,profiles,ambipolar,ambipolar_family,derivative_benchmark,science,validation,"
+            "inverse,profiles,ambipolar,ambipolar_family,profile_control,derivative_benchmark,science,validation,"
             "bootstrap_proxy,w7x_audit,performance_smoke,performance_heavy"
         ),
         help="Comma-separated subset of figures to generate.",
@@ -105,6 +105,22 @@ def main() -> None:
         manifest["ambipolar_family"] = [
             _manifest_path(output_dir / "ambipolar_profile_family.png"),
             _manifest_path(output_dir / "ambipolar_profile_family.pdf"),
+        ]
+
+    if "profile_control" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "profile_control_optimization.py"),
+            ]
+        )
+        for suffix in (".png", ".pdf"):
+            source = ROOT / "docs" / "_static" / f"profile_control_optimization{suffix}"
+            target = output_dir / source.name
+            target.write_bytes(source.read_bytes())
+        manifest["profile_control"] = [
+            _manifest_path(output_dir / "profile_control_optimization.png"),
+            _manifest_path(output_dir / "profile_control_optimization.pdf"),
         ]
 
     if "derivative_benchmark" in selected:
