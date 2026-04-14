@@ -292,6 +292,13 @@ Build the curated figure bundle:
 python examples/make_publication_figures.py
 ```
 
+Build only the frozen main-text or supplement figure sets:
+
+```bash
+python examples/make_publication_figures.py --figures main_text
+python examples/make_publication_figures.py --figures supplement
+```
+
 Build manuscript tables and reproducibility metadata from the validated figure
 artifacts:
 

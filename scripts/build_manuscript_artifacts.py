@@ -83,14 +83,18 @@ def build_payload() -> dict:
         },
         "figures": figures,
         "commands": {
-            "figure_bundle": "python examples/make_publication_figures.py",
+            "figure_bundle": "python examples/make_publication_figures.py --figures main_text,supplement",
+            "main_text_figures": "python examples/make_publication_figures.py --figures main_text",
+            "supplement_figures": "python examples/make_publication_figures.py --figures supplement",
             "tables": "python scripts/build_manuscript_artifacts.py",
             "validation_subset": (
                 "python -m pytest -q "
                 "tests/test_w7x_reference_benchmark.py "
                 "tests/test_derivative_path_benchmark_example.py "
                 "tests/test_bootstrap_current_optimization_example.py "
-                "tests/test_make_publication_figures.py"
+                "tests/test_manuscript_artifacts_script.py "
+                "tests/test_make_publication_figures.py -k "
+                "\"subset_writes_manifest or bootstrap_subset_writes_manifest\""
             ),
         },
     }
@@ -183,6 +187,8 @@ def build_markdown(payload: dict) -> str:
             f"| NumPy | `{payload['environment']['numpy']}` |",
             f"| Platform | `{payload['environment']['platform']}` |",
             f"| Figure bundle | `{payload['commands']['figure_bundle']}` |",
+            f"| Main-text figures | `{payload['commands']['main_text_figures']}` |",
+            f"| Supplement figures | `{payload['commands']['supplement_figures']}` |",
             f"| Artifact tables | `{payload['commands']['tables']}` |",
             f"| Validation subset | `{payload['commands']['validation_subset']}` |",
             "",

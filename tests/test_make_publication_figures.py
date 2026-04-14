@@ -35,6 +35,33 @@ def test_make_publication_figures_subset_writes_manifest(tmp_path):
     assert output_dir.joinpath("bootstrap_current_optimization.json").exists()
 
 
+def test_make_publication_figures_main_text_preset_writes_manifest(tmp_path):
+    output_dir = tmp_path / "figures"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "examples" / "make_publication_figures.py"),
+            "--output-dir",
+            str(output_dir),
+            "--figures",
+            "main_text",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+
+    payload = json.loads((output_dir / "publication_figure_manifest.json").read_text(encoding="utf-8"))
+    assert set(payload) == {
+        "validation",
+        "w7x_audit",
+        "derivative_benchmark",
+        "science",
+        "performance_heavy",
+        "primitive_transport",
+    }
+
+
 def test_make_publication_figures_bootstrap_subset_writes_manifest(tmp_path):
     output_dir = tmp_path / "figures"
     subprocess.run(

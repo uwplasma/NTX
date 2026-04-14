@@ -327,6 +327,13 @@ python examples/make_publication_figures.py
 This regenerates the manuscript-ready figure bundle and writes a manifest to
 `docs/_static/publication_figure_manifest.json`.
 
+For the frozen paper subsets:
+
+```bash
+python examples/make_publication_figures.py --figures main_text
+python examples/make_publication_figures.py --figures supplement
+```
+
 To build manuscript tables and reproducibility metadata from the current
 validated assets, run:
 
