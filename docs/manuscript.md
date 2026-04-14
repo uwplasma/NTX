@@ -56,6 +56,25 @@ Together these figures cover:
 - a W7-X imported-workflow convergence figure
 - practical performance guidance
 
+## Manuscript Tables And Reproducibility
+
+```bash
+python scripts/build_manuscript_artifacts.py
+```
+
+This writes:
+
+```text
+docs/_static/manuscript_artifacts.json
+docs/_static/manuscript_tables.md
+```
+
+These artifacts collect the current NTX commit, software environment, the
+validated W7-X convergence numbers, derivative benchmark summaries, heavy-grid
+CPU/GPU performance tables, bootstrap-current optimization summaries, and the
+exact commands needed to regenerate the figures and validation subset used in
+the manuscript.
+
 ## One-Command Figure Bundle
 
 ```bash
@@ -85,6 +104,7 @@ The science/application figure is written to:
 ```text
 docs/_static/bootstrap_current_optimization.png
 docs/_static/bootstrap_current_optimization.pdf
+docs/_static/bootstrap_current_optimization.json
 ```
 
 It uses:
@@ -108,6 +128,7 @@ This writes:
 ```text
 docs/_static/derivative_path_benchmark.png
 docs/_static/derivative_path_benchmark.pdf
+docs/_static/derivative_path_benchmark.json
 ```
 
 Use this figure when the paper needs an explicit statement of how NTX moves from

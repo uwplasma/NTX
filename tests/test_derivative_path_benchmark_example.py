@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,3 +23,6 @@ def test_derivative_path_benchmark_example_writes_outputs(tmp_path):
 
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()
+    payload = json.loads(output_prefix.with_suffix(".json").read_text(encoding="utf-8"))
+    assert payload["grid"]["n_theta"] == 7
+    assert payload["scan_sizes"][-1] == 32

@@ -32,6 +32,7 @@ def test_make_publication_figures_subset_writes_manifest(tmp_path):
     assert output_dir.joinpath("validation_summary.pdf").exists()
     assert output_dir.joinpath("bootstrap_current_optimization.png").exists()
     assert output_dir.joinpath("bootstrap_current_optimization.pdf").exists()
+    assert output_dir.joinpath("bootstrap_current_optimization.json").exists()
 
 
 def test_make_publication_figures_bootstrap_subset_writes_manifest(tmp_path):

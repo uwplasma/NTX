@@ -232,6 +232,12 @@ These generate publication-ready figures for:
 - primitive density/temperature transport workflows with explicit source-target closure
 - differentiable bootstrap-current optimization
 
+Two of the main manuscript-facing examples also write machine-readable summary
+artifacts:
+
+- `docs/_static/derivative_path_benchmark.json`
+- `docs/_static/bootstrap_current_optimization.json`
+
 For lower-level imported workflows, the prepared differentiable interface now
 includes:
 
@@ -277,6 +283,27 @@ This plots:
 - an interior bootstrap-current proxy profile built from analytic density and temperature gradients
 
 ![NTX bootstrap-current profile](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
+
+## Manuscript Artifacts
+
+Build the curated figure bundle:
+
+```bash
+python examples/make_publication_figures.py
+```
+
+Build manuscript tables and reproducibility metadata from the validated figure
+artifacts:
+
+```bash
+python scripts/build_manuscript_artifacts.py
+```
+
+This writes:
+
+- `docs/_static/publication_figure_manifest.json`
+- `docs/_static/manuscript_artifacts.json`
+- `docs/_static/manuscript_tables.md`
 
 W7-X bootstrap-current convergence audit:
 

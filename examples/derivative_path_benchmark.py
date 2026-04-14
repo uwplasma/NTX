@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 import time
 from pathlib import Path
@@ -189,10 +190,32 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
 
     fig.savefig(output_prefix.with_suffix(".png"))
     fig.savefig(output_prefix.with_suffix(".pdf"))
+    summary = {
+        "grid": {
+            "n_theta": GRID.n_theta,
+            "n_zeta": GRID.n_zeta,
+            "n_xi": GRID.n_xi,
+        },
+        "nu_hat": NU_HAT,
+        "er_min": ER_MIN,
+        "er_max": ER_MAX,
+        "scan_sizes": counts,
+        "direct_times_seconds": direct_times,
+        "prepared_times_seconds": custom_times,
+        "speedup_prepared_vs_direct": speedup_array.tolist(),
+        "max_relative_mismatch": max_relative_mismatch,
+        "figure_png": str(output_prefix.with_suffix(".png")),
+        "figure_pdf": str(output_prefix.with_suffix(".pdf")),
+    }
+    output_prefix.with_suffix(".json").write_text(
+        json.dumps(summary, indent=2),
+        encoding="utf-8",
+    )
     plt.close(fig)
 
     print(f"Wrote {output_prefix.with_suffix('.png')}")
     print(f"Wrote {output_prefix.with_suffix('.pdf')}")
+    print(f"Wrote {output_prefix.with_suffix('.json')}")
 
 
 if __name__ == "__main__":
