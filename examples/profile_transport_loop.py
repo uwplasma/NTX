@@ -99,6 +99,7 @@ def _transport_closure(rho):
         current_source=0.0,
         normalization_floor=0.05,
         max_normalized_update=0.25,
+        radial_smoothing_strength=0.35,
         closure_name="radial proxy transport",
     )
 
@@ -106,7 +107,7 @@ def _transport_closure(rho):
 def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     enable_x64(False)
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
-    rho = jnp.linspace(0.2, 0.82, 6, dtype=GRID.jax_dtype)
+    rho = jnp.linspace(0.2, 0.82, 7, dtype=GRID.jax_dtype)
     nu_v = jnp.asarray([3.0e-4, 1.0e-3, 3.0e-3], dtype=GRID.jax_dtype)
     er_axis = jnp.asarray(
         [

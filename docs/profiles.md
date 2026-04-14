@@ -419,6 +419,7 @@ The closure-spec fields are therefore:
 - `current_source`
 - `normalization_floor`
 - `max_normalized_update`
+- `radial_smoothing_strength`
 
 The simple default update is still explicit, but it is now much more robust for
 publication-facing profile studies.
@@ -432,6 +433,7 @@ The corresponding helpers are:
 - `PrimitiveSpeciesProfile`
 - `build_species_profile_from_primitives(...)`
 - `build_species_profiles_from_primitives(...)`
+- `primitive_profile_transport_loss(...)`
 - `advance_primitive_profile_transport(...)`
 - `solve_primitive_profile_transport_loop(...)`
 
@@ -499,24 +501,57 @@ is implemented by:
 - `build_species_profiles_from_primitives(...)`
 
 The primitive closure uses the same normalized transport mismatches as the
-explicit `A1/A3` loop but updates the primitive fields multiplicatively:
+explicit `A1/A3` loop, augments them with explicit density and temperature
+source-target channels, and updates the primitive fields multiplicatively:
 
 ```{math}
 n_a^{(n+1)}(r)
 =
 n_a^{(n)}(r)
-\exp\!\left[-\alpha_a^{(\Gamma)}(r)\widetilde{\Delta\Gamma}_a^{(n)}(r)\right],
+\exp\!\left[
+-\alpha_a^{(\Gamma)}(r)\widetilde{\Delta\Gamma}_a^{(n)}(r)
+-\alpha_a^{(n)}(r)\widetilde{\Delta n}_a^{(n)}(r)
+\right],
 ```
 
 ```{math}
 T_a^{(n+1)}(r)
 =
 T_a^{(n)}(r)
-\exp\!\left[-\alpha_a^{(J)}(r)\widetilde{\Delta J}_a^{(n)}(r)\right].
+\exp\!\left[
+-\alpha_a^{(J)}(r)\widetilde{\Delta J}_a^{(n)}(r)
+-\alpha_a^{(T)}(r)\widetilde{\Delta T}_a^{(n)}(r)
+\right].
 ```
 
-This keeps density and temperature positive while still feeding their gradients
-back into the ambipolar closure through `A1(r)` and `A3(r)`.
+Here
+
+```{math}
+\Delta n_a^{(n)}(r) =
+n_a^{(n)}(r) - n_{a,\mathrm{target}}(r) - n_{a,\mathrm{source}}(r),
+\qquad
+\Delta T_a^{(n)}(r) =
+T_a^{(n)}(r) - T_{a,\mathrm{target}}(r) - T_{a,\mathrm{source}}(r),
+```
+
+with the same normalized-and-clipped structure used for the monoenergetic
+transport channels. NTX then applies radial smoothing to the updated primitive
+profiles before reconstructing `A1(r)` and `A3(r)` for the next ambipolar solve.
+This keeps density and temperature positive, suppresses coarse-grid spikes, and
+still feeds their gradients back into the ambipolar closure through `A1(r)` and
+`A3(r)`.
+
+The additional primitive-closure fields on `ProfileTransportClosureSpec` are:
+
+- `density_relaxation`
+- `temperature_relaxation`
+- `density_target`
+- `temperature_target`
+- `density_source`
+- `temperature_source`
+- `primitive_normalization_floor`
+- `max_primitive_normalized_update`
+- `radial_smoothing_strength`
 
 The repository example
 

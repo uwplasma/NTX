@@ -228,8 +228,8 @@ These generate publication-ready figures for:
 - controlled families of ambipolar and bootstrap-current-proxy profiles
 - differentiable optimization of scalar profile controls
 - low-dimensional radial-basis optimization of profile controls
-- explicit accepted-step transport iteration of the radial profile closure
-- primitive density/temperature transport workflows driven by NTX scan data
+- accepted-step transport iteration of the radial profile closure with radial smoothing
+- primitive density/temperature transport workflows with explicit source-target closure
 - differentiable bootstrap-current optimization
 
 For lower-level imported workflows, the prepared differentiable interface now
@@ -251,6 +251,7 @@ includes:
 - `solve_profile_transport_loop(...)`
 - `PrimitiveSpeciesProfile`
 - `build_species_profiles_from_primitives(...)`
+- `primitive_profile_transport_loss(...)`
 - `advance_primitive_profile_transport(...)`
 - `solve_primitive_profile_transport_loop(...)`
 - `examples/ambipolar_profile.py`
@@ -273,7 +274,7 @@ This plots:
 - magnetic geometry
 - normalized density and temperature profile inputs
 - `D11` together with `nu_hat * D33`
-- a compact bootstrap-current proxy
+- an interior bootstrap-current proxy profile built from analytic density and temperature gradients
 
 ![NTX bootstrap-current profile](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
 

@@ -83,11 +83,13 @@ This example is the shortest NTX-only workflow:
 - or, if a Boozer `boozmn` file already exists, use `booz_xform_jax` output directly
 - solve a fixed-collisionality NTX radial family
 - plot magnetic geometry, radial profile inputs, `D11`, `nu_hat * D33`, and a compact
-  bootstrap-current proxy
+  interior bootstrap-current proxy
 
 All user inputs live at the top of the file. The script prefers direct Boozer
 input in `auto` mode when a `boozmn` file is available and otherwise falls back
-to the VMEC-harmonic lane.
+to the VMEC-harmonic lane. The density and temperature derivatives are taken
+analytically in the example so the figure reflects the transport response rather
+than finite-difference edge noise.
 
 It writes:
 
@@ -268,6 +270,7 @@ and demonstrates:
   solve
 - updating `A1(r)` and `A3(r)` directly from transport mismatches
 - tracking accepted-step transport-loss descent together with the ambipolar closure
+- smoothing the updated force profiles radially before the next ambipolar solve
 
 ## 19. Primitive Profile Transport
 
@@ -286,6 +289,8 @@ and demonstrates:
   profiles
 - comparing initial and final residual/current profiles for the primitive closure
 - updating density and temperature instead of force proxies directly
+- enforcing explicit density/temperature source-target closure terms in addition
+  to the transport mismatch
 - exposing the derived monoenergetic force profiles alongside the final primitive state
 
 ## 20. Performance Scaling

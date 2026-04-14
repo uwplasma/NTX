@@ -48,7 +48,7 @@ DEFAULT_BOOZMN = (
 SURFACE_SOURCE = "auto"  # "auto", "vmec", or "boozmn"
 WOUT_PATH = DEFAULT_WOUT
 BOOZMN_PATH = DEFAULT_BOOZMN
-RHO_GRID = np.linspace(0.15, 0.85, 8)
+RHO_GRID = np.linspace(0.15, 0.72, 10)
 NU_HAT = 1.0e-5
 ER_HAT = 0.0
 GRID = GridSpec(n_theta=25, n_zeta=25, n_xi=40)
@@ -77,8 +77,10 @@ def select_surface_loader():
 def radial_profiles(rho: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     density = 3.2e19 * (1.0 - rho**8) + 0.45e19
     temperature = 3.0e3 * (1.0 - rho**2) + 0.8e3
-    dlnn_drho = np.gradient(np.log(density), rho)
-    dlnT_drho = np.gradient(np.log(temperature), rho)
+    density_prime = -3.2e19 * 8.0 * rho**7
+    temperature_prime = -6.0e3 * rho
+    dlnn_drho = density_prime / density
+    dlnT_drho = temperature_prime / temperature
     return density, temperature, dlnn_drho, dlnT_drho
 
 

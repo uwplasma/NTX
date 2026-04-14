@@ -27,6 +27,10 @@
     "docs/_static/profile_transport_loop.png",
     "docs/_static/profile_transport_loop.pdf"
   ],
+  "primitive_transport": [
+    "docs/_static/primitive_profile_transport.png",
+    "docs/_static/primitive_profile_transport.pdf"
+  ],
   "derivative_benchmark": [
     "docs/_static/derivative_path_benchmark.png",
     "docs/_static/derivative_path_benchmark.pdf"

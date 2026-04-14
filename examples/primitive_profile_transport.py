@@ -119,6 +119,37 @@ def _closure(rho):
         current_source=0.0,
         normalization_floor=0.05,
         max_normalized_update=0.20,
+        density_relaxation=jnp.asarray(
+            [
+                0.018 + 0.002 * rho,
+                0.014 + 0.002 * rho,
+            ],
+            dtype=GRID.jax_dtype,
+        ),
+        temperature_relaxation=jnp.asarray(
+            [
+                0.014 + 0.002 * (1.0 - rho),
+                0.010 + 0.001 * rho,
+            ],
+            dtype=GRID.jax_dtype,
+        ),
+        density_target=jnp.asarray(
+            [
+                0.96 - 0.06 * rho + 0.02 * (1.0 - rho) ** 2,
+                0.92 - 0.03 * rho + 0.015 * rho**2,
+            ],
+            dtype=GRID.jax_dtype,
+        ),
+        temperature_target=jnp.asarray(
+            [
+                0.94 - 0.18 * rho + 0.04 * rho**2,
+                0.86 - 0.09 * rho + 0.04 * rho**2,
+            ],
+            dtype=GRID.jax_dtype,
+        ),
+        primitive_normalization_floor=0.03,
+        max_primitive_normalized_update=0.12,
+        radial_smoothing_strength=0.45,
         closure_name="primitive transport",
     )
 
@@ -127,7 +158,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     enable_x64(False)
     _configure_style()
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
-    rho = jnp.linspace(0.15, 0.82, 5, dtype=GRID.jax_dtype)
+    rho = jnp.linspace(0.15, 0.82, 7, dtype=GRID.jax_dtype)
     nu_v = jnp.asarray([3.0e-4, 2.0e-3], dtype=GRID.jax_dtype)
     er_axis = jnp.asarray(
         [-2.0e-3, -7.5e-4, -2.5e-4, 0.0, 2.5e-4, 7.5e-4, 2.0e-3],
@@ -150,7 +181,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         _primitives(rho),
         _closure(rho),
         iterations=ITERATIONS,
-        solve_steps=4,
+        solve_steps=5,
         damping=0.75,
         smoothing_strength=0.45,
     )

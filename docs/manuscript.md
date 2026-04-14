@@ -131,7 +131,8 @@ docs/_static/bootstrap_current_from_vmec_or_boozmn.json
 It is the recommended figure when the paper needs a compact NTX-only radial
 profile panel without bringing in the external database workflow. The panel
 stays close to directly interpretable quantities: geometry, profile inputs,
-parallel-flow drive, and the resulting bootstrap-current proxy.
+parallel-flow drive, and the resulting interior bootstrap-current proxy built
+from analytic profile gradients.
 
 ![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
 
@@ -247,10 +248,10 @@ docs/_static/primitive_profile_transport.pdf
 
 Use this figure when the paper needs to move beyond direct `A1/A3` proxy
 updates and show a primitive profile workflow in which density and temperature
-remain positive and feed back into the ambipolar closure through reconstructed
-thermodynamic forces. The panel is now framed around initial-versus-final
-closure profiles and the derived monoenergetic forces rather than a noisy
-iteration trace.
+remain positive, respond to explicit source-target closure terms, and feed back
+into the ambipolar closure through reconstructed thermodynamic forces. The
+panel is now framed around initial-versus-final closure profiles and the
+derived monoenergetic forces rather than a noisy iteration trace.
 
 ![Primitive profile transport](_static/primitive_profile_transport.png)
 

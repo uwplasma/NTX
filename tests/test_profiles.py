@@ -34,6 +34,7 @@ from ntx import (
     example_surface,
     optimize_profile_basis_control,
     optimize_profile_control,
+    primitive_profile_transport_loss,
     profile_transport_loss,
     solve_ambipolar_er_profile,
     solve_ambipolar_profile_family,
@@ -318,6 +319,7 @@ def test_profile_transport_loop_returns_finite_histories():
         particle_source=jnp.asarray([[0.0, 0.0, 0.0], [0.005, 0.005, 0.005]]),
         normalization_floor=0.1,
         max_normalized_update=0.2,
+        radial_smoothing_strength=0.35,
     )
     profile = solve_ambipolar_er_profile(scan, species_profiles, steps=6)
     loss = profile_transport_loss(profile, closure)
@@ -339,6 +341,8 @@ def test_profile_transport_loop_returns_finite_histories():
     assert result.species_a3_history.shape == (4, 2, scan.rho.size)
     assert jnp.all(jnp.isfinite(result.transport_loss_history))
     assert result.transport_loss_history[-1] <= result.transport_loss_history[0] + 1.0e-12
+    assert jnp.max(jnp.abs(jnp.diff(result.species_a1_history[-1], axis=1))) < 2.0
+    assert jnp.max(jnp.abs(jnp.diff(result.species_a3_history[-1], axis=1))) < 2.0
 
 
 def test_profile_transport_closure_shape_mismatch_raises():
@@ -417,6 +421,13 @@ def test_primitive_profile_transport_loop_returns_finite_histories():
         current_source=0.0,
         normalization_floor=0.05,
         max_normalized_update=0.15,
+        density_relaxation=0.015,
+        temperature_relaxation=0.01,
+        density_target=jnp.asarray([[0.98, 0.95, 0.92], [0.91, 0.89, 0.87]]),
+        temperature_target=jnp.asarray([[1.05, 0.99, 0.95], [0.84, 0.82, 0.80]]),
+        primitive_normalization_floor=0.03,
+        max_primitive_normalized_update=0.10,
+        radial_smoothing_strength=0.4,
     )
     initial_profile = solve_ambipolar_er_profile(
         scan,
@@ -425,6 +436,7 @@ def test_primitive_profile_transport_loop_returns_finite_histories():
         smoothing_strength=0.35,
     )
     advanced = advance_primitive_profile_transport(primitives, initial_profile, closure)
+    primitive_loss = primitive_profile_transport_loss(initial_profile, primitives, closure)
     result = solve_primitive_profile_transport_loop(
         scan,
         primitives,
@@ -434,9 +446,13 @@ def test_primitive_profile_transport_loop_returns_finite_histories():
         damping=0.7,
         smoothing_strength=0.35,
     )
+    assert jnp.isfinite(primitive_loss)
     assert advanced[0].density.shape == rho.shape
     assert isinstance(result, PrimitiveProfileTransportIterationResult)
     assert result.er_profile_history.shape == (4, rho.size)
     assert result.species_density_history.shape == (4, 2, rho.size)
     assert result.species_temperature_history.shape == (4, 2, rho.size)
     assert jnp.all(jnp.isfinite(result.transport_loss_history))
+    assert result.transport_loss_history[-1] <= result.transport_loss_history[0] + 1.0e-12
+    assert jnp.max(jnp.abs(jnp.diff(result.species_density_history[-1], axis=1))) < 1.0
+    assert jnp.max(jnp.abs(jnp.diff(result.species_temperature_history[-1], axis=1))) < 1.0
