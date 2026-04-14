@@ -133,6 +133,10 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
   - `ProfileControlSpec`
   - `apply_profile_control(...)`
   - `optimize_profile_control(...)`
+- Extended that to a low-dimensional radial-basis optimization layer:
+  - `ProfileBasisControlSpec`
+  - `apply_profile_basis_control(...)`
+  - `optimize_profile_basis_control(...)`
 - Added the repository example:
   - `examples/ambipolar_profile.py`
   - `docs/_static/ambipolar_profile.*`
@@ -142,6 +146,9 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 - Added the optimization-facing profile figure workflow:
   - `examples/profile_control_optimization.py`
   - `docs/_static/profile_control_optimization.*`
+- Added the low-dimensional basis-optimization workflow:
+  - `examples/profile_basis_optimization.py`
+  - `docs/_static/profile_basis_optimization.*`
 - Added two autodiff helper workflows:
   - a one-parameter inverse problem on the analytic surface
   - a NEOPAX-style electric-field profile inversion on NTX-generated scan data

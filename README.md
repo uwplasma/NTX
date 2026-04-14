@@ -212,6 +212,7 @@ python examples/derivative_path_benchmark.py
 python examples/ambipolar_profile.py
 python examples/ambipolar_profile_family.py
 python examples/profile_control_optimization.py
+python examples/profile_basis_optimization.py
 python examples/bootstrap_current_optimization.py
 ```
 
@@ -224,6 +225,7 @@ These generate publication-ready figures for:
 - ambipolar electric-field and bootstrap-current-proxy profile solves
 - controlled families of ambipolar and bootstrap-current-proxy profiles
 - differentiable optimization of scalar profile controls
+- low-dimensional radial-basis optimization of profile controls
 - differentiable bootstrap-current optimization
 
 For lower-level imported workflows, the prepared differentiable interface now
@@ -238,9 +240,12 @@ includes:
 - `bootstrap_current_objective(...)`
 - `apply_profile_control(...)`
 - `optimize_profile_control(...)`
+- `apply_profile_basis_control(...)`
+- `optimize_profile_basis_control(...)`
 - `examples/ambipolar_profile.py`
 - `examples/ambipolar_profile_family.py`
 - `examples/profile_control_optimization.py`
+- `examples/profile_basis_optimization.py`
 
 ## Bootstrap-Current Examples
 
