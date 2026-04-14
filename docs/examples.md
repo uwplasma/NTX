@@ -230,7 +230,25 @@ and demonstrates:
 - optimizing that control directly against a bootstrap-current objective
 - reusing the ambipolar solve inside a JAX optimization loop
 
-## 17. Performance Scaling
+## 17. Profile-Basis Optimization
+
+```bash
+python examples/profile_basis_optimization.py
+```
+
+This writes:
+
+- `docs/_static/profile_basis_optimization.png`
+- `docs/_static/profile_basis_optimization.pdf`
+
+and demonstrates:
+
+- using a small radial basis to perturb the profile closure
+- optimizing several control amplitudes simultaneously
+- retaining a compact, publication-grade figure for a higher-dimensional
+  optimization workflow
+
+## 18. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -239,7 +257,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 18. Validation Summary
+## 19. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -249,7 +267,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 19. Full Publication Bundle
+## 20. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py

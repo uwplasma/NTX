@@ -32,6 +32,8 @@ examples.
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
 12. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
+13. `profile_basis_optimization.{png,pdf}`
+   - low-dimensional radial-basis optimization of the same profile closure
 
 Together these figures cover:
 
@@ -44,6 +46,7 @@ Together these figures cover:
 - a profile-grade ambipolar and bootstrap-current-proxy workflow
 - a control-parameter family view of the same profile-grade closure
 - a direct optimization view of the profile-grade closure
+- a low-dimensional multi-parameter version of that optimization
 - a W7-X imported-workflow convergence figure
 - practical performance guidance
 
@@ -180,6 +183,25 @@ profile closure itself, rather than the separate geometry-control science
 figure.
 
 ![Profile control optimization](_static/profile_control_optimization.png)
+
+## Profile-Basis Optimization Figure
+
+```bash
+python examples/profile_basis_optimization.py
+```
+
+This writes:
+
+```text
+docs/_static/profile_basis_optimization.png
+docs/_static/profile_basis_optimization.pdf
+```
+
+Use this figure when the paper needs a profile-control optimization panel beyond
+one scalar amplitude while still keeping the optimization space compact and
+interpretable.
+
+![Profile basis optimization](_static/profile_basis_optimization.png)
 
 ## W7-X Bootstrap-Current Convergence Figure
 

@@ -83,6 +83,9 @@ The per-radius electric-field solve currently applies damped Newton updates to
 - `bootstrap_current_objective(...)`
 - `apply_profile_control(...)`
 - `optimize_profile_control(...)`
+- `ProfileBasisControlSpec`
+- `apply_profile_basis_control(...)`
+- `optimize_profile_basis_control(...)`
 
 ## Typical Workflow
 
@@ -240,6 +243,61 @@ The implementation lives entirely in
 the imported JAX lane instead of leaving the NTX runtime.
 
 ![Profile control optimization](_static/profile_control_optimization.png)
+
+## Low-Dimensional Radial Basis Controls
+
+For richer profile optimization studies, NTX also exposes a low-dimensional
+radial basis control:
+
+```{math}
+\delta A_{1,a}(r) = \sum_k c_k R^{(1)}_{a,k}\phi_k(r),
+\qquad
+\delta A_{3,a}(r) = \sum_k c_k R^{(3)}_{a,k}\phi_k(r),
+```
+
+where:
+
+- `c_k` are the optimized basis amplitudes
+- `\phi_k(r)` are user-supplied radial basis functions
+- `R^{(1)}_{a,k}` and `R^{(3)}_{a,k}` map each basis function into each species
+
+The profile objective then becomes
+
+```{math}
+\mathcal J(\mathbf c)
+=
+\int w(r) J_{\mathrm{bs,proxy}}(r;\mathbf c)^2\,dr
++ \lambda \left\langle R(r;\mathbf c)^2 \right\rangle
++ \mu \|\mathbf c\|_2^2.
+```
+
+The corresponding helpers are:
+
+- `ProfileBasisControlSpec`
+- `apply_profile_basis_control(...)`
+- `optimize_profile_basis_control(...)`
+
+The repository example
+
+```bash
+python examples/profile_basis_optimization.py
+```
+
+writes:
+
+```text
+docs/_static/profile_basis_optimization.png
+docs/_static/profile_basis_optimization.pdf
+```
+
+It shows:
+
+- the basis-coefficient history
+- the basis functions and the final optimized modifier
+- the optimized ambipolar `E_r(r)` profile
+- the optimized bootstrap-current proxy profile
+
+![Profile basis optimization](_static/profile_basis_optimization.png)
 
 ## Source-Code Map
 

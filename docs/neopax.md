@@ -158,5 +158,7 @@ scan payload:
 - `bootstrap_current_objective(...)`
 - `apply_profile_control(...)`
 - `optimize_profile_control(...)`
+- `apply_profile_basis_control(...)`
+- `optimize_profile_basis_control(...)`
 
 Those helpers are documented on the [Profiles](profiles.md) page.

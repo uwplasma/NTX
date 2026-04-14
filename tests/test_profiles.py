@@ -11,9 +11,12 @@ from ntx import (
     AmbipolarProfileResult,
     GridSpec,
     MonoenergeticSpeciesProfile,
+    ProfileBasisControlSpec,
+    ProfileBasisOptimizationResult,
     ProfileControlOptimizationResult,
     ProfileControlSpec,
     ambipolar_residual_profile,
+    apply_profile_basis_control,
     apply_profile_control,
     bootstrap_current_objective,
     build_ntx_neopax_scan_from_surfaces,
@@ -21,6 +24,7 @@ from ntx import (
     evaluate_species_current_response,
     evaluate_species_particle_flux,
     example_surface,
+    optimize_profile_basis_control,
     optimize_profile_control,
     solve_ambipolar_er_profile,
     solve_ambipolar_profile_family,
@@ -229,5 +233,60 @@ def test_profile_control_spec_shape_mismatch_raises():
             ProfileControlSpec(
                 a1_response=jnp.asarray([1.0]),
                 a3_response=jnp.asarray([1.0]),
+            ),
+        )
+
+
+def test_profile_basis_control_application_and_optimization_return_finite_results():
+    scan = _example_scan()
+    species_profiles = _species_profiles()
+    basis = jnp.asarray(
+        [
+            [1.0, 0.5, 0.0],
+            [0.0, 0.5, 1.0],
+        ]
+    )
+    control_spec = ProfileBasisControlSpec(
+        basis=basis,
+        a1_response=jnp.asarray([[0.0, 0.0], [-0.4, -0.2]]),
+        a3_response=jnp.asarray([[0.8, 0.3], [0.0, 0.0]]),
+        control_name="basis",
+    )
+    controlled = apply_profile_basis_control(
+        species_profiles,
+        jnp.asarray([0.1, -0.05]),
+        control_spec,
+    )
+    assert controlled[0].A3.shape == species_profiles[0].A3.shape
+    assert controlled[1].A1.shape == species_profiles[1].A1.shape
+    result = optimize_profile_basis_control(
+        scan,
+        species_profiles,
+        control_spec,
+        control_initial=jnp.asarray([0.15, -0.05]),
+        optimization_steps=5,
+        solve_steps=6,
+        damping=0.7,
+        residual_penalty=0.5,
+        control_penalty=1.0e-2,
+    )
+    assert isinstance(result, ProfileBasisOptimizationResult)
+    assert result.control_history.shape == (5, 2)
+    assert result.best_control.shape == (2,)
+    assert result.best_profile.er_profile.shape == scan.rho.shape
+    assert jnp.all(jnp.isfinite(result.objective_history))
+
+
+def test_profile_basis_control_shape_mismatch_raises():
+    species_profiles = _species_profiles()
+    basis = jnp.asarray([[1.0, 0.0, 0.0]])
+    with pytest.raises(ValueError, match="control must match the number of basis functions"):
+        apply_profile_basis_control(
+            species_profiles,
+            jnp.asarray([0.1, 0.2]),
+            ProfileBasisControlSpec(
+                basis=basis,
+                a1_response=jnp.asarray([[0.0], [0.0]]),
+                a3_response=jnp.asarray([[1.0], [0.0]]),
             ),
         )

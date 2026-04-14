@@ -133,6 +133,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `ambipolar_profile.py`
 - `ambipolar_profile_family.py`
 - `profile_control_optimization.py`
+- `profile_basis_optimization.py`
 - `plot_output_npz.py`
 
 The figure bundle generator is:

@@ -126,6 +126,49 @@ tree_util.register_dataclass(
 )
 
 
+@dataclass(frozen=True)
+class ProfileBasisControlSpec:
+    """Low-dimensional radial basis control applied to `A1` and `A3`."""
+
+    basis: Array
+    a1_response: Array
+    a3_response: Array
+    control_name: str = "basis control"
+
+
+tree_util.register_dataclass(
+    ProfileBasisControlSpec,
+    data_fields=("basis", "a1_response", "a3_response"),
+    meta_fields=("control_name",),
+)
+
+
+@dataclass(frozen=True)
+class ProfileBasisOptimizationResult:
+    """Optimization history for a vector profile-basis control."""
+
+    control_history: Array
+    objective_history: Array
+    bootstrap_objective_history: Array
+    residual_norm_history: Array
+    best_control: Array
+    best_profile: AmbipolarProfileResult
+
+
+tree_util.register_dataclass(
+    ProfileBasisOptimizationResult,
+    data_fields=(
+        "control_history",
+        "objective_history",
+        "bootstrap_objective_history",
+        "residual_norm_history",
+        "best_control",
+        "best_profile",
+    ),
+    meta_fields=(),
+)
+
+
 def evaluate_scan_channel(
     scan: NeopaxScan,
     channel: str,
@@ -448,6 +491,127 @@ def optimize_profile_control(
     )
 
 
+def apply_profile_basis_control(
+    species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
+    control: Array,
+    control_spec: ProfileBasisControlSpec,
+) -> tuple[MonoenergeticSpeciesProfile, ...]:
+    """Apply a low-dimensional radial basis control to `A1` and `A3`."""
+
+    basis = jnp.asarray(control_spec.basis)
+    a1_response = jnp.asarray(control_spec.a1_response)
+    a3_response = jnp.asarray(control_spec.a3_response)
+    control_value = jnp.asarray(control)
+    if len(species_profiles) != int(a1_response.shape[0]):
+        raise ValueError("control_spec must match the number of species")
+    if len(species_profiles) != int(a3_response.shape[0]):
+        raise ValueError("control_spec must match the number of species")
+    if control_value.shape != (basis.shape[0],):
+        raise ValueError("control must match the number of basis functions")
+    if a1_response.shape[1] != basis.shape[0] or a3_response.shape[1] != basis.shape[0]:
+        raise ValueError("response matrices must match the number of basis functions")
+    return tuple(
+        replace(
+            species,
+            A1=jnp.asarray(species.A1)
+            * (1.0 + _basis_profile_modifier(control_value, a1_response[index], basis)),
+            A3=jnp.asarray(species.A3)
+            * (1.0 + _basis_profile_modifier(control_value, a3_response[index], basis)),
+        )
+        for index, species in enumerate(species_profiles)
+    )
+
+
+def optimize_profile_basis_control(
+    scan: NeopaxScan,
+    species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
+    control_spec: ProfileBasisControlSpec,
+    *,
+    control_initial: Array,
+    learning_rate: float = 0.12,
+    optimization_steps: int = 12,
+    solve_steps: int = 16,
+    damping: float = 0.8,
+    weight: Array | None = None,
+    residual_penalty: float = 1.0,
+    control_penalty: float = 1.0e-2,
+) -> ProfileBasisOptimizationResult:
+    """Optimize a vector radial-basis control against the profile objective."""
+
+    rho = jnp.asarray(scan.rho)
+    dtype = rho.dtype
+    lr = jnp.asarray(learning_rate, dtype=dtype)
+    residual_scale = jnp.asarray(residual_penalty, dtype=dtype)
+    control_scale = jnp.asarray(control_penalty, dtype=dtype)
+    control0 = jnp.asarray(control_initial, dtype=dtype)
+    weight_arr = None if weight is None else _broadcast_profile_field(weight, rho)
+
+    def objective_and_profile(control_value, er_seed):
+        controlled = apply_profile_basis_control(species_profiles, control_value, control_spec)
+        profile = solve_ambipolar_er_profile(
+            scan,
+            controlled,
+            er_initial=er_seed,
+            steps=solve_steps,
+            damping=damping,
+        )
+        bootstrap_obj = bootstrap_current_objective(
+            rho,
+            profile.bootstrap_current_proxy,
+            weight=weight_arr,
+        )
+        residual_obj = residual_scale * jnp.mean(profile.ambipolar_residual**2)
+        regularization = control_scale * jnp.sum(control_value**2)
+        objective = bootstrap_obj + residual_obj + regularization
+        residual_norm = jnp.linalg.norm(profile.ambipolar_residual)
+        return objective, (profile, bootstrap_obj, residual_norm)
+
+    def optimization_step(carry, _):
+        control_value, er_seed = carry
+
+        def vector_objective(control_trial):
+            return objective_and_profile(control_trial, er_seed)
+
+        (objective, (profile, bootstrap_obj, residual_norm)), gradient = jax.value_and_grad(
+            vector_objective,
+            has_aux=True,
+        )(control_value)
+        next_control = control_value - lr * gradient
+        return (next_control, profile.er_profile), (
+            control_value,
+            objective,
+            bootstrap_obj,
+            residual_norm,
+            profile,
+        )
+
+    er_seed0 = 0.5 * (
+        jnp.min(jnp.asarray(scan.Er), axis=1) + jnp.max(jnp.asarray(scan.Er), axis=1)
+    )
+    (_, _), history = jax.lax.scan(
+        optimization_step,
+        (control0, er_seed0),
+        xs=None,
+        length=optimization_steps,
+    )
+    (
+        control_history,
+        objective_history,
+        bootstrap_objective_history,
+        residual_norm_history,
+        profile_history,
+    ) = history
+    best_index = jnp.argmin(objective_history)
+    return ProfileBasisOptimizationResult(
+        control_history=control_history,
+        objective_history=objective_history,
+        bootstrap_objective_history=bootstrap_objective_history,
+        residual_norm_history=residual_norm_history,
+        best_control=control_history[best_index],
+        best_profile=jax.tree.map(lambda x: x[best_index], profile_history),
+    )
+
+
 def bootstrap_current_objective(
     rho: Array,
     bootstrap_current_proxy: Array,
@@ -474,6 +638,10 @@ def _broadcast_profile_field(values, rho: Array) -> Array:
     if array.shape == rho.shape:
         return array
     raise ValueError("profile field must be scalar or match rho shape")
+
+
+def _basis_profile_modifier(control: Array, response: Array, basis: Array) -> Array:
+    return jnp.tensordot(control * response, basis, axes=1)
 
 
 def _channel_data(scan: NeopaxScan, channel: str) -> Array:

@@ -19,6 +19,10 @@
     "docs/_static/profile_control_optimization.png",
     "docs/_static/profile_control_optimization.pdf"
   ],
+  "profile_basis": [
+    "docs/_static/profile_basis_optimization.png",
+    "docs/_static/profile_basis_optimization.pdf"
+  ],
   "derivative_benchmark": [
     "docs/_static/derivative_path_benchmark.png",
     "docs/_static/derivative_path_benchmark.pdf"
