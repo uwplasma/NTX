@@ -89,8 +89,12 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
 - [x] Add a derivative-audit workflow that compares direct JAX gradients against
   centered finite differences before introducing an implicit/adjoint derivative
   path.
-- [ ] Implement the first implicit-derivative prototype for the prepared dense
-  solve and benchmark it against the current direct-autodiff path.
+- [x] Introduce a first custom-VJP contract point for the prepared coefficient
+  solve so the backward rule can later be swapped to a true implicit or adjoint
+  derivative without changing user-facing optimization scripts.
+- [ ] Replace the current exact custom-VJP backward rule with a true
+  implicit-derivative prototype for the prepared dense solve and benchmark it
+  against the current reverse-mode path.
 
 ## Active Work Log
 
@@ -236,3 +240,11 @@ monoenergetic transport formulation described in Javier Escoto's PhD thesis:
     respect to a Boozer harmonic amplitude and the radial electric field
   - this establishes the validation baseline for a future custom-VJP or
     implicit derivative path in the dense prepared solve
+- Added the first explicit derivative contract point in `src/ntx/solver.py`:
+  - `solve_prepared_coefficient_vector(...)`
+  - `solve_prepared_coefficient_vector_vjp(...)`
+- Current state of that work:
+  - the new custom-VJP wrapper is exact and validated against the direct solve
+  - it does not yet reduce backward cost
+  - it exists so the future implicit or adjoint derivative can replace the
+    current backward rule without forcing another API change on users

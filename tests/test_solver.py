@@ -13,6 +13,8 @@ from ntx import (
     solve_monoenergetic_internal,
     solve_monoenergetic_scan,
     solve_prepared,
+    solve_prepared_coefficient_vector,
+    solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
 from ntx.geometry import BoozerSurface
@@ -171,3 +173,45 @@ def test_compiled_prepared_solver_is_differentiable_in_er_hat():
         lambda er_hat: compiled(MonoenergeticCase(1e-2, er_hat=er_hat)).D11
     )(1e-3)
     assert jnp.isfinite(grad)
+
+
+def test_prepared_coefficient_vector_matches_transport_result():
+    surface = example_surface()
+    grid = GridSpec(5, 5, 4)
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    prepared = prepare_monoenergetic_system(surface, grid)
+    vector = solve_prepared_coefficient_vector(prepared, case)
+    result = solve_prepared(prepared, case)
+    assert vector.shape == (5,)
+    assert jnp.allclose(
+        vector,
+        jnp.asarray([result.D11, result.D31, result.D13, result.D33, result.D33_spitzer]),
+        rtol=1e-12,
+        atol=1e-12,
+    )
+
+
+def test_custom_vjp_coefficient_vector_matches_direct_forward_and_gradient():
+    surface = example_surface()
+    grid = GridSpec(5, 5, 4)
+    prepared = prepare_monoenergetic_system(surface, grid)
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+
+    direct = solve_prepared_coefficient_vector(prepared, case)
+    wrapped = solve_prepared_coefficient_vector_vjp(prepared, case)
+    assert jnp.allclose(direct, wrapped, rtol=1e-12, atol=1e-12)
+
+    direct_grad = jax.grad(
+        lambda er_hat: solve_prepared_coefficient_vector(
+            prepared,
+            MonoenergeticCase(1e-2, er_hat=er_hat),
+        )[0]
+    )(1e-3)
+    wrapped_grad = jax.grad(
+        lambda er_hat: solve_prepared_coefficient_vector_vjp(
+            prepared,
+            MonoenergeticCase(1e-2, er_hat=er_hat),
+        )[0]
+    )(1e-3)
+    assert jnp.isfinite(wrapped_grad)
+    assert jnp.allclose(direct_grad, wrapped_grad, rtol=1e-10, atol=1e-12)

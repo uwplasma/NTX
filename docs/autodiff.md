@@ -45,6 +45,24 @@ finite differences for two practically important controls:
 - a Boozer harmonic amplitude at fixed electric field,
 - and the radial electric field at fixed collisionality.
 
+The example does not rely on one hidden helper. It walks through the explicit
+prepared-solver workflow:
+
+```python
+from ntx import (
+    GridSpec,
+    MonoenergeticCase,
+    example_surface,
+    prepare_monoenergetic_system,
+    solve_prepared_coefficient_vector,
+    solve_prepared_coefficient_vector_vjp,
+)
+```
+
+That is the intended contract point for future implicit or adjoint derivatives:
+the forward solve remains the same, while the backward rule can be upgraded
+without changing user-facing optimization scripts.
+
 The figure is written to:
 
 ```text

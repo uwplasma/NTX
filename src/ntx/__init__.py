@@ -53,6 +53,8 @@ from .solver import (
     solve_monoenergetic_parallel_scan,
     solve_monoenergetic_scan,
     solve_prepared,
+    solve_prepared_coefficient_vector,
+    solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
 from .transport import onsager_error
@@ -105,6 +107,8 @@ __all__ = [
     "solve_monoenergetic_multiprocess_scan",
     "solve_monoenergetic_parallel_scan",
     "solve_monoenergetic_scan",
+    "solve_prepared_coefficient_vector",
+    "solve_prepared_coefficient_vector_vjp",
     "solve_prepared",
     "solve_prepared_internal",
     "stack_monoenergetic_database_arrays",
