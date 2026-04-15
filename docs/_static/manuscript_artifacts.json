@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "86347863bdd8b8d819d007fe17d6e32d629f7345",
+    "commit": "1aa316b0c2ecc87dbf011ab3e00bc65409268560",
     "branch": "main"
   },
   "environment": {
@@ -49,7 +49,7 @@
       "er_min": 1e-06,
       "er_max": 0.003,
       "max_relative_mismatch": 1.0511436761691851e-05,
-      "best_prepared_speedup": 3.810531610376316
+      "best_prepared_speedup": 3.708865850467042
     },
     "performance": {
       "cpu_heavy": {
@@ -166,6 +166,15 @@
       "parallel_scan_seconds": 2.811376083000141
     }
   },
+  "claims": {
+    "w7x_fine_grid_max_relative_error": 0.018297079828848713,
+    "derivative_max_relative_mismatch": 1.0511436761691851e-05,
+    "best_prepared_derivative_speedup": 3.708865850467042,
+    "bootstrap_current_weighted_gain": 1.10941812424327,
+    "cpu_heavy_best_multiprocess_speedup": 1.7904466542288835,
+    "gpu_heavy_best_multiprocess_speedup": 0.4235861469424724,
+    "gpu_heavy_healthy_device_count": 1
+  },
   "figures": {
     "inverse": [
       "docs/_static/autodiff_inverse_problem.png",
@@ -230,6 +239,27 @@
     "performance_heavy": [
       "docs/_static/performance_scaling_heavy.png",
       "docs/_static/performance_scaling_heavy.pdf"
+    ]
+  },
+  "figure_sets": {
+    "main_text": [
+      "validation",
+      "w7x_audit",
+      "derivative_benchmark",
+      "science",
+      "performance_heavy",
+      "primitive_transport"
+    ],
+    "supplement": [
+      "inverse",
+      "profiles",
+      "ambipolar",
+      "ambipolar_family",
+      "profile_control",
+      "profile_basis",
+      "profile_transport",
+      "bootstrap_proxy",
+      "performance_smoke"
     ]
   },
   "commands": {

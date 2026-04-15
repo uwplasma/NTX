@@ -16,7 +16,7 @@
 | `nu_hat` | `3.000e-04` |
 | `E_r` scan | `1.000e-06` to `3.000e-03` |
 | Max relative mismatch | `1.051e-05` |
-| Best prepared speedup | `3.811x` |
+| Best prepared speedup | `3.709x` |
 
 ## Bootstrap-Current Optimization
 
@@ -51,7 +51,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `86347863bdd8b8d819d007fe17d6e32d629f7345` |
+| Commit | `1aa316b0c2ecc87dbf011ab3e00bc65409268560` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

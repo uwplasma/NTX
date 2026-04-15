@@ -23,8 +23,11 @@ def test_build_manuscript_artifacts_script_writes_outputs():
         (ROOT / "docs" / "_static" / "manuscript_artifacts.json").read_text(encoding="utf-8")
     )
     markdown = (ROOT / "docs" / "_static" / "manuscript_tables.md").read_text(encoding="utf-8")
+    claims = (ROOT / "docs" / "_static" / "manuscript_claims.md").read_text(encoding="utf-8")
 
     assert "validation" in payload["tables"]
     assert "performance" in payload["tables"]
+    assert "main_text" in payload["figure_sets"]
     assert "Bootstrap-Current Optimization" in markdown
     assert "| Commit |" in markdown
+    assert "W7-X imported-workflow bootstrap-current convergence" in claims

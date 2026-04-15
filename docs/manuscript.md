@@ -90,6 +90,7 @@ This writes:
 ```text
 docs/_static/manuscript_artifacts.json
 docs/_static/manuscript_tables.md
+docs/_static/manuscript_claims.md
 ```
 
 These artifacts collect the current NTX commit, software environment, the
