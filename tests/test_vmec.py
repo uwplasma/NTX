@@ -4,7 +4,13 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
+from ntx import (
+    GridSpec,
+    MonoenergeticCase,
+    load_vmec_surface,
+    solve_monoenergetic,
+    surface_from_vmec_jax_vmec_wout_file,
+)
 from ntx.geometry import VmecSurface, geometry_on_grid
 
 from .fixture_data import SAMPLE_WOUT
@@ -64,6 +70,33 @@ def test_vmec_filtered_nyquist_convention_uses_filtered_coefficients():
     )
     assert filtered.total_mode_count >= reduced.total_mode_count
     assert np.all(np.isfinite(np.asarray(filtered.b_cos)))
+
+
+def test_vmec_filtered_nyquist_matches_direct_vmec_harmonics_sign_convention():
+    direct = surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=0.25)
+    filtered = load_vmec_surface(
+        SAMPLE_WOUT,
+        psi_n=0.25,
+        vmec_nyquist_option=1,
+        vmec_mode_convention="filtered_nyquist",
+    )
+    result_direct = solve_monoenergetic(
+        direct,
+        GridSpec(n_theta=9, n_zeta=9, n_xi=8),
+        MonoenergeticCase(nu_hat=1.0e-3, epsi_hat=0.0),
+    ).as_dict()
+    result_filtered = solve_monoenergetic(
+        filtered,
+        GridSpec(n_theta=9, n_zeta=9, n_xi=8),
+        MonoenergeticCase(nu_hat=1.0e-3, epsi_hat=0.0),
+    ).as_dict()
+    for key, tolerance in {
+        "D11": 2.0e-2,
+        "D31": 2.0e-2,
+        "D13": 2.0e-2,
+        "D33": 6.0e-3,
+    }.items():
+        assert result_filtered[key] == pytest.approx(result_direct[key], rel=tolerance, abs=tolerance)
 
 
 def test_vmec_surface_resolves_er_hat_from_transport_scale():
