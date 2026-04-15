@@ -122,8 +122,12 @@ research problems.
   - energy convolution
   - `Lij` assembly
   - `U_parallel` / `j·B` / bootstrap-current outputs
-- [ ] keep the first native implementation physically equivalent to the current
+- [x] keep the first native implementation physically equivalent to the current
   NTX+NEOPAX no-momentum path before adding any new model features
+  - native interpolation and collisionality now match the active NEOPAX
+    no-momentum path
+  - an explicit compatibility mode reproduces the current NEOPAX first-radius
+    overwrite used in `get_Neoclassical_Fluxes(...)`
 - [x] add a native database-to-current API that can evaluate:
   - one radius / one species set
   - one radial profile
@@ -145,7 +149,7 @@ research problems.
   - collisionality helpers
   - `Lij` assembly signs and symmetries
   - current sign under controlled `D13` / `D31` inputs
-- [ ] add regression tests tying NTX-native bootstrap current to the current
+- [x] add regression tests tying NTX-native bootstrap current to the current
   NTX+NEOPAX no-momentum result on small frozen fixtures
 - [ ] add benchmark tests against SFINCS-JAX / SFINCS for the finite-beta QA and
   QH cases already used in the paper-side audit
@@ -273,6 +277,15 @@ templates:
     profile construction, and a frozen current-profile value test
   - CI failures seen in GitHub Actions at this point are real lint failures,
     not exhausted Actions minutes
+- The native bootstrap-current closure now reproduces the current NTX+NEOPAX
+  no-momentum path on a frozen synthetic profile:
+  - monoenergetic interpolation now matches the active NEOPAX `get_Dij(...)`
+    path, including its radial interpolation
+  - the collisionality kernel now matches the active NEOPAX species model
+  - an explicit `neopax_compat_boundary=True` mode reproduces the current
+    first-radius overwrite in `NEOPAX.get_Neoclassical_Fluxes(...)`
+  - regression coverage now pins both the frozen compat profile and the
+    boundary-compatibility behavior
 - The next performance batch should be data-driven:
   - add workflow-level profiling for preparation, scan solve, and native
     bootstrap current
