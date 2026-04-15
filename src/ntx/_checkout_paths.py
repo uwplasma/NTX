@@ -66,6 +66,22 @@ def find_simsopt_root() -> Path | None:
     return _discover("SIMSOPT_ROOT", "tests/simsopt", "simsopt")
 
 
+def find_single_stage_finite_beta_root() -> Path | None:
+    return _discover(
+        "SINGLE_STAGE_FINITE_BETA_ROOT",
+        "single_stage_optimization_finite_beta",
+        "tests/single_stage_optimization_finite_beta",
+    )
+
+
+def find_sfincs_executable() -> Path | None:
+    root = _discover("SFINCS_ROOT", "sfincs", "tests/sfincs")
+    if root is None:
+        return None
+    candidate = root / "fortran" / "version3" / "sfincs"
+    return candidate if candidate.exists() else None
+
+
 def find_vmec_jax_root() -> Path | None:
     return _discover("VMEC_JAX_ROOT", "vmec_jax", "tests/vmec_jax")
 

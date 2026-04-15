@@ -153,6 +153,9 @@ research problems.
   NTX+NEOPAX no-momentum result on small frozen fixtures
 - [ ] add benchmark tests against SFINCS-JAX / SFINCS for the finite-beta QA and
   QH cases already used in the paper-side audit
+- [x] add a first local QA/QH native benchmark workflow and local-only test lane
+  that exercises the real finite-beta equilibria, local `sfincs_jax`, and the
+  Fortran `sfincs` executable
 - [ ] add fixed-radius transport-matrix audits against SFINCS-JAX for the
   helical VMEC path, with explicit checks on `D13`, `D31`, and `D33`
 - [ ] add a W7-X native bootstrap-current regression on the imported workflow
@@ -296,3 +299,15 @@ templates:
   - geometry preparation remains a visible one-time cost
   - the native bootstrap-current closure is currently slower than the steady
     scan path and is therefore a real optimization target
+- A first NTX-side native QA/QH benchmark is now in-tree:
+  - `examples/bootstrap_current_native_validation.py` compares NTX-native,
+    Redl, SFINCS-JAX, and Fortran SFINCS on the local finite-beta QA/QH cases
+  - current benchmark result:
+    - QA: `NTX = 6.49e-01`, `Redl = 2.59e+00`, `SFINCS-JAX = 1.99e-05`
+    - QH: `NTX = 8.31e-01`, `Redl = 1.60e+00`, `SFINCS-JAX = 1.82e-06`
+  - interpretation:
+    - the sign and radial-trend bugs are gone
+    - SFINCS-JAX confirms the reference side is healthy
+    - the remaining gap is still too large for README-level validation and must
+      be driven down through helical `D13`/closure audits before promoting the
+      figure to the public release surface
