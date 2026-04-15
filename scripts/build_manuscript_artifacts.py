@@ -41,6 +41,32 @@ def build_payload() -> dict:
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
     gpu = _load_json(STATIC / "performance_scaling_gpu_heavy.json")
     figures = _load_json(STATIC / "publication_figure_manifest.json")
+    main_text = [
+        "validation",
+        "w7x_audit",
+        "derivative_benchmark",
+        "science",
+        "performance_heavy",
+        "primitive_transport",
+    ]
+    supplement = [
+        "inverse",
+        "profiles",
+        "ambipolar",
+        "ambipolar_family",
+        "profile_control",
+        "profile_basis",
+        "profile_transport",
+        "bootstrap_proxy",
+        "performance_smoke",
+    ]
+    fine_w7x_error = w7x["bootstrap_current_errors"][-1]["max_relative_error"]
+    cpu_best = max(
+        row["multiprocess_speedup_vs_serial"] for row in cpu["results"]
+    )
+    gpu_best = max(
+        row["multiprocess_speedup_vs_serial"] for row in gpu["results"]
+    )
 
     return {
         "git": {
@@ -81,7 +107,20 @@ def build_payload() -> dict:
                 "parallel_scan_seconds": science["parallel_scan_seconds"],
             },
         },
+        "claims": {
+            "w7x_fine_grid_max_relative_error": fine_w7x_error,
+            "derivative_max_relative_mismatch": max(derivative["max_relative_mismatch"]),
+            "best_prepared_derivative_speedup": max(derivative["speedup_prepared_vs_direct"]),
+            "bootstrap_current_weighted_gain": science["weighted_gain"],
+            "cpu_heavy_best_multiprocess_speedup": cpu_best,
+            "gpu_heavy_best_multiprocess_speedup": gpu_best,
+            "gpu_heavy_healthy_device_count": gpu["healthy_parallel_device_count"],
+        },
         "figures": figures,
+        "figure_sets": {
+            "main_text": main_text,
+            "supplement": supplement,
+        },
         "commands": {
             "figure_bundle": "python examples/make_publication_figures.py --figures main_text,supplement",
             "main_text_figures": "python examples/make_publication_figures.py --figures main_text",
@@ -197,16 +236,42 @@ def build_markdown(payload: dict) -> str:
     return "\n".join(lines)
 
 
+def build_claims_markdown(payload: dict) -> str:
+    claims = payload["claims"]
+    return "\n".join(
+        [
+            "# NTX Manuscript Claims",
+            "",
+            "These are the current paper-facing technical claims derived directly from the",
+            "validated NTX artifacts.",
+            "",
+            f"- W7-X imported-workflow bootstrap-current convergence reaches a maximum relative error of `{claims['w7x_fine_grid_max_relative_error']:.3e}` on the fine `25 x 25 x 64` grid.",
+            f"- The prepared implicit-adjoint derivative path matches direct reverse-mode with a maximum relative mismatch of `{claims['derivative_max_relative_mismatch']:.3e}` on the committed derivative benchmark.",
+            f"- The prepared derivative path reaches a best observed speedup of `{claims['best_prepared_derivative_speedup']:.3f}x` on the benchmarked electric-field scan.",
+            f"- The differentiable bootstrap-current optimization example improves the weighted current proxy by `{claims['bootstrap_current_weighted_gain']:.3f}x` on the committed W7-X study.",
+            f"- On the heavy CPU benchmark, multiprocess execution reaches a best observed speedup of `{claims['cpu_heavy_best_multiprocess_speedup']:.3f}x`.",
+            f"- On the heavy GPU benchmark, the current multiprocess path reaches a best observed speedup of `{claims['gpu_heavy_best_multiprocess_speedup']:.3f}x` with `{claims['gpu_heavy_healthy_device_count']}` healthy parallel GPU device(s), so the current paper should frame GPU multiprocess as a characterized execution mode rather than a throughput win.",
+            "",
+            "These claims should be used consistently in the manuscript text, captions, and",
+            "response-to-reviewer notes.",
+            "",
+        ]
+    )
+
+
 def main() -> None:
     payload = build_payload()
     markdown = build_markdown(payload)
+    claims = build_claims_markdown(payload)
     (STATIC / "manuscript_artifacts.json").write_text(
         json.dumps(payload, indent=2),
         encoding="utf-8",
     )
     (STATIC / "manuscript_tables.md").write_text(markdown, encoding="utf-8")
+    (STATIC / "manuscript_claims.md").write_text(claims, encoding="utf-8")
     print(f"Wrote {STATIC / 'manuscript_artifacts.json'}")
     print(f"Wrote {STATIC / 'manuscript_tables.md'}")
+    print(f"Wrote {STATIC / 'manuscript_claims.md'}")
 
 
 if __name__ == "__main__":

@@ -311,6 +311,7 @@ This writes:
 - `docs/_static/publication_figure_manifest.json`
 - `docs/_static/manuscript_artifacts.json`
 - `docs/_static/manuscript_tables.md`
+- `docs/_static/manuscript_claims.md`
 
 W7-X bootstrap-current convergence audit:
 
