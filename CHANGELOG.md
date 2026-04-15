@@ -2,7 +2,7 @@
 
 ## 0.1.0
 
-Initial NTX release candidate for research use.
+Initial NTX release for research use.
 
 Highlights:
 
