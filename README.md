@@ -1,3 +1,10 @@
+[![Release](https://img.shields.io/github/v/release/uwplasma/NTX)](https://github.com/uwplasma/NTX/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/uwplasma/NTX/blob/main/LICENSE)
+[![Tests](https://github.com/uwplasma/NTX/actions/workflows/tests.yml/badge.svg)](https://github.com/uwplasma/NTX/actions/workflows/tests.yml)
+[![Docs](https://readthedocs.org/projects/ntx/badge/?version=latest)](https://ntx.readthedocs.io/en/latest/)
+[![Coverage](https://img.shields.io/badge/coverage-95%25-blue)](https://ntx.readthedocs.io/en/latest/testing.html)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://pypi.org/project/ntx/)
+
 # NTX
 
 NTX is a JAX-native monoenergetic neoclassical transport solver for stellarator
@@ -36,10 +43,6 @@ Inspect the output graphically:
 ```bash
 python examples/plot_output_npz.py examples/example_surface.npz
 ```
-
-This writes a publication-style multi-panel summary figure.
-
-![NTX output summary](docs/_static/output_file_summary.png)
 
 ## What NTX Computes
 
@@ -218,7 +221,7 @@ python examples/primitive_profile_transport.py
 python examples/bootstrap_current_optimization.py
 ```
 
-These generate publication-ready figures for:
+These generate figures for:
 
 - inverse problems
 - sensitivity analysis
@@ -232,86 +235,7 @@ These generate publication-ready figures for:
 - primitive density/temperature transport workflows with explicit source-target closure
 - differentiable bootstrap-current optimization
 
-Two of the main manuscript-facing examples also write machine-readable summary
-artifacts:
-
-- `docs/_static/derivative_path_benchmark.json`
-- `docs/_static/bootstrap_current_optimization.json`
-
-For lower-level imported workflows, the prepared differentiable interface now
-includes:
-
-- `prepare_monoenergetic_system(...)`
-- `solve_prepared_coefficient_vector(...)`
-- `solve_prepared_coefficient_vector_vjp(...)`
-- `examples/derivative_path_benchmark.py`
-- `solve_ambipolar_er_profile(...)`
-- `solve_ambipolar_profile_family(...)`
-- `bootstrap_current_objective(...)`
-- `apply_profile_control(...)`
-- `optimize_profile_control(...)`
-- `apply_profile_basis_control(...)`
-- `optimize_profile_basis_control(...)`
-- `advance_profile_transport(...)`
-- `profile_transport_loss(...)`
-- `solve_profile_transport_loop(...)`
-- `PrimitiveSpeciesProfile`
-- `build_species_profiles_from_primitives(...)`
-- `primitive_profile_transport_loss(...)`
-- `advance_primitive_profile_transport(...)`
-- `solve_primitive_profile_transport_loop(...)`
-- `examples/ambipolar_profile.py`
-- `examples/ambipolar_profile_family.py`
-- `examples/profile_control_optimization.py`
-- `examples/profile_basis_optimization.py`
-- `examples/profile_transport_loop.py`
-- `examples/primitive_profile_transport.py`
-
-## Bootstrap-Current Examples
-
-Pure NTX workflow from VMEC or Boozer input to radial profiles:
-
-```bash
-python examples/bootstrap_current_from_vmec_or_boozmn.py
-```
-
-This plots:
-
-- magnetic geometry
-- normalized density and temperature profile inputs
-- `D11` together with `nu_hat * D33`
-- an interior bootstrap-current proxy profile built from analytic density and temperature gradients
-
-![NTX bootstrap-current profile](docs/_static/bootstrap_current_from_vmec_or_boozmn.png)
-
-## Manuscript Artifacts
-
-Build the curated figure bundle:
-
-```bash
-python examples/make_publication_figures.py
-```
-
-Build only the frozen main-text or supplement figure sets:
-
-```bash
-python examples/make_publication_figures.py --figures main_text
-python examples/make_publication_figures.py --figures supplement
-```
-
-Build manuscript tables and reproducibility metadata from the validated figure
-artifacts:
-
-```bash
-python scripts/build_manuscript_artifacts.py
-```
-
-This writes:
-
-- `docs/_static/publication_figure_manifest.json`
-- `docs/_static/manuscript_artifacts.json`
-- `docs/_static/manuscript_tables.md`
-- `docs/_static/manuscript_claims.md`
+## Bootstrap-Current Convergence
 
 W7-X bootstrap-current convergence audit:
 
@@ -320,7 +244,8 @@ python examples/bootstrap_current_reference_audit_w7x.py
 ```
 
 This rebuilds a reduced W7-X scan at several NTX resolutions and writes a
-publication-ready convergence figure:
+two-panel convergence figure showing the bootstrap-current profile and the
+maximum relative error versus grid resolution:
 
 ![W7-X bootstrap-current convergence](docs/_static/bootstrap_current_reference_audit_w7x.png)
 
@@ -352,26 +277,9 @@ documented in:
 
 ## Documentation
 
-The full documentation in [`docs/`](docs/) covers:
+Full documentation:
 
-- [installation](docs/install.md)
-- [input schema and outputs](docs/input-file.md)
-- [physics model and equations](docs/physics.md)
-- [geometry handling](docs/geometry.md)
-- [algorithm overview](docs/algorithm.md)
-- [numerics and algorithms](docs/numerics.md)
-- [source-code map](docs/source-map.md)
-- [autodiff workflows](docs/autodiff.md)
-- [profile workflows](docs/profiles.md)
-- [examples](docs/examples.md)
-- [validation](docs/validation.md)
-- [testing and QA](docs/testing.md)
-- [NEOPAX workflows](docs/neopax.md)
-- [GPU](docs/gpu.md)
-- [performance](docs/performance.md)
-- [research roadmap](docs/research-roadmap.md)
-- [publication figures](docs/manuscript.md)
-- [literature](docs/literature.md)
+- [ntx.readthedocs.io/en/latest/](https://ntx.readthedocs.io/en/latest/)
 
 ## Local Quality Checks
 

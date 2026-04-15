@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "1aa316b0c2ecc87dbf011ab3e00bc65409268560",
+    "commit": "03d024805e46ae8c3ec5cbadbee4fc5b957eb864",
     "branch": "main"
   },
   "environment": {
@@ -11,7 +11,7 @@
   },
   "tables": {
     "validation": {
-      "bootstrap_current_reference_scale": 31386372.43497639,
+      "bootstrap_current_reference_scale": 31386380.99085678,
       "bootstrap_current_errors": [
         {
           "grid": [
@@ -19,7 +19,7 @@
             17,
             17
           ],
-          "max_relative_error": 103.79730848200063
+          "max_relative_error": 103.79572446066453
         },
         {
           "grid": [
@@ -27,7 +27,7 @@
             25,
             33
           ],
-          "max_relative_error": 29.65084550836358
+          "max_relative_error": 29.65039180622074
         },
         {
           "grid": [
@@ -35,7 +35,7 @@
             25,
             64
           ],
-          "max_relative_error": 0.018297079828848713
+          "max_relative_error": 0.018305696239054575
         }
       ]
     },
@@ -49,7 +49,7 @@
       "er_min": 1e-06,
       "er_max": 0.003,
       "max_relative_mismatch": 1.0511436761691851e-05,
-      "best_prepared_speedup": 3.708865850467042
+      "best_prepared_speedup": 3.8475123937594984
     },
     "performance": {
       "cpu_heavy": {
@@ -167,9 +167,9 @@
     }
   },
   "claims": {
-    "w7x_fine_grid_max_relative_error": 0.018297079828848713,
+    "w7x_fine_grid_max_relative_error": 0.018305696239054575,
     "derivative_max_relative_mismatch": 1.0511436761691851e-05,
-    "best_prepared_derivative_speedup": 3.708865850467042,
+    "best_prepared_derivative_speedup": 3.8475123937594984,
     "bootstrap_current_weighted_gain": 1.10941812424327,
     "cpu_heavy_best_multiprocess_speedup": 1.7904466542288835,
     "gpu_heavy_best_multiprocess_speedup": 0.4235861469424724,

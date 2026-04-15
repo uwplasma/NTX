@@ -6,7 +6,7 @@
 | --- | ---: |
 | `(13, 17, 17)` | 1.038e+02 |
 | `(17, 25, 33)` | 2.965e+01 |
-| `(25, 25, 64)` | 1.830e-02 |
+| `(25, 25, 64)` | 1.831e-02 |
 
 ## Derivatives
 
@@ -16,7 +16,7 @@
 | `nu_hat` | `3.000e-04` |
 | `E_r` scan | `1.000e-06` to `3.000e-03` |
 | Max relative mismatch | `1.051e-05` |
-| Best prepared speedup | `3.709x` |
+| Best prepared speedup | `3.848x` |
 
 ## Bootstrap-Current Optimization
 
@@ -51,7 +51,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `1aa316b0c2ecc87dbf011ab3e00bc65409268560` |
+| Commit | `03d024805e46ae8c3ec5cbadbee4fc5b957eb864` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
