@@ -103,7 +103,7 @@ def load_vmec_surface(
     b_sup_zeta_interp = _interp_mode_columns(
         radial_grid, bsupvmnc[selected_indices, 1:], target_psi_n
     )
-    iota = _interp_1d(radial_grid, iota_full[1:], target_psi_n)
+    iota = -_interp_1d(radial_grid, iota_full[1:], target_psi_n)
 
     if selected_mode_m.shape[0] != b_interp.shape[0]:
         raise ValueError("VMEC mode-number arrays do not match Fourier coefficient arrays")
@@ -138,11 +138,11 @@ def load_vmec_surface(
         iota=float(iota),
         m=jnp.asarray(selected_mode_m[include], dtype=jnp.int32),
         n=jnp.asarray(
-            np.rint(selected_mode_n[include] / nfp).astype(np.int32),
+            np.rint(-selected_mode_n[include] / nfp).astype(np.int32),
             dtype=jnp.int32,
         ),
         b_cos=jnp.asarray(b_interp[include], dtype=jnp.float64),
-        jacobian_cos=jnp.asarray(-g_interp[include], dtype=jnp.float64),
+        jacobian_cos=jnp.asarray(g_interp[include], dtype=jnp.float64),
         b_sub_theta_cos=jnp.asarray(b_sub_theta_interp[include], dtype=jnp.float64),
         b_sub_zeta_cos=jnp.asarray(b_sub_zeta_interp[include], dtype=jnp.float64),
         b_sup_theta_cos=jnp.asarray(b_sup_theta_interp[include], dtype=jnp.float64),

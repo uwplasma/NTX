@@ -321,7 +321,10 @@ def scan_to_neopax_arrays(scan: NeopaxScan, *, a_b: float | Array) -> NeopaxMono
         nu_log=jnp.log10(nu_v),
         Er_list=er_list,
         D11_log=jnp.log10(d11 * drds[:, None, None] ** 2),
-        D13=d13 * drds[:, None, None],
+        # NEOPAX's neoclassical closure applies an internal minus sign when
+        # converting its stored D13 channel into the L13/L23 moments, so the
+        # database convention here is the negated DKES/NTX coefficient.
+        D13=-d13 * drds[:, None, None],
         D33=d33 * nu_v[None, :, None],
     )
 

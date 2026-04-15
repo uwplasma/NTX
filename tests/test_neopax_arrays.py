@@ -71,7 +71,7 @@ def test_scan_to_neopax_arrays_matches_expected_scalings():
     assert mapped.D13.shape == scan.D13.shape
     assert mapped.D33.shape == scan.D33.shape
     assert jnp.allclose(mapped.nu_log, jnp.log10(nu_v))
-    assert jnp.allclose(mapped.D13, scan.D13 * drds[:, None, None])
+    assert jnp.allclose(mapped.D13, -scan.D13 * drds[:, None, None])
     assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
 
 
