@@ -122,9 +122,14 @@ def build_payload() -> dict:
             "supplement": supplement,
         },
         "commands": {
-            "figure_bundle": "python examples/make_publication_figures.py --figures main_text,supplement",
+            "figure_bundle": (
+                "python examples/make_publication_figures.py "
+                "--figures main_text,supplement"
+            ),
             "main_text_figures": "python examples/make_publication_figures.py --figures main_text",
-            "supplement_figures": "python examples/make_publication_figures.py --figures supplement",
+            "supplement_figures": (
+                "python examples/make_publication_figures.py --figures supplement"
+            ),
             "tables": "python scripts/build_manuscript_artifacts.py",
             "validation_subset": (
                 "python -m pytest -q "
@@ -193,7 +198,8 @@ def build_markdown(payload: dict) -> str:
     for row in cpu_rows:
         lines.append(
             f"| {row['num_cases']} | {_format_float(row['serial_seconds'])} | "
-            f"{_format_float(row['multiprocess_seconds'])} | {_format_float(row['multiprocess_speedup_vs_serial'])}x |"
+            f"{_format_float(row['multiprocess_seconds'])} | "
+            f"{_format_float(row['multiprocess_speedup_vs_serial'])}x |"
         )
 
     lines.extend(
@@ -208,7 +214,8 @@ def build_markdown(payload: dict) -> str:
     for row in gpu_rows:
         lines.append(
             f"| {row['num_cases']} | {_format_float(row['serial_seconds'])} | "
-            f"{_format_float(row['multiprocess_seconds'])} | {_format_float(row['multiprocess_speedup_vs_serial'])}x | "
+            f"{_format_float(row['multiprocess_seconds'])} | "
+            f"{_format_float(row['multiprocess_speedup_vs_serial'])}x | "
             f"{payload['tables']['performance']['gpu_heavy']['healthy_parallel_device_count']} |"
         )
 
@@ -245,12 +252,43 @@ def build_claims_markdown(payload: dict) -> str:
             "These are the current paper-facing technical claims derived directly from the",
             "validated NTX artifacts.",
             "",
-            f"- W7-X imported-workflow bootstrap-current convergence reaches a maximum relative error of `{claims['w7x_fine_grid_max_relative_error']:.3e}` on the fine `25 x 25 x 64` grid.",
-            f"- The prepared implicit-adjoint derivative path matches direct reverse-mode with a maximum relative mismatch of `{claims['derivative_max_relative_mismatch']:.3e}` on the committed derivative benchmark.",
-            f"- The prepared derivative path reaches a best observed speedup of `{claims['best_prepared_derivative_speedup']:.3f}x` on the benchmarked electric-field scan.",
-            f"- The differentiable bootstrap-current optimization example improves the weighted current proxy by `{claims['bootstrap_current_weighted_gain']:.3f}x` on the committed W7-X study.",
-            f"- On the heavy CPU benchmark, multiprocess execution reaches a best observed speedup of `{claims['cpu_heavy_best_multiprocess_speedup']:.3f}x`.",
-            f"- On the heavy GPU benchmark, the current multiprocess path reaches a best observed speedup of `{claims['gpu_heavy_best_multiprocess_speedup']:.3f}x` with `{claims['gpu_heavy_healthy_device_count']}` healthy parallel GPU device(s), so the current paper should frame GPU multiprocess as a characterized execution mode rather than a throughput win.",
+            (
+                "- W7-X imported-workflow bootstrap-current convergence reaches "
+                f"a maximum relative error of "
+                f"`{claims['w7x_fine_grid_max_relative_error']:.3e}` on the fine "
+                "`25 x 25 x 64` grid."
+            ),
+            (
+                "- The prepared implicit-adjoint derivative path matches direct "
+                "reverse-mode with a maximum relative mismatch of "
+                f"`{claims['derivative_max_relative_mismatch']:.3e}` on the "
+                "committed derivative benchmark."
+            ),
+            (
+                "- The prepared derivative path reaches a best observed speedup "
+                f"of `{claims['best_prepared_derivative_speedup']:.3f}x` on the "
+                "benchmarked electric-field scan."
+            ),
+            (
+                "- The differentiable bootstrap-current optimization example "
+                "improves the weighted current proxy by "
+                f"`{claims['bootstrap_current_weighted_gain']:.3f}x` on the "
+                "committed W7-X study."
+            ),
+            (
+                "- On the heavy CPU benchmark, multiprocess execution reaches a "
+                "best observed speedup of "
+                f"`{claims['cpu_heavy_best_multiprocess_speedup']:.3f}x`."
+            ),
+            (
+                "- On the heavy GPU benchmark, the current multiprocess path "
+                "reaches a best observed speedup of "
+                f"`{claims['gpu_heavy_best_multiprocess_speedup']:.3f}x` with "
+                f"`{claims['gpu_heavy_healthy_device_count']}` healthy parallel "
+                "GPU device(s), so the current paper should frame GPU "
+                "multiprocess as a characterized execution mode rather than a "
+                "throughput win."
+            ),
             "",
             "These claims should be used consistently in the manuscript text, captions, and",
             "response-to-reviewer notes.",

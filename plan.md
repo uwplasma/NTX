@@ -89,9 +89,9 @@ research problems.
 
 ### 6. Native Bootstrap-Current Workflow
 
-- [ ] add a native NTX neoclassical closure layer that uses NTX monoenergetic
+- [x] add a native NTX neoclassical closure layer that uses NTX monoenergetic
   coefficients directly instead of routing through NEOPAX
-- [ ] implement the no-momentum-correction bootstrap-current path first:
+- [x] implement the no-momentum-correction bootstrap-current path first:
   - species inputs
   - thermal-speed grid and quadrature
   - collisionality and thermodynamic forces
@@ -100,7 +100,7 @@ research problems.
   - `U_parallel` / `j·B` / bootstrap-current outputs
 - [ ] keep the first native implementation physically equivalent to the current
   NTX+NEOPAX no-momentum path before adding any new model features
-- [ ] add a native database-to-current API that can evaluate:
+- [x] add a native database-to-current API that can evaluate:
   - one radius / one species set
   - one radial profile
   - one VMEC/Boozer family scan
@@ -240,3 +240,10 @@ templates:
 - The next NTX development batch is therefore centered on native
   bootstrap-current support, tighter SFINCS-facing validation gates, and a
   cleaner public workflow for bootstrap-current calculations directly in NTX
+- The first native bootstrap-current slice is now in-tree:
+  - `src/ntx/bootstrap.py` provides species inputs, primitive-to-force
+    construction, no-momentum `Lij` assembly, and native `j·B` evaluation
+  - the first regression gates are in place for zero-force closure, primitive
+    profile construction, and a frozen current-profile value test
+  - CI failures seen in GitHub Actions at this point are real lint failures,
+    not exhausted Actions minutes
