@@ -115,7 +115,39 @@ imported workflow, and writes a convergence figure:
 
 ![W7-X bootstrap-current convergence](_static/bootstrap_current_reference_audit_w7x.png)
 
-## 9. Autodiff Inverse Problem
+## 9. Native Bootstrap-Current QA/QH Validation
+
+```bash
+python examples/bootstrap_current_native_validation.py
+```
+
+This optional local benchmark script compares:
+
+- NTX-native no-momentum bootstrap current
+- the asymptotic Redl closure
+- SFINCS-JAX
+- Fortran SFINCS
+
+on the finite-beta QA and QH equilibria used in the local research environment.
+It writes:
+
+- `docs/_static/bootstrap_current_native_validation.png`
+- `docs/_static/bootstrap_current_native_validation.pdf`
+- `docs/_static/bootstrap_current_native_validation.json`
+
+The current interpretation is:
+
+- SFINCS-JAX and Fortran SFINCS agree tightly
+- NTX-native has the correct sign and radial trend
+- the remaining difference is an amplitude/model gap, not a raw
+  sign-normalization bug
+
+The script requires local checkouts of the finite-beta equilibria,
+`sfincs_jax`, and the Fortran `sfincs` executable.
+
+![Native bootstrap-current QA/QH validation](_static/bootstrap_current_native_validation.png)
+
+## 10. Autodiff Inverse Problem
 
 ```bash
 python examples/autodiff_inverse_problem.py
@@ -125,7 +157,7 @@ This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
 recovery of a Boozer harmonic from synthetic transport data using JAX
 gradients.
 
-## 10. Autodiff Derivative Audit
+## 11. Autodiff Derivative Audit
 
 ```bash
 python examples/derivative_audit.py
@@ -140,7 +172,7 @@ gradients of the dense solve against centered finite differences for:
 This is the validation baseline for the current prepared implicit-adjoint
 derivative implementation.
 
-## 11. Prepared-Derivative Benchmark
+## 12. Prepared-Derivative Benchmark
 
 ```bash
 python examples/derivative_path_benchmark.py
@@ -157,7 +189,7 @@ on the same `D33` electric-field derivative scan.
 It also writes `docs/_static/derivative_path_benchmark.json` for manuscript
 tables and reproducibility notes.
 
-## 12. Autodiff NEOPAX Profiles
+## 13. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py
@@ -167,7 +199,7 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 13. Ambipolar Profile
+## 14. Ambipolar Profile
 
 ```bash
 python examples/ambipolar_profile.py
@@ -186,7 +218,7 @@ and demonstrates:
 - solving a smooth ambipolar `E_r(r)` profile with radial regularization
 - evaluating the resulting bootstrap-current proxy profile
 
-## 14. Ambipolar Profile Family
+## 15. Ambipolar Profile Family
 
 ```bash
 python examples/ambipolar_profile_family.py
@@ -204,7 +236,7 @@ and demonstrates:
 - evaluating a bootstrap-current objective across that family
 - selecting the best control point from a scalar objective landscape
 
-## 15. Science Case: Bootstrap-Current Optimization
+## 16. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py
@@ -224,7 +256,7 @@ on bootstrap-current analysis and optimization.
 It also writes `docs/_static/bootstrap_current_optimization.json` for the
 manuscript table builder.
 
-## 16. Profile-Control Optimization
+## 17. Profile-Control Optimization
 
 ```bash
 python examples/profile_control_optimization.py
@@ -241,7 +273,7 @@ and demonstrates:
 - optimizing that control directly against a bootstrap-current objective
 - reusing the ambipolar solve inside a JAX optimization loop
 
-## 17. Profile-Basis Optimization
+## 18. Profile-Basis Optimization
 
 ```bash
 python examples/profile_basis_optimization.py
