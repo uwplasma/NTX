@@ -56,12 +56,38 @@ class FixedFieldCase:
     label: str
     helicity_n: int
     wout_path: Path
+    source_family: str
 
 
 def _fixed_field_cases() -> dict[str, FixedFieldCase]:
+    zenodo_root = find_qs_zenodo_root()
+    if zenodo_root is not None:
+        data = zenodo_root / "codes" / "simsopt" / "tests" / "test_files"
+        cases = {
+            "qa": FixedFieldCase(
+                name="qa",
+                label="QA precise-QS fixed-field reference",
+                helicity_n=0,
+                wout_path=data / "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc",
+                source_family="zenodo_precise_qs",
+            ),
+            "qh": FixedFieldCase(
+                name="qh",
+                label="QH precise-QS fixed-field reference",
+                helicity_n=-1,
+                wout_path=data / "wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc",
+                source_family="zenodo_precise_qs",
+            ),
+        }
+        if all(case.wout_path.exists() for case in cases.values()):
+            return cases
+
     vmec_root = find_vmec_jax_root()
     if vmec_root is None:
-        raise RuntimeError("vmec_jax checkout is required for the fixed-field audit")
+        raise RuntimeError(
+            "fixed-field audit requires either the local precise-QS Zenodo archive "
+            "or a vmec_jax checkout"
+        )
     data = vmec_root / "examples" / "data"
     cases = {
         "qa": FixedFieldCase(
@@ -69,12 +95,14 @@ def _fixed_field_cases() -> dict[str, FixedFieldCase]:
             label="QA fixed-field reference",
             helicity_n=0,
             wout_path=data / "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc",
+            source_family="vmec_jax_examples",
         ),
         "qh": FixedFieldCase(
             name="qh",
             label="QH fixed-field reference",
             helicity_n=-1,
             wout_path=data / "wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc",
+            source_family="vmec_jax_examples",
         ),
     }
     missing = [case.wout_path for case in cases.values() if not case.wout_path.exists()]

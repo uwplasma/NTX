@@ -125,7 +125,46 @@ This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
 recovery of a Boozer harmonic from synthetic transport data using JAX
 gradients.
 
-## 10. Autodiff Derivative Audit
+## 10. Precise-QS Redl Versus SFINCS Audit
+
+```bash
+python examples/precise_qs_redl_sfincs_audit.py
+```
+
+This local archive-backed audit uses the fixed-field Landreman--Paul QA/QH
+reference family from the Zenodo bundle and writes:
+
+- `examples/outputs/precise_qs_redl_sfincs_audit/precise_qs_redl_sfincs_audit.png`
+- `examples/outputs/precise_qs_redl_sfincs_audit/precise_qs_redl_sfincs_audit.pdf`
+- `examples/outputs/precise_qs_redl_sfincs_audit/precise_qs_redl_sfincs_audit.json`
+
+It compares the archived SFINCS bootstrap-current profiles against:
+
+- Redl with the VMEC-side trapped-fraction path
+- Redl with a Boozer-side trapped-fraction path reconstructed through
+  `booz_xform_jax`
+
+Use this script when auditing the analytic fixed-field benchmark itself, not
+the integrated `NTX+NEOPAX` workflow.
+
+## 11. Fixed-Field Transport-Matrix Audit
+
+```bash
+python examples/fixed_field_transport_matrix_audit.py
+```
+
+This local audit writes:
+
+- `examples/outputs/fixed_field_transport_matrix_audit/fixed_field_transport_matrix_audit.png`
+- `examples/outputs/fixed_field_transport_matrix_audit/fixed_field_transport_matrix_audit.pdf`
+- `examples/outputs/fixed_field_transport_matrix_audit/fixed_field_transport_matrix_audit.json`
+
+It runs SFINCS-JAX in `RHSMode=3` on the same fixed-field QA/QH reference
+family and compares `L13`, `L31`, and `L33` against NTX candidate channels.
+This is the coefficient-side audit that still gates the public
+`NTX+NEOPAX` bootstrap-current validation figure.
+
+## 12. Autodiff Derivative Audit
 
 ```bash
 python examples/derivative_audit.py
@@ -140,7 +179,7 @@ gradients of the dense solve against centered finite differences for:
 This is the validation baseline for the current prepared implicit-adjoint
 derivative implementation.
 
-## 11. Prepared-Derivative Benchmark
+## 13. Prepared-Derivative Benchmark
 
 ```bash
 python examples/derivative_path_benchmark.py
@@ -157,7 +196,7 @@ on the same `D33` electric-field derivative scan.
 It also writes `docs/_static/derivative_path_benchmark.json` for manuscript
 tables and reproducibility notes.
 
-## 12. Autodiff NEOPAX Profiles
+## 14. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py
@@ -167,7 +206,7 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 13. Ambipolar Profile
+## 15. Ambipolar Profile
 
 ```bash
 python examples/ambipolar_profile.py
@@ -186,7 +225,7 @@ and demonstrates:
 - solving a smooth ambipolar `E_r(r)` profile with radial regularization
 - evaluating the resulting bootstrap-current proxy profile
 
-## 14. Ambipolar Profile Family
+## 16. Ambipolar Profile Family
 
 ```bash
 python examples/ambipolar_profile_family.py
@@ -204,7 +243,7 @@ and demonstrates:
 - evaluating a bootstrap-current objective across that family
 - selecting the best control point from a scalar objective landscape
 
-## 15. Science Case: Bootstrap-Current Optimization
+## 17. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py

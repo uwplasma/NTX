@@ -94,10 +94,26 @@ def find_vmec_jax_root() -> Path | None:
 
 
 def find_qs_zenodo_root() -> Path | None:
-    return _discover(
-        "QS_ZENODO_ROOT",
-        "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current",
+    env_value = os.environ.get("QS_ZENODO_ROOT")
+    candidates: list[Path] = []
+    if env_value:
+        candidates.append(Path(env_value).expanduser())
+    candidates.extend(
+        [
+            repo_root()
+            / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current",
+            workspace_root()
+            / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current",
+            workspace_root().parent
+            / "Downloads"
+            / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current",
+        ]
     )
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved.exists():
+            return resolved
+    return None
 
 
 def find_vmec_jax_example_input(name: str = "input.circular_tokamak") -> Path | None:

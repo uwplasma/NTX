@@ -100,16 +100,16 @@ research problems.
 - [ ] keep the validation surface split explicit:
   - fixed-field QA/QH reference family for Redl vs SFINCS vs `NTX+NEOPAX`
   - finite-beta QA/QH and W7-X for integrated workflow relevance
-- [ ] add a fixed-radius transport-matrix audit against SFINCS-JAX on the
+- [x] add a fixed-radius transport-matrix audit against SFINCS-JAX on the
   fixed-field QA/QH reference cases, focused on `D13`, `D31`, and `D33`
 - [ ] isolate the outer-radius amplitude failure by auditing:
   - VMEC file loading and radial mapping
   - SFINCS-JAX transport-matrix normalization
   - NTX `D13` / `D31` / `D33` channel conventions
   - NTX to NEOPAX handoff conventions
-- [ ] reproduce the Boozer-based Redl path from the Zenodo bundle robustly on
+- [x] reproduce the Boozer-based Redl path from the Zenodo bundle robustly on
   the fixed-field QA/QH reference family
-- [ ] add frozen local-only regression tests for the fixed-field audit helpers
+- [x] add frozen local-only regression tests for the fixed-field audit helpers
   and benchmark discovery
 - [ ] only after the fixed-field audit is tighter, add a curated
   `NTX+NEOPAX` vs SFINCS bootstrap-current validation figure to the README
@@ -173,15 +173,13 @@ templates:
 
 ## Next Concrete Code Steps
 
-1. Land the fixed-field QA/QH transport-matrix audit against SFINCS-JAX,
-   centered on `D13`, `D31`, and `D33`.
-2. Reproduce the Boozer-based Redl path from the Zenodo benchmark cleanly and
-   compare it against the VMEC-based Redl path on the same fixed-field cases.
-3. Keep finite-beta QA/QH and W7-X bootstrap-current validation in the
+1. Derive the exact NTX-to-SFINCS transport-matrix normalization bridge for the
+   fixed-field QA/QH reference cases, centered on `L13`, `L31`, and `L33`.
+2. Keep finite-beta QA/QH and W7-X bootstrap-current validation in the
    `NTX+NEOPAX` lane, separate from the fixed-field coefficient audit.
-4. Profile the prepared solve and `NTX+NEOPAX` workflow to identify the real
+3. Profile the prepared solve and `NTX+NEOPAX` workflow to identify the real
    runtime and memory bottlenecks before changing solver internals.
-5. Continue the profile-transport and derivative work only after the
+4. Continue the profile-transport and derivative work only after the
    fixed-field audit and profiling picture are technically clear.
 
 ## Active Code Log
@@ -215,10 +213,21 @@ templates:
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
 - A first fixed-field transport-matrix audit is now in-tree:
-  - it runs SFINCS-JAX in `RHSMode=3` on the Landreman-Paul QA/QH reference
-    equilibria at `rho = [0.25, 0.50, 0.75]`
+  - it runs SFINCS-JAX in `RHSMode=3` on the archive-backed Landreman-Paul
+    QA/QH fixed-field reference equilibria at `rho = [0.25, 0.50, 0.75]`
   - it compares `L13`, `L31`, and `L33` against NTX candidate channels
     derived from `D13`, `D31`, and `D33`
   - first result: simple `-D13 dr/ds` and `nu D33` mappings are not enough to
     close the gap, especially in `L33`, so the remaining fixed-field mismatch
     is not just the earlier sign bug
+- The precise-QS Redl benchmark from the Zenodo bundle is now reproduced
+  directly in-tree:
+  - both the VMEC-based and Boozer-based Redl paths match the archived SFINCS
+    profiles on the fixed-field reference family within the archived 10%
+    interior-window gate
+  - current measured interior max relative errors are about `9.3%` for QA
+    through the VMEC path, `9.5%` for QA through the Boozer path, `4.2%` for
+    QH through the VMEC path, and `4.1%` for QH through the Boozer path
+  - the earlier large Redl discrepancy came from mixing benchmark families
+    rather than from a failure of the Redl closure on the precise-QS reference
+    cases

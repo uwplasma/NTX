@@ -61,6 +61,54 @@ This script rebuilds a reduced W7-X scan at several NTX resolutions, evaluates
 the resulting bootstrap-current profile, and writes a publication-ready
 convergence figure.
 
+### Precise-QS Redl Benchmark
+
+The archived Landreman--Paul precise-QS fixed-field benchmark can be reproduced
+locally with:
+
+```bash
+python examples/precise_qs_redl_sfincs_audit.py
+```
+
+This archive-backed audit reads the original SFINCS profiles from the Zenodo
+bundle, reconstructs the Redl current through both:
+
+- the VMEC-side trapped-fraction path
+- the Boozer-side trapped-fraction path
+
+and checks both against the archived SFINCS profile on the same surfaces. On
+the current local stack, both Redl paths recover the archived interior-window
+benchmark gate on the fixed-field QA/QH references:
+
+- QA interior max relative error: about `9.3%` for the VMEC path and `9.5%`
+  for the Boozer path
+- QH interior max relative error: about `4.2%` for the VMEC path and `4.1%`
+  for the Boozer path
+
+This is a fixed-field Redl/SFINCS consistency study. It is intentionally kept
+separate from the finite-beta and imported `NTX+NEOPAX` bootstrap-current
+workflow checks.
+
+### Fixed-Field Transport-Matrix Audit
+
+The remaining fixed-field coefficient-side gap is audited with:
+
+```bash
+python examples/fixed_field_transport_matrix_audit.py
+```
+
+This script runs SFINCS-JAX in `RHSMode=3` on the same QA/QH fixed-field
+reference family and compares `L13`, `L31`, and `L33` against NTX candidate
+channels built from `D13`, `D31`, and `D33`.
+
+The present conclusion is narrow but important:
+
+- the benchmark family is now correct
+- the remaining mismatch is not the old sign bug
+- the largest unresolved normalization gap is still the `L33` bridge
+- README-level `NTX+NEOPAX` bootstrap-current promotion should wait until this
+  fixed-field transport-matrix bridge is tighter
+
 ### End-To-End Bootstrap-Current Workflow
 
 The pure NTX radial-profile workflow is:
