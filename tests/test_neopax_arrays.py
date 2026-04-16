@@ -45,6 +45,18 @@ def test_build_ntx_neopax_scan_from_surfaces_matches_callback_builder():
     assert jnp.allclose(explicit.D11, callback.D11)
     assert jnp.allclose(explicit.D13, callback.D13)
     assert jnp.allclose(explicit.D33, callback.D33)
+    assert explicit.fac_reference_to_sfincs_11 is not None
+    assert explicit.fac_reference_to_sfincs_31 is not None
+    assert explicit.fac_reference_to_sfincs_33 is not None
+    assert explicit.fac_sfincs_to_dkes_11 is not None
+    assert explicit.fac_sfincs_to_dkes_31 is not None
+    assert explicit.fac_sfincs_to_dkes_33 is not None
+    assert jnp.all(explicit.fac_reference_to_sfincs_11 > 0)
+    assert jnp.all(explicit.fac_reference_to_sfincs_31 > 0)
+    assert jnp.all(explicit.fac_reference_to_sfincs_33 > 0)
+    assert jnp.all(explicit.fac_sfincs_to_dkes_11 > 0)
+    assert jnp.all(explicit.fac_sfincs_to_dkes_31 > 0)
+    assert jnp.all(explicit.fac_sfincs_to_dkes_33 > 0)
 
 
 def test_scan_to_neopax_arrays_matches_expected_scalings():
@@ -73,8 +85,6 @@ def test_scan_to_neopax_arrays_matches_expected_scalings():
     assert jnp.allclose(mapped.nu_log, jnp.log10(nu_v))
     assert jnp.allclose(mapped.D13, -scan.D13 * drds[:, None, None])
     assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
-
-
 def test_scan_to_neopax_arrays_is_differentiable_in_es():
     surfaces = (example_surface(), example_surface())
     rho = jnp.asarray([0.25, 0.5])

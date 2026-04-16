@@ -104,10 +104,40 @@ channels built from `D13`, `D31`, and `D33`.
 The present conclusion is narrow but important:
 
 - the benchmark family is now correct
-- the remaining mismatch is not the old sign bug
-- the largest unresolved normalization gap is still the `L33` bridge
+- the SFINCS `RHSMode=3` overwrite must be matched exactly through
+  `nu_n = nuPrime * B0OverBBar / (GHat + iota IHat)`
+- archive-backed Landreman/H. Smith bridge factors tighten `L13` and `L31`
+  substantially once the correct `nu_n` is used
+- current fixed-field `L13/L31` relative errors are about `0.12–0.29` on QA
+  and `0.027–0.15` on QH
+- the largest unresolved normalization/model gap is now the `L33` bridge, with
+  current fixed-field relative errors of about `0.14–0.16`
+- this is a full transport-matrix statement; for the zero-`E_r` fixed-field
+  bootstrap-current comparison itself, the active no-momentum NEOPAX closure
+  has `A3 = 0`, so the remaining current mismatch is concentrated in the
+  `D13/L31` closure path rather than in `L33` alone
 - README-level `NTX+NEOPAX` bootstrap-current promotion should wait until this
   fixed-field transport-matrix bridge is tighter
+
+### Fixed-Field Current Benchmark Status
+
+The archive-backed precise-QS fixed-field bootstrap-current comparison now uses:
+
+- the correct archived QA/QH benchmark family,
+- the exact archived profile values,
+- archive-driven Hermite reconstruction in `rho`,
+- and an adaptive `nu_v` support chosen from the actual NEOPAX collisionality
+  range.
+
+Those corrections remove the main setup ambiguities, but they do **not**
+materially change the present fixed-field `NTX+NEOPAX` current discrepancy:
+
+- QA interior max relative error remains about `0.77`
+- QH interior max relative error remains about `0.78`
+
+This means the remaining fixed-field bootstrap-current gap is now best treated
+as a closure/normalization issue in the `D13/L31` path, not as a benchmark-set,
+Redl, or `nu_v`-axis problem.
 
 ### End-To-End Bootstrap-Current Workflow
 
