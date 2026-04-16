@@ -112,10 +112,11 @@ The present conclusion is narrow but important:
   and `0.027–0.15` on QH
 - the largest unresolved normalization/model gap is now the `L33` bridge, with
   current fixed-field relative errors of about `0.14–0.16`
-- this is a full transport-matrix statement; for the zero-`E_r` fixed-field
-  bootstrap-current comparison itself, the active no-momentum NEOPAX closure
-  has `A3 = 0`, so the remaining current mismatch is concentrated in the
-  `D13/L31` closure path rather than in `L33` alone
+- this is only an `RHSMode=3` monoenergetic statement; for the zero-`E_r`
+  fixed-field bootstrap-current comparison itself, the active no-momentum
+  closure also depends on the temperature-gradient (`A2`) channel, so the next
+  gating audit is the full `RHSMode=2` row-3 thermal closure rather than more
+  retuning of the old `L13/L31/L33` bridge plot alone
 - README-level `NTX+NEOPAX` bootstrap-current promotion should wait until this
   fixed-field transport-matrix bridge is tighter
 
@@ -129,15 +130,16 @@ The archive-backed precise-QS fixed-field bootstrap-current comparison now uses:
 - and an adaptive `nu_v` support chosen from the actual NEOPAX collisionality
   range.
 
-Those corrections remove the main setup ambiguities, but they do **not**
-materially change the present fixed-field `NTX+NEOPAX` current discrepancy:
+Those corrections remove the main setup ambiguities and fix the VMEC-bridge and
+closure-prefactor bugs, but they do **not** finish the fixed-field
+`NTX+NEOPAX` current benchmark:
 
-- QA interior max relative error remains about `0.77`
-- QH interior max relative error remains about `0.78`
+- QA interior max relative error is now about `0.53`
+- QH interior max relative error is now about `0.54`
 
 This means the remaining fixed-field bootstrap-current gap is now best treated
-as a closure/normalization issue in the `D13/L31` path, not as a benchmark-set,
-Redl, or `nu_v`-axis problem.
+as a thermal closure / current-observable issue, not as a benchmark-set, Redl,
+or `nu_v`-axis problem.
 
 ### End-To-End Bootstrap-Current Workflow
 

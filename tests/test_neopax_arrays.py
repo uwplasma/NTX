@@ -8,8 +8,12 @@ from ntx import (
     build_ntx_neopax_scan,
     build_ntx_neopax_scan_from_surfaces,
     example_surface,
+    load_vmec_surface,
     scan_to_neopax_arrays,
 )
+from ntx.neopax import _surface_reference_bridge
+
+from .fixture_data import SAMPLE_WOUT
 
 
 def test_build_ntx_neopax_scan_from_surfaces_matches_callback_builder():
@@ -110,3 +114,14 @@ def test_scan_to_neopax_arrays_is_differentiable_in_es():
     grad = jax.grad(objective)(jnp.asarray([0.0, 1.0e-3, 0.0, 2.0e-3]))
     assert grad.shape == (4,)
     assert jnp.all(jnp.isfinite(grad))
+
+
+def test_vmec_bridge_uses_covariant_boozer_zero_mode():
+    surface = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25)
+    zero_mode = jnp.asarray((surface.m == 0) & (surface.n == 0))
+    idx = int(jnp.argmax(zero_mode))
+
+    bridge = _surface_reference_bridge(surface)
+
+    assert bridge["boozer_i"] == jnp.asarray(surface.b_sub_theta_cos[idx])
+    assert bridge["boozer_g"] == jnp.asarray(surface.b_sub_zeta_cos[idx])

@@ -410,8 +410,12 @@ def _surface_reference_bridge(surface: BoozerSurface | VmecSurface) -> dict[str,
                 "NEOPAX bridge factors"
             )
         idx = int(jnp.argmax(zero_mode))
-        boozer_i = jnp.asarray(surface.b_sup_theta_cos[idx], dtype=jnp.float64)
-        boozer_g = jnp.asarray(surface.b_sup_zeta_cos[idx], dtype=jnp.float64)
+        # NEOPAX and the SFINCS/DKES bridge factors use the covariant Boozer
+        # flux functions I and G, not the contravariant b^theta / b^zeta
+        # components. For VMEC-backed surfaces these live in the b_sub_* zero
+        # modes.
+        boozer_i = jnp.asarray(surface.b_sub_theta_cos[idx], dtype=jnp.float64)
+        boozer_g = jnp.asarray(surface.b_sub_zeta_cos[idx], dtype=jnp.float64)
         psi_a = jnp.asarray(surface.psi_a_hat, dtype=jnp.float64)
         b00 = jnp.asarray(surface.b0, dtype=jnp.float64)
         iota = jnp.asarray(surface.iota, dtype=jnp.float64)
