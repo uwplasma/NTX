@@ -18,3 +18,4 @@ benchmark-output/
 20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/
 examples/outputs/bootstrap_current_native_validation/
 examples/outputs/fixed_field_transport_matrix_audit/
+examples/outputs/precise_qs_redl_sfincs_audit/

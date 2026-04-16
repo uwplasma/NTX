@@ -82,3 +82,18 @@ def test_workspace_checkout_candidates_and_missing_optional_roots(monkeypatch, t
     assert cp.find_sfincs_executable() is None
     assert cp.find_single_stage_finite_beta_root() is None
     assert cp.find_qs_zenodo_root() is None
+
+
+def test_qs_zenodo_root_prefers_repo_local_copy(monkeypatch, tmp_path):
+    repo = tmp_path / "NTX"
+    zenodo = (
+        repo
+        / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
+    )
+    zenodo.mkdir(parents=True)
+
+    monkeypatch.delenv("QS_ZENODO_ROOT", raising=False)
+    monkeypatch.setattr(cp, "repo_root", lambda: repo)
+    monkeypatch.setattr(cp, "workspace_root", lambda: tmp_path)
+
+    assert cp.find_qs_zenodo_root() == zenodo.resolve()
