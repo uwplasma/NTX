@@ -62,12 +62,42 @@ def find_sfincs_jax_root() -> Path | None:
     return _discover("SFINCS_JAX_ROOT", "tests/sfincs_jax", "sfincs_jax")
 
 
+def find_sfincs_root() -> Path | None:
+    return _discover("SFINCS_ROOT", "sfincs", "tests/sfincs")
+
+
+def find_sfincs_executable() -> Path | None:
+    root = find_sfincs_root()
+    if root is None:
+        return None
+    for relative in ("fortran/version3/sfincs", "sfincs"):
+        candidate = root / relative
+        if candidate.exists():
+            return candidate.resolve()
+    return None
+
+
+def find_single_stage_finite_beta_root() -> Path | None:
+    return _discover(
+        "SINGLE_STAGE_FINITE_BETA_ROOT",
+        "single_stage_optimization_finite_beta",
+        "tests/single_stage_optimization_finite_beta",
+    )
+
+
 def find_simsopt_root() -> Path | None:
     return _discover("SIMSOPT_ROOT", "tests/simsopt", "simsopt")
 
 
 def find_vmec_jax_root() -> Path | None:
     return _discover("VMEC_JAX_ROOT", "vmec_jax", "tests/vmec_jax")
+
+
+def find_qs_zenodo_root() -> Path | None:
+    return _discover(
+        "QS_ZENODO_ROOT",
+        "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current",
+    )
 
 
 def find_vmec_jax_example_input(name: str = "input.circular_tokamak") -> Path | None:
