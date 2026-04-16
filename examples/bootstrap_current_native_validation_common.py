@@ -40,7 +40,6 @@ from ntx._checkout_paths import (
     find_sfincs_jax_root,
     find_simsopt_root,
     find_single_stage_finite_beta_root,
-    find_vmec_jax_root,
 )
 
 OUTPUT_ROOT = ROOT / "examples" / "outputs" / "bootstrap_current_native_validation"
@@ -52,7 +51,6 @@ SFINCS_JAX_ROOT = find_sfincs_jax_root()
 SIMSOPT_ROOT = find_simsopt_root()
 BOOZ_XFORM_JAX_ROOT = find_booz_xform_jax_root()
 FINITE_BETA_ROOT = find_single_stage_finite_beta_root()
-VMEC_JAX_ROOT = find_vmec_jax_root()
 
 for extra_path in (
     SFINCS_JAX_ROOT,
@@ -116,43 +114,6 @@ def available_cases() -> dict[str, CaseSpec]:
             name="qh",
             label="QH (nfp = 4)",
             case_dir=FINITE_BETA_ROOT / "optimization_finitebeta_nfp4_QH_stage1",
-            helicity_n=-1,
-        ),
-    }
-
-
-def available_fixed_field_cases() -> dict[str, CaseSpec]:
-    if VMEC_JAX_ROOT is None:
-        return {}
-    data_root = VMEC_JAX_ROOT / "examples" / "data"
-    qa_wout = data_root / "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
-    qh_wout = data_root / "wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc"
-    qa_input = data_root / "input.LandremanPaul2021_QA_reactorScale_lowres"
-    qh_input = data_root / "input.LandremanPaul2021_QH_reactorScale_lowres"
-    required = (qa_wout, qh_wout, qa_input, qh_input)
-    if not all(path.exists() for path in required):
-        return {}
-
-    class FixedFieldCase(CaseSpec):
-        @property
-        def wout_path(self) -> Path:
-            return qa_wout if self.name == "qa" else qh_wout
-
-        @property
-        def input_path(self) -> Path:
-            return qa_input if self.name == "qa" else qh_input
-
-    return {
-        "qa": FixedFieldCase(
-            name="qa",
-            label="QA (fixed field, reactor scale)",
-            case_dir=data_root,
-            helicity_n=0,
-        ),
-        "qh": FixedFieldCase(
-            name="qh",
-            label="QH (fixed field, reactor scale)",
-            case_dir=data_root,
             helicity_n=-1,
         ),
     }
