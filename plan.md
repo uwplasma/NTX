@@ -218,6 +218,17 @@ templates:
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
+- The fixed-field bootstrap-current audit has now uncovered and closed three
+  concrete implementation bugs:
+  - the VMEC to NEOPAX bridge in `src/ntx/neopax.py` was using contravariant
+    `b^theta` / `b^zeta` zero modes instead of the covariant Boozer `I/G`
+    flux functions needed by the SFINCS/DKES bridge
+  - the active no-momentum thermal closure in the local NEOPAX checkout was
+    missing a factor of `2` in the `D13` and `D33` energy-convolution
+    prefactors relative to the Legendre-formulation reference
+  - the local NEOPAX momentum-correction block assembly had a broken matrix
+    flattening path under the installed `lineax`, so that branch was not even
+    solving the intended linear system
 - A first fixed-field transport-matrix audit is now in-tree:
   - it runs SFINCS-JAX in `RHSMode=3` on the archive-backed Landreman-Paul
     QA/QH fixed-field reference equilibria at `rho = [0.25, 0.50, 0.75]`
@@ -228,17 +239,20 @@ templates:
     substantially
   - present measured fixed-field `L13/L31` relative errors are about
     `0.12–0.29` on QA and `0.027–0.15` on QH
-  - the remaining fixed-field blocker is now concentrated in `L33`, which is
-    still off by about `0.14–0.16` on the current QA/QH audit points
-  - so the open problem is no longer a generic sign or benchmark-family bug;
-    it is now the parallel-flow channel bridge itself
+  - the `RHSMode=3` monoenergetic audit remains useful, but it does not probe
+    the full zero-`E_r` bootstrap-current closure because it omits the
+    temperature-gradient (`A2`) drive entirely
+  - so the remaining open problem is no longer a generic sign or
+    benchmark-family bug; it has narrowed to the full parallel-flow closure,
+    especially the `RHSMode=2` row-3 (`L31/L32`) thermal channel and the final
+    current observable map
 - The archive-backed precise-QS current comparison is also now separated
   cleanly from the coefficient audit:
   - Redl remains close to archived SFINCS on the precise-QS family once the
     correct benchmark set is used
-  - `NTX+NEOPAX` is still not close on that fixed-field family, with interior
-    max relative errors still around `0.77` on QA and `0.78` on QH in the
-    current sampled-radial comparison
+  - `NTX+NEOPAX` is improved but still not close on that fixed-field family,
+    with interior max relative errors now around `0.53` on QA and `0.54` on
+    QH in the current sampled-radial comparison
   - a direct attempt to inject the archive-backed `reference_to_sfincs`
     factors into the NTX-to-NEOPAX database mapping over-amplified the current,
     so that is not the correct bridge
@@ -249,7 +263,8 @@ templates:
     does not materially reduce the fixed-field current error
   - the remaining blocker is therefore not Redl, not the benchmark family, and
     not the `nu_v` support; it is the NTX-to-NEOPAX normalization/closure path
-    for fixed-field current, centered now on the `D13/L31` current channel
+    for fixed-field current, now centered on the full thermal/current closure
+    rather than on the raw monoenergetic database handoff alone
 - The precise-QS Redl benchmark from the Zenodo bundle is now reproduced
   directly in-tree:
   - both the VMEC-based and Boozer-based Redl paths match the archived SFINCS
@@ -261,3 +276,9 @@ templates:
   - the earlier large Redl discrepancy came from mixing benchmark families
     rather than from a failure of the Redl closure on the precise-QS reference
     cases
+- The next gating audit is now explicit:
+  - build an archive-backed `RHSMode=2` fixed-field parallel-flow audit
+  - compare the NEOPAX row-3 `L31/L32` closure directly against SFINCS-JAX on
+    the same QA/QH surfaces and profiles
+  - only after that closure is tight should the fixed-field `NTX+NEOPAX`
+    current figure move into the public README or main validation claims
