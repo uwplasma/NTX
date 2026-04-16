@@ -3,11 +3,6 @@
 NTX now includes explicit scaling benchmarks and figure-generation helpers for
 serial batched scans and the multiprocess throughput lane.
 
-It also includes a workflow profiler that breaks the runtime into geometry
-preparation, prepared solve execution, scan execution, and native
-bootstrap-current closure work so performance changes can be driven by measured
-costs rather than by guesswork.
-
 ## Benchmark Scripts
 
 Collect scaling data:
@@ -16,35 +11,6 @@ Collect scaling data:
 python scripts/benchmark_scaling.py --backend cpu --surface dkes --sizes 8,16,32,64
 python scripts/benchmark_scaling.py --backend gpu --surface dkes --sizes 16,32,64 --workers 2
 ```
-
-Collect workflow-level timings:
-
-```bash
-python scripts/profile_workflows.py --surface vmec --output-json workflow-profile-vmec.json
-python scripts/profile_workflows.py --surface dkes --output-json workflow-profile-dkes.json
-```
-
-The workflow profiler reports:
-
-- `prepare_monoenergetic_system_seconds`
-- `scan_compile_and_run_seconds`
-- `scan_steady_seconds`
-- `prepared_vector_compile_and_run_seconds`
-- `prepared_vector_steady_seconds`
-- `native_bootstrap_seconds`
-
-These are the right first numbers to inspect before changing solver structure,
-adding more parallelism, or attempting to replace the current dense solve path.
-
-On the current sample VMEC workflow, the profile is already informative:
-
-- `prepare_monoenergetic_system_seconds` is comparable to one full first scan
-  call, so geometry/operator reuse remains important
-- the prepared steady coefficient-vector path is orders of magnitude faster than
-  the steady end-to-end scan path
-- the current native bootstrap-current closure is materially slower than the
-  steady scan path on the sample case, so it is now a primary optimization
-  target rather than a secondary concern
 
 Generate publication-style figures:
 

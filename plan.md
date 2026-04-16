@@ -75,43 +75,19 @@ research problems.
 - [x] serial batched scan path
 - [x] multiprocess parallel scan path
 - [x] CPU/GPU crossover characterization on repository-owned cases
-- [ ] add workflow-level profiling for:
-  - geometry preparation
-  - prepared solve compilation and steady-state execution
-  - native bootstrap-current closure
-  - end-to-end VMEC/Boozer-to-current workflows
-- [ ] use those profiles to identify the dominant costs before changing solver
-  internals or adding more parallel complexity
 - [ ] improve prepared-geometry reuse across larger scan campaigns
 - [ ] characterize production-grid crossover points more systematically
 - [ ] pursue stronger multi-device throughput only where the measured workload
   justifies the complexity
 
-### 5. Performance Engineering
-
-- [ ] identify and remove Python-side bottlenecks in hot loops that prevent full
-  JAX staging
-- [ ] increase the fraction of the bootstrap-current and profile workflows that
-  can stay inside `jit`/`vmap`-friendly code paths
-- [ ] evaluate whether `lineax` can replace or augment the current dense linear
-  solve path without weakening differentiability or numerical stability
-- [ ] evaluate whether `equinox`-style module structuring would simplify
-  caching, state handling, and profiling for larger optimization loops
-- [ ] track memory as a first-class metric, especially for prepared solves,
-  derivative paths, and native bootstrap-current workflows
-- [ ] define performance gates for key workflows:
-  - prepared monoenergetic scan
-  - native bootstrap-current profile
-  - derivative benchmark
-  - profile transport loop
-### 6. Physics Expansion
+### 5. Physics Expansion
 
 - [ ] add higher-level transport closures only after the current profile lane is
   technically stable
 - [ ] stage momentum-restoring or broader transport models without weakening the
   current monoenergetic core
 
-### 7. Native Bootstrap-Current Workflow
+### 6. Native Bootstrap-Current Workflow
 
 - [x] add a native NTX neoclassical closure layer that uses NTX monoenergetic
   coefficients directly instead of routing through NEOPAX
@@ -137,7 +113,7 @@ research problems.
   momentum-correction belongs natively in NTX or remains a higher-level
   transport feature
 
-### 8. Validation, Benchmarks, And Gates
+### 7. Validation, Benchmarks, And Gates
 
 - [ ] add unit tests for the native bootstrap-current closure:
   - quadrature normalization
@@ -160,7 +136,7 @@ research problems.
   - Gate 4: W7-X imported bootstrap-current workflow remains stable
   - Gate 5: all new APIs have unit tests and regression tests
 
-### 9. Examples, Docs, And Release Surface
+### 8. Examples, Docs, And Release Surface
 
 - [ ] add a native NTX example for bootstrap-current calculation from VMEC /
   Boozer without routing through NEOPAX
@@ -182,7 +158,7 @@ research problems.
 - [ ] ensure the README stays concise while the full model details live in the
   docs
 
-### 10. QA And Maintenance
+### 9. QA And Maintenance
 
 - [ ] keep documentation synchronized with the actual shipped algorithms
 - [ ] continue closing coverage on optional/error-path code
@@ -232,8 +208,6 @@ templates:
    more predictive self-consistent transport workflow.
 5. Reduce adjoint memory/factorization cost for prepared dense solves on larger
    optimization scans.
-6. Profile the current solver/bootstrap stack end-to-end and use that data to
-   prioritize JAX/vectorization/per-memory optimizations instead of guessing.
 
 ## Active Code Log
 
@@ -273,13 +247,3 @@ templates:
     profile construction, and a frozen current-profile value test
   - CI failures seen in GitHub Actions at this point are real lint failures,
     not exhausted Actions minutes
-- The next performance batch should be data-driven:
-  - add workflow-level profiling for preparation, scan solve, and native
-    bootstrap current
-  - use those measurements to decide where stronger JAX staging, vectorization,
-    solver changes, or memory work will actually pay off
-- First workflow-level profiling result on the sample VMEC case:
-  - prepared steady coefficient solves are much cheaper than full scan calls
-  - geometry preparation remains a visible one-time cost
-  - the native bootstrap-current closure is currently slower than the steady
-    scan path and is therefore a real optimization target
