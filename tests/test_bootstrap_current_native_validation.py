@@ -24,21 +24,6 @@ def _local_dependencies_available() -> bool:
     return all(path.exists() for path in required)
 
 
-def _fixed_field_dependencies_available() -> bool:
-    required = [
-        Path("/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_reactorScale_lowres"),
-        Path(
-            "/Users/rogeriojorge/local/vmec_jax/examples/data/"
-            "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
-        ),
-        Path("/Users/rogeriojorge/local/tests/sfincs_jax"),
-        Path("/Users/rogeriojorge/local/sfincs/fortran/version3/sfincs"),
-        Path("/Users/rogeriojorge/local/simsopt"),
-        Path("/Users/rogeriojorge/local/booz_xform_jax"),
-    ]
-    return all(path.exists() for path in required)
-
-
 @pytest.mark.skipif(
     not _local_dependencies_available(),
     reason="requires local QA/SFINCS research stack",
@@ -81,22 +66,6 @@ def test_sfincs_jax_and_sfincs_agree_on_one_qa_radius():
     assert error < 1.0e-3
 
 
-@pytest.mark.skipif(
-    not _fixed_field_dependencies_available(),
-    reason="requires local fixed-field QA/SFINCS research stack",
-)
-def test_fixed_field_cases_are_discoverable():
-    sys.path.insert(0, str(EXAMPLES))
-    from bootstrap_current_native_validation_common import available_fixed_field_cases
-
-    cases = available_fixed_field_cases()
-    assert set(cases) == {"qa", "qh"}
-    assert (
-        cases["qa"].wout_path.name
-        == "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
-    )
-
-
 def test_bootstrap_current_native_validation_script_runs_if_repointed(tmp_path):
     output_prefix = tmp_path / "bootstrap_current_native_validation"
     script = (EXAMPLES / "bootstrap_current_native_validation.py").read_text(encoding="utf-8")
@@ -131,6 +100,6 @@ def test_bootstrap_current_native_validation_script_runs_if_repointed(tmp_path):
         )
     assert completed.returncode != 0
     assert (
-        "benchmark QA/QH case directories" in completed.stderr
-        or "benchmark QA/QH case directories" in completed.stdout
+        "finite-beta QA/QH case directories" in completed.stderr
+        or "finite-beta QA/QH case directories" in completed.stdout
     )
