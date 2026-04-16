@@ -59,6 +59,16 @@ class FixedFieldCase:
     source_family: str
 
 
+@dataclass(frozen=True)
+class MonoenergeticBridge:
+    nu_n: float
+    b0_over_bbar: float
+    g_hat: float
+    i_hat: float
+    factor_31: float
+    factor_33: float
+
+
 def _fixed_field_cases() -> dict[str, FixedFieldCase]:
     zenodo_root = find_qs_zenodo_root()
     if zenodo_root is not None:
@@ -174,6 +184,68 @@ def _prepare_sfincs_jax_case(case: FixedFieldCase, rho: float) -> tuple[Path, Pa
     return input_path, matrix_path
 
 
+def _bridge_from_scalars(
+    *,
+    surface_b0: float,
+    psi_a_hat: float,
+    b0_over_bbar: float,
+    g_hat: float,
+    i_hat: float,
+    iota: float,
+    nu_prime: float,
+) -> MonoenergeticBridge:
+    denom = float(g_hat) + float(iota) * float(i_hat)
+    if abs(denom) <= 1.0e-16:
+        raise ZeroDivisionError("fixed-field monoenergetic bridge requires GHat + iota*IHat != 0")
+    # Match the v3 RHSMode=3 monoenergetic overwrite exactly.
+    nu_n = float(nu_prime) * float(b0_over_bbar) / denom
+    # Landreman/H. Smith VMEC-s-coordinate bridge used in the benchmark scripts.
+    factor_31 = 4.0 * float(surface_b0) * float(psi_a_hat) / (np.sqrt(np.pi) * float(g_hat))
+    # The historical MONKES formula carries the opposite sign because its stored D33 convention
+    # differs from NTX's raw D33 sign. NTX raw D33 is positive on the current fixed-field cases,
+    # so the bridge here is written in the NTX sign convention.
+    factor_33 = 2.0 * float(surface_b0) / (denom * np.sqrt(np.pi))
+    return MonoenergeticBridge(
+        nu_n=float(nu_n),
+        b0_over_bbar=float(b0_over_bbar),
+        g_hat=float(g_hat),
+        i_hat=float(i_hat),
+        factor_31=float(factor_31),
+        factor_33=float(factor_33),
+    )
+
+
+def _sfincs_rhsmode3_bridge(
+    input_path: Path,
+    surface_b0: float,
+    psi_a_hat: float,
+) -> MonoenergeticBridge:
+    root = find_sfincs_jax_root()
+    if root is None:
+        raise RuntimeError("sfincs_jax checkout is required for the fixed-field audit")
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+    from sfincs_jax.namelist import read_sfincs_input
+    from sfincs_jax.transport_matrix import _flux_functions_from_op
+    from sfincs_jax.v3 import geometry_from_namelist, grids_from_namelist
+    from sfincs_jax.v3_system import full_system_operator_from_namelist
+
+    nml = read_sfincs_input(input_path)
+    grids = grids_from_namelist(nml)
+    geom = geometry_from_namelist(nml=nml, grids=grids)
+    op = full_system_operator_from_namelist(nml=nml, grids=grids, geom=geom)
+    b0_over_bbar, g_hat, i_hat = _flux_functions_from_op(op)
+    return _bridge_from_scalars(
+        surface_b0=surface_b0,
+        psi_a_hat=psi_a_hat,
+        b0_over_bbar=float(b0_over_bbar),
+        g_hat=float(g_hat),
+        i_hat=float(i_hat),
+        iota=float(geom.iota),
+        nu_prime=NU_PRIME,
+    )
+
+
 def _run_sfincs_jax_transport_matrix(
     case: FixedFieldCase,
     rho: float,
@@ -216,7 +288,11 @@ def _run_sfincs_jax_transport_matrix(
     return np.asarray(matrix, dtype=float)
 
 
-def _compute_ntx_channels(case: FixedFieldCase, rho: float) -> dict[str, float]:
+def _compute_ntx_channels(
+    case: FixedFieldCase,
+    rho: float,
+    bridge: MonoenergeticBridge,
+) -> dict[str, float]:
     surface = load_vmec_surface(
         case.wout_path,
         psi_n=float(rho**2),
@@ -227,19 +303,26 @@ def _compute_ntx_channels(case: FixedFieldCase, rho: float) -> dict[str, float]:
     result = solve_monoenergetic(
         surface,
         NTX_GRID,
-        MonoenergeticCase(nu_hat=float(NU_PRIME), epsi_hat=float(ESTAR)),
+        MonoenergeticCase(nu_hat=float(bridge.nu_n), epsi_hat=float(ESTAR)),
     )
-    drds = float(surface.aminor_p * 0.5 / max(rho, 1.0e-8))
     return {
+        "nu_n": float(bridge.nu_n),
+        "surface_b0": float(surface.b0),
+        "psi_a_hat": float(surface.psi_a_hat),
+        "b0_over_bbar": float(bridge.b0_over_bbar),
+        "g_hat": float(bridge.g_hat),
+        "i_hat": float(bridge.i_hat),
         "D11_raw": float(result.D11),
         "D31_raw": float(result.D31),
         "D13_raw": float(result.D13),
         "D33_raw": float(result.D33),
-        "D13_neopax": float(-result.D13 * drds),
-        "D31_plus_drds": float(result.D31 * drds),
-        "D31_minus_drds": float(-result.D31 * drds),
-        "D33_nu": float(result.D33 * NU_PRIME),
-        "drds": drds,
+        "D33_spitzer": float(result.D33_spitzer),
+        "L13_bridge": float(-result.D13 * bridge.factor_31),
+        "L31_bridge": float(result.D31 * bridge.factor_31),
+        "L33_bridge": float(result.D33 * bridge.factor_33),
+        "L33_spitzer_bridge": float(result.D33_spitzer * bridge.factor_33),
+        "factor_31": float(bridge.factor_31),
+        "factor_33": float(bridge.factor_33),
     }
 
 
@@ -250,8 +333,17 @@ def _relative_error(a: float, b: float) -> float:
 def _run_case(case: FixedFieldCase, *, recompute: bool) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     for rho in RHO_VALUES:
+        input_path, _ = _prepare_sfincs_jax_case(case, float(rho))
         matrix = _run_sfincs_jax_transport_matrix(case, float(rho), recompute=recompute)
-        ntx = _compute_ntx_channels(case, float(rho))
+        surface = load_vmec_surface(
+            case.wout_path,
+            psi_n=float(rho**2),
+            vmec_radial_option=0,
+            vmec_nyquist_option=1,
+            vmec_mode_convention="filtered_nyquist",
+        )
+        bridge = _sfincs_rhsmode3_bridge(input_path, float(surface.b0), float(surface.psi_a_hat))
+        ntx = _compute_ntx_channels(case, float(rho), bridge)
         rows.append(
             {
                 "rho": float(rho),
@@ -263,14 +355,12 @@ def _run_case(case: FixedFieldCase, *, recompute: bool) -> dict[str, Any]:
                 },
                 "ntx": ntx,
                 "candidate_relative_error": {
-                    "D13_neopax_vs_L13": _relative_error(ntx["D13_neopax"], float(matrix[0, 1])),
-                    "D31_plus_drds_vs_L31": _relative_error(
-                        ntx["D31_plus_drds"], float(matrix[1, 0])
+                    "L13_bridge_vs_L13": _relative_error(ntx["L13_bridge"], float(matrix[0, 1])),
+                    "L31_bridge_vs_L31": _relative_error(ntx["L31_bridge"], float(matrix[1, 0])),
+                    "L33_bridge_vs_L33": _relative_error(ntx["L33_bridge"], float(matrix[1, 1])),
+                    "L33_spitzer_bridge_vs_L33": _relative_error(
+                        ntx["L33_spitzer_bridge"], float(matrix[1, 1])
                     ),
-                    "D31_minus_drds_vs_L31": _relative_error(
-                        ntx["D31_minus_drds"], float(matrix[1, 0])
-                    ),
-                    "D33_nu_vs_L33": _relative_error(ntx["D33_nu"], float(matrix[1, 1])),
                 },
                 "onsager": {
                     "ntx_D31_plus_D13": float(ntx["D31_raw"] + ntx["D13_raw"]),
@@ -286,11 +376,11 @@ def _run_case(case: FixedFieldCase, *, recompute: bool) -> dict[str, Any]:
 def _plot(summary: dict[str, Any]) -> None:
     fig, axes = plt.subplots(3, 2, figsize=(11.2, 9.4), sharex=True, constrained_layout=True)
     channel_specs = (
-        ("L13", "D13_neopax", r"$L_{13}$ vs $-D_{13}\,dr/ds$"),
-        ("L31", "D31_minus_drds", r"$L_{31}$ vs $-D_{31}\,dr/ds$"),
-        ("L33", "D33_nu", r"$L_{33}$ vs $\nu D_{33}$"),
+        ("L13", "L13_bridge", r"$L_{13}$ vs archive-backed bridge"),
+        ("L31", "L31_bridge", r"$L_{31}$ vs archive-backed bridge"),
+        ("L33", "L33_bridge", r"$L_{33}$ vs archive-backed bridge"),
     )
-    colors = {"sfincs": "#d55e00", "ntx": "#1f77b4"}
+    colors = {"sfincs": "#d55e00", "ntx": "#1f77b4", "spitzer": "#6c757d"}
 
     for col, case_key in enumerate(("qa", "qh")):
         rows = summary[case_key]["rows"]
@@ -300,7 +390,20 @@ def _plot(summary: dict[str, Any]) -> None:
             sfincs_vals = np.array([row["sfincs_jax"][sfincs_key] for row in rows], dtype=float)
             ntx_vals = np.array([row["ntx"][ntx_key] for row in rows], dtype=float)
             ax.plot(rho, sfincs_vals, "o-", lw=2.2, color=colors["sfincs"], label="SFINCS-JAX")
-            ax.plot(rho, ntx_vals, "s--", lw=2.0, color=colors["ntx"], label="NTX candidate")
+            ax.plot(rho, ntx_vals, "s--", lw=2.0, color=colors["ntx"], label="NTX bridge")
+            if sfincs_key == "L33":
+                spitzer_vals = np.array(
+                    [row["ntx"]["L33_spitzer_bridge"] for row in rows],
+                    dtype=float,
+                )
+                ax.plot(
+                    rho,
+                    spitzer_vals,
+                    "^:",
+                    lw=1.8,
+                    color=colors["spitzer"],
+                    label="NTX Spitzer bridge",
+                )
             ax.set_title(f"{summary[case_key]['case']['label']}: {title}")
             ax.grid(alpha=0.24, lw=0.6)
             if row_idx == 2:

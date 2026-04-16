@@ -174,7 +174,13 @@ templates:
 ## Next Concrete Code Steps
 
 1. Derive the exact NTX-to-SFINCS transport-matrix normalization bridge for the
-   fixed-field QA/QH reference cases, centered on `L13`, `L31`, and `L33`.
+   fixed-field QA/QH reference cases:
+   - keep full transport-matrix parity focused on `L13`, `L31`, and `L33`
+   - treat the fixed-field zero-`E_r` bootstrap-current mismatch itself as a
+     `D13/L31` closure-path problem, since the active NEOPAX no-momentum
+     closure has `A3 = 0` on that benchmark
+   - keep `L33` as the main unresolved channel for full matrix parity rather
+     than as the sole explanation for the fixed-field current gap
 2. Keep finite-beta QA/QH and W7-X bootstrap-current validation in the
    `NTX+NEOPAX` lane, separate from the fixed-field coefficient audit.
 3. Profile the prepared solve and `NTX+NEOPAX` workflow to identify the real
@@ -217,9 +223,33 @@ templates:
     QA/QH fixed-field reference equilibria at `rho = [0.25, 0.50, 0.75]`
   - it compares `L13`, `L31`, and `L33` against NTX candidate channels
     derived from `D13`, `D31`, and `D33`
-  - first result: simple `-D13 dr/ds` and `nu D33` mappings are not enough to
-    close the gap, especially in `L33`, so the remaining fixed-field mismatch
-    is not just the earlier sign bug
+  - current result: the exact `RHSMode=3` `nu_n` overwrite plus the
+    archive-backed Landreman/H. Smith bridge factors tighten `L13/L31`
+    substantially
+  - present measured fixed-field `L13/L31` relative errors are about
+    `0.12–0.29` on QA and `0.027–0.15` on QH
+  - the remaining fixed-field blocker is now concentrated in `L33`, which is
+    still off by about `0.14–0.16` on the current QA/QH audit points
+  - so the open problem is no longer a generic sign or benchmark-family bug;
+    it is now the parallel-flow channel bridge itself
+- The archive-backed precise-QS current comparison is also now separated
+  cleanly from the coefficient audit:
+  - Redl remains close to archived SFINCS on the precise-QS family once the
+    correct benchmark set is used
+  - `NTX+NEOPAX` is still not close on that fixed-field family, with interior
+    max relative errors still around `0.77` on QA and `0.78` on QH in the
+    current sampled-radial comparison
+  - a direct attempt to inject the archive-backed `reference_to_sfincs`
+    factors into the NTX-to-NEOPAX database mapping over-amplified the current,
+    so that is not the correct bridge
+  - the paper-side benchmark now uses the exact archived fixed-field profile
+    values together with archive-driven Hermite reconstruction in `rho` and an
+    adaptive `nu_v` support chosen from the actual NEOPAX collisionality range
+  - the previous narrow `nu_v` axis was a real setup bug, but correcting it
+    does not materially reduce the fixed-field current error
+  - the remaining blocker is therefore not Redl, not the benchmark family, and
+    not the `nu_v` support; it is the NTX-to-NEOPAX normalization/closure path
+    for fixed-field current, centered now on the `D13/L31` current channel
 - The precise-QS Redl benchmark from the Zenodo bundle is now reproduced
   directly in-tree:
   - both the VMEC-based and Boozer-based Redl paths match the archived SFINCS

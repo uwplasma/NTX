@@ -2,7 +2,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from examples import fixed_field_transport_matrix_audit as audit
+
+
+def test_bridge_from_scalars_matches_expected_formulas():
+    bridge = audit._bridge_from_scalars(
+        surface_b0=5.9,
+        psi_a_hat=8.0,
+        b0_over_bbar=5.7,
+        g_hat=60.0,
+        i_hat=0.2,
+        iota=0.4,
+        nu_prime=8.31565e-3,
+    )
+    denom = 60.0 + 0.4 * 0.2
+    assert bridge.nu_n == pytest.approx(8.31565e-3 * 5.7 / denom)
+    assert bridge.factor_31 == pytest.approx(4.0 * 5.9 * 8.0 / (audit.np.sqrt(audit.np.pi) * 60.0))
+    assert bridge.factor_33 == pytest.approx(2.0 * 5.9 / (denom * audit.np.sqrt(audit.np.pi)))
 
 
 def test_fixed_field_case_discovery(monkeypatch, tmp_path):

@@ -161,8 +161,16 @@ This local audit writes:
 
 It runs SFINCS-JAX in `RHSMode=3` on the same fixed-field QA/QH reference
 family and compares `L13`, `L31`, and `L33` against NTX candidate channels.
-This is the coefficient-side audit that still gates the public
-`NTX+NEOPAX` bootstrap-current validation figure.
+This audit now:
+
+- reproduces the exact SFINCS `RHSMode=3` monoenergetic overwrite for `nu_n`
+- uses archive-backed Landreman/H. Smith bridge factors for the `L13/L31/L33`
+  channels
+- narrows the remaining blocker to the `L33` bridge rather than a generic sign
+  or family-selection problem
+
+This is still the coefficient-side gate for the public `NTX+NEOPAX`
+bootstrap-current validation figure.
 
 ## 12. Autodiff Derivative Audit
 

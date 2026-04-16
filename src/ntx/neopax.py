@@ -229,12 +229,33 @@ def build_ntx_neopax_scan_from_surfaces(
     d11_list = []
     d13_list = []
     d33_list = []
+    b00_list = []
+    boozer_i_list = []
+    boozer_g_list = []
+    iota_list = []
+    fac_11_list = []
+    fac_31_list = []
+    fac_33_list = []
+    sfincs_to_dkes_11_list = []
+    sfincs_to_dkes_31_list = []
+    sfincs_to_dkes_33_list = []
     for surface, es_row in zip(surfaces, es_arr, strict=True):
         nu_grid, es_grid = jnp.meshgrid(nu_arr, es_row, indexing="ij")
         coeffs = solve_monoenergetic_scan(surface, grid, nu_grid, epsi_hat=es_grid)
         d11_list.append(coeffs["D11"])
         d13_list.append(coeffs["D13"])
         d33_list.append(coeffs["D33"])
+        bridge = _surface_reference_bridge(surface)
+        b00_list.append(bridge["b00"])
+        boozer_i_list.append(bridge["boozer_i"])
+        boozer_g_list.append(bridge["boozer_g"])
+        iota_list.append(bridge["iota"])
+        fac_11_list.append(bridge["fac_11"])
+        fac_31_list.append(bridge["fac_31"])
+        fac_33_list.append(bridge["fac_33"])
+        sfincs_to_dkes_11_list.append(bridge["fac_sfincs_to_dkes_11"])
+        sfincs_to_dkes_31_list.append(bridge["fac_sfincs_to_dkes_31"])
+        sfincs_to_dkes_33_list.append(bridge["fac_sfincs_to_dkes_33"])
 
     return NeopaxScan(
         rho=rho_arr,
@@ -245,6 +266,16 @@ def build_ntx_neopax_scan_from_surfaces(
         D11=jnp.stack(d11_list),
         D13=jnp.stack(d13_list),
         D33=jnp.stack(d33_list),
+        b00=jnp.asarray(b00_list),
+        boozer_i=jnp.asarray(boozer_i_list),
+        boozer_g=jnp.asarray(boozer_g_list),
+        iota=jnp.asarray(iota_list),
+        fac_reference_to_sfincs_11=jnp.asarray(fac_11_list),
+        fac_reference_to_sfincs_31=jnp.asarray(fac_31_list),
+        fac_reference_to_sfincs_33=jnp.asarray(fac_33_list),
+        fac_sfincs_to_dkes_11=jnp.asarray(sfincs_to_dkes_11_list),
+        fac_sfincs_to_dkes_31=jnp.asarray(sfincs_to_dkes_31_list),
+        fac_sfincs_to_dkes_33=jnp.asarray(sfincs_to_dkes_33_list),
         source_name=source_name,
     )
 
@@ -292,7 +323,11 @@ def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
     return output_path
 
 
-def scan_to_neopax_arrays(scan: NeopaxScan, *, a_b: float | Array) -> NeopaxMonoenergeticArrays:
+def scan_to_neopax_arrays(
+    scan: NeopaxScan,
+    *,
+    a_b: float | Array,
+) -> NeopaxMonoenergeticArrays:
     """Map NTX scan data into the pure arrays consumed by `NEOPAX.Monoenergetic`.
 
     This path is JAX-friendly and is the right place to keep imported,
@@ -364,3 +399,55 @@ def _write_dataset(handle, name: str, values) -> None:
     if values is None:
         return
     handle[name] = jnp.asarray(values)
+
+
+def _surface_reference_bridge(surface: BoozerSurface | VmecSurface) -> dict[str, Array]:
+    if isinstance(surface, VmecSurface):
+        zero_mode = jnp.asarray((surface.m == 0) & (surface.n == 0))
+        if not jnp.any(zero_mode):
+            raise ValueError(
+                "VMEC surface is missing the (0,0) Boozer mode needed for "
+                "NEOPAX bridge factors"
+            )
+        idx = int(jnp.argmax(zero_mode))
+        boozer_i = jnp.asarray(surface.b_sup_theta_cos[idx], dtype=jnp.float64)
+        boozer_g = jnp.asarray(surface.b_sup_zeta_cos[idx], dtype=jnp.float64)
+        psi_a = jnp.asarray(surface.psi_a_hat, dtype=jnp.float64)
+        b00 = jnp.asarray(surface.b0, dtype=jnp.float64)
+        iota = jnp.asarray(surface.iota, dtype=jnp.float64)
+    else:
+        boozer_i = jnp.asarray(surface.b_theta, dtype=jnp.float64)
+        boozer_g = jnp.asarray(surface.b_zeta, dtype=jnp.float64)
+        psi_a = jnp.asarray(surface.psi_p, dtype=jnp.float64)
+        b00_source = surface.b0 if surface.b0 is not None else surface.b_cos[0]
+        b00 = jnp.asarray(b00_source, dtype=jnp.float64)
+        iota = jnp.asarray(surface.iota, dtype=jnp.float64)
+
+    denom = boozer_g + iota * boozer_i
+    fac_11 = 8.0 * denom * b00 * psi_a**2 / (jnp.sqrt(jnp.pi) * boozer_g**2)
+    fac_31 = 4.0 * b00 * psi_a / (jnp.sqrt(jnp.pi) * boozer_g)
+    # NTX's raw D33 convention already carries the opposite sign relative to the
+    # historical DKES-like files, so the positive bridge here is intentional.
+    fac_33 = 2.0 * b00 / (jnp.sqrt(jnp.pi) * denom)
+    dpsi_drtilde = surface.r_hat * b00 if isinstance(surface, VmecSurface) else b00
+    fac_sfincs_to_dkes_11 = 1.0 / (
+        8.0 * denom * dpsi_drtilde**2 / (boozer_g**2 * b00 * jnp.sqrt(jnp.pi))
+    )
+    fac_sfincs_to_dkes_31 = 1.0 / (
+        4.0 * dpsi_drtilde / (boozer_g * jnp.sqrt(jnp.pi))
+    )
+    fac_sfincs_to_dkes_33 = 1.0 / (
+        2.0 * b00 / (denom * jnp.sqrt(jnp.pi))
+    )
+    return {
+        "b00": b00,
+        "boozer_i": boozer_i,
+        "boozer_g": boozer_g,
+        "iota": iota,
+        "fac_11": fac_11,
+        "fac_31": fac_31,
+        "fac_33": fac_33,
+        "fac_sfincs_to_dkes_11": fac_sfincs_to_dkes_11,
+        "fac_sfincs_to_dkes_31": fac_sfincs_to_dkes_31,
+        "fac_sfincs_to_dkes_33": fac_sfincs_to_dkes_33,
+    }
