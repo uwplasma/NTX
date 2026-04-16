@@ -87,78 +87,7 @@ research problems.
 - [ ] stage momentum-restoring or broader transport models without weakening the
   current monoenergetic core
 
-### 6. Native Bootstrap-Current Workflow
-
-- [ ] add a native NTX neoclassical closure layer that uses NTX monoenergetic
-  coefficients directly instead of routing through NEOPAX
-- [ ] implement the no-momentum-correction bootstrap-current path first:
-  - species inputs
-  - thermal-speed grid and quadrature
-  - collisionality and thermodynamic forces
-  - energy convolution
-  - `Lij` assembly
-  - `U_parallel` / `j·B` / bootstrap-current outputs
-- [ ] keep the first native implementation physically equivalent to the current
-  NTX+NEOPAX no-momentum path before adding any new model features
-- [ ] add a native database-to-current API that can evaluate:
-  - one radius / one species set
-  - one radial profile
-  - one VMEC/Boozer family scan
-- [ ] add explicit diagnostics for:
-  - species-resolved current contributions
-  - `Lij` entries
-  - energy-integrand breakdown
-  - sensitivity of the current to `D13`, `D31`, and `D33`
-- [ ] only after the no-momentum branch is stable, decide whether
-  momentum-correction belongs natively in NTX or remains a higher-level
-  transport feature
-
-### 7. Validation, Benchmarks, And Gates
-
-- [ ] add unit tests for the native bootstrap-current closure:
-  - quadrature normalization
-  - thermodynamic-force construction
-  - collisionality helpers
-  - `Lij` assembly signs and symmetries
-  - current sign under controlled `D13` / `D31` inputs
-- [ ] add regression tests tying NTX-native bootstrap current to the current
-  NTX+NEOPAX no-momentum result on small frozen fixtures
-- [ ] add benchmark tests against SFINCS-JAX / SFINCS for the finite-beta QA and
-  QH cases already used in the paper-side audit
-- [ ] add fixed-radius transport-matrix audits against SFINCS-JAX for the
-  helical VMEC path, with explicit checks on `D13`, `D31`, and `D33`
-- [ ] add a W7-X native bootstrap-current regression on the imported workflow
-- [ ] define hard gates for native bootstrap-current work:
-  - Gate 1: NTX-native reproduces NTX+NEOPAX no-momentum current on frozen test
-    cases to tight tolerance
-  - Gate 2: QA/QH sign and radial trend agree with SFINCS
-  - Gate 3: QA/QH max relative error improves materially over the current audit
-  - Gate 4: W7-X imported bootstrap-current workflow remains stable
-  - Gate 5: all new APIs have unit tests and regression tests
-
-### 8. Examples, Docs, And Release Surface
-
-- [ ] add a native NTX example for bootstrap-current calculation from VMEC /
-  Boozer without routing through NEOPAX
-- [ ] keep the example simple and user-facing:
-  - load VMEC or Boozer geometry
-  - define species / profiles
-  - compute bootstrap-current profile
-  - write a polished figure and structured output
-- [ ] add a separate validation example that compares NTX-native against
-  SFINCS-JAX / SFINCS on curated QA/QH/W7-X cases
-- [ ] add polished documentation pages for the native bootstrap-current model:
-  - equations
-  - normalization
-  - energy convolution
-  - species inputs / outputs
-  - examples and benchmark interpretation
-- [ ] add a curated bootstrap-current validation figure to the README showing
-  NTX vs SFINCS profile agreement on a benchmark case
-- [ ] ensure the README stays concise while the full model details live in the
-  docs
-
-### 9. QA And Maintenance
+### 6. QA And Maintenance
 
 - [ ] keep documentation synchronized with the actual shipped algorithms
 - [ ] continue closing coverage on optional/error-path code
@@ -198,16 +127,14 @@ templates:
 
 ## Next Concrete Code Steps
 
-1. Implement native no-momentum-correction bootstrap current in NTX and match
-   the present NTX+NEOPAX path on frozen fixtures.
-2. Audit native QA/QH bootstrap-current profiles against SFINCS-JAX and SFINCS
-   until the remaining amplitude gap is understood quantitatively.
-3. Add the native bootstrap-current example, validation example, docs, and
-   README validation figure.
-4. Strengthen the current profile transport loop from proxy closure toward a
+1. Strengthen the current profile transport loop from proxy closure toward a
    more predictive self-consistent transport workflow.
-5. Reduce adjoint memory/factorization cost for prepared dense solves on larger
+2. Reduce adjoint memory/factorization cost for prepared dense solves on larger
    optimization scans.
+3. Expand geometry-family studies beyond the current W7-X-centered examples.
+4. Tighten code coverage on optional loaders and remaining error branches.
+5. Re-run throughput studies on larger production grids when the next research
+   campaign needs them.
 
 ## Active Code Log
 
@@ -230,13 +157,3 @@ templates:
     research use now
   - the main remaining technical gap is the transition from current proxy-based
     profile transport workflows to a stronger self-consistent transport layer
-- The current QA/QH bootstrap-current audit established:
-  - `vmec_jax.read_wout()` is not the raw sign/load problem
-  - NTX had two convention bugs that are now fixed:
-    - file-backed VMEC loader signs for `iota`, helical `n`, and `jacobian`
-    - NTX-to-NEOPAX `D13` sign in the monoenergetic handoff
-  - after those fixes, the remaining QA/QH mismatch is an amplitude/model gap,
-    not a sign/normalization bug
-- The next NTX development batch is therefore centered on native
-  bootstrap-current support, tighter SFINCS-facing validation gates, and a
-  cleaner public workflow for bootstrap-current calculations directly in NTX
