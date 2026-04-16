@@ -138,26 +138,3 @@ When an independent transport workflow such as
 research environment, NTX studies can also be checked against it. Those
 comparisons are useful for confidence, but they are not required to run NTX or
 to understand the code.
-
-The current native bootstrap-current benchmark is:
-
-```bash
-python examples/bootstrap_current_native_validation.py
-```
-
-It compares NTX-native, Redl, SFINCS-JAX, and Fortran SFINCS on the local
-finite-beta QA/QH equilibria and writes a polished figure plus JSON summary.
-The present benchmark status is:
-
-- SFINCS-JAX matches Fortran SFINCS to tight tolerance
-- NTX-native now has the correct sign and radial trend on both QA and QH
-- the remaining QA/QH gap is an amplitude/model gap, not a raw VMEC sign or
-  normalization error
-
-Current max relative error against Fortran SFINCS from the checked-in summary:
-
-- QA: `NTX = 6.49e-01`, `Redl = 2.59e+00`, `SFINCS-JAX = 1.99e-05`
-- QH: `NTX = 8.31e-01`, `Redl = 1.60e+00`, `SFINCS-JAX = 1.82e-06`
-
-This benchmark is therefore a development gate rather than a headline README
-validation figure at the current stage.
