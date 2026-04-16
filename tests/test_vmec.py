@@ -96,11 +96,7 @@ def test_vmec_filtered_nyquist_matches_direct_vmec_harmonics_sign_convention():
         "D13": 2.0e-2,
         "D33": 6.0e-3,
     }.items():
-        assert result_filtered[key] == pytest.approx(
-            result_direct[key],
-            rel=tolerance,
-            abs=tolerance,
-        )
+        assert result_filtered[key] == pytest.approx(result_direct[key], rel=tolerance, abs=tolerance)
 
 
 def test_vmec_surface_resolves_er_hat_from_transport_scale():

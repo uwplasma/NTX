@@ -12,13 +12,6 @@ from .autodiff import (
     example_inverse_problem,
     example_neopax_profile_autodiff,
 )
-from .bootstrap import (
-    BootstrapCurrentResult,
-    BootstrapSpeciesProfile,
-    build_bootstrap_species_profile,
-    build_bootstrap_species_profiles,
-    evaluate_bootstrap_current,
-)
 from .booz import BoozmnSurface, load_boozmn_surface
 from .config import enable_x64
 from .database import (
@@ -109,8 +102,6 @@ __all__ = [
     "__version__",
     "BoozmnSurface",
     "BoozerSurface",
-    "BootstrapCurrentResult",
-    "BootstrapSpeciesProfile",
     "BootstrapOptimizationResult",
     "AmbipolarProfileFamilyResult",
     "AmbipolarProfileResult",
@@ -134,8 +125,6 @@ __all__ = [
     "TransportResult",
     "VmecSurface",
     "build_monoenergetic_database_arrays",
-    "build_bootstrap_species_profile",
-    "build_bootstrap_species_profiles",
     "build_ntx_neopax_scan",
     "build_ntx_neopax_scan_from_surfaces",
     "evaluate_scan_channel",
@@ -143,7 +132,6 @@ __all__ = [
     "evaluate_species_particle_flux",
     "compile_prepared_solver",
     "enable_x64",
-    "evaluate_bootstrap_current",
     "example_derivative_audit",
     "example_surface",
     "example_bootstrap_current_optimization",
