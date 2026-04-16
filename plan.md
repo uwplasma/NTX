@@ -23,6 +23,8 @@ research problems.
 - [x] publication-quality example figures and figure-bundle generation
 - [x] W7-X bootstrap-current convergence audit
 - [x] profile-grade ambipolar, control, and transport proxy workflows
+- [x] NTX remains scoped to monoenergetic coefficients and flux channels, with
+  bootstrap-current closure delegated to NEOPAX
 
 ## Current Validation Summary
 
@@ -35,6 +37,12 @@ research problems.
   - `mypy`
   - `pytest`
   - `sphinx`
+- current bootstrap-current interpretation:
+  - use `NTX+NEOPAX` for bootstrap-current workflows
+  - keep fixed-field Redl/SFINCS audits separate from finite-beta integrated
+    workflow audits
+  - do not promote QA/QH bootstrap-current figures to the README until the
+    fixed-field coefficient audit is tighter
 
 ## Open Code Lanes
 
@@ -87,7 +95,45 @@ research problems.
 - [ ] stage momentum-restoring or broader transport models without weakening the
   current monoenergetic core
 
-### 6. QA And Maintenance
+### 6. Fixed-Field And Integrated Validation
+
+- [ ] keep the validation surface split explicit:
+  - fixed-field QA/QH reference family for Redl vs SFINCS vs `NTX+NEOPAX`
+  - finite-beta QA/QH and W7-X for integrated workflow relevance
+- [ ] add a fixed-radius transport-matrix audit against SFINCS-JAX on the
+  fixed-field QA/QH reference cases, focused on `D13`, `D31`, and `D33`
+- [ ] isolate the outer-radius amplitude failure by auditing:
+  - VMEC file loading and radial mapping
+  - SFINCS-JAX transport-matrix normalization
+  - NTX `D13` / `D31` / `D33` channel conventions
+  - NTX to NEOPAX handoff conventions
+- [ ] reproduce the Boozer-based Redl path from the Zenodo bundle robustly on
+  the fixed-field QA/QH reference family
+- [ ] add frozen local-only regression tests for the fixed-field audit helpers
+  and benchmark discovery
+- [ ] only after the fixed-field audit is tighter, add a curated
+  `NTX+NEOPAX` vs SFINCS bootstrap-current validation figure to the README
+
+### 7. Throughput, Profiling, And Memory
+
+- [ ] profile the prepared solve, monoenergetic scan, and `NTX+NEOPAX`
+  workflow end to end on representative QA/QH/W7-X studies
+- [ ] identify the dominant NTX bottlenecks before changing solver
+  infrastructure:
+  - operator assembly
+  - prepared solve reuse
+  - scan batching / vectorization
+  - NTX to NEOPAX database handoff
+- [ ] evaluate JAX-first optimization paths only where profiling justifies
+  them:
+  - stronger `jit`/`vmap` staging
+  - lower-overhead scan kernels
+  - prepared-geometry reuse
+  - selective use of `lineax` / `equinox` if they reduce runtime or memory
+- [ ] keep memory pressure and differentiability as explicit gates for any
+  performance work
+
+### 8. QA And Maintenance
 
 - [ ] keep documentation synchronized with the actual shipped algorithms
 - [ ] continue closing coverage on optional/error-path code
@@ -127,14 +173,16 @@ templates:
 
 ## Next Concrete Code Steps
 
-1. Strengthen the current profile transport loop from proxy closure toward a
-   more predictive self-consistent transport workflow.
-2. Reduce adjoint memory/factorization cost for prepared dense solves on larger
-   optimization scans.
-3. Expand geometry-family studies beyond the current W7-X-centered examples.
-4. Tighten code coverage on optional loaders and remaining error branches.
-5. Re-run throughput studies on larger production grids when the next research
-   campaign needs them.
+1. Land the fixed-field QA/QH transport-matrix audit against SFINCS-JAX,
+   centered on `D13`, `D31`, and `D33`.
+2. Reproduce the Boozer-based Redl path from the Zenodo benchmark cleanly and
+   compare it against the VMEC-based Redl path on the same fixed-field cases.
+3. Keep finite-beta QA/QH and W7-X bootstrap-current validation in the
+   `NTX+NEOPAX` lane, separate from the fixed-field coefficient audit.
+4. Profile the prepared solve and `NTX+NEOPAX` workflow to identify the real
+   runtime and memory bottlenecks before changing solver internals.
+5. Continue the profile-transport and derivative work only after the
+   fixed-field audit and profiling picture are technically clear.
 
 ## Active Code Log
 
@@ -157,3 +205,20 @@ templates:
     research use now
   - the main remaining technical gap is the transition from current proxy-based
     profile transport workflows to a stronger self-consistent transport layer
+- Bootstrap-current scope is now explicit again:
+  - NTX owns monoenergetic coefficients and flux channels
+  - NEOPAX owns bootstrap-current closure and higher-level transport workflows
+  - the native-bootstrap-current experiment was reverted on purpose
+  - bootstrap-current truth in validation plots should be labeled `NTX+NEOPAX`
+    when that path is used
+- The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
+  bundle is now available locally under the NTX repo and should be used as the
+  primary fixed-field Redl/SFINCS audit source, while staying ignored by git
+- A first fixed-field transport-matrix audit is now in-tree:
+  - it runs SFINCS-JAX in `RHSMode=3` on the Landreman-Paul QA/QH reference
+    equilibria at `rho = [0.25, 0.50, 0.75]`
+  - it compares `L13`, `L31`, and `L33` against NTX candidate channels
+    derived from `D13`, `D31`, and `D33`
+  - first result: simple `-D13 dr/ds` and `nu D33` mappings are not enough to
+    close the gap, especially in `L33`, so the remaining fixed-field mismatch
+    is not just the earlier sign bug
