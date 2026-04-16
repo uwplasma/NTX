@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import matplotlib
@@ -14,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from bootstrap_current_native_validation_common import (
     available_cases,
+    available_fixed_field_cases,
     compute_ntx_native_profile,
     compute_redl_profile,
     compute_sfincs_jax_profile,
@@ -23,12 +25,17 @@ from bootstrap_current_native_validation_common import (
     write_metadata,
 )
 
+BENCHMARK_FAMILY = os.environ.get("NTX_BOOTSTRAP_BENCHMARK_FAMILY", "finite_beta")
 RHO_GRID = np.linspace(0.15, 0.75, 7)
 OUTPUT_PREFIX = (
     Path(__file__).resolve().parents[1]
     / "docs"
     / "_static"
-    / "bootstrap_current_native_validation"
+    / (
+        "bootstrap_current_native_validation"
+        if BENCHMARK_FAMILY == "finite_beta"
+        else "bootstrap_current_native_validation_fixed_field"
+    )
 )
 SFINCS_DATASET = "FSABjHat"
 NTX_LOADER_MODE = "filtered_nyquist"
@@ -60,7 +67,7 @@ def _panel_label(ax, label: str) -> None:
 
 
 def run_case(case_key: str) -> dict[str, dict[str, np.ndarray | float]]:
-    case = available_cases()[case_key]
+    case = load_cases()[case_key]
     return {
         "Redl": compute_redl_profile(case, RHO_GRID),
         "NTX": compute_ntx_native_profile(
@@ -95,7 +102,7 @@ def plot_results(all_results: dict[str, dict[str, dict[str, np.ndarray | float]]
         gridspec_kw={"height_ratios": (1.0, 0.55)},
     )
 
-    cases = available_cases()
+    cases = load_cases()
     for col, case_key in enumerate(("qa", "qh")):
         case = cases[case_key]
         results = all_results[case_key]
@@ -143,10 +150,21 @@ def plot_results(all_results: dict[str, dict[str, dict[str, np.ndarray | float]]
     plt.close(fig)
 
 
+def load_cases():
+    if BENCHMARK_FAMILY == "finite_beta":
+        return available_cases()
+    if BENCHMARK_FAMILY == "fixed_field":
+        return available_fixed_field_cases()
+    raise ValueError("BENCHMARK_FAMILY must be 'finite_beta' or 'fixed_field'")
+
+
 def main() -> None:
-    cases = available_cases()
+    cases = load_cases()
     if set(cases) != {"qa", "qh"}:
-        raise SystemExit("This validation requires the local finite-beta QA/QH case directories.")
+        raise SystemExit(
+            "This validation requires the local benchmark QA/QH case directories "
+            f"for BENCHMARK_FAMILY={BENCHMARK_FAMILY!r}."
+        )
 
     all_results = {case_key: run_case(case_key) for case_key in ("qa", "qh")}
     plot_results(all_results)

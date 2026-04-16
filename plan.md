@@ -156,6 +156,10 @@ research problems.
 - [x] add a first local QA/QH native benchmark workflow and local-only test lane
   that exercises the real finite-beta equilibria, local `sfincs_jax`, and the
   Fortran `sfincs` executable
+- [ ] add a separate fixed-field QA/QH benchmark lane based on the
+  Landreman-Paul reactor-scale reference equilibria so Redl, NTX, and SFINCS
+  are compared on the same benchmark family used in the self-consistent
+  bootstrap-current literature
 - [ ] add fixed-radius transport-matrix audits against SFINCS-JAX for the
   helical VMEC path, with explicit checks on `D13`, `D31`, and `D33`
 - [ ] add a W7-X native bootstrap-current regression on the imported workflow
@@ -311,3 +315,11 @@ templates:
     - the remaining gap is still too large for README-level validation and must
       be driven down through helical `D13`/closure audits before promoting the
       figure to the public release surface
+- The follow-up audit showed the benchmark surface itself must be split:
+  - the self-consistent finite-beta QA/QH cases answer the integrated workflow
+    question
+  - the fixed-field Landreman-Paul reactor-scale QA/QH references answer the
+    Redl-vs-SFINCS paper question
+  Keeping those families separate is now part of the validation plan, since
+  mixing them obscures whether a gap comes from geometry choice or from the
+  transport model.
