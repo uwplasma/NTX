@@ -1,0 +1,74 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import f90nml
+import pytest
+
+from examples import fixed_field_parallel_flow_audit as audit
+
+
+def test_case_discovery_uses_zenodo_archive(monkeypatch, tmp_path):
+    zenodo_root = (
+        tmp_path
+        / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
+    )
+    calc_root = (
+        zenodo_root / "calculations" / "20211226-01-sfincs_for_precise_QS_for_Redl_benchmark"
+    )
+    wout_root = zenodo_root / "codes" / "simsopt" / "tests" / "test_files"
+    (calc_root / "20211226-01-012_QA_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces").mkdir(parents=True)
+    (calc_root / "20211226-01-019_QH_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces").mkdir(parents=True)
+    wout_root.mkdir(parents=True)
+    qa_wout = wout_root / "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
+    qh_wout = wout_root / "wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc"
+    qa_scan = (
+        calc_root
+        / "20211226-01-012_QA_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces"
+        / "sfincsScan.dat"
+    )
+    qh_scan = (
+        calc_root
+        / "20211226-01-019_QH_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces"
+        / "sfincsScan.dat"
+    )
+    for path in (qa_wout, qh_wout, qa_scan, qh_scan):
+        path.write_text("", encoding="utf-8")
+
+    monkeypatch.setattr(audit, "find_qs_zenodo_root", lambda: zenodo_root)
+    cases = audit._cases()
+
+    assert cases["qa"].wout_path == qa_wout
+    assert cases["qh"].sfincs_scan_path == qh_scan
+
+
+def test_patched_rhsmode2_input_sets_coordinate_and_rhs(tmp_path):
+    case = audit.FixedFieldCase(
+        name="qa",
+        label="QA",
+        helicity_n=0,
+        wout_path=Path("/tmp/wout.nc"),
+        sfincs_scan_path=Path("/tmp/sfincsScan.dat"),
+    )
+    source = tmp_path / "input.namelist"
+    source.write_text(
+        "&general\n/\n&geometryParameters\n  inputRadialCoordinate = 1\n/\n",
+        encoding="utf-8",
+    )
+
+    patched = audit._patched_rhsmode2_input(case, 0.25, source)
+    nml = f90nml.read(patched)
+
+    assert int(nml["general"]["RHSMode"]) == 2
+    assert int(nml["geometryParameters"]["inputRadialCoordinate"]) == 3
+    assert int(nml["geometryParameters"]["inputRadialCoordinateForGradients"]) == 4
+    assert float(nml["geometryParameters"]["rN_wish"]) == pytest.approx(0.5)
+    assert nml["geometryParameters"]["equilibriumFile"] == str(case.wout_path)
+
+
+def test_relative_error_handles_small_reference():
+    values = [2.0, 4.0]
+    reference = [1.0, 0.0]
+    result = audit._relative_error(values, reference)
+    assert result[0] == pytest.approx(1.0)
+    assert result[1] == pytest.approx(4.0 / 1.0e-16)

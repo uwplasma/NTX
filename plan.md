@@ -253,8 +253,16 @@ templates:
   - the fixed-field benchmark-side VMEC solve input also had to be corrected:
     NTX must receive `E_\psi = E_r / transport_psi_scale`, while the
     `dr/ds` factor belongs only to the DKES/SFINCS bridge metadata
-  - `NTX+NEOPAX` is improved but still not close on that fixed-field family,
-    with interior max relative errors now around `0.58` on QA and `0.63` on
+  - a local NEOPAX closure patch that doubled the `D13/D33` prefactors turned
+    out to be wrong: it broke the shipped W7-X no-momentum and
+    momentum-correction reference tests, so those prefactors were restored to
+    the validated W7-X values while keeping the lineax matrix-assembly and
+    non-finite-boundary fixes
+  - with that correction, the local NEOPAX W7-X reference tests pass again,
+    so the remaining fixed-field QA/QH current mismatch is no longer explained
+    by a generally broken local NEOPAX closure
+  - `NTX+NEOPAX` is still not close on the precise-QS fixed-field family,
+    with interior max relative errors now around `0.79` on QA and `0.81` on
     QH in the current sampled-radial comparison
   - a direct attempt to inject the archive-backed `reference_to_sfincs`
     factors into the NTX-to-NEOPAX database mapping over-amplified the current,
@@ -269,10 +277,10 @@ templates:
     the NTX-to-NEOPAX thermal/current closure for fixed-field current, now
     centered on the full parallel-flow closure rather than on the raw
     monoenergetic database handoff alone
-  - a direct QA probe with the corrected inputs still shows the
-    momentum-correction solve failing inside the local NEOPAX closure with a
-    non-finite lineax solve, so that branch remains a live blocker rather than
-    a theoretical next step
+  - the local W7-X momentum-correction reference test now passes again after
+    restoring the validated prefactors, so the next blocker is no longer a
+    generic lineax failure on the local NEOPAX branch; it has narrowed back to
+    the fixed-field thermal/current closure itself
 - The precise-QS Redl benchmark from the Zenodo bundle is now reproduced
   directly in-tree:
   - both the VMEC-based and Boozer-based Redl paths match the archived SFINCS
@@ -288,5 +296,10 @@ templates:
   - build an archive-backed `RHSMode=2` fixed-field parallel-flow audit
   - compare the NEOPAX row-3 `L31/L32` closure directly against SFINCS-JAX on
     the same QA/QH surfaces and profiles
+  - the first `RHSMode=2` audit scaffold is now in-tree, but the full
+    two-species SFINCS-JAX transport-matrix solve is still too heavy on this
+    workstation in its current form, so the next implementation step is to run
+    that audit in smaller slices or on a larger machine rather than to keep
+    inferring row-3 mismatches indirectly from the final current profile
   - only after that closure is tight should the fixed-field `NTX+NEOPAX`
     current figure move into the public README or main validation claims
