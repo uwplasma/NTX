@@ -125,3 +125,36 @@ def test_vmec_bridge_uses_covariant_boozer_zero_mode():
 
     assert bridge["boozer_i"] == jnp.asarray(surface.b_sub_theta_cos[idx])
     assert bridge["boozer_g"] == jnp.asarray(surface.b_sub_zeta_cos[idx])
+
+
+def test_vmec_scan_derives_es_from_er_using_transport_scale():
+    surface = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25)
+    rho = jnp.asarray([0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    er = jnp.asarray([[0.0, 1.0e-3, 2.0e-3]])
+    drds = jnp.asarray([1.0])
+    grid = GridSpec(5, 5, 4)
+
+    implicit_es = build_ntx_neopax_scan_from_surfaces(
+        (surface,),
+        rho=rho,
+        nu_v=nu_v,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    explicit_es = er / jnp.asarray(surface.transport_psi_scale)
+    explicit = build_ntx_neopax_scan_from_surfaces(
+        (surface,),
+        rho=rho,
+        nu_v=nu_v,
+        Es=explicit_es,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+
+    assert jnp.allclose(implicit_es.Es, explicit_es)
+    assert jnp.allclose(implicit_es.D11, explicit.D11)
+    assert jnp.allclose(implicit_es.D13, explicit.D13)
+    assert jnp.allclose(implicit_es.D33, explicit.D33)

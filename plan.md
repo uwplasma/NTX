@@ -250,8 +250,11 @@ templates:
   cleanly from the coefficient audit:
   - Redl remains close to archived SFINCS on the precise-QS family once the
     correct benchmark set is used
+  - the fixed-field benchmark-side VMEC solve input also had to be corrected:
+    NTX must receive `E_\psi = E_r / transport_psi_scale`, while the
+    `dr/ds` factor belongs only to the DKES/SFINCS bridge metadata
   - `NTX+NEOPAX` is improved but still not close on that fixed-field family,
-    with interior max relative errors now around `0.53` on QA and `0.54` on
+    with interior max relative errors now around `0.58` on QA and `0.63` on
     QH in the current sampled-radial comparison
   - a direct attempt to inject the archive-backed `reference_to_sfincs`
     factors into the NTX-to-NEOPAX database mapping over-amplified the current,
@@ -261,10 +264,15 @@ templates:
     adaptive `nu_v` support chosen from the actual NEOPAX collisionality range
   - the previous narrow `nu_v` axis was a real setup bug, but correcting it
     does not materially reduce the fixed-field current error
-  - the remaining blocker is therefore not Redl, not the benchmark family, and
-    not the `nu_v` support; it is the NTX-to-NEOPAX normalization/closure path
-    for fixed-field current, now centered on the full thermal/current closure
-    rather than on the raw monoenergetic database handoff alone
+  - the remaining blocker is therefore not Redl, not the benchmark family, not
+    the `nu_v` support, and not the NTX VMEC solve-input normalization; it is
+    the NTX-to-NEOPAX thermal/current closure for fixed-field current, now
+    centered on the full parallel-flow closure rather than on the raw
+    monoenergetic database handoff alone
+  - a direct QA probe with the corrected inputs still shows the
+    momentum-correction solve failing inside the local NEOPAX closure with a
+    non-finite lineax solve, so that branch remains a live blocker rather than
+    a theoretical next step
 - The precise-QS Redl benchmark from the Zenodo bundle is now reproduced
   directly in-tree:
   - both the VMEC-based and Boozer-based Redl paths match the archived SFINCS

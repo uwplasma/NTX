@@ -131,15 +131,18 @@ The archive-backed precise-QS fixed-field bootstrap-current comparison now uses:
   range.
 
 Those corrections remove the main setup ambiguities and fix the VMEC-bridge and
-closure-prefactor bugs, but they do **not** finish the fixed-field
-`NTX+NEOPAX` current benchmark:
+closure-prefactor bugs. A further benchmark-side fix was also required: the
+NTX VMEC solve must receive `E_\psi = E_r / transport_psi_scale`, not the
+DKES/SFINCS bridge factor `E_r dr/ds`. After correcting that solve-input
+normalization, the fixed-field `NTX+NEOPAX` current benchmark improves
+materially but is still not tight enough for headline validation:
 
-- QA interior max relative error is now about `0.53`
-- QH interior max relative error is now about `0.54`
+- QA interior max relative error is now about `0.58`
+- QH interior max relative error is now about `0.63`
 
 This means the remaining fixed-field bootstrap-current gap is now best treated
 as a thermal closure / current-observable issue, not as a benchmark-set, Redl,
-or `nu_v`-axis problem.
+`nu_v`-axis, or VMEC solve-input problem.
 
 ### End-To-End Bootstrap-Current Workflow
 

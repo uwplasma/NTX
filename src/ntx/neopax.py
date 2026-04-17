@@ -151,8 +151,8 @@ def build_ntx_neopax_scan(
     *,
     rho: Array,
     nu_v: Array,
-    Es: Array,
-    Er: Array,
+    Es: Array | None = None,
+    Er: Array | None = None,
     drds: Array,
     grid: GridSpec,
     source_name: str | None = None,
@@ -172,17 +172,38 @@ def build_ntx_neopax_scan(
 
     rho_arr = jnp.asarray(rho)
     nu_arr = jnp.asarray(nu_v)
-    es_arr = jnp.asarray(Es)
-    er_arr = jnp.asarray(Er)
     drds_arr = jnp.asarray(drds)
+    if drds_arr.shape[0] != rho_arr.shape[0]:
+        raise ValueError("drds must have the same length as rho")
+    if Es is None and Er is None:
+        raise ValueError("set at least one of Es or Er")
+
+    surfaces = tuple(surface_loader(float(rho_value)) for rho_value in rho_arr)
+
+    if Es is None:
+        er_arr = jnp.asarray(Er)
+        transport_scale = jnp.asarray(
+            [_surface_transport_scale(surface) for surface in surfaces],
+            dtype=grid.jax_dtype,
+        )
+        es_arr = er_arr / transport_scale[:, None]
+    else:
+        es_arr = jnp.asarray(Es)
+
+    if Er is None:
+        transport_scale = jnp.asarray(
+            [_surface_transport_scale(surface) for surface in surfaces],
+            dtype=grid.jax_dtype,
+        )
+        er_arr = es_arr * transport_scale[:, None]
+    else:
+        er_arr = jnp.asarray(Er)
+
     if es_arr.shape != er_arr.shape:
         raise ValueError("Es and Er must have the same shape")
     if es_arr.shape[0] != rho_arr.shape[0]:
         raise ValueError("Es/Er first dimension must match rho")
-    if drds_arr.shape[0] != rho_arr.shape[0]:
-        raise ValueError("drds must have the same length as rho")
 
-    surfaces = tuple(surface_loader(float(rho_value)) for rho_value in rho_arr)
     return build_ntx_neopax_scan_from_surfaces(
         surfaces,
         rho=rho_arr,
@@ -200,8 +221,8 @@ def build_ntx_neopax_scan_from_surfaces(
     *,
     rho: Array,
     nu_v: Array,
-    Es: Array,
-    Er: Array,
+    Es: Array | None = None,
+    Er: Array | None = None,
     drds: Array,
     grid: GridSpec,
     source_name: str | None = None,
@@ -214,17 +235,34 @@ def build_ntx_neopax_scan_from_surfaces(
 
     rho_arr = jnp.asarray(rho)
     nu_arr = jnp.asarray(nu_v)
-    es_arr = jnp.asarray(Es)
-    er_arr = jnp.asarray(Er)
     drds_arr = jnp.asarray(drds)
     if len(surfaces) != rho_arr.shape[0]:
         raise ValueError("number of surfaces must match rho length")
+    if drds_arr.shape[0] != rho_arr.shape[0]:
+        raise ValueError("drds must have the same length as rho")
+    if Es is None and Er is None:
+        raise ValueError("set at least one of Es or Er")
+
+    transport_scale = jnp.asarray(
+        [_surface_transport_scale(surface) for surface in surfaces],
+        dtype=grid.jax_dtype,
+    )
+
+    if Es is None:
+        er_arr = jnp.asarray(Er)
+        es_arr = er_arr / transport_scale[:, None]
+    else:
+        es_arr = jnp.asarray(Es)
+
+    if Er is None:
+        er_arr = es_arr * transport_scale[:, None]
+    else:
+        er_arr = jnp.asarray(Er)
+
     if es_arr.shape != er_arr.shape:
         raise ValueError("Es and Er must have the same shape")
     if es_arr.shape[0] != rho_arr.shape[0]:
         raise ValueError("Es/Er first dimension must match rho")
-    if drds_arr.shape[0] != rho_arr.shape[0]:
-        raise ValueError("drds must have the same length as rho")
 
     d11_list = []
     d13_list = []
@@ -399,6 +437,12 @@ def _write_dataset(handle, name: str, values) -> None:
     if values is None:
         return
     handle[name] = jnp.asarray(values)
+
+
+def _surface_transport_scale(surface: BoozerSurface | VmecSurface) -> Array:
+    if isinstance(surface, VmecSurface):
+        return jnp.asarray(surface.transport_psi_scale, dtype=jnp.float64)
+    return jnp.asarray(surface.psi_p, dtype=jnp.float64)
 
 
 def _surface_reference_bridge(surface: BoozerSurface | VmecSurface) -> dict[str, Array]:
