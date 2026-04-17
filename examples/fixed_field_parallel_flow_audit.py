@@ -61,6 +61,13 @@ ER_AXIS_FACTORS = np.array([0.5, 1.0, 2.0], dtype=float)
 SFINCS_SOLVE_METHOD = (
     os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_SOLVE_METHOD", "auto").strip() or "auto"
 )
+RHSMODE2_SPECIES = (
+    os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_SPECIES", "ion").strip().lower() or "ion"
+)
+RHSMODE2_NTHETA = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NTHETA", "0") or 0)
+RHSMODE2_NZETA = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NZETA", "0") or 0)
+RHSMODE2_NXI = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NXI", "0") or 0)
+RHSMODE2_NX = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NX", "0") or 0)
 RECOMPUTE = os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_AUDIT_RECOMPUTE", "").strip().lower() in {
     "1",
     "true",
@@ -400,9 +407,11 @@ def _build_ntx_neopax_lij(case: FixedFieldCase) -> dict[str, np.ndarray]:
         "rho": rho_field,
         "L31_electron": np.asarray(lij[0, :, 2, 0], dtype=float),
         "L32_electron": np.asarray(lij[0, :, 2, 1], dtype=float),
+        "L32_eff_electron": np.asarray(lij[0, :, 2, 1] - 1.5 * lij[0, :, 2, 0], dtype=float),
         "L33_electron": np.asarray(lij[0, :, 2, 2], dtype=float),
         "L31_ion": np.asarray(lij[1, :, 2, 0], dtype=float),
         "L32_ion": np.asarray(lij[1, :, 2, 1], dtype=float),
+        "L32_eff_ion": np.asarray(lij[1, :, 2, 1] - 1.5 * lij[1, :, 2, 0], dtype=float),
         "L33_ion": np.asarray(lij[1, :, 2, 2], dtype=float),
         "upar_electron": np.asarray(upar[0], dtype=float),
         "upar_ion": np.asarray(upar[1], dtype=float),
@@ -423,7 +432,28 @@ def _patched_rhsmode2_input(case: FixedFieldCase, psi_n: float, source_input: Pa
     nml["geometryParameters"]["rN_wish"] = float(np.sqrt(psi_n))
     nml["geometryParameters"]["inputRadialCoordinateForGradients"] = 4
     nml["geometryParameters"]["equilibriumFile"] = str(case.wout_path)
-    target_dir = case.output_dir / "sfincs_jax_rhsmode2" / f"psiN_{psi_n:.3f}"
+    species = nml.setdefault("speciesParameters", {})
+    species_index = {"ion": 0, "electron": 1}.get(RHSMODE2_SPECIES)
+    if species_index is None:
+        raise ValueError(
+            "NTX_FIXED_FIELD_PARALLEL_FLOW_SPECIES must be 'ion' or 'electron'"
+        )
+    for key in ("nHats", "dnHatdrHats", "THats", "dTHatdrHats", "Zs", "mHats"):
+        if key not in species:
+            continue
+        values = np.atleast_1d(np.asarray(species[key], dtype=float))
+        pick = min(species_index, values.size - 1)
+        species[key] = [float(values[pick])]
+    resolution = nml.setdefault("resolutionParameters", {})
+    if RHSMODE2_NTHETA > 0:
+        resolution["Ntheta"] = RHSMODE2_NTHETA
+    if RHSMODE2_NZETA > 0:
+        resolution["Nzeta"] = RHSMODE2_NZETA
+    if RHSMODE2_NXI > 0:
+        resolution["Nxi"] = RHSMODE2_NXI
+    if RHSMODE2_NX > 0:
+        resolution["Nx"] = RHSMODE2_NX
+    target_dir = case.output_dir / "sfincs_jax_rhsmode2" / RHSMODE2_SPECIES / f"psiN_{psi_n:.3f}"
     target_dir.mkdir(parents=True, exist_ok=True)
     input_path = target_dir / "input_rhsmode2.namelist"
     nml.write(input_path, force=True)
@@ -529,7 +559,7 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
         ion_row = np.array(
             [
                 _interp_profile(rho_grid, lij["L31_ion"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L32_ion"], np.asarray([rho]))[0],
+                _interp_profile(rho_grid, lij["L32_eff_ion"], np.asarray([rho]))[0],
                 _interp_profile(rho_grid, lij["L33_ion"], np.asarray([rho]))[0],
             ],
             dtype=float,
@@ -537,7 +567,7 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
         electron_row = np.array(
             [
                 _interp_profile(rho_grid, lij["L31_electron"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L32_electron"], np.asarray([rho]))[0],
+                _interp_profile(rho_grid, lij["L32_eff_electron"], np.asarray([rho]))[0],
                 _interp_profile(rho_grid, lij["L33_electron"], np.asarray([rho]))[0],
             ],
             dtype=float,
@@ -578,7 +608,7 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
 
 def _plot(summary: dict[str, Any]) -> None:
     fig, axes = plt.subplots(3, 2, figsize=(11.4, 9.8), sharex=True, constrained_layout=True)
-    channel_labels = ("L31", "L32", "L33")
+    channel_labels = ("L31", "L32 - 1.5 L31", "L33")
 
     for col, case_key in enumerate(("qa", "qh")):
         rows = summary[case_key]["rows"]
@@ -647,6 +677,13 @@ def main() -> None:
             },
             "ntx_neopax_radial_points": NTX_NEOPAX_RADIAL_POINTS,
             "er_axis_factors": ER_AXIS_FACTORS.tolist(),
+            "rhsmode2_species": RHSMODE2_SPECIES,
+            "rhsmode2_resolution_override": {
+                "n_theta": RHSMODE2_NTHETA,
+                "n_zeta": RHSMODE2_NZETA,
+                "n_xi": RHSMODE2_NXI,
+                "n_x": RHSMODE2_NX,
+            },
             "zenodo_root": str(_zenodo_root()),
         }
     }

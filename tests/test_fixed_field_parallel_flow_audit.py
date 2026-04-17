@@ -52,7 +52,18 @@ def test_patched_rhsmode2_input_sets_coordinate_and_rhs(tmp_path):
     )
     source = tmp_path / "input.namelist"
     source.write_text(
-        "&general\n/\n&geometryParameters\n  inputRadialCoordinate = 1\n/\n",
+        (
+            "&general\n/\n"
+            "&geometryParameters\n  inputRadialCoordinate = 1\n/\n"
+            "&speciesParameters\n"
+            "  nHats = 4.0, 4.0\n"
+            "  dnHatdrHats = -0.1, -0.1\n"
+            "  THats = 9.0, 9.0\n"
+            "  dTHatdrHats = -2.0, -2.0\n"
+            "  Zs = 1, -1\n"
+            "  mHats = 1.0, 5.45509e-4\n"
+            "/\n"
+        ),
         encoding="utf-8",
     )
 
@@ -64,6 +75,55 @@ def test_patched_rhsmode2_input_sets_coordinate_and_rhs(tmp_path):
     assert int(nml["geometryParameters"]["inputRadialCoordinateForGradients"]) == 4
     assert float(nml["geometryParameters"]["rN_wish"]) == pytest.approx(0.5)
     assert nml["geometryParameters"]["equilibriumFile"] == str(case.wout_path)
+    assert float(nml["speciesParameters"]["Zs"]) == pytest.approx(1.0)
+    assert float(nml["speciesParameters"]["mHats"]) == pytest.approx(1.0)
+
+
+def test_patched_rhsmode2_input_supports_electron_and_resolution_override(monkeypatch, tmp_path):
+    case = audit.FixedFieldCase(
+        name="qh",
+        label="QH",
+        helicity_n=-1,
+        wout_path=Path("/tmp/wout_qh.nc"),
+        sfincs_scan_path=Path("/tmp/sfincsScan_qh.dat"),
+    )
+    source = tmp_path / "input_electron.namelist"
+    source.write_text(
+        (
+            "&general\n/\n"
+            "&geometryParameters\n  inputRadialCoordinate = 1\n/\n"
+            "&speciesParameters\n"
+            "  nHats = 4.0, 5.0\n"
+            "  dnHatdrHats = -0.1, -0.2\n"
+            "  THats = 9.0, 8.0\n"
+            "  dTHatdrHats = -2.0, -3.0\n"
+            "  Zs = 1, -1\n"
+            "  mHats = 1.0, 5.45509e-4\n"
+            "/\n"
+            "&resolutionParameters\n"
+            "  Ntheta = 25\n"
+            "  Nzeta = 39\n"
+            "  Nxi = 60\n"
+            "  Nx = 7\n"
+            "/\n"
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(audit, "RHSMODE2_SPECIES", "electron")
+    monkeypatch.setattr(audit, "RHSMODE2_NTHETA", 11)
+    monkeypatch.setattr(audit, "RHSMODE2_NZETA", 17)
+    monkeypatch.setattr(audit, "RHSMODE2_NXI", 24)
+    monkeypatch.setattr(audit, "RHSMODE2_NX", 5)
+
+    patched = audit._patched_rhsmode2_input(case, 0.36, source)
+    nml = f90nml.read(patched)
+
+    assert float(nml["speciesParameters"]["Zs"]) == pytest.approx(-1.0)
+    assert float(nml["speciesParameters"]["mHats"]) == pytest.approx(5.45509e-4)
+    assert int(nml["resolutionParameters"]["Ntheta"]) == 11
+    assert int(nml["resolutionParameters"]["Nzeta"]) == 17
+    assert int(nml["resolutionParameters"]["Nxi"]) == 24
+    assert int(nml["resolutionParameters"]["Nx"]) == 5
 
 
 def test_relative_error_handles_small_reference():

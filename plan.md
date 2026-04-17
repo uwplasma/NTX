@@ -301,5 +301,26 @@ templates:
     workstation in its current form, so the next implementation step is to run
     that audit in smaller slices or on a larger machine rather than to keep
     inferring row-3 mismatches indirectly from the final current profile
+  - the audit scaffold now supports one-species probes (`ion` or `electron`)
+    plus reduced SFINCS resolution overrides, so the next direct target is the
+    electron branch on the precise-QS QA/QH family rather than the full
+    two-species transport matrix all at once
+  - the paper-side fixed-field benchmark also had two comparison bugs on the
+    archived SFINCS side:
+    - archived species flows were not being loaded at all because `h5py` was
+      missing from the comparison script
+    - the archived `FSABFlow` channels were being compared as if they were
+      already current contributions, but the physically relevant observable is
+      the charge-weighted species current, so the archived benchmark now uses
+      `Z_a * FSABFlow_a`
+  - with that correction, the archived precise-QS SFINCS decomposition now
+    reconstructs `FSABjHat` to machine precision, and the fixed-field
+    `NTX+NEOPAX` mismatch is now clearly species-resolved:
+    - the electron current contribution is the most obviously wrong branch,
+      including the sign on QA
+    - the ion contribution is also too small, but its sign is less pathological
+    - this further narrows the remaining blocker to the thermal/current closure
+      itself, especially the row-3 electron response, rather than the raw
+      monoenergetic database handoff
   - only after that closure is tight should the fixed-field `NTX+NEOPAX`
     current figure move into the public README or main validation claims
