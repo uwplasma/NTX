@@ -55,8 +55,12 @@ CASE_FILTER = tuple(
     if value.strip()
 )
 SFINCS_JAX_SAMPLE_COUNT = 9
-NTX_SURFACE_GRID = GridSpec(n_theta=25, n_zeta=25, n_xi=31)
-NTX_NEOPAX_RADIAL_POINTS = 17
+NTX_SURFACE_GRID = GridSpec(
+    n_theta=int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NTX_NTHETA", "25")),
+    n_zeta=int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NTX_NZETA", "25")),
+    n_xi=int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NTX_NXI", "31")),
+)
+NTX_NEOPAX_RADIAL_POINTS = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NTX_NR", "17"))
 ER_AXIS_FACTORS = np.array([0.5, 1.0, 2.0], dtype=float)
 SFINCS_SOLVE_METHOD = (
     os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_SOLVE_METHOD", "auto").strip() or "auto"
@@ -108,6 +112,7 @@ class ArchivedProfiles:
     dn_hat_drhat: np.ndarray
     dT_hat_drhat: np.ndarray
     er: np.ndarray
+    alpha: np.ndarray
     a_hat: float
 
     @property
@@ -120,11 +125,25 @@ class ArchivedProfiles:
 
     @property
     def density_rho_derivative_si(self) -> np.ndarray:
-        return self.dn_hat_drhat * 1.0e20 * self.a_hat
+        # The archived gradients are already provided with respect to rHat=r/a,
+        # and this spline is parameterized in rho=rHat, so only the density
+        # normalization belongs here.
+        return self.dn_hat_drhat * 1.0e20
 
     @property
     def temperature_rho_derivative_ev(self) -> np.ndarray:
-        return self.dT_hat_drhat * 1.0e3 * self.a_hat
+        # Same logic as density_rho_derivative_si(): keep the derivative in the
+        # spline coordinate rho rather than introducing an extra factor of aHat.
+        return self.dT_hat_drhat * 1.0e3
+
+    @property
+    def electric_field_kv_per_m(self) -> np.ndarray:
+        # Archived precise-QS SFINCS inputs store Er = -dPhiHat/drHat, where
+        # PhiHat = Phi / PhiBar and rHat = r / a. NEOPAX expects the physical
+        # radial electric field in kV/m. With TBar = 1 keV in the archived
+        # normalization, PhiBar = alpha * 1 kV, so:
+        #     Er_phys [kV/m] = Er_hat * alpha / aHat.
+        return self.er * self.alpha / max(self.a_hat, 1.0e-30)
 
 
 def _zenodo_root() -> Path:
@@ -209,6 +228,7 @@ def _archived_profiles(case: FixedFieldCase) -> ArchivedProfiles:
     dn_hat_values: list[float] = []
     dt_hat_values: list[float] = []
     er_values: list[float] = []
+    alpha_values: list[float] = []
     for psi_n, input_path in _archived_surface_inputs(case):
         nml = f90nml.read(input_path)
         species = nml["speciesparameters"]
@@ -223,6 +243,7 @@ def _archived_profiles(case: FixedFieldCase) -> ArchivedProfiles:
             float(np.atleast_1d(np.asarray(species["dthatdrhats"], dtype=float))[0])
         )
         er_values.append(float(physics["er"]))
+        alpha_values.append(float(physics.get("alpha", 1.0)))
     psi_n = np.asarray(psi_n_values, dtype=float)
     order = np.argsort(psi_n)
     psi_n = psi_n[order]
@@ -236,6 +257,7 @@ def _archived_profiles(case: FixedFieldCase) -> ArchivedProfiles:
         dn_hat_drhat=np.asarray(dn_hat_values, dtype=float)[order],
         dT_hat_drhat=np.asarray(dt_hat_values, dtype=float)[order],
         er=np.asarray(er_values, dtype=float)[order],
+        alpha=np.asarray(alpha_values, dtype=float)[order],
         a_hat=a_hat,
     )
 
@@ -313,11 +335,26 @@ def _make_species(field: Any, case: FixedFieldCase) -> Any:
         profiles.temperature_rho_derivative_ev,
         rho,
     )
+    density_rho_derivative = _interp_profile(
+        profiles.rho,
+        profiles.density_rho_derivative_si,
+        rho,
+    )
+    temperature_rho_derivative = _interp_profile(
+        profiles.rho,
+        profiles.temperature_rho_derivative_ev,
+        rho,
+    )
+    rho_to_r = max(float(field.a_b), 1.0e-30)
+    density_r_derivative = density_rho_derivative / rho_to_r
+    temperature_r_derivative = temperature_rho_derivative / rho_to_r
     n_species = 2
     n_r = rho.size
     temperature = np.vstack([temperature, temperature])
     density = np.vstack([density, density])
-    electric_field = _interp_profile(profiles.rho, profiles.er, rho)
+    dndr_override = np.vstack([density_r_derivative, density_r_derivative])
+    dTdr_override = np.vstack([temperature_r_derivative, temperature_r_derivative])
+    electric_field = _interp_profile(profiles.rho, profiles.electric_field_kv_per_m, rho)
     mass = np.asarray([1.0 / 1836.15267343, 1.0])
     charge = np.asarray([-1.0, 1.0])
     return NEOPAX.Species(
@@ -336,6 +373,8 @@ def _make_species(field: Any, case: FixedFieldCase) -> Any:
         field.overVprime,
         np.asarray([density_edge, density_edge], dtype=float),
         np.asarray([temperature_edge, temperature_edge], dtype=float),
+        dTdr_override=np.asarray(dTdr_override, dtype=float),
+        dndr_override=np.asarray(dndr_override, dtype=float),
     )
 
 
@@ -378,7 +417,9 @@ def _build_ntx_neopax_lij(case: FixedFieldCase) -> dict[str, np.ndarray]:
     rho_field = np.asarray(field.rho_grid, dtype=float)
     rho_surface = np.clip(rho_field, 0.05, 0.95)
     drds = float(field.a_b) * 0.5 / np.clip(rho_surface, 0.05, None)
-    archived_er = _interp_profile(profiles.rho, profiles.er, rho_surface)
+    archived_er_hat = _interp_profile(profiles.rho, profiles.er, rho_surface)
+    archived_alpha = _interp_profile(profiles.rho, profiles.alpha, rho_surface)
+    archived_er = _interp_profile(profiles.rho, profiles.electric_field_kv_per_m, rho_surface)
     er_axis = float(np.median(archived_er)) * ER_AXIS_FACTORS
     er_values = np.repeat(er_axis[None, :], rho_surface.size, axis=0)
 
@@ -420,6 +461,9 @@ def _build_ntx_neopax_lij(case: FixedFieldCase) -> dict[str, np.ndarray]:
         "heat_electron": np.asarray(heat[0], dtype=float),
         "heat_ion": np.asarray(heat[1], dtype=float),
         "nu_values": np.asarray(nu_values, dtype=float),
+        "archived_er_hat_rho": archived_er_hat,
+        "archived_alpha_rho": archived_alpha,
+        "archived_er_kv_per_m_rho": archived_er,
     }
 
 
@@ -564,10 +608,26 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
             ],
             dtype=float,
         )
+        ion_row_raw_l32 = np.array(
+            [
+                _interp_profile(rho_grid, lij["L31_ion"], np.asarray([rho]))[0],
+                _interp_profile(rho_grid, lij["L32_ion"], np.asarray([rho]))[0],
+                _interp_profile(rho_grid, lij["L33_ion"], np.asarray([rho]))[0],
+            ],
+            dtype=float,
+        )
         electron_row = np.array(
             [
                 _interp_profile(rho_grid, lij["L31_electron"], np.asarray([rho]))[0],
                 _interp_profile(rho_grid, lij["L32_eff_electron"], np.asarray([rho]))[0],
+                _interp_profile(rho_grid, lij["L33_electron"], np.asarray([rho]))[0],
+            ],
+            dtype=float,
+        )
+        electron_row_raw_l32 = np.array(
+            [
+                _interp_profile(rho_grid, lij["L31_electron"], np.asarray([rho]))[0],
+                _interp_profile(rho_grid, lij["L32_electron"], np.asarray([rho]))[0],
                 _interp_profile(rho_grid, lij["L33_electron"], np.asarray([rho]))[0],
             ],
             dtype=float,
@@ -588,14 +648,18 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
                 },
                 "ntx_neopax": {
                     "ion_row3": ion_row.tolist(),
+                    "ion_row3_raw_l32": ion_row_raw_l32.tolist(),
                     "ion_row3_sign_flipped": (-ion_row).tolist(),
                     "electron_row3": electron_row.tolist(),
+                    "electron_row3_raw_l32": electron_row_raw_l32.tolist(),
                     "electron_row3_sign_flipped": (-electron_row).tolist(),
                 },
                 "relative_error": {
                     "ion_raw_vs_sfincs": _relative_error(ion_row, row3),
+                    "ion_raw_l32_vs_sfincs": _relative_error(ion_row_raw_l32, row3),
                     "ion_sign_flipped_vs_sfincs": _relative_error(-ion_row, row3),
                     "electron_raw_vs_sfincs": _relative_error(electron_row, row3),
+                    "electron_raw_l32_vs_sfincs": _relative_error(electron_row_raw_l32, row3),
                     "electron_sign_flipped_vs_sfincs": _relative_error(-electron_row, row3),
                 },
             }
@@ -607,16 +671,34 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
 
 
 def _plot(summary: dict[str, Any]) -> None:
-    fig, axes = plt.subplots(3, 2, figsize=(11.4, 9.8), sharex=True, constrained_layout=True)
+    case_keys = [key for key in ("qa", "qh") if key in summary]
+    if not case_keys:
+        return
+    fig, axes = plt.subplots(
+        3,
+        len(case_keys),
+        figsize=(5.7 * len(case_keys), 9.8),
+        sharex=True,
+        constrained_layout=True,
+        squeeze=False,
+    )
     channel_labels = ("L31", "L32 - 1.5 L31", "L33")
+    species_label = RHSMODE2_SPECIES
 
-    for col, case_key in enumerate(("qa", "qh")):
+    for col, case_key in enumerate(case_keys):
         rows = summary[case_key]["rows"]
         rho = np.asarray([row["rho"] for row in rows], dtype=float)
         sfincs_row3 = np.asarray([row["sfincs_jax"]["row3"] for row in rows], dtype=float)
-        ion_row3 = np.asarray([row["ntx_neopax"]["ion_row3"] for row in rows], dtype=float)
-        ion_row3_flipped = np.asarray(
-            [row["ntx_neopax"]["ion_row3_sign_flipped"] for row in rows],
+        ntx_row3 = np.asarray(
+            [row["ntx_neopax"][f"{species_label}_row3"] for row in rows],
+            dtype=float,
+        )
+        ntx_row3_raw_l32 = np.asarray(
+            [row["ntx_neopax"][f"{species_label}_row3_raw_l32"] for row in rows],
+            dtype=float,
+        )
+        ntx_row3_flipped = np.asarray(
+            [row["ntx_neopax"][f"{species_label}_row3_sign_flipped"] for row in rows],
             dtype=float,
         )
         for row_idx, label in enumerate(channel_labels):
@@ -631,19 +713,27 @@ def _plot(summary: dict[str, Any]) -> None:
             )
             ax.plot(
                 rho,
-                ion_row3[:, row_idx],
+                ntx_row3[:, row_idx],
                 "s--",
                 color="#1f77b4",
                 lw=1.9,
-                label="NTX+NEOPAX ion raw",
+                label=f"NTX+NEOPAX {species_label} eff",
             )
             ax.plot(
                 rho,
-                ion_row3_flipped[:, row_idx],
+                ntx_row3_raw_l32[:, row_idx],
+                "d-.",
+                color="#2ca02c",
+                lw=1.6,
+                label=f"NTX+NEOPAX {species_label} raw L32",
+            )
+            ax.plot(
+                rho,
+                ntx_row3_flipped[:, row_idx],
                 "^:",
                 color="#6c757d",
                 lw=1.7,
-                label="NTX+NEOPAX ion sign-flipped",
+                label=f"NTX+NEOPAX {species_label} sign-flipped",
             )
             ax.grid(alpha=0.25, lw=0.6)
             ax.set_title(f"{summary[case_key]['case']['label']}: {label}")

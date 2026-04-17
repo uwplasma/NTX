@@ -87,8 +87,49 @@ def test_scan_to_neopax_arrays_matches_expected_scalings():
     assert mapped.D13.shape == scan.D13.shape
     assert mapped.D33.shape == scan.D33.shape
     assert jnp.allclose(mapped.nu_log, jnp.log10(nu_v))
+    assert jnp.allclose(mapped.D11_log, jnp.log10(scan.D11 * drds[:, None, None] ** 2))
+    assert scan.fac_reference_to_sfincs_31 is not None
+    assert scan.fac_sfincs_to_dkes_31 is not None
+    expected_d13 = -scan.D13 * (
+        scan.fac_reference_to_sfincs_31[:, None, None]
+        * scan.fac_sfincs_to_dkes_31[:, None, None]
+    )
+    assert jnp.allclose(mapped.D13, expected_d13)
+    assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
+
+
+def test_scan_to_neopax_arrays_falls_back_to_legacy_scalings_without_bridge_metadata():
+    surfaces = (example_surface(), example_surface())
+    rho = jnp.asarray([0.25, 0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    er = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    drds = jnp.asarray([1.0, 1.5])
+    grid = GridSpec(5, 5, 4)
+
+    scan = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Es=es,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    scan = scan.__class__(
+        **{
+            **scan.__dict__,
+            "fac_reference_to_sfincs_31": None,
+            "fac_sfincs_to_dkes_31": None,
+        }
+    )
+    mapped = scan_to_neopax_arrays(scan, a_b=1.0)
+
+    assert jnp.allclose(mapped.D11_log, jnp.log10(scan.D11 * drds[:, None, None] ** 2))
     assert jnp.allclose(mapped.D13, -scan.D13 * drds[:, None, None])
     assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
+
+
 def test_scan_to_neopax_arrays_is_differentiable_in_es():
     surfaces = (example_surface(), example_surface())
     rho = jnp.asarray([0.25, 0.5])
