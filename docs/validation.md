@@ -130,19 +130,26 @@ The archive-backed precise-QS fixed-field bootstrap-current comparison now uses:
 - and an adaptive `nu_v` support chosen from the actual NEOPAX collisionality
   range.
 
-Those corrections remove the main setup ambiguities and fix the VMEC-bridge and
-closure-prefactor bugs. A further benchmark-side fix was also required: the
-NTX VMEC solve must receive `E_\psi = E_r / transport_psi_scale`, not the
-DKES/SFINCS bridge factor `E_r dr/ds`. After correcting that solve-input
-normalization, the fixed-field `NTX+NEOPAX` current benchmark improves
-materially but is still not tight enough for headline validation:
+Those corrections remove the main setup ambiguities and fix the VMEC-bridge
+bug. They also exposed one wrong local closure change: doubling the
+`D13/D33` convolution prefactors broke the shipped W7-X NEOPAX reference
+tests, so those prefactors were restored while keeping the lineax
+matrix-assembly and non-finite-boundary fixes. With that restoration in place,
+the local W7-X no-momentum and momentum-correction reference tests pass again.
 
-- QA interior max relative error is now about `0.58`
-- QH interior max relative error is now about `0.63`
+A further benchmark-side fix was also required: the NTX VMEC solve must
+receive `E_\psi = E_r / transport_psi_scale`, not the DKES/SFINCS bridge
+factor `E_r dr/ds`. After all of those corrections, the fixed-field
+`NTX+NEOPAX` current benchmark is still not tight enough for headline
+validation:
+
+- QA interior max relative error is now about `0.79`
+- QH interior max relative error is now about `0.81`
 
 This means the remaining fixed-field bootstrap-current gap is now best treated
-as a thermal closure / current-observable issue, not as a benchmark-set, Redl,
-`nu_v`-axis, or VMEC solve-input problem.
+as a benchmark-specific thermal closure / current-observable issue, not as a
+benchmark-set, Redl, `nu_v`-axis, VMEC solve-input, or generally broken local
+NEOPAX-reference problem.
 
 ### End-To-End Bootstrap-Current Workflow
 
