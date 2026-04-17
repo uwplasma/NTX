@@ -380,6 +380,16 @@ def scan_to_neopax_arrays(
     d13 = jnp.asarray(scan.D13)
     d33 = jnp.asarray(scan.D33)
     a_b_value = jnp.asarray(a_b)
+    if (
+        scan.fac_reference_to_sfincs_31 is not None
+        and scan.fac_sfincs_to_dkes_31 is not None
+    ):
+        d13_scale = (
+            jnp.asarray(scan.fac_reference_to_sfincs_31)[:, None, None]
+            * jnp.asarray(scan.fac_sfincs_to_dkes_31)[:, None, None]
+        )
+    else:
+        d13_scale = drds[:, None, None]
 
     er0 = er[0]
     er_list = jnp.stack(
@@ -394,10 +404,7 @@ def scan_to_neopax_arrays(
         nu_log=jnp.log10(nu_v),
         Er_list=er_list,
         D11_log=jnp.log10(d11 * drds[:, None, None] ** 2),
-        # NEOPAX's neoclassical closure applies an internal minus sign when
-        # converting its stored D13 channel into the L13/L23 moments, so the
-        # database convention here is the negated DKES/NTX coefficient.
-        D13=-d13 * drds[:, None, None],
+        D13=-d13 * d13_scale,
         D33=d33 * nu_v[None, :, None],
     )
 

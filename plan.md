@@ -261,9 +261,16 @@ templates:
   - with that correction, the local NEOPAX W7-X reference tests pass again,
     so the remaining fixed-field QA/QH current mismatch is no longer explained
     by a generally broken local NEOPAX closure
-  - `NTX+NEOPAX` is still not close on the precise-QS fixed-field family,
-    with interior max relative errors now around `0.79` on QA and `0.81` on
-    QH in the current sampled-radial comparison
+  - the fixed-field benchmark path also had one large observable bug:
+    the momentum-correction return from `get_Neoclassical_Fluxes_With_Momentum_Correction`
+    is the correction to `Upar`, not the corrected total parallel flow, so the
+    benchmark must add that correction back onto the no-momentum `Upar` before
+    forming `J·B`
+  - with the archived `E_r` normalization fixed and that `Upar_total =
+    Upar_nomom + Upar_correction` interpretation applied, `NTX+NEOPAX`
+    improves substantially on the precise-QS fixed-field family:
+    - interior max relative error is now about `0.319` on QA
+    - interior max relative error is now about `0.101` on QH
   - a direct attempt to inject the archive-backed `reference_to_sfincs`
     factors into the NTX-to-NEOPAX database mapping over-amplified the current,
     so that is not the correct bridge
@@ -301,10 +308,42 @@ templates:
     workstation in its current form, so the next implementation step is to run
     that audit in smaller slices or on a larger machine rather than to keep
     inferring row-3 mismatches indirectly from the final current profile
+  - one audit correction is now explicit: the `RHSMode=2`, `whichRHS=2`
+    thermal column should be compared against `L32 - 1.5 L31`, not raw `L32`,
+    because that SFINCS transport solve isolates `A2` while holding `A1 = 0`
   - the audit scaffold now supports one-species probes (`ion` or `electron`)
     plus reduced SFINCS resolution overrides, so the next direct target is the
     electron branch on the precise-QS QA/QH family rather than the full
     two-species transport matrix all at once
+  - the refreshed branch-level diagnostics now make the remaining blocker much
+    narrower:
+    - QH total current is already near the target band, with an interior
+      least-squares scale of about `0.95`
+    - QA no-momentum current is already materially better than QA with
+      momentum correction (`~0.24` interior max relative error versus
+      `~0.32`), while QH improves strongly once momentum correction is
+      included (`~0.43` down to `~0.10`)
+    - that means the remaining blocker is not the raw no-momentum
+      `L31/L32` current assembly itself; it is the QA momentum-correction
+      branch, especially on the electron side
+    - a branch-isolation check now makes that even sharper:
+      - on QA, adding either the electron correction or the ion correction by
+        itself makes the total current much worse than the no-momentum result,
+        so the QA momentum-correction path is still not physically consistent
+      - on QH, the ion correction is the part that brings the total current
+        close to SFINCS, while the electron correction still moves it in the
+        wrong direction
+    - QA remains limited by the electron branch, not by the ion branch or by a
+      global sign convention
+    - the QA electron current still flips sign against archived SFINCS on `12`
+      interior sample points, roughly over `rho ≈ 0.47–0.71`
+    - at `rho ≈ 0.5`, the QA electron no-momentum current is about
+      `-2.19e6`, the momentum correction contributes about `+1.92e6`, and the
+      resulting total current remains slightly negative, while archived SFINCS
+      expects a positive electron current of about `+3.62e6`
+    - the closure-fit diagnostics show that the remaining QA mismatch is still
+      dominated by the thermal/current branch magnitude, especially on the
+      electron side, not by another benchmark-family or VMEC-input bug
   - the paper-side fixed-field benchmark also had two comparison bugs on the
     archived SFINCS side:
     - archived species flows were not being loaded at all because `h5py` was
@@ -322,5 +361,18 @@ templates:
     - this further narrows the remaining blocker to the thermal/current closure
       itself, especially the row-3 electron response, rather than the raw
       monoenergetic database handoff
+  - the refreshed fixed-field current diagnostics now show that the remaining
+    mismatch is amplitude-dominated rather than sign-dominated:
+    - interior least-squares scale factors on the current local benchmark lane
+      are about `2.56` on QA and `2.63` on QH for the total
+      `NTX+NEOPAX -> SFINCS` current
+    - species-wise, the electron branch is far worse than the ion branch
+      (`~7.8` on QA and `~1.5` on QH for electrons, versus `~4.4` on QA and
+      `~3.2` on QH for ions)
+    - fitting only the raw thermal `L32` contribution in the no-momentum
+      current decomposition gives a best scale of about `2.76` on QA and
+      `2.64` on QH, which is strong evidence that the dominant remaining error
+      sits in the thermal/current closure magnitude, not in another global
+      current sign or benchmark-family mismatch
   - only after that closure is tight should the fixed-field `NTX+NEOPAX`
     current figure move into the public README or main validation claims

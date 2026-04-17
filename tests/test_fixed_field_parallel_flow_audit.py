@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import f90nml
+import numpy as np
 import pytest
 
 from examples import fixed_field_parallel_flow_audit as audit
@@ -132,3 +133,18 @@ def test_relative_error_handles_small_reference():
     result = audit._relative_error(values, reference)
     assert result[0] == pytest.approx(1.0)
     assert result[1] == pytest.approx(4.0 / 1.0e-16)
+
+
+def test_archived_profiles_convert_sfincs_er_to_physical_kv_per_m():
+    profiles = audit.ArchivedProfiles(
+        psi_n=np.asarray([0.25]),
+        rho=np.asarray([0.5]),
+        n_hat=np.asarray([4.0]),
+        t_hat=np.asarray([8.0]),
+        dn_hat_drhat=np.asarray([-1.0]),
+        dT_hat_drhat=np.asarray([-2.0]),
+        er=np.asarray([0.001]),
+        alpha=np.asarray([2.0]),
+        a_hat=0.5,
+    )
+    assert profiles.electric_field_kv_per_m == pytest.approx([0.004])
