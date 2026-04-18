@@ -389,3 +389,37 @@ templates:
       current sign or benchmark-family mismatch
   - only after that closure is tight should the fixed-field `NTX+NEOPAX`
     current figure move into the public README or main validation claims
+  - the first cached one-case QA electron `RHSMode=2` probe is now complete:
+    - reusing the paper-side `ntx_scan.h5` cache reduced the NTX side to a
+      negligible cost and kept the total probe within about `4m 43s`
+    - the resulting raw row-3 comparison at `rho = 0.5` is not yet physically
+      comparable without an explicit normalization bridge:
+      - `NTX+NEOPAX` electron row 3 is about
+        `[4.23e4, 7.07e4, 9.21e10]`
+      - `SFINCS-JAX` row 3 is about `[2.37, 2.90e2, 1.24e3]`
+    - that is far too large to be a small closure-term bug; the remaining
+      `RHSMode=2` audit must therefore derive and apply the exact SFINCS-to-
+      thermal-coefficient bridge before using the row-3 matrix as a parity test
+  - the attempted local `Upar = base + C[2]` patch in the external NEOPAX
+    checkout is now explicitly rejected:
+    - it worsened the cached QA fixed-field benchmark from about `0.319` to
+      about `0.619`
+    - it doubled the QA electron interior sign mismatches from `12` to `26`
+    - it also broke the local NEOPAX regression
+      `tests/test_Fluxes_with_Momentum_Correction.py`
+    - the local checkout is back on the last regression-tested `Upar =
+      correction * density` semantics
+  - the thermodynamic-force definitions are no longer a leading suspect:
+    - the local NEOPAX `A1/A2/A3` definitions match the Escoto thesis and the
+      archived monoenergetic paper exactly:
+      - `A1 = d ln n / dψ - 1.5 d ln T / dψ - e_a E_ψ / T_a`
+      - `A2 = d ln T / dψ`
+      - `A3 = e_a <E·B> / (T_a <B^2>)`
+    - so the next physics target remains the thermal/current closure bridge,
+      not a wholesale redefinition of `A1/A2`
+  - operational cleanup:
+    - interrupted profiling had left huge untracked XLA/trace trees under
+      `examples/outputs/`
+    - those dumps were cleaned once the useful diagnostics were extracted,
+      reducing the worst output roots from about `913 MB` and `1.7 GB` down to
+      about `61 MB` and `0 B`
