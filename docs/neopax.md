@@ -43,6 +43,17 @@ builds directly on `NeopaxScan` when the next step is an ambipolar or
 bootstrap-current-proxy solve instead of immediate export into the external
 package object.
 
+For end-to-end examples, see:
+
+- [`examples/neopax_with_ntx.py`](../examples/neopax_with_ntx.py) for the
+  smallest scan-to-array workflow
+- [`examples/bootstrap_current_with_neopax.py`](../examples/bootstrap_current_with_neopax.py)
+  for a radial bootstrap-current profile built from an NTX scan and evaluated
+  through NEOPAX
+- [`examples/bootstrap_current_fixed_field_validation.py`](../examples/bootstrap_current_fixed_field_validation.py)
+  for the local precise-QS fixed-field comparison against SFINCS, SFINCS-JAX,
+  and Redl
+
 ## Typical Imported Workflow
 
 ```python

@@ -219,6 +219,7 @@ python examples/profile_basis_optimization.py
 python examples/profile_transport_loop.py
 python examples/primitive_profile_transport.py
 python examples/bootstrap_current_optimization.py
+python examples/bootstrap_current_with_neopax.py
 ```
 
 These generate figures for:
@@ -234,8 +235,38 @@ These generate figures for:
 - accepted-step transport iteration of the radial profile closure with radial smoothing
 - primitive density/temperature transport workflows with explicit source-target closure
 - differentiable bootstrap-current optimization
+- radial bootstrap-current profiles from NTX + NEOPAX
 
-## Bootstrap-Current Convergence
+## Bootstrap-Current Validation
+
+Fixed-field precise-QS benchmark against archived SFINCS, SFINCS-JAX reruns,
+Redl, and `NTX+NEOPAX`:
+
+```bash
+python examples/bootstrap_current_fixed_field_validation.py
+```
+
+This uses the local precise-QS Zenodo archive and writes:
+
+- `docs/_static/bootstrap_current_fixed_field_validation.png`
+- `docs/_static/bootstrap_current_fixed_field_validation.pdf`
+- `docs/_static/bootstrap_current_fixed_field_validation.json`
+
+![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
+
+Streamlined radial-profile example with NEOPAX:
+
+```bash
+python examples/bootstrap_current_with_neopax.py
+```
+
+This shows the direct NTX scan -> NEOPAX closure workflow and writes:
+
+- `docs/_static/bootstrap_current_with_neopax.png`
+- `docs/_static/bootstrap_current_with_neopax.pdf`
+- `docs/_static/bootstrap_current_with_neopax.json`
+
+![NTX + NEOPAX bootstrap-current profile](docs/_static/bootstrap_current_with_neopax.png)
 
 W7-X bootstrap-current convergence audit:
 

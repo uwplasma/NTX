@@ -149,17 +149,25 @@ the local W7-X no-momentum and momentum-correction reference tests pass again.
 
 A further benchmark-side fix was also required: the NTX VMEC solve must
 receive `E_\psi = E_r / transport_psi_scale`, not the DKES/SFINCS bridge
-factor `E_r dr/ds`. After all of those corrections, the fixed-field
-`NTX+NEOPAX` current benchmark is still not tight enough for headline
-validation:
+factor `E_r dr/ds`. With the corrected current assembly
+`U_{\parallel,\mathrm{total}} = U_{\parallel,\mathrm{nomom}} + \Delta U_\parallel`,
+the present archive-backed fixed-field benchmark writes:
 
-- QA interior max relative error is now about `0.79`
-- QH interior max relative error is now about `0.81`
+- `docs/_static/bootstrap_current_fixed_field_validation.png`
+- `docs/_static/bootstrap_current_fixed_field_validation.pdf`
+- `docs/_static/bootstrap_current_fixed_field_validation.json`
 
-This means the remaining fixed-field bootstrap-current gap is now best treated
-as a benchmark-specific thermal closure / current-observable issue, not as a
-benchmark-set, Redl, `nu_v`-axis, VMEC solve-input, or generally broken local
-NEOPAX-reference problem.
+and gives current interior max relative errors of about:
+
+- QA: `3.19e-1`
+- QH: `1.01e-1`
+
+The remaining fixed-field bootstrap-current gap is therefore no longer a
+benchmark-family, Redl, `nu_v`-axis, or VMEC solve-input issue. It is now
+best treated as a benchmark-specific thermal/current-closure problem, centered
+on the QA momentum-correction branch.
+
+![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
 ### End-To-End Bootstrap-Current Workflow
 
@@ -176,6 +184,20 @@ profiles of:
 - `D13`
 - `nu_hat * D33`
 - a compact bootstrap-current proxy
+
+The shortest `NTX + NEOPAX` radial-profile workflow is:
+
+```bash
+python examples/bootstrap_current_with_neopax.py
+```
+
+It writes:
+
+- `docs/_static/bootstrap_current_with_neopax.png`
+- `docs/_static/bootstrap_current_with_neopax.pdf`
+- `docs/_static/bootstrap_current_with_neopax.json`
+
+![NTX + NEOPAX bootstrap-current profile](_static/bootstrap_current_with_neopax.png)
 
 ## CPU And GPU Validation
 

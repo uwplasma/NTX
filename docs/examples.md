@@ -115,7 +115,55 @@ imported workflow, and writes a convergence figure:
 
 ![W7-X bootstrap-current convergence](_static/bootstrap_current_reference_audit_w7x.png)
 
-## 9. Autodiff Inverse Problem
+## 9. Bootstrap Current With NEOPAX
+
+```bash
+python examples/bootstrap_current_with_neopax.py
+```
+
+This is the shortest user-facing `NTX + NEOPAX` radial-profile workflow. It:
+
+- loads the W7-X reference equilibrium from the local NEOPAX checkout
+- builds an NTX monoenergetic scan on the archived `(\rho, \nu_v, E_r)` axes
+- maps that scan into NEOPAX monoenergetic arrays
+- evaluates the bootstrap-current profile with the no-momentum closure
+- optionally overlays the momentum-correction branch
+
+It writes:
+
+- `docs/_static/bootstrap_current_with_neopax.png`
+- `docs/_static/bootstrap_current_with_neopax.pdf`
+- `docs/_static/bootstrap_current_with_neopax.json`
+
+![NTX + NEOPAX bootstrap-current profile](_static/bootstrap_current_with_neopax.png)
+
+## 10. Fixed-Field Bootstrap-Current Validation
+
+```bash
+python examples/bootstrap_current_fixed_field_validation.py
+```
+
+This local archive-backed benchmark compares:
+
+- archived Fortran SFINCS
+- SFINCS-JAX reruns of the archived inputs
+- Redl on the same precise-QS QA/QH reference family
+- `NTX+NEOPAX` on the same equilibria and archived profiles
+
+It writes:
+
+- `docs/_static/bootstrap_current_fixed_field_validation.png`
+- `docs/_static/bootstrap_current_fixed_field_validation.pdf`
+- `docs/_static/bootstrap_current_fixed_field_validation.json`
+
+Use this script for the fixed-field validation figure that is shown in the
+README. The current benchmark is strong enough to expose the remaining QA
+closure mismatch clearly, but it is still an active audit lane rather than a
+finished parity claim.
+
+![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
+
+## 11. Autodiff Inverse Problem
 
 ```bash
 python examples/autodiff_inverse_problem.py
@@ -125,7 +173,7 @@ This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
 recovery of a Boozer harmonic from synthetic transport data using JAX
 gradients.
 
-## 10. Precise-QS Redl Versus SFINCS Audit
+## 12. Precise-QS Redl Versus SFINCS Audit
 
 ```bash
 python examples/precise_qs_redl_sfincs_audit.py
@@ -147,7 +195,7 @@ It compares the archived SFINCS bootstrap-current profiles against:
 Use this script when auditing the analytic fixed-field benchmark itself, not
 the integrated `NTX+NEOPAX` workflow.
 
-## 11. Fixed-Field Transport-Matrix Audit
+## 13. Fixed-Field Transport-Matrix Audit
 
 ```bash
 python examples/fixed_field_transport_matrix_audit.py
@@ -172,7 +220,7 @@ This audit now:
 This is still the coefficient-side gate for the public `NTX+NEOPAX`
 bootstrap-current validation figure.
 
-## 12. Autodiff Derivative Audit
+## 14. Autodiff Derivative Audit
 
 ```bash
 python examples/derivative_audit.py
@@ -187,7 +235,7 @@ gradients of the dense solve against centered finite differences for:
 This is the validation baseline for the current prepared implicit-adjoint
 derivative implementation.
 
-## 13. Prepared-Derivative Benchmark
+## 15. Prepared-Derivative Benchmark
 
 ```bash
 python examples/derivative_path_benchmark.py
@@ -204,7 +252,7 @@ on the same `D33` electric-field derivative scan.
 It also writes `docs/_static/derivative_path_benchmark.json` for manuscript
 tables and reproducibility notes.
 
-## 14. Autodiff NEOPAX Profiles
+## 16. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py
@@ -214,7 +262,7 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 15. Ambipolar Profile
+## 17. Ambipolar Profile
 
 ```bash
 python examples/ambipolar_profile.py
@@ -233,7 +281,7 @@ and demonstrates:
 - solving a smooth ambipolar `E_r(r)` profile with radial regularization
 - evaluating the resulting bootstrap-current proxy profile
 
-## 16. Ambipolar Profile Family
+## 18. Ambipolar Profile Family
 
 ```bash
 python examples/ambipolar_profile_family.py
@@ -251,7 +299,7 @@ and demonstrates:
 - evaluating a bootstrap-current objective across that family
 - selecting the best control point from a scalar objective landscape
 
-## 17. Science Case: Bootstrap-Current Optimization
+## 19. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py
@@ -271,7 +319,7 @@ on bootstrap-current analysis and optimization.
 It also writes `docs/_static/bootstrap_current_optimization.json` for the
 manuscript table builder.
 
-## 16. Profile-Control Optimization
+## 20. Profile-Control Optimization
 
 ```bash
 python examples/profile_control_optimization.py
@@ -288,7 +336,7 @@ and demonstrates:
 - optimizing that control directly against a bootstrap-current objective
 - reusing the ambipolar solve inside a JAX optimization loop
 
-## 17. Profile-Basis Optimization
+## 21. Profile-Basis Optimization
 
 ```bash
 python examples/profile_basis_optimization.py
@@ -306,7 +354,7 @@ and demonstrates:
 - retaining a compact, publication-grade figure for a higher-dimensional
   optimization workflow
 
-## 18. Profile Transport Loop
+## 22. Profile Transport Loop
 
 ```bash
 python examples/profile_transport_loop.py
@@ -325,7 +373,7 @@ and demonstrates:
 - tracking accepted-step transport-loss descent together with the ambipolar closure
 - smoothing the updated force profiles radially before the next ambipolar solve
 
-## 19. Primitive Profile Transport
+## 23. Primitive Profile Transport
 
 ```bash
 python examples/primitive_profile_transport.py
@@ -346,7 +394,7 @@ and demonstrates:
   to the transport mismatch
 - exposing the derived monoenergetic force profiles alongside the final primitive state
 
-## 20. Performance Scaling
+## 24. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -355,7 +403,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 21. Validation Summary
+## 25. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -365,7 +413,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 22. Full Publication Bundle
+## 26. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py

@@ -124,6 +124,8 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `validation_summary.py`
 - `bootstrap_current_optimization.py`
 - `bootstrap_current_from_vmec_or_boozmn.py`
+- `bootstrap_current_with_neopax.py`
+- `bootstrap_current_fixed_field_validation.py`
 - `bootstrap_current_reference_audit_w7x.py`
 - `performance_scaling.py`
 - `autodiff_inverse_problem.py`
