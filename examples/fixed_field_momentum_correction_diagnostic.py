@@ -39,10 +39,17 @@ from fixed_field_parallel_flow_audit import (  # type: ignore[import-not-found]
     _make_species,
 )
 
-from ntx import build_ntx_neopax_scan_from_surfaces, load_vmec_surface, to_neopax_monoenergetic
+from ntx import (
+    build_ntx_neopax_scan_from_surfaces,
+    load_neopax_reference_scan,
+    load_vmec_surface,
+    to_neopax_monoenergetic,
+    write_neopax_scan_hdf5,
+)
 
 _bootstrap_current_pythonpath()
 
+import h5py
 import jax
 import jax.numpy as jnp
 import NEOPAX
@@ -59,6 +66,8 @@ from NEOPAX._neoclassical import (
 from scipy.constants import elementary_charge
 
 DEFAULT_OUTPUT_DIR = ROOT / "examples" / "outputs" / "fixed_field_momentum_correction_diagnostic"
+SONINE_WEIGHTS = np.array([1.0, 0.4, 8.0 / 35.0], dtype=float)
+SFINCS_JHAT_TO_AM2 = 437695.0 * 1.0e20 * elementary_charge
 
 
 def _assemble_dense_species_matrix(blocks: np.ndarray) -> np.ndarray:
@@ -84,6 +93,41 @@ def _jsonify(value: Any) -> Any:
     if isinstance(value, (list, tuple)):
         return [_jsonify(item) for item in value]
     return value
+def _candidate_upar_from_solution(solution: np.ndarray, mode: str) -> float:
+    coeff = np.asarray(solution, dtype=float)
+    if mode == "c0":
+        return float(coeff[0])
+    if mode == "weighted":
+        return float(np.dot(SONINE_WEIGHTS, coeff))
+    if mode == "c2":
+        return float(coeff[2])
+    raise ValueError(f"unknown solution reconstruction mode: {mode}")
+
+
+def _load_archived_sfincs_species_currents(case: Any) -> dict[str, np.ndarray]:
+    rho_values: list[float] = []
+    electron_current: list[float] = []
+    ion_current: list[float] = []
+    for path in sorted(case.sfincs_scan_dir.glob("psiN_*/sfincsOutput.h5")):
+        try:
+            psi_n = float(path.parent.name.split("_", 1)[1])
+        except ValueError:
+            continue
+        with h5py.File(path, "r") as handle:
+            flow = np.asarray(handle["FSABFlow"][()], dtype=float).reshape(-1)
+            charges = np.asarray(handle["Zs"][()], dtype=float).reshape(-1)
+        if flow.size < 2 or charges.size < 2:
+            continue
+        rho_values.append(float(np.sqrt(psi_n)))
+        ion_current.append(float(charges[0] * flow[0]) * SFINCS_JHAT_TO_AM2)
+        electron_current.append(float(charges[1] * flow[1]) * SFINCS_JHAT_TO_AM2)
+    rho = np.asarray(rho_values, dtype=float)
+    order = np.argsort(rho)
+    return {
+        "rho": rho[order],
+        "electron_current": np.asarray(electron_current, dtype=float)[order],
+        "ion_current": np.asarray(ion_current, dtype=float)[order],
+    }
 
 
 def _build_case_context(case_key: str) -> dict[str, Any]:
@@ -110,30 +154,38 @@ def _build_case_context(case_key: str) -> dict[str, Any]:
     er_axis = float(np.median(archived_er)) * ER_AXIS_FACTORS
     er_values = np.repeat(er_axis[None, :], rho_surface.size, axis=0)
 
-    start = time.perf_counter()
-    surfaces = tuple(
-        load_vmec_surface(
-            case.wout_path,
-            psi_n=float(rho_value**2),
-            vmec_radial_option=0,
-            vmec_nyquist_option=1,
-            vmec_mode_convention="filtered_nyquist",
+    scan_path = case.output_dir / "ntx_scan.h5"
+    if scan_path.exists():
+        timings["surface_load_seconds"] = 0.0
+        start = time.perf_counter()
+        scan = load_neopax_reference_scan(scan_path)
+        timings["ntx_scan_seconds"] = float(time.perf_counter() - start)
+    else:
+        start = time.perf_counter()
+        surfaces = tuple(
+            load_vmec_surface(
+                case.wout_path,
+                psi_n=float(rho_value**2),
+                vmec_radial_option=0,
+                vmec_nyquist_option=1,
+                vmec_mode_convention="filtered_nyquist",
+            )
+            for rho_value in rho_surface
         )
-        for rho_value in rho_surface
-    )
-    timings["surface_load_seconds"] = float(time.perf_counter() - start)
+        timings["surface_load_seconds"] = float(time.perf_counter() - start)
 
-    start = time.perf_counter()
-    scan = build_ntx_neopax_scan_from_surfaces(
-        surfaces,
-        rho=jnp.asarray(rho_surface),
-        nu_v=jnp.asarray(np.asarray(nu_values)),
-        Er=jnp.asarray(np.asarray(er_values)),
-        drds=jnp.asarray(np.asarray(drds)),
-        grid=NTX_SURFACE_GRID,
-        source_name=f"fixed_field_{case.name}",
-    )
-    timings["ntx_scan_seconds"] = float(time.perf_counter() - start)
+        start = time.perf_counter()
+        scan = build_ntx_neopax_scan_from_surfaces(
+            surfaces,
+            rho=jnp.asarray(rho_surface),
+            nu_v=jnp.asarray(np.asarray(nu_values)),
+            Er=jnp.asarray(np.asarray(er_values)),
+            drds=jnp.asarray(np.asarray(drds)),
+            grid=NTX_SURFACE_GRID,
+            source_name=f"fixed_field_{case.name}",
+        )
+        timings["ntx_scan_seconds"] = float(time.perf_counter() - start)
+        write_neopax_scan_hdf5(scan, scan_path)
 
     start = time.perf_counter()
     database = to_neopax_monoenergetic(scan, a_b=float(field.a_b))
@@ -191,6 +243,7 @@ def _build_case_context(case_key: str) -> dict[str, Any]:
         "lij_full": np.asarray(lij_full, dtype=float),
         "eij_full": np.asarray(eij_full, dtype=float),
         "nu_weighted_average": np.asarray(nu_weighted_average, dtype=float),
+        "archived_currents": _load_archived_sfincs_species_currents(case),
         "timings": timings,
     }
 
@@ -215,6 +268,17 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
     ion_current_nomom = _species_current(+1.0, upar_nomom[1])
     electron_current_correction = _species_current(-1.0, upar_correction[:, 0])
     ion_current_correction = _species_current(+1.0, upar_correction[:, 1])
+    archived_currents = context["archived_currents"]
+    reference_electron = _interp_profile(
+        np.asarray(archived_currents["rho"], dtype=float),
+        np.asarray(archived_currents["electron_current"], dtype=float),
+        rho_grid,
+    )
+    reference_ion = _interp_profile(
+        np.asarray(archived_currents["rho"], dtype=float),
+        np.asarray(archived_currents["ion_current"], dtype=float),
+        rho_grid,
+    )
 
     dumps: list[dict[str, Any]] = []
     for rho_target in rho_targets:
@@ -273,7 +337,9 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
             )
             factor = (
                 2.0
-                / float(np.asarray(species.v_thermal[species_index, radial_index], dtype=float) ** 2)
+                / float(
+                    np.asarray(species.v_thermal[species_index, radial_index], dtype=float) ** 2
+                )
                 / float(np.asarray(field.Bsqav[radial_index], dtype=float))
             )
             c_terms, *_ = jax.vmap(
@@ -304,6 +370,30 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
             base_upar = -density * (row3[0] * a1 + row3[1] * a2 + row3[2] * a3)
             alt_currents_c2_total.append(base_upar + density * c_vec[2])
             alt_currents_c2_only.append(density * c_vec[2])
+        weighted_solution = {
+            "electron": float(
+                -elementary_charge
+                * float(np.asarray(species.density[0, radial_index], dtype=float))
+                * _candidate_upar_from_solution(solution[:3], "weighted")
+            ),
+            "ion": float(
+                elementary_charge
+                * float(np.asarray(species.density[1, radial_index], dtype=float))
+                * _candidate_upar_from_solution(solution[3:], "weighted")
+            ),
+        }
+        c0_solution = {
+            "electron": float(
+                -elementary_charge
+                * float(np.asarray(species.density[0, radial_index], dtype=float))
+                * _candidate_upar_from_solution(solution[:3], "c0")
+            ),
+            "ion": float(
+                elementary_charge
+                * float(np.asarray(species.density[1, radial_index], dtype=float))
+                * _candidate_upar_from_solution(solution[3:], "c0")
+            ),
+        }
         dumps.append(
             {
                 "rho_target": float(rho_target),
@@ -322,6 +412,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                     solution,
                 ),
                 "electron": {
+                    "reference_current": float(reference_electron[radial_index]),
                     "A1": float(np.asarray(species.A1[0], dtype=float)[radial_index]),
                     "A2": float(np.asarray(species.A2[0], dtype=float)[radial_index]),
                     "A3": float(np.asarray(species.A3, dtype=float)[radial_index]),
@@ -333,6 +424,8 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                     ),
                     "current_alt_c2_only": float(-elementary_charge * alt_currents_c2_only[0]),
                     "current_alt_c2_total": float(-elementary_charge * alt_currents_c2_total[0]),
+                    "current_solution_c0": c0_solution["electron"],
+                    "current_solution_weighted": weighted_solution["electron"],
                     "c_vector": c_vectors[0].tolist(),
                     "rhs": rhs_vector[:3].tolist(),
                     "solution": solution[:3].tolist(),
@@ -346,6 +439,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                     ).tolist(),
                 },
                 "ion": {
+                    "reference_current": float(reference_ion[radial_index]),
                     "A1": float(np.asarray(species.A1[1], dtype=float)[radial_index]),
                     "A2": float(np.asarray(species.A2[1], dtype=float)[radial_index]),
                     "A3": float(np.asarray(species.A3, dtype=float)[radial_index]),
@@ -356,6 +450,8 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                     ),
                     "current_alt_c2_only": float(elementary_charge * alt_currents_c2_only[1]),
                     "current_alt_c2_total": float(elementary_charge * alt_currents_c2_total[1]),
+                    "current_solution_c0": c0_solution["ion"],
+                    "current_solution_weighted": weighted_solution["ion"],
                     "c_vector": c_vectors[1].tolist(),
                     "rhs": rhs_vector[3:].tolist(),
                     "solution": solution[3:].tolist(),
@@ -381,9 +477,11 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
         "timings": context["timings"],
         "rho_grid": rho_grid.tolist(),
         "current_grid": {
+            "electron_reference": reference_electron.tolist(),
             "electron_nomom": electron_current_nomom.tolist(),
             "electron_correction": electron_current_correction.tolist(),
             "electron_total": (electron_current_nomom + electron_current_correction).tolist(),
+            "ion_reference": reference_ion.tolist(),
             "ion_nomom": ion_current_nomom.tolist(),
             "ion_correction": ion_current_correction.tolist(),
             "ion_total": (ion_current_nomom + ion_current_correction).tolist(),

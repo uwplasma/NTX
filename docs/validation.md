@@ -167,6 +167,22 @@ benchmark-family, Redl, `nu_v`-axis, or VMEC solve-input issue. It is now
 best treated as a benchmark-specific thermal/current-closure problem, centered
 on the QA momentum-correction branch.
 
+The in-tree fixed-field momentum-correction diagnostic now makes that closure
+tradeoff explicit on cached QA/QH probes. It records the archived species
+currents together with three candidate reconstructions from the solved Sonine
+system:
+
+- the regression-consistent `c0` reconstruction,
+- the weighted Sonine reconstruction `[1, 0.4, 8/35] \cdot c`,
+- and a `c2`-only probe used only for debugging.
+
+On the current local closure lane, the weighted reconstruction improves QA
+through cancellation but still leaves QH too loose and breaks the shipped W7-X
+momentum-correction regression, so it is not yet accepted as the production
+closure. The `c0` reconstruction remains the baseline because it preserves the
+existing W7-X reference test, even though the QA electron branch is still the
+limiting mismatch on the fixed-field benchmark.
+
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
 ### End-To-End Bootstrap-Current Workflow
