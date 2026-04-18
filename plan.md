@@ -338,6 +338,19 @@ templates:
     - the QA electron current still flips sign against archived SFINCS on `12`
       interior sample points, roughly over `rho ≈ 0.47–0.71`
     - at `rho ≈ 0.5`, the QA electron no-momentum current is about
+  - one concrete implementation contradiction is now explicit in the local
+    thermal/current closure: the corrected particle and heat fluxes are
+    evaluated as `base + correction`, while the corrected parallel flow is not
+    using the analogous row-3 correction term. That closure asymmetry is now a
+    first-order audit target.
+  - the first narrow `RHSMode=2` electron audit also exposed an operational
+    issue: stale `sfincs_jax transport-matrix-v3` child processes can survive
+    interrupted wrapper runs and silently hold CPU and memory for a long time.
+    The next audit loop must therefore assume explicit child-process cleanup
+    and keep each physics probe to one case, one species, one radius.
+  - to make those small closure probes practical, the fixed-field QA/QH audit
+    scripts now need to reuse cached NTX scan databases on disk instead of
+    rebuilding the full NTX scan for every closure experiment.
       `-2.19e6`, the momentum correction contributes about `+1.92e6`, and the
       resulting total current remains slightly negative, while archived SFINCS
       expects a positive electron current of about `+3.62e6`

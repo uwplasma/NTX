@@ -31,10 +31,23 @@ OUTPUT_DIR = ROOT / "examples" / "outputs" / "fixed_field_transport_matrix_audit
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_PREFIX = OUTPUT_DIR / "fixed_field_transport_matrix_audit"
 
-RHO_VALUES = np.array([0.25, 0.50, 0.75], dtype=float)
+_rho_env = os.environ.get("NTX_FIXED_FIELD_AUDIT_RHO", "").strip()
+if _rho_env:
+    RHO_VALUES = np.array([float(value) for value in _rho_env.split(",")], dtype=float)
+else:
+    RHO_VALUES = np.array([0.25, 0.50, 0.75], dtype=float)
+CASE_FILTER = tuple(
+    value.strip().lower()
+    for value in os.environ.get("NTX_FIXED_FIELD_AUDIT_CASES", "qa,qh").split(",")
+    if value.strip()
+)
 NU_PRIME = 8.31565e-3
 ESTAR = 0.0
-NTX_GRID = GridSpec(n_theta=25, n_zeta=25, n_xi=63)
+NTX_GRID = GridSpec(
+    n_theta=int(os.environ.get("NTX_FIXED_FIELD_AUDIT_NTX_NTHETA", "25")),
+    n_zeta=int(os.environ.get("NTX_FIXED_FIELD_AUDIT_NTX_NZETA", "25")),
+    n_xi=int(os.environ.get("NTX_FIXED_FIELD_AUDIT_NTX_NXI", "63")),
+)
 SFINCS_RESOLUTION = {
     "Ntheta": 25,
     "Nzeta": 39,
@@ -374,7 +387,17 @@ def _run_case(case: FixedFieldCase, *, recompute: bool) -> dict[str, Any]:
 
 
 def _plot(summary: dict[str, Any]) -> None:
-    fig, axes = plt.subplots(3, 2, figsize=(11.2, 9.4), sharex=True, constrained_layout=True)
+    case_keys = [key for key in ("qa", "qh") if key in summary]
+    if not case_keys:
+        raise ValueError("fixed-field transport-matrix audit plot requires at least one case")
+    fig, axes = plt.subplots(
+        3,
+        len(case_keys),
+        figsize=(5.6 * len(case_keys), 9.4),
+        sharex=True,
+        constrained_layout=True,
+    )
+    axes = np.asarray(axes, dtype=object).reshape(3, len(case_keys))
     channel_specs = (
         ("L13", "L13_bridge", r"$L_{13}$ vs archive-backed bridge"),
         ("L31", "L31_bridge", r"$L_{31}$ vs archive-backed bridge"),
@@ -382,7 +405,7 @@ def _plot(summary: dict[str, Any]) -> None:
     )
     colors = {"sfincs": "#d55e00", "ntx": "#1f77b4", "spitzer": "#6c757d"}
 
-    for col, case_key in enumerate(("qa", "qh")):
+    for col, case_key in enumerate(case_keys):
         rows = summary[case_key]["rows"]
         rho = np.array([row["rho"] for row in rows], dtype=float)
         for row_idx, (sfincs_key, ntx_key, title) in enumerate(channel_specs):
@@ -443,6 +466,8 @@ def main() -> None:
         }
     }
     for key, case in cases.items():
+        if CASE_FILTER and key not in CASE_FILTER:
+            continue
         summary[key] = _run_case(case, recompute=RECOMPUTE)
     _plot(summary)
     OUTPUT_PREFIX.with_suffix(".json").write_text(
