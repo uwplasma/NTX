@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -31,7 +32,9 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan_from_surfaces,
     load_vmec_surface,
+    load_neopax_reference_scan,
     to_neopax_monoenergetic,
+    write_neopax_scan_hdf5,
 )
 from ntx._checkout_paths import (
     find_booz_xform_jax_root,
@@ -423,25 +426,30 @@ def _build_ntx_neopax_lij(case: FixedFieldCase) -> dict[str, np.ndarray]:
     er_axis = float(np.median(archived_er)) * ER_AXIS_FACTORS
     er_values = np.repeat(er_axis[None, :], rho_surface.size, axis=0)
 
-    surfaces = tuple(
-        load_vmec_surface(
-            case.wout_path,
-            psi_n=float(rho_val**2),
-            vmec_radial_option=0,
-            vmec_nyquist_option=1,
-            vmec_mode_convention="filtered_nyquist",
+    scan_path = case.output_dir / "ntx_scan.h5"
+    if scan_path.exists() and not RECOMPUTE:
+        scan = load_neopax_reference_scan(scan_path)
+    else:
+        surfaces = tuple(
+            load_vmec_surface(
+                case.wout_path,
+                psi_n=float(rho_val**2),
+                vmec_radial_option=0,
+                vmec_nyquist_option=1,
+                vmec_mode_convention="filtered_nyquist",
+            )
+            for rho_val in rho_surface
         )
-        for rho_val in rho_surface
-    )
-    scan = build_ntx_neopax_scan_from_surfaces(
-        surfaces,
-        rho=rho_surface,
-        nu_v=np.asarray(nu_values),
-        Er=np.asarray(er_values),
-        drds=np.asarray(drds),
-        grid=NTX_SURFACE_GRID,
-        source_name=f"fixed_field_{case.name}",
-    )
+        scan = build_ntx_neopax_scan_from_surfaces(
+            surfaces,
+            rho=rho_surface,
+            nu_v=np.asarray(nu_values),
+            Er=np.asarray(er_values),
+            drds=np.asarray(drds),
+            grid=NTX_SURFACE_GRID,
+            source_name=f"fixed_field_{case.name}",
+        )
+        write_neopax_scan_hdf5(scan, scan_path)
     database = to_neopax_monoenergetic(scan, a_b=float(field.a_b))
     lij, gamma, heat, upar = NEOPAX.get_Neoclassical_Fluxes(species, ntx_grid, field, database)
     return {
@@ -464,6 +472,7 @@ def _build_ntx_neopax_lij(case: FixedFieldCase) -> dict[str, np.ndarray]:
         "archived_er_hat_rho": archived_er_hat,
         "archived_alpha_rho": archived_alpha,
         "archived_er_kv_per_m_rho": archived_er,
+        "scan_path": str(scan_path),
     }
 
 
@@ -512,6 +521,8 @@ def _run_sfincs_jax_rhsmode2(
     input_path = _patched_rhsmode2_input(case, psi_n, source_input)
     matrix_path = input_path.with_name("transportMatrix.npy")
     state_prefix = input_path.with_name("stateVector")
+    log_path = input_path.with_name("sfincs_jax_rhsmode2.log")
+    run_seconds = None
     if RECOMPUTE or not matrix_path.exists():
         env = dict(os.environ)
         env["PYTHONPATH"] = ":".join(
@@ -533,8 +544,9 @@ def _run_sfincs_jax_rhsmode2(
             "--tol",
             "1e-10",
         ]
+        start = time.perf_counter()
         try:
-            subprocess.run(
+            result = subprocess.run(
                 command,
                 cwd=str(_sfincs_jax_root()),
                 env=env,
@@ -543,8 +555,13 @@ def _run_sfincs_jax_rhsmode2(
                 stderr=subprocess.STDOUT,
                 text=True,
             )
+            log_path.write_text(result.stdout, encoding="utf-8")
         except subprocess.CalledProcessError as exc:
+            log_path.write_text(exc.stdout, encoding="utf-8")
             raise RuntimeError(exc.stdout) from exc
+        run_seconds = float(time.perf_counter() - start)
+    elif log_path.exists():
+        run_seconds = 0.0
 
     _bootstrap_current_pythonpath()
     from sfincs_jax.namelist import read_sfincs_input
@@ -575,6 +592,8 @@ def _run_sfincs_jax_rhsmode2(
     fields = {key: np.asarray(value, dtype=float) for key, value in output_fields.items()}
     return {
         "input_path": str(input_path),
+        "log_path": str(log_path),
+        "run_seconds": run_seconds,
         "transport_matrix": matrix,
         "FSABFlow": fields["FSABFlow"],
         "FSABjHat": fields["FSABjHat"],
