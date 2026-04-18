@@ -159,8 +159,8 @@ the present archive-backed fixed-field benchmark writes:
 
 and gives current interior max relative errors of about:
 
-- QA: `3.19e-1`
-- QH: `1.01e-1`
+- QA: `3.22e-1`
+- QH: `8.26e-2`
 
 The remaining fixed-field bootstrap-current gap is therefore no longer a
 benchmark-family, Redl, `nu_v`-axis, or VMEC solve-input issue. It is now
@@ -176,12 +176,21 @@ system:
 - the weighted Sonine reconstruction `[1, 0.4, 8/35] \cdot c`,
 - and a `c2`-only probe used only for debugging.
 
-On the current local closure lane, the weighted reconstruction improves QA
-through cancellation but still leaves QH too loose and breaks the shipped W7-X
-momentum-correction regression, so it is not yet accepted as the production
-closure. The `c0` reconstruction remains the baseline because it preserves the
-existing W7-X reference test, even though the QA electron branch is still the
-limiting mismatch on the fixed-field benchmark.
+On the current local closure lane, the weighted reconstruction improves the
+fixed-field archive only through cancellation. The species-resolved diagnostic
+and the cross-family mapping audit now make that limitation explicit:
+
+- on the fixed-field archive, the only simple species rule that improves both
+  QA and QH simultaneously is `electron = weighted`, `ion = c0`
+- that same rule fails the shipped W7-X momentum-correction regression
+- broader least-squares fits of the solved Sonine vector against fixed-field
+  species currents and W7-X references also fail to produce a stable universal
+  map
+
+So the remaining mismatch is not fixable by promoting another constant Sonine
+weight vector to production. The `c0` reconstruction remains the baseline
+because it preserves the existing W7-X reference test, even though the QA
+electron branch is still the limiting mismatch on the fixed-field benchmark.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
