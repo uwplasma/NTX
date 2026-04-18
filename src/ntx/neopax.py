@@ -26,6 +26,7 @@ class NeopaxScan:
     D11: Array
     D13: Array
     D33: Array
+    D33_spitzer: Array | None = None
     D31: Array | None = None
     Er_tilde: Array | None = None
     Er_to_Ertilde: Array | None = None
@@ -61,6 +62,7 @@ tree_util.register_dataclass(
         "D11",
         "D13",
         "D33",
+        "D33_spitzer",
         "D31",
         "Er_tilde",
         "Er_to_Ertilde",
@@ -123,6 +125,7 @@ def load_neopax_reference_scan(path: str | Path) -> NeopaxScan:
             D11=jnp.asarray(handle["D11"][()]),
             D13=jnp.asarray(handle["D13"][()]),
             D33=jnp.asarray(handle["D33"][()]),
+            D33_spitzer=_optional_dataset(handle, "D33_spitzer"),
             D31=_optional_dataset(handle, "D31"),
             Er_tilde=_optional_dataset(handle, "Er_tilde"),
             Er_to_Ertilde=_optional_dataset(handle, "Er_to_Ertilde"),
@@ -267,6 +270,7 @@ def build_ntx_neopax_scan_from_surfaces(
     d11_list = []
     d13_list = []
     d33_list = []
+    d33_spitzer_list = []
     b00_list = []
     boozer_i_list = []
     boozer_g_list = []
@@ -283,6 +287,7 @@ def build_ntx_neopax_scan_from_surfaces(
         d11_list.append(coeffs["D11"])
         d13_list.append(coeffs["D13"])
         d33_list.append(coeffs["D33"])
+        d33_spitzer_list.append(coeffs["D33_spitzer"])
         bridge = _surface_reference_bridge(surface)
         b00_list.append(bridge["b00"])
         boozer_i_list.append(bridge["boozer_i"])
@@ -304,6 +309,7 @@ def build_ntx_neopax_scan_from_surfaces(
         D11=jnp.stack(d11_list),
         D13=jnp.stack(d13_list),
         D33=jnp.stack(d33_list),
+        D33_spitzer=jnp.stack(d33_spitzer_list),
         b00=jnp.asarray(b00_list),
         boozer_i=jnp.asarray(boozer_i_list),
         boozer_g=jnp.asarray(boozer_g_list),
@@ -333,6 +339,7 @@ def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
         _write_dataset(handle, "D11", scan.D11)
         _write_dataset(handle, "D13", scan.D13)
         _write_dataset(handle, "D33", scan.D33)
+        _write_dataset(handle, "D33_spitzer", scan.D33_spitzer)
         _write_dataset(handle, "D31", scan.D31)
         _write_dataset(handle, "Er_tilde", scan.Er_tilde)
         _write_dataset(handle, "Er_to_Ertilde", scan.Er_to_Ertilde)
@@ -378,7 +385,11 @@ def scan_to_neopax_arrays(
     drds = jnp.asarray(scan.drds)
     d11 = jnp.asarray(scan.D11)
     d13 = jnp.asarray(scan.D13)
-    d33 = jnp.asarray(scan.D33)
+    d33 = (
+        jnp.asarray(scan.D33_spitzer)
+        if scan.D33_spitzer is not None
+        else jnp.asarray(scan.D33)
+    )
     a_b_value = jnp.asarray(a_b)
     if (
         scan.fac_reference_to_sfincs_31 is not None

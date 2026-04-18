@@ -49,6 +49,9 @@ def test_build_ntx_neopax_scan_from_surfaces_matches_callback_builder():
     assert jnp.allclose(explicit.D11, callback.D11)
     assert jnp.allclose(explicit.D13, callback.D13)
     assert jnp.allclose(explicit.D33, callback.D33)
+    assert explicit.D33_spitzer is not None
+    assert callback.D33_spitzer is not None
+    assert jnp.allclose(explicit.D33_spitzer, callback.D33_spitzer)
     assert explicit.fac_reference_to_sfincs_11 is not None
     assert explicit.fac_reference_to_sfincs_31 is not None
     assert explicit.fac_reference_to_sfincs_33 is not None
@@ -95,7 +98,8 @@ def test_scan_to_neopax_arrays_matches_expected_scalings():
         * scan.fac_sfincs_to_dkes_31[:, None, None]
     )
     assert jnp.allclose(mapped.D13, expected_d13)
-    assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
+    assert scan.D33_spitzer is not None
+    assert jnp.allclose(mapped.D33, scan.D33_spitzer * nu_v[None, :, None])
 
 
 def test_scan_to_neopax_arrays_falls_back_to_legacy_scalings_without_bridge_metadata():
@@ -121,6 +125,7 @@ def test_scan_to_neopax_arrays_falls_back_to_legacy_scalings_without_bridge_meta
             **scan.__dict__,
             "fac_reference_to_sfincs_31": None,
             "fac_sfincs_to_dkes_31": None,
+            "D33_spitzer": None,
         }
     )
     mapped = scan_to_neopax_arrays(scan, a_b=1.0)

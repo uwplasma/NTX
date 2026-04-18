@@ -450,6 +450,30 @@ templates:
       abstract; it is the missing physics/normalization that makes the QA
       electron correction branch disagree with SFINCS while the QH branch is
       already close to target
+  - the new cross-benchmark mapping audit now closes one remaining ambiguity:
+    - a reusable example in `examples/momentum_correction_mapping_audit.py`
+      fits and evaluates simple species-specific linear reconstructions of the
+      solved Sonine vector against both:
+      - the precise-QS fixed-field QA/QH species-current benchmark
+      - the shipped W7-X momentum-correction regression
+    - that audit rejects the “simple linear reconstruction” hypothesis:
+      - weights fitted on fixed-field reduce the fixed-field species error to
+        about `1.25e-1` / `3.55e-2` (electron / ion), but explode on W7-X
+        (`~2.17e2` / `~9.08e1`)
+      - weights fitted on W7-X improve W7-X relative to the naive branches, but
+        still leave W7-X at order `1e1` and do not close fixed-field either
+      - the combined least-squares fit is also poor on both families
+    - therefore the remaining mismatch is not fixable by swapping `c0` for a
+      different constant-weight linear combination of the solved correction
+      vector; the next step must derive the missing closure term or
+      normalization from the momentum-restoring equations themselves
+    - a further live-closure check narrows this again:
+      - the only simple universal branch rule that improves both fixed-field
+        QA and QH simultaneously is `electron = weighted`, `ion = c0`
+      - but that branch rule fails the shipped W7-X momentum-correction
+        regression outright
+      - so even the best fixed-field-only branch swap is still not a valid
+        production closure
       - `A3 = e_a <E·B> / (T_a <B^2>)`
     - so the next physics target remains the thermal/current closure bridge,
       not a wholesale redefinition of `A1/A2`
