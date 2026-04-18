@@ -428,6 +428,28 @@ templates:
       archived monoenergetic paper exactly:
       - `A1 = d ln n / dψ - 1.5 d ln T / dψ - e_a E_ψ / T_a`
       - `A2 = d ln T / dψ`
+  - the fixed-field momentum-correction diagnostic is now cache-aware and
+    species-resolved in-tree:
+    - it reuses the archived `ntx_scan.h5` cache instead of rebuilding the NTX
+      scan for every closure probe
+    - it dumps the archived species-current reference together with the
+      no-momentum current, the active correction current, and candidate
+      reconstructions from the solved Sonine coefficients (`c0`, weighted, and
+      `c2`)
+    - on the current local closure lane, that diagnostic makes the main branch
+      tradeoff explicit:
+      - the weighted Sonine reconstruction improves QA through cancellation
+        (`electron ≈ +3.06e6`, `ion ≈ -4.24e6` at `rho = 0.5`) but still
+        leaves QH too loose and breaks the shipped W7-X momentum-correction
+        regression
+      - the regression-consistent `c0` reconstruction keeps the local W7-X test
+        passing and is therefore still the baseline, even though it leaves the
+        QA electron branch wrong in sign and too small on the fixed-field
+        benchmark
+    - the next parity target is therefore not “weighted vs `c0`” in the
+      abstract; it is the missing physics/normalization that makes the QA
+      electron correction branch disagree with SFINCS while the QH branch is
+      already close to target
       - `A3 = e_a <E·B> / (T_a <B^2>)`
     - so the next physics target remains the thermal/current closure bridge,
       not a wholesale redefinition of `A1/A2`
