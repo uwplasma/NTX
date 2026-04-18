@@ -45,7 +45,7 @@ def test_case_discovery_uses_zenodo_archive(monkeypatch, tmp_path):
 
 def test_patched_rhsmode2_input_sets_coordinate_and_rhs(tmp_path):
     case = audit.FixedFieldCase(
-        name="qa",
+        name="test_qa",
         label="QA",
         helicity_n=0,
         wout_path=Path("/tmp/wout.nc"),
@@ -82,7 +82,7 @@ def test_patched_rhsmode2_input_sets_coordinate_and_rhs(tmp_path):
 
 def test_patched_rhsmode2_input_supports_electron_and_resolution_override(monkeypatch, tmp_path):
     case = audit.FixedFieldCase(
-        name="qh",
+        name="test_qh",
         label="QH",
         helicity_n=-1,
         wout_path=Path("/tmp/wout_qh.nc"),
