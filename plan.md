@@ -308,13 +308,26 @@ templates:
     workstation in its current form, so the next implementation step is to run
     that audit in smaller slices or on a larger machine rather than to keep
     inferring row-3 mismatches indirectly from the final current profile
-  - one audit correction is now explicit: the `RHSMode=2`, `whichRHS=2`
-    thermal column should be compared against `L32 - 1.5 L31`, not raw `L32`,
-    because that SFINCS transport solve isolates `A2` while holding `A1 = 0`
+  - one older audit assumption has now been retired: the row-3 thermal columns
+    should not be compared against raw `L31/L32` combinations directly.
+    Instead, the audit must reconstruct the physical closure response under the
+    exact SFINCS `whichRHS` source gradients and then convert that flow back to
+    SFINCS row-3 normalization
   - the audit scaffold now supports one-species probes (`ion` or `electron`)
     plus reduced SFINCS resolution overrides, so the next direct target is the
     electron branch on the precise-QS QA/QH family rather than the full
     two-species transport matrix all at once
+  - the first cached QA electron probe now closes most of that bridge:
+    applying the exact `whichRHS` source gradients together with the common
+    flow-normalization factor `2 B0OverBBar / sqrt(pi)` reduces the thermal
+    row-3 mismatch at `rho = 0.5` to about `2.2%` for column 1 and `1.4%` for
+    column 2
+  - that means the dominant remaining row-3 ambiguity is no longer the
+    thermal-source basis on QA; it is now:
+    - extending the same bridged audit across cached QA/QH points
+    - and separating the electric-field column from the thermal audit, since
+      the current closure does not expose an exact `RHSMode=2` column-3 source
+      channel
   - the refreshed branch-level diagnostics now make the remaining blocker much
     narrower:
     - QH total current is already near the target band, with an interior

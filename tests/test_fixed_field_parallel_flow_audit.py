@@ -135,6 +135,41 @@ def test_relative_error_handles_small_reference():
     assert result[1] == pytest.approx(4.0 / 1.0e-16)
 
 
+def test_rhsmode2_hat_sources_follow_v3_rhs_definitions():
+    assert audit._rhsmode2_hat_sources(which_rhs=1, n_hat=4.0, t_hat=10.0) == pytest.approx(
+        (1.0, 0.0)
+    )
+    assert audit._rhsmode2_hat_sources(which_rhs=2, n_hat=4.0, t_hat=10.0) == pytest.approx(
+        (60.0, 1.0)
+    )
+    assert audit._rhsmode2_hat_sources(which_rhs=3, n_hat=4.0, t_hat=10.0) == pytest.approx(
+        (0.0, 0.0)
+    )
+
+
+def test_neopax_row3_thermal_bridge_reconstructs_current_columns():
+    row31, row32, diag = audit._neopax_row3_thermal_bridge(
+        l31=1.5,
+        l32=-0.25,
+        sfincs_meta={
+            "n_hat": 4.0,
+            "t_hat": 10.0,
+            "z": -1.0,
+            "delta": 0.01,
+            "g_hat": 2.0,
+            "b0_over_bbar": 6.0,
+            "ddpsiHat2ddrHat": 5.0,
+        },
+        which_rhs=1,
+    )
+    assert np.isfinite(row31)
+    assert np.isfinite(row32)
+    assert diag["dn_hat_dpsi_hat"] == pytest.approx(1.0)
+    assert diag["dT_hat_dpsi_hat"] == pytest.approx(0.0)
+    assert diag["A1"] == pytest.approx(1.25)
+    assert diag["A2"] == pytest.approx(0.0)
+
+
 def test_archived_profiles_convert_sfincs_er_to_physical_kv_per_m():
     profiles = audit.ArchivedProfiles(
         psi_n=np.asarray([0.25]),
