@@ -41,8 +41,9 @@ research problems.
   - use `NTX+NEOPAX` for bootstrap-current workflows
   - keep fixed-field Redl/SFINCS audits separate from finite-beta integrated
     workflow audits
-  - do not promote QA/QH bootstrap-current figures to the README until the
-    fixed-field coefficient audit is tighter
+  - the README now carries the fixed-field precise-QS comparison figure as the
+    current validation status view, but the QA momentum-correction closure is
+    still an active audit lane rather than a closed parity claim
 
 ## Open Code Lanes
 
@@ -111,8 +112,8 @@ research problems.
   the fixed-field QA/QH reference family
 - [x] add frozen local-only regression tests for the fixed-field audit helpers
   and benchmark discovery
-- [ ] only after the fixed-field audit is tighter, add a curated
-  `NTX+NEOPAX` vs SFINCS bootstrap-current validation figure to the README
+- [x] add a curated `NTX+NEOPAX` vs SFINCS bootstrap-current validation figure
+  to the README, with the benchmark status stated honestly
 
 ### 7. Throughput, Profiling, And Memory
 
@@ -436,3 +437,9 @@ templates:
     - those dumps were cleaned once the useful diagnostics were extracted,
       reducing the worst output roots from about `913 MB` and `1.7 GB` down to
       about `61 MB` and `0 B`
+  - user-facing bootstrap-current workflows are now in-tree:
+    - `examples/bootstrap_current_with_neopax.py` provides the streamlined
+      NTX scan -> NEOPAX closure -> radial `j·B` profile example
+    - `examples/bootstrap_current_fixed_field_validation.py` carries the
+      archive-backed fixed-field QA/QH comparison into NTX itself and writes
+      the README figure artifacts under `docs/_static/`
