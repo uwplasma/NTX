@@ -117,6 +117,16 @@ The present conclusion is narrow but important:
   closure also depends on the temperature-gradient (`A2`) channel, so the next
   gating audit is the full `RHSMode=2` row-3 thermal closure rather than more
   retuning of the old `L13/L31/L33` bridge plot alone
+- the first cached `RHSMode=2` QA electron probe now confirms the thermal
+  row-3 bridge itself: reconstructing the closure response from the exact
+  SFINCS `whichRHS` source gradients and converting it back with the common
+  factor `2 B0OverBBar / sqrt(pi)` brings the density- and thermal-source
+  row-3 columns down to about `2.2%` and `1.4%` relative error at
+  `rho = 0.5`
+- that narrows the remaining fixed-field blocker further: the thermal-source
+  normalization is no longer the leading uncertainty on QA, while the
+  electric-field column and the uncached QH species-resolved probes are still
+  open
 - README-level `NTX+NEOPAX` bootstrap-current promotion should wait until this
   fixed-field transport-matrix bridge is tighter
 

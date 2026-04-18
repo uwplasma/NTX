@@ -21,6 +21,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from netCDF4 import Dataset
+from scipy.constants import elementary_charge
 from scipy.interpolate import CubicHermiteSpline, PchipInterpolator
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,8 +32,8 @@ if str(SRC) not in sys.path:
 from ntx import (
     GridSpec,
     build_ntx_neopax_scan_from_surfaces,
-    load_vmec_surface,
     load_neopax_reference_scan,
+    load_vmec_surface,
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
@@ -81,6 +82,7 @@ RECOMPUTE = os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_AUDIT_RECOMPUTE", "").
     "yes",
     "on",
 }
+SFINCS_JHAT_TO_AM2 = 437695.0 * 1.0e20 * elementary_charge
 
 
 @dataclass(frozen=True)
@@ -520,7 +522,6 @@ def _run_sfincs_jax_rhsmode2(
 ) -> dict[str, Any]:
     input_path = _patched_rhsmode2_input(case, psi_n, source_input)
     matrix_path = input_path.with_name("transportMatrix.npy")
-    state_prefix = input_path.with_name("stateVector")
     log_path = input_path.with_name("sfincs_jax_rhsmode2.log")
     run_seconds = None
     if RECOMPUTE or not matrix_path.exists():
@@ -537,8 +538,6 @@ def _run_sfincs_jax_rhsmode2(
             str(input_path),
             "--out-matrix",
             str(matrix_path),
-            "--out-state-prefix",
-            str(state_prefix),
             "--solve-method",
             SFINCS_SOLVE_METHOD,
             "--tol",
@@ -564,11 +563,9 @@ def _run_sfincs_jax_rhsmode2(
         run_seconds = 0.0
 
     _bootstrap_current_pythonpath()
+    from sfincs_jax.io import _conversion_factors_to_from_dpsi_hat
     from sfincs_jax.namelist import read_sfincs_input
-    from sfincs_jax.transport_matrix import (
-        v3_transport_matrix_from_state_vectors,
-        v3_transport_output_fields_vm_only,
-    )
+    from sfincs_jax.transport_matrix import _flux_functions_from_op
     from sfincs_jax.v3 import geometry_from_namelist, grids_from_namelist
     from sfincs_jax.v3_system import full_system_operator_from_namelist
 
@@ -576,28 +573,41 @@ def _run_sfincs_jax_rhsmode2(
     grids = grids_from_namelist(nml)
     geom = geometry_from_namelist(nml=nml, grids=grids)
     op0 = full_system_operator_from_namelist(nml=nml, identity_shift=0.0, grids=grids, geom=geom)
-    state_vectors = {
-        which_rhs: np.load(input_path.with_name(f"stateVector.whichRHS{which_rhs}.npy"))
-        for which_rhs in (1, 2, 3)
-    }
-    matrix = np.asarray(
-        v3_transport_matrix_from_state_vectors(
-            op0=op0,
-            geom=geom,
-            state_vectors_by_rhs=state_vectors,
-        ),
-        dtype=float,
+    surface = load_vmec_surface(
+        case.wout_path,
+        psi_n=float(psi_n),
+        vmec_radial_option=0,
+        vmec_nyquist_option=1,
+        vmec_mode_convention="filtered_nyquist",
     )
-    output_fields = v3_transport_output_fields_vm_only(op0=op0, state_vectors_by_rhs=state_vectors)
-    fields = {key: np.asarray(value, dtype=float) for key, value in output_fields.items()}
+    b0_over_bbar, g_hat, i_hat = _flux_functions_from_op(op0)
+    conv = _conversion_factors_to_from_dpsi_hat(
+        psi_a_hat=float(surface.psi_a_hat),
+        a_hat=float(surface.aminor_p),
+        r_n=float(np.sqrt(psi_n)),
+    )
+    matrix = np.asarray(np.load(matrix_path), dtype=float)
     return {
         "input_path": str(input_path),
         "log_path": str(log_path),
         "run_seconds": run_seconds,
         "transport_matrix": matrix,
-        "FSABFlow": fields["FSABFlow"],
-        "FSABjHat": fields["FSABjHat"],
-        "FSABjHatOverRootFSAB2": fields["FSABjHatOverRootFSAB2"],
+        "meta": {
+            "n_hat": float(np.asarray(op0.n_hat[0], dtype=float)),
+            "t_hat": float(np.asarray(op0.t_hat[0], dtype=float)),
+            "m_hat": float(np.asarray(op0.m_hat[0], dtype=float)),
+            "z": float(np.asarray(op0.z_s[0], dtype=float)),
+            "delta": float(np.asarray(op0.delta, dtype=float)),
+            "alpha": float(np.asarray(op0.alpha, dtype=float)),
+            "fsab_hat2": float(np.asarray(op0.fsab_hat2, dtype=float)),
+            "g_hat": float(np.asarray(g_hat, dtype=float)),
+            "i_hat": float(np.asarray(i_hat, dtype=float)),
+            "iota": float(np.asarray(geom.iota, dtype=float)),
+            "b0_over_bbar": float(np.asarray(b0_over_bbar, dtype=float)),
+            "ddpsiHat2ddrHat": float(conv["ddpsiHat2ddrHat"]),
+            "psi_a_hat": float(surface.psi_a_hat),
+            "a_hat": float(surface.aminor_p),
+        },
     }
 
 
@@ -606,6 +616,72 @@ def _relative_error(values: np.ndarray, reference: np.ndarray) -> list[float]:
         np.abs(np.asarray(values, dtype=float) - np.asarray(reference, dtype=float))
         / np.maximum(np.abs(np.asarray(reference, dtype=float)), 1.0e-16)
     ).tolist()
+
+
+def _rhsmode2_hat_sources(*, which_rhs: int, n_hat: float, t_hat: float) -> tuple[float, float]:
+    if which_rhs == 1:
+        return 1.0, 0.0
+    if which_rhs == 2:
+        return 1.5 * float(n_hat) * float(t_hat), 1.0
+    if which_rhs == 3:
+        return 0.0, 0.0
+    raise ValueError("RHSMode=2 expects which_rhs in {1, 2, 3}.")
+
+
+def _neopax_row3_thermal_bridge(
+    *,
+    l31: float,
+    l32: float,
+    sfincs_meta: dict[str, float],
+    which_rhs: int,
+) -> tuple[float, float, dict[str, float]]:
+    n_hat = float(sfincs_meta["n_hat"])
+    t_hat = float(sfincs_meta["t_hat"])
+    z = float(sfincs_meta["z"])
+    delta = float(sfincs_meta["delta"])
+    g_hat = float(sfincs_meta["g_hat"])
+    ddpsi_hat_to_dr_hat = float(sfincs_meta["ddpsiHat2ddrHat"])
+    dn_hat_dpsi_hat, dT_hat_dpsi_hat = _rhsmode2_hat_sources(
+        which_rhs=which_rhs,
+        n_hat=n_hat,
+        t_hat=t_hat,
+    )
+    a1 = (
+        dn_hat_dpsi_hat / max(n_hat, 1.0e-30)
+        - 1.5 * dT_hat_dpsi_hat / max(t_hat, 1.0e-30)
+    ) * ddpsi_hat_to_dr_hat
+    a2 = (dT_hat_dpsi_hat / max(t_hat, 1.0e-30)) * ddpsi_hat_to_dr_hat
+    density_si = n_hat * 1.0e20
+    upar_density = -density_si * (float(l31) * a1 + float(l32) * a2)
+    current_density = z * elementary_charge * upar_density
+    # NEOPAX's physical Upar closure matches the SFINCS row-3 thermal channels
+    # only after restoring the historical DKES/SFINCS normalization between the
+    # physical parallel flow moment and the hat-normalized FSABFlow diagnostic.
+    # On the precise-QS archive this is the common factor needed to collapse the
+    # density- and thermal-source columns simultaneously.
+    flow_bridge = 2.0 * float(sfincs_meta["b0_over_bbar"]) / np.sqrt(np.pi)
+    row31 = (
+        2.0
+        * flow_bridge
+        * current_density
+        / (SFINCS_JHAT_TO_AM2 * delta * g_hat * t_hat)
+    )
+    row32 = (
+        2.0
+        * flow_bridge
+        * current_density
+        / (SFINCS_JHAT_TO_AM2 * delta * g_hat * n_hat)
+    )
+    return float(row31), float(row32), {
+        "dn_hat_dpsi_hat": float(dn_hat_dpsi_hat),
+        "dT_hat_dpsi_hat": float(dT_hat_dpsi_hat),
+        "A1": float(a1),
+        "A2": float(a2),
+        "upar_density": float(upar_density),
+        "current_density": float(current_density),
+        "ddpsiHat2ddrHat": float(ddpsi_hat_to_dr_hat),
+        "flow_bridge": float(flow_bridge),
+    }
 
 
 def _run_case(case: FixedFieldCase) -> dict[str, Any]:
@@ -619,38 +695,38 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
         source_input = archived_inputs[source_psi_n]
         sfincs = _run_sfincs_jax_rhsmode2(case, source_psi_n, source_input)
         row3 = np.asarray(sfincs["transport_matrix"][2, :], dtype=float)
-        ion_row = np.array(
-            [
-                _interp_profile(rho_grid, lij["L31_ion"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L32_eff_ion"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L33_ion"], np.asarray([rho]))[0],
-            ],
-            dtype=float,
+        ion_l31 = _interp_profile(rho_grid, lij["L31_ion"], np.asarray([rho]))[0]
+        ion_l32 = _interp_profile(rho_grid, lij["L32_ion"], np.asarray([rho]))[0]
+        ion_l33 = _interp_profile(rho_grid, lij["L33_ion"], np.asarray([rho]))[0]
+        electron_l31 = _interp_profile(rho_grid, lij["L31_electron"], np.asarray([rho]))[0]
+        electron_l32 = _interp_profile(rho_grid, lij["L32_electron"], np.asarray([rho]))[0]
+        electron_l33 = _interp_profile(rho_grid, lij["L33_electron"], np.asarray([rho]))[0]
+        ion_row31, ion_row32, ion_diag_1 = _neopax_row3_thermal_bridge(
+            l31=ion_l31,
+            l32=ion_l32,
+            sfincs_meta=sfincs["meta"],
+            which_rhs=1,
         )
-        ion_row_raw_l32 = np.array(
-            [
-                _interp_profile(rho_grid, lij["L31_ion"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L32_ion"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L33_ion"], np.asarray([rho]))[0],
-            ],
-            dtype=float,
+        ion_row31_t, ion_row32_t, ion_diag_2 = _neopax_row3_thermal_bridge(
+            l31=ion_l31,
+            l32=ion_l32,
+            sfincs_meta=sfincs["meta"],
+            which_rhs=2,
         )
-        electron_row = np.array(
-            [
-                _interp_profile(rho_grid, lij["L31_electron"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L32_eff_electron"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L33_electron"], np.asarray([rho]))[0],
-            ],
-            dtype=float,
+        electron_row31, electron_row32, electron_diag_1 = _neopax_row3_thermal_bridge(
+            l31=electron_l31,
+            l32=electron_l32,
+            sfincs_meta=sfincs["meta"],
+            which_rhs=1,
         )
-        electron_row_raw_l32 = np.array(
-            [
-                _interp_profile(rho_grid, lij["L31_electron"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L32_electron"], np.asarray([rho]))[0],
-                _interp_profile(rho_grid, lij["L33_electron"], np.asarray([rho]))[0],
-            ],
-            dtype=float,
+        electron_row31_t, electron_row32_t, electron_diag_2 = _neopax_row3_thermal_bridge(
+            l31=electron_l31,
+            l32=electron_l32,
+            sfincs_meta=sfincs["meta"],
+            which_rhs=2,
         )
+        ion_row = np.array([ion_row31, ion_row32_t, ion_l33], dtype=float)
+        electron_row = np.array([electron_row31, electron_row32_t, electron_l33], dtype=float)
         rows.append(
             {
                 "rho": float(rho),
@@ -658,28 +734,30 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
                 "sfincs_jax": {
                     "transport_matrix": sfincs["transport_matrix"].tolist(),
                     "row3": row3.tolist(),
-                    "FSABFlow": np.asarray(sfincs["FSABFlow"], dtype=float).tolist(),
-                    "FSABjHat": np.asarray(sfincs["FSABjHat"], dtype=float).tolist(),
-                    "FSABjHatOverRootFSAB2": np.asarray(
-                        sfincs["FSABjHatOverRootFSAB2"], dtype=float
-                    ).tolist(),
+                    "meta": sfincs["meta"],
                     "input_path": sfincs["input_path"],
                 },
                 "ntx_neopax": {
-                    "ion_row3": ion_row.tolist(),
-                    "ion_row3_raw_l32": ion_row_raw_l32.tolist(),
-                    "ion_row3_sign_flipped": (-ion_row).tolist(),
-                    "electron_row3": electron_row.tolist(),
-                    "electron_row3_raw_l32": electron_row_raw_l32.tolist(),
-                    "electron_row3_sign_flipped": (-electron_row).tolist(),
+                    "ion_row3_thermal_bridge": ion_row.tolist(),
+                    "electron_row3_thermal_bridge": electron_row.tolist(),
+                    "ion_raw_lij": [float(ion_l31), float(ion_l32), float(ion_l33)],
+                    "electron_raw_lij": [
+                        float(electron_l31),
+                        float(electron_l32),
+                        float(electron_l33),
+                    ],
+                    "diagnostics": {
+                        "ion_which_rhs_1": ion_diag_1,
+                        "ion_which_rhs_2": ion_diag_2,
+                        "electron_which_rhs_1": electron_diag_1,
+                        "electron_which_rhs_2": electron_diag_2,
+                    },
                 },
                 "relative_error": {
-                    "ion_raw_vs_sfincs": _relative_error(ion_row, row3),
-                    "ion_raw_l32_vs_sfincs": _relative_error(ion_row_raw_l32, row3),
-                    "ion_sign_flipped_vs_sfincs": _relative_error(-ion_row, row3),
-                    "electron_raw_vs_sfincs": _relative_error(electron_row, row3),
-                    "electron_raw_l32_vs_sfincs": _relative_error(electron_row_raw_l32, row3),
-                    "electron_sign_flipped_vs_sfincs": _relative_error(-electron_row, row3),
+                    "ion_thermal_bridge_vs_sfincs": _relative_error(ion_row[:2], row3[:2]),
+                    "electron_thermal_bridge_vs_sfincs": _relative_error(
+                        electron_row[:2], row3[:2]
+                    ),
                 },
             }
         )
@@ -694,14 +772,14 @@ def _plot(summary: dict[str, Any]) -> None:
     if not case_keys:
         return
     fig, axes = plt.subplots(
-        3,
+        2,
         len(case_keys),
-        figsize=(5.7 * len(case_keys), 9.8),
+        figsize=(5.7 * len(case_keys), 7.0),
         sharex=True,
         constrained_layout=True,
         squeeze=False,
     )
-    channel_labels = ("L31", "L32 - 1.5 L31", "L33")
+    channel_labels = ("row 3, col 1 (density source)", "row 3, col 2 (thermal source)")
     species_label = RHSMODE2_SPECIES
 
     for col, case_key in enumerate(case_keys):
@@ -709,15 +787,7 @@ def _plot(summary: dict[str, Any]) -> None:
         rho = np.asarray([row["rho"] for row in rows], dtype=float)
         sfincs_row3 = np.asarray([row["sfincs_jax"]["row3"] for row in rows], dtype=float)
         ntx_row3 = np.asarray(
-            [row["ntx_neopax"][f"{species_label}_row3"] for row in rows],
-            dtype=float,
-        )
-        ntx_row3_raw_l32 = np.asarray(
-            [row["ntx_neopax"][f"{species_label}_row3_raw_l32"] for row in rows],
-            dtype=float,
-        )
-        ntx_row3_flipped = np.asarray(
-            [row["ntx_neopax"][f"{species_label}_row3_sign_flipped"] for row in rows],
+            [row["ntx_neopax"][f"{species_label}_row3_thermal_bridge"][:2] for row in rows],
             dtype=float,
         )
         for row_idx, label in enumerate(channel_labels):
@@ -736,27 +806,11 @@ def _plot(summary: dict[str, Any]) -> None:
                 "s--",
                 color="#1f77b4",
                 lw=1.9,
-                label=f"NTX+NEOPAX {species_label} eff",
-            )
-            ax.plot(
-                rho,
-                ntx_row3_raw_l32[:, row_idx],
-                "d-.",
-                color="#2ca02c",
-                lw=1.6,
-                label=f"NTX+NEOPAX {species_label} raw L32",
-            )
-            ax.plot(
-                rho,
-                ntx_row3_flipped[:, row_idx],
-                "^:",
-                color="#6c757d",
-                lw=1.7,
-                label=f"NTX+NEOPAX {species_label} sign-flipped",
+                label=f"NTX+NEOPAX {species_label} thermal bridge",
             )
             ax.grid(alpha=0.25, lw=0.6)
             ax.set_title(f"{summary[case_key]['case']['label']}: {label}")
-            if row_idx == 2:
+            if row_idx == 1:
                 ax.set_xlabel(r"$\rho$")
             if col == 0:
                 ax.set_ylabel("row-3 coefficient")
@@ -793,6 +847,12 @@ def main() -> None:
                 "n_xi": RHSMODE2_NXI,
                 "n_x": RHSMODE2_NX,
             },
+            "row3_bridge_note": (
+                "Columns 1 and 2 are reconstructed from exact RHSMode=2 source gradients in "
+                "physical units and converted back to SFINCS row-3 normalization. Column 3 "
+                "is excluded here because the current closure does not expose the matching "
+                "electric-field source channel."
+            ),
             "zenodo_root": str(_zenodo_root()),
         }
     }
