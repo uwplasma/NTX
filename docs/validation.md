@@ -145,6 +145,26 @@ archived precise-QS Redl/SFINCS study:
 `n(rho) = 4.13 (1 - rho^{10})` and `T(rho) = 12 (1 - rho^2)` in the archived
 normalized units.
 
+Interpolation matters here, so the benchmark now fixes the interpolation story
+explicitly:
+
+- SFINCS geometry uses linear interpolation in `s = r_N^2` between neighboring
+  VMEC surfaces.
+- the fixed-field NTX/NEOPAX comparison now uses the exact literature profile
+  family by default instead of reconstructing those profiles from archived
+  sampled values, which removes one unnecessary interpolation ambiguity.
+- the postprocessing map from the 17-point NTX+NEOPAX radial grid back to the
+  archived SFINCS radii is kept as monotone `PCHIP` by default
+  (`NTX_FIXED_FIELD_POSTPROCESS_INTERP=pchip`), with a `linear` override kept
+  for audit runs.
+
+On the cached fixed-field audit, switching that final postprocessing step from
+`PCHIP` to `linear` changes QH negligibly and slightly worsens QA, so `PCHIP`
+remains the default. By contrast, forcing NEOPAX's generic `interpax`
+interpolators from cubic to linear produces negligible movement in the current
+benchmark. The remaining mismatch is therefore not dominated by the generic
+interpolation kernel choice; it remains a momentum-correction closure problem.
+
 Those corrections remove the main setup ambiguities and fix the VMEC-bridge
 bug. They also exposed one wrong local closure change: doubling the
 `D13/D33` convolution prefactors broke the shipped W7-X NEOPAX reference

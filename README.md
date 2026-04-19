@@ -257,7 +257,9 @@ exact precise-QS benchmark profile family from the archived literature setup and
 fresh NTX-to-NEOPAX scan caches. On that corrected QA/QH family, Redl remains
 close to SFINCS while the active `NTX+NEOPAX` closure is still looser than the
 target band, with the remaining gap concentrated in the momentum-correction
-closure.
+closure. The benchmark keeps a monotone `PCHIP` radial postprocessing map by
+default, since the interpolation audit showed that switching this final step to
+linear does not improve agreement.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 

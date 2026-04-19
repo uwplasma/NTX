@@ -502,6 +502,17 @@ templates:
       - QH interior max relative error is about `3.53e-1`
     - Redl remains close on the same archive-backed family, so the remaining
       gap is again isolated to the `NTX+NEOPAX` closure
+  - the fixed-field interpolation audit is now explicit:
+    - the benchmark defaults to the exact literature precise-QS profile family
+      rather than reconstructing that profile from archived samples
+    - the final radial remap from the 17-point `NTX+NEOPAX` grid back to the
+      archived SFINCS radii keeps monotone `PCHIP` as the default
+      (`NTX_FIXED_FIELD_POSTPROCESS_INTERP=pchip`)
+    - switching that last remap to linear does not improve the benchmark, and
+      forcing NEOPAX's generic `interpax` kernels from cubic to linear moves
+      the fixed-field current negligibly
+    - therefore interpolation is now documented and bounded, and the remaining
+      open lane is still the momentum-correction closure equations
   - the Sonine-output mapping audit has been rerun on the corrected semantics:
     - the baseline `c0` map is still the least-bad simple universal rule
     - weighted and fitted linear remaps do not transfer across the fixed-field

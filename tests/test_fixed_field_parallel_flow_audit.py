@@ -197,3 +197,23 @@ def test_exact_precise_qs_profiles_match_literature_polynomials():
     np.testing.assert_allclose(profiles.t_hat, [12.0 * (1.0 - 0.5**2), 12.0 * (1.0 - 0.8**2)])
     np.testing.assert_allclose(profiles.dn_hat_drhat, [-41.3 * 0.5**9, -41.3 * 0.8**9])
     np.testing.assert_allclose(profiles.dT_hat_drhat, [-12.0, -19.2])
+
+
+def test_interp_profile_supports_linear_and_pchip(monkeypatch):
+    x = np.asarray([0.25, 0.5, 0.75])
+    y = np.asarray([1.0, 2.0, 4.0])
+    xq = np.asarray([0.625])
+
+    monkeypatch.setattr(audit, "POSTPROCESS_PROFILE_INTERP", "linear")
+    linear = audit._interp_profile(x, y, xq)
+    assert linear == pytest.approx([3.0])
+
+    monkeypatch.setattr(audit, "POSTPROCESS_PROFILE_INTERP", "pchip")
+    pchip = audit._interp_profile(x, y, xq)
+    assert np.isfinite(pchip).all()
+
+
+def test_interp_profile_rejects_unknown_mode(monkeypatch):
+    monkeypatch.setattr(audit, "POSTPROCESS_PROFILE_INTERP", "bad-mode")
+    with pytest.raises(ValueError, match="POSTPROCESS_PROFILE_INTERP"):
+        audit._interp_profile(np.asarray([0.0, 1.0]), np.asarray([0.0, 1.0]), np.asarray([0.5]))
