@@ -168,6 +168,14 @@ interpolation all reproduce the same cached QA/QH current errors to numerical
 precision. The remaining mismatch is therefore not dominated by interpolation
 kernel choice; it remains a momentum-correction closure problem.
 
+An additional cached sensitivity probe now narrows that closure problem
+further. Scaling the NTX-to-NEOPAX `D13` channel away from the baseline quickly
+worsens both QA and QH, while scaling the effective `D33` channel moves the
+fixed-field current comparison strongly. That is not a production fix by
+itself, but it is a useful diagnostic: the active mismatch is now centered on
+how `D33` enters the momentum-correction Sonine system rather than on the
+`D13/L31` bridge or on interpolation.
+
 Those corrections remove the main setup ambiguities and fix the VMEC-bridge
 bug. They also exposed one wrong local closure change: doubling the
 `D13/D33` convolution prefactors broke the shipped W7-X NEOPAX reference

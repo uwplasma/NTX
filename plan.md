@@ -516,6 +516,11 @@ templates:
       3D linear interpolation all reproduce the same cached QA/QH errors
     - therefore interpolation is now documented and bounded, and the remaining
       open lane is still the momentum-correction closure equations
+    - a cached channel-sensitivity probe sharpens that closure result:
+      perturbing `D13` away from the current bridge worsens QA/QH rapidly,
+      while perturbing `D33` moves the fixed-field current comparison strongly
+    - the next closure-side work should therefore focus on the `D33` /
+      row-3 Sonine branch, not on further `D13` bridge or interpolation churn
   - the Sonine-output mapping audit has been rerun on the corrected semantics:
     - the baseline `c0` map is still the least-bad simple universal rule
     - weighted and fitted linear remaps do not transfer across the fixed-field
