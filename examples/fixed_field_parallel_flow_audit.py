@@ -81,6 +81,10 @@ PRECISE_QS_PROFILE_MODE = os.environ.get(
     "NTX_FIXED_FIELD_PROFILE_MODE",
     "analytic",
 ).strip().lower()
+POSTPROCESS_PROFILE_INTERP = os.environ.get(
+    "NTX_FIXED_FIELD_POSTPROCESS_INTERP",
+    "pchip",
+).strip().lower()
 RECOMPUTE = os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_AUDIT_RECOMPUTE", "").strip().lower() in {
     "1",
     "true",
@@ -322,9 +326,16 @@ def _interp_profile(x: np.ndarray, y: np.ndarray, xq: np.ndarray) -> np.ndarray:
     y_sorted = y[order]
     x_unique, unique_idx = np.unique(x_sorted, return_index=True)
     y_unique = y_sorted[unique_idx]
-    if x_unique.size >= 3:
+    if POSTPROCESS_PROFILE_INTERP not in {"linear", "pchip"}:
+        raise ValueError(
+            "POSTPROCESS_PROFILE_INTERP "
+            "(NTX_FIXED_FIELD_POSTPROCESS_INTERP) must be one of {'pchip', 'linear'}"
+        )
+    if POSTPROCESS_PROFILE_INTERP == "linear" or x_unique.size < 3:
+        return np.interp(np.asarray(xq, dtype=float), x_unique, y_unique)
+    if POSTPROCESS_PROFILE_INTERP == "pchip":
         return PchipInterpolator(x_unique, y_unique)(np.asarray(xq, dtype=float))
-    return np.interp(np.asarray(xq, dtype=float), x_unique, y_unique)
+    raise AssertionError("unreachable interpolation branch")
 
 
 def _hermite_values_and_edge(
