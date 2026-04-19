@@ -183,3 +183,17 @@ def test_archived_profiles_convert_sfincs_er_to_physical_kv_per_m():
         a_hat=0.5,
     )
     assert profiles.electric_field_kv_per_m == pytest.approx([0.004])
+
+
+def test_exact_precise_qs_profiles_match_literature_polynomials():
+    profiles = audit._exact_precise_qs_profiles(
+        psi_n=np.asarray([0.25, 0.64]),
+        rho=np.asarray([0.5, 0.8]),
+        er=np.asarray([0.0, 0.0]),
+        alpha=np.asarray([1.0, 1.0]),
+        a_hat=1.0,
+    )
+    np.testing.assert_allclose(profiles.n_hat, [4.13 * (1.0 - 0.5**10), 4.13 * (1.0 - 0.8**10)])
+    np.testing.assert_allclose(profiles.t_hat, [12.0 * (1.0 - 0.5**2), 12.0 * (1.0 - 0.8**2)])
+    np.testing.assert_allclose(profiles.dn_hat_drhat, [-41.3 * 0.5**9, -41.3 * 0.8**9])
+    np.testing.assert_allclose(profiles.dT_hat_drhat, [-12.0, -19.2])

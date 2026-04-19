@@ -44,6 +44,7 @@ from ntx import (
     build_ntx_neopax_scan_from_surfaces,
     load_neopax_reference_scan,
     load_vmec_surface,
+    neopax_scan_requires_rebuild,
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
@@ -83,6 +84,10 @@ ENABLE_SFINCS_JAX = (
     os.environ.get("NTX_FIXED_FIELD_VALIDATION_ENABLE_SFINCS_JAX", "").strip().lower()
     in {"1", "true", "yes", "on"}
 )
+PRECISE_QS_PROFILE_MODE = os.environ.get(
+    "NTX_FIXED_FIELD_PROFILE_MODE",
+    "analytic",
+).strip().lower()
 
 
 @dataclass(frozen=True)
@@ -150,6 +155,34 @@ class ArchivedProfiles:
         # normalization, PhiBar = alpha * 1 kV, so:
         #     Er_phys [kV/m] = Er_hat * alpha / aHat.
         return self.er * self.alpha / max(self.a_hat, 1.0e-30)
+
+
+def _use_exact_precise_qs_profiles(case: FixedFieldCase) -> bool:
+    if PRECISE_QS_PROFILE_MODE in {"archive", "archived"}:
+        return False
+    return True
+
+
+def _exact_precise_qs_profiles(
+    *,
+    psi_n: np.ndarray,
+    rho: np.ndarray,
+    er: np.ndarray,
+    alpha: np.ndarray,
+    a_hat: float,
+) -> ArchivedProfiles:
+    rho_arr = np.asarray(rho, dtype=float)
+    return ArchivedProfiles(
+        psi_n=np.asarray(psi_n, dtype=float),
+        rho=rho_arr,
+        n_hat=4.13 * (1.0 - rho_arr**10),
+        t_hat=12.0 * (1.0 - rho_arr**2),
+        dn_hat_drhat=-41.3 * rho_arr**9,
+        dT_hat_drhat=-24.0 * rho_arr,
+        er=np.asarray(er, dtype=float),
+        alpha=np.asarray(alpha, dtype=float),
+        a_hat=float(a_hat),
+    )
 
 
 def _zenodo_root() -> Path:
@@ -297,7 +330,7 @@ def _archived_profiles(case: FixedFieldCase) -> ArchivedProfiles:
     psi_n = psi_n[order]
     with Dataset(case.wout_path) as ds:
         a_hat = float(np.asarray(ds.variables["Aminor_p"]).reshape(()))
-    return ArchivedProfiles(
+    profiles = ArchivedProfiles(
         psi_n=psi_n,
         rho=np.sqrt(psi_n),
         n_hat=np.asarray(n_hat_values, dtype=float)[order],
@@ -308,6 +341,15 @@ def _archived_profiles(case: FixedFieldCase) -> ArchivedProfiles:
         alpha=np.asarray(alpha_values, dtype=float)[order],
         a_hat=a_hat,
     )
+    if _use_exact_precise_qs_profiles(case):
+        return _exact_precise_qs_profiles(
+            psi_n=profiles.psi_n,
+            rho=profiles.rho,
+            er=profiles.er,
+            alpha=profiles.alpha,
+            a_hat=profiles.a_hat,
+        )
+    return profiles
 
 
 def _hermite_values_and_edge(
@@ -554,7 +596,7 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
     er_axis = float(np.median(archived_er)) * ER_AXIS_FACTORS
     er_values = np.repeat(er_axis[None, :], rho_surface.size, axis=0)
     scan_path = case.output_dir / "ntx_scan.h5"
-    if scan_path.exists() and not RECOMPUTE:
+    if scan_path.exists() and not RECOMPUTE and not neopax_scan_requires_rebuild(scan_path):
         timing["surface_load_seconds"] = 0.0
         start = time.perf_counter()
         scan = load_neopax_reference_scan(scan_path)

@@ -13,6 +13,8 @@ from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from .solver import solve_monoenergetic_scan
 
+NEOPAX_SCAN_FORMAT_VERSION = 2
+
 
 @dataclass(frozen=True)
 class NeopaxScan:
@@ -145,8 +147,21 @@ def load_neopax_reference_scan(path: str | Path) -> NeopaxScan:
             fac_dkes_to_d11star=_optional_dataset(handle, "Fac_DKES_TO_D11star"),
             fac_dkes_to_d31star=_optional_dataset(handle, "Fac_DKES_TO_D31star"),
             fac_dkes_to_d33star=_optional_dataset(handle, "Fac_DKES_TO_D33star"),
-            source_name=h5_path.name,
+            source_name=str(handle.attrs.get("source_name", h5_path.name)),
         )
+
+
+def neopax_scan_requires_rebuild(path: str | Path) -> bool:
+    """Return whether a cached NEOPAX-style scan is missing required fields."""
+
+    import h5py
+
+    h5_path = Path(path).expanduser().resolve()
+    if not h5_path.exists():
+        return True
+    with h5py.File(h5_path, "r") as handle:
+        format_version = int(handle.attrs.get("format_version", 0))
+        return format_version < NEOPAX_SCAN_FORMAT_VERSION or "D33_spitzer" not in handle
 
 
 def build_ntx_neopax_scan(
@@ -365,6 +380,7 @@ def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
             handle.attrs["psia"] = float(scan.psia)
         if scan.source_name is not None:
             handle.attrs["source_name"] = scan.source_name
+        handle.attrs["format_version"] = NEOPAX_SCAN_FORMAT_VERSION
     return output_path
 
 
