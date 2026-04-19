@@ -511,6 +511,9 @@ templates:
     - switching that last remap to linear does not improve the benchmark, and
       forcing NEOPAX's generic `interpax` kernels from cubic to linear moves
       the fixed-field current negligibly
+    - a direct coefficient-path audit now shows the same thing internally:
+      default NTSS-style `get_Dij`, direct 3D cubic interpolation, and direct
+      3D linear interpolation all reproduce the same cached QA/QH errors
     - therefore interpolation is now documented and bounded, and the remaining
       open lane is still the momentum-correction closure equations
   - the Sonine-output mapping audit has been rerun on the corrected semantics:

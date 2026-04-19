@@ -162,8 +162,11 @@ On the cached fixed-field audit, switching that final postprocessing step from
 `PCHIP` to `linear` changes QH negligibly and slightly worsens QA, so `PCHIP`
 remains the default. By contrast, forcing NEOPAX's generic `interpax`
 interpolators from cubic to linear produces negligible movement in the current
-benchmark. The remaining mismatch is therefore not dominated by the generic
-interpolation kernel choice; it remains a momentum-correction closure problem.
+benchmark. A direct coefficient-path audit closes that loop further: the default
+NTSS-style `get_Dij` path, direct 3D cubic interpolation, and direct 3D linear
+interpolation all reproduce the same cached QA/QH current errors to numerical
+precision. The remaining mismatch is therefore not dominated by interpolation
+kernel choice; it remains a momentum-correction closure problem.
 
 Those corrections remove the main setup ambiguities and fix the VMEC-bridge
 bug. They also exposed one wrong local closure change: doubling the
