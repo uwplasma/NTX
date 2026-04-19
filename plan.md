@@ -263,12 +263,12 @@ templates:
     so the remaining fixed-field QA/QH current mismatch is no longer explained
     by a generally broken local NEOPAX closure
   - the fixed-field benchmark path also had one large observable bug:
-    the momentum-correction return from `get_Neoclassical_Fluxes_With_Momentum_Correction`
-    is the correction to `Upar`, not the corrected total parallel flow, so the
-    benchmark must add that correction back onto the no-momentum `Upar` before
-    forming `J·B`
-  - with the archived `E_r` normalization fixed and that `Upar_total =
-    Upar_nomom + Upar_correction` interpretation applied, `NTX+NEOPAX`
+    the momentum-correction return from
+    `get_Neoclassical_Fluxes_With_Momentum_Correction` is already the
+    corrected `Upar`, not a separate `ΔUpar`, so the benchmark must form
+    `J·B` directly from that corrected parallel flow
+  - with the archived `E_r` normalization fixed and that corrected-`Upar`
+    interpretation applied, `NTX+NEOPAX`
     improves substantially on the precise-QS fixed-field family:
     - interior max relative error is now about `0.319` on QA
     - interior max relative error is now about `0.101` on QH
@@ -489,3 +489,19 @@ templates:
     - `examples/bootstrap_current_fixed_field_validation.py` carries the
       archive-backed fixed-field QA/QH comparison into NTX itself and writes
       the README figure artifacts under `docs/_static/`
+  - the benchmark-side momentum-correction semantics are now corrected:
+    - `get_Neoclassical_Fluxes_With_Momentum_Correction` already returns the
+      corrected `Upar` branch, not a `ΔUpar` that should be added on top of
+      the no-momentum solution
+    - after applying that fix, the fixed-field precise-QS current comparison is
+      looser than the earlier optimistic status figure:
+      - QA interior max relative error is about `5.14e-1`
+      - QH interior max relative error is about `6.15e-1`
+    - Redl remains close on the same archive-backed family, so the remaining
+      gap is again isolated to the `NTX+NEOPAX` closure
+  - the Sonine-output mapping audit has been rerun on the corrected semantics:
+    - the baseline `c0` map is still the least-bad simple universal rule
+    - weighted and fitted linear remaps do not transfer across the fixed-field
+      archive and the shipped W7-X regression
+    - therefore the remaining open lane is not an output remap; it is the
+      momentum-correction closure equations themselves

@@ -592,7 +592,7 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         a_b=float(field.a_b),
     )
     lij, _, _, upar_nomom = NEOPAX.get_Neoclassical_Fluxes(species, ntx_grid, field, database)
-    _, _, upar_correction, _, _ = NEOPAX.get_Neoclassical_Fluxes_With_Momentum_Correction(
+    _, _, upar_total, _, _ = NEOPAX.get_Neoclassical_Fluxes_With_Momentum_Correction(
         species,
         ntx_grid,
         field,
@@ -605,22 +605,27 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         raise ValueError(
             f"unexpected no-momentum parallel-flow shape for {case.name}: {upar_nomom.shape}"
         )
-    upar_correction = np.asarray(upar_correction, dtype=float)
-    if upar_correction.shape != (rho_field.size, 2):
+    upar_total = np.asarray(upar_total, dtype=float)
+    if upar_total.shape != (rho_field.size, 2):
         raise ValueError(
             "unexpected momentum-corrected parallel-flow shape for "
-            f"{case.name}: {upar_correction.shape}"
+            f"{case.name}: {upar_total.shape}"
         )
     electron_current_nomom = np.asarray(-elementary_charge * upar_nomom[0], dtype=float)
     ion_current_nomom = np.asarray(elementary_charge * upar_nomom[1], dtype=float)
     current_profile_nomom = np.asarray(electron_current_nomom + ion_current_nomom, dtype=float)
-    electron_current_correction = np.asarray(
-        -elementary_charge * upar_correction[:, 0],
+    electron_current_total = np.asarray(
+        -elementary_charge * upar_total[:, 0],
         dtype=float,
     )
-    ion_current_correction = np.asarray(elementary_charge * upar_correction[:, 1], dtype=float)
-    electron_current = np.asarray(electron_current_nomom + electron_current_correction, dtype=float)
-    ion_current = np.asarray(ion_current_nomom + ion_current_correction, dtype=float)
+    ion_current_total = np.asarray(elementary_charge * upar_total[:, 1], dtype=float)
+    electron_current_correction = np.asarray(
+        electron_current_total - electron_current_nomom,
+        dtype=float,
+    )
+    ion_current_correction = np.asarray(ion_current_total - ion_current_nomom, dtype=float)
+    electron_current = electron_current_total
+    ion_current = ion_current_total
     current_profile = np.asarray(electron_current + ion_current, dtype=float)
     current_profile_correction = np.asarray(
         electron_current_correction + ion_current_correction,

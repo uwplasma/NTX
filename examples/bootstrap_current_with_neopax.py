@@ -99,15 +99,15 @@ def _bootstrap_current_profile(database, grid, field, species):
     current_total = current_nomom
     correction_current = np.zeros_like(current_nomom)
     if USE_MOMENTUM_CORRECTION:
-        _, _, upar_correction, _, _ = NEOPAX.get_Neoclassical_Fluxes_With_Momentum_Correction(
+        _, _, upar_total, _, _ = NEOPAX.get_Neoclassical_Fluxes_With_Momentum_Correction(
             species,
             grid,
             field,
             database,
         )
-        upar_correction = np.asarray(upar_correction, dtype=float).T
-        correction_current = np.sum(charges * elementary_charge * upar_correction, axis=0)
-        current_total = current_nomom + correction_current
+        upar_total = np.asarray(upar_total, dtype=float).T
+        current_total = np.sum(charges * elementary_charge * upar_total, axis=0)
+        correction_current = current_total - current_nomom
 
     return {
         "lij": np.asarray(lij, dtype=float),

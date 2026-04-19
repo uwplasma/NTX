@@ -198,11 +198,11 @@ def _build_case_context(case_key: str) -> dict[str, Any]:
         field,
         database,
     )
-    correction_gamma, correction_heat, upar_correction, qpar, upar2 = (
+    correction_gamma, correction_heat, upar_total, qpar, upar2 = (
         get_Neoclassical_Fluxes_With_Momentum_Correction(species, neopax_grid, field, database)
     )
     jax.block_until_ready(lij_nomom)
-    jax.block_until_ready(upar_correction)
+    jax.block_until_ready(upar_total)
     timings["neopax_closure_seconds"] = float(time.perf_counter() - start)
 
     start = time.perf_counter()
@@ -237,7 +237,7 @@ def _build_case_context(case_key: str) -> dict[str, Any]:
         "upar_nomom": np.asarray(upar_nomom, dtype=float),
         "gamma_correction": np.asarray(correction_gamma, dtype=float),
         "heat_correction": np.asarray(correction_heat, dtype=float),
-        "upar_correction": np.asarray(upar_correction, dtype=float),
+        "upar_total": np.asarray(upar_total, dtype=float),
         "qpar_correction": np.asarray(qpar, dtype=float),
         "upar2_correction": np.asarray(upar2, dtype=float),
         "lij_full": np.asarray(lij_full, dtype=float),
@@ -262,12 +262,14 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
     lij_full = jnp.asarray(context["lij_full"])
     eij_full = jnp.asarray(context["eij_full"])
     upar_nomom = np.asarray(context["upar_nomom"], dtype=float)
-    upar_correction = np.asarray(context["upar_correction"], dtype=float)
+    upar_total = np.asarray(context["upar_total"], dtype=float)
 
     electron_current_nomom = _species_current(-1.0, upar_nomom[0])
     ion_current_nomom = _species_current(+1.0, upar_nomom[1])
-    electron_current_correction = _species_current(-1.0, upar_correction[:, 0])
-    ion_current_correction = _species_current(+1.0, upar_correction[:, 1])
+    electron_current_total = _species_current(-1.0, upar_total[:, 0])
+    ion_current_total = _species_current(+1.0, upar_total[:, 1])
+    electron_current_correction = electron_current_total - electron_current_nomom
+    ion_current_correction = ion_current_total - ion_current_nomom
     archived_currents = context["archived_currents"]
     reference_electron = _interp_profile(
         np.asarray(archived_currents["rho"], dtype=float),
