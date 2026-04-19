@@ -493,10 +493,13 @@ templates:
     - `get_Neoclassical_Fluxes_With_Momentum_Correction` already returns the
       corrected `Upar` branch, not a `ΔUpar` that should be added on top of
       the no-momentum solution
-    - after applying that fix, the fixed-field precise-QS current comparison is
-      looser than the earlier optimistic status figure:
-      - QA interior max relative error is about `5.14e-1`
-      - QH interior max relative error is about `6.15e-1`
+    - the fixed-field scripts now also default to the exact precise-QS profile
+      family from the archived benchmark and rebuild stale scan caches that are
+      missing `D33_spitzer`
+    - on that corrected benchmark state, the fixed-field precise-QS current
+      comparison improves materially but is still not at parity:
+      - QA interior max relative error is about `1.66e-1`
+      - QH interior max relative error is about `3.53e-1`
     - Redl remains close on the same archive-backed family, so the remaining
       gap is again isolated to the `NTX+NEOPAX` closure
   - the Sonine-output mapping audit has been rerun on the corrected semantics:

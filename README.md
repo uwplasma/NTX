@@ -252,10 +252,12 @@ This uses the local precise-QS Zenodo archive and writes:
 - `docs/_static/bootstrap_current_fixed_field_validation.pdf`
 - `docs/_static/bootstrap_current_fixed_field_validation.json`
 
-This figure is a status benchmark, not a closed parity claim. On the current
-archive-backed precise-QS QA/QH family, Redl remains close to SFINCS while the
-active `NTX+NEOPAX` closure is still looser than the target band after the
-benchmark-side momentum-correction semantics were fixed.
+This figure is a status benchmark, not a closed parity claim. It now uses the
+exact precise-QS benchmark profile family from the archived literature setup and
+fresh NTX-to-NEOPAX scan caches. On that corrected QA/QH family, Redl remains
+close to SFINCS while the active `NTX+NEOPAX` closure is still looser than the
+target band, with the remaining gap concentrated in the momentum-correction
+closure.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 

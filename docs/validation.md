@@ -135,10 +135,15 @@ The present conclusion is narrow but important:
 The archive-backed precise-QS fixed-field bootstrap-current comparison now uses:
 
 - the correct archived QA/QH benchmark family,
-- the exact archived profile values,
-- archive-driven Hermite reconstruction in `rho`,
+- the exact literature profile family used in the archived benchmark,
+- fresh NTX-to-NEOPAX scan caches that carry `D33_spitzer`,
 - and an adaptive `nu_v` support chosen from the actual NEOPAX collisionality
   range.
+
+The default profile family is now the exact literature benchmark used in the
+archived precise-QS Redl/SFINCS study:
+`n(rho) = 4.13 (1 - rho^{10})` and `T(rho) = 12 (1 - rho^2)` in the archived
+normalized units.
 
 Those corrections remove the main setup ambiguities and fix the VMEC-bridge
 bug. They also exposed one wrong local closure change: doubling the
@@ -160,8 +165,8 @@ interpretation, the present archive-backed fixed-field benchmark writes:
 
 and currently gives current interior max relative errors of about:
 
-- QA: `5.14e-1`
-- QH: `6.15e-1`
+- QA: `1.66e-1`
+- QH: `3.53e-1`
 
 The remaining fixed-field bootstrap-current gap is therefore no longer a
 benchmark-family, Redl, `nu_v`-axis, or VMEC solve-input issue. It is now

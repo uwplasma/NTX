@@ -43,6 +43,7 @@ from ntx import (
     build_ntx_neopax_scan_from_surfaces,
     load_neopax_reference_scan,
     load_vmec_surface,
+    neopax_scan_requires_rebuild,
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
@@ -155,7 +156,7 @@ def _build_case_context(case_key: str) -> dict[str, Any]:
     er_values = np.repeat(er_axis[None, :], rho_surface.size, axis=0)
 
     scan_path = case.output_dir / "ntx_scan.h5"
-    if scan_path.exists():
+    if scan_path.exists() and not neopax_scan_requires_rebuild(scan_path):
         timings["surface_load_seconds"] = 0.0
         start = time.perf_counter()
         scan = load_neopax_reference_scan(scan_path)

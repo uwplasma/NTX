@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import jax
 import jax.numpy as jnp
 
@@ -9,7 +11,9 @@ from ntx import (
     build_ntx_neopax_scan_from_surfaces,
     example_surface,
     load_vmec_surface,
+    neopax_scan_requires_rebuild,
     scan_to_neopax_arrays,
+    write_neopax_scan_hdf5,
 )
 from ntx.neopax import _surface_reference_bridge
 
@@ -204,3 +208,33 @@ def test_vmec_scan_derives_es_from_er_using_transport_scale():
     assert jnp.allclose(implicit_es.D11, explicit.D11)
     assert jnp.allclose(implicit_es.D13, explicit.D13)
     assert jnp.allclose(implicit_es.D33, explicit.D33)
+
+
+def test_neopax_scan_requires_rebuild_for_legacy_cache_without_d33_spitzer(tmp_path: Path):
+    surfaces = (example_surface(),)
+    rho = jnp.asarray([0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3]])
+    er = jnp.asarray([[0.0, 1.0e-3]])
+    drds = jnp.asarray([1.0])
+    grid = GridSpec(5, 5, 4)
+
+    scan = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Es=es,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    path = tmp_path / "scan.h5"
+    write_neopax_scan_hdf5(scan, path)
+    assert not neopax_scan_requires_rebuild(path)
+
+    import h5py
+
+    with h5py.File(path, "a") as handle:
+        del handle["D33_spitzer"]
+        del handle.attrs["format_version"]
+    assert neopax_scan_requires_rebuild(path)
