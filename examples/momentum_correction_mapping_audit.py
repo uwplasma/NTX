@@ -62,10 +62,6 @@ class Sample:
     current_nomom: float
     current_reference: float
 
-    @property
-    def correction_reference(self) -> float:
-        return float(self.current_reference - self.current_nomom)
-
 
 def _jsonify(value: Any) -> Any:
     if isinstance(value, dict):
@@ -103,7 +99,7 @@ def _fit_species_weights(samples: list[Sample]) -> np.ndarray:
     x = np.stack([sample.density * sample.solution for sample in samples], axis=0)
     y = np.array(
         [
-            sample.correction_reference
+            sample.current_reference
             / (
                 elementary_charge
                 * (-1.0 if sample.species == "electron" else 1.0)
@@ -121,13 +117,12 @@ def _evaluate_weights(samples: list[Sample], weights: np.ndarray) -> dict[str, A
     errors = []
     for sample in samples:
         charge_sign = -1.0 if sample.species == "electron" else 1.0
-        current_correction = _candidate_current(
+        current_total = _candidate_current(
             density=sample.density,
             solution=sample.solution,
             charge_sign=charge_sign,
             weights=weights,
         )
-        current_total = sample.current_nomom + current_correction
         rel = abs(current_total - sample.current_reference) / max(
             abs(sample.current_reference), 1.0
         )
@@ -140,7 +135,7 @@ def _evaluate_weights(samples: list[Sample], weights: np.ndarray) -> dict[str, A
                 "species": sample.species,
                 "reference_current": sample.current_reference,
                 "nomom_current": sample.current_nomom,
-                "predicted_correction": current_correction,
+                "predicted_correction": current_total - sample.current_nomom,
                 "predicted_total": current_total,
                 "relative_error": rel,
             }

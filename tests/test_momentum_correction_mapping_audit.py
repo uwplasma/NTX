@@ -20,7 +20,7 @@ def test_fit_species_weights_recovers_linear_map() -> None:
             species="electron",
             density=1.0 + 0.2 * i,
             solution=np.array([1.0 + i, 2.0 - 0.5 * i, -1.0 + 0.25 * i], dtype=float),
-            current_nomom=0.0,
+            current_nomom=17.0 + i,
             current_reference=_candidate_current(
                 density=1.0 + 0.2 * i,
                 solution=np.array([1.0 + i, 2.0 - 0.5 * i, -1.0 + 0.25 * i], dtype=float),
@@ -44,8 +44,7 @@ def test_evaluate_weights_reports_small_error_for_exact_weights() -> None:
         density=3.0,
         solution=np.array([4.0, -2.0, 1.0], dtype=float),
         current_nomom=7.0,
-        current_reference=7.0
-        + _candidate_current(
+        current_reference=_candidate_current(
             density=3.0,
             solution=np.array([4.0, -2.0, 1.0], dtype=float),
             charge_sign=1.0,

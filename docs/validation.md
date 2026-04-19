@@ -149,23 +149,23 @@ the local W7-X no-momentum and momentum-correction reference tests pass again.
 
 A further benchmark-side fix was also required: the NTX VMEC solve must
 receive `E_\psi = E_r / transport_psi_scale`, not the DKES/SFINCS bridge
-factor `E_r dr/ds`. With the corrected current assembly
-`U_{\parallel,\mathrm{total}} = U_{\parallel,\mathrm{nomom}} + \Delta U_\parallel`,
-the present archive-backed fixed-field benchmark writes:
+factor `E_r dr/ds`. The active NEOPAX closure returns the corrected parallel
+flow itself, not a separate `\Delta U_\parallel`, so the benchmark must form
+the current directly from that corrected `U_\parallel`. With that corrected
+interpretation, the present archive-backed fixed-field benchmark writes:
 
 - `docs/_static/bootstrap_current_fixed_field_validation.png`
 - `docs/_static/bootstrap_current_fixed_field_validation.pdf`
 - `docs/_static/bootstrap_current_fixed_field_validation.json`
 
-and gives current interior max relative errors of about:
+and currently gives current interior max relative errors of about:
 
-- QA: `3.22e-1`
-- QH: `8.26e-2`
+- QA: `5.14e-1`
+- QH: `6.15e-1`
 
 The remaining fixed-field bootstrap-current gap is therefore no longer a
 benchmark-family, Redl, `nu_v`-axis, or VMEC solve-input issue. It is now
-best treated as a benchmark-specific thermal/current-closure problem, centered
-on the QA momentum-correction branch.
+best treated as a benchmark-specific thermal/current-closure problem.
 
 The in-tree fixed-field momentum-correction diagnostic now makes that closure
 tradeoff explicit on cached QA/QH probes. It records the archived species
@@ -176,21 +176,20 @@ system:
 - the weighted Sonine reconstruction `[1, 0.4, 8/35] \cdot c`,
 - and a `c2`-only probe used only for debugging.
 
-On the current local closure lane, the weighted reconstruction improves the
-fixed-field archive only through cancellation. The species-resolved diagnostic
-and the cross-family mapping audit now make that limitation explicit:
+With the corrected total-`U_\parallel` semantics, the mapping audit becomes
+stricter:
 
-- on the fixed-field archive, the only simple species rule that improves both
-  QA and QH simultaneously is `electron = weighted`, `ion = c0`
-- that same rule fails the shipped W7-X momentum-correction regression
-- broader least-squares fits of the solved Sonine vector against fixed-field
-  species currents and W7-X references also fail to produce a stable universal
-  map
+- the baseline `c0` reconstruction still behaves best among the simple
+  universal rules, but it leaves fixed-field errors of about `7.6e-1` and
+  drives the shipped W7-X ion branch to order `1e1`
+- the weighted Sonine reconstruction is worse on both the fixed-field archive
+  and the W7-X regression
+- least-squares fits trained on the fixed-field archive do not transfer to
+  W7-X, and fits trained on W7-X do not close QA/QH
 
 So the remaining mismatch is not fixable by promoting another constant Sonine
-weight vector to production. The `c0` reconstruction remains the baseline
-because it preserves the existing W7-X reference test, even though the QA
-electron branch is still the limiting mismatch on the fixed-field benchmark.
+weight vector to production. The open lane is now the momentum-correction
+closure equations themselves.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
