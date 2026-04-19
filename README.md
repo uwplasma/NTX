@@ -259,7 +259,12 @@ close to SFINCS while the active `NTX+NEOPAX` closure is still looser than the
 target band, with the remaining gap concentrated in the momentum-correction
 closure. The benchmark keeps a monotone `PCHIP` radial postprocessing map by
 default, since the interpolation audit showed that switching this final step to
-linear does not improve agreement.
+linear does not improve agreement. The same audit showed that the internal
+monoenergetic lookup is insensitive to the currently plausible NEOPAX
+interpolation choices on this benchmark: the default NTSS-style path, direct 3D
+cubic interpolation, and direct 3D linear interpolation all reproduce the same
+cached QA/QH errors to numerical precision. The remaining drift is therefore not
+being set by interpolation-kernel choice.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 
