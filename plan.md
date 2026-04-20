@@ -577,8 +577,10 @@ templates:
       the baseline closure without any fitted mixing constants:
       - QA improves to about `1.02e-1`
       - QH improves to about `2.18e-1`
-    - that is still not enough for a parity claim, and it has not yet been
-      shown to transfer to the shipped W7-X regression
+    - on the shipped W7-X no-momentum reference audit, the same branch is
+      effectively neutral relative to the present baseline
+    - that is still not enough for a parity claim, and it has therefore not
+      been promoted beyond audit status
     - the correct interpretation is therefore:
       - this is a physically motivated closure clue
       - not yet a production default
