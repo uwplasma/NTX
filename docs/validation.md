@@ -196,13 +196,13 @@ interpretation, the present archive-backed fixed-field benchmark writes:
 
 and now gives current interior max relative errors of:
 
-- QA: `9.61e-2`
-- QH: `9.94e-2`
+- QA: `1.66e-1`
+- QH: `3.53e-1`
 
-That closes the archive-backed precise-QS parity lane at the intended
-`O(1e-1)` level. The remaining benchmark-side work is no longer “make the
-current profile match at all”; it is to keep this closure change technically
-grounded and transferable across other workflows.
+So the archive-backed precise-QS figure remains a status benchmark, not a
+closed transferable parity claim. The earlier fitted bridge that closed QA/QH
+below `1e-1` on this archive did not transfer to the shipped W7-X workflow and
+has been removed from the shipped code path.
 
 The in-tree fixed-field momentum-correction diagnostic now makes that closure
 tradeoff explicit on cached QA/QH probes. It records the archived species
@@ -239,20 +239,28 @@ Two further closure-side checks now rule out the next obvious shortcuts:
   improves if that block is amplified. That means the remaining mismatch is not
   a missing scalar prefactor on the `D33` collision-weighted block either.
 
-The closure-side audit isolated the remaining dominant contribution to the
+The closure-side audit still isolates the remaining dominant contribution to the
 higher-order `D33` Sonine moments in `L_{43}/L_{34}`, `L_{45}/L_{54}`, and
 `L_{55}` rather than to the lower-order `L_{33}` term, interpolation, or a
-simple observable remap. The current fixed-field benchmark therefore uses a
-mixed `Lij` bridge:
+simple observable remap. However, the literature and source audit matters here:
 
-- keep `E_{ij}` on the Spitzer branch,
-- keep lower-order `Lij` entries on the Spitzer branch,
-- soften only `L_{43}/L_{34}`, `L_{45}/L_{54}`, and `L_{55}` toward the raw
-  `D33` branch.
+- Escoto's monoenergetic solver and the upstream source implementation expose
+  `D33_spitzer` as a Spitzer-conductivity coefficient, not as a complete
+  higher-order momentum-correction closure by itself.
+- Taguchi and the Sugama-Nishimura moment-equation papers derive momentum
+  restoration through coupled Laguerre/Sonine moment equations, not through
+  benchmark-fitted blends of monoenergetic `D33` moments.
+- Maaßberg's momentum-correction benchmarks show that energy weighting in the
+  source and closure model can matter physically, but that is still a
+  closure-model statement, not a license to insert geometry-family-specific
+  mixing constants into the production observable path.
 
-With the present fitted bridge coefficients (`0.92`, `0.76`, `0.33`) the
-precise-QS QA/QH archive closes simultaneously below `1e-1`. That bridge is
-now the active fixed-field validation path.
+For that reason, the previously fitted higher-order `Lij` bridge is now treated
+as a rejected audit clue rather than as production physics. A reduced W7-X
+transfer audit showed that it substantially worsens the current profile
+relative to the same NTX-built baseline, so it has been removed from the public
+benchmark path. The open lane remains the momentum-correction closure
+equations themselves.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 

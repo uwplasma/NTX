@@ -541,21 +541,29 @@ templates:
       - a single missing scalar on the `D33` collision-weighted block
     - the next patch has to target the detailed `Eij` closure formulas
       themselves and still preserve the shipped W7-X regression
-  - the fixed-field precise-QS parity lane is now closed on the archived QA/QH
-    family at the intended `O(1e-1)` level:
-    - the benchmark now uses a mixed higher-order `Lij` bridge while keeping
-      `Eij` on the Spitzer branch
-    - only `L43/L34`, `L45/L54`, and `L55` are softened toward the raw `D33`
-      branch with coefficients `(0.92, 0.76, 0.33)`
-    - the regenerated archive-backed interior max relative errors are now:
-      - QA `9.61e-2`
-      - QH `9.94e-2`
+  - latest closure-audit result:
+    - the fitted higher-order `Lij` bridge that closed the precise-QS archive is
+      not defensible as production physics
+    - theory/source audit:
+      - `D33_spitzer` is a conductivity-side monoenergetic coefficient
+      - momentum restoration in the literature is a moment-equation closure, not
+        a set of benchmark-fit mixing constants on higher-order `Lij` entries
+    - transfer audit:
+      - on a reduced W7-X workflow using the shipped inputs, the fitted bridge
+        substantially worsens the current profile relative to the same NTX-built
+        baseline
+    - action taken:
+      - removed the fitted bridge from the shipped NTX and NTX_paper benchmark
+        paths
+      - restored the fixed-field figure to a status benchmark on the baseline
+        closure
+    - current archive-backed fixed-field baseline errors vs SFINCS:
+      - QA `1.66e-1`
+      - QH `3.53e-1`
     - Redl remains close on the same family:
       - QA `6.86e-2`
       - QH `4.06e-2`
-    - interpolation is now definitively bounded out of the dominant error
-      budget on this benchmark
-    - the remaining open lane is to validate whether this mixed higher-order
-      `Lij` bridge can be justified and transferred beyond the precise-QS
-      archive, especially against the shipped W7-X regression and the broader
-      NTX+NEOPAX workflow
+    - interpolation remains bounded out of the dominant error budget on this
+      benchmark
+    - the active open lane is again the momentum-correction closure equations
+      themselves

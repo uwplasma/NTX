@@ -42,7 +42,6 @@ if str(SRC) not in sys.path:
 
 from ntx import (
     GridSpec,
-    blend_momentum_correction_lij,
     build_ntx_neopax_scan_from_surfaces,
     load_neopax_reference_scan,
     load_vmec_surface,
@@ -100,11 +99,6 @@ POSTPROCESS_PROFILE_INTERP = os.environ.get(
     "NTX_FIXED_FIELD_POSTPROCESS_INTERP",
     "pchip",
 ).strip().lower()
-MIXED_LIJ_BETAS = {
-    "beta_l43": 0.92,
-    "beta_l45": 0.76,
-    "beta_l55": 0.33,
-}
 
 
 @dataclass(frozen=True)
@@ -658,11 +652,6 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         a_b=float(field.a_b),
         d33_mode="spitzer",
     )
-    database_raw = to_neopax_monoenergetic(
-        scan,
-        a_b=float(field.a_b),
-        d33_mode="raw",
-    )
     lij_nomom, _, _, upar_nomom = get_Neoclassical_Fluxes(species, ntx_grid, field, database)
     lij_spitzer, eij_spitzer, nu_weighted_average = jax.vmap(
         jax.vmap(
@@ -671,25 +660,11 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         ),
         in_axes=(None, None, None, None, 0, None),
     )(species, ntx_grid, field, database, species.species_indeces, ntx_grid.full_grid_indeces)
-    lij_raw, _, _ = jax.vmap(
-        jax.vmap(
-            get_Lij_matrix_with_momentum_correction,
-            in_axes=(None, None, None, None, None, 0),
-        ),
-        in_axes=(None, None, None, None, 0, None),
-    )(species, ntx_grid, field, database_raw, species.species_indeces, ntx_grid.full_grid_indeces)
     lij_spitzer = lij_spitzer.at[:, 0, :, :].set(lij_spitzer.at[:, 1, :, :].get())
-    lij_raw = lij_raw.at[:, 0, :, :].set(lij_raw.at[:, 1, :, :].get())
     eij_spitzer = eij_spitzer.at[:, 0, :, :].set(eij_spitzer.at[:, 1, :, :].get())
     lij_spitzer = _replace_nonfinite_radial_boundaries(lij_spitzer)
-    lij_raw = _replace_nonfinite_radial_boundaries(lij_raw)
     eij_spitzer = _replace_nonfinite_radial_boundaries(eij_spitzer)
     nu_weighted_average = _replace_nonfinite_radial_boundaries(nu_weighted_average)
-    lij_mixed = blend_momentum_correction_lij(
-        lij_spitzer,
-        lij_raw,
-        **MIXED_LIJ_BETAS,
-    )
     _, _, upar_total, _, _ = jax.vmap(
         get_momentum_Correction,
         in_axes=(None, None, None, 0, 1, 1, 1),
@@ -698,7 +673,7 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         ntx_grid,
         field,
         ntx_grid.full_grid_indeces,
-        lij_mixed,
+        lij_spitzer,
         eij_spitzer,
         nu_weighted_average,
     )
@@ -796,12 +771,12 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         "ion_L32_grid": np.asarray(lij_nomom[1, :, 2, 1], dtype=float),
         "electron_L33_grid": np.asarray(lij_nomom[0, :, 2, 2], dtype=float),
         "ion_L33_grid": np.asarray(lij_nomom[1, :, 2, 2], dtype=float),
-        "electron_L43_grid": np.asarray(lij_mixed[0, :, 3, 2], dtype=float),
-        "ion_L43_grid": np.asarray(lij_mixed[1, :, 3, 2], dtype=float),
-        "electron_L45_grid": np.asarray(lij_mixed[0, :, 3, 4], dtype=float),
-        "ion_L45_grid": np.asarray(lij_mixed[1, :, 3, 4], dtype=float),
-        "electron_L55_grid": np.asarray(lij_mixed[0, :, 4, 4], dtype=float),
-        "ion_L55_grid": np.asarray(lij_mixed[1, :, 4, 4], dtype=float),
+        "electron_L43_grid": np.asarray(lij_spitzer[0, :, 3, 2], dtype=float),
+        "ion_L43_grid": np.asarray(lij_spitzer[1, :, 3, 2], dtype=float),
+        "electron_L45_grid": np.asarray(lij_spitzer[0, :, 3, 4], dtype=float),
+        "ion_L45_grid": np.asarray(lij_spitzer[1, :, 3, 4], dtype=float),
+        "electron_L55_grid": np.asarray(lij_spitzer[0, :, 4, 4], dtype=float),
+        "ion_L55_grid": np.asarray(lij_spitzer[1, :, 4, 4], dtype=float),
         "electron_current_grid": electron_current,
         "ion_current_grid": ion_current,
         "electron_current_nomom_grid": electron_current_nomom,
@@ -817,7 +792,6 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         "nu_values": np.asarray(nu_values, dtype=float),
         "nu_support": nu_support,
         "er_axis": np.asarray(er_axis, dtype=float),
-        "mixed_lij_betas": dict(MIXED_LIJ_BETAS),
         "archived_er_hat_rho": archived_er_hat,
         "archived_alpha_rho": archived_alpha,
         "archived_er_rho": archived_er,

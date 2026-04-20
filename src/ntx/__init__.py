@@ -31,7 +31,6 @@ from .io import (
 from .neopax import (
     NeopaxMonoenergeticArrays,
     NeopaxScan,
-    blend_momentum_correction_lij,
     build_ntx_neopax_scan,
     build_ntx_neopax_scan_from_surfaces,
     load_neopax_reference_scan,
@@ -127,7 +126,6 @@ __all__ = [
     "TransportResult",
     "VmecSurface",
     "build_monoenergetic_database_arrays",
-    "blend_momentum_correction_lij",
     "build_ntx_neopax_scan",
     "build_ntx_neopax_scan_from_surfaces",
     "evaluate_scan_channel",
