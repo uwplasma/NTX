@@ -161,6 +161,61 @@ def test_scan_to_neopax_arrays_supports_raw_d33_mode():
 
     assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
 
+
+def test_scan_to_neopax_arrays_supports_conductivity_difference_d33_mode():
+    surfaces = (example_surface(), example_surface())
+    rho = jnp.asarray([0.25, 0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    er = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    drds = jnp.asarray([1.0, 1.5])
+    grid = GridSpec(5, 5, 4)
+
+    scan = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Es=es,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    mapped = scan_to_neopax_arrays(scan, a_b=1.0, d33_mode="conductivity_difference")
+
+    assert scan.D33_spitzer is not None
+    assert jnp.allclose(
+        mapped.D33,
+        (scan.D33_spitzer - scan.D33) * nu_v[None, :, None],
+    )
+
+
+def test_conductivity_difference_d33_mode_requires_spitzer_branch():
+    surfaces = (example_surface(),)
+    rho = jnp.asarray([0.25])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3]])
+    er = jnp.asarray([[0.0, 1.0e-3]])
+    drds = jnp.asarray([1.0])
+    grid = GridSpec(5, 5, 4)
+
+    scan = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Es=es,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    scan = scan.__class__(**{**scan.__dict__, "D33_spitzer": None})
+
+    try:
+        scan_to_neopax_arrays(scan, a_b=1.0, d33_mode="conductivity_difference")
+    except ValueError as exc:
+        assert "requires D33_spitzer" in str(exc)
+    else:  # pragma: no cover - defensive
+        raise AssertionError("expected ValueError for conductivity_difference without D33_spitzer")
+
 def test_scan_to_neopax_arrays_is_differentiable_in_es():
     surfaces = (example_surface(), example_surface())
     rho = jnp.asarray([0.25, 0.5])
