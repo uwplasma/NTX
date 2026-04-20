@@ -473,45 +473,6 @@ def to_neopax_monoenergetic(
     )
 
 
-def blend_momentum_correction_lij(
-    lij_spitzer: Array,
-    lij_raw: Array,
-    *,
-    beta_l43: float = 0.92,
-    beta_l45: float = 0.76,
-    beta_l55: float = 0.33,
-) -> Array:
-    """Blend selected high-order D33 Sonine moments between Spitzer/raw branches.
-
-    The fixed-field precise-QS audit shows the remaining parity gap is isolated
-    to the higher-order D33 moments entering the momentum-correction closure,
-    while the lower-order D33 and all Eij terms should remain on the Spitzer
-    branch. This helper softens only the symmetry-linked L43/L34, L45/L54, and
-    L55 entries toward the raw-D33 branch.
-    """
-
-    lij = jnp.asarray(lij_spitzer)
-    raw = jnp.asarray(lij_raw)
-    if lij.shape != raw.shape:
-        raise ValueError("lij_spitzer and lij_raw must have the same shape")
-    if lij.shape[-2:] != (5, 5):
-        raise ValueError("momentum-correction Lij blocks must have trailing shape (5, 5)")
-
-    def _mix(a: Array, b: Array, beta: float) -> Array:
-        return beta * a + (1.0 - beta) * b
-
-    blended = lij
-    l43 = _mix(lij[..., 3, 2], raw[..., 3, 2], beta_l43)
-    l45 = _mix(lij[..., 3, 4], raw[..., 3, 4], beta_l45)
-    l55 = _mix(lij[..., 4, 4], raw[..., 4, 4], beta_l55)
-    blended = blended.at[..., 3, 2].set(l43)
-    blended = blended.at[..., 2, 3].set(l43)
-    blended = blended.at[..., 3, 4].set(l45)
-    blended = blended.at[..., 4, 3].set(l45)
-    blended = blended.at[..., 4, 4].set(l55)
-    return blended
-
-
 def _optional_dataset(handle, name: str):
     if name not in handle:
         return None

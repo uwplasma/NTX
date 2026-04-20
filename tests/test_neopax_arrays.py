@@ -15,7 +15,7 @@ from ntx import (
     scan_to_neopax_arrays,
     write_neopax_scan_hdf5,
 )
-from ntx.neopax import _surface_reference_bridge, blend_momentum_correction_lij
+from ntx.neopax import _surface_reference_bridge
 
 from .fixture_data import SAMPLE_WOUT
 
@@ -160,41 +160,6 @@ def test_scan_to_neopax_arrays_supports_raw_d33_mode():
     mapped = scan_to_neopax_arrays(scan, a_b=1.0, d33_mode="raw")
 
     assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
-
-
-def test_blend_momentum_correction_lij_only_changes_targeted_entries():
-    lij_spitzer = jnp.arange(2 * 3 * 5 * 5, dtype=jnp.float64).reshape(2, 3, 5, 5)
-    lij_raw = lij_spitzer + 1000.0
-
-    blended = blend_momentum_correction_lij(
-        lij_spitzer,
-        lij_raw,
-        beta_l43=0.9,
-        beta_l45=0.8,
-        beta_l55=0.7,
-    )
-
-    assert jnp.allclose(blended[..., 0:2, :], lij_spitzer[..., 0:2, :])
-    assert jnp.allclose(blended[..., :, 0:2], lij_spitzer[..., :, 0:2])
-    assert jnp.allclose(blended[..., 2, 2], lij_spitzer[..., 2, 2])
-    assert jnp.allclose(blended[..., 3, 3], lij_spitzer[..., 3, 3])
-    assert jnp.allclose(blended[..., 2, 4], lij_spitzer[..., 2, 4])
-    assert jnp.allclose(blended[..., 4, 2], lij_spitzer[..., 4, 2])
-    assert jnp.allclose(
-        blended[..., 3, 2],
-        0.9 * lij_spitzer[..., 3, 2] + 0.1 * lij_raw[..., 3, 2],
-    )
-    assert jnp.allclose(blended[..., 2, 3], blended[..., 3, 2])
-    assert jnp.allclose(
-        blended[..., 3, 4],
-        0.8 * lij_spitzer[..., 3, 4] + 0.2 * lij_raw[..., 3, 4],
-    )
-    assert jnp.allclose(blended[..., 4, 3], blended[..., 3, 4])
-    assert jnp.allclose(
-        blended[..., 4, 4],
-        0.7 * lij_spitzer[..., 4, 4] + 0.3 * lij_raw[..., 4, 4],
-    )
-
 
 def test_scan_to_neopax_arrays_is_differentiable_in_es():
     surfaces = (example_surface(), example_surface())

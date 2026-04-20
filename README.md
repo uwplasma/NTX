@@ -252,19 +252,23 @@ This uses the local precise-QS Zenodo archive and writes:
 - `docs/_static/bootstrap_current_fixed_field_validation.pdf`
 - `docs/_static/bootstrap_current_fixed_field_validation.json`
 
-This benchmark now closes the archive-backed precise-QS parity lane with the
-exact literature profile family, fresh NTX scan caches, and a mixed higher-order
-`Lij` bridge in the NEOPAX momentum-correction closure. On that QA/QH family,
-the regenerated interior max relative errors versus archived SFINCS are:
+This benchmark is kept public as a fixed-field status check, not as a closed
+transferable parity claim. A deeper closure audit against the momentum-
+correction literature and the shipped W7-X regression showed that a fitted
+higher-order `Lij` bridge could close the precise-QS archive but did not
+transfer outside that benchmark family, so it has been removed from the shipped
+path. On the current physics-grounded baseline closure, the regenerated
+interior max relative errors versus archived SFINCS are:
 
-- QA: `9.61e-2`
-- QH: `9.94e-2`
+- QA: `1.66e-1`
+- QH: `3.53e-1`
 
 Redl remains close on the same family (`6.86e-2` on QA and `4.06e-2` on QH).
 The benchmark keeps a monotone `PCHIP` radial postprocessing map by default,
 since the interpolation audit showed that neither the final radial remap nor the
 internal NTSS-style versus direct 3D interpolation choice is the dominant error
-source on this benchmark.
+source on this benchmark. The active open lane is the momentum-correction
+closure itself.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 
