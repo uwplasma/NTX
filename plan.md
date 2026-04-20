@@ -581,11 +581,18 @@ templates:
       improves the closure without any fitted mixing constants:
       - QA improves to `1.01e-1`
       - QH improves to `2.32e-1`
-    - the shipped W7-X external database does not carry a Spitzer-side `D33`
-      branch, so the same closure cannot yet be transferred there without
-      rebuilding that database
+    - a dedicated NTX rebuild audit for the shipped W7-X workflow is now
+      in-tree in `examples/bootstrap_current_w7x_rebuild_audit.py`
+    - that audit rebuilds a NEOPAX-format W7-X database with `D33_spitzer`
+      and tests both `spitzer` and `conductivity_difference` against the
+      frozen shipped W7-X momentum-correction reference
+    - transfer currently fails badly:
+      - shipped external database: `1.18e-12`
+      - NTX-rebuilt W7-X, `spitzer`: `4.18e+0`
+      - NTX-rebuilt W7-X, `conductivity_difference`: `1.07e+1`
     - the correct interpretation is therefore:
       - this is the right NTX-generated fixed-field closure branch for the
         precise-QS archive
-      - not yet a universal external-database default
-      - and not yet the end of the broader closure-model lane
+      - not a universal external-database default
+      - and not yet the end of the broader closure-model lane, especially on
+        W7-X integrated workflows
