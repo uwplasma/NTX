@@ -14,7 +14,7 @@ from .grids import GridSpec
 from .solver import solve_monoenergetic_scan
 
 NEOPAX_SCAN_FORMAT_VERSION = 2
-D33_MODES = frozenset({"spitzer", "raw"})
+D33_MODES = frozenset({"spitzer", "raw", "conductivity_difference"})
 
 
 @dataclass(frozen=True)
@@ -411,8 +411,17 @@ def scan_to_neopax_arrays(
             if scan.D33_spitzer is not None
             else jnp.asarray(scan.D33)
         )
-    else:
+    elif d33_mode == "raw":
         d33 = jnp.asarray(scan.D33)
+    else:
+        if scan.D33_spitzer is None:
+            raise ValueError(
+                "d33_mode='conductivity_difference' requires D33_spitzer in the scan"
+            )
+        # Escoto's DKES-comparison normalization treats the parallel-conductivity
+        # coefficient as the deviation from the Spitzer problem, not as the raw
+        # conductivity-like monoenergetic coefficient alone.
+        d33 = jnp.asarray(scan.D33_spitzer) - jnp.asarray(scan.D33)
     a_b_value = jnp.asarray(a_b)
     if (
         scan.fac_reference_to_sfincs_31 is not None

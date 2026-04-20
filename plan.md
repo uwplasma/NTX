@@ -567,3 +567,19 @@ templates:
       benchmark
     - the active open lane is again the momentum-correction closure equations
       themselves
+  - physically motivated `D33` audit result:
+    - Escoto's DKES-comparison appendix implies that the conductivity-side
+      coefficient should be compared through the deviation from the Spitzer
+      problem rather than through raw `D33` alone
+    - NTX now carries an explicit audit-only `d33_mode="conductivity_difference"`
+      path for NEOPAX handoff tests, defined as `D33_spitzer - D33`
+    - on the cached precise-QS fixed-field benchmark this materially improves
+      the baseline closure without any fitted mixing constants:
+      - QA improves to about `1.02e-1`
+      - QH improves to about `2.18e-1`
+    - that is still not enough for a parity claim, and it has not yet been
+      shown to transfer to the shipped W7-X regression
+    - the correct interpretation is therefore:
+      - this is a physically motivated closure clue
+      - not yet a production default
+      - and not yet the end of the parity lane

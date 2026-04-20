@@ -262,6 +262,16 @@ relative to the same NTX-built baseline, so it has been removed from the public
 benchmark path. The open lane remains the momentum-correction closure
 equations themselves.
 
+One physically motivated audit clue does remain active. Escoto's DKES
+normalization makes the conductivity-side comparison through the deviation from
+the Spitzer problem, so NTX now exposes an audit-only
+`d33_mode="conductivity_difference"` branch defined as
+`D33_spitzer - D33`. On the cached precise-QS fixed-field benchmark, this
+improves the current comparison materially to about `1.02e-1` on QA and
+`2.18e-1` on QH without any benchmark-fit constants. That is still not enough
+for a parity claim, and it has not yet been shown to transfer to the shipped
+W7-X regression, so it remains an audit mode rather than a production default.
+
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
 ### End-To-End Bootstrap-Current Workflow
