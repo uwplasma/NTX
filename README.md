@@ -278,11 +278,25 @@ since the interpolation audit showed that neither the final radial remap nor
 the internal NTSS-style versus direct 3D interpolation choice is the dominant
 error source here.
 
-This is still not a universal parity claim. The shipped W7-X external database
-does not carry a Spitzer-side `D33` branch, so the same conductivity-difference
-closure cannot yet be transferred and tested there without rebuilding that
-database. The remaining open lane is therefore the broader momentum-correction
-model, not interpolation or the raw monoenergetic handoff.
+This is still not a universal parity claim. A dedicated W7-X rebuild audit now
+exists in:
+
+- `examples/bootstrap_current_w7x_rebuild_audit.py`
+
+That script rebuilds a NEOPAX-format W7-X database with NTX, including
+`D33_spitzer`, and compares it against the shipped external database on the
+same momentum-corrected workflow. The transfer result is currently negative:
+
+- shipped external database: `1.18e-12` max relative error against the frozen
+  W7-X reference current
+- NTX-rebuilt W7-X, `d33_mode="spitzer"`: `4.18e+0`
+- NTX-rebuilt W7-X, `d33_mode="conductivity_difference"`: `1.07e+1`
+
+So the conductivity-difference closure is a physically motivated improvement
+for the precise-QS fixed-field archive, but it does not yet transfer to the
+shipped W7-X integrated workflow. The remaining open lane is therefore still
+the broader momentum-correction model, not interpolation or the raw
+monoenergetic handoff.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 

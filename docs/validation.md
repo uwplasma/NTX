@@ -279,16 +279,35 @@ the current comparison without any benchmark-fit constants:
 - QH: `2.32e-1`
 
 Redl remains at `6.86e-2` on QA and `4.06e-2` on QH on the same family.
-This is still not a universal parity claim. The shipped W7-X external database
-does not carry a Spitzer-side `D33` branch, so the same conductivity-
-difference closure cannot yet be transferred and tested there without
-rebuilding that database. The physically plausible reading is therefore:
+This is still not a universal parity claim. A dedicated rebuild audit now
+tests the transfer directly:
+
+- `python examples/bootstrap_current_w7x_rebuild_audit.py`
+
+That script rebuilds a NEOPAX-format W7-X database from NTX with
+`D33_spitzer` included, then compares:
+
+- the shipped external W7-X database,
+- an NTX-rebuilt W7-X database using `d33_mode="spitzer"`,
+- an NTX-rebuilt W7-X database using
+  `d33_mode="conductivity_difference"`.
+
+On that shipped W7-X momentum-corrected workflow the transfer does not hold:
+
+- shipped external database: `1.18e-12`
+- NTX-rebuilt W7-X, `spitzer`: `4.18e+0`
+- NTX-rebuilt W7-X, `conductivity_difference`: `1.07e+1`
+
+So the physically plausible reading is:
 
 - the conductivity-difference interpretation is the right NTX-generated
   fixed-field closure branch for this benchmark family
-- interpolation and setup are no longer the dominant issue
-- the remaining open lane is the broader momentum-correction model, especially
-  for external databases that do not ship the Spitzer-side conductivity branch
+- interpolation and setup are no longer the dominant issue on the fixed-field
+  archive
+- but the same closure does not presently transfer to the shipped W7-X
+  integrated workflow
+- the remaining open lane is therefore the broader momentum-correction model
+  and the W7-X coefficient/closure gap, not interpolation
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
