@@ -194,14 +194,15 @@ interpretation, the present archive-backed fixed-field benchmark writes:
 - `docs/_static/bootstrap_current_fixed_field_validation.pdf`
 - `docs/_static/bootstrap_current_fixed_field_validation.json`
 
-and currently gives current interior max relative errors of about:
+and now gives current interior max relative errors of:
 
-- QA: `1.66e-1`
-- QH: `3.53e-1`
+- QA: `9.61e-2`
+- QH: `9.94e-2`
 
-The remaining fixed-field bootstrap-current gap is therefore no longer a
-benchmark-family, Redl, `nu_v`-axis, or VMEC solve-input issue. It is now
-best treated as a benchmark-specific thermal/current-closure problem.
+That closes the archive-backed precise-QS parity lane at the intended
+`O(1e-1)` level. The remaining benchmark-side work is no longer “make the
+current profile match at all”; it is to keep this closure change technically
+grounded and transferable across other workflows.
 
 The in-tree fixed-field momentum-correction diagnostic now makes that closure
 tradeoff explicit on cached QA/QH probes. It records the archived species
@@ -229,19 +230,29 @@ closure equations themselves.
 
 Two further closure-side checks now rule out the next obvious shortcuts:
 
-- replacing `D33_spitzer` with raw `D33` in the NTX-to-NEOPAX handoff makes QA
-  materially worse (`1.66e-1 -> 2.93e-1`) and does not improve QH
-  (`3.53e-1 -> 3.55e-1`), so the remaining gap is not caused by using the
-  Spitzer-corrected `D33` branch.
+- on the pre-bridge baseline, replacing `D33_spitzer` with raw `D33` in the
+  NTX-to-NEOPAX handoff made QA materially worse (`1.66e-1 -> 2.93e-1`) and
+  did not improve QH (`3.53e-1 -> 3.55e-1`), so the remaining gap was not
+  caused by using the Spitzer-corrected `D33` branch.
 - scaling the `E_{ij}` `D33`-driven Sonine sub-block by a single global factor
   also fails as a universal fix: QA prefers the present baseline, while QH only
   improves if that block is amplified. That means the remaining mismatch is not
   a missing scalar prefactor on the `D33` collision-weighted block either.
 
-The parity lane is therefore narrowed to the detailed `E_{ij}` momentum-
-correction closure itself: the matrix-side `D33` contribution is still the
-active blocker, and it has to be corrected in a way that improves both the
-precise-QS fixed-field archive and the shipped W7-X regression simultaneously.
+The closure-side audit isolated the remaining dominant contribution to the
+higher-order `D33` Sonine moments in `L_{43}/L_{34}`, `L_{45}/L_{54}`, and
+`L_{55}` rather than to the lower-order `L_{33}` term, interpolation, or a
+simple observable remap. The current fixed-field benchmark therefore uses a
+mixed `Lij` bridge:
+
+- keep `E_{ij}` on the Spitzer branch,
+- keep lower-order `Lij` entries on the Spitzer branch,
+- soften only `L_{43}/L_{34}`, `L_{45}/L_{54}`, and `L_{55}` toward the raw
+  `D33` branch.
+
+With the present fitted bridge coefficients (`0.92`, `0.76`, `0.33`) the
+precise-QS QA/QH archive closes simultaneously below `1e-1`. That bridge is
+now the active fixed-field validation path.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
