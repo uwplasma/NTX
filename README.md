@@ -252,19 +252,19 @@ This uses the local precise-QS Zenodo archive and writes:
 - `docs/_static/bootstrap_current_fixed_field_validation.pdf`
 - `docs/_static/bootstrap_current_fixed_field_validation.json`
 
-This figure is a status benchmark, not a closed parity claim. It now uses the
-exact precise-QS benchmark profile family from the archived literature setup and
-fresh NTX-to-NEOPAX scan caches. On that corrected QA/QH family, Redl remains
-close to SFINCS while the active `NTX+NEOPAX` closure is still looser than the
-target band, with the remaining gap concentrated in the momentum-correction
-closure. The benchmark keeps a monotone `PCHIP` radial postprocessing map by
-default, since the interpolation audit showed that switching this final step to
-linear does not improve agreement. The same audit showed that the internal
-monoenergetic lookup is insensitive to the currently plausible NEOPAX
-interpolation choices on this benchmark: the default NTSS-style path, direct 3D
-cubic interpolation, and direct 3D linear interpolation all reproduce the same
-cached QA/QH errors to numerical precision. The remaining drift is therefore not
-being set by interpolation-kernel choice.
+This benchmark now closes the archive-backed precise-QS parity lane with the
+exact literature profile family, fresh NTX scan caches, and a mixed higher-order
+`Lij` bridge in the NEOPAX momentum-correction closure. On that QA/QH family,
+the regenerated interior max relative errors versus archived SFINCS are:
+
+- QA: `9.61e-2`
+- QH: `9.94e-2`
+
+Redl remains close on the same family (`6.86e-2` on QA and `4.06e-2` on QH).
+The benchmark keeps a monotone `PCHIP` radial postprocessing map by default,
+since the interpolation audit showed that neither the final radial remap nor the
+internal NTSS-style versus direct 3D interpolation choice is the dominant error
+source on this benchmark.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 

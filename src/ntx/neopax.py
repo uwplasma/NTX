@@ -14,6 +14,7 @@ from .grids import GridSpec
 from .solver import solve_monoenergetic_scan
 
 NEOPAX_SCAN_FORMAT_VERSION = 2
+D33_MODES = frozenset({"spitzer", "raw"})
 
 
 @dataclass(frozen=True)
@@ -388,6 +389,7 @@ def scan_to_neopax_arrays(
     scan: NeopaxScan,
     *,
     a_b: float | Array,
+    d33_mode: str = "spitzer",
 ) -> NeopaxMonoenergeticArrays:
     """Map NTX scan data into the pure arrays consumed by `NEOPAX.Monoenergetic`.
 
@@ -401,11 +403,16 @@ def scan_to_neopax_arrays(
     drds = jnp.asarray(scan.drds)
     d11 = jnp.asarray(scan.D11)
     d13 = jnp.asarray(scan.D13)
-    d33 = (
-        jnp.asarray(scan.D33_spitzer)
-        if scan.D33_spitzer is not None
-        else jnp.asarray(scan.D33)
-    )
+    if d33_mode not in D33_MODES:
+        raise ValueError(f"d33_mode must be one of {sorted(D33_MODES)}")
+    if d33_mode == "spitzer":
+        d33 = (
+            jnp.asarray(scan.D33_spitzer)
+            if scan.D33_spitzer is not None
+            else jnp.asarray(scan.D33)
+        )
+    else:
+        d33 = jnp.asarray(scan.D33)
     a_b_value = jnp.asarray(a_b)
     if (
         scan.fac_reference_to_sfincs_31 is not None
@@ -436,7 +443,12 @@ def scan_to_neopax_arrays(
     )
 
 
-def to_neopax_monoenergetic(scan: NeopaxScan, *, a_b: float):
+def to_neopax_monoenergetic(
+    scan: NeopaxScan,
+    *,
+    a_b: float,
+    d33_mode: str = "spitzer",
+):
     """Construct `NEOPAX.Monoenergetic` from NTX scan data.
 
     This mapping follows the current NEOPAX monoenergetic database conventions,
@@ -448,7 +460,7 @@ def to_neopax_monoenergetic(scan: NeopaxScan, *, a_b: float):
     except ImportError as exc:  # pragma: no cover - exercised when NEOPAX exists locally
         raise ImportError("NEOPAX is required for `to_neopax_monoenergetic`") from exc
 
-    arrays = scan_to_neopax_arrays(scan, a_b=a_b)
+    arrays = scan_to_neopax_arrays(scan, a_b=a_b, d33_mode=d33_mode)
 
     return NEOPAX.Monoenergetic(
         a_b=float(a_b),
@@ -459,6 +471,45 @@ def to_neopax_monoenergetic(scan: NeopaxScan, *, a_b: float):
         D13=arrays.D13,
         D33=arrays.D33,
     )
+
+
+def blend_momentum_correction_lij(
+    lij_spitzer: Array,
+    lij_raw: Array,
+    *,
+    beta_l43: float = 0.92,
+    beta_l45: float = 0.76,
+    beta_l55: float = 0.33,
+) -> Array:
+    """Blend selected high-order D33 Sonine moments between Spitzer/raw branches.
+
+    The fixed-field precise-QS audit shows the remaining parity gap is isolated
+    to the higher-order D33 moments entering the momentum-correction closure,
+    while the lower-order D33 and all Eij terms should remain on the Spitzer
+    branch. This helper softens only the symmetry-linked L43/L34, L45/L54, and
+    L55 entries toward the raw-D33 branch.
+    """
+
+    lij = jnp.asarray(lij_spitzer)
+    raw = jnp.asarray(lij_raw)
+    if lij.shape != raw.shape:
+        raise ValueError("lij_spitzer and lij_raw must have the same shape")
+    if lij.shape[-2:] != (5, 5):
+        raise ValueError("momentum-correction Lij blocks must have trailing shape (5, 5)")
+
+    def _mix(a: Array, b: Array, beta: float) -> Array:
+        return beta * a + (1.0 - beta) * b
+
+    blended = lij
+    l43 = _mix(lij[..., 3, 2], raw[..., 3, 2], beta_l43)
+    l45 = _mix(lij[..., 3, 4], raw[..., 3, 4], beta_l45)
+    l55 = _mix(lij[..., 4, 4], raw[..., 4, 4], beta_l55)
+    blended = blended.at[..., 3, 2].set(l43)
+    blended = blended.at[..., 2, 3].set(l43)
+    blended = blended.at[..., 3, 4].set(l45)
+    blended = blended.at[..., 4, 3].set(l45)
+    blended = blended.at[..., 4, 4].set(l55)
+    return blended
 
 
 def _optional_dataset(handle, name: str):
