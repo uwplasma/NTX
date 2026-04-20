@@ -19,3 +19,7 @@ benchmark-output/
 examples/outputs/bootstrap_current_native_validation/
 examples/outputs/fixed_field_transport_matrix_audit/
 examples/outputs/precise_qs_redl_sfincs_audit/
+examples/outputs/bootstrap_current_fixed_field_validation/
+examples/outputs/fixed_field_momentum_correction_diagnostic/
+examples/outputs/fixed_field_parallel_flow_audit/
+examples/outputs/momentum_correction_mapping_audit/

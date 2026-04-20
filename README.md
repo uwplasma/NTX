@@ -267,8 +267,12 @@ Redl remains close on the same family (`6.86e-2` on QA and `4.06e-2` on QH).
 The benchmark keeps a monotone `PCHIP` radial postprocessing map by default,
 since the interpolation audit showed that neither the final radial remap nor the
 internal NTSS-style versus direct 3D interpolation choice is the dominant error
-source on this benchmark. The active open lane is the momentum-correction
-closure itself.
+source on this benchmark. A physically motivated audit branch based on the
+DKES-style conductivity normalization, `D33_spitzer - D33`, improves the
+precise-QS fixed-field comparison but is not a production default: on the
+shipped W7-X no-momentum reference audit it is neutral, not better, so the
+remaining open lane is still the momentum-correction closure itself rather than
+the raw monoenergetic handoff.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 

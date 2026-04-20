@@ -269,8 +269,12 @@ the Spitzer problem, so NTX now exposes an audit-only
 `D33_spitzer - D33`. On the cached precise-QS fixed-field benchmark, this
 improves the current comparison materially to about `1.02e-1` on QA and
 `2.18e-1` on QH without any benchmark-fit constants. That is still not enough
-for a parity claim, and it has not yet been shown to transfer to the shipped
-W7-X regression, so it remains an audit mode rather than a production default.
+for a parity claim. On the shipped W7-X no-momentum reference audit it is
+effectively neutral relative to the present baseline, so it remains an
+audit mode rather than a production default. The physically plausible reading
+is that the conductivity-difference interpretation captures part of the
+fixed-field closure mismatch without by itself resolving the broader
+momentum-correction model.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
