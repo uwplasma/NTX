@@ -252,27 +252,37 @@ This uses the local precise-QS Zenodo archive and writes:
 - `docs/_static/bootstrap_current_fixed_field_validation.pdf`
 - `docs/_static/bootstrap_current_fixed_field_validation.json`
 
-This benchmark is kept public as a fixed-field status check, not as a closed
-transferable parity claim. A deeper closure audit against the momentum-
-correction literature and the shipped W7-X regression showed that a fitted
-higher-order `Lij` bridge could close the precise-QS archive but did not
-transfer outside that benchmark family, so it has been removed from the shipped
-path. On the current physics-grounded baseline closure, the regenerated
-interior max relative errors versus archived SFINCS are:
+This benchmark now uses the physically motivated conductivity-side branch
+available from NTX-generated scans:
 
-- QA: `1.66e-1`
-- QH: `3.53e-1`
+- `D33_cond = D33_spitzer - D33`
+
+That choice is not a fitted bridge. It follows the DKES-style conductivity
+normalization discussed in Escoto's thesis and related source material, where
+the parallel-conductivity channel is compared relative to the Spitzer problem
+rather than through a raw conductivity-like coefficient alone. The closure
+audit showed that this conductivity-difference kernel must enter the full
+higher-order row-3/4/5 hierarchy consistently. Mixed choices for the
+no-momentum `Lij` branch and the momentum-correction `Eij` branch are both
+numerically worse and physically inconsistent.
+
+On the precise-QS fixed-field archive, the regenerated interior max relative
+errors versus archived SFINCS are now:
+
+- QA: `1.01e-1`
+- QH: `2.32e-1`
 
 Redl remains close on the same family (`6.86e-2` on QA and `4.06e-2` on QH).
 The benchmark keeps a monotone `PCHIP` radial postprocessing map by default,
-since the interpolation audit showed that neither the final radial remap nor the
-internal NTSS-style versus direct 3D interpolation choice is the dominant error
-source on this benchmark. A physically motivated audit branch based on the
-DKES-style conductivity normalization, `D33_spitzer - D33`, improves the
-precise-QS fixed-field comparison but is not a production default: on the
-shipped W7-X no-momentum reference audit it is neutral, not better, so the
-remaining open lane is still the momentum-correction closure itself rather than
-the raw monoenergetic handoff.
+since the interpolation audit showed that neither the final radial remap nor
+the internal NTSS-style versus direct 3D interpolation choice is the dominant
+error source here.
+
+This is still not a universal parity claim. The shipped W7-X external database
+does not carry a Spitzer-side `D33` branch, so the same conductivity-difference
+closure cannot yet be transferred and tested there without rebuilding that
+database. The remaining open lane is therefore the broader momentum-correction
+model, not interpolation or the raw monoenergetic handoff.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 

@@ -91,6 +91,10 @@ ENABLE_SFINCS_JAX = (
     os.environ.get("NTX_FIXED_FIELD_VALIDATION_ENABLE_SFINCS_JAX", "").strip().lower()
     in {"1", "true", "yes", "on"}
 )
+NTX_NEOPAX_D33_MODE = os.environ.get(
+    "NTX_FIXED_FIELD_VALIDATION_D33_MODE",
+    "conductivity_difference",
+).strip().lower()
 PRECISE_QS_PROFILE_MODE = os.environ.get(
     "NTX_FIXED_FIELD_PROFILE_MODE",
     "analytic",
@@ -650,7 +654,7 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
     database = to_neopax_monoenergetic(
         scan,
         a_b=float(field.a_b),
-        d33_mode="spitzer",
+        d33_mode=NTX_NEOPAX_D33_MODE,
     )
     lij_nomom, _, _, upar_nomom = get_Neoclassical_Fluxes(species, ntx_grid, field, database)
     lij_spitzer, eij_spitzer, nu_weighted_average = jax.vmap(
