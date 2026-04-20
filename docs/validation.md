@@ -262,19 +262,33 @@ relative to the same NTX-built baseline, so it has been removed from the public
 benchmark path. The open lane remains the momentum-correction closure
 equations themselves.
 
-One physically motivated audit clue does remain active. Escoto's DKES
+One physically motivated closure result does remain active. Escoto's DKES
 normalization makes the conductivity-side comparison through the deviation from
-the Spitzer problem, so NTX now exposes an audit-only
-`d33_mode="conductivity_difference"` branch defined as
-`D33_spitzer - D33`. On the cached precise-QS fixed-field benchmark, this
-improves the current comparison materially to about `1.02e-1` on QA and
-`2.18e-1` on QH without any benchmark-fit constants. That is still not enough
-for a parity claim. On the shipped W7-X no-momentum reference audit it is
-effectively neutral relative to the present baseline, so it remains an
-audit mode rather than a production default. The physically plausible reading
-is that the conductivity-difference interpretation captures part of the
-fixed-field closure mismatch without by itself resolving the broader
-momentum-correction model.
+the Spitzer problem, so NTX exposes
+`d33_mode="conductivity_difference"` defined as
+`D33_spitzer - D33`. The moment-equation audit also showed that this
+conductivity-difference kernel has to enter the full higher-order row-3/4/5
+hierarchy consistently; mixing it into only the `Eij` or only the `Lij` branch
+is both numerically worse and physically inconsistent with the shared
+conductivity-side moment expansion.
+
+On the regenerated precise-QS fixed-field benchmark, this materially improves
+the current comparison without any benchmark-fit constants:
+
+- QA: `1.01e-1`
+- QH: `2.32e-1`
+
+Redl remains at `6.86e-2` on QA and `4.06e-2` on QH on the same family.
+This is still not a universal parity claim. The shipped W7-X external database
+does not carry a Spitzer-side `D33` branch, so the same conductivity-
+difference closure cannot yet be transferred and tested there without
+rebuilding that database. The physically plausible reading is therefore:
+
+- the conductivity-difference interpretation is the right NTX-generated
+  fixed-field closure branch for this benchmark family
+- interpolation and setup are no longer the dominant issue
+- the remaining open lane is the broader momentum-correction model, especially
+  for external databases that do not ship the Spitzer-side conductivity branch
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 

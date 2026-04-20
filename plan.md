@@ -571,17 +571,21 @@ templates:
     - Escoto's DKES-comparison appendix implies that the conductivity-side
       coefficient should be compared through the deviation from the Spitzer
       problem rather than through raw `D33` alone
-    - NTX now carries an explicit audit-only `d33_mode="conductivity_difference"`
-      path for NEOPAX handoff tests, defined as `D33_spitzer - D33`
-    - on the cached precise-QS fixed-field benchmark this materially improves
-      the baseline closure without any fitted mixing constants:
-      - QA improves to about `1.02e-1`
-      - QH improves to about `2.18e-1`
-    - on the shipped W7-X no-momentum reference audit, the same branch is
-      effectively neutral relative to the present baseline
-    - that is still not enough for a parity claim, and it has therefore not
-      been promoted beyond audit status
+    - NTX now carries an explicit `d33_mode="conductivity_difference"` path
+      for NEOPAX handoff tests, defined as `D33_spitzer - D33`
+    - the momentum-correction audit now shows that this conductivity-side
+      branch must enter the full higher-order row-3/4/5 hierarchy
+      consistently; mixed `Lij`/`Eij` choices are numerically worse and do not
+      make sense physically
+    - on the regenerated precise-QS fixed-field benchmark this materially
+      improves the closure without any fitted mixing constants:
+      - QA improves to `1.01e-1`
+      - QH improves to `2.32e-1`
+    - the shipped W7-X external database does not carry a Spitzer-side `D33`
+      branch, so the same closure cannot yet be transferred there without
+      rebuilding that database
     - the correct interpretation is therefore:
-      - this is a physically motivated closure clue
-      - not yet a production default
-      - and not yet the end of the parity lane
+      - this is the right NTX-generated fixed-field closure branch for the
+        precise-QS archive
+      - not yet a universal external-database default
+      - and not yet the end of the broader closure-model lane
