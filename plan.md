@@ -527,3 +527,17 @@ templates:
       archive and the shipped W7-X regression
     - therefore the remaining open lane is not an output remap; it is the
       momentum-correction closure equations themselves
+  - two more candidate explanations are now closed:
+    - switching the NTX-to-NEOPAX handoff back from `D33_spitzer` to raw `D33`
+      worsens QA materially (`~1.66e-1 -> ~2.93e-1`) and leaves QH effectively
+      unchanged (`~3.53e-1 -> ~3.55e-1`)
+    - scaling the `Eij` `D33` Sonine sub-block by a single global factor does
+      not improve both precise-QS families at once:
+      - QA prefers the current baseline
+      - QH only improves when that block is amplified
+    - so the remaining parity blocker is no longer compatible with:
+      - a raw-vs-Spitzer `D33` choice
+      - a simple observable remap
+      - a single missing scalar on the `D33` collision-weighted block
+    - the next patch has to target the detailed `Eij` closure formulas
+      themselves and still preserve the shipped W7-X regression
