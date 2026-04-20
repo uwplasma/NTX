@@ -45,6 +45,9 @@ class NeopaxScan:
     fac_reference_to_sfincs_11: Array | None = None
     fac_reference_to_sfincs_31: Array | None = None
     fac_reference_to_sfincs_33: Array | None = None
+    fac_monkes_to_sfincs_11: Array | None = None
+    fac_monkes_to_sfincs_31: Array | None = None
+    fac_monkes_to_sfincs_33: Array | None = None
     fac_sfincs_to_dkes_11: Array | None = None
     fac_sfincs_to_dkes_31: Array | None = None
     fac_sfincs_to_dkes_33: Array | None = None
@@ -81,6 +84,9 @@ tree_util.register_dataclass(
         "fac_reference_to_sfincs_11",
         "fac_reference_to_sfincs_31",
         "fac_reference_to_sfincs_33",
+        "fac_monkes_to_sfincs_11",
+        "fac_monkes_to_sfincs_31",
+        "fac_monkes_to_sfincs_33",
         "fac_sfincs_to_dkes_11",
         "fac_sfincs_to_dkes_31",
         "fac_sfincs_to_dkes_33",
@@ -142,6 +148,9 @@ def load_neopax_reference_scan(path: str | Path) -> NeopaxScan:
             fac_reference_to_sfincs_11=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_11"),
             fac_reference_to_sfincs_31=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_31"),
             fac_reference_to_sfincs_33=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_33"),
+            fac_monkes_to_sfincs_11=_optional_dataset(handle, "Fac_MONKES_TO_SFINCS_11"),
+            fac_monkes_to_sfincs_31=_optional_dataset(handle, "Fac_MONKES_TO_SFINCS_31"),
+            fac_monkes_to_sfincs_33=_optional_dataset(handle, "Fac_MONKES_TO_SFINCS_33"),
             fac_sfincs_to_dkes_11=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_11"),
             fac_sfincs_to_dkes_31=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_31"),
             fac_sfincs_to_dkes_33=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_33"),
@@ -431,8 +440,15 @@ def scan_to_neopax_arrays(
             jnp.asarray(scan.fac_reference_to_sfincs_31)[:, None, None]
             * jnp.asarray(scan.fac_sfincs_to_dkes_31)[:, None, None]
         )
+        d13 = -d13 * d13_scale
+    elif scan.fac_monkes_to_sfincs_31 is not None:
+        # Legacy MONKES-style NEOPAX HDF5 files are consumed by
+        # `NEOPAX.Monoenergetic.read_monkes()` with the historical sign
+        # convention D13 -> D13 * drds, not the NTX-generated bridged sign.
+        d13 = d13 * drds[:, None, None]
     else:
         d13_scale = drds[:, None, None]
+        d13 = -d13 * d13_scale
 
     er0 = er[0]
     er_list = jnp.stack(
@@ -447,7 +463,7 @@ def scan_to_neopax_arrays(
         nu_log=jnp.log10(nu_v),
         Er_list=er_list,
         D11_log=jnp.log10(d11 * drds[:, None, None] ** 2),
-        D13=-d13 * d13_scale,
+        D13=d13,
         D33=d33 * nu_v[None, :, None],
     )
 

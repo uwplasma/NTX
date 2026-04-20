@@ -309,6 +309,27 @@ So the physically plausible reading is:
 - the remaining open lane is therefore the broader momentum-correction model
   and the W7-X coefficient/closure gap, not interpolation
 
+One bridge bug is now closed in the integrated W7-X lane. Historical
+MONKES-style NEOPAX HDF5 files use a different `D13` sign convention from the
+NTX-generated in-memory bridge. The bridge now preserves that historical
+convention when loading legacy external files, so
+`to_neopax_monoenergetic(load_neopax_reference_scan(...))` round-trips the
+shipped W7-X external database exactly instead of flipping the current sign.
+
+That does not close the rebuilt W7-X lane. A reduced coefficient-by-coefficient
+comparison against the shipped external W7-X database shows that the rebuilt
+NTX scan already diverges strongly in the monoenergetic tables themselves,
+before the momentum-restoring closure is applied. On a `13x17x17` diagnostic
+grid, the maximum relative differences are already about:
+
+- `D11`: `9.32e+1`
+- `D13`: `2.76e+3`
+- `D33`: `1.31e+1`
+
+So the remaining shipped W7-X blocker is not only the NEOPAX closure. It is
+already present in the NTX-generated monoenergetic coefficient tables for this
+workflow.
+
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
 ### End-To-End Bootstrap-Current Workflow

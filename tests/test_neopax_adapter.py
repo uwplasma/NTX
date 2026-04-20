@@ -12,6 +12,7 @@ from ntx import (
     surface_from_vmec_jax_vmec_wout_file,
     to_neopax_monoenergetic,
 )
+from ntx._checkout_paths import find_neopax_root
 
 from .fixture_data import SAMPLE_NEOPAX, SAMPLE_WOUT
 
@@ -65,3 +66,29 @@ def test_ntx_scan_maps_into_neopax_shapes():
     assert database.D13.shape == reference.D13.shape
     assert database.D33.shape == reference.D33.shape
     assert jnp.all(jnp.isfinite(database.D11_log))
+
+
+def test_legacy_monkes_scan_round_trips_historical_d13_convention():
+    neopax_root = find_neopax_root()
+    if neopax_root is None:
+        return
+
+    sys.modules.pop("NEOPAX", None)
+    try:
+        import NEOPAX
+        from NEOPAX._database import Monoenergetic
+    except ImportError:  # pragma: no cover - local-only dependency
+        return
+    NEOPAX.Monoenergetic = Monoenergetic
+
+    legacy_path = neopax_root / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+    if not legacy_path.exists():
+        return
+
+    scan = load_neopax_reference_scan(legacy_path)
+    mapped = to_neopax_monoenergetic(scan, a_b=5.5, d33_mode="raw")
+    legacy = NEOPAX.Monoenergetic.read_monkes(5.5, str(legacy_path))
+
+    assert jnp.allclose(mapped.D11_log, legacy.D11_log)
+    assert jnp.allclose(mapped.D13, legacy.D13)
+    assert jnp.allclose(mapped.D33, legacy.D33)

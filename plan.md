@@ -590,9 +590,23 @@ templates:
       - shipped external database: `1.18e-12`
       - NTX-rebuilt W7-X, `spitzer`: `4.18e+0`
       - NTX-rebuilt W7-X, `conductivity_difference`: `1.07e+1`
+    - one integrated-workflow bridge bug is now closed:
+      - legacy MONKES-style NEOPAX HDF5 files use a different `D13`
+        sign convention from the NTX-generated in-memory bridge
+      - the NTX bridge now preserves that historical convention when loading
+        such files, so round-tripping the shipped W7-X external database no
+        longer flips the bootstrap-current sign
+    - but the rebuilt W7-X lane still fails upstream of the closure:
+      - a reduced `13x17x17` coefficient comparison against the shipped
+        external W7-X database already shows order-large monoenergetic table
+        differences:
+        - `D11`: `9.32e+1`
+        - `D13`: `2.76e+3`
+        - `D33`: `1.31e+1`
     - the correct interpretation is therefore:
       - this is the right NTX-generated fixed-field closure branch for the
         precise-QS archive
       - not a universal external-database default
       - and not yet the end of the broader closure-model lane, especially on
-        W7-X integrated workflows
+        W7-X integrated workflows where the NTX-generated coefficient tables
+        themselves are still the first blocker
