@@ -227,6 +227,22 @@ So the remaining mismatch is not fixable by promoting another constant Sonine
 weight vector to production. The open lane is now the momentum-correction
 closure equations themselves.
 
+Two further closure-side checks now rule out the next obvious shortcuts:
+
+- replacing `D33_spitzer` with raw `D33` in the NTX-to-NEOPAX handoff makes QA
+  materially worse (`1.66e-1 -> 2.93e-1`) and does not improve QH
+  (`3.53e-1 -> 3.55e-1`), so the remaining gap is not caused by using the
+  Spitzer-corrected `D33` branch.
+- scaling the `E_{ij}` `D33`-driven Sonine sub-block by a single global factor
+  also fails as a universal fix: QA prefers the present baseline, while QH only
+  improves if that block is amplified. That means the remaining mismatch is not
+  a missing scalar prefactor on the `D33` collision-weighted block either.
+
+The parity lane is therefore narrowed to the detailed `E_{ij}` momentum-
+correction closure itself: the matrix-side `D33` contribution is still the
+active blocker, and it has to be corrected in a way that improves both the
+precise-QS fixed-field archive and the shipped W7-X regression simultaneously.
+
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
 ### End-To-End Bootstrap-Current Workflow

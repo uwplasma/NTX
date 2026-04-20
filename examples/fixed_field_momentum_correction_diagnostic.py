@@ -105,6 +105,81 @@ def _candidate_upar_from_solution(solution: np.ndarray, mode: str) -> float:
     raise ValueError(f"unknown solution reconstruction mode: {mode}")
 
 
+def _matrix_coefficients(
+    lij_block: np.ndarray,
+    eij_block: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Mirror NEOPAX get_Matrix() Sonine coefficients for one species/radius."""
+    lij = np.asarray(lij_block, dtype=float)
+    eij = np.asarray(eij_block, dtype=float)
+    coeff = np.zeros((3, 3), dtype=float)
+    nucoeff = np.zeros((3, 3), dtype=float)
+
+    coeff[0, 0] = lij[2, 2]
+    coeff[0, 1] = 2.5 * lij[2, 2] - lij[3, 2]
+    coeff[0, 2] = 4.375 * lij[2, 2] - 3.5 * lij[3, 2] + 0.5 * lij[3, 3]
+    coeff[1, 0] = lij[2, 2] - 0.4 * lij[3, 2]
+    coeff[1, 1] = 2.5 * lij[2, 2] - 2.0 * lij[3, 2] + 0.4 * lij[3, 3]
+    coeff[1, 2] = 4.375 * lij[2, 2] - 5.25 * lij[3, 2] + 1.9 * lij[3, 3] - 0.2 * lij[3, 4]
+    coeff[2, 0] = lij[2, 2] - 0.8 * lij[3, 2] + 4.0 * lij[3, 3] / 35.0
+    coeff[2, 1] = (
+        2.5 * lij[2, 2]
+        - 3.0 * lij[3, 2]
+        + 38.0 * lij[3, 3] / 35.0
+        - 4.0 * lij[3, 4] / 35.0
+    )
+    coeff[2, 2] = (
+        4.375 * lij[2, 2]
+        - 7.0 * lij[3, 2]
+        + 3.8 * lij[3, 3]
+        - 0.8 * lij[3, 4]
+        + 2.0 * lij[4, 4] / 35.0
+    )
+
+    nucoeff[0, 0] = eij[2, 2]
+    nucoeff[0, 1] = 2.5 * eij[2, 2] - eij[3, 2]
+    nucoeff[0, 2] = 4.375 * eij[2, 2] - 3.5 * eij[3, 2] + 0.5 * eij[3, 3]
+    nucoeff[1, 0] = nucoeff[0, 1]
+    nucoeff[1, 1] = 6.25 * eij[2, 2] - 5.0 * eij[3, 2] + eij[3, 3]
+    nucoeff[1, 2] = 10.9375 * eij[2, 2] - 13.125 * eij[3, 2] + 4.75 * eij[3, 3] - 0.5 * eij[3, 4]
+    nucoeff[2, 0] = nucoeff[0, 2]
+    nucoeff[2, 1] = nucoeff[1, 2]
+    nucoeff[2, 2] = (
+        19.140625 * eij[2, 2]
+        - 30.625 * eij[3, 2]
+        + 16.625 * eij[3, 3]
+        - 3.5 * eij[3, 4]
+        + 0.25 * eij[4, 4]
+    )
+    return coeff, nucoeff
+
+
+def _observable_coefficients(
+    lij_block: np.ndarray,
+    eij_block: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Mirror NEOPAX get_corrected_fluxes() Sonine coefficients for one species/radius."""
+    lij = np.asarray(lij_block, dtype=float)
+    eij = np.asarray(eij_block, dtype=float)
+    coeff = np.zeros((3, 2), dtype=float)
+    nucoeff = np.zeros((3, 2), dtype=float)
+
+    coeff[0, 0] = lij[2, 0]
+    coeff[0, 1] = lij[3, 0]
+    coeff[1, 0] = lij[2, 0] - 0.4 * lij[2, 1]
+    coeff[1, 1] = lij[3, 0] - 0.4 * lij[3, 1]
+    coeff[2, 0] = lij[2, 0] - 0.8 * lij[2, 1] + 4.0 * lij[3, 1] / 35.0
+    coeff[2, 1] = lij[3, 0] - 0.8 * lij[3, 1] + 4.0 * lij[4, 1] / 35.0
+
+    nucoeff[0, 0] = eij[2, 0]
+    nucoeff[0, 1] = eij[3, 0]
+    nucoeff[1, 0] = 2.5 * eij[2, 0] - eij[2, 1]
+    nucoeff[1, 1] = 2.5 * eij[3, 0] - eij[3, 1]
+    nucoeff[2, 0] = 4.375 * eij[2, 0] - 3.5 * eij[2, 1] + 0.5 * eij[3, 1]
+    nucoeff[2, 1] = 4.375 * eij[3, 0] - 3.5 * eij[3, 1] + 0.5 * eij[4, 1]
+    return coeff, nucoeff
+
+
 def _load_archived_sfincs_species_currents(case: Any) -> dict[str, np.ndarray]:
     rho_values: list[float] = []
     electron_current: list[float] = []
@@ -326,6 +401,12 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
         c_vectors: list[np.ndarray] = []
         alt_currents_c2_only: list[float] = []
         alt_currents_c2_total: list[float] = []
+        sum_matrices: list[np.ndarray] = []
+        matrix_coefficients: list[np.ndarray] = []
+        matrix_nucoefficients: list[np.ndarray] = []
+        observable_coefficients: list[np.ndarray] = []
+        observable_nucoefficients: list[np.ndarray] = []
+        collision_factors: list[float] = []
         for species_index in range(cm_ab.shape[0]):
             sum_matrix = jax.vmap(
                 jax.vmap(get_sum, in_axes=(None, None, 0, None, None, None)),
@@ -338,6 +419,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                 cn_ab,
                 tau,
             )
+            sum_matrix_np = np.asarray(sum_matrix, dtype=float)
             factor = (
                 2.0
                 / float(
@@ -345,6 +427,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                 )
                 / float(np.asarray(field.Bsqav[radial_index], dtype=float))
             )
+            collision_factors.append(float(factor))
             c_terms, *_ = jax.vmap(
                 get_correction_matrix,
                 in_axes=(None, None, None, 0, None, None, None, None, None, None, None, None, None),
@@ -365,6 +448,21 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
             )
             c_vec = np.asarray(jnp.sum(c_terms, axis=0), dtype=float)
             c_vectors.append(c_vec)
+            sum_matrices.append(sum_matrix_np)
+            species_lij = np.asarray(
+                context["lij_full"][species_index, radial_index, :, :],
+                dtype=float,
+            )
+            species_eij = np.asarray(
+                context["eij_full"][species_index, radial_index, :, :],
+                dtype=float,
+            )
+            coeff_matrix, nucoeff_matrix = _matrix_coefficients(species_lij, species_eij)
+            matrix_coefficients.append(coeff_matrix)
+            matrix_nucoefficients.append(nucoeff_matrix)
+            coeff_upar, nucoeff_upar = _observable_coefficients(species_lij, species_eij)
+            observable_coefficients.append(coeff_upar)
+            observable_nucoefficients.append(nucoeff_upar)
             row3 = np.asarray(context["lij_full"][species_index, radial_index, 2, :], dtype=float)
             density = float(np.asarray(species.density[species_index, radial_index], dtype=float))
             a1 = float(np.asarray(species.A1[species_index, radial_index], dtype=float))
@@ -432,6 +530,23 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                     "c_vector": c_vectors[0].tolist(),
                     "rhs": rhs_vector[:3].tolist(),
                     "solution": solution[:3].tolist(),
+                    "collision_factor": collision_factors[0],
+                    "sum_matrix": sum_matrices[0].tolist(),
+                    "matrix_coefficients": matrix_coefficients[0].tolist(),
+                    "matrix_nucoefficients": matrix_nucoefficients[0].tolist(),
+                    "observable_coefficients": observable_coefficients[0].tolist(),
+                    "observable_nucoefficients": observable_nucoefficients[0].tolist(),
+                    "Lij_full": np.asarray(
+                        context["lij_full"][0, radial_index, :, :],
+                        dtype=float,
+                    ).tolist(),
+                    "Eij_full": np.asarray(
+                        context["eij_full"][0, radial_index, :, :],
+                        dtype=float,
+                    ).tolist(),
+                    "CM_ab": np.asarray(cm_ab[0], dtype=float).tolist(),
+                    "CN_ab": np.asarray(cn_ab[0], dtype=float).tolist(),
+                    "tau": np.asarray(tau[0], dtype=float).tolist(),
                     "Lij_rows_3_to_5_cols_1_to_3": np.asarray(
                         context["lij_full"][0, radial_index, 2:5, 0:3],
                         dtype=float,
@@ -458,6 +573,23 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                     "c_vector": c_vectors[1].tolist(),
                     "rhs": rhs_vector[3:].tolist(),
                     "solution": solution[3:].tolist(),
+                    "collision_factor": collision_factors[1],
+                    "sum_matrix": sum_matrices[1].tolist(),
+                    "matrix_coefficients": matrix_coefficients[1].tolist(),
+                    "matrix_nucoefficients": matrix_nucoefficients[1].tolist(),
+                    "observable_coefficients": observable_coefficients[1].tolist(),
+                    "observable_nucoefficients": observable_nucoefficients[1].tolist(),
+                    "Lij_full": np.asarray(
+                        context["lij_full"][1, radial_index, :, :],
+                        dtype=float,
+                    ).tolist(),
+                    "Eij_full": np.asarray(
+                        context["eij_full"][1, radial_index, :, :],
+                        dtype=float,
+                    ).tolist(),
+                    "CM_ab": np.asarray(cm_ab[1], dtype=float).tolist(),
+                    "CN_ab": np.asarray(cn_ab[1], dtype=float).tolist(),
+                    "tau": np.asarray(tau[1], dtype=float).tolist(),
                     "Lij_rows_3_to_5_cols_1_to_3": np.asarray(
                         context["lij_full"][1, radial_index, 2:5, 0:3],
                         dtype=float,
