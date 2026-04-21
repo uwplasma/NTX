@@ -49,6 +49,21 @@ research problems.
     - independent-code comparison gates
     - integrated-workflow transfer gates
     - monitored closure stress tests
+  - current decision:
+    - hold the code on the present Escoto-based closure model
+    - treat the fixed-field QA/QH gap as a documented reduced-closure stress
+      test
+    - do not reopen closure-model derivation work unless there is a concrete,
+      physically motivated implementation change to test
+
+## Current Delivery Decision
+
+- [x] adopt the current validated model family as the manuscript baseline
+- [x] keep W7-X integrated transfer and Redl precise-QS agreement as the main
+  positive validation claims
+- [x] present fixed-field `NTX+NEOPAX` as a monitored closure stress test
+- [x] shift near-term work toward CI speed, packaging, manuscript clarity, and
+  reproducibility rather than new closure-model physics
 
 ## Open Code Lanes
 
