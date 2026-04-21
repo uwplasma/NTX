@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality-and-full-tests:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -28,8 +28,62 @@ jobs:
         run: ruff check .
       - name: Type check
         run: mypy src/ntx
-      - name: Test
-        run: pytest -q -m "not gpu"
+
+  test-shards:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["core", "integration_examples", "heavy_examples"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            git+https://github.com/uwplasma/vmec_jax.git \
+            git+https://github.com/uwplasma/booz_xform_jax.git
+          python -m pip install -e ".[dev,io]"
+      - name: Test shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ matrix.shard }}" in
+            heavy_examples)
+              pytest -q -m "not gpu" \
+                tests/test_ambipolar_profile_example.py \
+                tests/test_ambipolar_profile_family_example.py \
+                tests/test_bootstrap_current_optimization_example.py \
+                tests/test_derivative_audit_example.py \
+                tests/test_derivative_path_benchmark_example.py \
+                tests/test_make_publication_figures.py \
+                tests/test_manuscript_artifacts_script.py \
+                tests/test_performance_scaling_example.py \
+                tests/test_primitive_profile_transport_example.py \
+                tests/test_profile_basis_optimization_example.py \
+                tests/test_profile_control_optimization_example.py \
+                tests/test_profile_transport_loop_example.py \
+                tests/test_validation_summary_example.py
+              ;;
+            integration_examples)
+              pytest -q -m "not gpu" \
+                tests/test_bootstrap_current_reference_audit_w7x.py \
+                tests/test_bootstrap_current_vmec_or_boozmn_example.py \
+                tests/test_bootstrap_current_with_neopax_example.py \
+                tests/test_plot_output_npz_example.py \
+                tests/test_profile_fixed_field_workflow_script.py \
+                tests/test_profile_w7x_integrated_workflow_script.py \
+                tests/test_precise_qs_redl_sfincs_audit.py
+              ;;
+            core)
+              python -c 'from pathlib import Path; excluded = {"test_ambipolar_profile_example.py", "test_ambipolar_profile_family_example.py", "test_bootstrap_current_optimization_example.py", "test_derivative_audit_example.py", "test_derivative_path_benchmark_example.py", "test_make_publication_figures.py", "test_manuscript_artifacts_script.py", "test_performance_scaling_example.py", "test_primitive_profile_transport_example.py", "test_profile_basis_optimization_example.py", "test_profile_control_optimization_example.py", "test_profile_transport_loop_example.py", "test_validation_summary_example.py", "test_bootstrap_current_reference_audit_w7x.py", "test_bootstrap_current_vmec_or_boozmn_example.py", "test_bootstrap_current_with_neopax_example.py", "test_plot_output_npz_example.py", "test_profile_fixed_field_workflow_script.py", "test_profile_w7x_integrated_workflow_script.py", "test_precise_qs_redl_sfincs_audit.py"}; [print(path) for path in sorted(Path("tests").glob("test_*.py")) if path.name not in excluded]' > /tmp/ntx-core-tests.txt
+              xargs pytest -q -m "not gpu" < /tmp/ntx-core-tests.txt
+              ;;
+          esac
 
   compatibility-smoke:
     runs-on: ubuntu-latest
