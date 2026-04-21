@@ -16,6 +16,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from jax.experimental.compilation_cache import compilation_cache as jax_compilation_cache
+
 
 def _configure_xla_flags(xla_dump_dir: Path | None) -> str | None:
     if xla_dump_dir is None:
@@ -30,6 +32,14 @@ def _configure_xla_flags(xla_dump_dir: Path | None) -> str | None:
     merged = f"{existing} {flags}".strip() if existing else flags
     os.environ["XLA_FLAGS"] = merged
     return merged
+
+
+def _configure_compilation_cache(cache_dir: Path | None) -> str | None:
+    if cache_dir is None:
+        return None
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    jax_compilation_cache.set_cache_dir(str(cache_dir))
+    return str(cache_dir)
 
 
 def _load_helper_module():
@@ -76,6 +86,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--backend", choices=("cpu", "gpu"), default=None)
     parser.add_argument("--trace-dir", type=Path, default=None)
     parser.add_argument("--xla-dump-dir", type=Path, default=None)
+    parser.add_argument("--compilation-cache-dir", type=Path, default=None)
     parser.add_argument("--output-json", type=Path, default=None)
     parser.add_argument("--cprofile-out", type=Path, default=None)
     parser.add_argument("--rebuild-scan", action="store_true")
@@ -90,6 +101,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.trace_dir is not None:
         args.trace_dir.mkdir(parents=True, exist_ok=True)
     xla_flags = _configure_xla_flags(args.xla_dump_dir)
+    compilation_cache_dir = _configure_compilation_cache(args.compilation_cache_dir)
 
     module = _load_helper_module()
     import jax
@@ -194,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
         "d33_mode": args.d33_mode,
         "trace_dir": str(args.trace_dir) if args.trace_dir is not None else None,
         "xla_dump_dir": str(args.xla_dump_dir) if args.xla_dump_dir is not None else None,
+        "compilation_cache_dir": compilation_cache_dir,
         "xla_flags": xla_flags,
         "rebuilt_scan": str(module.REBUILT_SCAN_PATH),
         "timings": timings,

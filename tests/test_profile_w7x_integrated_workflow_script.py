@@ -36,3 +36,11 @@ def test_configure_xla_flags_appends_existing_flags(tmp_path, monkeypatch):
     flags = module._configure_xla_flags(dump_dir)
     assert flags.startswith("--xla_cpu_enable_fast_math=false")
     assert f"--xla_dump_to={dump_dir}" in flags
+
+
+def test_configure_compilation_cache_sets_dir(tmp_path):
+    module = _load_module()
+    cache_dir = tmp_path / "jax-cache"
+    configured = module._configure_compilation_cache(cache_dir)
+    assert configured == str(cache_dir)
+    assert cache_dir.exists()
