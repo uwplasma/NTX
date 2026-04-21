@@ -262,83 +262,68 @@ relative to the same NTX-built baseline, so it has been removed from the public
 benchmark path. The open lane remains the momentum-correction closure
 equations themselves.
 
-One physically motivated closure result does remain active. Escoto's DKES
-normalization makes the conductivity-side comparison through the deviation from
-the Spitzer problem, so NTX exposes
-`d33_mode="conductivity_difference"` defined as
-`D33_spitzer - D33`. The moment-equation audit also showed that this
-conductivity-difference kernel has to enter the full higher-order row-3/4/5
-hierarchy consistently; mixing it into only the `Eij` or only the `Lij` branch
-is both numerically worse and physically inconsistent with the shared
-conductivity-side moment expansion.
+The database-facing normalization is now anchored to the actual consumer path
+in NEOPAX's database loader:
 
-On the regenerated precise-QS fixed-field benchmark, this materially improves
-the current comparison without any benchmark-fit constants:
+- `D11 -> D11 * drds^2`
+- `D13 -> D13 * drds`
+- `D33 -> nu * D33`
 
-- QA: `1.01e-1`
-- QH: `2.32e-1`
+That closes the integrated W7-X handoff, but it also shows that the stronger
+precise-QS agreement obtained earlier from a custom `D13` bridge was not
+production physics. Under the physically consistent database normalization, the
+precise-QS fixed-field benchmark is a closure stress test, not a parity claim.
+The regenerated interior maximum relative errors versus archived SFINCS are now:
+
+- QA: `1.16e+0`
+- QH: `1.16e+0`
 
 Redl remains at `6.86e-2` on QA and `4.06e-2` on QH on the same family.
-This is still not a universal parity claim. A dedicated rebuild audit now
-tests the transfer directly:
+
+A dedicated rebuild audit now tests transfer directly:
 
 - `python examples/bootstrap_current_w7x_rebuild_audit.py`
 
-That script rebuilds a NEOPAX-format W7-X database from NTX with
-`D33_spitzer` included, then compares:
+That script rebuilds a NEOPAX-format W7-X database from NTX, then compares:
 
 - the shipped external W7-X database,
+- an NTX-rebuilt W7-X database using `d33_mode="raw"`,
 - an NTX-rebuilt W7-X database using `d33_mode="spitzer"`,
 - an NTX-rebuilt W7-X database using
   `d33_mode="conductivity_difference"`.
 
-On that shipped W7-X momentum-corrected workflow the transfer does not hold:
+On that shipped W7-X momentum-corrected workflow the transfer now closes on the
+raw database branch:
 
 - shipped external database: `1.18e-12`
-- NTX-rebuilt W7-X, `raw`: `3.66e+0`
-- NTX-rebuilt W7-X, `spitzer`: `4.18e+0`
-- NTX-rebuilt W7-X, `conductivity_difference`: `1.07e+1`
+- NTX-rebuilt W7-X, `raw`: `6.58e-6`
+- NTX-rebuilt W7-X, `spitzer`: `5.77e-1`
+- NTX-rebuilt W7-X, `conductivity_difference`: `2.67e+0`
 
-So the physically plausible reading is:
+The sharper reading is now:
 
-- the conductivity-difference interpretation is the right NTX-generated
-  fixed-field closure branch for this benchmark family
-- interpolation and setup are no longer the dominant issue on the fixed-field
-  archive
-- but the same closure does not presently transfer to the shipped W7-X
-  integrated workflow
-- the remaining open lane is therefore the broader momentum-correction model
-  and the W7-X coefficient/closure gap, not interpolation
+- the integrated W7-X mismatch was dominated by the `D13` database handoff, not
+  by the direct monoenergetic solve
+- the rebuilt W7-X raw branch now reproduces the frozen reference workflow
+  tightly
+- the conductivity-side `D33_spitzer - D33` interpretation remains a useful
+  audit clue on the precise-QS fixed-field archive, but it is not the active
+  database-normalization path for the integrated workflow
+- the remaining open lane is therefore the precise-QS closure/model gap, not
+  the W7-X database handoff or interpolation
 
-The current W7-X picture is therefore more specific than before:
+The W7-X picture is now more specific than before:
 
 - the full-resolution in-repo W7-X point and subset coefficient tests still
   pass against the shipped external database
-- but once the full table is pushed through the integrated workflow, all
-  tested higher-order branches remain poor
-- among those branches, `raw` is currently the least-bad W7-X closure choice,
-  but it is still far from parity
-
-One bridge bug is now closed in the integrated W7-X lane. Historical
-MONKES-style NEOPAX HDF5 files use a different `D13` sign convention from the
-NTX-generated in-memory bridge. The bridge now preserves that historical
-convention when loading legacy external files, so
-`to_neopax_monoenergetic(load_neopax_reference_scan(...))` round-trips the
-shipped W7-X external database exactly instead of flipping the current sign.
-
-That does not close the rebuilt W7-X lane. A reduced coefficient-by-coefficient
-comparison against the shipped external W7-X database shows that the rebuilt
-NTX scan already diverges strongly in the monoenergetic tables themselves,
-before the momentum-restoring closure is applied. On a `13x17x17` diagnostic
-grid, the maximum relative differences are already about:
-
-- `D11`: `9.32e+1`
-- `D13`: `2.76e+3`
-- `D33`: `1.31e+1`
-
-So the remaining shipped W7-X blocker is not only the NEOPAX closure. It is
-already present in the NTX-generated monoenergetic coefficient tables for this
-workflow.
+- direct solver checks at previously worst coefficient points show that both
+  the single-point solve and the scan builder reproduce the frozen benchmark
+  table on the reference grid `25x25x63` to about `1e-6` relative error
+- the shipped W7-X integrated workflow is now closed on the rebuilt raw branch
+- lower-resolution scans are under-resolved, and blindly increasing the grid
+  does not reproduce the frozen reference monotonically on every point, so the
+  audit is anchored to the reference resolution rather than to a naive
+  monotone-refinement assumption
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 

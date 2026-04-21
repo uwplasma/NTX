@@ -95,18 +95,12 @@ def test_scan_to_neopax_arrays_matches_expected_scalings():
     assert mapped.D33.shape == scan.D33.shape
     assert jnp.allclose(mapped.nu_log, jnp.log10(nu_v))
     assert jnp.allclose(mapped.D11_log, jnp.log10(scan.D11 * drds[:, None, None] ** 2))
-    assert scan.fac_reference_to_sfincs_31 is not None
-    assert scan.fac_sfincs_to_dkes_31 is not None
-    expected_d13 = -scan.D13 * (
-        scan.fac_reference_to_sfincs_31[:, None, None]
-        * scan.fac_sfincs_to_dkes_31[:, None, None]
-    )
-    assert jnp.allclose(mapped.D13, expected_d13)
+    assert jnp.allclose(mapped.D13, scan.D13 * drds[:, None, None])
     assert scan.D33_spitzer is not None
     assert jnp.allclose(mapped.D33, scan.D33_spitzer * nu_v[None, :, None])
 
 
-def test_scan_to_neopax_arrays_falls_back_to_legacy_scalings_without_bridge_metadata():
+def test_scan_to_neopax_arrays_keeps_d13_database_convention_without_bridge_metadata():
     surfaces = (example_surface(), example_surface())
     rho = jnp.asarray([0.25, 0.5])
     nu_v = jnp.asarray([1.0e-2, 2.0e-2])
@@ -135,7 +129,7 @@ def test_scan_to_neopax_arrays_falls_back_to_legacy_scalings_without_bridge_meta
     mapped = scan_to_neopax_arrays(scan, a_b=1.0)
 
     assert jnp.allclose(mapped.D11_log, jnp.log10(scan.D11 * drds[:, None, None] ** 2))
-    assert jnp.allclose(mapped.D13, -scan.D13 * drds[:, None, None])
+    assert jnp.allclose(mapped.D13, scan.D13 * drds[:, None, None])
     assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
 
 

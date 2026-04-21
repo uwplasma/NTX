@@ -432,23 +432,12 @@ def scan_to_neopax_arrays(
         # conductivity-like monoenergetic coefficient alone.
         d33 = jnp.asarray(scan.D33_spitzer) - jnp.asarray(scan.D33)
     a_b_value = jnp.asarray(a_b)
-    if (
-        scan.fac_reference_to_sfincs_31 is not None
-        and scan.fac_sfincs_to_dkes_31 is not None
-    ):
-        d13_scale = (
-            jnp.asarray(scan.fac_reference_to_sfincs_31)[:, None, None]
-            * jnp.asarray(scan.fac_sfincs_to_dkes_31)[:, None, None]
-        )
-        d13 = -d13 * d13_scale
-    elif scan.fac_monkes_to_sfincs_31 is not None:
-        # Legacy MONKES-style NEOPAX HDF5 files are consumed by
-        # `NEOPAX.Monoenergetic.read_monkes()` with the historical sign
-        # convention D13 -> D13 * drds, not the NTX-generated bridged sign.
-        d13 = d13 * drds[:, None, None]
-    else:
-        d13_scale = drds[:, None, None]
-        d13 = -d13 * d13_scale
+    # NEOPAX's legacy-HDF5 loader and direct array-constructor both consume the
+    # mixed coefficient with the direct database convention
+    # D13 -> D13 * drds. The historical bridge-factor metadata remains useful
+    # for diagnostics, but this database object does not use it in the active
+    # interpolation path.
+    d13 = d13 * drds[:, None, None]
 
     er0 = er[0]
     er_list = jnp.stack(

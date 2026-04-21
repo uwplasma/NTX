@@ -93,7 +93,7 @@ ENABLE_SFINCS_JAX = (
 )
 NTX_NEOPAX_D33_MODE = os.environ.get(
     "NTX_FIXED_FIELD_VALIDATION_D33_MODE",
-    "conductivity_difference",
+    "raw",
 ).strip().lower()
 PRECISE_QS_PROFILE_MODE = os.environ.get(
     "NTX_FIXED_FIELD_PROFILE_MODE",

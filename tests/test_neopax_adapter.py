@@ -68,7 +68,7 @@ def test_ntx_scan_maps_into_neopax_shapes():
     assert jnp.all(jnp.isfinite(database.D11_log))
 
 
-def test_legacy_monkes_scan_round_trips_historical_d13_convention():
+def test_legacy_external_scan_round_trips_historical_d13_convention():
     neopax_root = find_neopax_root()
     if neopax_root is None:
         return
@@ -92,3 +92,50 @@ def test_legacy_monkes_scan_round_trips_historical_d13_convention():
     assert jnp.allclose(mapped.D11_log, legacy.D11_log)
     assert jnp.allclose(mapped.D13, legacy.D13)
     assert jnp.allclose(mapped.D33, legacy.D33)
+
+
+def test_generated_w7x_point_maps_into_database_convention():
+    neopax_root = find_neopax_root()
+    if neopax_root is None:
+        return
+
+    sys.modules.pop("NEOPAX", None)
+    try:
+        import NEOPAX
+        from NEOPAX._database import Monoenergetic
+    except ImportError:  # pragma: no cover - local-only dependency
+        return
+    NEOPAX.Monoenergetic = Monoenergetic
+
+    legacy_path = neopax_root / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+    wout_path = neopax_root / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
+    if not legacy_path.exists() or not wout_path.exists():
+        return
+
+    scan = load_neopax_reference_scan(legacy_path)
+    # This point previously exposed the rebuilt-database D13 mapping bug in the
+    # integrated W7-X workflow.
+    rho_idx, nu_idx, er_idx = 6, 3, 9
+    rho = float(scan.rho[rho_idx])
+    nu_v = float(scan.nu_v[nu_idx])
+    Er = float(scan.Er[rho_idx, er_idx])
+    Es = float(scan.Es[rho_idx, er_idx])
+    drds = float(scan.drds[rho_idx])
+
+    generated = build_ntx_neopax_scan(
+        lambda _: surface_from_vmec_jax_vmec_wout_file(wout_path, s=float(rho**2)),
+        rho=jnp.asarray([rho]),
+        nu_v=jnp.asarray([nu_v]),
+        Er=jnp.asarray([[Er]]),
+        Es=jnp.asarray([[Es]]),
+        drds=jnp.asarray([drds]),
+        grid=GridSpec(n_theta=25, n_zeta=25, n_xi=63),
+        source_name="w7x-one-point-regression",
+    )
+    mapped = to_neopax_monoenergetic(generated, a_b=5.5, d33_mode="raw")
+    legacy = NEOPAX.Monoenergetic.read_monkes(5.5, str(legacy_path))
+
+    assert jnp.allclose(mapped.D11_log[0, 0, 0], legacy.D11_log[rho_idx, nu_idx, er_idx])
+    assert jnp.allclose(mapped.D13[0, 0, 0], legacy.D13[rho_idx, nu_idx, er_idx])
+    assert jnp.allclose(mapped.D33[0, 0, 0], legacy.D33[rho_idx, nu_idx, er_idx])
+    assert jnp.allclose(mapped.Er_list[0, 0], legacy.Er_list[rho_idx, er_idx])

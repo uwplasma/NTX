@@ -252,51 +252,51 @@ This uses the local precise-QS Zenodo archive and writes:
 - `docs/_static/bootstrap_current_fixed_field_validation.pdf`
 - `docs/_static/bootstrap_current_fixed_field_validation.json`
 
-This benchmark now uses the physically motivated conductivity-side branch
-available from NTX-generated scans:
+The database-facing normalization now follows the actual NEOPAX loader path:
 
-- `D33_cond = D33_spitzer - D33`
+- `D11 -> D11 * drds^2`
+- `D13 -> D13 * drds`
+- `D33 -> nu * D33`
 
-That choice is not a fitted bridge. It follows the DKES-style conductivity
-normalization discussed in Escoto's thesis and related source material, where
-the parallel-conductivity channel is compared relative to the Spitzer problem
-rather than through a raw conductivity-like coefficient alone. The closure
-audit showed that this conductivity-difference kernel must enter the full
-higher-order row-3/4/5 hierarchy consistently. Mixed choices for the
-no-momentum `Lij` branch and the momentum-correction `Eij` branch are both
-numerically worse and physically inconsistent.
+That closes the integrated W7-X database handoff, but it also makes the
+precise-QS fixed-field benchmark a stricter closure test than before. On that
+archive-backed benchmark, the present interior max relative errors versus
+archived SFINCS are:
 
-On the precise-QS fixed-field archive, the regenerated interior max relative
-errors versus archived SFINCS are now:
+- QA: `1.16e+0`
+- QH: `1.16e+0`
 
-- QA: `1.01e-1`
-- QH: `2.32e-1`
+Redl remains closer on the same family (`6.86e-2` on QA and `4.06e-2` on QH,
+interior-window metric). So this figure should now be read as a closure stress
+test, not as a parity claim.
 
-Redl remains close on the same family (`6.86e-2` on QA and `4.06e-2` on QH).
 The benchmark keeps a monotone `PCHIP` radial postprocessing map by default,
 since the interpolation audit showed that neither the final radial remap nor
 the internal NTSS-style versus direct 3D interpolation choice is the dominant
 error source here.
 
-This is still not a universal parity claim. A dedicated W7-X rebuild audit now
-exists in:
+A dedicated W7-X rebuild audit now exists in:
 
 - `examples/bootstrap_current_w7x_rebuild_audit.py`
 
-That script rebuilds a NEOPAX-format W7-X database with NTX, including
-`D33_spitzer`, and compares it against the shipped external database on the
-same momentum-corrected workflow. The transfer result is currently negative:
+That script rebuilds a NEOPAX-format W7-X database with NTX and compares it
+against the shipped external database on the same momentum-corrected workflow.
+With the physically correct `D13` database normalization, the integrated W7-X
+transfer now closes on the raw branch:
 
 - shipped external database: `1.18e-12` max relative error against the frozen
   W7-X reference current
-- NTX-rebuilt W7-X, `d33_mode="spitzer"`: `4.18e+0`
-- NTX-rebuilt W7-X, `d33_mode="conductivity_difference"`: `1.07e+1`
+- NTX-rebuilt W7-X, `d33_mode="raw"`: `6.58e-6`
+- NTX-rebuilt W7-X, `d33_mode="spitzer"`: `5.77e-1`
+- NTX-rebuilt W7-X, `d33_mode="conductivity_difference"`: `2.67e+0`
 
-So the conductivity-difference closure is a physically motivated improvement
-for the precise-QS fixed-field archive, but it does not yet transfer to the
-shipped W7-X integrated workflow. The remaining open lane is therefore still
-the broader momentum-correction model, not interpolation or the raw
-monoenergetic handoff.
+At the worst shipped W7-X coefficient points, the direct solver and the scan
+builder both reproduce the frozen reference table on the benchmark grid
+`25x25x63` to about `1e-6` relative error. Lower-resolution scans are
+under-resolved, and blindly increasing the angular/Legendre grid does not
+reproduce the frozen benchmark monotonically on every point, so the W7-X audit
+is now anchored to the actual reference grid rather than to a naive
+monotonic-refinement assumption.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
 
