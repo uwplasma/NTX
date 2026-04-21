@@ -345,6 +345,28 @@ that derivation. So the remaining work is no longer about recovering the
 existing algebra. It is about adding physically justified higher-order moments
 and collisional couplings on top of an exact and tested `P=2` base.
 
+The exact low-order basis map is now also explicit. For the `l=1` Sonine
+hierarchy, the runtime coefficients satisfy
+
+- `c_p = v_th * \hat M_{1p} / (2 sigma_{1p})`
+- `1 / (2 sigma_{10}) = 1`
+- `1 / (2 sigma_{11}) = 2/5`
+- `1 / (2 sigma_{12}) = 8/35`
+
+So the shipped runtime factors `[1, 2/5, 8/35]` are not empirical constants.
+They are the exact diagonal normalization from the dimensionless Coulomb moment
+basis to the runtime Sonine coefficients. In particular:
+
+- `c0 = V_parallel`
+- `c1 = V_parallel - 2 Q_parallel / (5 n T)`
+
+That closes the normalization ambiguity. The remaining discrepancy is no longer
+in the basis scaling itself. After applying this exact diagonal map, the
+like-species `P=2` Coulomb block still does not reduce to the active runtime
+collision block, so the current low-order closure is best interpreted as a
+reduced approximate collision model rather than an exact finite-order Coulomb
+projection.
+
 A dedicated rebuild audit now tests transfer directly:
 
 - `python examples/bootstrap_current_w7x_rebuild_audit.py`

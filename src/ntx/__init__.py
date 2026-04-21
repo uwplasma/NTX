@@ -19,6 +19,17 @@ from .database import (
     build_monoenergetic_database_arrays,
     stack_monoenergetic_database_arrays,
 )
+from .exact_coulomb import (
+    active_p2_like_species_reference_blocks,
+    appendix_b_l1_a,
+    appendix_b_l1_b,
+    exact_l1_like_species_runtime_blocks,
+    l1_c0_c1_from_flow_heat,
+    l1_lambda_factors,
+    l1_runtime_basis_factors,
+    l1_runtime_coefficients_from_exact_moments,
+    l1_sigma_factors,
+)
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
 from .inputfiles import load_run_config, run_from_input_file
@@ -116,10 +127,14 @@ __all__ = [
     "AmbipolarProfileResult",
     "CompiledPreparedSolver",
     "DerivativeAuditResult",
+    "active_p2_like_species_reference_blocks",
+    "appendix_b_l1_a",
+    "appendix_b_l1_b",
     "GridSpec",
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
     "MonoenergeticSpeciesProfile",
+    "exact_l1_like_species_runtime_blocks",
     "PhysicsGate",
     "PhysicsGateResult",
     "PrimitiveSpeciesProfile",
@@ -159,6 +174,11 @@ __all__ = [
     "load_vmec_surface",
     "healthy_parallel_device_count",
     "local_parallel_device_count",
+    "l1_c0_c1_from_flow_heat",
+    "l1_lambda_factors",
+    "l1_runtime_basis_factors",
+    "l1_runtime_coefficients_from_exact_moments",
+    "l1_sigma_factors",
     "onsager_error",
     "physics_gate_registry",
     "ambipolar_residual_profile",
