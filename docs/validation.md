@@ -312,9 +312,12 @@ The active gates are:
 The first implementation step on that lane is now in place in the imported
 closure stack: the Sonine basis normalization and source-projection algebra are
 generated programmatically and tested against the current three-moment formulas.
-That does not yet change the production closure, but it removes the first
-hard-coded layer and gives a clean target for extending the moment system to
-higher order.
+That scaffold has now been tightened further: the runtime `P=2` closure can be
+reconstructed from generated Sonine coefficients and Hankel moment sequences,
+and still passes the shipped W7-X momentum-correction regression. So the
+remaining work is no longer about recovering the existing algebra. It is about
+adding physically justified higher-order moments and collisional couplings on
+top of an exact and tested `P=2` base.
 
 A dedicated rebuild audit now tests transfer directly:
 

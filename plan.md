@@ -237,9 +237,14 @@ templates:
   - preserve Onsager/ambipolar structure at finite order
   - require transfer from precise-QS QA/QH to integrated W7-X
   - the first generated-basis scaffold is now in place in the imported closure
-    stack: Sonine normalization and source-projection algebra are generated and
-    tested against the legacy three-moment formulas, while the full closure
-    matrix construction remains to be generalized
+    stack:
+    - Sonine normalization is generated
+    - source and conductivity-side `P=2` projections are generated from
+      polynomial/Hankel moment identities
+    - exact recovery of the current three-moment closure and the shipped W7-X
+      momentum-correction regression is now a closed gate
+    - the remaining implementation step is to generalize the moment system
+      beyond `P=2`, not to keep rewriting the same `P=2` algebra
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
