@@ -248,6 +248,9 @@ templates:
   - preserve a momentum-conserving common-flow null mode in the collisional
     blocks
   - preserve non-negative entropy production of the symmetric collisional form
+  - recover the active low-order momentum-conserving collision blocks from the
+    standard moment equations, with only the runtime heat-flow basis sign
+    convention differing from the canonical notation
   - require transfer from precise-QS QA/QH to integrated W7-X
   - require controlled `Pmax` convergence on the precise-QS QA/QH stress family
   - the first generated-basis scaffold is now in place in the imported closure

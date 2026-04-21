@@ -22,6 +22,10 @@ These are hard structural checks:
 - **Onsager symmetry:** `|D13 + D31|` must remain small on converged solves.
 - **Exact `P=2` recovery:** the generated Sonine/Hankel projection must recover
   the current three-moment closure exactly at `P=2`.
+- **Low-order collision-block recovery:** the active low-order
+  momentum-conserving collisional blocks must be reproducible from the
+  standard low-order moment equations, with only the runtime heat-flow basis
+  sign convention differing from the canonical notation.
 - **Fixed observable map:** for the present Sonine basis, the corrected
   parallel-flow observable remains `U_parallel = n c_0`.
 - **Intrinsic ambipolarity in symmetric limits:** finite-order closure work
@@ -118,6 +122,8 @@ closure stack:
 - generated raw D13 source-moment sequences for arbitrary order
 - generated raw D33 Hankel moment sequences for arbitrary order
 - exact recovery of the present `P=2` closure
+- exact recovery of the active low-order momentum-conserving collision blocks
+  from the standard moment equations
 
 That stage is intentionally incomplete. The production runtime still stops at
 `P=2` because the arbitrary-order momentum-conserving collision blocks have not
