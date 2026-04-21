@@ -5,7 +5,8 @@ import os
 import sys
 from pathlib import Path
 
-MODULE_PATH = Path("/Users/rogeriojorge/local/NTX/scripts/profile_w7x_integrated_workflow.py")
+ROOT = Path(__file__).resolve().parents[1]
+MODULE_PATH = ROOT / "scripts" / "profile_w7x_integrated_workflow.py"
 
 
 def _load_module():

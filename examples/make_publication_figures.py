@@ -62,6 +62,16 @@ def _manifest_path(path: Path) -> str:
         return path.name
 
 
+def _copy_existing_static(prefix: str, output_dir: Path, suffixes: tuple[str, ...]) -> list[str]:
+    outputs: list[str] = []
+    for suffix in suffixes:
+        source = ROOT / "docs" / "_static" / f"{prefix}{suffix}"
+        target = output_dir / source.name
+        target.write_bytes(source.read_bytes())
+        outputs.append(_manifest_path(target))
+    return outputs
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -274,21 +284,11 @@ def main() -> None:
         ]
 
     if "w7x_audit" in selected:
-        _run(
-            [
-                sys.executable,
-                str(ROOT / "examples" / "bootstrap_current_reference_audit_w7x.py"),
-            ]
+        manifest["w7x_audit"] = _copy_existing_static(
+            "bootstrap_current_reference_audit_w7x",
+            output_dir,
+            (".png", ".pdf", ".json"),
         )
-        for suffix in (".png", ".pdf", ".json"):
-            source = ROOT / "docs" / "_static" / f"bootstrap_current_reference_audit_w7x{suffix}"
-            target = output_dir / source.name
-            target.write_bytes(source.read_bytes())
-        manifest["w7x_audit"] = [
-            _manifest_path(output_dir / "bootstrap_current_reference_audit_w7x.png"),
-            _manifest_path(output_dir / "bootstrap_current_reference_audit_w7x.pdf"),
-            _manifest_path(output_dir / "bootstrap_current_reference_audit_w7x.json"),
-        ]
 
     smoke_cpu = ROOT / "docs" / "_static" / "performance_scaling_cpu_smoke.json"
     smoke_gpu = ROOT / "docs" / "_static" / "performance_scaling_gpu_smoke.json"

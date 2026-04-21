@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pickle
 
+import pytest
+
 from examples import precise_qs_redl_sfincs_audit as audit
 
 
@@ -61,6 +63,8 @@ def test_load_archived_sfincs_current_converts_to_si(tmp_path):
 
 
 def test_reference_profiles_are_callable():
+    if audit.find_qs_zenodo_root() is None:
+        pytest.skip("requires local precise-QS Zenodo archive")
     ne, te, ti, zeff = audit._reference_profiles()
     assert float(ne(0.25)) > 0.0
     assert float(te(0.5)) > 0.0
