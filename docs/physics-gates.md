@@ -104,6 +104,16 @@ which gates are:
 - test-backed analytical gates,
 - or monitored stress metrics.
 
+A compact companion report is built by:
+
+```bash
+python scripts/build_closure_validation_report.py
+```
+
+This report packages the same tracked artifacts into one summary figure and
+JSON/Markdown set. It is useful when reviewing the current model-family status
+without rereading the individual benchmark outputs one by one.
+
 ## Acceptance Rules For Closure Work
 
 Any higher-order closure change must satisfy all of the following:

@@ -1,0 +1,19 @@
+# Closure Validation Report
+
+## Precise-QS fixed-field interior max relative error vs archived SFINCS
+
+| Case | Redl | NTX+NEOPAX |
+| --- | ---: | ---: |
+| QA | `6.857e-02` | `1.157e+00` |
+| QH | `4.063e-02` | `1.162e+00` |
+
+## W7-X integrated transfer
+
+| Metric | Value |
+| --- | ---: |
+| Rebuilt raw-branch max relative error | `1.830e-02` |
+| `Pmax=4` transfer error | `4.942e-01` |
+
+## Higher-order closure stress
+
+| Max successive precise-QS change across `Pmax` | `1.108e-01` |

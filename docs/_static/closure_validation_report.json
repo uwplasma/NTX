@@ -1,0 +1,42 @@
+{
+  "precise_qs": {
+    "qa": {
+      "Redl": 0.06857472132654796,
+      "NTX+NEOPAX": 1.1571902916712908
+    },
+    "qh": {
+      "Redl": 0.04062681526953228,
+      "NTX+NEOPAX": 1.1620140338095981
+    },
+    "redl_gate": 0.1
+  },
+  "w7x_transfer": {
+    "raw_branch_error": 0.018297079828848713,
+    "raw_gate": 0.02,
+    "pmax4_transfer_error": 0.49423424778953606
+  },
+  "pmax_stress": {
+    "levels": [
+      3,
+      4
+    ],
+    "qa_errors": [
+      1.1571902916712908,
+      1.152457631911886
+    ],
+    "qh_errors": [
+      1.1620140338095981,
+      1.1577049117956955
+    ],
+    "w7x_errors": [
+      1.1670174968393047e-12,
+      0.49423424778953606
+    ],
+    "max_successive_change": 0.11084249103141489
+  },
+  "sources": {
+    "fixed_field": "docs/_static/bootstrap_current_fixed_field_validation.json",
+    "w7x": "docs/_static/bootstrap_current_reference_audit_w7x.json",
+    "pmax": "docs/_static/closure_pmax_convergence.json"
+  }
+}

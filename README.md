@@ -325,7 +325,26 @@ reproduce the frozen benchmark monotonically on every point, so the W7-X audit
 is now anchored to the actual reference grid rather than to a naive
 monotonic-refinement assumption.
 
+The compact closure-validation report is now tracked in:
+
+- `scripts/build_closure_validation_report.py`
+
+It writes:
+
+- `docs/_static/closure_validation_report.json`
+- `docs/_static/closure_validation_report.txt`
+- `docs/_static/closure_validation_report.png`
+- `docs/_static/closure_validation_report.pdf`
+
+and freezes the current model-family reading in one place:
+
+- precise-QS Redl vs archived SFINCS stays inside the `1e-1` gate
+- rebuilt W7-X raw-branch transfer stays inside the `2e-2` gate
+- fixed-field `NTX+NEOPAX` remains a monitored closure stress test
+- the first `Pmax>2` tail extension remains rejected because it regresses W7-X
+
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)
+![Closure validation summary](docs/_static/closure_validation_report.png)
 
 Streamlined radial-profile example with NEOPAX:
 

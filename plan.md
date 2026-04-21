@@ -304,6 +304,15 @@ templates:
         - this tail model is numerically stable but physically rejected
         - the next derivation has to change the collision model itself, not
           just the asymptotic damping on the same tail
+    - the current model-family validation surface is now also frozen as one
+      tracked report:
+      - `scripts/build_closure_validation_report.py`
+      - writes `docs/_static/closure_validation_report.{json,txt,png,pdf}`
+      - combines:
+        - precise-QS Redl vs archived SFINCS
+        - fixed-field `NTX+NEOPAX` closure stress
+        - rebuilt W7-X raw-branch transfer
+        - rejected `Pmax>2` tail stress/transfer result
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
