@@ -32,7 +32,7 @@ class PhysicsGateResult:
     details: str = ""
 
     def as_dict(self) -> dict[str, object]:
-        payload = {
+        payload: dict[str, object] = {
             "gate": self.gate.as_dict(),
             "value": self.value,
             "status": self.status,
@@ -285,9 +285,11 @@ def _gate_by_name(name: str) -> PhysicsGate:
 
 def _evaluate_scalar_gate(gate: PhysicsGate, value: float) -> PhysicsGateResult:
     if gate.relation == "<=":
-        status: GateStatus = "pass" if value <= float(gate.threshold) else "fail"
+        assert gate.threshold is not None
+        status: GateStatus = "pass" if value <= gate.threshold else "fail"
     elif gate.relation == ">=":
-        status = "pass" if value >= float(gate.threshold) else "fail"
+        assert gate.threshold is not None
+        status = "pass" if value >= gate.threshold else "fail"
     elif gate.relation == "monitor":
         status = "monitor"
     else:

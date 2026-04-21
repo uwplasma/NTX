@@ -280,6 +280,11 @@ templates:
     - generated raw D13 source moments and D33 Hankel moment sequences for
       arbitrary order
     - exact `P=2` recovery and shipped momentum-correction regression both pass
+    - the low-order momentum-conserving collision blocks are now also
+      reconstructed from the standard low-order moment equations instead of
+      remaining opaque handwritten constants; the present runtime differs from
+      that canonical notation only by the sign convention of the heat-flow
+      basis moment
     - the remaining missing physics is the arbitrary-order momentum-conserving
       collision blocks, so the runtime closure still stops at `P=2`
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`

@@ -337,10 +337,13 @@ closure stack: the Sonine basis normalization and source-projection algebra are
 generated programmatically and tested against the current three-moment formulas.
 That scaffold has now been tightened further: the runtime `P=2` closure can be
 reconstructed from generated Sonine coefficients and Hankel moment sequences,
-and still passes the shipped W7-X momentum-correction regression. So the
-remaining work is no longer about recovering the existing algebra. It is about
-adding physically justified higher-order moments and collisional couplings on
-top of an exact and tested `P=2` base.
+and still passes the shipped W7-X momentum-correction regression. The same is
+now true for the low-order momentum-conserving collisional blocks: they can be
+generated directly from the standard low-order moment equations, with only the
+heat-flow basis sign convention differing from the canonical notation used in
+that derivation. So the remaining work is no longer about recovering the
+existing algebra. It is about adding physically justified higher-order moments
+and collisional couplings on top of an exact and tested `P=2` base.
 
 A dedicated rebuild audit now tests transfer directly:
 
