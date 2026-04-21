@@ -137,6 +137,15 @@ That stage is intentionally incomplete. The production runtime still stops at
 yet been derived and validated. This is a physics boundary, not an
 implementation oversight.
 
+The first higher-order tail experiment has now also been run against the
+committed gate set. It keeps the exact low-order Coulomb block unchanged and
+adds a diagonal Laguerre-tail damping model on the extra moments. That branch
+is numerically stable, but it is not physically acceptable: the first
+`Pmax=4` run barely moves the precise-QS stress metric while regressing the
+imported W7-X closure error from `1.17e-12` at `P=2` to about `4.94e-1`.
+That result is now pinned in `docs/_static/closure_pmax_convergence.json` and
+is treated as a rejected higher-order branch rather than as production physics.
+
 ## Additional Literature Requirements
 
 Beyond the existing acceptance targets, the literature imposes a few stronger

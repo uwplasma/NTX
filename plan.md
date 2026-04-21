@@ -291,8 +291,19 @@ templates:
       remaining opaque handwritten constants; the present runtime differs from
       that canonical notation only by the sign convention of the heat-flow
       basis moment
-    - the remaining missing physics is the arbitrary-order momentum-conserving
-      collision blocks, so the runtime closure still stops at `P=2`
+    - a first higher-order runtime branch has now been tested:
+      - exact low-order Coulomb block preserved
+      - diagonal Laguerre-tail damping added on the extra moments
+      - committed artifact written to `docs/_static/closure_pmax_convergence.*`
+      - `P=4` result:
+        - precise-QS stress changes only weakly
+          (`~1.16e+0` -> `~1.15e+0`)
+        - imported W7-X transfer regresses immediately
+          (`1.17e-12` -> `4.94e-1`)
+      - conclusion:
+        - this tail model is numerically stable but physically rejected
+        - the next derivation has to change the collision model itself, not
+          just the asymptotic damping on the same tail
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
