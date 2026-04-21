@@ -592,7 +592,7 @@ templates:
       - NTX-rebuilt W7-X, `spitzer`: `4.18e+0`
       - NTX-rebuilt W7-X, `conductivity_difference`: `1.07e+1`
     - one integrated-workflow bridge bug is now closed:
-      - legacy MONKES-style NEOPAX HDF5 files use a different `D13`
+      - legacy external NEOPAX HDF5 files use a different `D13`
         sign convention from the NTX-generated in-memory bridge
       - the NTX bridge now preserves that historical convention when loading
         such files, so round-tripping the shipped W7-X external database no
@@ -618,3 +618,42 @@ templates:
         higher-order branch
       - and `raw` is currently the least-bad W7-X branch, though still far
         from parity
+  - latest W7-X database-normalization result:
+    - the actual NEOPAX database loader path uses
+      - `D11 -> D11 * drds^2`
+      - `D13 -> D13 * drds`
+      - `D33 -> nu * D33`
+    - NTX now uses that same direct database normalization in the active
+      `scan_to_neopax_arrays(...)` / `to_neopax_monoenergetic(...)` path
+    - a new local W7-X one-point regression locks the transformed database
+      arrays at a previously bad point against the shipped external database
+    - on the shipped integrated W7-X workflow this closes the rebuilt raw
+      branch:
+      - shipped external database: `1.18e-12`
+      - NTX-rebuilt W7-X, `raw`: `6.58e-6`
+      - NTX-rebuilt W7-X, `spitzer`: `5.77e-1`
+      - NTX-rebuilt W7-X, `conductivity_difference`: `2.67e+0`
+    - direct worst-point convergence ladders now show:
+      - the direct solver and the scan builder both reproduce the shipped
+        W7-X coefficient table on the reference grid `25x25x63` to about
+        `1e-6` relative error at the previously worst `D11`, `D13`, and `D33`
+        points
+      - lower-resolution grids are under-resolved
+      - and blindly increasing the grid does not reproduce the frozen
+        benchmark monotonically on every point, so the W7-X audit is now
+        anchored to the actual benchmark grid rather than to a naive
+        monotone-refinement assumption
+    - the precise-QS fixed-field picture changes under the same physical
+      normalization:
+      - the previous stronger agreement there depended on a non-transferable
+        compensating `D13` bridge and is no longer treated as production
+        physics
+      - with the physically consistent database normalization, the fixed-field
+        benchmark becomes a closure stress test with interior errors of about
+        `1.16e+0` on both QA and QH
+      - Redl remains closer on that archive (`6.86e-2` on QA and `4.06e-2`
+        on QH, interior window)
+    - the open parity lane is therefore now narrower and cleaner:
+      - integrated W7-X database parity is closed on the raw branch
+      - the remaining open lane is the precise-QS closure/model discrepancy,
+        not interpolation, not the W7-X handoff, and not a stale-cache issue
