@@ -293,3 +293,41 @@ NTX provides that through:
 
 in [`src/ntx/solver.py`](../src/ntx/solver.py) and
 [`src/ntx/neopax.py`](../src/ntx/neopax.py).
+
+## Closure-Model Gates
+
+The monoenergetic coefficient pipeline and the downstream momentum-restoring
+closure have to be validated separately.
+
+For the closure side, the physically relevant gates are:
+
+1. **Coefficient-side invariants stay closed first.**
+   The monoenergetic solver must continue to satisfy the Onsager relation and
+   the established database normalization bridge before any closure change is
+   considered.
+2. **The observable map stays fixed.**
+   For the present Sonine/Laguerre basis, the corrected parallel flow is
+
+   ```{math}
+   U_{\parallel a} = n_a c_{a0},
+   ```
+
+   so higher-order closure work must change the solved moment system, not the
+   final observable by an empirical remap.
+3. **Finite-order closure must recover the current three-moment system exactly
+   at `P=2`.**
+   Any arbitrary-order implementation has to reproduce the legacy
+   `P=2` Sonine basis, normalization factors, and source projections before it
+   is used to interpret benchmark differences.
+4. **The closure must preserve symmetry properties implied by the projected
+   theory.**
+   In practice this means retaining the Onsager/ambipolar structure emphasized
+   by Sugama--Horton and Sugama--Nishimura, rather than inserting benchmark-fit
+   constants into selected matrix entries.
+5. **Benchmark transfer is mandatory.**
+   A closure change is only acceptable if it improves the precise-QS fixed-field
+   QA/QH current benchmark without regressing the already-validated integrated
+   W7-X workflow.
+
+These gates are now the design constraints for any higher-order closure work in
+the imported `NTX+NEOPAX` path.

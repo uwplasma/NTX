@@ -289,6 +289,33 @@ The regenerated interior maximum relative errors versus archived SFINCS are now:
 
 Redl remains at `6.86e-2` on QA and `4.06e-2` on QH on the same family.
 
+## Higher-Order Closure Development Gates
+
+The next closure model is now constrained enough that it should be treated as a
+physics implementation project rather than another benchmark-fitting exercise.
+
+The active gates are:
+
+- keep the coefficient-side path fixed:
+  - monoenergetic Onsager checks stay closed
+  - NTX-to-database normalization stays identical to the validated consumer
+    path
+- keep the observable map fixed:
+  - for the current Sonine basis, `U_parallel = n c_0`
+- recover the current three-moment closure exactly as the `P=2` truncation of
+  any generalized implementation
+- preserve Onsager/ambipolar structure at finite truncation order
+- require transfer:
+  - improve the precise-QS QA/QH fixed-field benchmark
+  - do not regress the integrated W7-X workflow
+
+The first implementation step on that lane is now in place in the imported
+closure stack: the Sonine basis normalization and source-projection algebra are
+generated programmatically and tested against the current three-moment formulas.
+That does not yet change the production closure, but it removes the first
+hard-coded layer and gives a clean target for extending the moment system to
+higher order.
+
 A dedicated rebuild audit now tests transfer directly:
 
 - `python examples/bootstrap_current_w7x_rebuild_audit.py`

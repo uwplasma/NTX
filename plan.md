@@ -231,6 +231,15 @@ templates:
   - the native-bootstrap-current experiment was reverted on purpose
   - bootstrap-current truth in validation plots should be labeled `NTX+NEOPAX`
     when that path is used
+- The next closure-model lane is now constrained by explicit physics gates:
+  - keep `U_parallel = n c_0`
+  - treat the current closure as the `P=2` truncation
+  - preserve Onsager/ambipolar structure at finite order
+  - require transfer from precise-QS QA/QH to integrated W7-X
+  - the first generated-basis scaffold is now in place in the imported closure
+    stack: Sonine normalization and source-projection algebra are generated and
+    tested against the legacy three-moment formulas, while the full closure
+    matrix construction remains to be generalized
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
