@@ -404,6 +404,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
         positive_entries = np.abs(dense_matrix[np.abs(dense_matrix) > 0.0])
         min_entry = float(np.min(positive_entries)) if positive_entries.size else 1.0e-300
         c_vectors: list[np.ndarray] = []
+        add_term_sums: list[list[float]] = []
         alt_currents_c2_only: list[float] = []
         alt_currents_c2_total: list[float] = []
         sum_matrices: list[np.ndarray] = []
@@ -433,7 +434,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                 / float(np.asarray(field.Bsqav[radial_index], dtype=float))
             )
             collision_factors.append(float(factor))
-            c_terms, *_ = jax.vmap(
+            c_terms, add1, add2, add3, add4 = jax.vmap(
                 get_correction_matrix,
                 in_axes=(None, None, None, 0, None, None, None, None, None, None, None, None, None),
             )(
@@ -453,6 +454,14 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
             )
             c_vec = np.asarray(jnp.sum(c_terms, axis=0), dtype=float)
             c_vectors.append(c_vec)
+            add_term_sums.append(
+                [
+                    float(jnp.sum(add1)),
+                    float(jnp.sum(add2)),
+                    float(jnp.sum(add3)),
+                    float(jnp.sum(add4)),
+                ]
+            )
             sum_matrices.append(sum_matrix_np)
             species_lij = np.asarray(
                 context["lij_full"][species_index, radial_index, :, :],
@@ -533,6 +542,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                     "current_solution_c0": c0_solution["electron"],
                     "current_solution_weighted": weighted_solution["electron"],
                     "c_vector": c_vectors[0].tolist(),
+                    "add_terms_sum": add_term_sums[0],
                     "rhs": rhs_vector[:3].tolist(),
                     "solution": solution[:3].tolist(),
                     "collision_factor": collision_factors[0],
@@ -576,6 +586,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
                     "current_solution_c0": c0_solution["ion"],
                     "current_solution_weighted": weighted_solution["ion"],
                     "c_vector": c_vectors[1].tolist(),
+                    "add_terms_sum": add_term_sums[1],
                     "rhs": rhs_vector[3:].tolist(),
                     "solution": solution[3:].tolist(),
                     "collision_factor": collision_factors[1],

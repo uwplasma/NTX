@@ -697,3 +697,20 @@ templates:
       - stabilizing shapes and dtypes
       - hoisting compiled closure calls
       - and only then revisiting deeper kernel/vectorization work
+    - two immediate follow-up probes now narrow the remaining open lanes
+      further:
+      - the cache-aware raw-branch QA diagnostic now dumps the explicit
+        additive correction terms from the moment-equation assembly, and those
+        terms are too small by orders of magnitude to explain the
+        `O(10^6)` A/m$^2$ species-current mismatch on the precise-QS archive
+      - a persistent JAX compilation-cache experiment on the corrected W7-X
+        integrated workflow leaves first-call latency essentially unchanged
+        across fresh processes (`~11.7 s` / `~12.3 s`), so the current speed
+        blocker is not a missing cache toggle; it remains compile-key
+        stability and staged JIT reuse
+    - this sharpens the remaining physics and performance tasks:
+      - fixed-field QA/QH remains a closure-model stress test because the gap
+        now sits in the solved Sonine closure itself rather than in omitted
+        explicit additive terms
+      - integrated W7-X optimization should now target retracing and shape
+        instability before any deeper kernel-side work

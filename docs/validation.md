@@ -228,6 +228,15 @@ So the remaining mismatch is not fixable by promoting another constant Sonine
 weight vector to production. The open lane is now the momentum-correction
 closure equations themselves.
 
+The cache-aware raw-branch diagnostic now also dumps the explicit additive
+terms returned by the moment-equation correction assembly. On the cached QA
+probe at `\rho = 0.5`, those additive terms project to current contributions
+that are orders of magnitude smaller than the `O(10^6)` A/m$^2$ species-current
+mismatch. So the remaining fixed-field gap is not being driven by a small
+missing `add1..add4`-style explicit term. Under the physically consistent raw
+normalization, the dominant discrepancy sits in the solved Sonine closure
+itself.
+
 Two further closure-side checks now rule out the next obvious shortcuts:
 
 - on the pre-bridge baseline, replacing `D33_spitzer` with raw `D33` in the

@@ -144,3 +144,20 @@ That points directly to the next speed lane:
 - avoid retracing/vmap rebuilding across repeated workflow invocations
 - then revisit deeper kernel/vectorization work only after those compile
   overheads are under control
+
+A simple persistent compilation-cache experiment is now also bounded out as a
+first-order fix. Re-running the same workflow in a fresh process with
+`--compilation-cache-dir` enabled leaves the first-call latencies essentially
+unchanged:
+
+- cold cached process:
+  - `no_momentum_first_seconds`: `1.17e+1`
+  - `momentum_correction_first_seconds`: `1.24e+1`
+- warm cached process:
+  - `no_momentum_first_seconds`: `1.17e+1`
+  - `momentum_correction_first_seconds`: `1.23e+1`
+
+So the current integrated workflow is not being held back by a missing on-disk
+compilation cache alone. The speed lane should stay focused on shape
+stability, static-argument control, and reusable compiled closure calls rather
+than on cache toggles by themselves.
