@@ -343,22 +343,6 @@ templates:
           derive the full linear basis map `\mathbf{c}_a = \mathsf{T}_a
           \hat{\mathbf{M}}_{1,a}` before shipping any exact arbitrary-order
           collision runtime
-      - new exact basis-map result from this pass:
-        - the runtime Sonine normalization factors are exactly the diagonal
-          map from the exact dimensionless `l=1` moments to the runtime
-          coefficients:
-          `1/(2\sigma_{10}) = 1`, `1/(2\sigma_{11}) = 2/5`,
-          `1/(2\sigma_{12}) = 8/35`
-        - equivalently, the first two runtime coefficients are
-          `c0 = V_parallel` and `c1 = V_parallel - 2 Q_parallel / (5 n T)`
-        - so the unresolved algebra is now narrower:
-          the leading map is not sign-only, but once the exact diagonal
-          normalization is included, the like-species `P=2` collision block
-          still does not reduce to the active runtime block
-      - consequence:
-        - the active low-order momentum-restoring closure is best treated as a
-          reduced approximate collision model, not yet as an exact finite-order
-          Coulomb projection
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
