@@ -304,6 +304,24 @@ templates:
         - this tail model is numerically stable but physically rejected
         - the next derivation has to change the collision model itself, not
           just the asymptotic damping on the same tail
+    - exact arbitrary-order collision-model path identified from the literature:
+      - the target coefficients are the exact collisional moments
+        `A_{lpk}^{ab}` and `B_{lpk}^{ab}` for the `l=1` Sonine hierarchy
+      - the closed-form generating formulas are the exact Coulomb moment
+        formulas of Ji & Held (2006), together with the arbitrary-order
+        Sugama-Nishimura moment-equation framework and the convergence study
+        of Nishimura et al. (2010)
+      - first-principles consequence:
+        - the next implementation is not another phenomenological tail
+        - it is an explicit mapping from the exact `\\hat M_{1k}` collision
+          coefficients into the runtime parallel-flow / heat-flow closure basis
+      - practical boundary reached in this pass:
+        - the exact literature formulas have been isolated
+        - the remaining unresolved step is the basis/normalization map between
+          those exact `l=1` moment coefficients and the current closure
+          variables used by the runtime
+        - do not ship a `Pmax>2` runtime branch before that map is derived and
+          low-order recovery is checked term by term
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
