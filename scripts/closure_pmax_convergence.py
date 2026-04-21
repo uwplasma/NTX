@@ -23,8 +23,15 @@ for extra_path in (SRC, EXAMPLES):
     if str(extra_path) not in sys.path:
         sys.path.insert(0, str(extra_path))
 
-import bootstrap_current_fixed_field_validation as fixed_field  # noqa: E402
-import bootstrap_current_w7x_rebuild_audit as w7x_audit  # noqa: E402
+
+def _load_example_modules():
+    import bootstrap_current_fixed_field_validation as fixed_field
+    import bootstrap_current_w7x_rebuild_audit as w7x_audit
+
+    return fixed_field, w7x_audit
+
+
+fixed_field, w7x_audit = _load_example_modules()
 
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "closure_pmax_convergence"
