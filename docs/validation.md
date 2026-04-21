@@ -390,6 +390,25 @@ The W7-X picture is now more specific than before:
   audit is anchored to the reference resolution rather than to a naive
   monotone-refinement assumption
 
+The next closure step has now been tested explicitly as well. A local
+`Pmax > 2` branch was built by preserving the exact low-order Coulomb block and
+adding a diagonal Laguerre-tail damping model on the extra moments. That
+branch is stable, but it fails the transfer gate:
+
+- `P=2`: imported W7-X closure error `1.17e-12`
+- `P=4`: imported W7-X closure error `4.94e-1`
+- the same `P=4` run only shifts the precise-QS stress metric from about
+  `1.16e+0` to about `1.15e+0`
+
+So the current higher-order tail is not an acceptable production extension. It
+does not close the precise-QS closure gap, and it immediately regresses the
+already-validated imported W7-X workflow. The committed artifact for that
+negative result is:
+
+- `docs/_static/closure_pmax_convergence.json`
+- `docs/_static/closure_pmax_convergence.png`
+- `docs/_static/closure_pmax_convergence.pdf`
+
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
 ### End-To-End Bootstrap-Current Workflow

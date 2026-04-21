@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -50,6 +51,7 @@ OUTPUT_DIR = ROOT / "examples" / "outputs" / "bootstrap_current_w7x_rebuild_audi
 OUTPUT_PREFIX = OUTPUT_DIR / "bootstrap_current_w7x_rebuild_audit"
 REBUILT_SCAN_PATH = OUTPUT_DIR / "ntx_w7x_scan.h5"
 NTX_GRID = GridSpec(n_theta=25, n_zeta=25, n_xi=63)
+NEOPAX_N_ORDER = int(os.environ.get("NTX_W7X_REBUILD_NEOPAX_N_ORDER", "3"))
 
 J_FINAL_REFERENCE = np.array(
     [
@@ -122,7 +124,7 @@ def _build_species_and_field():
         er_initial = interpax.Interpolator1D(handle["r"][()], handle["Er"][()], extrap=True)
 
     field = NEOPAX.Field.read_vmec_booz(51, str(WOUT_PATH), str(BOOZMN_PATH))
-    grid = NEOPAX.Grid.create_standard(51, 64, 3)
+    grid = NEOPAX.Grid.create_standard(51, 64, 3, n_order=NEOPAX_N_ORDER)
     r = field.r_grid
 
     te0, teb = 17.8e3, 0.7e3
@@ -281,6 +283,7 @@ def main() -> None:
             "n_zeta": NTX_GRID.n_zeta,
             "n_xi": NTX_GRID.n_xi,
         },
+        "neopax_n_order": NEOPAX_N_ORDER,
         "profiles": {
             key: {
                 **payload,

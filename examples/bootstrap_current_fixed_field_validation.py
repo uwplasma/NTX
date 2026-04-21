@@ -85,6 +85,7 @@ ER_AXIS_FACTORS = np.asarray(
 RECOMPUTE = False
 SFINCS_JAX_SAMPLE_COUNT = 9
 NTX_NEOPAX_RADIAL_POINTS = int(os.environ.get("NTX_FIXED_FIELD_VALIDATION_NTX_NR", "17"))
+NTX_NEOPAX_N_ORDER = int(os.environ.get("NTX_FIXED_FIELD_VALIDATION_NEOPAX_N_ORDER", "3"))
 INTERIOR_RHO_MIN = 0.25
 INTERIOR_RHO_MAX = 0.85
 ENABLE_SFINCS_JAX = (
@@ -605,7 +606,7 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
 
     start = time.perf_counter()
     species = _make_species(field, case)
-    ntx_grid = NEOPAX.Grid.create_standard(n_r, 64, 2)
+    ntx_grid = NEOPAX.Grid.create_standard(n_r, 64, 2, n_order=NTX_NEOPAX_N_ORDER)
     nu_values, nu_support = _adaptive_nu_values(species, ntx_grid)
     timing["species_seconds"] = float(time.perf_counter() - start)
 
@@ -1252,6 +1253,7 @@ def main() -> None:
     summary["enable_sfincs_jax"] = ENABLE_SFINCS_JAX
     summary["sfincs_jax_sample_count"] = SFINCS_JAX_SAMPLE_COUNT
     summary["ntx_neopax_radial_points"] = NTX_NEOPAX_RADIAL_POINTS
+    summary["ntx_neopax_n_order"] = NTX_NEOPAX_N_ORDER
     summary["case_metadata"] = {
         key: {
             **asdict(case),
