@@ -324,6 +324,14 @@ The active gates are:
   - improve the precise-QS QA/QH fixed-field benchmark
   - do not regress the integrated W7-X workflow
 
+The first implementation stage of that generalized closure is now in place in
+the imported closure stack: the truncation order is configurable, the raw
+`D13` source moments and `D33` Hankel sequences are generated for arbitrary
+order, and the resulting machinery still recovers the shipped `P=2`
+momentum-correction workflow exactly. The remaining missing physics is the
+arbitrary-order momentum-conserving collision block, so production runs remain
+at `P=2`.
+
 The first implementation step on that lane is now in place in the imported
 closure stack: the Sonine basis normalization and source-projection algebra are
 generated programmatically and tested against the current three-moment formulas.

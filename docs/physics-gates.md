@@ -98,3 +98,18 @@ Any higher-order closure change must satisfy all of the following:
    preserves the integrated W7-X workflow
 
 That is the standard for physically defensible closure work in this repository.
+
+## Current Higher-Order Scaffold
+
+The first higher-order implementation stage is now in place in the imported
+closure stack:
+
+- configurable Sonine truncation order in the closure grid
+- generated raw D13 source-moment sequences for arbitrary order
+- generated raw D33 Hankel moment sequences for arbitrary order
+- exact recovery of the present `P=2` closure
+
+That stage is intentionally incomplete. The production runtime still stops at
+`P=2` because the arbitrary-order momentum-conserving collision blocks have not
+yet been derived and validated. This is a physics boundary, not an
+implementation oversight.
