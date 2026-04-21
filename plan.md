@@ -244,7 +244,12 @@ templates:
   - keep `U_parallel = n c_0`
   - treat the current closure as the `P=2` truncation
   - preserve Onsager/ambipolar structure at finite order
+  - preserve intrinsic ambipolarity in symmetric limits at each truncation
+  - preserve a momentum-conserving common-flow null mode in the collisional
+    blocks
+  - preserve non-negative entropy production of the symmetric collisional form
   - require transfer from precise-QS QA/QH to integrated W7-X
+  - require controlled `Pmax` convergence on the precise-QS QA/QH stress family
   - the first generated-basis scaffold is now in place in the imported closure
     stack:
     - Sonine normalization is generated
@@ -263,6 +268,12 @@ templates:
       - precise-QS Redl vs archived SFINCS `<= 1e-1`
     - the fixed-field `NTX+NEOPAX` current benchmark remains a monitored stress
       metric rather than a solver-side acceptance gate
+    - the additional literature-driven analytical requirements are now logged in
+      the registry even before higher-order runtime artifacts exist:
+      - intrinsic ambipolarity in symmetric limits
+      - momentum-conservation null modes
+      - non-negative entropy production
+      - `Pmax` convergence / transfer monitoring
   - the imported closure stack now has the first arbitrary-order implementation
     scaffold in place locally:
     - configurable Sonine truncation order in the grid object
@@ -785,3 +796,12 @@ templates:
         coefficient/db-normalization mistake; it is the reduced
         momentum-restoring closure model itself relative to a fuller
         collisional treatment
+    - the current CI baseline was also checked directly against GitHub Actions:
+      - the open `tests` failures were not from the higher-order scaffold
+      - they included stale `ruff` line-length failures and one real runtime
+        bug in the publication-figure pipeline
+      - that runtime bug came from a non-traceable VMEC reference-bridge path
+        in `src/ntx/neopax.py` (`TracerBoolConversionError` under the
+        differentiable bootstrap-current optimization example)
+      - the bridge now avoids Python `bool`/`int` conversions on traced JAX
+        arrays, and a regression test covers the traced VMEC-surface path
