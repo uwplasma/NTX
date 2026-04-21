@@ -263,6 +263,14 @@ templates:
       - precise-QS Redl vs archived SFINCS `<= 1e-1`
     - the fixed-field `NTX+NEOPAX` current benchmark remains a monitored stress
       metric rather than a solver-side acceptance gate
+  - the imported closure stack now has the first arbitrary-order implementation
+    scaffold in place locally:
+    - configurable Sonine truncation order in the grid object
+    - generated raw D13 source moments and D33 Hankel moment sequences for
+      arbitrary order
+    - exact `P=2` recovery and shipped momentum-correction regression both pass
+    - the remaining missing physics is the arbitrary-order momentum-conserving
+      collision blocks, so the runtime closure still stops at `P=2`
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
