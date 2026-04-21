@@ -57,6 +57,33 @@ For a single flux surface and monoenergetic case, NTX computes:
 plus diagnostics and, optionally, the low-order Legendre modes used in the
 coefficient calculation.
 
+## Physics Gates
+
+NTX keeps solver-side and closure-side validation separate.
+
+The active gate hierarchy is:
+
+- analytical identities:
+  - Onsager symmetry
+  - exact generated `P=2` Sonine/Hankel recovery of the current three-moment
+    closure
+  - fixed observable map `U_parallel = n c_0`
+- independent-code comparison gates:
+  - precise-QS Redl vs archived SFINCS on the interior benchmark window
+- integrated-workflow transfer gate:
+  - rebuilt W7-X raw-branch imported workflow
+- closure stress test:
+  - precise-QS fixed-field `NTX+NEOPAX` current benchmark
+
+Inspect the tracked artifact-backed gates locally:
+
+```bash
+python scripts/check_physics_gates.py
+```
+
+That report is the quickest way to see which comparisons are hard acceptance
+gates and which are monitored closure stress tests.
+
 ## Installation
 
 Basic install:
