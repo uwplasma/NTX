@@ -1,7 +1,9 @@
 # Performance
 
 NTX now includes explicit scaling benchmarks and figure-generation helpers for
-serial batched scans and the multiprocess throughput lane.
+serial batched scans and the multiprocess throughput lane. It also now includes
+workflow profilers for the archive-backed fixed-field closure audit and the
+corrected integrated W7-X workflow.
 
 ## Benchmark Scripts
 
@@ -23,6 +25,23 @@ python examples/performance_scaling.py \
 ```
 
 The example writes both PNG and PDF outputs.
+
+Profile the corrected integrated W7-X workflow:
+
+```bash
+python scripts/profile_w7x_integrated_workflow.py \
+  --output-json examples/outputs/profile_w7x_integrated_workflow/profile.json \
+  --cprofile-out examples/outputs/profile_w7x_integrated_workflow/profile.pstats \
+  --trace-dir examples/outputs/profile_w7x_integrated_workflow/trace
+```
+
+The script records:
+
+- cached scan/database timings
+- first-call and steady-state closure timings
+- resident memory
+- a Python `cProfile` dump
+- a TensorFlow/JAX trace that can be opened in TensorBoard or Perfetto
 
 ## Smoke-Grid Scaling
 
@@ -84,3 +103,44 @@ They were collected on:
 
 - local workstation CPU with `XLA_FLAGS=--xla_force_host_platform_device_count=4`
 - office workstation GPU with `XLA_PYTHON_CLIENT_PREALLOCATE=false`
+
+## Integrated W7-X Workflow
+
+The corrected integrated W7-X raw branch is now the right profiling target
+because the database normalization is closed there and the rebuilt workflow
+matches the shipped reference current tightly.
+
+Current local CPU profile, using the cached rebuilt W7-X scan:
+
+- `reference_load_seconds`: `1.04e-2`
+- `scan_prepare_seconds`: `2.94e-4`
+- `rebuilt_scan_load_seconds`: `2.69e-3`
+- `field_species_seconds`: `1.97`
+- `database_seconds`: `2.55e-1`
+- `no_momentum_first_seconds`: `8.64`
+- `no_momentum_steady_seconds`: `2.63e-2`
+- `momentum_correction_first_seconds`: `8.81`
+- `momentum_correction_steady_seconds`: `1.58e-2`
+- `current_reduction_seconds`: `3.29e-2`
+- `max_rss_mb`: about `1847`
+
+Interpretation:
+
+- the corrected integrated workflow is compile-bound on first call, not
+  arithmetic-bound
+- the steady-state closure path is already fast on CPU once compiled
+- the main performance priority is therefore to reduce recompiles and tracing,
+  not to micro-optimize the final current reduction
+
+The current `cProfile` dump is dominated by XLA compilation:
+
+- about `15 s` in `backend_compile_and_load`
+- about `20 s` total Python runtime
+
+That points directly to the next speed lane:
+
+- stabilize shapes and dtypes in the closure path
+- hoist and reuse the compiled no-momentum and momentum-correction calls
+- avoid retracing/vmap rebuilding across repeated workflow invocations
+- then revisit deeper kernel/vectorization work only after those compile
+  overheads are under control

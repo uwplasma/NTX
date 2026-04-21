@@ -77,6 +77,10 @@ RHSMODE2_NTHETA = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NTHETA", "0"
 RHSMODE2_NZETA = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NZETA", "0") or 0)
 RHSMODE2_NXI = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NXI", "0") or 0)
 RHSMODE2_NX = int(os.environ.get("NTX_FIXED_FIELD_PARALLEL_FLOW_NX", "0") or 0)
+D33_MODE = os.environ.get(
+    "NTX_FIXED_FIELD_PARALLEL_FLOW_D33_MODE",
+    "raw",
+).strip().lower()
 PRECISE_QS_PROFILE_MODE = os.environ.get(
     "NTX_FIXED_FIELD_PROFILE_MODE",
     "analytic",
@@ -505,7 +509,7 @@ def _build_ntx_neopax_lij(case: FixedFieldCase) -> dict[str, np.ndarray]:
             source_name=f"fixed_field_{case.name}",
         )
         write_neopax_scan_hdf5(scan, scan_path)
-    database = to_neopax_monoenergetic(scan, a_b=float(field.a_b))
+    database = to_neopax_monoenergetic(scan, a_b=float(field.a_b), d33_mode=D33_MODE)
     lij, gamma, heat, upar = NEOPAX.get_Neoclassical_Fluxes(species, ntx_grid, field, database)
     return {
         "rho": rho_field,
