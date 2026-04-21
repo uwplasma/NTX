@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
+
+pytest.importorskip("f90nml")
+pytest.importorskip("NEOPAX")
 
 from examples.fixed_field_momentum_correction_diagnostic import (
     SONINE_WEIGHTS,

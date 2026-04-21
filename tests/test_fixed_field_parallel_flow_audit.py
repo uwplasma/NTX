@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import f90nml
 import numpy as np
 import pytest
 
-from examples import fixed_field_parallel_flow_audit as audit
+f90nml = pytest.importorskip("f90nml")
+
+from examples import fixed_field_parallel_flow_audit as audit  # noqa: E402
 
 
 def test_case_discovery_uses_zenodo_archive(monkeypatch, tmp_path):
