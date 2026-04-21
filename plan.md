@@ -657,3 +657,43 @@ templates:
       - integrated W7-X database parity is closed on the raw branch
       - the remaining open lane is the precise-QS closure/model discrepancy,
         not interpolation, not the W7-X handoff, and not a stale-cache issue
+  - latest closure and performance follow-up on the corrected raw branch:
+    - the fixed-field cached momentum-correction diagnostic was rerun on the
+      physically consistent `raw` database branch at `rho = 0.5` for both QA
+      and QH
+    - the resulting species-level picture is sharper than the old mixed-branch
+      diagnostics:
+      - QA:
+        - electron no-momentum relative error is about `8.15e-1`
+        - electron corrected-current relative error is about `1.16e+0`
+        - ion no-momentum relative error is about `1.08e+0`
+        - ion corrected-current relative error is about `1.16e+0`
+      - QH:
+        - electron no-momentum relative error is about `1.52e+0`
+        - electron corrected-current relative error is about `1.09e+0`
+        - the weighted Sonine observable would reduce that one electron point
+          to about `8.19e-1`, but it still fails as a transferable rule
+        - ion no-momentum relative error is about `1.16e+0`
+        - ion corrected-current relative error is about `1.18e+0`
+    - so the corrected fixed-field lane remains a closure stress test:
+      - the active raw-branch physics does not yet recover the archived
+        species currents
+      - and the residual gap is still species- and branch-dependent rather
+        than a simple global normalization issue
+    - the integrated W7-X speed lane is now profiled on the corrected raw
+      branch with a dedicated workflow profiler:
+      - cached rebuilt scan preparation is negligible (`~2.9e-4 s`)
+      - field/species setup costs about `1.97 s`
+      - database construction costs about `2.55e-1 s`
+      - first-call no-momentum closure costs about `8.64 s`
+      - first-call momentum correction costs about `8.81 s`
+      - steady-state no-momentum closure drops to about `2.63e-2 s`
+      - steady-state momentum correction drops to about `1.58e-2 s`
+      - maximum resident set is about `1.85 GB`
+    - the first-call profile is dominated by XLA compilation (`~15 s` in
+      `backend_compile_and_load` out of `~20 s` total Python runtime), so the
+      next performance work should focus on:
+      - reducing recompiles
+      - stabilizing shapes and dtypes
+      - hoisting compiled closure calls
+      - and only then revisiting deeper kernel/vectorization work

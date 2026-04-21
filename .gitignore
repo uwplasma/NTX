@@ -24,3 +24,4 @@ examples/outputs/fixed_field_momentum_correction_diagnostic/
 examples/outputs/fixed_field_parallel_flow_audit/
 examples/outputs/momentum_correction_mapping_audit/
 examples/outputs/bootstrap_current_w7x_rebuild_audit/
+examples/outputs/profile_w7x_integrated_workflow/

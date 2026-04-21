@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -69,6 +70,10 @@ from scipy.constants import elementary_charge
 DEFAULT_OUTPUT_DIR = ROOT / "examples" / "outputs" / "fixed_field_momentum_correction_diagnostic"
 SONINE_WEIGHTS = np.array([1.0, 0.4, 8.0 / 35.0], dtype=float)
 SFINCS_JHAT_TO_AM2 = 437695.0 * 1.0e20 * elementary_charge
+D33_MODE = os.environ.get(
+    "NTX_FIXED_FIELD_DIAGNOSTIC_D33_MODE",
+    "raw",
+).strip().lower()
 
 
 def _assemble_dense_species_matrix(blocks: np.ndarray) -> np.ndarray:
@@ -264,7 +269,7 @@ def _build_case_context(case_key: str) -> dict[str, Any]:
         write_neopax_scan_hdf5(scan, scan_path)
 
     start = time.perf_counter()
-    database = to_neopax_monoenergetic(scan, a_b=float(field.a_b))
+    database = to_neopax_monoenergetic(scan, a_b=float(field.a_b), d33_mode=D33_MODE)
     timings["database_seconds"] = float(time.perf_counter() - start)
 
     start = time.perf_counter()
@@ -611,6 +616,7 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
         },
         "timings": context["timings"],
         "rho_grid": rho_grid.tolist(),
+        "d33_mode": D33_MODE,
         "current_grid": {
             "electron_reference": reference_electron.tolist(),
             "electron_nomom": electron_current_nomom.tolist(),
