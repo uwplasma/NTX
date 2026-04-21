@@ -409,6 +409,27 @@ negative result is:
 - `docs/_static/closure_pmax_convergence.png`
 - `docs/_static/closure_pmax_convergence.pdf`
 
+To keep the current closure-model status reproducible as one tracked artifact,
+the repository now also builds:
+
+- `docs/_static/closure_validation_report.json`
+- `docs/_static/closure_validation_report.txt`
+- `docs/_static/closure_validation_report.png`
+- `docs/_static/closure_validation_report.pdf`
+
+from:
+
+```bash
+python scripts/build_closure_validation_report.py
+```
+
+That summary freezes the present interpretation in one place:
+
+- precise-QS Redl vs archived SFINCS passes the independent-code gate
+- rebuilt W7-X raw-branch transfer passes the integrated-workflow gate
+- fixed-field `NTX+NEOPAX` remains a monitored closure stress test
+- the first `Pmax>2` tail model remains rejected because it regresses W7-X
+
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
 ### End-To-End Bootstrap-Current Workflow
