@@ -295,6 +295,7 @@ That script rebuilds a NEOPAX-format W7-X database from NTX with
 On that shipped W7-X momentum-corrected workflow the transfer does not hold:
 
 - shipped external database: `1.18e-12`
+- NTX-rebuilt W7-X, `raw`: `3.66e+0`
 - NTX-rebuilt W7-X, `spitzer`: `4.18e+0`
 - NTX-rebuilt W7-X, `conductivity_difference`: `1.07e+1`
 
@@ -308,6 +309,15 @@ So the physically plausible reading is:
   integrated workflow
 - the remaining open lane is therefore the broader momentum-correction model
   and the W7-X coefficient/closure gap, not interpolation
+
+The current W7-X picture is therefore more specific than before:
+
+- the full-resolution in-repo W7-X point and subset coefficient tests still
+  pass against the shipped external database
+- but once the full table is pushed through the integrated workflow, all
+  tested higher-order branches remain poor
+- among those branches, `raw` is currently the least-bad W7-X closure choice,
+  but it is still far from parity
 
 One bridge bug is now closed in the integrated W7-X lane. Historical
 MONKES-style NEOPAX HDF5 files use a different `D13` sign convention from the

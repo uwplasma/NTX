@@ -200,6 +200,11 @@ def main() -> None:
     grid, field, species = _build_species_and_field()
 
     legacy_database = NEOPAX.Monoenergetic.read_monkes(float(field.a_b), str(REFERENCE_PATH))
+    rebuilt_raw = to_neopax_monoenergetic(
+        rebuilt_scan,
+        a_b=float(field.a_b),
+        d33_mode="raw",
+    )
     rebuilt_spitzer = to_neopax_monoenergetic(
         rebuilt_scan,
         a_b=float(field.a_b),
@@ -216,6 +221,7 @@ def main() -> None:
     profiles = {}
     for label, database in (
         ("legacy_external", legacy_database),
+        ("ntx_rebuilt_raw", rebuilt_raw),
         ("ntx_rebuilt_spitzer", rebuilt_spitzer),
         ("ntx_rebuilt_conductivity_difference", rebuilt_conductivity_difference),
     ):
@@ -231,6 +237,7 @@ def main() -> None:
     axes[0].plot(rho, J_FINAL_REFERENCE, color="black", lw=2.5, label="Reference")
     colors = {
         "legacy_external": "#1f77b4",
+        "ntx_rebuilt_raw": "#9467bd",
         "ntx_rebuilt_spitzer": "#ff7f0e",
         "ntx_rebuilt_conductivity_difference": "#2ca02c",
     }
