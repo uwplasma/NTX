@@ -335,6 +335,14 @@ templates:
         - if that map still fails, the conclusion is that the active closure is
           a genuinely different approximate collision model, not an exact
           Coulomb truncation written in a different basis
+      - documentation update in this pass:
+        - the NTX paper theory section now writes the exact `l=1` Coulomb
+          projection, the low-order fluid moments `M_{10}` and `M_{11}`, the
+          runtime Sonine basis vector, and the explicit sign-only map test
+        - the paper now states the concrete remaining derivation boundary:
+          derive the full linear basis map `\mathbf{c}_a = \mathsf{T}_a
+          \hat{\mathbf{M}}_{1,a}` before shipping any exact arbitrary-order
+          collision runtime
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
