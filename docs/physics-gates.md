@@ -33,6 +33,13 @@ These are hard structural checks:
   Sugama–Nishimura formulation.
 - **Momentum-conservation null mode:** the collisional blocks must retain a
   common-flow null mode so that total parallel momentum is conserved.
+- **Particle conservation:** the projected collisional operator must preserve
+  the density invariant and must not generate a spurious source term.
+- **Energy conservation:** the projected collisional operator must preserve the
+  energy invariant in the same finite basis used for the closure.
+- **Weighted self-adjointness:** the finite-order collision operator should
+  preserve the self-adjoint structure of the linearized Coulomb problem under
+  the appropriate weighted inner product.
 - **Non-negative entropy production:** the symmetric collisional form must
   remain positive semidefinite, following the finite-order constraints
   emphasized by Sugama–Horton.
@@ -139,8 +146,12 @@ requirements on any generalized closure:
   it only asymptotically
 - intrinsic ambipolarity should remain exact in symmetric limits at each
   truncation order
+- particle and energy conservation should remain exact collisional invariants
+  of the projected system
 - the collisional operator must conserve momentum exactly and should not break
   the common-flow null space
+- the projected collisional form should remain self-adjoint under the weighted
+  inner product used by the finite-order derivation
 - the symmetric collisional form should not generate negative entropy
   production
 - convergence in `Pmax` should be demonstrated on a stress-test family, not

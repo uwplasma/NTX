@@ -117,6 +117,42 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="particle_conservation_invariant",
+        category="analytical",
+        metric="collisional particle invariant preserved",
+        relation="test",
+        threshold=None,
+        source="linearized collision-operator moment-equation constraints",
+        rationale=(
+            "The projected collision model must not generate a spurious particle "
+            "source at any truncation."
+        ),
+    ),
+    PhysicsGate(
+        name="energy_conservation_invariant",
+        category="analytical",
+        metric="collisional energy invariant preserved",
+        relation="test",
+        threshold=None,
+        source="linearized collision-operator moment-equation constraints",
+        rationale=(
+            "The collisional blocks must preserve the energy invariant in the "
+            "same projected basis used for higher-order closure."
+        ),
+    ),
+    PhysicsGate(
+        name="collision_operator_self_adjointness",
+        category="analytical",
+        metric="weighted collisional form is self-adjoint",
+        relation="test",
+        threshold=None,
+        source="finite-order Laguerre/Sonine Coulomb-operator literature",
+        rationale=(
+            "The finite-order collisional operator should preserve the "
+            "self-adjoint structure underlying Onsager symmetry and the H-theorem."
+        ),
+    ),
+    PhysicsGate(
         name="entropy_production_nonnegative",
         category="analytical",
         metric="symmetric collisional form is positive semidefinite",

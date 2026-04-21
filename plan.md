@@ -245,6 +245,9 @@ templates:
   - treat the current closure as the `P=2` truncation
   - preserve Onsager/ambipolar structure at finite order
   - preserve intrinsic ambipolarity in symmetric limits at each truncation
+  - preserve particle, momentum, and energy invariants of the projected
+    collisional operator
+  - preserve weighted self-adjointness of the finite-order collisional form
   - preserve a momentum-conserving common-flow null mode in the collisional
     blocks
   - preserve non-negative entropy production of the symmetric collisional form
