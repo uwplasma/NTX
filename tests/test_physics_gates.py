@@ -9,6 +9,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     names = {gate.name for gate in physics_gate_registry()}
     assert "onsager_symmetry" in names
     assert "p2_projection_exact_recovery" in names
+    assert "low_order_collision_block_recovery" in names
     assert "observable_map_fixed" in names
     assert "intrinsic_ambipolarity_symmetric_limit" in names
     assert "momentum_conservation_null_mode" in names

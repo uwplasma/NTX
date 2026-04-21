@@ -68,6 +68,19 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="low_order_collision_block_recovery",
+        category="analytical",
+        metric="generated low-order momentum-conserving collision blocks",
+        relation="test",
+        threshold=None,
+        source="standard low-order moment equations and local closure tests",
+        rationale=(
+            "The active low-order collisional blocks must be reproducible from "
+            "the standard momentum-conserving moment equations, up to the "
+            "heat-flow basis convention used by the runtime."
+        ),
+    ),
+    PhysicsGate(
         name="observable_map_fixed",
         category="analytical",
         metric="U_parallel = n c0",
