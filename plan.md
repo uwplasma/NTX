@@ -292,7 +292,7 @@ templates:
       that canonical notation only by the sign convention of the heat-flow
       basis moment
     - a first higher-order runtime branch has now been tested:
-      - exact low-order Coulomb block preserved
+      - current low-order closure preserved
       - diagonal Laguerre-tail damping added on the extra moments
       - committed artifact written to `docs/_static/closure_pmax_convergence.*`
       - `P=4` result:

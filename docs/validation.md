@@ -391,7 +391,7 @@ The W7-X picture is now more specific than before:
   monotone-refinement assumption
 
 The next closure step has now been tested explicitly as well. A local
-`Pmax > 2` branch was built by preserving the exact low-order Coulomb block and
+`Pmax > 2` branch was built by preserving the present low-order closure and
 adding a diagonal Laguerre-tail damping model on the extra moments. That
 branch is stable, but it fails the transfer gate:
 
