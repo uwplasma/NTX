@@ -324,7 +324,12 @@ For the closure side, the physically relevant gates are:
    In practice this means retaining the Onsager/ambipolar structure emphasized
    by Sugama--Horton and Sugama--Nishimura, rather than inserting benchmark-fit
    constants into selected matrix entries.
-5. **Benchmark transfer is mandatory.**
+5. **The projected collision model must preserve the collisional invariants.**
+   Particle number, parallel momentum, and energy must remain exact invariants
+   of the finite-order collisional system, and the weighted collisional form
+   should retain the self-adjoint structure that underlies Onsager symmetry and
+   non-negative entropy production.
+6. **Benchmark transfer is mandatory.**
    A closure change is only acceptable if it improves the precise-QS fixed-field
    QA/QH current benchmark without regressing the already-validated integrated
    W7-X workflow.
