@@ -44,6 +44,11 @@ research problems.
   - the README now carries the fixed-field precise-QS comparison figure as the
     current validation status view, but the QA momentum-correction closure is
     still an active audit lane rather than a closed parity claim
+  - the validation surface is now codified as explicit physics gates:
+    - analytical identities and exact `P=2` recovery
+    - independent-code comparison gates
+    - integrated-workflow transfer gates
+    - monitored closure stress tests
 
 ## Open Code Lanes
 
@@ -123,6 +128,10 @@ research problems.
   and benchmark discovery
 - [x] add a curated `NTX+NEOPAX` vs SFINCS bootstrap-current validation figure
   to the README, with the benchmark status stated honestly
+- [x] codify the physics-gate hierarchy in shipped docs and a lightweight gate
+  report script
+- [ ] keep the gate thresholds literature-anchored and synchronized with the
+  benchmark artifacts
 
 ### 7. Throughput, Profiling, And Memory
 
@@ -245,6 +254,15 @@ templates:
       momentum-correction regression is now a closed gate
     - the remaining implementation step is to generalize the moment system
       beyond `P=2`, not to keep rewriting the same `P=2` algebra
+  - the shipped repo now exposes a lightweight physics-gate registry and report
+    script:
+    - `src/ntx/physics_gates.py`
+    - `scripts/check_physics_gates.py`
+    - the current hard artifact-backed gates are:
+      - rebuilt W7-X raw-branch imported workflow `<= 2e-2`
+      - precise-QS Redl vs archived SFINCS `<= 1e-1`
+    - the fixed-field `NTX+NEOPAX` current benchmark remains a monitored stress
+      metric rather than a solver-side acceptance gate
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git

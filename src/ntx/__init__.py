@@ -40,6 +40,14 @@ from .neopax import (
     write_neopax_scan_hdf5,
 )
 from .parallel import solve_monoenergetic_multiprocess_scan
+from .physics_gates import (
+    ANALYTICAL_GATES,
+    ARTIFACT_GATES,
+    PhysicsGate,
+    PhysicsGateResult,
+    evaluate_artifact_gates,
+    physics_gate_registry,
+)
 from .profiles import (
     AmbipolarProfileFamilyResult,
     AmbipolarProfileResult,
@@ -112,6 +120,8 @@ __all__ = [
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
     "MonoenergeticSpeciesProfile",
+    "PhysicsGate",
+    "PhysicsGateResult",
     "PrimitiveSpeciesProfile",
     "ProfileBasisControlSpec",
     "ProfileBasisOptimizationResult",
@@ -125,6 +135,8 @@ __all__ = [
     "PreparedMonoenergeticSystem",
     "TransportResult",
     "VmecSurface",
+    "ANALYTICAL_GATES",
+    "ARTIFACT_GATES",
     "build_monoenergetic_database_arrays",
     "build_ntx_neopax_scan",
     "build_ntx_neopax_scan_from_surfaces",
@@ -136,6 +148,7 @@ __all__ = [
     "example_derivative_audit",
     "example_surface",
     "example_bootstrap_current_optimization",
+    "evaluate_artifact_gates",
     "load_boozmn_surface",
     "load_run_config",
     "load_boozer_modes_csv",
@@ -147,6 +160,7 @@ __all__ = [
     "healthy_parallel_device_count",
     "local_parallel_device_count",
     "onsager_error",
+    "physics_gate_registry",
     "ambipolar_residual_profile",
     "advance_profile_transport",
     "advance_primitive_profile_transport",

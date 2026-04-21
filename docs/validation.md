@@ -7,6 +7,15 @@ NTX validation is organized around four layers:
 3. CPU/GPU runtime checks
 4. downstream database and profile checks through NEOPAX
 
+The gate hierarchy behind those layers is now documented explicitly in
+[`physics-gates.md`](physics-gates.md). In short:
+
+- analytical identities and exact `P=2` recovery are hard gates,
+- independent-code comparisons are trust-building physics gates,
+- the rebuilt integrated W7-X raw branch is the main transfer gate,
+- the precise-QS fixed-field `NTX+NEOPAX` current benchmark is a closure stress
+  test rather than a monoenergetic parity requirement.
+
 ## Validation Philosophy
 
 NTX is validated as a standalone solver. The repository therefore emphasizes:
@@ -48,6 +57,12 @@ Every solve reports:
 ```
 
 This is the main scalar physics sanity check exposed directly by NTX.
+
+The current tracked artifact-backed gates can be summarized locally with:
+
+```bash
+python scripts/check_physics_gates.py
+```
 
 ### Resolution Convergence
 

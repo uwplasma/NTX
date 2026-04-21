@@ -330,4 +330,6 @@ For the closure side, the physically relevant gates are:
    W7-X workflow.
 
 These gates are now the design constraints for any higher-order closure work in
-the imported `NTX+NEOPAX` path.
+the imported `NTX+NEOPAX` path. The runnable summary of the artifact-backed
+gates is in [`physics-gates.md`](physics-gates.md) and
+`python scripts/check_physics_gates.py`.

@@ -66,6 +66,8 @@ parallel-throughput workflows.
 - [Install](install.md): package installation and extras
 - [Input File](input-file.md): full TOML schema, outputs, and CLI behavior
 - [Physics Model](physics.md): the equations and normalizations
+- [Physics Gates](physics-gates.md): analytical identities and benchmark
+  acceptance rules
 - [Geometry And Inputs](geometry.md): how surfaces are loaded and evaluated
 - [Numerics And Algorithms](numerics.md): discretization, dense solve, and
   JAX/parallel execution
@@ -90,6 +92,7 @@ parallel-throughput workflows.
 install
 input-file
 physics
+physics-gates
 geometry
 algorithm
 numerics

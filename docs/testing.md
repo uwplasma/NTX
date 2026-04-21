@@ -7,6 +7,10 @@ NTX is validated at four levels:
 3. imported-workflow tests for autodiff, NEOPAX, and JAX geometry backends
 4. CPU/GPU runtime and smoke checks
 
+The physics-facing gate structure is documented separately in
+[`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
+meant to enforce that gate hierarchy, not to replace it.
+
 ## Running The Suite
 
 Full local suite:
@@ -91,6 +95,22 @@ The repository therefore keeps:
 
 These comparisons are used as trust-building validation, not as the definition
 of NTX itself.
+
+## Physics Gate Report
+
+The tracked benchmark gates can be summarized from committed artifacts with:
+
+```bash
+python scripts/check_physics_gates.py
+```
+
+This is the fastest way to distinguish:
+
+- analytical identities and exact-recovery gates,
+- independent-code comparison gates,
+- integrated-workflow transfer gates,
+- and closure stress metrics that are monitored but not promoted to parity
+  claims.
 
 ## What To Check Before Claiming A New Physics Result
 
