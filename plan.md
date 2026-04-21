@@ -95,6 +95,15 @@ research problems.
   technically stable
 - [ ] stage momentum-restoring or broader transport models without weakening the
   current monoenergetic core
+- [ ] develop the next closure model as an arbitrary-order moment-equation
+  extension rather than a benchmark fit:
+  - treat the present three-moment system as the `P=2` truncation
+  - make Sonine truncation order configurable
+  - generate projected closure matrices programmatically for arbitrary order
+  - replace hard-coded reduced collisional blocks with momentum-conserving
+    arbitrary-order blocks
+  - require transfer to the integrated W7-X workflow before promoting any new
+    closure as a default path
 
 ### 6. Fixed-Field And Integrated Validation
 
@@ -188,6 +197,12 @@ templates:
    runtime and memory bottlenecks before changing solver internals.
 4. Continue the profile-transport and derivative work only after the
    fixed-field audit and profiling picture are technically clear.
+5. Move the next closure-model push onto an arbitrary-order moment-equation
+   lane:
+   - no fitted remaps
+   - keep `U_parallel = n c_0` fixed
+   - benchmark convergence with truncation order on precise-QS QA/QH
+   - require no regression in integrated W7-X workflows
 
 ## Active Code Log
 
