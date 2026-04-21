@@ -714,3 +714,19 @@ templates:
         explicit additive terms
       - integrated W7-X optimization should now target retracing and shape
         instability before any deeper kernel-side work
+    - a first-principles theory pass now closes the normalization lane more
+      decisively:
+      - the NTX monoenergetic coefficient formulas match the upstream
+        monoenergetic definitions for `D11`, `D13`, `D31`, `D33`, and
+        `D33_spitzer`
+      - the active NTX-to-database mapping now matches the actual consumer
+        convention used downstream:
+        `D11 -> D11 * drds^2`, `D13 -> D13 * drds`, `D33 -> nu * D33`
+      - the Sonine-to-current map in the present momentum-restoring closure is
+        also physically consistent: for the chosen basis the corrected
+        parallel flow depends on the lowest solved Sonine coefficient only,
+        so `Upar = n * c0` is not a bookkeeping bug
+      - therefore the remaining precise-QS fixed-field gap is not a residual
+        coefficient/db-normalization mistake; it is the reduced
+        momentum-restoring closure model itself relative to a fuller
+        collisional treatment
