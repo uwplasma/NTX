@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
+
+pytest.importorskip("NEOPAX")
 
 from examples.momentum_correction_mapping_audit import (
     Sample,
