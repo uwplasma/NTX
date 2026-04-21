@@ -322,6 +322,19 @@ templates:
           variables used by the runtime
         - do not ship a `Pmax>2` runtime branch before that map is derived and
           low-order recovery is checked term by term
+      - new explicit result from the first exact low-order comparison:
+        - the exact `l=1` Coulomb collisional moments were evaluated in the
+          Sonine basis for `p,k = 0,1,2`
+        - applying only the known runtime heat-flow sign convention does not
+          recover the active low-order collision blocks
+        - the mismatch is large in both matrix families, so the missing step is
+          not a trivial sign flip or scalar normalization
+      - consequence:
+        - the next derivation must construct the full moment-to-runtime basis
+          map from the fluid-moment definitions
+        - if that map still fails, the conclusion is that the active closure is
+          a genuinely different approximate collision model, not an exact
+          Coulomb truncation written in a different basis
 - The Zenodo `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
   bundle is now available locally under the NTX repo and should be used as the
   primary fixed-field Redl/SFINCS audit source, while staying ignored by git
