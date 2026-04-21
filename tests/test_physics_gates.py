@@ -10,9 +10,14 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "onsager_symmetry" in names
     assert "p2_projection_exact_recovery" in names
     assert "observable_map_fixed" in names
+    assert "intrinsic_ambipolarity_symmetric_limit" in names
+    assert "momentum_conservation_null_mode" in names
+    assert "entropy_production_nonnegative" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
     assert "precise_qs_ntx_neopax_closure_stress" in names
+    assert "pmax_convergence_precise_qs" in names
+    assert "w7x_pmax_transfer_regression" in names
 
 
 def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
@@ -57,3 +62,5 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["precise_qs_redl_vs_sfincs"].value == 0.08
     assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
     assert results["precise_qs_ntx_neopax_closure_stress"].value == 1.1
+    assert results["pmax_convergence_precise_qs"].status == "missing"
+    assert results["w7x_pmax_transfer_regression"].status == "missing"

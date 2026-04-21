@@ -51,7 +51,11 @@ def test_make_publication_figures_main_text_preset_writes_manifest(tmp_path):
         capture_output=True,
     )
 
-    payload = json.loads((output_dir / "publication_figure_manifest.json").read_text(encoding="utf-8"))
+    payload = json.loads(
+        (output_dir / "publication_figure_manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
     assert set(payload) == {
         "validation",
         "w7x_audit",

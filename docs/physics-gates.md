@@ -24,6 +24,14 @@ These are hard structural checks:
   the current three-moment closure exactly at `P=2`.
 - **Fixed observable map:** for the present Sonine basis, the corrected
   parallel-flow observable remains `U_parallel = n c_0`.
+- **Intrinsic ambipolarity in symmetric limits:** finite-order closure work
+  must preserve the symmetric-limit ambipolar structure emphasized by the
+  Sugama–Nishimura formulation.
+- **Momentum-conservation null mode:** the collisional blocks must retain a
+  common-flow null mode so that total parallel momentum is conserved.
+- **Non-negative entropy production:** the symmetric collisional form must
+  remain positive semidefinite, following the finite-order constraints
+  emphasized by Sugama–Horton.
 
 These are not benchmark fits. They come directly from the model derivation and
 from the present closure basis.
@@ -96,6 +104,8 @@ Any higher-order closure change must satisfy all of the following:
    allows
 5. improve the fixed-field precise-QS closure stress test only if it also
    preserves the integrated W7-X workflow
+6. show controlled convergence in `Pmax` on the precise-QS QA/QH family
+7. avoid any regression in the integrated W7-X workflow when `Pmax` changes
 
 That is the standard for physically defensible closure work in this repository.
 
@@ -113,3 +123,22 @@ That stage is intentionally incomplete. The production runtime still stops at
 `P=2` because the arbitrary-order momentum-conserving collision blocks have not
 yet been derived and validated. This is a physics boundary, not an
 implementation oversight.
+
+## Additional Literature Requirements
+
+Beyond the existing acceptance targets, the literature imposes a few stronger
+requirements on any generalized closure:
+
+- the finite-order system should preserve Onsager symmetry rather than recover
+  it only asymptotically
+- intrinsic ambipolarity should remain exact in symmetric limits at each
+  truncation order
+- the collisional operator must conserve momentum exactly and should not break
+  the common-flow null space
+- the symmetric collisional form should not generate negative entropy
+  production
+- convergence in `Pmax` should be demonstrated on a stress-test family, not
+  only on an integrated workflow that already closes at `P=2`
+
+These are now treated as first-class design requirements for the higher-order
+closure lane.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import jax
@@ -279,6 +280,33 @@ def test_vmec_scan_derives_es_from_er_using_transport_scale():
     assert jnp.allclose(implicit_es.D11, explicit.D11)
     assert jnp.allclose(implicit_es.D13, explicit.D13)
     assert jnp.allclose(implicit_es.D33, explicit.D33)
+
+
+def test_vmec_scan_reference_bridge_is_jax_traceable():
+    surface = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25)
+    rho = jnp.asarray([0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    er = jnp.asarray([[0.0, 1.0e-3, 2.0e-3]])
+    drds = jnp.asarray([1.0])
+    grid = GridSpec(5, 5, 4)
+
+    def objective(scale):
+        scaled_surface = replace(
+            surface,
+            b_cos=surface.b_cos * (1.0 + 0.05 * scale),
+        )
+        scan = build_ntx_neopax_scan_from_surfaces(
+            (scaled_surface,),
+            rho=rho,
+            nu_v=nu_v,
+            Er=er,
+            drds=drds,
+            grid=grid,
+        )
+        return jnp.sum(scan.D11) + jnp.sum(scan.D13) + jnp.sum(scan.D33)
+
+    grad = jax.grad(objective)(0.0)
+    assert jnp.isfinite(grad)
 
 
 def test_neopax_scan_requires_rebuild_for_legacy_cache_without_d33_spitzer(tmp_path: Path):

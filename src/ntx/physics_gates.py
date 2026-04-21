@@ -79,6 +79,42 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
             "not be changed to fit a benchmark."
         ),
     ),
+    PhysicsGate(
+        name="intrinsic_ambipolarity_symmetric_limit",
+        category="analytical",
+        metric="symmetric-limit ambipolar structure preserved",
+        relation="test",
+        threshold=None,
+        source="Sugama–Nishimura finite-order moment-equation requirements",
+        rationale=(
+            "At every finite truncation, the projected closure must preserve the "
+            "intrinsic ambipolar-diffusion structure in symmetric limits."
+        ),
+    ),
+    PhysicsGate(
+        name="momentum_conservation_null_mode",
+        category="analytical",
+        metric="common-flow collisional null mode preserved",
+        relation="test",
+        threshold=None,
+        source="momentum-restoring closure derivation and local closure tests",
+        rationale=(
+            "The higher-order collisional blocks must conserve total parallel "
+            "momentum, so a common-flow null mode remains present."
+        ),
+    ),
+    PhysicsGate(
+        name="entropy_production_nonnegative",
+        category="analytical",
+        metric="symmetric collisional form is positive semidefinite",
+        relation="test",
+        threshold=None,
+        source="Sugama–Horton entropy-production constraints",
+        rationale=(
+            "The finite-order collision model must not violate the "
+            "non-negativity of entropy production."
+        ),
+    ),
 )
 
 
@@ -117,6 +153,30 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         rationale=(
             "This benchmark is retained as a closure-model stress test. It is "
             "monitored continuously but is not a solver-side release gate."
+        ),
+    ),
+    PhysicsGate(
+        name="pmax_convergence_precise_qs",
+        category="stress",
+        metric="max relative change between successive Pmax levels",
+        relation="monitor",
+        threshold=None,
+        source="future closure_pmax_convergence.json artifact",
+        rationale=(
+            "Higher-order closure work must show controlled convergence in "
+            "Pmax on the precise-QS QA/QH stress family."
+        ),
+    ),
+    PhysicsGate(
+        name="w7x_pmax_transfer_regression",
+        category="transfer",
+        metric="integrated W7-X max relative error under higher-order closure",
+        relation="monitor",
+        threshold=None,
+        source="future closure_pmax_convergence.json artifact",
+        rationale=(
+            "Any higher-order closure extension must transfer to the "
+            "integrated W7-X workflow without regressing the imported path."
         ),
     ),
 )
@@ -180,6 +240,36 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
                     value=None,
                     status="missing",
                     details=f"missing artifact: {fixed_path}",
+                )
+            )
+
+    convergence_path = static_root / "closure_pmax_convergence.json"
+    for gate in (
+        _gate_by_name("pmax_convergence_precise_qs"),
+        _gate_by_name("w7x_pmax_transfer_regression"),
+    ):
+        if convergence_path.exists():
+            payload = json.loads(convergence_path.read_text())
+            key = (
+                "precise_qs_max_successive_change"
+                if gate.name == "pmax_convergence_precise_qs"
+                else "w7x_max_relative_error"
+            )
+            results.append(
+                PhysicsGateResult(
+                    gate=gate,
+                    value=float(payload[key]),
+                    status="monitor",
+                    details="tracked for higher-order closure development",
+                )
+            )
+        else:
+            results.append(
+                PhysicsGateResult(
+                    gate=gate,
+                    value=None,
+                    status="missing",
+                    details=f"missing artifact: {convergence_path}",
                 )
             )
 
