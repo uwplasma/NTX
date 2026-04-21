@@ -30,22 +30,32 @@ from ntx._checkout_paths import find_neopax_root  # noqa: E402
 from ntx.vmec_jax_vmec import surface_from_vmec_jax_vmec_wout_file  # noqa: E402
 
 NEOPAX_ROOT = find_neopax_root()
-if NEOPAX_ROOT is None:
-    raise SystemExit(
-        "This example requires a local NEOPAX checkout with the W7-X reference inputs."
-    )
-
-if str(NEOPAX_ROOT) not in sys.path:
+if NEOPAX_ROOT is not None and str(NEOPAX_ROOT) not in sys.path:
     sys.path.insert(0, str(NEOPAX_ROOT))
 
-import NEOPAX  # noqa: E402
+try:
+    import NEOPAX  # noqa: E402
+except ModuleNotFoundError:  # pragma: no cover - exercised in CI import path
+    NEOPAX = None
 
 # ---------------------------------------------------------------------------
 # User inputs
 # ---------------------------------------------------------------------------
-WOUT_PATH = NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
-BOOZMN_PATH = NEOPAX_ROOT / "tests" / "inputs" / "boozmn_wout_W7-X_standard_configuration.nc"
-REFERENCE_PATH = NEOPAX_ROOT / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+WOUT_PATH = (
+    NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"
+    if NEOPAX_ROOT is not None
+    else Path("/missing/wout_W7-X_standard_configuration.nc")
+)
+BOOZMN_PATH = (
+    NEOPAX_ROOT / "tests" / "inputs" / "boozmn_wout_W7-X_standard_configuration.nc"
+    if NEOPAX_ROOT is not None
+    else Path("/missing/boozmn_wout_W7-X_standard_configuration.nc")
+)
+REFERENCE_PATH = (
+    NEOPAX_ROOT / "tests" / "inputs" / "Dij_NEOPAX_FULL_S_NEW_W7X.h5"
+    if NEOPAX_ROOT is not None
+    else Path("/missing/Dij_NEOPAX_FULL_S_NEW_W7X.h5")
+)
 GRID = GridSpec(n_theta=17, n_zeta=25, n_xi=32)
 NU_INDICES = np.array([0, 3, 7, 11], dtype=int)
 ER_INDICES = np.array([0, 3, 7, 11], dtype=int)
@@ -53,11 +63,19 @@ USE_MOMENTUM_CORRECTION = False
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "bootstrap_current_with_neopax"
 
 
+def _require_neopax_runtime() -> None:
+    if NEOPAX_ROOT is None or NEOPAX is None:
+        raise SystemExit(
+            "This example requires a local NEOPAX checkout with the W7-X reference inputs."
+        )
+
+
 def _surface_loader(rho_value: float):
     return surface_from_vmec_jax_vmec_wout_file(WOUT_PATH, s=float(rho_value**2))
 
 
 def _build_species_and_field():
+    _require_neopax_runtime()
     field = NEOPAX.Field.read_vmec_booz(51, str(WOUT_PATH), str(BOOZMN_PATH))
     grid = NEOPAX.Grid.create_standard(51, 48, 3)
     r = np.asarray(field.r_grid, dtype=float)
@@ -121,6 +139,7 @@ def _bootstrap_current_profile(database, grid, field, species):
 
 
 def solve_profiles() -> dict[str, np.ndarray | float | bool]:
+    _require_neopax_runtime()
     reference = load_neopax_reference_scan(REFERENCE_PATH)
     rho = np.asarray(reference.rho, dtype=float)
     nu_v = np.asarray(reference.nu_v, dtype=float)[NU_INDICES]
