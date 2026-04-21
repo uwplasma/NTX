@@ -588,6 +588,7 @@ templates:
       frozen shipped W7-X momentum-correction reference
     - transfer currently fails badly:
       - shipped external database: `1.18e-12`
+      - NTX-rebuilt W7-X, `raw`: `3.66e+0`
       - NTX-rebuilt W7-X, `spitzer`: `4.18e+0`
       - NTX-rebuilt W7-X, `conductivity_difference`: `1.07e+1`
     - one integrated-workflow bridge bug is now closed:
@@ -610,3 +611,10 @@ templates:
       - and not yet the end of the broader closure-model lane, especially on
         W7-X integrated workflows where the NTX-generated coefficient tables
         themselves are still the first blocker
+    - the current W7-X integrated result is therefore:
+      - the in-repo full-resolution point and subset coefficient tests still
+        pass against the shipped external database
+      - but the full integrated workflow remains poor on every tested
+        higher-order branch
+      - and `raw` is currently the least-bad W7-X branch, though still far
+        from parity
