@@ -18,7 +18,7 @@ tree.
 | NEOPAX coupling | `src/ntx/neopax.py`, `src/ntx/_neopax_types.py`, `src/ntx/_neopax_io.py`, `src/ntx/_neopax_bridge.py` | `build_ntx_neopax_scan(...)`, `scan_to_neopax_arrays(...)`, `write_neopax_scan_hdf5(...)` |
 | Profile-grade imported workflows | `src/ntx/profiles.py` | species-profile closures, ambipolar `E_r(r)` solve, bootstrap-current proxy |
 | Throughput-oriented multi-device execution | `src/ntx/parallel.py` | `solve_monoenergetic_multiprocess_scan(...)` |
-| Autodiff examples and optimization helpers | `src/ntx/autodiff.py` | inverse, sensitivity, and bootstrap-current optimization helpers |
+| Autodiff examples and optimization helpers | `src/ntx/autodiff.py`, `src/ntx/_autodiff_types.py`, `src/ntx/_autodiff_workflows.py` | inverse, sensitivity, and bootstrap-current optimization helpers |
 
 ## Equation-To-Code Mapping
 
