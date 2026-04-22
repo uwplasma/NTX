@@ -133,6 +133,11 @@ modules directly. In the current fast coverage subset:
   - `src/ntx/_solver_scan.py` is above `98%`
   - `src/ntx/parallel.py` is above `99%`
   - `src/ntx/autodiff.py` is above `96%`
+- in the next cheap utility-cluster slice:
+  - `src/ntx/cli.py` is fully covered
+  - `src/ntx/io.py` is fully covered
+  - `src/ntx/database.py` is fully covered
+  - `src/ntx/_checkout_paths.py` is above `98%`
 
 Those gains come from narrow branch tests in the unit/workflow lanes, not from
 adding slower benchmark execution to the default developer loop.

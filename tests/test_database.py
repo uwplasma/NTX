@@ -121,3 +121,23 @@ def test_database_stack_rejects_empty_and_mismatched_fields():
     )
     with pytest.raises(ValueError, match="same scan_field_name"):
         stack_monoenergetic_database_arrays((first, second))
+
+
+def test_database_stack_preserves_rho_when_all_inputs_have_rho():
+    first = build_monoenergetic_database_arrays(
+        example_surface(),
+        GridSpec(5, 5, 4),
+        jnp.asarray([1e-2]),
+        epsi_hat=jnp.asarray([0.0]),
+        rho=jnp.asarray([0.25]),
+    )
+    second = build_monoenergetic_database_arrays(
+        example_surface(),
+        GridSpec(5, 5, 4),
+        jnp.asarray([1e-2]),
+        epsi_hat=jnp.asarray([0.0]),
+        rho=jnp.asarray([0.5]),
+    )
+    stacked = stack_monoenergetic_database_arrays((first, second))
+    assert stacked.rho is not None
+    assert jnp.allclose(stacked.rho, jnp.asarray([[0.25], [0.5]]))

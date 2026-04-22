@@ -94,6 +94,58 @@ def test_cli_load_surface_errors_without_selection():
         cli._load_surface(args)
 
 
+def test_cli_load_surface_vmec_success(monkeypatch):
+    fake_surface = object()
+    called = {}
+
+    def fake_load_vmec_surface(path, **kwargs):
+        called["path"] = path
+        called["kwargs"] = kwargs
+        return fake_surface
+
+    monkeypatch.setattr(cli, "load_vmec_surface", fake_load_vmec_surface)
+    args = SimpleNamespace(
+        example=False,
+        dkes=None,
+        vmec=VMEC,
+        psi_n=0.25,
+        vmec_radial_option=1,
+        vmec_nyquist_option=2,
+        vmec_mode_convention="reduced",
+        min_bmn_to_load=1.0e-4,
+    )
+    assert cli._load_surface(args) is fake_surface
+    assert called["path"] == VMEC
+    assert called["kwargs"]["psi_n"] == 0.25
+
+
+def test_cli_main_unknown_command_returns_one(monkeypatch):
+    class DummyParser:
+        def add_subparsers(self, **kwargs):
+            class DummySubparsers:
+                def add_parser(self, *args, **kwargs):
+                    class DummyParserLeaf:
+                        def add_mutually_exclusive_group(self, **kwargs):
+                            class DummyGroup:
+                                def add_argument(self, *args, **kwargs):
+                                    return None
+
+                            return DummyGroup()
+
+                        def add_argument(self, *args, **kwargs):
+                            return None
+
+                    return DummyParserLeaf()
+
+            return DummySubparsers()
+
+        def parse_args(self, args_list):
+            return SimpleNamespace(command="unexpected")
+
+    monkeypatch.setattr(cli.argparse, "ArgumentParser", lambda prog=None: DummyParser())
+    assert cli.main(["ignored"]) == 1
+
+
 def test_python_m_ntx_module_entrypoint(monkeypatch, capsys):
     monkeypatch.setattr(
         sys,
@@ -117,3 +169,28 @@ def test_python_m_ntx_module_entrypoint(monkeypatch, capsys):
     assert excinfo.value.code == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["D11"] > 0.0
+
+
+def test_python_m_ntx_cli_module_entrypoint(monkeypatch, capsys):
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "python",
+            "solve",
+            "--example",
+            "--nu-hat",
+            "1e-2",
+            "--n-theta",
+            "5",
+            "--n-zeta",
+            "5",
+            "--n-xi",
+            "4",
+        ],
+    )
+    with pytest.raises(SystemExit) as excinfo:
+        runpy.run_module("ntx.cli", run_name="__main__")
+    assert excinfo.value.code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["D33"] > 0.0

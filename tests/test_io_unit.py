@@ -50,6 +50,16 @@ def test_dkes_loader_rejects_missing_modes(tmp_path):
         load_dkes_surface(path)
 
 
+def test_dkes_loader_rejects_missing_b00_entry(tmp_path):
+    path = tmp_path / "bad_b00.ddkes2.data"
+    path.write_text(
+        "&datain nzperiod=1, psip=1, chip=1, btheta=1, bzeta=1 /\nborbi(0,1)=0.2\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="missing borbi\\(0,0\\) entry"):
+        load_dkes_surface(path)
+
+
 def test_magnetic_loader_rejects_missing_section(tmp_path):
     path = tmp_path / "bad.magnetic_configuration.dat"
     path.write_text(
@@ -67,6 +77,27 @@ def test_magnetic_loader_rejects_missing_section(tmp_path):
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match="missing Fourier-mode section"):
+        load_magnetic_configuration_surface(path)
+
+
+def test_magnetic_loader_rejects_empty_fourier_rows(tmp_path):
+    path = tmp_path / "empty_modes.magnetic_configuration.dat"
+    path.write_text(
+        "\n".join(
+            [
+                "Number of periods = 1",
+                "psi_p = 1",
+                "chi_p = 1",
+                "iota = 1",
+                "B00 = 1",
+                "B_theta = 1",
+                "B_zeta = 1",
+                "*** Magnetic field strength Fourier modes",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="no Fourier rows found"):
         load_magnetic_configuration_surface(path)
 
 

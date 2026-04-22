@@ -221,6 +221,14 @@ Current status:
   - these gains come from direct branch tests on callback normalization,
     scan-sharding/error handling, worker environment setup, and import-fallback
     behavior
+- [x] the next fast-lane utility cluster is now effectively closed through
+  cheap unit tests and existing lightweight module tests:
+  - `cli.py` reaches `100%`
+  - `io.py` reaches `100%`
+  - `database.py` reaches `100%`
+  - `_checkout_paths.py` reaches `98.9%`
+  - these gains come from direct helper/entrypoint tests, not from subprocess
+    benchmark expansion
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
