@@ -4,6 +4,7 @@ import sys
 from types import ModuleType
 
 import jax.numpy as jnp
+import pytest
 
 from ntx import (
     BootstrapOptimizationResult,
@@ -16,6 +17,15 @@ from ntx import (
     load_neopax_reference_scan,
     surface_from_vmec_jax_vmec_wout_file,
 )
+from ntx._autodiff_workflows import (
+    _evaluate_d11_profile,
+    _evaluate_d13_profile,
+    _evaluate_d33_profile,
+)
+from ntx._autodiff_workflows import (
+    example_neopax_profile_autodiff as _example_neopax_profile_autodiff,
+)
+from ntx._neopax_types import NeopaxMonoenergeticArrays
 from ntx.autodiff import _maybe_import_neopax
 
 from .fixture_data import SAMPLE_NEOPAX, SAMPLE_WOUT
@@ -54,6 +64,46 @@ def test_neopax_profile_autodiff_reduces_profile_misfit():
     assert float(result.loss_history[-1]) < float(result.loss_history[0])
     assert result.sensitivity_matrix.shape[1] == 2
     assert jnp.all(jnp.isfinite(result.fitted_d33_profile))
+
+
+def test_neopax_profile_autodiff_optional_import_paths():
+    scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
+    surfaces = tuple(
+        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        for rho_value in scan.rho
+    )
+    with pytest.raises(RuntimeError, match="requires a NEOPAX importer callback"):
+        _example_neopax_profile_autodiff(
+            surfaces,
+            rho=scan.rho,
+            nu_v=scan.nu_v,
+            Es=scan.Es,
+            Er=scan.Er,
+            drds=scan.drds,
+            grid=GridSpec(5, 5, 4),
+            steps=2,
+            use_neopax_package=True,
+        )
+    called = {"value": False}
+
+    def fake_importer():
+        called["value"] = True
+        return object()
+
+    result = _example_neopax_profile_autodiff(
+        surfaces,
+        rho=scan.rho,
+        nu_v=scan.nu_v,
+        Es=scan.Es,
+        Er=scan.Er,
+        drds=scan.drds,
+        grid=GridSpec(5, 5, 4),
+        steps=2,
+        use_neopax_package=True,
+        maybe_import_neopax=fake_importer,
+    )
+    assert called["value"] is True
+    assert result.parameter_history.shape[0] == 2
 
 
 def test_bootstrap_current_optimization_improves_weighted_objective():
@@ -124,3 +174,51 @@ def test_maybe_import_neopax_uses_sys_path_fallback(monkeypatch, tmp_path):
     monkeypatch.setattr("builtins.__import__", fake_import)
     imported = _maybe_import_neopax()
     assert imported is fake_module
+
+
+def test_autodiff_profile_interpolants_return_finite_arrays():
+    arrays = NeopaxMonoenergeticArrays(
+        a_b=jnp.asarray(1.0),
+        rho=jnp.asarray([0.25, 0.5, 0.75]),
+        nu_log=jnp.asarray([-4.0, -3.0]),
+        Er_list=jnp.asarray(
+            [
+                [-4.0, -3.0],
+                [-4.0, -3.0],
+                [-4.0, -3.0],
+            ]
+        ),
+        D11_log=jnp.asarray(
+            [
+                [[-1.0, -0.8], [-0.6, -0.4]],
+                [[-1.1, -0.9], [-0.7, -0.5]],
+                [[-1.2, -1.0], [-0.8, -0.6]],
+            ]
+        ),
+        D13=jnp.asarray(
+            [
+                [[0.1, 0.2], [0.3, 0.4]],
+                [[0.2, 0.3], [0.4, 0.5]],
+                [[0.3, 0.4], [0.5, 0.6]],
+            ]
+        ),
+        D33=jnp.asarray(
+            [
+                [[1.0, 1.2], [1.4, 1.6]],
+                [[1.1, 1.3], [1.5, 1.7]],
+                [[1.2, 1.4], [1.6, 1.8]],
+            ]
+        ),
+    )
+    rho = arrays.rho
+    er_profile = jnp.asarray([1.0e-4, 2.0e-4, 3.0e-4])
+    nu_value = jnp.asarray(5.0e-4)
+    d11 = _evaluate_d11_profile(arrays, rho, nu_value, er_profile)
+    d13 = _evaluate_d13_profile(arrays, rho, nu_value, er_profile)
+    d33 = _evaluate_d33_profile(arrays, rho, nu_value, er_profile)
+    assert d11.shape == rho.shape
+    assert d13.shape == rho.shape
+    assert d33.shape == rho.shape
+    assert jnp.all(jnp.isfinite(d11))
+    assert jnp.all(jnp.isfinite(d13))
+    assert jnp.all(jnp.isfinite(d33))

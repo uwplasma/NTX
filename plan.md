@@ -203,6 +203,15 @@ Current status:
   - archived precise-QS QA/QH primitive-to-force reconstruction figure and JSON
   - treated as a monitored benchmark-family stress test for the current
     primitive-profile builder, not a parity gate
+- [x] targeted branch-coverage tightening landed on the refactored workflow
+  modules without adding a new heavy benchmark lane:
+  - `_autodiff_workflows.py` now closes fully in the current fast coverage
+    subset
+  - `_profiles_transport.py` now closes fully in the current fast coverage
+    subset
+  - `_profiles_eval.py` and `_profiles_controls.py` are now both above `98%`
+    in the current fast coverage subset
+  - these gains come from narrow unit/workflow tests, not new physics paths
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 

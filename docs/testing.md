@@ -91,6 +91,10 @@ Representative test groups:
   - `tests/test_neopax_arrays.py`
 - autodiff and optimization helpers:
   - `tests/test_autodiff.py`
+- profile workflows:
+  - `tests/test_profiles_unit.py`
+  - `tests/test_profiles_workflows.py`
+  - `tests/test_profile_force_reconstruction_audit_example.py`
 - coverage and validation summaries:
   - `tests/test_build_coverage_report_script.py`
   - `tests/test_physics_gates.py`
@@ -116,6 +120,17 @@ The coverage report is intended to answer two different questions:
 
 It should not be interpreted as a physics-validation substitute. Physics gates
 and literature benchmarks remain separate acceptance surfaces.
+
+Recent hardening work used this report to target the refactored workflow
+modules directly. In the current fast coverage subset:
+
+- `src/ntx/_autodiff_workflows.py` is fully covered
+- `src/ntx/_profiles_transport.py` is fully covered
+- `src/ntx/_profiles_eval.py` and `src/ntx/_profiles_controls.py` are both
+  above `98%`
+
+Those gains come from narrow branch tests in the unit/workflow lanes, not from
+adding slower benchmark execution to the default developer loop.
 
 ## GPU Validation
 
