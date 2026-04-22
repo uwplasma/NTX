@@ -43,8 +43,10 @@ Changelog = "https://github.com/uwplasma/NTX/blob/main/CHANGELOG.md"
 [project.optional-dependencies]
 dev = [
   "build",
+  "coverage[toml]",
   "matplotlib",
   "pytest",
+  "pytest-cov",
   "ruff",
   "twine",
   "mypy",
@@ -102,3 +104,16 @@ python_version = "3.10"
 packages = ["ntx"]
 ignore_missing_imports = true
 warn_unused_ignores = true
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ["src/ntx"]
+
+[tool.coverage.report]
+skip_covered = true
+show_missing = true
+precision = 1
+
+[tool.coverage.json]
+pretty_print = true
