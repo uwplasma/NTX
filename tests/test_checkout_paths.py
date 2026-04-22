@@ -82,6 +82,7 @@ def test_workspace_checkout_candidates_and_missing_optional_roots(monkeypatch, t
     assert cp.find_sfincs_executable() is None
     assert cp.find_single_stage_finite_beta_root() is None
     assert cp.find_qs_zenodo_root() is None
+    assert cp.find_vmec_jax_example_input() is None
 
 
 def test_qs_zenodo_root_prefers_repo_local_copy(monkeypatch, tmp_path):
@@ -97,3 +98,10 @@ def test_qs_zenodo_root_prefers_repo_local_copy(monkeypatch, tmp_path):
     monkeypatch.setattr(cp, "workspace_root", lambda: tmp_path)
 
     assert cp.find_qs_zenodo_root() == zenodo.resolve()
+
+
+def test_find_sfincs_executable_returns_none_when_root_has_no_binary(monkeypatch, tmp_path):
+    root = tmp_path / "sfincs"
+    root.mkdir()
+    monkeypatch.setenv("SFINCS_ROOT", str(root))
+    assert cp.find_sfincs_executable() is None
