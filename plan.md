@@ -102,7 +102,7 @@ Do not declare this program complete until all of the following are true:
 - coverage is discussed in docs and even surfaced in the README badge, but the
   measured baseline is not yet treated as the primary acceptance gate
 - several core modules remain too large for stable review and targeted testing:
-  - `profiles.py` (`1556` lines)
+  - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
   - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)
   - `autodiff.py` (`79` lines after Phase 1 split; types/workflows moved to internal modules)
   - `inputfiles.py` (`248` lines after Phase 1 split; parsing/reporting moved to internal modules)
@@ -183,8 +183,18 @@ Current status:
   - case/result/prepared-system types live in `src/ntx/_solver_types.py`
   - prepared solve and custom-VJP core live in `src/ntx/_solver_core.py`
   - scan/device helpers live in `src/ntx/_solver_scan.py`
+- [x] the sixth no-behavior-change workflow split is complete:
+  - `profiles.py` now remains the compatibility surface
+  - workflow dataclasses live in `src/ntx/_profiles_types.py`
+  - scan interpolation, ambipolar solves, and primitive profile construction
+    live in `src/ntx/_profiles_eval.py`
+  - scalar and basis-control helpers live in `src/ntx/_profiles_controls.py`
+  - explicit transport-loop and primitive-transport helpers live in
+    `src/ntx/_profiles_transport.py`
 - [ ] next restructuring target should be chosen from the remaining largest
-  modules, starting with `profiles.py`
+  internal modules, with the next likely focus being documentation/testing
+  structure or a split of any new workflow module that grows past reviewable
+  size
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
