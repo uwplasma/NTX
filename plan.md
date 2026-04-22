@@ -211,6 +211,33 @@ Current status:
   - publication-ready PNG/PDF plus JSON metrics
   - treated as the current repository-owned uncertainty-propagation stress
     benchmark for the autodiff lane, not yet a parity gate
+- [x] first differentiable robust-design benchmark added:
+  - `examples/bootstrap_current_robust_optimization.py`
+  - deterministic versus robust optimization under a prescribed Gaussian
+    control uncertainty
+  - publication-ready PNG/PDF plus JSON metrics
+  - treated as a tracked robust-design stress benchmark, not a literature-grade
+    parity claim
+
+### Benchmark Maturity And Open Lanes
+
+Research-grade / positive validation surface:
+
+- integrated W7-X transfer gate
+- precise-QS Redl versus archived SFINCS audit
+- derivative audit against centered finite differences
+- prepared derivative benchmark
+
+Tracked stress benchmarks / open lanes:
+
+- fixed-field `NTX+NEOPAX` closure gap
+- primitive-to-force profile reconstruction audit
+- autodiff profile uncertainty benchmark
+- robust bootstrap-current optimization benchmark
+
+These open lanes stay in the repository on purpose. They are useful research
+and methods surfaces, but they should not be promoted to parity or literature
+claims until they are anchored to stronger external baselines.
 - [x] targeted branch-coverage tightening landed on the refactored workflow
   modules without adding a new heavy benchmark lane:
   - `_autodiff_workflows.py` now closes fully in the current fast coverage

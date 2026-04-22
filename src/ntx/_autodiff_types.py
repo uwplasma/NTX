@@ -168,6 +168,60 @@ tree_util.register_dataclass(
 
 
 @dataclass(frozen=True)
+class RobustBootstrapOptimizationResult:
+    scale_history: Array
+    gradient_history: Array
+    objective_history: Array
+    scale_grid: Array
+    deterministic_objective_landscape: Array
+    robust_objective_landscape: Array
+    rho: Array
+    baseline_scale: Array
+    optimized_scale: Array
+    baseline_current_profile: Array
+    optimized_current_profile: Array
+    optimized_current_mean: Array
+    optimized_current_std: Array
+    optimized_current_quantile_low: Array
+    optimized_current_quantile_high: Array
+    harmonic_m: Array
+    harmonic_n: Array
+    harmonic_reference_value: Array
+    nu_value: Array
+    uncertainty_sigma: Array
+    risk_aversion: Array
+
+
+tree_util.register_dataclass(
+    RobustBootstrapOptimizationResult,
+    data_fields=(
+        "scale_history",
+        "gradient_history",
+        "objective_history",
+        "scale_grid",
+        "deterministic_objective_landscape",
+        "robust_objective_landscape",
+        "rho",
+        "baseline_scale",
+        "optimized_scale",
+        "baseline_current_profile",
+        "optimized_current_profile",
+        "optimized_current_mean",
+        "optimized_current_std",
+        "optimized_current_quantile_low",
+        "optimized_current_quantile_high",
+        "harmonic_m",
+        "harmonic_n",
+        "harmonic_reference_value",
+        "nu_value",
+        "uncertainty_sigma",
+        "risk_aversion",
+    ),
+    meta_fields=(),
+)
+
+
+@dataclass(frozen=True)
 class DerivativeAuditResult:
     nu_hat: Array
     er_hat_scan: Array

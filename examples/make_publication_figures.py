@@ -25,6 +25,7 @@ FIGURE_PRESETS = {
         "primitive_transport",
         "derivative_benchmark",
         "science",
+        "robust_science",
         "validation",
         "bootstrap_proxy",
         "w7x_audit",
@@ -50,6 +51,7 @@ FIGURE_PRESETS = {
         "profile_basis",
         "profile_transport",
         "bootstrap_proxy",
+        "robust_science",
         "performance_smoke",
     },
 }
@@ -282,6 +284,21 @@ def main() -> None:
             _manifest_path(output_dir / "bootstrap_current_optimization.png"),
             _manifest_path(output_dir / "bootstrap_current_optimization.pdf"),
             _manifest_path(output_dir / "bootstrap_current_optimization.json"),
+        ]
+
+    if "robust_science" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "bootstrap_current_robust_optimization.py"),
+                "--output-prefix",
+                str(output_dir / "bootstrap_current_robust_optimization"),
+            ]
+        )
+        manifest["robust_science"] = [
+            _manifest_path(output_dir / "bootstrap_current_robust_optimization.png"),
+            _manifest_path(output_dir / "bootstrap_current_robust_optimization.pdf"),
+            _manifest_path(output_dir / "bootstrap_current_robust_optimization.json"),
         ]
 
     if "validation" in selected:

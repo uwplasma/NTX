@@ -180,6 +180,35 @@ differentiable profile map used in inverse-design and profile-control studies.
 
 ![Autodiff profile uncertainty](_static/autodiff_profile_uncertainty.png)
 
+## Robust Bootstrap-Current Optimization
+
+The script:
+
+```bash
+python examples/bootstrap_current_robust_optimization.py
+```
+
+adds a prescribed Gaussian uncertainty on the scalar geometry control used by
+the bootstrap-current proxy optimization and compares:
+
+- the deterministic objective landscape,
+- the robust mean-minus-risk objective,
+- the optimized nominal current profile,
+- and the uncertainty band of that profile under the prescribed control
+  perturbation.
+
+The figure is written to:
+
+```text
+docs/_static/bootstrap_current_robust_optimization.png
+docs/_static/bootstrap_current_robust_optimization.pdf
+docs/_static/bootstrap_current_robust_optimization.json
+```
+
+This is a synthetic robust-design benchmark anchored to the same differentiable
+current-proxy workflow as the main optimization example. It is currently a
+tracked open lane, not a literature-grade validation claim.
+
 ## Parallel Execution
 
 Large scans do not need to stay on one device. NTX currently exposes two

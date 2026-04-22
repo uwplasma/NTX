@@ -92,6 +92,7 @@ Representative test groups:
 - autodiff and optimization helpers:
   - `tests/test_autodiff.py`
   - `tests/test_autodiff_profile_uncertainty_example.py`
+  - `tests/test_bootstrap_current_robust_optimization_example.py`
 - profile workflows:
   - `tests/test_profiles_unit.py`
   - `tests/test_profiles_workflows.py`
