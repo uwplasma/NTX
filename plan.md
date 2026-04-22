@@ -107,7 +107,7 @@ Do not declare this program complete until all of the following are true:
   - `autodiff.py` (`750` lines)
   - `inputfiles.py` (`248` lines after Phase 1 split; parsing/reporting moved to internal modules)
   - `neopax.py` (`199` lines after Phase 1 split; bridge/types/I/O moved to internal modules)
-  - `geometry.py` (`393` lines)
+  - `geometry.py` (`19` lines after Phase 1 split; types/evaluation moved to internal modules)
 - public docstrings and internal comments are inconsistent across the source
   tree, particularly in workflow-heavy files
 - the current test suite mixes:
@@ -169,8 +169,12 @@ Current status:
   - scan dataclasses/constants live in `src/ntx/_neopax_types.py`
   - HDF5/reference-scan I/O lives in `src/ntx/_neopax_io.py`
   - differentiable array/database mapping lives in `src/ntx/_neopax_bridge.py`
+- [x] the third no-behavior-change workflow split is complete:
+  - `geometry.py` now remains the compatibility surface
+  - Boozer/VMEC/geometry dataclasses live in `src/ntx/_geometry_types.py`
+  - Fourier evaluation and grid projection live in `src/ntx/_geometry_eval.py`
 - [ ] next restructuring target should be chosen from the remaining largest
-  modules, starting with `geometry.py` or `autodiff.py`
+  modules, starting with `autodiff.py` or `solver.py`
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
