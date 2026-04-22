@@ -273,7 +273,17 @@ compares linearized covariance propagation against a small Monte Carlo ensemble
 for the differentiable NEOPAX-style profile fit under a prescribed Gaussian
 parameter perturbation.
 
-## 18. Ambipolar Profile
+## 18. Robust Bootstrap-Current Optimization
+
+```bash
+python examples/bootstrap_current_robust_optimization.py
+```
+
+This writes `docs/_static/bootstrap_current_robust_optimization.{png,pdf,json}`
+and compares deterministic versus robust optimization of the scalar
+bootstrap-current proxy under a prescribed Gaussian control uncertainty.
+
+## 19. Ambipolar Profile
 
 ```bash
 python examples/ambipolar_profile.py
@@ -292,7 +302,7 @@ and demonstrates:
 - solving a smooth ambipolar `E_r(r)` profile with radial regularization
 - evaluating the resulting bootstrap-current proxy profile
 
-## 19. Ambipolar Profile Family
+## 20. Ambipolar Profile Family
 
 ```bash
 python examples/ambipolar_profile_family.py

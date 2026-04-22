@@ -10,7 +10,9 @@ from ntx import (
     BootstrapOptimizationResult,
     DerivativeAuditResult,
     GridSpec,
+    RobustBootstrapOptimizationResult,
     example_bootstrap_current_optimization,
+    example_bootstrap_current_robust_optimization,
     example_derivative_audit,
     example_inverse_problem,
     example_neopax_profile_autodiff,
@@ -164,6 +166,33 @@ def test_bootstrap_current_optimization_improves_weighted_objective():
     assert float(result.objective_history[-1]) >= float(result.objective_history[0])
     assert not jnp.isclose(result.optimized_scale, result.baseline_scale)
     assert jnp.all(jnp.isfinite(result.optimized_current_profile))
+
+
+def test_bootstrap_current_robust_optimization_improves_robust_objective():
+    scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
+    surfaces = tuple(
+        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        for rho_value in scan.rho
+    )
+    result = example_bootstrap_current_robust_optimization(
+        surfaces,
+        rho=scan.rho,
+        nu_v=scan.nu_v,
+        Es=scan.Es,
+        Er=scan.Er,
+        drds=scan.drds,
+        grid=GridSpec(5, 5, 4),
+        steps=10,
+        learning_rate=1.0,
+        regularization=1.0,
+        uncertainty_sigma=0.05,
+        risk_aversion=0.3,
+    )
+    assert isinstance(result, RobustBootstrapOptimizationResult)
+    assert float(result.objective_history[-1]) >= float(result.objective_history[0])
+    assert not jnp.isclose(result.optimized_scale, result.baseline_scale)
+    assert jnp.all(jnp.isfinite(result.optimized_current_std))
+    assert jnp.all(result.optimized_current_std >= 0.0)
 
 
 def test_derivative_audit_matches_finite_difference():
