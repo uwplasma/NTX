@@ -7,7 +7,7 @@ tree.
 
 | Topic | Main file | Key functions / classes |
 | --- | --- | --- |
-| Surface dataclasses and geometry evaluation | `src/ntx/geometry.py` | `BoozerSurface`, `VmecSurface`, `GeometryOnGrid`, `geometry_on_grid(...)` |
+| Surface dataclasses and geometry evaluation | `src/ntx/geometry.py`, `src/ntx/_geometry_types.py`, `src/ntx/_geometry_eval.py` | `BoozerSurface`, `VmecSurface`, `GeometryOnGrid`, `geometry_on_grid(...)` |
 | Angular grids and Fourier differentiation | `src/ntx/grids.py` | `GridSpec`, `periodic_grid(...)`, `fourier_derivative_matrix(...)` |
 | Legendre-space operator coefficients | `src/ntx/operators.py` | `OperatorContext`, `coefficients_for_k(...)`, `operator_blocks(...)`, `source_modes(...)` |
 | Dense block solve and scans | `src/ntx/solver.py` | `MonoenergeticCase`, `TransportResult`, `solve_monoenergetic(...)`, `_solve_modes(...)`, `solve_prepared_coefficient_vector_vjp(...)` |
