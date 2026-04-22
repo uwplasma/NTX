@@ -12,7 +12,7 @@ tree.
 | Legendre-space operator coefficients | `src/ntx/operators.py` | `OperatorContext`, `coefficients_for_k(...)`, `operator_blocks(...)`, `source_modes(...)` |
 | Dense block solve and scans | `src/ntx/solver.py` | `MonoenergeticCase`, `TransportResult`, `solve_monoenergetic(...)`, `_solve_modes(...)`, `solve_prepared_coefficient_vector_vjp(...)` |
 | Transport post-processing | `src/ntx/transport.py` | `coefficients_from_modes(...)`, `onsager_error(...)` |
-| CLI/TOML workflow | `src/ntx/inputfiles.py`, `src/ntx/cli.py` | `load_run_config(...)`, `run_from_input_file(...)`, `save_run_npz(...)` |
+| CLI/TOML workflow | `src/ntx/inputfiles.py`, `src/ntx/_inputfiles_model.py`, `src/ntx/_inputfiles_reporting.py`, `src/ntx/cli.py` | `load_run_config(...)`, `run_from_input_file(...)`, `save_run_npz(...)` |
 | VMEC loading | `src/ntx/vmec.py` | `load_vmec_surface(...)` |
 | Boozer file loading | `src/ntx/booz.py` | Boozer harmonic file loaders |
 | NEOPAX coupling | `src/ntx/neopax.py` | `build_ntx_neopax_scan(...)`, `scan_to_neopax_arrays(...)`, `write_neopax_scan_hdf5(...)` |
