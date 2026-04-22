@@ -11,11 +11,13 @@ from ._autodiff_types import (
     DerivativeAuditResult,
     InverseProblemResult,
     NeopaxProfileAutodiffResult,
+    NeopaxProfileUncertaintyResult,
 )
 from ._autodiff_workflows import (
     example_bootstrap_current_optimization,
     example_derivative_audit,
     example_inverse_problem,
+    example_neopax_profile_uncertainty,
 )
 from ._autodiff_workflows import (
     example_neopax_profile_autodiff as _example_neopax_profile_autodiff,
@@ -27,10 +29,12 @@ __all__ = [
     "DerivativeAuditResult",
     "InverseProblemResult",
     "NeopaxProfileAutodiffResult",
+    "NeopaxProfileUncertaintyResult",
     "example_bootstrap_current_optimization",
     "example_derivative_audit",
     "example_inverse_problem",
     "example_neopax_profile_autodiff",
+    "example_neopax_profile_uncertainty",
     "_maybe_import_neopax",
 ]
 

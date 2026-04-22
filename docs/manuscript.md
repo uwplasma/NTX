@@ -18,14 +18,15 @@ examples.
 
 1. `autodiff_inverse_problem.{png,pdf}`
 2. `autodiff_neopax_profiles.{png,pdf}`
-3. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-4. `performance_scaling_smoke.{png,pdf}`
-5. `ambipolar_profile.{png,pdf}`
-6. `ambipolar_profile_family.{png,pdf}`
-7. `profile_force_reconstruction_audit.{png,pdf,json}`
-8. `profile_control_optimization.{png,pdf}`
-9. `profile_basis_optimization.{png,pdf}`
-10. `profile_transport_loop.{png,pdf}`
+3. `autodiff_profile_uncertainty.{png,pdf,json}`
+4. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+5. `performance_scaling_smoke.{png,pdf}`
+6. `ambipolar_profile.{png,pdf}`
+7. `ambipolar_profile_family.{png,pdf}`
+8. `profile_force_reconstruction_audit.{png,pdf,json}`
+9. `profile_control_optimization.{png,pdf}`
+10. `profile_basis_optimization.{png,pdf}`
+11. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -37,32 +38,36 @@ examples.
    - inverse recovery of a surface harmonic from synthetic transport data
 3. `autodiff_neopax_profiles.{png,pdf}`
    - autodiff-based profile inversion on NEOPAX-style arrays
-4. `derivative_path_benchmark.{png,pdf}`
+4. `autodiff_profile_uncertainty.{png,pdf,json}`
+   - linearized versus Monte Carlo uncertainty propagation on the same
+     differentiable profile fit under a prescribed Gaussian parameter
+     perturbation
+5. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-5. `bootstrap_current_optimization.{png,pdf}`
+6. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-6. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+7. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-7. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+8. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-8. `performance_scaling_smoke.{png,pdf}`
+9. `performance_scaling_smoke.{png,pdf}`
    - CPU/GPU scaling on the repository smoke grid
-9. `performance_scaling_heavy.{png,pdf}`
+10. `performance_scaling_heavy.{png,pdf}`
    - heavier-grid scaling where throughput effects are visible
-10. `ambipolar_profile.{png,pdf}`
+11. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-11. `ambipolar_profile_family.{png,pdf}`
+12. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-12. `profile_force_reconstruction_audit.{png,pdf,json}`
+13. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-13. `profile_control_optimization.{png,pdf}`
+14. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-14. `profile_basis_optimization.{png,pdf}`
+15. `profile_basis_optimization.{png,pdf}`
    - low-dimensional radial-basis optimization of the same profile closure
-15. `profile_transport_loop.{png,pdf}`
+16. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-16. `primitive_profile_transport.{png,pdf}`
+17. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
@@ -70,6 +75,7 @@ Together these figures cover:
 - formulation and numerical behavior
 - validation and convergence
 - differentiable inverse and profile problems
+- differentiable uncertainty propagation on the same profile map
 - derivative cost for prepared optimization workflows
 - a science-facing bootstrap-current optimization workflow
 - a pure NTX radial-profile figure

@@ -74,6 +74,46 @@ tree_util.register_dataclass(
 
 
 @dataclass(frozen=True)
+class NeopaxProfileUncertaintyResult:
+    rho: Array
+    fitted_er_profile: Array
+    fitted_d33_profile: Array
+    target_d33_profile: Array
+    sensitivity_matrix: Array
+    parameter_covariance: Array
+    parameter_std: Array
+    parameter_correlation: Array
+    linearized_d33_std: Array
+    monte_carlo_d33_mean: Array
+    monte_carlo_d33_std: Array
+    monte_carlo_d33_quantile_low: Array
+    monte_carlo_d33_quantile_high: Array
+    sample_count: Array
+
+
+tree_util.register_dataclass(
+    NeopaxProfileUncertaintyResult,
+    data_fields=(
+        "rho",
+        "fitted_er_profile",
+        "fitted_d33_profile",
+        "target_d33_profile",
+        "sensitivity_matrix",
+        "parameter_covariance",
+        "parameter_std",
+        "parameter_correlation",
+        "linearized_d33_std",
+        "monte_carlo_d33_mean",
+        "monte_carlo_d33_std",
+        "monte_carlo_d33_quantile_low",
+        "monte_carlo_d33_quantile_high",
+        "sample_count",
+    ),
+    meta_fields=(),
+)
+
+
+@dataclass(frozen=True)
 class BootstrapOptimizationResult:
     scale_history: Array
     gradient_history: Array

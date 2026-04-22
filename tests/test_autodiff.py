@@ -14,6 +14,7 @@ from ntx import (
     example_derivative_audit,
     example_inverse_problem,
     example_neopax_profile_autodiff,
+    example_neopax_profile_uncertainty,
     load_neopax_reference_scan,
     surface_from_vmec_jax_vmec_wout_file,
 )
@@ -64,6 +65,41 @@ def test_neopax_profile_autodiff_reduces_profile_misfit():
     assert float(result.loss_history[-1]) < float(result.loss_history[0])
     assert result.sensitivity_matrix.shape[1] == 2
     assert jnp.all(jnp.isfinite(result.fitted_d33_profile))
+
+
+def test_neopax_profile_uncertainty_matches_linearized_and_monte_carlo_scales():
+    scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
+    surfaces = tuple(
+        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        for rho_value in scan.rho
+    )
+    result = example_neopax_profile_uncertainty(
+        surfaces,
+        rho=scan.rho,
+        nu_v=scan.nu_v,
+        Es=scan.Es,
+        Er=scan.Er,
+        drds=scan.drds,
+        grid=GridSpec(5, 5, 4),
+        steps=12,
+        learning_rate=0.2,
+        monte_carlo_samples=32,
+        random_seed=7,
+    )
+    assert result.parameter_covariance.shape == (2, 2)
+    assert jnp.all(jnp.isfinite(result.monte_carlo_d33_std))
+    assert jnp.all(result.monte_carlo_d33_std > 0.0)
+    relative_std_mismatch = jnp.max(
+        jnp.abs(result.linearized_d33_std - result.monte_carlo_d33_std)
+        / jnp.maximum(result.monte_carlo_d33_std, 1e-30)
+    )
+    mean_shift = jnp.max(
+        jnp.abs(result.monte_carlo_d33_mean - result.fitted_d33_profile)
+        / jnp.maximum(jnp.abs(result.fitted_d33_profile), 1e-30)
+    )
+    assert relative_std_mismatch < 1.05
+    assert mean_shift < 1e-10
+    assert jnp.allclose(jnp.diag(result.parameter_correlation), 1.0)
 
 
 def test_neopax_profile_autodiff_optional_import_paths():

@@ -91,6 +91,7 @@ Representative test groups:
   - `tests/test_neopax_arrays.py`
 - autodiff and optimization helpers:
   - `tests/test_autodiff.py`
+  - `tests/test_autodiff_profile_uncertainty_example.py`
 - profile workflows:
   - `tests/test_profiles_unit.py`
   - `tests/test_profiles_workflows.py`

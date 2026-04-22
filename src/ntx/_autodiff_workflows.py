@@ -15,6 +15,7 @@ from ._autodiff_types import (
     DerivativeAuditResult,
     InverseProblemResult,
     NeopaxProfileAutodiffResult,
+    NeopaxProfileUncertaintyResult,
 )
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
@@ -310,6 +311,112 @@ def example_derivative_audit(
         finite_difference_d11_der=finite_difference_d11_der,
         autodiff_d33_der=autodiff_d33_der,
         finite_difference_d33_der=finite_difference_d33_der,
+    )
+
+
+def example_neopax_profile_uncertainty(
+    surfaces: tuple,
+    *,
+    rho: Array,
+    nu_v: Array,
+    Es: Array,
+    Er: Array,
+    drds: Array,
+    grid: GridSpec,
+    a_b: float = 1.0,
+    nu_index: int = 1,
+    learning_rate: float = 0.25,
+    steps: int = 32,
+    parameter_std: Array | None = None,
+    parameter_correlation: float = -0.35,
+    monte_carlo_samples: int = 64,
+    random_seed: int = 0,
+) -> NeopaxProfileUncertaintyResult:
+    """Compare linearized covariance propagation against Monte Carlo on a profile fit."""
+
+    fit = example_neopax_profile_autodiff(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Es=Es,
+        Er=Er,
+        drds=drds,
+        grid=grid,
+        a_b=a_b,
+        nu_index=nu_index,
+        learning_rate=learning_rate,
+        steps=steps,
+    )
+    scan = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=jnp.asarray(rho),
+        nu_v=jnp.asarray(nu_v),
+        Es=jnp.asarray(Es),
+        Er=jnp.asarray(Er),
+        drds=jnp.asarray(drds),
+        grid=grid,
+        source_name="autodiff_profile_uncertainty",
+    )
+    arrays = scan_to_neopax_arrays(scan, a_b=a_b)
+    rho_grid = jnp.asarray(arrays.rho)
+    nu_value = 10.0 ** arrays.nu_log[nu_index]
+
+    params = fit.parameter_history[-1]
+    parameter_std = (
+        jnp.asarray([5.0e-5, 2.0e-5], dtype=rho_grid.dtype)
+        if parameter_std is None
+        else jnp.asarray(parameter_std, dtype=rho_grid.dtype)
+    )
+    parameter_covariance = jnp.diag(parameter_std**2)
+    correlation_entry = parameter_correlation * parameter_std[0] * parameter_std[1]
+    parameter_covariance = parameter_covariance.at[0, 1].set(correlation_entry)
+    parameter_covariance = parameter_covariance.at[1, 0].set(correlation_entry)
+    parameter_correlation_matrix = parameter_covariance / (
+        parameter_std[:, None] * parameter_std[None, :]
+    )
+    linearized_profile_covariance = (
+        fit.sensitivity_matrix @ parameter_covariance @ fit.sensitivity_matrix.T
+    )
+    linearized_d33_std = jnp.sqrt(jnp.maximum(jnp.diag(linearized_profile_covariance), 0.0))
+
+    key = jax.random.PRNGKey(random_seed)
+    standard_draws = jax.random.normal(
+        key,
+        shape=(monte_carlo_samples, parameter_covariance.shape[0]),
+        dtype=rho_grid.dtype,
+    )
+    parameter_cholesky = jnp.linalg.cholesky(
+        parameter_covariance
+        + 1.0e-20 * jnp.eye(parameter_covariance.shape[0], dtype=rho_grid.dtype)
+    )
+    parameter_samples = params + standard_draws @ parameter_cholesky.T
+    monte_carlo_d33 = jax.vmap(
+        lambda sample: _evaluate_d33_profile(
+            arrays,
+            rho_grid,
+            nu_value,
+            _er_profile(rho_grid, sample),
+        )
+    )(parameter_samples)
+    monte_carlo_d33_mean = jnp.mean(monte_carlo_d33, axis=0)
+    monte_carlo_d33_std = jnp.std(monte_carlo_d33, axis=0, ddof=1)
+    monte_carlo_d33_quantile_low = jnp.quantile(monte_carlo_d33, 0.16, axis=0)
+    monte_carlo_d33_quantile_high = jnp.quantile(monte_carlo_d33, 0.84, axis=0)
+    return NeopaxProfileUncertaintyResult(
+        rho=rho_grid,
+        fitted_er_profile=fit.fitted_er_profile,
+        fitted_d33_profile=fit.fitted_d33_profile,
+        target_d33_profile=fit.target_d33_profile,
+        sensitivity_matrix=fit.sensitivity_matrix,
+        parameter_covariance=parameter_covariance,
+        parameter_std=parameter_std,
+        parameter_correlation=parameter_correlation_matrix,
+        linearized_d33_std=linearized_d33_std,
+        monte_carlo_d33_mean=monte_carlo_d33_mean,
+        monte_carlo_d33_std=monte_carlo_d33_std,
+        monte_carlo_d33_quantile_low=monte_carlo_d33_quantile_low,
+        monte_carlo_d33_quantile_high=monte_carlo_d33_quantile_high,
+        sample_count=jnp.asarray(monte_carlo_samples),
     )
 
 
