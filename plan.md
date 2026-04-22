@@ -103,7 +103,7 @@ Do not declare this program complete until all of the following are true:
   measured baseline is not yet treated as the primary acceptance gate
 - several core modules remain too large for stable review and targeted testing:
   - `profiles.py` (`1556` lines)
-  - `solver.py` (`976` lines)
+  - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)
   - `autodiff.py` (`79` lines after Phase 1 split; types/workflows moved to internal modules)
   - `inputfiles.py` (`248` lines after Phase 1 split; parsing/reporting moved to internal modules)
   - `neopax.py` (`199` lines after Phase 1 split; bridge/types/I/O moved to internal modules)
@@ -178,8 +178,13 @@ Current status:
   - result dataclasses live in `src/ntx/_autodiff_types.py`
   - inverse/profile/derivative/optimization workflows live in
     `src/ntx/_autodiff_workflows.py`
+- [x] the fifth no-behavior-change workflow split is complete:
+  - `solver.py` now remains the compatibility surface
+  - case/result/prepared-system types live in `src/ntx/_solver_types.py`
+  - prepared solve and custom-VJP core live in `src/ntx/_solver_core.py`
+  - scan/device helpers live in `src/ntx/_solver_scan.py`
 - [ ] next restructuring target should be chosen from the remaining largest
-  modules, starting with `solver.py` or `profiles.py`
+  modules, starting with `profiles.py`
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
