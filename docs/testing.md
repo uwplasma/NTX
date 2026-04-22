@@ -7,6 +7,27 @@ NTX is validated at four levels:
 3. imported-workflow tests for autodiff, NEOPAX, and JAX geometry backends
 4. CPU/GPU runtime and smoke checks
 
+The repository now treats these as separate execution lanes, not one monolithic
+developer loop:
+
+- fast PR lane:
+  - lint
+  - type checking
+  - core unit tests
+  - selected integration/example tests
+  - docs build
+- benchmark lane:
+  - literature reproductions
+  - long-running fixed-field and W7-X audits
+  - scaling/profiling studies
+- hardware lane:
+  - GPU smoke
+  - office workstation profiling
+
+This split is intentional. It keeps pull-request feedback fast while still
+tracking literature-grade validation and throughput studies in reproducible
+scripts.
+
 The physics-facing gate structure is documented separately in
 [`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
 meant to enforce that gate hierarchy, not to replace it.
@@ -23,6 +44,16 @@ Coverage:
 
 ```bash
 python -m pytest --cov=src/ntx --cov-report=term-missing -q
+```
+
+Module-wise coverage summary from a `coverage json` file:
+
+```bash
+coverage json -o coverage.json
+python scripts/build_coverage_report.py \
+  --json-input coverage.json \
+  --json-output coverage-report.json \
+  --text-output coverage-report.txt
 ```
 
 Lint and type-check:
@@ -60,10 +91,31 @@ Representative test groups:
   - `tests/test_neopax_arrays.py`
 - autodiff and optimization helpers:
   - `tests/test_autodiff.py`
+- coverage and validation summaries:
+  - `tests/test_build_coverage_report_script.py`
+  - `tests/test_physics_gates.py`
 - example and figure scripts:
   - `tests/test_make_publication_figures.py`
   - `tests/test_validation_summary_example.py`
   - `tests/test_bootstrap_current_optimization_example.py`
+
+## CI Coverage
+
+The GitHub Actions `tests` workflow now combines coverage across the 3.11 test
+shards and publishes:
+
+- raw `.coverage` data
+- `coverage.json`
+- `coverage-report.json`
+- `coverage-report.txt`
+
+The coverage report is intended to answer two different questions:
+
+1. what the current repository-owned line coverage actually is by module,
+2. which large files need restructuring or additional tests first.
+
+It should not be interpreted as a physics-validation substitute. Physics gates
+and literature benchmarks remain separate acceptance surfaces.
 
 ## GPU Validation
 

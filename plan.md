@@ -1271,3 +1271,11 @@ templates:
         differentiable bootstrap-current optimization example)
       - the bridge now avoids Python `bool`/`int` conversions on traced JAX
         arrays, and a regression test covers the traced VMEC-surface path
+    - hardening-program phase 0 is now underway:
+      - CI is being switched from a static coverage claim to measured,
+        shard-combined coverage artifacts
+      - the testing docs now distinguish fast PR, benchmark, and hardware
+        lanes explicitly
+      - the next implementation step after this instrumentation is to use the
+        module-wise coverage report to choose the first no-behavior-change file
+        splits in `solver.py`, `profiles.py`, and `autodiff.py`
