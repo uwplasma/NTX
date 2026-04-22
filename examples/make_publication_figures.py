@@ -17,6 +17,7 @@ FIGURE_PRESETS = {
         "profiles",
         "ambipolar",
         "ambipolar_family",
+        "profile_reconstruction",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -42,6 +43,7 @@ FIGURE_PRESETS = {
         "profiles",
         "ambipolar",
         "ambipolar_family",
+        "profile_reconstruction",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -155,6 +157,19 @@ def main() -> None:
             _manifest_path(output_dir / "ambipolar_profile_family.png"),
             _manifest_path(output_dir / "ambipolar_profile_family.pdf"),
         ]
+
+    if "profile_reconstruction" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "profile_force_reconstruction_audit.py"),
+            ]
+        )
+        manifest["profile_reconstruction"] = _copy_existing_static(
+            "profile_force_reconstruction_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
 
     if "profile_control" in selected:
         _run(

@@ -574,6 +574,41 @@ and shows:
 
 ![Primitive profile transport](_static/primitive_profile_transport.png)
 
+## Literature-Anchored Primitive-To-Force Audit
+
+The repository also includes a benchmark-family audit for the primitive profile
+reconstruction itself:
+
+```bash
+python examples/profile_force_reconstruction_audit.py
+```
+
+This writes:
+
+```text
+docs/_static/profile_force_reconstruction_audit.png
+docs/_static/profile_force_reconstruction_audit.pdf
+docs/_static/profile_force_reconstruction_audit.json
+```
+
+It compares the reconstructed
+
+```{math}
+A_3 = \partial_\rho \ln T,
+\qquad
+A_1 = \partial_\rho \ln n - \tfrac32 \partial_\rho \ln T + Z \alpha \hat E_r
+```
+
+profiles against the exact derivatives implied by the archived precise-QS QA/QH
+profile family. This is the first literature-anchored validation surface for
+the imported primitive-profile workflow itself, but it should be read as a
+coarse benchmark-family stress test for the current reconstruction scheme, not
+as a parity gate. It is still the right figure to carry into the paper when
+discussing how NTX reconstructs monoenergetic force profiles from archived
+benchmark inputs.
+
+![Primitive-to-force reconstruction audit](_static/profile_force_reconstruction_audit.png)
+
 ## Source-Code Map
 
 - scan construction: [`src/ntx/neopax.py`](../src/ntx/neopax.py)

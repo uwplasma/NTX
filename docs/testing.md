@@ -144,6 +144,9 @@ The repository therefore keeps:
 - direct W7-X bootstrap-current convergence audits
 - optional NEOPAX-coupled checks
 - optional SFINCS-JAX-based consistency studies when that package is available
+- profile-workflow regression tests split into:
+  - fast unit/workflow tests
+  - artifact-backed benchmark-family audits
 
 These comparisons are used as trust-building validation, not as the definition
 of NTX itself.
