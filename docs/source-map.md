@@ -15,7 +15,7 @@ tree.
 | CLI/TOML workflow | `src/ntx/inputfiles.py`, `src/ntx/_inputfiles_model.py`, `src/ntx/_inputfiles_reporting.py`, `src/ntx/cli.py` | `load_run_config(...)`, `run_from_input_file(...)`, `save_run_npz(...)` |
 | VMEC loading | `src/ntx/vmec.py` | `load_vmec_surface(...)` |
 | Boozer file loading | `src/ntx/booz.py` | Boozer harmonic file loaders |
-| NEOPAX coupling | `src/ntx/neopax.py` | `build_ntx_neopax_scan(...)`, `scan_to_neopax_arrays(...)`, `write_neopax_scan_hdf5(...)` |
+| NEOPAX coupling | `src/ntx/neopax.py`, `src/ntx/_neopax_types.py`, `src/ntx/_neopax_io.py`, `src/ntx/_neopax_bridge.py` | `build_ntx_neopax_scan(...)`, `scan_to_neopax_arrays(...)`, `write_neopax_scan_hdf5(...)` |
 | Profile-grade imported workflows | `src/ntx/profiles.py` | species-profile closures, ambipolar `E_r(r)` solve, bootstrap-current proxy |
 | Throughput-oriented multi-device execution | `src/ntx/parallel.py` | `solve_monoenergetic_multiprocess_scan(...)` |
 | Autodiff examples and optimization helpers | `src/ntx/autodiff.py` | inverse, sensitivity, and bootstrap-current optimization helpers |

@@ -106,7 +106,7 @@ Do not declare this program complete until all of the following are true:
   - `solver.py` (`976` lines)
   - `autodiff.py` (`750` lines)
   - `inputfiles.py` (`248` lines after Phase 1 split; parsing/reporting moved to internal modules)
-  - `neopax.py` (`562` lines)
+  - `neopax.py` (`199` lines after Phase 1 split; bridge/types/I/O moved to internal modules)
   - `geometry.py` (`393` lines)
 - public docstrings and internal comments are inconsistent across the source
   tree, particularly in workflow-heavy files
@@ -164,8 +164,13 @@ Current status:
   - TOML parsing and config dataclasses live in `src/ntx/_inputfiles_model.py`
   - Rich tables and metadata/source helpers live in
     `src/ntx/_inputfiles_reporting.py`
-- [ ] next restructuring targets should be chosen from the remaining largest
-  modules, starting with `neopax.py` or `geometry.py`
+- [x] the second no-behavior-change workflow split is complete:
+  - `neopax.py` now remains the compatibility surface and scan builder
+  - scan dataclasses/constants live in `src/ntx/_neopax_types.py`
+  - HDF5/reference-scan I/O lives in `src/ntx/_neopax_io.py`
+  - differentiable array/database mapping lives in `src/ntx/_neopax_bridge.py`
+- [ ] next restructuring target should be chosen from the remaining largest
+  modules, starting with `geometry.py` or `autodiff.py`
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
