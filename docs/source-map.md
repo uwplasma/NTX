@@ -10,7 +10,7 @@ tree.
 | Surface dataclasses and geometry evaluation | `src/ntx/geometry.py`, `src/ntx/_geometry_types.py`, `src/ntx/_geometry_eval.py` | `BoozerSurface`, `VmecSurface`, `GeometryOnGrid`, `geometry_on_grid(...)` |
 | Angular grids and Fourier differentiation | `src/ntx/grids.py` | `GridSpec`, `periodic_grid(...)`, `fourier_derivative_matrix(...)` |
 | Legendre-space operator coefficients | `src/ntx/operators.py` | `OperatorContext`, `coefficients_for_k(...)`, `operator_blocks(...)`, `source_modes(...)` |
-| Dense block solve and scans | `src/ntx/solver.py` | `MonoenergeticCase`, `TransportResult`, `solve_monoenergetic(...)`, `_solve_modes(...)`, `solve_prepared_coefficient_vector_vjp(...)` |
+| Dense block solve and scans | `src/ntx/solver.py`, `src/ntx/_solver_types.py`, `src/ntx/_solver_core.py`, `src/ntx/_solver_scan.py` | `MonoenergeticCase`, `TransportResult`, `solve_monoenergetic(...)`, `_solve_modes(...)`, `solve_prepared_coefficient_vector_vjp(...)` |
 | Transport post-processing | `src/ntx/transport.py` | `coefficients_from_modes(...)`, `onsager_error(...)` |
 | CLI/TOML workflow | `src/ntx/inputfiles.py`, `src/ntx/_inputfiles_model.py`, `src/ntx/_inputfiles_reporting.py`, `src/ntx/cli.py` | `load_run_config(...)`, `run_from_input_file(...)`, `save_run_npz(...)` |
 | VMEC loading | `src/ntx/vmec.py` | `load_vmec_surface(...)` |
