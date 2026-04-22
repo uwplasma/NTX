@@ -65,6 +65,426 @@ research problems.
 - [x] shift near-term work toward CI speed, packaging, manuscript clarity, and
   reproducibility rather than new closure-model physics
 
+## 2026 Hardening Program
+
+This is the next concrete code program. It is scoped to keep NTX scientifically
+defensible while making the source tree easier to maintain, easier to test, and
+stronger for differentiable research workflows.
+
+### Exit Criteria
+
+Do not declare this program complete until all of the following are true:
+
+1. repository-owned line coverage for `src/ntx` is measured in CI and is
+   `>= 95%`, with module floors so the headline number cannot hide weak files:
+   - `solver.py`, `profiles.py`, `autodiff.py`, `neopax.py`, `inputfiles.py`,
+     and `geometry.py` equivalent modules must each be `>= 90%`
+   - new or refactored modules should target `>= 95%`
+2. fast pull-request CI stays within roughly `5-10` minutes while preserving
+   the same solver/workflow quality gates
+3. all literature-anchored benchmark families below are reproducible from
+   version-controlled scripts and committed artifacts
+4. autodiff workflows are validated for:
+   - local sensitivities
+   - inverse-design recovery
+   - uncertainty propagation
+   - optimization loops
+5. the public documentation explains:
+   - the source-tree structure
+   - the testing pyramid
+   - the benchmark hierarchy
+   - the physics-gate interpretation
+6. the manuscript figure set is generated directly from the benchmark/test
+   scripts tracked in the repository
+
+### Current Gaps To Close
+
+- coverage is discussed in docs and even surfaced in the README badge, but the
+  measured baseline is not yet treated as the primary acceptance gate
+- several core modules remain too large for stable review and targeted testing:
+  - `profiles.py` (`1556` lines)
+  - `solver.py` (`976` lines)
+  - `autodiff.py` (`750` lines)
+  - `inputfiles.py` (`614` lines)
+  - `neopax.py` (`562` lines)
+  - `geometry.py` (`393` lines)
+- public docstrings and internal comments are inconsistent across the source
+  tree, particularly in workflow-heavy files
+- the current test suite mixes:
+  - unit tests,
+  - example smoke/regression tests,
+  - literature benchmark tests,
+  - and long-running research audits
+  in a way that makes coverage measurement too expensive for the default
+  developer loop
+- the benchmark hierarchy is scientifically sound, but it needs a stronger
+  mapping from each literature figure and code-comparison result to:
+  - a script,
+  - a test,
+  - an artifact,
+  - and a manuscript figure
+
+### Phase 0: Baseline And Instrumentation
+
+1. Replace the static coverage badge workflow with measured coverage artifacts.
+2. Split test execution into three lanes:
+   - fast PR lane:
+     - unit tests
+     - cheap regressions
+     - packaging
+     - docs
+     - selected CPU-only examples
+   - benchmark lane:
+     - literature reproductions
+     - long-running fixed-field / W7-X audits
+     - scaling and profiling studies
+   - optional hardware lane:
+     - GPU smoke
+     - office workstation profiling
+3. Generate and commit a machine-readable coverage summary by module.
+4. Track run time and memory for:
+   - `pytest`
+   - docs build
+   - benchmark scripts
+   so regressions in developer velocity are visible.
+
+Acceptance gates for this phase:
+
+- CI publishes measured coverage, not a static claim
+- PR lane remains within the current runtime budget
+- benchmark lane can be run locally and in scheduled/manual CI without
+  affecting PR speed
+
+### Phase 1: Source-Tree Restructuring Without Physics Changes
+
+Refactor for maintainability first. Do not mix new physics with file splitting.
+
+Target package structure:
+
+- `src/ntx/core/`
+  - solver assembly
+  - prepared solve
+  - scans
+  - transport post-processing
+- `src/ntx/geometry/`
+  - dataclasses
+  - Fourier evaluation
+  - Boozer loaders
+  - VMEC loaders
+  - radial-coordinate helpers
+- `src/ntx/workflows/`
+  - autodiff
+  - optimization
+  - uncertainty
+  - profiles
+  - NEOPAX coupling
+- `src/ntx/io/`
+  - TOML parsing
+  - NPZ/HDF5 writers
+  - CLI-facing config normalization
+- `src/ntx/validation/`
+  - physics-gate registry
+  - artifact readers
+  - benchmark summaries
+
+Concrete file splits to prioritize:
+
+1. `solver.py`
+   - case types
+   - operator assembly entry points
+   - prepared solve
+   - scan helpers
+   - custom-VJP / implicit-adjoint path
+2. `profiles.py`
+   - ambipolar root finding
+   - profile parameterizations
+   - profile transport loop
+   - profile optimization helpers
+   - bootstrap-current proxy / reporting
+3. `autodiff.py`
+   - local sensitivity helpers
+   - inverse problem examples
+   - optimization objectives
+   - uncertainty propagation helpers
+4. `inputfiles.py`
+   - schema and defaults
+   - parsing / validation
+   - runtime dispatch
+5. `neopax.py`
+   - scan builder
+   - array mapping
+   - HDF5 I/O
+   - benchmark-specific helpers
+6. `geometry.py`
+   - common surface dataclasses
+   - Fourier/Boozer evaluation
+   - VMEC mapping
+   - grid projection
+
+Rules for this phase:
+
+- preserve public API via compatibility re-exports in `ntx.__init__`
+- functionality unchanged except for bug fixes directly exposed by new tests
+- add docstrings to all public functions/classes touched
+- add short orienting comments only around non-obvious physics or linear
+  algebra blocks
+
+### Phase 2: Test Pyramid And Coverage Program
+
+#### A. Unit Tests
+
+Target:
+
+- every pure function and dataclass validator in core modules gets direct tests
+- every normalization/helper branch gets an explicit test
+- every public API function gets at least one success-path and one failure-path
+  test
+
+Required unit-test groups:
+
+1. geometry and coordinates
+   - Boozer Fourier evaluation
+   - VMEC radial mapping
+   - Jacobian and drift source terms
+2. operator assembly
+   - Legendre block structure
+   - nullspace enforcement
+   - electric-field normalization
+3. solver
+   - direct vs prepared solve equality
+   - scan batching equivalence
+   - CPU vs multiprocess equivalence on owned fixtures
+4. transport post-processing
+   - `D11`, `D13`, `D31`, `D33`, `D33_spitzer`
+   - Onsager residual
+5. I/O and CLI
+   - config parsing
+   - schema failures
+   - output-file integrity
+6. workflow helpers
+   - profile interpolants
+   - NEOPAX array mapping
+   - autodiff helper argument validation
+
+#### B. Regression Tests
+
+Target:
+
+- lock down every repository-owned example and every committed manuscript
+  artifact through JSON/NPZ summaries rather than brittle full-image diffs
+
+Required regression surfaces:
+
+- example outputs
+- validation summaries
+- benchmark manifests
+- physics gate report
+- bootstrap-current and profile example JSON summaries
+
+#### C. Physics And Literature Anchored Tests
+
+These are the non-negotiable science tests.
+
+1. Escoto / 2024 monoenergetic convergence and benchmarking
+   - reproduce the convergence studies for:
+     - W7-X EIM
+     - W7-X KJM
+     - CIEMAT-QI
+   - reproduce benchmark families for:
+     - `D11`
+     - `D31`
+     - `D33`
+   - include zero and finite `E_r` cases where the paper does
+   - carry the DKES normalization appendix logic as explicit tests
+2. precise-QS bootstrap-current benchmark from Landreman et al. 2022
+   - fixed-field QA and QH current-profile comparison
+   - Redl vs archived SFINCS gate
+   - `NTX+NEOPAX` documented stress-test metric
+   - quasi-symmetry-specific `E_r` sensitivity check on the fixed-field family
+3. integrated W7-X workflow transfer
+   - rebuilt raw-branch database gate
+   - resolution ladder
+   - exact loader normalization regression
+4. solver-side identities from the monoenergetic literature
+   - Onsager symmetry
+   - stellarator-symmetry relation for the low-order coefficients where
+     applicable
+   - exact generated `P=2` Sonine/Hankel recovery of the current closure
+
+#### D. Autodiff, JAX, And Optimization Tests
+
+Required gates:
+
+1. local sensitivities
+   - direct autodiff vs centred finite differences
+   - prepared implicit-adjoint vs direct reverse mode
+   - Jacobian consistency under `jit` and batched execution
+2. inverse design
+   - recover known synthetic geometry or profile parameters from generated
+     target coefficients
+   - verify optimizer convergence and parameter recovery tolerance
+3. uncertainty quantification
+   - linearized covariance propagation using Jacobians
+   - compare linearized uncertainty bands against small Monte Carlo ensembles on
+     low-dimensional examples
+   - verify Fisher / Hessian-vector products against finite-difference probes
+4. stellarator optimization
+   - bootstrap-current optimization example remains monotone under fixed seed
+   - profile-control optimization improves the frozen objective
+   - basis-control optimization remains stable under autodiff and `jit`
+
+### Phase 3: Literature Benchmark Matrix
+
+This is the benchmark matrix the code should own once hardened.
+
+#### Benchmark family A: Monoenergetic coefficient validation
+
+Anchor:
+
+- Escoto et al. 2024 and thesis convergence/benchmark figures
+
+Deliverables:
+
+- `D11`, `D31`, `D33` parity plots against external references
+- convergence ladders in `N_xi`, `N_theta`, and `N_zeta`
+- appendix-style normalization audit plots
+
+#### Benchmark family B: Bootstrap-current formula and closure validation
+
+Anchors:
+
+- Landreman et al. 2022
+- archived QA/QH fixed-field benchmark data
+
+Deliverables:
+
+- Redl vs archived SFINCS figure on the interior benchmark window
+- `NTX+NEOPAX` status figure on the same surfaces
+- explicit documentation that this is a closure stress test, not a solver gate
+
+#### Benchmark family C: Integrated workflow transfer
+
+Anchor:
+
+- frozen W7-X imported workflow reference profile
+
+Deliverables:
+
+- grid-convergence figure
+- raw-branch transfer gate
+- normalization round-trip test
+
+#### Benchmark family D: Differentiable workflow validation
+
+Anchors:
+
+- Paul et al. 2019 adjoint optimization framing
+- McGreivy 2024 differentiable programming framing
+- TORAX 2024 style of differentiable-transport validation
+
+Deliverables:
+
+- derivative parity figure
+- inverse-design recovery figure
+- uncertainty-propagation figure
+- optimization-history figure
+
+#### Stretch benchmark family E: Additional physics-strengthening cases
+
+Add if inputs are available without creating a new physics project:
+
+1. low-bootstrap-current quasi-isodynamic / piecewise-omnigenous example from
+   recent literature
+2. trajectory-approximation stress sweep motivated by Landreman 2011
+3. additional W7-X experimental-profile-inspired scans for robustness
+
+### Phase 4: Documentation And Commenting
+
+Add or expand:
+
+1. testing architecture page
+   - unit vs regression vs benchmark vs hardware lanes
+   - expected runtime for each lane
+2. source-tree architecture page
+   - module ownership
+   - public API boundary
+   - compatibility re-export policy
+3. benchmark reproducibility page
+   - literature source
+   - local inputs
+   - script name
+   - expected artifact
+4. autodiff methods page
+   - sensitivity
+   - inverse design
+   - uncertainty propagation
+   - optimization
+
+Docstring policy:
+
+- every public dataclass, function, and workflow entry point gets:
+  - purpose
+  - key inputs
+  - returned quantities
+  - normalization or coordinate caveats where relevant
+
+### Phase 5: Manuscript Figure Plan
+
+The manuscript should ultimately add or refresh the following figure families
+from repository-owned scripts:
+
+1. Escoto-style monoenergetic convergence panels
+   - representative `N_xi` convergence curves
+   - representative DKES/SFINCS parity panels
+2. W7-X integrated transfer figure
+   - the positive end-to-end validation result
+3. precise-QS Redl / SFINCS / `NTX+NEOPAX` figure
+   - presented as:
+     - Redl parity result
+     - reduced-closure stress result
+4. derivative validation figure
+   - direct AD vs finite differences
+   - prepared adjoint vs direct reverse mode
+5. differentiable application figures
+   - bootstrap-current optimization
+   - inverse design recovery
+   - uncertainty propagation / sensitivity bars
+6. code-quality supplement figure/table
+   - coverage by module
+   - test pyramid summary
+   - benchmark matrix
+
+### Additional Literature Requirements To Carry Into The Plan
+
+Beyond the current gates, the literature motivates these explicit requirements:
+
+1. retain symmetry/Onsager structure as hard acceptance gates
+   - Escoto 2024
+   - Sugama \& Horton 1996
+2. separate monoenergetic-kernel validation from closure validation
+   - Escoto thesis
+   - Landreman et al. 2022
+   - Maa{\ss}berg et al. 2009
+3. keep the monoenergetic approximation limits visible in benchmarks
+   - Landreman 2011
+4. validate differentiable optimization with explicit gradient checks before
+   claiming design capability
+   - Paul et al. 2019
+   - McGreivy 2024
+5. document compile-vs-steady-state performance separately for JAX workflows
+   - current NTX profiling
+   - TORAX 2024 style differentiable transport framing
+
+## Start Here
+
+The first implementation block after this planning pass should be:
+
+1. measure and publish real coverage by module in CI
+2. split the oversized modules without changing behavior
+3. reorganize tests into fast/unit, regression, and literature-benchmark lanes
+4. lock the Escoto and W7-X benchmark families into artifact-backed tests
+5. only then push toward the 95% target and the expanded autodiff/UQ program
+
 ## Open Code Lanes
 
 ### 1. Optimization-Grade Derivatives
