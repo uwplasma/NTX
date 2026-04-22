@@ -3,175 +3,38 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
-from pathlib import Path
 
 import jax.numpy as jnp
-from jax import Array, tree_util
+from jax import Array
 
+from ._neopax_bridge import (
+    _surface_reference_bridge,
+    _surface_transport_scale,
+    scan_to_neopax_arrays,
+    to_neopax_monoenergetic,
+)
+from ._neopax_io import (
+    load_neopax_reference_scan,
+    neopax_scan_requires_rebuild,
+    write_neopax_scan_hdf5,
+)
+from ._neopax_types import NeopaxMonoenergeticArrays, NeopaxScan
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from .solver import solve_monoenergetic_scan
 
-NEOPAX_SCAN_FORMAT_VERSION = 2
-D33_MODES = frozenset({"spitzer", "raw", "conductivity_difference"})
-
-
-@dataclass(frozen=True)
-class NeopaxScan:
-    """Monoenergetic scan data shaped for NEOPAX."""
-
-    rho: Array
-    nu_v: Array
-    Er: Array
-    Es: Array
-    drds: Array
-    D11: Array
-    D13: Array
-    D33: Array
-    D33_spitzer: Array | None = None
-    D31: Array | None = None
-    Er_tilde: Array | None = None
-    Er_to_Ertilde: Array | None = None
-    dr_tildedr: Array | None = None
-    dr_tildeds: Array | None = None
-    a_b: float | None = None
-    psia: float | None = None
-    b00: Array | None = None
-    r00: Array | None = None
-    boozer_i: Array | None = None
-    boozer_g: Array | None = None
-    iota: Array | None = None
-    fac_reference_to_sfincs_11: Array | None = None
-    fac_reference_to_sfincs_31: Array | None = None
-    fac_reference_to_sfincs_33: Array | None = None
-    fac_monkes_to_sfincs_11: Array | None = None
-    fac_monkes_to_sfincs_31: Array | None = None
-    fac_monkes_to_sfincs_33: Array | None = None
-    fac_sfincs_to_dkes_11: Array | None = None
-    fac_sfincs_to_dkes_31: Array | None = None
-    fac_sfincs_to_dkes_33: Array | None = None
-    fac_dkes_to_d11star: Array | None = None
-    fac_dkes_to_d31star: Array | None = None
-    fac_dkes_to_d33star: Array | None = None
-    source_name: str | None = None
-
-
-tree_util.register_dataclass(
-    NeopaxScan,
-    data_fields=(
-        "rho",
-        "nu_v",
-        "Er",
-        "Es",
-        "drds",
-        "D11",
-        "D13",
-        "D33",
-        "D33_spitzer",
-        "D31",
-        "Er_tilde",
-        "Er_to_Ertilde",
-        "dr_tildedr",
-        "dr_tildeds",
-        "a_b",
-        "psia",
-        "b00",
-        "r00",
-        "boozer_i",
-        "boozer_g",
-        "iota",
-        "fac_reference_to_sfincs_11",
-        "fac_reference_to_sfincs_31",
-        "fac_reference_to_sfincs_33",
-        "fac_monkes_to_sfincs_11",
-        "fac_monkes_to_sfincs_31",
-        "fac_monkes_to_sfincs_33",
-        "fac_sfincs_to_dkes_11",
-        "fac_sfincs_to_dkes_31",
-        "fac_sfincs_to_dkes_33",
-        "fac_dkes_to_d11star",
-        "fac_dkes_to_d31star",
-        "fac_dkes_to_d33star",
-    ),
-    meta_fields=("source_name",),
-)
-
-
-@dataclass(frozen=True)
-class NeopaxMonoenergeticArrays:
-    """Pure-array NEOPAX mapping payload for differentiable imported workflows."""
-
-    a_b: Array
-    rho: Array
-    nu_log: Array
-    Er_list: Array
-    D11_log: Array
-    D13: Array
-    D33: Array
-
-
-tree_util.register_dataclass(
-    NeopaxMonoenergeticArrays,
-    data_fields=("a_b", "rho", "nu_log", "Er_list", "D11_log", "D13", "D33"),
-    meta_fields=(),
-)
-
-
-def load_neopax_reference_scan(path: str | Path) -> NeopaxScan:
-    """Load a NEOPAX-style HDF5 monoenergetic table."""
-
-    import h5py
-
-    h5_path = Path(path).expanduser().resolve()
-    with h5py.File(h5_path, "r") as handle:
-        return NeopaxScan(
-            rho=jnp.asarray(handle["rho"][()]),
-            nu_v=jnp.asarray(handle["nu_v"][()]),
-            Er=jnp.asarray(handle["Er"][()]),
-            Es=jnp.asarray(handle["Es"][()]),
-            drds=jnp.asarray(handle["drds"][()]),
-            D11=jnp.asarray(handle["D11"][()]),
-            D13=jnp.asarray(handle["D13"][()]),
-            D33=jnp.asarray(handle["D33"][()]),
-            D33_spitzer=_optional_dataset(handle, "D33_spitzer"),
-            D31=_optional_dataset(handle, "D31"),
-            Er_tilde=_optional_dataset(handle, "Er_tilde"),
-            Er_to_Ertilde=_optional_dataset(handle, "Er_to_Ertilde"),
-            dr_tildedr=_optional_dataset(handle, "dr_tildedr"),
-            dr_tildeds=_optional_dataset(handle, "dr_tildeds"),
-            b00=_optional_dataset(handle, "B00"),
-            r00=_optional_dataset(handle, "R00"),
-            boozer_i=_optional_dataset(handle, "I"),
-            boozer_g=_optional_dataset(handle, "G"),
-            iota=_optional_dataset(handle, "iota"),
-            fac_reference_to_sfincs_11=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_11"),
-            fac_reference_to_sfincs_31=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_31"),
-            fac_reference_to_sfincs_33=_optional_dataset(handle, "Fac_REFERENCE_TO_SFINCS_33"),
-            fac_monkes_to_sfincs_11=_optional_dataset(handle, "Fac_MONKES_TO_SFINCS_11"),
-            fac_monkes_to_sfincs_31=_optional_dataset(handle, "Fac_MONKES_TO_SFINCS_31"),
-            fac_monkes_to_sfincs_33=_optional_dataset(handle, "Fac_MONKES_TO_SFINCS_33"),
-            fac_sfincs_to_dkes_11=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_11"),
-            fac_sfincs_to_dkes_31=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_31"),
-            fac_sfincs_to_dkes_33=_optional_dataset(handle, "Fac_SFINCS_TO_DKES_33"),
-            fac_dkes_to_d11star=_optional_dataset(handle, "Fac_DKES_TO_D11star"),
-            fac_dkes_to_d31star=_optional_dataset(handle, "Fac_DKES_TO_D31star"),
-            fac_dkes_to_d33star=_optional_dataset(handle, "Fac_DKES_TO_D33star"),
-            source_name=str(handle.attrs.get("source_name", h5_path.name)),
-        )
-
-
-def neopax_scan_requires_rebuild(path: str | Path) -> bool:
-    """Return whether a cached NEOPAX-style scan is missing required fields."""
-
-    import h5py
-
-    h5_path = Path(path).expanduser().resolve()
-    if not h5_path.exists():
-        return True
-    with h5py.File(h5_path, "r") as handle:
-        format_version = int(handle.attrs.get("format_version", 0))
-        return format_version < NEOPAX_SCAN_FORMAT_VERSION or "D33_spitzer" not in handle
+__all__ = [
+    "NeopaxMonoenergeticArrays",
+    "NeopaxScan",
+    "build_ntx_neopax_scan",
+    "build_ntx_neopax_scan_from_surfaces",
+    "load_neopax_reference_scan",
+    "neopax_scan_requires_rebuild",
+    "scan_to_neopax_arrays",
+    "to_neopax_monoenergetic",
+    "write_neopax_scan_hdf5",
+    "_surface_reference_bridge",
+]
 
 
 def build_ntx_neopax_scan(
@@ -347,216 +210,3 @@ def build_ntx_neopax_scan_from_surfaces(
         fac_sfincs_to_dkes_33=jnp.asarray(sfincs_to_dkes_33_list),
         source_name=source_name,
     )
-
-def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
-    """Write a NEOPAX-style HDF5 file from a scan payload."""
-
-    import h5py
-
-    output_path = Path(path).expanduser().resolve()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with h5py.File(output_path, "w") as handle:
-        _write_dataset(handle, "rho", scan.rho)
-        _write_dataset(handle, "nu_v", scan.nu_v)
-        _write_dataset(handle, "Er", scan.Er)
-        _write_dataset(handle, "Es", scan.Es)
-        _write_dataset(handle, "drds", scan.drds)
-        _write_dataset(handle, "D11", scan.D11)
-        _write_dataset(handle, "D13", scan.D13)
-        _write_dataset(handle, "D33", scan.D33)
-        _write_dataset(handle, "D33_spitzer", scan.D33_spitzer)
-        _write_dataset(handle, "D31", scan.D31)
-        _write_dataset(handle, "Er_tilde", scan.Er_tilde)
-        _write_dataset(handle, "Er_to_Ertilde", scan.Er_to_Ertilde)
-        _write_dataset(handle, "dr_tildedr", scan.dr_tildedr)
-        _write_dataset(handle, "dr_tildeds", scan.dr_tildeds)
-        _write_dataset(handle, "B00", scan.b00)
-        _write_dataset(handle, "R00", scan.r00)
-        _write_dataset(handle, "I", scan.boozer_i)
-        _write_dataset(handle, "G", scan.boozer_g)
-        _write_dataset(handle, "iota", scan.iota)
-        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_11", scan.fac_reference_to_sfincs_11)
-        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_31", scan.fac_reference_to_sfincs_31)
-        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_33", scan.fac_reference_to_sfincs_33)
-        _write_dataset(handle, "Fac_SFINCS_TO_DKES_11", scan.fac_sfincs_to_dkes_11)
-        _write_dataset(handle, "Fac_SFINCS_TO_DKES_31", scan.fac_sfincs_to_dkes_31)
-        _write_dataset(handle, "Fac_SFINCS_TO_DKES_33", scan.fac_sfincs_to_dkes_33)
-        _write_dataset(handle, "Fac_DKES_TO_D11star", scan.fac_dkes_to_d11star)
-        _write_dataset(handle, "Fac_DKES_TO_D31star", scan.fac_dkes_to_d31star)
-        _write_dataset(handle, "Fac_DKES_TO_D33star", scan.fac_dkes_to_d33star)
-        if scan.a_b is not None:
-            handle.attrs["a_b"] = float(scan.a_b)
-        if scan.psia is not None:
-            handle.attrs["psia"] = float(scan.psia)
-        if scan.source_name is not None:
-            handle.attrs["source_name"] = scan.source_name
-        handle.attrs["format_version"] = NEOPAX_SCAN_FORMAT_VERSION
-    return output_path
-
-
-def scan_to_neopax_arrays(
-    scan: NeopaxScan,
-    *,
-    a_b: float | Array,
-    d33_mode: str = "spitzer",
-) -> NeopaxMonoenergeticArrays:
-    """Map NTX scan data into the pure arrays consumed by `NEOPAX.Monoenergetic`.
-
-    This path is JAX-friendly and is the right place to keep imported,
-    differentiable workflows before constructing the external NEOPAX object.
-    """
-
-    rho = jnp.asarray(scan.rho)
-    nu_v = jnp.asarray(scan.nu_v)
-    er = jnp.asarray(scan.Er)
-    drds = jnp.asarray(scan.drds)
-    d11 = jnp.asarray(scan.D11)
-    d13 = jnp.asarray(scan.D13)
-    if d33_mode not in D33_MODES:
-        raise ValueError(f"d33_mode must be one of {sorted(D33_MODES)}")
-    if d33_mode == "spitzer":
-        d33 = (
-            jnp.asarray(scan.D33_spitzer)
-            if scan.D33_spitzer is not None
-            else jnp.asarray(scan.D33)
-        )
-    elif d33_mode == "raw":
-        d33 = jnp.asarray(scan.D33)
-    else:
-        if scan.D33_spitzer is None:
-            raise ValueError(
-                "d33_mode='conductivity_difference' requires D33_spitzer in the scan"
-            )
-        # Escoto's DKES-comparison normalization treats the parallel-conductivity
-        # coefficient as the deviation from the Spitzer problem, not as the raw
-        # conductivity-like monoenergetic coefficient alone.
-        d33 = jnp.asarray(scan.D33_spitzer) - jnp.asarray(scan.D33)
-    a_b_value = jnp.asarray(a_b)
-    # NEOPAX's legacy-HDF5 loader and direct array-constructor both consume the
-    # mixed coefficient with the direct database convention
-    # D13 -> D13 * drds. The historical bridge-factor metadata remains useful
-    # for diagnostics, but this database object does not use it in the active
-    # interpolation path.
-    d13 = d13 * drds[:, None, None]
-
-    er0 = er[0]
-    er_list = jnp.stack(
-        [
-            jnp.log10(jnp.maximum(1.0e-8, jnp.abs(er0) / (a_b_value * rho_value)))
-            for rho_value in rho
-        ]
-    )
-    return NeopaxMonoenergeticArrays(
-        a_b=a_b_value,
-        rho=rho,
-        nu_log=jnp.log10(nu_v),
-        Er_list=er_list,
-        D11_log=jnp.log10(d11 * drds[:, None, None] ** 2),
-        D13=d13,
-        D33=d33 * nu_v[None, :, None],
-    )
-
-
-def to_neopax_monoenergetic(
-    scan: NeopaxScan,
-    *,
-    a_b: float,
-    d33_mode: str = "spitzer",
-):
-    """Construct `NEOPAX.Monoenergetic` from NTX scan data.
-
-    This mapping follows the current NEOPAX monoenergetic database conventions,
-    including the stored `drds` and `nu_v` rescalings.
-    """
-
-    try:
-        import NEOPAX
-    except ImportError as exc:  # pragma: no cover - exercised when NEOPAX exists locally
-        raise ImportError("NEOPAX is required for `to_neopax_monoenergetic`") from exc
-
-    arrays = scan_to_neopax_arrays(scan, a_b=a_b, d33_mode=d33_mode)
-
-    return NEOPAX.Monoenergetic(
-        a_b=float(a_b),
-        rho=arrays.rho,
-        nu_log=arrays.nu_log,
-        Er_list=arrays.Er_list,
-        D11_log=arrays.D11_log,
-        D13=arrays.D13,
-        D33=arrays.D33,
-    )
-
-
-def _optional_dataset(handle, name: str):
-    if name not in handle:
-        return None
-    return jnp.asarray(handle[name][()])
-
-
-def _write_dataset(handle, name: str, values) -> None:
-    if values is None:
-        return
-    handle[name] = jnp.asarray(values)
-
-
-def _surface_transport_scale(surface: BoozerSurface | VmecSurface) -> Array:
-    if isinstance(surface, VmecSurface):
-        return jnp.asarray(surface.transport_psi_scale, dtype=jnp.float64)
-    return jnp.asarray(surface.psi_p, dtype=jnp.float64)
-
-
-def _surface_reference_bridge(surface: BoozerSurface | VmecSurface) -> dict[str, Array]:
-    if isinstance(surface, VmecSurface):
-        zero_mode = jnp.asarray((surface.m == 0) & (surface.n == 0))
-        idx = jnp.argmax(zero_mode.astype(jnp.int32))
-        # NEOPAX and the SFINCS/DKES bridge factors use the covariant Boozer
-        # flux functions I and G, not the contravariant b^theta / b^zeta
-        # components. For VMEC-backed surfaces these live in the b_sub_* zero
-        # modes.
-        boozer_i = jnp.asarray(
-            jnp.take(surface.b_sub_theta_cos, idx),
-            dtype=jnp.float64,
-        )
-        boozer_g = jnp.asarray(
-            jnp.take(surface.b_sub_zeta_cos, idx),
-            dtype=jnp.float64,
-        )
-        psi_a = jnp.asarray(surface.psi_a_hat, dtype=jnp.float64)
-        b00 = jnp.asarray(surface.b0, dtype=jnp.float64)
-        iota = jnp.asarray(surface.iota, dtype=jnp.float64)
-    else:
-        boozer_i = jnp.asarray(surface.b_theta, dtype=jnp.float64)
-        boozer_g = jnp.asarray(surface.b_zeta, dtype=jnp.float64)
-        psi_a = jnp.asarray(surface.psi_p, dtype=jnp.float64)
-        b00_source = surface.b0 if surface.b0 is not None else surface.b_cos[0]
-        b00 = jnp.asarray(b00_source, dtype=jnp.float64)
-        iota = jnp.asarray(surface.iota, dtype=jnp.float64)
-
-    denom = boozer_g + iota * boozer_i
-    fac_11 = 8.0 * denom * b00 * psi_a**2 / (jnp.sqrt(jnp.pi) * boozer_g**2)
-    fac_31 = 4.0 * b00 * psi_a / (jnp.sqrt(jnp.pi) * boozer_g)
-    # NTX's raw D33 convention already carries the opposite sign relative to the
-    # historical DKES-like files, so the positive bridge here is intentional.
-    fac_33 = 2.0 * b00 / (jnp.sqrt(jnp.pi) * denom)
-    dpsi_drtilde = surface.r_hat * b00 if isinstance(surface, VmecSurface) else b00
-    fac_sfincs_to_dkes_11 = 1.0 / (
-        8.0 * denom * dpsi_drtilde**2 / (boozer_g**2 * b00 * jnp.sqrt(jnp.pi))
-    )
-    fac_sfincs_to_dkes_31 = 1.0 / (
-        4.0 * dpsi_drtilde / (boozer_g * jnp.sqrt(jnp.pi))
-    )
-    fac_sfincs_to_dkes_33 = 1.0 / (
-        2.0 * b00 / (denom * jnp.sqrt(jnp.pi))
-    )
-    return {
-        "b00": b00,
-        "boozer_i": boozer_i,
-        "boozer_g": boozer_g,
-        "iota": iota,
-        "fac_11": fac_11,
-        "fac_31": fac_31,
-        "fac_33": fac_33,
-        "fac_sfincs_to_dkes_11": fac_sfincs_to_dkes_11,
-        "fac_sfincs_to_dkes_31": fac_sfincs_to_dkes_31,
-        "fac_sfincs_to_dkes_33": fac_sfincs_to_dkes_33,
-    }
