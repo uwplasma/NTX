@@ -6,6 +6,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 
+import ntx._profiles_transport as profiles_transport
 from ntx import (
     AmbipolarProfileFamilyResult,
     AmbipolarProfileResult,
@@ -96,6 +97,13 @@ def test_profile_family_solver_and_bootstrap_objective_return_finite_results():
     assert jnp.isfinite(objective)
 
 
+def test_profile_family_solver_defaults_control_index():
+    scan = example_scan()
+    family = (species_profiles(), species_profiles())
+    result = solve_ambipolar_profile_family(scan, family, steps=4)
+    assert jnp.allclose(result.control, jnp.asarray([0.0, 1.0], dtype=jnp.asarray(scan.rho).dtype))
+
+
 def test_profile_control_application_and_optimization_return_finite_results():
     scan = example_scan()
     profiles = species_profiles()
@@ -124,6 +132,23 @@ def test_profile_control_application_and_optimization_return_finite_results():
     assert jnp.all(jnp.isfinite(result.objective_history))
     assert jnp.isfinite(result.best_control)
     assert jnp.max(jnp.abs(result.control_history)) <= 0.3 + 1.0e-12
+
+
+def test_profile_control_optimization_supports_unbounded_control():
+    scan = example_scan()
+    result = optimize_profile_control(
+        scan,
+        species_profiles(),
+        ProfileControlSpec(
+            a1_response=jnp.asarray([0.0, -0.5]),
+            a3_response=jnp.asarray([1.0, 0.0]),
+        ),
+        control_initial=0.1,
+        optimization_steps=3,
+        solve_steps=4,
+        control_bound=None,
+    )
+    assert result.control_history.shape == (3,)
 
 
 def test_profile_basis_control_application_and_optimization_return_finite_results():
@@ -166,6 +191,24 @@ def test_profile_basis_control_application_and_optimization_return_finite_result
     assert result.best_profile.er_profile.shape == scan.rho.shape
     assert jnp.all(jnp.isfinite(result.objective_history))
     assert jnp.max(jnp.abs(result.control_history)) <= 0.25 + 1.0e-12
+
+
+def test_profile_basis_optimization_supports_unbounded_control():
+    scan = example_scan()
+    result = optimize_profile_basis_control(
+        scan,
+        species_profiles(),
+        ProfileBasisControlSpec(
+            basis=jnp.asarray([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
+            a1_response=jnp.asarray([[0.0, 0.0], [-0.3, -0.1]]),
+            a3_response=jnp.asarray([[0.7, 0.2], [0.0, 0.0]]),
+        ),
+        control_initial=jnp.asarray([0.05, -0.02]),
+        optimization_steps=3,
+        solve_steps=4,
+        control_bound=None,
+    )
+    assert result.control_history.shape == (3, 2)
 
 
 def test_profile_transport_loop_returns_finite_histories():
@@ -220,6 +263,51 @@ def test_profile_transport_closure_shape_mismatch_raises():
                 particle_relaxation=jnp.asarray([0.1, 0.2, 0.3, 0.4]),
                 current_relaxation=0.1,
             ),
+        )
+
+
+def test_profile_transport_loop_handles_rejected_backtracking(monkeypatch):
+    scan = example_scan()
+    profiles = species_profiles()
+    closure = ProfileTransportClosureSpec(
+        particle_relaxation=0.1,
+        current_relaxation=0.1,
+    )
+    original_loss = profiles_transport.profile_transport_loss
+    state = {"count": 0}
+
+    def fake_loss(profile, closure_spec):
+        state["count"] += 1
+        if state["count"] == 1:
+            return jnp.asarray(0.0)
+        return jnp.asarray(1.0)
+
+    monkeypatch.setattr(profiles_transport, "profile_transport_loss", fake_loss)
+    result = solve_profile_transport_loop(
+        scan,
+        profiles,
+        closure,
+        iterations=1,
+        solve_steps=4,
+        damping=0.7,
+    )
+    monkeypatch.setattr(profiles_transport, "profile_transport_loss", original_loss)
+    assert result.er_profile_history.shape == (1, scan.rho.size)
+
+
+def test_advance_profile_transport_rejects_species_shape_mismatch():
+    scan = example_scan()
+    profiles = species_profiles()
+    profile = solve_ambipolar_er_profile(scan, profiles, steps=4)
+    bad_profile = replace(
+        profile,
+        species_particle_flux=profile.species_particle_flux[:1],
+    )
+    with pytest.raises(ValueError, match="profile species arrays must match the number of species"):
+        advance_profile_transport(
+            profiles,
+            bad_profile,
+            ProfileTransportClosureSpec(particle_relaxation=0.1, current_relaxation=0.1),
         )
 
 
@@ -288,3 +376,48 @@ def test_primitive_profile_transport_loop_returns_finite_histories():
     assert result.transport_loss_history[-1] <= result.transport_loss_history[0] + 1.0e-12
     assert jnp.max(jnp.abs(jnp.diff(result.species_density_history[-1], axis=1))) < 1.0
     assert jnp.max(jnp.abs(jnp.diff(result.species_temperature_history[-1], axis=1))) < 1.0
+
+
+def test_primitive_profile_transport_loop_handles_rejected_backtracking(monkeypatch):
+    scan = example_scan()
+    rho = jnp.asarray(scan.rho)
+    primitives = (
+        PrimitiveSpeciesProfile(
+            charge=-1.0,
+            nu_v=jnp.asarray([4.0e-4, 6.0e-4, 8.0e-4]),
+            density=jnp.asarray([1.0, 0.95, 0.92]),
+            temperature=jnp.asarray([1.1, 1.0, 0.96]),
+            electrostatic_prefactor=0.15,
+        ),
+        PrimitiveSpeciesProfile(
+            charge=1.0,
+            nu_v=jnp.asarray([2.0e-3, 2.5e-3, 3.0e-3]),
+            density=jnp.asarray([0.92, 0.90, 0.88]),
+            temperature=jnp.asarray([0.85, 0.82, 0.80]),
+            electrostatic_prefactor=0.10,
+        ),
+    )
+    closure = ProfileTransportClosureSpec(
+        particle_relaxation=0.04,
+        current_relaxation=0.03,
+    )
+    original_loss = profiles_transport.primitive_profile_transport_loss
+    state = {"count": 0}
+
+    def fake_loss(profile, primitive_profiles, closure_spec):
+        state["count"] += 1
+        if state["count"] == 1:
+            return jnp.asarray(0.0)
+        return jnp.asarray(1.0)
+
+    monkeypatch.setattr(profiles_transport, "primitive_profile_transport_loss", fake_loss)
+    result = solve_primitive_profile_transport_loop(
+        scan,
+        primitives,
+        closure,
+        iterations=1,
+        solve_steps=4,
+        damping=0.7,
+    )
+    monkeypatch.setattr(profiles_transport, "primitive_profile_transport_loss", original_loss)
+    assert result.er_profile_history.shape == (1, rho.size)

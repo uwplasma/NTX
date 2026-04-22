@@ -18,6 +18,8 @@ from ntx import (
     evaluate_species_current_response,
     evaluate_species_particle_flux,
 )
+from ntx._profiles_eval import _channel_data, _single_radius_profile, _smooth_radial_profile
+from ntx._profiles_transport import _broadcast_species_transport_field
 
 from ._profile_test_helpers import example_scan, species_profiles
 
@@ -111,6 +113,46 @@ def test_profile_basis_control_shape_mismatch_raises():
         )
 
 
+def test_profile_control_a3_shape_mismatch_raises():
+    with pytest.raises(ValueError, match="control_spec must match the number of species"):
+        apply_profile_control(
+            species_profiles(),
+            0.0,
+            ProfileControlSpec(
+                a1_response=jnp.asarray([1.0, 1.0]),
+                a3_response=jnp.asarray([1.0]),
+            ),
+        )
+
+
+def test_profile_basis_species_and_response_shape_mismatch_raises():
+    profiles = species_profiles()
+    basis = jnp.asarray([[1.0, 0.0, 0.0]])
+    with pytest.raises(ValueError, match="control_spec must match the number of species"):
+        apply_profile_basis_control(
+            profiles,
+            jnp.asarray([0.1]),
+            ProfileBasisControlSpec(
+                basis=basis,
+                a1_response=jnp.asarray([[0.0], [0.0]]),
+                a3_response=jnp.asarray([[1.0]]),
+            ),
+        )
+    with pytest.raises(
+        ValueError,
+        match="response matrices must match the number of basis functions",
+    ):
+        apply_profile_basis_control(
+            profiles,
+            jnp.asarray([0.1]),
+            ProfileBasisControlSpec(
+                basis=basis,
+                a1_response=jnp.asarray([[0.0, 0.0], [0.0, 0.0]]),
+                a3_response=jnp.asarray([[1.0, 0.0], [0.0, 0.0]]),
+            ),
+        )
+
+
 def test_build_species_profiles_from_primitives_returns_finite_forces():
     scan = example_scan()
     rho = jnp.asarray(scan.rho)
@@ -137,3 +179,38 @@ def test_build_species_profiles_from_primitives_returns_finite_forces():
     assert jnp.all(jnp.isfinite(species.A1))
     assert jnp.all(jnp.isfinite(species.A3))
     assert len(family) == 1
+
+
+def test_bootstrap_objective_accepts_explicit_weight():
+    rho = jnp.asarray([0.25, 0.5, 0.75])
+    current = jnp.asarray([1.0, -0.5, 0.25])
+    weight = jnp.asarray([1.0, 2.0, 3.0])
+    value = bootstrap_current_objective(rho, current, weight=weight)
+    expected = jnp.trapezoid(weight * current**2, rho)
+    assert jnp.isclose(value, expected)
+
+
+def test_profile_eval_internal_helpers_cover_remaining_branches():
+    scan = example_scan()
+    d31 = _channel_data(scan, "D31")
+    assert d31.shape == scan.D13.shape
+
+    rho = jnp.asarray([0.25, 0.5, 0.75])
+    profile = jnp.asarray([0.1, 0.2, 0.3])
+    updated = _single_radius_profile(rho, jnp.asarray(0.48), profile, jnp.asarray(-0.4))
+    assert jnp.allclose(updated, jnp.asarray([0.1, -0.4, 0.3]))
+
+    short = jnp.asarray([1.0, 2.0])
+    assert jnp.allclose(_smooth_radial_profile(short, jnp.asarray(0.7)), short)
+    with pytest.raises(ValueError, match="values must be one-dimensional"):
+        _smooth_radial_profile(jnp.ones((2, 2)), jnp.asarray(0.1))
+
+
+def test_broadcast_species_transport_field_covers_vector_branches():
+    rho = jnp.asarray([0.25, 0.5, 0.75])
+    per_species = _broadcast_species_transport_field(jnp.asarray([1.0, 2.0]), 2, rho)
+    per_radius = _broadcast_species_transport_field(jnp.asarray([0.1, 0.2, 0.3]), 2, rho)
+    assert per_species.shape == (2, 3)
+    assert per_radius.shape == (2, 3)
+    assert jnp.allclose(per_species[1], jnp.asarray([2.0, 2.0, 2.0]))
+    assert jnp.allclose(per_radius[0], jnp.asarray([0.1, 0.2, 0.3]))
