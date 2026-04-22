@@ -91,6 +91,31 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(tmp_path):
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.json").exists()
 
 
+def test_make_publication_figures_profile_uncertainty_subset_writes_manifest(tmp_path):
+    output_dir = tmp_path / "figures"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "examples" / "make_publication_figures.py"),
+            "--output-dir",
+            str(output_dir),
+            "--figures",
+            "profile_uncertainty",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+
+    manifest_path = output_dir / "publication_figure_manifest.json"
+    assert manifest_path.exists()
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert set(payload) == {"profile_uncertainty"}
+    assert output_dir.joinpath("autodiff_profile_uncertainty.png").exists()
+    assert output_dir.joinpath("autodiff_profile_uncertainty.pdf").exists()
+    assert output_dir.joinpath("autodiff_profile_uncertainty.json").exists()
+
+
 def test_make_publication_figures_ambipolar_subset_writes_manifest(tmp_path):
     output_dir = tmp_path / "figures"
     subprocess.run(

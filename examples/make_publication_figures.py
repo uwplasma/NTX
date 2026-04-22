@@ -15,6 +15,7 @@ FIGURE_PRESETS = {
     "all": {
         "inverse",
         "profiles",
+        "profile_uncertainty",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -41,6 +42,7 @@ FIGURE_PRESETS = {
     "supplement": {
         "inverse",
         "profiles",
+        "profile_uncertainty",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -250,6 +252,21 @@ def main() -> None:
             _manifest_path(output_dir / "derivative_path_benchmark.png"),
             _manifest_path(output_dir / "derivative_path_benchmark.pdf"),
             _manifest_path(output_dir / "derivative_path_benchmark.json"),
+        ]
+
+    if "profile_uncertainty" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "autodiff_profile_uncertainty.py"),
+                "--output-prefix",
+                str(output_dir / "autodiff_profile_uncertainty"),
+            ]
+        )
+        manifest["profile_uncertainty"] = [
+            _manifest_path(output_dir / "autodiff_profile_uncertainty.png"),
+            _manifest_path(output_dir / "autodiff_profile_uncertainty.pdf"),
+            _manifest_path(output_dir / "autodiff_profile_uncertainty.json"),
         ]
 
     if "science" in selected:

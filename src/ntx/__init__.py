@@ -7,10 +7,12 @@ from .autodiff import (
     DerivativeAuditResult,
     InverseProblemResult,
     NeopaxProfileAutodiffResult,
+    NeopaxProfileUncertaintyResult,
     example_bootstrap_current_optimization,
     example_derivative_audit,
     example_inverse_problem,
     example_neopax_profile_autodiff,
+    example_neopax_profile_uncertainty,
 )
 from .booz import BoozmnSurface, load_boozmn_surface
 from .config import enable_x64
@@ -198,8 +200,10 @@ __all__ = [
     "solve_profile_transport_loop",
     "InverseProblemResult",
     "NeopaxProfileAutodiffResult",
+    "NeopaxProfileUncertaintyResult",
     "BootstrapOptimizationResult",
     "example_inverse_problem",
     "example_neopax_profile_autodiff",
+    "example_neopax_profile_uncertainty",
     "example_bootstrap_current_optimization",
 ]

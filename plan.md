@@ -203,6 +203,14 @@ Current status:
   - archived precise-QS QA/QH primitive-to-force reconstruction figure and JSON
   - treated as a monitored benchmark-family stress test for the current
     primitive-profile builder, not a parity gate
+- [x] first artifact-backed autodiff uncertainty benchmark added:
+  - `examples/autodiff_profile_uncertainty.py`
+  - linearized covariance propagation against a Monte Carlo ensemble on the
+    differentiable NEOPAX-style profile fit under a prescribed Gaussian
+    parameter perturbation
+  - publication-ready PNG/PDF plus JSON metrics
+  - treated as the current repository-owned uncertainty-propagation stress
+    benchmark for the autodiff lane, not yet a parity gate
 - [x] targeted branch-coverage tightening landed on the refactored workflow
   modules without adding a new heavy benchmark lane:
   - `_autodiff_workflows.py` now closes fully in the current fast coverage

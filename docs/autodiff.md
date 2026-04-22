@@ -143,6 +143,43 @@ It shows:
 
 ![Autodiff NEOPAX profiles](_static/autodiff_neopax_profiles.png)
 
+## Profile Uncertainty Audit
+
+The script:
+
+```bash
+python examples/autodiff_profile_uncertainty.py
+```
+
+uses the same differentiable NEOPAX-style profile fit, then compares two
+uncertainty-propagation paths for the recovered `D33(\rho)` profile under a
+small prescribed Gaussian uncertainty on the fitted profile parameters:
+
+- a linearized covariance propagation through the sensitivity matrix,
+- and a small Monte Carlo ensemble in the fitted profile-parameter space.
+
+The figure is written to:
+
+```text
+docs/_static/autodiff_profile_uncertainty.png
+docs/_static/autodiff_profile_uncertainty.pdf
+docs/_static/autodiff_profile_uncertainty.json
+```
+
+It shows:
+
+- the fitted transport profile with propagated uncertainty bands,
+- linearized versus Monte Carlo standard deviations,
+- the fitted profile-parameter correlation matrix,
+- and the relative mismatch between the two uncertainty paths.
+
+This is the current artifact-backed uncertainty-propagation benchmark for the
+autodiff lane. It is intentionally synthetic and is tracked as a monitored
+stress benchmark rather than a parity gate, but it exercises the same
+differentiable profile map used in inverse-design and profile-control studies.
+
+![Autodiff profile uncertainty](_static/autodiff_profile_uncertainty.png)
+
 ## Parallel Execution
 
 Large scans do not need to stay on one device. NTX currently exposes two

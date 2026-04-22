@@ -262,7 +262,18 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 17. Ambipolar Profile
+## 17. Autodiff Profile Uncertainty
+
+```bash
+python examples/autodiff_profile_uncertainty.py
+```
+
+This writes `docs/_static/autodiff_profile_uncertainty.{png,pdf,json}` and
+compares linearized covariance propagation against a small Monte Carlo ensemble
+for the differentiable NEOPAX-style profile fit under a prescribed Gaussian
+parameter perturbation.
+
+## 18. Ambipolar Profile
 
 ```bash
 python examples/ambipolar_profile.py
@@ -281,7 +292,7 @@ and demonstrates:
 - solving a smooth ambipolar `E_r(r)` profile with radial regularization
 - evaluating the resulting bootstrap-current proxy profile
 
-## 18. Ambipolar Profile Family
+## 19. Ambipolar Profile Family
 
 ```bash
 python examples/ambipolar_profile_family.py
