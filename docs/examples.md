@@ -403,7 +403,26 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 25. Validation Summary
+## 25. Profile Force Reconstruction Audit
+
+```bash
+python examples/profile_force_reconstruction_audit.py
+```
+
+This writes:
+
+- `docs/_static/profile_force_reconstruction_audit.png`
+- `docs/_static/profile_force_reconstruction_audit.pdf`
+- `docs/_static/profile_force_reconstruction_audit.json`
+
+and validates the primitive-profile reconstruction path against the archived
+precise-QS QA/QH benchmark family by comparing NTX-reconstructed `A1(\rho)` and
+`A3(\rho)` against the exact derivatives implied by the archived density,
+temperature, and normalized electric-field inputs. This is a monitored
+benchmark-family stress test for the current primitive-profile builder, not a
+parity claim.
+
+## 26. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -413,7 +432,7 @@ This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
 core validation figure for a methods paper because it combines transport
 trends, Onsager closure, and Legendre convergence.
 
-## 26. Full Publication Bundle
+## 27. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py

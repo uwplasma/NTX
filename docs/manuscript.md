@@ -22,9 +22,10 @@ examples.
 4. `performance_scaling_smoke.{png,pdf}`
 5. `ambipolar_profile.{png,pdf}`
 6. `ambipolar_profile_family.{png,pdf}`
-7. `profile_control_optimization.{png,pdf}`
-8. `profile_basis_optimization.{png,pdf}`
-9. `profile_transport_loop.{png,pdf}`
+7. `profile_force_reconstruction_audit.{png,pdf,json}`
+8. `profile_control_optimization.{png,pdf}`
+9. `profile_basis_optimization.{png,pdf}`
+10. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -53,13 +54,15 @@ examples.
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
 11. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-12. `profile_control_optimization.{png,pdf}`
+12. `profile_force_reconstruction_audit.{png,pdf,json}`
+   - archived precise-QS QA/QH primitive-to-force reconstruction audit
+13. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-13. `profile_basis_optimization.{png,pdf}`
+14. `profile_basis_optimization.{png,pdf}`
    - low-dimensional radial-basis optimization of the same profile closure
-14. `profile_transport_loop.{png,pdf}`
+15. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-15. `primitive_profile_transport.{png,pdf}`
+16. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
@@ -72,6 +75,7 @@ Together these figures cover:
 - a pure NTX radial-profile figure
 - a profile-grade ambipolar and bootstrap-current-proxy workflow
 - a control-parameter family view of the same profile-grade closure
+- a literature-anchored primitive-to-force reconstruction audit on the precise-QS profile family
 - a direct optimization view of the profile-grade closure
 - a low-dimensional multi-parameter version of that optimization
 - a self-consistent transport-relaxation view of the same closure

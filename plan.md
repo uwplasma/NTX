@@ -195,6 +195,14 @@ Current status:
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable
   size
+- [x] profile tests are now split by lane:
+  - `tests/test_profiles_unit.py` for cheap helper and failure-path coverage
+  - `tests/test_profiles_workflows.py` for solve/control/transport workflows
+- [x] first literature-anchored profile validation artifact added:
+  - `examples/profile_force_reconstruction_audit.py`
+  - archived precise-QS QA/QH primitive-to-force reconstruction figure and JSON
+  - treated as a monitored benchmark-family stress test for the current
+    primitive-profile builder, not a parity gate
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
