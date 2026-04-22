@@ -105,7 +105,7 @@ Do not declare this program complete until all of the following are true:
   - `profiles.py` (`1556` lines)
   - `solver.py` (`976` lines)
   - `autodiff.py` (`750` lines)
-  - `inputfiles.py` (`614` lines)
+  - `inputfiles.py` (`248` lines after Phase 1 split; parsing/reporting moved to internal modules)
   - `neopax.py` (`562` lines)
   - `geometry.py` (`393` lines)
 - public docstrings and internal comments are inconsistent across the source
@@ -154,6 +154,18 @@ Acceptance gates for this phase:
 - PR lane remains within the current runtime budget
 - benchmark lane can be run locally and in scheduled/manual CI without
   affecting PR speed
+
+Current status:
+
+- [x] shard-combined measured coverage is published in CI with machine-readable
+  per-module artifacts
+- [x] the first no-behavior-change workflow split is complete:
+  - `inputfiles.py` now remains the compatibility surface
+  - TOML parsing and config dataclasses live in `src/ntx/_inputfiles_model.py`
+  - Rich tables and metadata/source helpers live in
+    `src/ntx/_inputfiles_reporting.py`
+- [ ] next restructuring targets should be chosen from the remaining largest
+  modules, starting with `neopax.py` or `geometry.py`
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
