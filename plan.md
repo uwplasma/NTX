@@ -212,6 +212,15 @@ Current status:
   - `_profiles_eval.py` and `_profiles_controls.py` are now both above `98%`
     in the current fast coverage subset
   - these gains come from narrow unit/workflow tests, not new physics paths
+- [x] the next cheap-coverage hardening slice now closes the main wrapper and
+  scan helpers in a targeted coverage lane:
+  - `neopax.py` reaches `100%` in the targeted facade/scan subset
+  - `_solver_scan.py` reaches `98.6%`
+  - `parallel.py` reaches `99.0%`
+  - `autodiff.py` reaches `96.2%`
+  - these gains come from direct branch tests on callback normalization,
+    scan-sharding/error handling, worker environment setup, and import-fallback
+    behavior
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
@@ -532,6 +541,18 @@ Beyond the current gates, the literature motivates these explicit requirements:
 5. document compile-vs-steady-state performance separately for JAX workflows
    - current NTX profiling
    - TORAX 2024 style differentiable transport framing
+6. keep strong-gradient limitations explicit when presenting profile and
+   bootstrap-current proxy workflows
+   - Trinczek, Parra, Catto 2025
+7. add at least one zero-bootstrap-current or near-zero-bootstrap-current
+   benchmark family from optimized omnigenous / piecewise-omnigenous literature
+   before broadening the claim surface for optimization workflows
+   - Calvo et al. 2025
+   - Liu et al. 2026
+8. keep optimization/UQ demonstrations tied to robust-design use cases rather
+   than only synthetic curve fitting
+   - Gil et al. 2026
+   - Lee et al. 2024
 
 ## Start Here
 

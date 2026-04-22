@@ -176,6 +176,29 @@ def test_maybe_import_neopax_uses_sys_path_fallback(monkeypatch, tmp_path):
     assert imported is fake_module
 
 
+def test_maybe_import_neopax_uses_direct_import_when_available(monkeypatch):
+    fake_module = ModuleType("NEOPAX")
+    monkeypatch.setitem(sys.modules, "NEOPAX", fake_module)
+    imported = _maybe_import_neopax()
+    assert imported is fake_module
+
+
+def test_maybe_import_neopax_raises_when_no_root_is_found(monkeypatch):
+    monkeypatch.delitem(sys.modules, "NEOPAX", raising=False)
+    monkeypatch.setattr("ntx.autodiff.find_neopax_root", lambda: None)
+
+    original_import = __import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "NEOPAX":
+            raise ModuleNotFoundError("NEOPAX")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+    with pytest.raises(ModuleNotFoundError):
+        _maybe_import_neopax()
+
+
 def test_autodiff_profile_interpolants_return_finite_arrays():
     arrays = NeopaxMonoenergeticArrays(
         a_b=jnp.asarray(1.0),
