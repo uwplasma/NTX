@@ -5,6 +5,7 @@ from pathlib import Path
 
 import jax
 import jax.numpy as jnp
+import pytest
 
 from ntx import (
     GridSpec,
@@ -69,6 +70,154 @@ def test_build_ntx_neopax_scan_from_surfaces_matches_callback_builder():
     assert jnp.all(explicit.fac_sfincs_to_dkes_11 > 0)
     assert jnp.all(explicit.fac_sfincs_to_dkes_31 > 0)
     assert jnp.all(explicit.fac_sfincs_to_dkes_33 > 0)
+
+
+def test_build_ntx_neopax_scan_validates_basic_shapes():
+    rho = jnp.asarray([0.25, 0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    grid = GridSpec(5, 5, 4)
+    with pytest.raises(ValueError, match="drds must have the same length as rho"):
+        build_ntx_neopax_scan(
+            lambda _: example_surface(),
+            rho=rho,
+            nu_v=nu_v,
+            Er=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]]),
+            drds=jnp.asarray([1.0]),
+            grid=grid,
+        )
+    with pytest.raises(ValueError, match="set at least one of Es or Er"):
+        build_ntx_neopax_scan(
+            lambda _: example_surface(),
+            rho=rho,
+            nu_v=nu_v,
+            drds=jnp.asarray([1.0, 1.5]),
+            grid=grid,
+        )
+    with pytest.raises(ValueError, match="Es and Er must have the same shape"):
+        build_ntx_neopax_scan(
+            lambda _: example_surface(),
+            rho=rho,
+            nu_v=nu_v,
+            Es=jnp.asarray([[0.0, 1.0e-3]]),
+            Er=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]]),
+            drds=jnp.asarray([1.0, 1.5]),
+            grid=grid,
+        )
+    with pytest.raises(ValueError, match="Es/Er first dimension must match rho"):
+        build_ntx_neopax_scan(
+            lambda _: example_surface(),
+            rho=rho,
+            nu_v=nu_v,
+            Es=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3], [0.0, 3.0e-3]]),
+            Er=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3], [0.0, 3.0e-3]]),
+            drds=jnp.asarray([1.0, 1.5]),
+            grid=grid,
+        )
+
+
+def test_build_ntx_neopax_scan_derives_missing_field_channel():
+    surfaces = (example_surface(), example_surface())
+    rho = jnp.asarray([0.25, 0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    er = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    drds = jnp.asarray([1.0, 1.5])
+    grid = GridSpec(5, 5, 4)
+
+    from_er = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    from_es = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Es=es,
+        drds=drds,
+        grid=grid,
+    )
+
+    assert jnp.allclose(from_er.Er, er)
+    assert jnp.allclose(from_es.Es, es)
+    assert from_er.Es.shape == er.shape
+    assert from_es.Er.shape == es.shape
+
+    callback_from_er = build_ntx_neopax_scan(
+        lambda _: example_surface(),
+        rho=rho,
+        nu_v=nu_v,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    callback_from_es = build_ntx_neopax_scan(
+        lambda _: example_surface(),
+        rho=rho,
+        nu_v=nu_v,
+        Es=es,
+        drds=drds,
+        grid=grid,
+    )
+    assert callback_from_er.Es.shape == er.shape
+    assert callback_from_es.Er.shape == es.shape
+
+
+def test_build_ntx_neopax_scan_from_surfaces_validates_shape_mismatches():
+    rho = jnp.asarray([0.25, 0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    drds = jnp.asarray([1.0, 1.5])
+    grid = GridSpec(5, 5, 4)
+    surfaces = (example_surface(),)
+    with pytest.raises(ValueError, match="number of surfaces must match rho length"):
+        build_ntx_neopax_scan_from_surfaces(
+            surfaces,
+            rho=rho,
+            nu_v=nu_v,
+            Er=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]]),
+            drds=drds,
+            grid=grid,
+        )
+    with pytest.raises(ValueError, match="drds must have the same length as rho"):
+        build_ntx_neopax_scan_from_surfaces(
+            (example_surface(), example_surface()),
+            rho=rho,
+            nu_v=nu_v,
+            Er=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]]),
+            drds=jnp.asarray([1.0]),
+            grid=grid,
+        )
+    with pytest.raises(ValueError, match="set at least one of Es or Er"):
+        build_ntx_neopax_scan_from_surfaces(
+            (example_surface(), example_surface()),
+            rho=rho,
+            nu_v=nu_v,
+            drds=drds,
+            grid=grid,
+        )
+    with pytest.raises(ValueError, match="Es and Er must have the same shape"):
+        build_ntx_neopax_scan_from_surfaces(
+            (example_surface(), example_surface()),
+            rho=rho,
+            nu_v=nu_v,
+            Es=jnp.asarray([[0.0, 1.0e-3]]),
+            Er=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]]),
+            drds=drds,
+            grid=grid,
+        )
+    with pytest.raises(ValueError, match="Es/Er first dimension must match rho"):
+        build_ntx_neopax_scan_from_surfaces(
+            (example_surface(), example_surface()),
+            rho=rho,
+            nu_v=nu_v,
+            Es=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3], [0.0, 3.0e-3]]),
+            Er=jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3], [0.0, 3.0e-3]]),
+            drds=drds,
+            grid=grid,
+        )
 
 
 def test_scan_to_neopax_arrays_matches_expected_scalings():

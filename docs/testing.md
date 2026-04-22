@@ -128,6 +128,11 @@ modules directly. In the current fast coverage subset:
 - `src/ntx/_profiles_transport.py` is fully covered
 - `src/ntx/_profiles_eval.py` and `src/ntx/_profiles_controls.py` are both
   above `98%`
+- in the targeted facade/scan coverage slice:
+  - `src/ntx/neopax.py` is fully covered
+  - `src/ntx/_solver_scan.py` is above `98%`
+  - `src/ntx/parallel.py` is above `99%`
+  - `src/ntx/autodiff.py` is above `96%`
 
 Those gains come from narrow branch tests in the unit/workflow lanes, not from
 adding slower benchmark execution to the default developer loop.
