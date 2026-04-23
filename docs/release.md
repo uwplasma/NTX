@@ -50,8 +50,37 @@ research checkout.
 - `release.yml` runs on `v*` tags and publishes the built artifacts to the
   GitHub release.
 
+## PyPI Readiness
+
+Before publishing to PyPI:
+
+1. keep the base dependency set restricted to packages installable from normal
+   indexes;
+2. keep Git direct references out of package metadata; geometry-coupled
+   workflows remain documentation-only optional installs until the upstream
+   packages are available from standard indexes under stable version
+   constraints;
+3. keep build and publish jobs separate so the exact tested artifacts are the
+   artifacts that are uploaded;
+4. configure PyPI Trusted Publishing for the GitHub repository, release
+   workflow, and a protected `pypi` environment;
+5. add a release-job publish step using `pypa/gh-action-pypi-publish` only after
+   the package workflow and wheel/sdist smoke tests are green.
+
+The intended public install surface is:
+
+```bash
+python -m pip install ntx
+python -m pip install "ntx[io]"
+```
+
+Geometry-coupled examples should remain documented optional workflows until the
+upstream geometry packages are available from standard package indexes under
+stable version constraints.
+
 ## Scope
 
 The current shipping target is the monoenergetic NTX package itself. Shipping a
-full external geometry stack remains optional and is handled through extras such
-as `.[geometry]` and `.[io]`.
+full external geometry stack remains optional and is documented as an external
+install, while repository-owned file I/O support remains available through
+`.[io]`.

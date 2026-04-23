@@ -28,9 +28,74 @@ This split is intentional. It keeps pull-request feedback fast while still
 tracking literature-grade validation and throughput studies in reproducible
 scripts.
 
+## Current Testing Priorities
+
+The fast lane has already reached the coverage target, so new tests should be
+chosen for scientific value first. Do not add slow examples only to increase the
+headline coverage number.
+
+Near-term high-value gates are:
+
+- monoenergetic convergence ladders for `D11`, `D31`, `D33`, and
+  `onsager_residual` on small repository-owned geometries,
+- artifact-backed reproductions of larger W7-X, precise-QS, and QI-family
+  literature cases,
+- derivative audits that compare direct AD, prepared implicit-adjoint
+  derivatives, forward-mode geometry controls, and centered finite differences
+  on the same scalar outputs,
+- profile and bootstrap-current workflow tests that are run only after the
+  underlying coefficient and derivative gates are already green,
+- explicit tests that fixed-field closure comparisons remain stress gates unless
+  they also pass the integrated W7-X transfer gate.
+
+Every new benchmark-like test must declare its lane before it is added to CI:
+
+- `core`: small unit/workflow tests suitable for every PR,
+- `integration_examples`: representative imported workflow tests,
+- `heavy_examples_profiles`: slower profile examples,
+- `heavy_examples_derivatives`: local derivative benchmark examples,
+- `heavy_examples_boundary`: env-gated imported boundary/equilibrium derivative
+  examples,
+- `heavy_examples_publication`: publication/manuscript figure examples,
+- manual benchmark: long literature reproduction or hardware profiling.
+
+The GitHub Actions sharding is driven by the maintained manifest:
+
+```bash
+python scripts/test_lane_manifest.py --check
+python scripts/test_lane_manifest.py core
+python scripts/test_lane_manifest.py integration_examples
+python scripts/test_lane_manifest.py heavy_examples_profiles
+python scripts/test_lane_manifest.py heavy_examples_derivatives
+python scripts/test_lane_manifest.py heavy_examples_boundary
+python scripts/test_lane_manifest.py heavy_examples_publication
+```
+
+Any new `tests/test_*.py` file must be added to exactly one lane. This prevents
+new benchmark scripts from silently landing in the fast core shard.
+
+The imported boundary/equilibrium example reruns are intentionally opt-in:
+
+```bash
+NTX_RUN_HEAVY_BOUNDARY_EXAMPLES=1 \
+  python scripts/test_lane_manifest.py heavy_examples_boundary \
+  | xargs python -m pytest -q -m "not gpu"
+```
+
+Normal CI still checks the committed artifacts through the benchmark matrix and
+manuscript-artifact tests. The expensive boundary reruns are used when updating
+those artifacts.
+
 The physics-facing gate structure is documented separately in
 [`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
 meant to enforce that gate hierarchy, not to replace it.
+
+The maintained claim-to-artifact map is documented in
+[`benchmark-matrix.md`](benchmark-matrix.md) and can be regenerated with:
+
+```bash
+python scripts/build_benchmark_matrix.py
+```
 
 ## Running The Suite
 
@@ -93,6 +158,8 @@ Representative test groups:
   - `tests/test_autodiff.py`
   - `tests/test_autodiff_profile_uncertainty_example.py`
   - `tests/test_bootstrap_current_robust_optimization_example.py`
+  - `tests/test_file_backed_geometry_control_derivative_benchmark_example.py`
+  - `tests/test_explicit_relaxed_boundary_current_derivative_benchmark_example.py`
 - profile workflows:
   - `tests/test_profiles_unit.py`
   - `tests/test_profiles_workflows.py`
@@ -100,6 +167,7 @@ Representative test groups:
 - coverage and validation summaries:
   - `tests/test_build_coverage_report_script.py`
   - `tests/test_physics_gates.py`
+  - `tests/test_benchmark_matrix.py`
 - example and figure scripts:
   - `tests/test_make_publication_figures.py`
   - `tests/test_validation_summary_example.py`
@@ -144,20 +212,18 @@ modules directly. In the current fast coverage subset:
 Those gains come from narrow branch tests in the unit/workflow lanes, not from
 adding slower benchmark execution to the default developer loop.
 
-After the next cheap-branch hardening pass on `physics_gates.py` and `booz.py`,
-the repository-owned 3.11 core shard reached:
+The current measured `core + integration_examples` fast lane reached:
 
-- `207 passed`, `2 deselected`
-- `98.24%` overall coverage for the fast lane
-- with the remaining notable nontrivial modules now concentrated in:
-  - `src/ntx/vmec_jax_backend.py` (`92.3%`)
-  - `src/ntx/_geometry_eval.py` (`96.8%` after the next sine-series branch test)
-  - `src/ntx/_neopax_io.py` (`100%` after the optional-attribute HDF5 round-trip test)
-  - `src/ntx/vmec.py` (`99.5%` after the next helper/error-path VMEC slice)
-  - `src/ntx/vmec_jax_vmec.py` (`98.3%` after the zero-field branch test)
+- `243 passed`, `2 skipped`
+- `99.1%` overall repository-owned coverage after the targeted
+  imported-workflow branch tests were appended to the measured fast lane
+- `src/ntx/_neopax_field.py` at `99.6%`
+- `src/ntx/vmec_jax_backend.py` at `100.0%`
 
-That is the right next target set for cheap coverage work. Heavy example and
-artifact-generation tests stay out of this fast-lane number on purpose.
+The coverage-report helper accepts both absolute and relative `src/ntx/...`
+paths from `coverage json`, which keeps local reports and GitHub Actions
+summaries comparable. Heavy example and artifact-generation tests stay out of
+this fast-lane number on purpose.
 
 ## GPU Validation
 
@@ -218,5 +284,11 @@ Before publishing a new equilibrium scan or optimization result:
 3. check `onsager_residual`
 4. compare serial and parallel scan results on a subset
 5. inspect the output `.npz` graphically with `plot_output_npz.py`
-6. if the workflow feeds NEOPAX, regenerate the monoenergetic database and
+6. add or update the benchmark-matrix entry before promoting the result
+7. if the workflow feeds NEOPAX, regenerate the monoenergetic database and
    inspect the resulting radial profiles
+8. if the workflow uses automatic differentiation, compare the reported
+   derivative with centered finite differences on the same scalar output
+9. if the workflow uses imported equilibrium or Boozer transformations, state
+   whether the gate is projected-boundary, explicitly relaxed equilibrium, or
+   implicit-equilibrium sensitivity

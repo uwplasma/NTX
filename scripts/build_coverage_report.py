@@ -37,6 +37,15 @@ def _module_name(path: str) -> str:
     return normalized.removesuffix(".py").replace("/", ".")
 
 
+def _is_ntx_source_path(path: str) -> bool:
+    normalized = path.replace("\\", "/")
+    return (
+        normalized == "src/ntx.py"
+        or normalized.startswith("src/ntx/")
+        or "/src/ntx/" in normalized
+    )
+
+
 def _load_module_rows(payload: dict[str, object]) -> list[ModuleCoverage]:
     files = payload.get("files", {})
     if not isinstance(files, dict):
@@ -44,7 +53,7 @@ def _load_module_rows(payload: dict[str, object]) -> list[ModuleCoverage]:
 
     rows: list[ModuleCoverage] = []
     for path, file_payload in files.items():
-        if not isinstance(path, str) or "/src/ntx/" not in path.replace("\\", "/"):
+        if not isinstance(path, str) or not _is_ntx_source_path(path):
             continue
         if not isinstance(file_payload, dict):
             continue

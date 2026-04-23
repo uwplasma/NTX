@@ -109,3 +109,64 @@ tree_util.register_dataclass(
     data_fields=("a_b", "rho", "nu_log", "Er_list", "D11_log", "D13", "D33"),
     meta_fields=(),
 )
+
+
+@dataclass(frozen=True)
+class DifferentiableNeopaxField:
+    """JAX-safe field payload compatible with the NEOPAX flux routines."""
+
+    n_r: int
+    a_b: Array
+    Psia_value: Array
+    rho_grid: Array
+    rho_grid_half: Array
+    r_grid: Array
+    r_grid_half: Array
+    dr: Array
+    Vprime: Array
+    Vprime_half: Array
+    overVprime: Array
+    epsilon_t: Array
+    B0: Array
+    B_10: Array
+    enlogation: Array
+    iota: Array
+    R0: Array
+    B0prime: Array
+    curvature: Array
+    G_PS: Array
+    sqrtg00_value: Array
+    Bsqav: Array
+    I_value: Array
+    G_value: Array
+
+
+tree_util.register_dataclass(
+    DifferentiableNeopaxField,
+    data_fields=(
+        "a_b",
+        "Psia_value",
+        "rho_grid",
+        "rho_grid_half",
+        "r_grid",
+        "r_grid_half",
+        "dr",
+        "Vprime",
+        "Vprime_half",
+        "overVprime",
+        "epsilon_t",
+        "B0",
+        "B_10",
+        "enlogation",
+        "iota",
+        "R0",
+        "B0prime",
+        "curvature",
+        "G_PS",
+        "sqrtg00_value",
+        "Bsqav",
+        "I_value",
+        "G_value",
+    ),
+    meta_fields=("n_r",),
+)

@@ -19,15 +19,19 @@ examples.
 1. `autodiff_inverse_problem.{png,pdf}`
 2. `autodiff_neopax_profiles.{png,pdf}`
 3. `autodiff_profile_uncertainty.{png,pdf,json}`
-4. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-5. `bootstrap_current_robust_optimization.{png,pdf,json}`
-6. `performance_scaling_smoke.{png,pdf}`
-7. `ambipolar_profile.{png,pdf}`
-8. `ambipolar_profile_family.{png,pdf}`
-9. `profile_force_reconstruction_audit.{png,pdf,json}`
-10. `profile_control_optimization.{png,pdf}`
-11. `profile_basis_optimization.{png,pdf}`
-12. `profile_transport_loop.{png,pdf}`
+4. `geometry_control_derivative_benchmark.{png,pdf,json}`
+5. `boundary_forward_mode_current_derivative_benchmark.{png,pdf,json}`
+6. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
+7. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
+8. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+9. `bootstrap_current_robust_optimization.{png,pdf,json}`
+10. `performance_scaling_smoke.{png,pdf}`
+11. `ambipolar_profile.{png,pdf}`
+12. `ambipolar_profile_family.{png,pdf}`
+13. `profile_force_reconstruction_audit.{png,pdf,json}`
+14. `profile_control_optimization.{png,pdf}`
+15. `profile_basis_optimization.{png,pdf}`
+16. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -44,35 +48,56 @@ examples.
    - linearized versus Monte Carlo uncertainty propagation on the same
      differentiable profile fit under a prescribed Gaussian parameter
      perturbation
-5. `derivative_path_benchmark.{png,pdf}`
+5. `geometry_control_derivative_benchmark.{png,pdf,json}`
+   - three-harmonic geometry-control derivative audit against centered finite
+     differences; tracked as an autodiff stress benchmark
+6. `file_backed_geometry_control_derivative_benchmark.{png,pdf,json}`
+   - file-backed Boozer and VMEC geometry-control derivative audit against
+     centered finite differences; stronger than the owned-surface stress test
+     but still below a reusable geometry-family claim
+7. `boundary_forward_mode_current_derivative_benchmark.{png,pdf,json}`
+   - low-dimensional boundary controls propagated through boundary-projected
+     `vmec_jax -> booz_xform_jax -> NTX` and an `NTX+NEOPAX` integrated-current
+     objective under forward mode
+8. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
+   - low-dimensional boundary controls propagated through the implicit
+     fixed-boundary `vmec_jax` residual solve, `booz_xform_jax`, and an NTX
+     monoenergetic transport proxy under forward mode, with the reverse-mode
+     Boozer failure recorded in the JSON artifact
+9. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
+   - low-dimensional boundary controls propagated through an explicitly relaxed
+     fixed-boundary `vmec_jax -> booz_xform_jax -> NTX` path and an
+     `NTX+NEOPAX` integrated-current objective, with ordinary-versus-explicit
+     primal-volume agreement recorded on committed QA and QH family cases
+10. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-6. `bootstrap_current_optimization.{png,pdf}`
+11. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-7. `bootstrap_current_robust_optimization.{png,pdf,json}`
+12. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
-8. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+13. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-9. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+14. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-10. `performance_scaling_smoke.{png,pdf}`
+15. `performance_scaling_smoke.{png,pdf}`
    - CPU/GPU scaling on the repository smoke grid
-11. `performance_scaling_heavy.{png,pdf}`
+16. `performance_scaling_heavy.{png,pdf}`
    - heavier-grid scaling where throughput effects are visible
-12. `ambipolar_profile.{png,pdf}`
+17. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-13. `ambipolar_profile_family.{png,pdf}`
+18. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-14. `profile_force_reconstruction_audit.{png,pdf,json}`
+19. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-15. `profile_control_optimization.{png,pdf}`
+20. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-16. `profile_basis_optimization.{png,pdf}`
+21. `profile_basis_optimization.{png,pdf}`
    - low-dimensional radial-basis optimization of the same profile closure
-17. `profile_transport_loop.{png,pdf}`
+22. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-18. `primitive_profile_transport.{png,pdf}`
+23. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
@@ -81,6 +106,12 @@ Together these figures cover:
 - validation and convergence
 - differentiable inverse and profile problems
 - differentiable uncertainty propagation on the same profile map
+- multi-parameter geometry-control derivative auditing
+- file-backed Boozer and VMEC geometry-control derivative auditing
+- boundary-to-output forward-mode auditing on projected `vmec_jax` geometry
+- implicit-equilibrium derivative diagnostics that isolate where parity is lost:
+  equilibrium volume matches, but Boozer geometry and NTX transport remain open
+- equilibrium-relaxed boundary-to-current forward-mode auditing on committed QA/QH family cases
 - a deterministic robust-design stress benchmark for differentiable current optimization
 - derivative cost for prepared optimization workflows
 - a science-facing bootstrap-current optimization workflow
@@ -111,9 +142,9 @@ docs/_static/manuscript_claims.md
 
 These artifacts collect the current NTX commit, software environment, the
 validated W7-X convergence numbers, derivative benchmark summaries, heavy-grid
-CPU/GPU performance tables, bootstrap-current optimization summaries, and the
-exact commands needed to regenerate the figures and validation subset used in
-the manuscript.
+CPU/GPU performance tables, geometry-control derivative stress metrics,
+bootstrap-current optimization summaries, and the exact commands needed to
+regenerate the figures and validation subset used in the manuscript.
 
 ## One-Command Figure Bundle
 

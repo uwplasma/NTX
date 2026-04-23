@@ -161,3 +161,47 @@ So the current integrated workflow is not being held back by a missing on-disk
 compilation cache alone. The speed lane should stay focused on shape
 stability, static-argument control, and reusable compiled closure calls rather
 than on cache toggles by themselves.
+
+## Research-Grade Performance Plan
+
+The next performance work should stay evidence-driven:
+
+1. measure compile time, first-call time, steady-state time, peak resident
+   memory, and device memory separately;
+2. keep small PR tests and large profiling campaigns separate;
+3. profile the exact workload before changing linear algebra, vectorization, or
+   dependencies;
+4. prefer stable shapes and prepared data structures over dynamic Python control
+   inside `jit`;
+5. promote multi-process or multi-device paths only when a measured production
+   grid crosses over from serial batched JAX.
+
+JAX-specific rules for NTX:
+
+- use `jax.vmap` for independent collisionality, electric-field, species, or
+  radial scan axes when all mapped leaves have compatible shapes;
+- use `jax.lax.scan` for fixed-length iterative loops that would otherwise be
+  unrolled inside `jit`;
+- keep static arguments hashable, immutable, and low-cardinality so they do not
+  create unnecessary recompiles;
+- consider buffer donation only at public call boundaries where the caller will
+  not reuse the donated arrays;
+- use `jax.profiler.trace` or XProf/Perfetto for targeted traces, and JAX memory
+  profiling for OOM or retained-buffer investigations;
+- for GPU sharing, set explicit memory policy such as
+  `XLA_PYTHON_CLIENT_PREALLOCATE=false` or `XLA_PYTHON_CLIENT_MEM_FRACTION`
+  before launching concurrent runs.
+
+Lineax and Equinox are useful but not automatic wins:
+
+- Lineax should be evaluated first on repeated structured solve or
+  Jacobian-linear-operator workloads where reuse or memory reduction can be
+  measured against the current prepared dense solve.
+- Equinox should be evaluated for typed PyTree modules and filtered transforms
+  only if it simplifies static-versus-dynamic argument handling or custom
+  derivative APIs without destabilizing the public NTX API.
+
+Do not use broad XLA dump passes as the default profiling loop on normal
+workstations. They are useful for focused compiler investigations, but the
+current project bottlenecks are better attacked with smaller traces, shape
+audits, and cached closure-only profiling.

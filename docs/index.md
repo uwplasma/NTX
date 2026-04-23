@@ -77,6 +77,9 @@ parallel-throughput workflows.
 - [Examples](examples.md): runnable workflows and figure generators
 - [Validation](validation.md): current status and benchmark philosophy
 - [Testing And QA](testing.md): test structure and quality gates
+- [Benchmark Matrix](benchmark-matrix.md): claim-to-script/test/artifact mapping
+- [Repository Hygiene](repo-hygiene.md): local cleanup and commit-batch plan
+- [Pre-Merge Ship Checklist](ship-checklist.md): release blockers and acceptance criteria
 - [NEOPAX](neopax.md): imported database-building workflows
 - [GPU](gpu.md): hardware execution notes
 - [Performance](performance.md): throughput guidance and scaling figures
@@ -102,6 +105,9 @@ profiles
 examples
 validation
 testing
+benchmark-matrix
+repo-hygiene
+ship-checklist
 neopax
 gpu
 performance

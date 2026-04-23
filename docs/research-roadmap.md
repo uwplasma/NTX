@@ -1,8 +1,10 @@
 # Research Roadmap
 
-NTX is ship-ready as a monoenergetic transport package. The next step is to
-turn it into a research platform for open stellarator transport and
-optimization problems.
+NTX has a strong monoenergetic transport base, but the current development
+branch is not ready to merge, tag, or ship until the pre-merge gates in
+[`ship-checklist.md`](ship-checklist.md) are resolved. The next step is to turn
+the current open lanes into a research platform for open stellarator transport
+and optimization problems.
 
 This page summarizes the active development lanes, why they matter, and where
 they map onto the current source tree.
@@ -47,6 +49,10 @@ Relevant references:
   [arXiv:1904.06430](https://arxiv.org/abs/1904.06430)
 - Differentiable programming for plasma workflows:
   [arXiv:2410.11161](https://arxiv.org/abs/2410.11161)
+- Direct neoclassical ion-transport optimization:
+  [arXiv:2406.04147](https://arxiv.org/abs/2406.04147)
+- Near-axis quasi-isodynamic construction and verification:
+  [JPP 2025](https://doi.org/10.1017/S0022377825000157)
 - Zero-bootstrap-current piecewise omnigenity:
   [arXiv:2505.02546](https://arxiv.org/abs/2505.02546)
 - Hidden-symmetry optimization:
@@ -104,6 +110,65 @@ The first step is already started in NTX with:
 
 both documented in the [Autodiff](autodiff.md) and [Examples](examples.md)
 pages.
+
+The first multi-parameter geometry-control stress benchmark is also in place:
+
+- [`examples/geometry_control_derivative_benchmark.py`](../examples/geometry_control_derivative_benchmark.py)
+  controls three independent Boozer harmonics on an owned analytic surface,
+- its JSON artifact records direct autodiff, centered finite-difference
+  Jacobians, and AD/FD mismatch metrics for `D11`, `D31`, and `D33`,
+- and it is deliberately classified as a stress benchmark until the same audit
+  is transferred to reusable VMEC/Boozer geometry-control families.
+
+That transfer is now started on repository-owned file-backed inputs:
+
+- [`examples/file_backed_geometry_control_derivative_benchmark.py`](../examples/file_backed_geometry_control_derivative_benchmark.py)
+  repeats the same AD versus centered-finite-difference audit on sample Boozer
+  and VMEC-backed surfaces loaded from files,
+- so the remaining gap is no longer "analytic versus real geometry", but
+  rather the broader reusable geometry-family basis and prepared
+  implicit-adjoint geometry pullbacks.
+
+The next imported boundary-control slice is now also benchmarked:
+
+- [`examples/boundary_forward_mode_current_derivative_benchmark.py`](../examples/boundary_forward_mode_current_derivative_benchmark.py)
+  uses repository-owned `vmec_jax` boundary controls, a boundary-projected
+  VMEC state, `booz_xform_jax`, NTX, and NEOPAX to audit two scalar outputs
+  against centered finite differences,
+- the current validated contract is forward-mode on this low-dimensional
+  boundary-projected geometry lane,
+- and the open work is to transfer that agreement to a self-consistent
+  equilibrium sensitivity workflow rather than just the projected-boundary map.
+
+That implicit-equilibrium transfer is now diagnosed rather than closed on the
+committed QA case:
+
+- [`examples/implicit_equilibrium_forward_mode_derivative_benchmark.py`](../examples/implicit_equilibrium_forward_mode_derivative_benchmark.py)
+  uses the implicit fixed-boundary `vmec_jax` residual solve with
+  `residual_tangent_mode="auto"`,
+- it records AD versus centered-finite-difference behavior for equilibrium
+  volume, a Boozer scalar, and an NTX monoenergetic transport observable,
+- the current result is asymmetric: equilibrium volume matches, but the Boozer
+  and NTX transport observables do not,
+- so the remaining open work is now "recover parity through the implicit
+  geometry and transport path, then extend to integrated current",
+- and the current reverse-mode failure is concrete: the matching Boozer-scalar
+  gradient is unavailable because JAX rejects reverse mode through the dynamic
+  implicit solve.
+
+That self-consistent forward-mode transfer is now in place on committed QA and
+QH family cases:
+
+- [`examples/explicit_relaxed_boundary_current_derivative_benchmark.py`](../examples/explicit_relaxed_boundary_current_derivative_benchmark.py)
+  uses an explicitly relaxed fixed-boundary `vmec_jax` solve, `booz_xform_jax`,
+  NTX, and NEOPAX on the low-resolution QA input and the lighter QH warm-start
+  input,
+- its JSON artifact records ordinary-versus-explicit primal-volume agreement in
+  addition to the AD versus centered-finite-difference mismatch metrics on both
+  cases,
+- so the remaining open work is no longer "projected versus relaxed
+  equilibrium", but rather additional geometry families, integrated-current
+  transfer on the implicit lane, and reverse-mode equilibrium paths.
 
 NTX now also exposes an explicit custom-VJP contract point in
 [`src/ntx/solver.py`](../src/ntx/solver.py):
@@ -208,12 +273,49 @@ execution notes, and the next derivative milestone.
 
 ## Immediate Milestone
 
-The active implementation milestone is:
+The derivative-audit and prepared implicit-adjoint milestones are now in place.
+The active implementation milestone is therefore the benchmark-matrix hardening
+lane:
 
-1. complete the derivative-audit workflow,
-2. introduce an implicit-derivative pathway for the prepared dense solve,
-3. validate it against direct autodiff and finite differences,
-4. then use it in a stronger bootstrap-current optimization example.
+1. keep every promoted result mapped to a script, test, artifact, and manuscript
+   figure through `scripts/build_benchmark_matrix.py`,
+2. broaden the monoenergetic validation family toward the W7-X EIM, W7-X KJM,
+   and CIEMAT-QI cases listed in the hardening plan,
+3. transfer the three-control derivative audit to reusable VMEC/Boozer
+   geometry-control families and compare direct autodiff, prepared adjoints, and
+   centered finite differences,
+4. lift the new boundary forward-mode lane from projected geometry to a
+   self-consistent equilibrium sensitivity workflow and then re-audit the same
+   NTX and NTX+NEOPAX outputs,
+5. define reusable hidden-symmetry and omnigenous input families before adding
+   new research-grade figures,
+6. and keep the fixed-field current comparison as a monitored closure stress
+   test until a transferable closure model passes the integrated W7-X gate.
 
-This is the shortest path from a strong forward solver to a research tool that
-can address open design and optimization problems.
+This is the shortest path from a strong forward solver to a research tool with
+reviewable validation claims instead of isolated example scripts.
+
+## Next Development Pass
+
+The next code pass should execute in this order:
+
+1. replace the CI test-shard exclusion list with a maintained lane manifest or
+   pytest markers;
+2. audit untracked generated files and keep only benchmark artifacts that are
+   referenced by docs, tests, or the benchmark matrix;
+3. add the missing benchmark-matrix rows for W7-X EIM/KJM, QI-family,
+   hidden-symmetry, explicit-relaxed, and implicit-equilibrium derivative lanes;
+4. add small convergence-ladder tests for the monoenergetic coefficients before
+   adding more profile or current examples;
+5. extend the explicit-relaxed boundary-control derivative audit to additional
+   owned QA/QH/QI cases;
+6. keep the implicit-equilibrium Boozer and transport derivative lane open until
+   centered finite differences agree;
+7. profile prepared-geometry reuse and closure recompiles before evaluating
+   Lineax or Equinox;
+8. update the manuscript figure list only from artifacts generated by these
+   maintained scripts.
+
+This order avoids two failure modes: slow CI from benchmark creep, and strong
+optimization claims built on derivative paths that have not passed a local
+finite-difference gate.

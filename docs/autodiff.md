@@ -116,6 +116,192 @@ It shows:
 - speedup of the prepared custom-VJP path,
 - and the max relative mismatch between the two derivative paths.
 
+## Geometry-Control Derivative Benchmark
+
+The script:
+
+```bash
+python examples/geometry_control_derivative_benchmark.py
+```
+
+extends the derivative checks from one scalar control to three independent
+Boozer-harmonic amplitudes on the owned analytic surface. It compares direct
+JAX geometry-control derivatives against centered finite differences for
+`D11`, `D31`, and `D33` across collisionality.
+
+The figure is written to:
+
+```text
+docs/_static/geometry_control_derivative_benchmark.png
+docs/_static/geometry_control_derivative_benchmark.pdf
+docs/_static/geometry_control_derivative_benchmark.json
+```
+
+This is an artifact-backed autodiff stress benchmark. It is not yet a
+large-geometry-control validation claim; the open lane is to transfer the same
+audit to reusable VMEC/Boozer geometry-control families and to compare geometry
+pullbacks with a prepared implicit-adjoint path once that pullback exists.
+
+![Geometry-control derivative benchmark](_static/geometry_control_derivative_benchmark.png)
+
+## File-Backed Geometry-Control Benchmark
+
+The script:
+
+```bash
+python examples/file_backed_geometry_control_derivative_benchmark.py
+```
+
+takes the next step on the geometry-control autodiff lane. Instead of the owned
+analytic surface, it loads two repository-owned file-backed cases:
+
+- a Boozer-file sample surface,
+- and a VMEC-backed sample surface.
+
+For each case, NTX selects the dominant non-axisymmetric harmonics, perturbs
+them through dimensionless scale factors, and compares direct JAX derivatives
+against centered finite differences for `D11`, `D31`, and `D33`.
+
+The figure is written to:
+
+```text
+docs/_static/file_backed_geometry_control_derivative_benchmark.png
+docs/_static/file_backed_geometry_control_derivative_benchmark.pdf
+docs/_static/file_backed_geometry_control_derivative_benchmark.json
+```
+
+This closes part of the previous open lane: the derivative audit now transfers
+from an owned analytic surface to repository-owned file-backed magnetic
+geometry. It is still a stress benchmark rather than a promoted design claim,
+since the remaining open work is a reusable family of VMEC/Boozer controls plus
+prepared implicit-adjoint geometry pullbacks.
+
+![File-backed geometry-control derivative benchmark](_static/file_backed_geometry_control_derivative_benchmark.png)
+
+## Boundary Forward-Mode Benchmark
+
+The script:
+
+```bash
+python examples/boundary_forward_mode_current_derivative_benchmark.py
+```
+
+checks the next imported differentiable lane built on the upstream
+`vmec_jax` and `booz_xform_jax` packages. It treats two low-order boundary
+controls from the repository-owned sample input as independent variables,
+builds the boundary-projected VMEC state, transforms it to Boozer
+coordinates, and then differentiates two scalar outputs with respect to those
+controls:
+
+- an NTX monoenergetic transport proxy,
+- and an NTX+NEOPAX integrated-current objective.
+
+The figure is written to:
+
+```text
+docs/_static/boundary_forward_mode_current_derivative_benchmark.png
+docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf
+docs/_static/boundary_forward_mode_current_derivative_benchmark.json
+```
+
+This is an artifact-backed stress benchmark for the boundary-to-output lane.
+It is intentionally scoped to the boundary-projected geometry map, where
+forward-mode autodiff matches centered finite differences on the committed
+sample case. It does not yet claim a fully validated self-consistent
+equilibrium sensitivity workflow for bootstrap current.
+
+![Boundary forward-mode current derivative benchmark](_static/boundary_forward_mode_current_derivative_benchmark.png)
+
+## Implicit Equilibrium Forward-Mode Benchmark
+
+The script:
+
+```bash
+python examples/implicit_equilibrium_forward_mode_derivative_benchmark.py
+```
+
+adds the next implicit-equilibrium diagnostic on the committed QA case. It uses
+the same low-order boundary controls, but now routes them through the implicit
+fixed-boundary `vmec_jax` residual solve with
+`residual_tangent_mode="auto"`. The benchmark then differentiates three scalar
+outputs with respect to those controls:
+
+- equilibrium volume,
+- a Boozer-space scalar built from the implicit equilibrium,
+- and an NTX monoenergetic transport proxy.
+
+The figure is written to:
+
+```text
+docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.png
+docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf
+docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json
+```
+
+This does not close the implicit-equilibrium lane. The current JSON artifact
+shows a mixed result on the committed QA case:
+
+- the equilibrium-volume derivative matches centered finite differences,
+- the Boozer scalar remains mismatched on the implicit lane,
+- the NTX transport observable remains more strongly mismatched on the same lane,
+- and the matching reverse-mode Boozer-scalar diagnostic is still unavailable
+  because JAX rejects reverse mode through the dynamic-loop implicit solve.
+
+So the open work is now concrete rather than vague:
+
+- recover Boozer-scalar parity on the implicit geometry path,
+- recover NTX transport parity on the same implicit geometry path,
+- extend the implicit forward-mode lane to the `NTX+NEOPAX` integrated-current objective,
+- broaden the benchmark beyond the committed QA case,
+- and repair reverse mode through the implicit `vmec_jax -> booz_xform_jax` path.
+
+![Implicit-equilibrium forward-mode derivative benchmark](_static/implicit_equilibrium_forward_mode_derivative_benchmark.png)
+
+## Explicit-Relaxed Equilibrium Benchmark
+
+The script:
+
+```bash
+python examples/explicit_relaxed_boundary_current_derivative_benchmark.py
+```
+
+closes the next imported lane on two repository-owned non-axisymmetric cases:
+a low-resolution QA family input and a lighter QH warm-start input. It uses
+the same low-order boundary controls, but instead of stopping at the
+boundary-projected VMEC state it runs an explicitly relaxed fixed-boundary
+`vmec_jax` solve in a stable forward-mode regime and then differentiates three
+scalar outputs on each case:
+
+- a Boozer-space scalar built from the relaxed surface,
+- an NTX monoenergetic transport proxy,
+- and an `NTX+NEOPAX` integrated-current objective.
+
+The figure is written to:
+
+```text
+docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png
+docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf
+docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json
+```
+
+This is the first committed self-consistent boundary-to-current forward-mode
+benchmark family. The JSON artifact records that the ordinary and explicit
+relaxed primal volumes agree on both committed cases, so the benchmark is not
+just an internally consistent autodiff loop on a different equilibrium branch.
+The remaining open work is now narrower:
+
+- widen from the committed QA/QH cases to additional geometry families,
+- extend the implicit-equilibrium forward-mode contract from geometry and NTX
+  transport to `NTX+NEOPAX` integrated current,
+- and repair reverse mode on the relaxed-equilibrium lane.
+
+At the moment, the reverse-mode implicit path remains open for a concrete
+reason: the matching QA Boozer-scalar probe returns an all-zero reverse-mode
+gradient while centered finite differences are nonzero, so this is still a
+broken lane, not a promoted sensitivity workflow.
+
+![Explicit-relaxed boundary current derivative benchmark](_static/explicit_relaxed_boundary_current_derivative_benchmark.png)
+
 ## NEOPAX-Style Profile Example
 
 The script:

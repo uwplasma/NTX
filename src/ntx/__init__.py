@@ -33,10 +33,17 @@ from .io import (
     load_vmec_surface,
 )
 from .neopax import (
+    DifferentiableNeopaxField,
     NeopaxMonoenergeticArrays,
     NeopaxScan,
+    build_differentiable_neopax_field,
+    build_differentiable_neopax_field_from_vmec_jax_boundary_params,
+    build_differentiable_neopax_field_from_vmec_jax_state,
     build_ntx_neopax_scan,
     build_ntx_neopax_scan_from_surfaces,
+    build_ntx_neopax_scan_from_vmec_jax_boundary_params,
+    build_ntx_neopax_scan_from_vmec_jax_state,
+    get_differentiable_neopax_fluxes,
     load_neopax_reference_scan,
     neopax_scan_requires_rebuild,
     scan_to_neopax_arrays,
@@ -103,7 +110,15 @@ from .solver import (
     solve_prepared_internal,
 )
 from .transport import onsager_error
-from .vmec_jax_backend import surface_from_vmec_jax_state, surface_from_vmec_jax_wout
+from .vmec_jax_backend import (
+    VmecJaxBoundaryContext,
+    build_vmec_jax_boundary_context,
+    initial_guess_vmec_jax_boundary_state,
+    relax_vmec_jax_boundary_state_explicit,
+    solve_vmec_jax_boundary_state,
+    surface_from_vmec_jax_state,
+    surface_from_vmec_jax_wout,
+)
 from .vmec_jax_vmec import surface_from_vmec_jax_vmec_wout, surface_from_vmec_jax_vmec_wout_file
 
 try:
@@ -120,6 +135,7 @@ __all__ = [
     "AmbipolarProfileResult",
     "CompiledPreparedSolver",
     "DerivativeAuditResult",
+    "DifferentiableNeopaxField",
     "GridSpec",
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
@@ -138,12 +154,22 @@ __all__ = [
     "NeopaxScan",
     "PreparedMonoenergeticSystem",
     "TransportResult",
+    "VmecJaxBoundaryContext",
     "VmecSurface",
     "ANALYTICAL_GATES",
     "ARTIFACT_GATES",
+    "build_differentiable_neopax_field",
+    "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
+    "build_differentiable_neopax_field_from_vmec_jax_state",
+    "build_vmec_jax_boundary_context",
+    "initial_guess_vmec_jax_boundary_state",
+    "relax_vmec_jax_boundary_state_explicit",
     "build_monoenergetic_database_arrays",
     "build_ntx_neopax_scan",
+    "build_ntx_neopax_scan_from_vmec_jax_boundary_params",
+    "build_ntx_neopax_scan_from_vmec_jax_state",
     "build_ntx_neopax_scan_from_surfaces",
+    "get_differentiable_neopax_fluxes",
     "evaluate_scan_channel",
     "evaluate_species_current_response",
     "evaluate_species_particle_flux",
@@ -190,6 +216,8 @@ __all__ = [
     "surface_from_vmec_jax_wout",
     "surface_from_vmec_jax_vmec_wout",
     "surface_from_vmec_jax_vmec_wout_file",
+    "relax_vmec_jax_boundary_state_explicit",
+    "solve_vmec_jax_boundary_state",
     "solve_ambipolar_er_profile",
     "solve_ambipolar_profile_family",
     "optimize_profile_basis_control",

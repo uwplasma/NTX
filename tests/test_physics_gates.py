@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -12,6 +13,8 @@ from ntx.physics_gates import (
     evaluate_artifact_gates,
     physics_gate_registry,
 )
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_physics_gate_registry_contains_expected_gate_families():
@@ -132,6 +135,18 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
     assert results["pmax_convergence_precise_qs"].value == pytest.approx(0.125)
     assert results["w7x_pmax_transfer_regression"].status == "monitor"
     assert results["w7x_pmax_transfer_regression"].value == pytest.approx(0.02)
+
+
+def test_repository_artifact_gates_match_current_claim_statuses():
+    results = {result.gate.name: result for result in evaluate_artifact_gates(ROOT)}
+
+    assert results["w7x_integrated_rebuild_raw"].status == "pass"
+    assert results["w7x_integrated_rebuild_raw"].value <= 2.0e-2
+    assert results["precise_qs_redl_vs_sfincs"].status == "pass"
+    assert results["precise_qs_redl_vs_sfincs"].value <= 1.0e-1
+    assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
+    assert results["pmax_convergence_precise_qs"].status == "monitor"
+    assert results["w7x_pmax_transfer_regression"].status == "monitor"
 
 
 def test_scalar_gate_helpers_cover_fail_greater_equal_and_lookup_error():

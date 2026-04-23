@@ -14,11 +14,39 @@ tree.
 | Transport post-processing | `src/ntx/transport.py` | `coefficients_from_modes(...)`, `onsager_error(...)` |
 | CLI/TOML workflow | `src/ntx/inputfiles.py`, `src/ntx/_inputfiles_model.py`, `src/ntx/_inputfiles_reporting.py`, `src/ntx/cli.py` | `load_run_config(...)`, `run_from_input_file(...)`, `save_run_npz(...)` |
 | VMEC loading | `src/ntx/vmec.py` | `load_vmec_surface(...)` |
+| In-memory `vmec_jax -> booz_xform_jax` boundary workflows | `src/ntx/vmec_jax_backend.py`, `src/ntx/_neopax_field.py` | `build_vmec_jax_boundary_context(...)`, `initial_guess_vmec_jax_boundary_state(...)`, `solve_vmec_jax_boundary_state(...)`, imported Boozer and NEOPAX field builders |
 | Boozer file loading | `src/ntx/booz.py` | Boozer harmonic file loaders |
-| NEOPAX coupling | `src/ntx/neopax.py`, `src/ntx/_neopax_types.py`, `src/ntx/_neopax_io.py`, `src/ntx/_neopax_bridge.py` | `build_ntx_neopax_scan(...)`, `scan_to_neopax_arrays(...)`, `write_neopax_scan_hdf5(...)` |
+| NEOPAX coupling | `src/ntx/neopax.py`, `src/ntx/_neopax_types.py`, `src/ntx/_neopax_io.py`, `src/ntx/_neopax_bridge.py`, `src/ntx/_neopax_field.py` | `build_ntx_neopax_scan(...)`, `scan_to_neopax_arrays(...)`, `write_neopax_scan_hdf5(...)`, differentiable imported-field helpers |
 | Profile-grade imported workflows | `src/ntx/profiles.py`, `src/ntx/_profiles_types.py`, `src/ntx/_profiles_eval.py`, `src/ntx/_profiles_controls.py`, `src/ntx/_profiles_transport.py` | species-profile closures, ambipolar `E_r(r)` solve, controls, and transport loops |
 | Throughput-oriented multi-device execution | `src/ntx/parallel.py` | `solve_monoenergetic_multiprocess_scan(...)` |
 | Autodiff examples and optimization helpers | `src/ntx/autodiff.py`, `src/ntx/_autodiff_types.py`, `src/ntx/_autodiff_workflows.py` | inverse, sensitivity, and bootstrap-current optimization helpers |
+| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/physics_gates.py` | benchmark-matrix metadata and physics-gate definitions |
+
+The compatibility modules remain the primary implementation locations. The
+newer namespace packages provide stable grouped imports:
+
+- `ntx.core` for solver, scan, and transport helpers.
+- `ntx.workflows` for autodiff, profile, and imported database helpers.
+- `ntx.validation` for benchmark and validation registries.
+
+## Refactoring Target
+
+The source tree should keep moving toward smaller ownership boundaries, but only
+when a move improves testing, documentation, or API clarity.
+
+Target ownership:
+
+| Package | Responsibility |
+| --- | --- |
+| `ntx.core` | grids, operator assembly, dense solve, transport coefficients, prepared solve/VJP |
+| `ntx.geometry` | analytic, Boozer, VMEC, and imported JAX geometry evaluation |
+| `ntx.io` | TOML, NPZ, HDF5, NetCDF, and benchmark artifact loading/writing |
+| `ntx.workflows` | profile, NEOPAX, autodiff, optimization, and publication workflows |
+| `ntx.validation` | benchmark matrix, physics gates, literature claim metadata, artifact summaries |
+
+Compatibility facades should remain stable for users. Internal modules can move
+behind those facades when the new location has direct unit tests and the docs
+map has been updated in the same change.
 
 ## Equation-To-Code Mapping
 
@@ -132,6 +160,9 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `neopax_autodiff_profiles.py`
 - `derivative_audit.py`
 - `derivative_path_benchmark.py`
+- `geometry_control_derivative_benchmark.py`
+- `file_backed_geometry_control_derivative_benchmark.py`
+- `explicit_relaxed_boundary_current_derivative_benchmark.py`
 - `ambipolar_profile.py`
 - `ambipolar_profile_family.py`
 - `profile_control_optimization.py`
@@ -143,3 +174,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 The figure bundle generator is:
 
 - `make_publication_figures.py`
+
+The benchmark-matrix artifact generator is:
+
+- `scripts/build_benchmark_matrix.py`

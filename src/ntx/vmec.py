@@ -35,7 +35,7 @@ def load_vmec_surface(
         raise ModuleNotFoundError(
             "load_vmec_surface requires vmec_jax. Install it with "
             "`pip install vmec_jax`, `pip install -e ../vmec_jax`, "
-            "or `pip install -e '.[geometry]'`."
+            "or `pip install git+https://github.com/uwplasma/vmec_jax.git`."
         ) from exc
 
     wout = vmec_jax_api.read_wout(wout_path)

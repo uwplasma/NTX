@@ -15,6 +15,14 @@ def test_build_coverage_report_writes_module_summary(tmp_path):
             {
                 "totals": {"percent_covered": 92.5},
                 "files": {
+                    "src/ntx/__main__.py": {
+                        "summary": {
+                            "percent_covered": 91.0,
+                            "covered_lines": 91,
+                            "missing_lines": 9,
+                            "num_statements": 100,
+                        }
+                    },
                     str(ROOT / "src" / "ntx" / "solver.py"): {
                         "summary": {
                             "percent_covered": 88.0,
@@ -68,8 +76,9 @@ def test_build_coverage_report_writes_module_summary(tmp_path):
     text = text_output.read_text(encoding="utf-8")
 
     assert report["overall_percent_covered"] == 92.5
-    assert report["module_count"] == 2
+    assert report["module_count"] == 3
     assert report["modules"][0]["module"] == "solver"
-    assert report["modules"][1]["module"] == "grids"
+    assert report["modules"][1]["module"] == "__main__"
+    assert report["modules"][2]["module"] == "grids"
     assert "Overall coverage: 92.5%" in text
     assert "- solver: 88.0% (880/1000 lines)" in text

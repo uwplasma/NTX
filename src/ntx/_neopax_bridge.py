@@ -63,7 +63,7 @@ def scan_to_neopax_arrays(
 def to_neopax_monoenergetic(
     scan: NeopaxScan,
     *,
-    a_b: float,
+    a_b: float | Array,
     d33_mode: str = "spitzer",
 ):
     """Construct `NEOPAX.Monoenergetic` from NTX scan data."""
@@ -76,7 +76,7 @@ def to_neopax_monoenergetic(
     arrays = scan_to_neopax_arrays(scan, a_b=a_b, d33_mode=d33_mode)
 
     return NEOPAX.Monoenergetic(
-        a_b=float(a_b),
+        a_b=arrays.a_b,
         rho=arrays.rho,
         nu_log=arrays.nu_log,
         Er_list=arrays.Er_list,

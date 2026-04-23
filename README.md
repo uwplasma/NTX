@@ -98,10 +98,11 @@ Editable install with test and docs tools:
 python -m pip install -e ".[dev,docs,io]"
 ```
 
-Install the VMEC/Boozer geometry helpers:
+Install the optional JAX VMEC/Boozer geometry helpers directly when needed:
 
 ```bash
-python -m pip install -e ".[geometry]"
+python -m pip install git+https://github.com/uwplasma/vmec_jax.git
+python -m pip install git+https://github.com/uwplasma/booz_xform_jax.git
 ```
 
 ## Simplest Way To Run The Code

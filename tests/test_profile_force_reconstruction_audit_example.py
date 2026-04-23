@@ -3,8 +3,10 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
-import f90nml
+import pytest
 from netCDF4 import Dataset
+
+f90nml = pytest.importorskip("f90nml")
 
 ROOT = Path(__file__).resolve().parents[1]
 

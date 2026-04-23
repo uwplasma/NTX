@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+import jax
 import jax.numpy as jnp
 from jax import Array
 
@@ -13,21 +14,38 @@ from ._neopax_bridge import (
     scan_to_neopax_arrays,
     to_neopax_monoenergetic,
 )
+from ._neopax_field import (
+    build_differentiable_neopax_field,
+    build_differentiable_neopax_field_from_vmec_jax_boundary_params,
+    build_differentiable_neopax_field_from_vmec_jax_state,
+)
 from ._neopax_io import (
     load_neopax_reference_scan,
     neopax_scan_requires_rebuild,
     write_neopax_scan_hdf5,
 )
-from ._neopax_types import NeopaxMonoenergeticArrays, NeopaxScan
+from ._neopax_types import DifferentiableNeopaxField, NeopaxMonoenergeticArrays, NeopaxScan
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from .solver import solve_monoenergetic_scan
+from .vmec_jax_backend import (
+    VmecJaxBoundaryContext,
+    surfaces_from_vmec_jax_boundary_params,
+    surfaces_from_vmec_jax_state,
+)
 
 __all__ = [
+    "DifferentiableNeopaxField",
     "NeopaxMonoenergeticArrays",
     "NeopaxScan",
+    "build_differentiable_neopax_field",
+    "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
+    "build_differentiable_neopax_field_from_vmec_jax_state",
     "build_ntx_neopax_scan",
+    "build_ntx_neopax_scan_from_vmec_jax_boundary_params",
+    "build_ntx_neopax_scan_from_vmec_jax_state",
     "build_ntx_neopax_scan_from_surfaces",
+    "get_differentiable_neopax_fluxes",
     "load_neopax_reference_scan",
     "neopax_scan_requires_rebuild",
     "scan_to_neopax_arrays",
@@ -105,6 +123,59 @@ def build_ntx_neopax_scan(
         grid=grid,
         source_name=source_name,
     )
+
+
+def get_differentiable_neopax_fluxes(species, grid, field, database):
+    """Evaluate NEOPAX no-momentum fluxes with an axis-safe radial block.
+
+    The reference monoenergetic databases do not include the magnetic axis
+    exactly. For integrated objectives such as total bootstrap current, the
+    axis contribution is weighted by `Vprime[0] = 0`, so copying the first
+    interior radial block into the axis block removes an AD-only singularity
+    without changing the physical integral.
+    """
+
+    try:
+        from NEOPAX._neoclassical import get_Lij_matrix
+    except ImportError as exc:  # pragma: no cover - exercised with local NEOPAX
+        raise ImportError("NEOPAX is required for differentiable flux evaluation") from exc
+
+    def _fluxes_internal(species_internal, species_index, lij):
+        a1 = species_internal.A1[species_index]
+        a2 = species_internal.A2[species_index]
+        a3 = species_internal.A3
+        temperature = species_internal.temperature[species_index]
+        density = species_internal.density[species_index]
+        gamma = -density * (
+            lij[species_index, :, 0, 0] * a1
+            + lij[species_index, :, 0, 1] * a2
+            + lij[species_index, :, 0, 2] * a3
+        )
+        heat = -temperature * density * (
+            lij[species_index, :, 1, 0] * a1
+            + lij[species_index, :, 1, 1] * a2
+            + lij[species_index, :, 1, 2] * a3
+        )
+        upar = -density * (
+            lij[species_index, :, 2, 0] * a1
+            + lij[species_index, :, 2, 1] * a2
+            + lij[species_index, :, 2, 2] * a3
+        )
+        return gamma, heat, upar
+
+    radial_indices = jnp.asarray(grid.full_grid_indeces)
+    interior_indices = radial_indices[1:]
+    lij_interior = jax.vmap(
+        jax.vmap(get_Lij_matrix, in_axes=(None, None, None, None, None, 0)),
+        in_axes=(None, None, None, None, 0, None),
+    )(species, grid, field, database, species.species_indeces, interior_indices)
+    lij = jnp.concatenate([lij_interior[:, :1, :, :], lij_interior], axis=1)
+    gamma, heat, upar = jax.vmap(_fluxes_internal, in_axes=(None, 0, None))(
+        species,
+        species.species_indeces,
+        lij,
+    )
+    return lij, gamma, heat, upar
 
 
 def build_ntx_neopax_scan_from_surfaces(
@@ -208,5 +279,101 @@ def build_ntx_neopax_scan_from_surfaces(
         fac_sfincs_to_dkes_11=jnp.asarray(sfincs_to_dkes_11_list),
         fac_sfincs_to_dkes_31=jnp.asarray(sfincs_to_dkes_31_list),
         fac_sfincs_to_dkes_33=jnp.asarray(sfincs_to_dkes_33_list),
+        source_name=source_name,
+    )
+
+
+def build_ntx_neopax_scan_from_vmec_jax_state(
+    *,
+    state,
+    static,
+    indata,
+    signgs: int,
+    rho: Array,
+    nu_v: Array,
+    Es: Array | None = None,
+    Er: Array | None = None,
+    drds: Array,
+    grid: GridSpec,
+    source_name: str | None = None,
+    mboz: int = 12,
+    nboz: int = 12,
+    psi_p: float = 1.0,
+    min_bmn_to_load: float = 0.0,
+) -> NeopaxScan:
+    """Build a NEOPAX-style scan directly from an in-memory `vmec_jax` state."""
+
+    rho_arr = jnp.asarray(rho)
+    s_values = tuple(float(rho_value**2) for rho_value in rho_arr)
+    surfaces = surfaces_from_vmec_jax_state(
+        state=state,
+        static=static,
+        indata=indata,
+        signgs=signgs,
+        s_values=s_values,
+        mboz=mboz,
+        nboz=nboz,
+        psi_p=psi_p,
+        min_bmn_to_load=min_bmn_to_load,
+    )
+    return build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho_arr,
+        nu_v=nu_v,
+        Es=Es,
+        Er=Er,
+        drds=drds,
+        grid=grid,
+        source_name=source_name,
+    )
+
+
+def build_ntx_neopax_scan_from_vmec_jax_boundary_params(
+    context: VmecJaxBoundaryContext,
+    params,
+    *,
+    rho: Array,
+    nu_v: Array,
+    Es: Array | None = None,
+    Er: Array | None = None,
+    drds: Array,
+    grid: GridSpec,
+    source_name: str | None = None,
+    vmec_project: bool = True,
+    max_iter: int = 50,
+    step_size: float = 1.0,
+    ftol: float | None = None,
+    implicit=None,
+    mboz: int = 12,
+    nboz: int = 12,
+    psi_p: float = 1.0,
+    min_bmn_to_load: float = 0.0,
+) -> NeopaxScan:
+    """Solve a fixed boundary and build a NEOPAX-style scan from the result."""
+
+    rho_arr = jnp.asarray(rho)
+    s_values = tuple(float(rho_value**2) for rho_value in rho_arr)
+    surfaces = surfaces_from_vmec_jax_boundary_params(
+        context,
+        params,
+        s_values=s_values,
+        vmec_project=vmec_project,
+        max_iter=max_iter,
+        step_size=step_size,
+        ftol=ftol,
+        implicit=implicit,
+        mboz=mboz,
+        nboz=nboz,
+        psi_p=psi_p,
+        min_bmn_to_load=min_bmn_to_load,
+    )
+    return build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho_arr,
+        nu_v=nu_v,
+        Es=Es,
+        Er=Er,
+        drds=drds,
+        grid=grid,
         source_name=source_name,
     )

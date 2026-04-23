@@ -14,6 +14,9 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = ROOT / "docs" / "_static"
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 
 def _load_json(path: Path) -> dict:
@@ -34,9 +37,30 @@ def _format_float(value: float, scientific: bool = False) -> str:
     return f"{value:.3f}"
 
 
+def _format_optional_float(value: float | None, scientific: bool = False) -> str:
+    if value is None:
+        return "unsupported"
+    return _format_float(value, scientific=scientific)
+
+
 def build_payload() -> dict:
+    from ntx.validation.benchmark_matrix import benchmark_matrix_payload
+
     w7x = _load_json(STATIC / "bootstrap_current_reference_audit_w7x.json")
     derivative = _load_json(STATIC / "derivative_path_benchmark.json")
+    geometry_derivative = _load_json(STATIC / "geometry_control_derivative_benchmark.json")
+    file_backed_geometry_derivative = _load_json(
+        STATIC / "file_backed_geometry_control_derivative_benchmark.json"
+    )
+    boundary_forward_mode = _load_json(
+        STATIC / "boundary_forward_mode_current_derivative_benchmark.json"
+    )
+    implicit_equilibrium_forward_mode = _load_json(
+        STATIC / "implicit_equilibrium_forward_mode_derivative_benchmark.json"
+    )
+    explicit_relaxed_boundary = _load_json(
+        STATIC / "explicit_relaxed_boundary_current_derivative_benchmark.json"
+    )
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
     gpu = _load_json(STATIC / "performance_scaling_gpu_heavy.json")
@@ -52,12 +76,19 @@ def build_payload() -> dict:
     supplement = [
         "inverse",
         "profiles",
+        "profile_uncertainty",
+        "geometry_derivative",
+        "boundary_forward_mode",
+        "implicit_equilibrium_forward_mode",
+        "boundary_explicit_relaxed",
         "ambipolar",
         "ambipolar_family",
+        "profile_reconstruction",
         "profile_control",
         "profile_basis",
         "profile_transport",
         "bootstrap_proxy",
+        "robust_science",
         "performance_smoke",
     ]
     fine_w7x_error = w7x["bootstrap_current_errors"][-1]["max_relative_error"]
@@ -67,6 +98,9 @@ def build_payload() -> dict:
     gpu_best = max(
         row["multiprocess_speedup_vs_serial"] for row in gpu["results"]
     )
+    implicit_objective_map = {
+        objective["id"]: objective for objective in implicit_equilibrium_forward_mode["objectives"]
+    }
 
     return {
         "git": {
@@ -92,6 +126,41 @@ def build_payload() -> dict:
                 "max_relative_mismatch": max(derivative["max_relative_mismatch"]),
                 "best_prepared_speedup": max(derivative["speedup_prepared_vs_direct"]),
             },
+            "geometry_control_derivatives": {
+                "grid": geometry_derivative["grid"],
+                "control_modes": geometry_derivative["control_modes"],
+                "coefficients": geometry_derivative["coefficients"],
+                "summary_metrics": geometry_derivative["summary_metrics"],
+                "claim_scope": geometry_derivative["claim_scope"],
+            },
+            "file_backed_geometry_control_derivatives": {
+                "cases": file_backed_geometry_derivative["cases"],
+                "summary_metrics": file_backed_geometry_derivative["summary_metrics"],
+                "claim_scope": file_backed_geometry_derivative["claim_scope"],
+            },
+            "boundary_forward_mode_current_derivatives": {
+                "case": boundary_forward_mode["case"],
+                "summary_metrics": boundary_forward_mode["summary_metrics"],
+                "claim_scope": boundary_forward_mode["claim_scope"],
+                "objectives": boundary_forward_mode["objectives"],
+            },
+            "implicit_equilibrium_forward_mode_derivatives": {
+                "case": implicit_equilibrium_forward_mode["case"],
+                "implicit_solver": implicit_equilibrium_forward_mode["implicit_solver"],
+                "summary_metrics": implicit_equilibrium_forward_mode["summary_metrics"],
+                "claim_scope": implicit_equilibrium_forward_mode["claim_scope"],
+                "objectives": implicit_equilibrium_forward_mode["objectives"],
+                "reverse_mode_diagnostic": implicit_equilibrium_forward_mode[
+                    "reverse_mode_diagnostic"
+                ],
+            },
+            "explicit_relaxed_boundary_current_derivatives": {
+                "cases": explicit_relaxed_boundary["cases"],
+                "equilibrium_relaxation": explicit_relaxed_boundary["equilibrium_relaxation"],
+                "summary_metrics": explicit_relaxed_boundary["summary_metrics"],
+                "claim_scope": explicit_relaxed_boundary["claim_scope"],
+                "objective_ids": explicit_relaxed_boundary["objective_ids"],
+            },
             "performance": {
                 "cpu_heavy": cpu,
                 "gpu_heavy": gpu,
@@ -111,12 +180,62 @@ def build_payload() -> dict:
             "w7x_fine_grid_max_relative_error": fine_w7x_error,
             "derivative_max_relative_mismatch": max(derivative["max_relative_mismatch"]),
             "best_prepared_derivative_speedup": max(derivative["speedup_prepared_vs_direct"]),
+            "geometry_control_derivative_max_relative_mismatch": geometry_derivative[
+                "summary_metrics"
+            ]["max_relative_mismatch"],
+            "geometry_control_derivative_median_relative_mismatch": geometry_derivative[
+                "summary_metrics"
+            ]["median_relative_mismatch"],
+            "file_backed_geometry_control_derivative_max_relative_mismatch": (
+                file_backed_geometry_derivative["summary_metrics"]["max_relative_mismatch"]
+            ),
+            "file_backed_geometry_control_derivative_median_relative_mismatch": (
+                file_backed_geometry_derivative["summary_metrics"]["median_relative_mismatch"]
+            ),
+            "boundary_forward_mode_current_derivative_max_relative_mismatch": (
+                boundary_forward_mode["summary_metrics"]["max_relative_mismatch"]
+            ),
+            "boundary_forward_mode_current_derivative_median_relative_mismatch": (
+                boundary_forward_mode["summary_metrics"]["median_relative_mismatch"]
+            ),
+            "implicit_equilibrium_forward_mode_derivative_max_relative_mismatch": (
+                implicit_equilibrium_forward_mode["summary_metrics"]["max_relative_mismatch"]
+            ),
+            "implicit_equilibrium_forward_mode_derivative_median_relative_mismatch": (
+                implicit_equilibrium_forward_mode["summary_metrics"]["median_relative_mismatch"]
+            ),
+            "implicit_equilibrium_volume_relative_mismatch": (
+                implicit_objective_map["equilibrium_volume"]["relative_mismatch"][0]
+            ),
+            "implicit_equilibrium_booz_relative_mismatch": (
+                implicit_objective_map["booz_xform_scalar"]["relative_mismatch"][0]
+            ),
+            "implicit_equilibrium_transport_relative_mismatch": (
+                implicit_objective_map["ntx_transport_proxy"]["relative_mismatch"][0]
+            ),
+            "implicit_equilibrium_reverse_mode_booz_max_relative_mismatch": (
+                implicit_equilibrium_forward_mode["reverse_mode_diagnostic"][
+                    "max_relative_mismatch"
+                ]
+            ),
+            "explicit_relaxed_boundary_current_derivative_max_relative_mismatch": (
+                explicit_relaxed_boundary["summary_metrics"]["max_relative_mismatch"]
+            ),
+            "explicit_relaxed_boundary_current_derivative_median_relative_mismatch": (
+                explicit_relaxed_boundary["summary_metrics"]["median_relative_mismatch"]
+            ),
+            "explicit_relaxed_boundary_current_volume_relative_difference": (
+                explicit_relaxed_boundary["summary_metrics"][
+                    "max_ordinary_explicit_volume_relative_difference"
+                ]
+            ),
             "bootstrap_current_weighted_gain": science["weighted_gain"],
             "cpu_heavy_best_multiprocess_speedup": cpu_best,
             "gpu_heavy_best_multiprocess_speedup": gpu_best,
             "gpu_heavy_healthy_device_count": gpu["healthy_parallel_device_count"],
         },
         "figures": figures,
+        "benchmark_matrix": benchmark_matrix_payload(ROOT),
         "figure_sets": {
             "main_text": main_text,
             "supplement": supplement,
@@ -133,6 +252,7 @@ def build_payload() -> dict:
                 "python examples/make_publication_figures.py --figures supplement"
             ),
             "tables": "python scripts/build_manuscript_artifacts.py",
+            "benchmark_matrix": "python scripts/build_benchmark_matrix.py",
             "validation_subset": (
                 "python -m pytest -q "
                 "tests/test_w7x_reference_benchmark.py "
@@ -152,6 +272,70 @@ def build_markdown(payload: dict) -> str:
     gpu_rows = payload["tables"]["performance"]["gpu_heavy"]["results"]
     science = payload["tables"]["science"]
     derivatives = payload["tables"]["derivatives"]
+    geometry_derivatives = payload["tables"]["geometry_control_derivatives"]
+    file_backed_geometry_derivatives = payload["tables"]["file_backed_geometry_control_derivatives"]
+    boundary_forward_mode_derivatives = payload["tables"][
+        "boundary_forward_mode_current_derivatives"
+    ]
+    implicit_equilibrium_forward_mode_derivatives = payload["tables"][
+        "implicit_equilibrium_forward_mode_derivatives"
+    ]
+    explicit_relaxed_boundary_derivatives = payload["tables"][
+        "explicit_relaxed_boundary_current_derivatives"
+    ]
+    file_backed_max_mismatch = file_backed_geometry_derivatives["summary_metrics"][
+        "max_relative_mismatch"
+    ]
+    file_backed_median_mismatch = file_backed_geometry_derivatives["summary_metrics"][
+        "median_relative_mismatch"
+    ]
+    boundary_forward_max_mismatch = boundary_forward_mode_derivatives["summary_metrics"][
+        "max_relative_mismatch"
+    ]
+    boundary_forward_median_mismatch = boundary_forward_mode_derivatives["summary_metrics"][
+        "median_relative_mismatch"
+    ]
+    implicit_forward_max_mismatch = implicit_equilibrium_forward_mode_derivatives[
+        "summary_metrics"
+    ]["max_relative_mismatch"]
+    implicit_forward_median_mismatch = implicit_equilibrium_forward_mode_derivatives[
+        "summary_metrics"
+    ]["median_relative_mismatch"]
+    implicit_reverse_diagnostic = implicit_equilibrium_forward_mode_derivatives[
+        "reverse_mode_diagnostic"
+    ]
+    implicit_reverse_max_mismatch = implicit_reverse_diagnostic["max_relative_mismatch"]
+    implicit_objective_map = {
+        objective["id"]: objective for objective in implicit_equilibrium_forward_mode_derivatives[
+            "objectives"
+        ]
+    }
+    explicit_relaxed_max_iter = explicit_relaxed_boundary_derivatives["equilibrium_relaxation"][
+        "max_iter"
+    ]
+    explicit_relaxed_step_size = explicit_relaxed_boundary_derivatives[
+        "equilibrium_relaxation"
+    ]["step_size"]
+    explicit_relaxed_case_ids = [
+        case["id"] for case in explicit_relaxed_boundary_derivatives["cases"]
+    ]
+    explicit_relaxed_volume_difference = max(
+        case["volume_metrics"]["ordinary_explicit_relative_difference"]
+        for case in explicit_relaxed_boundary_derivatives["cases"]
+    )
+    explicit_relaxed_max_mismatch = explicit_relaxed_boundary_derivatives["summary_metrics"][
+        "max_relative_mismatch"
+    ]
+    explicit_relaxed_median_mismatch = explicit_relaxed_boundary_derivatives[
+        "summary_metrics"
+    ]["median_relative_mismatch"]
+    implicit_solver = implicit_equilibrium_forward_mode_derivatives["implicit_solver"]
+    implicit_solver_text = (
+        f"`iter={implicit_solver['max_iter']}, "
+        f"step={implicit_solver['step_size']:.1f}, "
+        f"tangent={implicit_solver['residual_tangent_mode']}` |"
+    )
+    benchmark_rows = payload["benchmark_matrix"]["entries"]
 
     lines = [
         "# NTX Manuscript Tables",
@@ -168,6 +352,22 @@ def build_markdown(payload: dict) -> str:
     lines.extend(
         [
             "",
+            "## Benchmark Matrix",
+            "",
+            "| Benchmark | Lane | Maturity | Status |",
+            "| --- | --- | --- | --- |",
+        ]
+    )
+    for row in benchmark_rows:
+        entry = row["entry"]
+        lines.append(
+            f"| `{entry['id']}` | `{entry['lane']}` | "
+            f"`{entry['maturity']}` | `{row['status']}` |"
+        )
+
+    lines.extend(
+        [
+            "",
             "## Derivatives",
             "",
             "| Quantity | Value |",
@@ -177,6 +377,129 @@ def build_markdown(payload: dict) -> str:
             f"| `E_r` scan | `{derivatives['er_min']:.3e}` to `{derivatives['er_max']:.3e}` |",
             f"| Max relative mismatch | `{derivatives['max_relative_mismatch']:.3e}` |",
             f"| Best prepared speedup | `{derivatives['best_prepared_speedup']:.3f}x` |",
+            "",
+            "## Geometry-Control Derivatives",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            f"| Grid | `{tuple(geometry_derivatives['grid'].values())}` |",
+            f"| Controlled modes | `{len(geometry_derivatives['control_modes'])}` |",
+            f"| Coefficients | `{', '.join(geometry_derivatives['coefficients'])}` |",
+            (
+                "| Max AD/centered-FD mismatch | "
+                f"`{geometry_derivatives['summary_metrics']['max_relative_mismatch']:.3e}` |"
+            ),
+            (
+                "| Median AD/centered-FD mismatch | "
+                f"`{geometry_derivatives['summary_metrics']['median_relative_mismatch']:.3e}` |"
+            ),
+            "",
+            "## Boundary Forward-Mode Current Derivatives",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            (
+                "| Controlled parameters | "
+                f"`{', '.join(boundary_forward_mode_derivatives['case']['parameter_names'])}` |"
+            ),
+            (
+                "| Max AD/centered-FD mismatch | "
+                f"`{boundary_forward_max_mismatch:.3e}` |"
+            ),
+            (
+                "| Median AD/centered-FD mismatch | "
+                f"`{boundary_forward_median_mismatch:.3e}` |"
+            ),
+            "",
+            "## Implicit-Equilibrium Forward-Mode Derivatives",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            (
+                "| Controlled parameters | "
+                "`"
+                + ", ".join(
+                    implicit_equilibrium_forward_mode_derivatives["case"]["parameter_names"]
+                )
+                + "` |"
+            ),
+            (
+                "| Implicit solver | "
+                f"{implicit_solver_text}"
+            ),
+            (
+                "| Max AD/centered-FD mismatch | "
+                f"`{implicit_forward_max_mismatch:.3e}` |"
+            ),
+            (
+                "| Median AD/centered-FD mismatch | "
+                f"`{implicit_forward_median_mismatch:.3e}` |"
+            ),
+            (
+                "| Reverse-mode Boozer max mismatch | "
+                "`"
+                + _format_optional_float(implicit_reverse_max_mismatch, scientific=True)
+                + "` |"
+            ),
+            (
+                "| Reverse-mode Boozer status | "
+                f"`{implicit_reverse_diagnostic['status']}` |"
+            ),
+            (
+                "| Equilibrium-volume mismatch | "
+                f"`{implicit_objective_map['equilibrium_volume']['relative_mismatch'][0]:.3e}` |"
+            ),
+            (
+                "| Boozer-scalar mismatch | "
+                f"`{implicit_objective_map['booz_xform_scalar']['relative_mismatch'][0]:.3e}` |"
+            ),
+            (
+                "| NTX transport mismatch | "
+                f"`{implicit_objective_map['ntx_transport_proxy']['relative_mismatch'][0]:.3e}` |"
+            ),
+            "",
+            "## Explicit-Relaxed Boundary Current Derivatives",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            (
+                "| Cases | "
+                f"`{', '.join(explicit_relaxed_case_ids)}` |"
+            ),
+            (
+                "| Explicit relaxation | "
+                f"`iter={explicit_relaxed_max_iter}, step={explicit_relaxed_step_size:.1e}` |"
+            ),
+            (
+                "| Ordinary/explicit volume rel. diff. | "
+                f"`{explicit_relaxed_volume_difference:.3e}` |"
+            ),
+            (
+                "| Max AD/centered-FD mismatch | "
+                f"`{explicit_relaxed_max_mismatch:.3e}` |"
+            ),
+            (
+                "| Median AD/centered-FD mismatch | "
+                f"`{explicit_relaxed_median_mismatch:.3e}` |"
+            ),
+            "",
+            "## File-Backed Geometry-Control Derivatives",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            (
+                "| Cases | `"
+                + ", ".join(case["id"] for case in file_backed_geometry_derivatives["cases"])
+                + "` |"
+            ),
+            (
+                "| Max AD/centered-FD mismatch | "
+                f"`{file_backed_max_mismatch:.3e}` |"
+            ),
+            (
+                "| Median AD/centered-FD mismatch | "
+                f"`{file_backed_median_mismatch:.3e}` |"
+            ),
             "",
             "## Bootstrap-Current Optimization",
             "",
@@ -238,6 +561,7 @@ def build_markdown(payload: dict) -> str:
             f"| Main-text figures | `{payload['commands']['main_text_figures']}` |",
             f"| Supplement figures | `{payload['commands']['supplement_figures']}` |",
             f"| Artifact tables | `{payload['commands']['tables']}` |",
+            f"| Benchmark matrix | `{payload['commands']['benchmark_matrix']}` |",
             f"| Validation subset | `{payload['commands']['validation_subset']}` |",
             "",
         ]
@@ -247,6 +571,15 @@ def build_markdown(payload: dict) -> str:
 
 def build_claims_markdown(payload: dict) -> str:
     claims = payload["claims"]
+    explicit_relaxed_max_mismatch = claims[
+        "explicit_relaxed_boundary_current_derivative_max_relative_mismatch"
+    ]
+    explicit_relaxed_median_mismatch = claims[
+        "explicit_relaxed_boundary_current_derivative_median_relative_mismatch"
+    ]
+    explicit_relaxed_volume_difference = claims[
+        "explicit_relaxed_boundary_current_volume_relative_difference"
+    ]
     return "\n".join(
         [
             "# NTX Manuscript Claims",
@@ -271,6 +604,57 @@ def build_claims_markdown(payload: dict) -> str:
                 "of "
                 f"`{claims['best_prepared_derivative_speedup']:.3f}x` on the "
                 "benchmarked electric-field scan."
+            ),
+            (
+                "- The three-harmonic geometry-control derivative stress "
+                "benchmark matches centered finite differences with a maximum "
+                "relative mismatch of "
+                f"`{claims['geometry_control_derivative_max_relative_mismatch']:.3e}` "
+                "and a median mismatch of "
+                f"`{claims['geometry_control_derivative_median_relative_mismatch']:.3e}`."
+            ),
+            (
+                "- The file-backed Boozer and VMEC geometry-control derivative "
+                "stress benchmark matches centered finite differences with a "
+                "maximum relative mismatch of "
+                f"`{claims['file_backed_geometry_control_derivative_max_relative_mismatch']:.3e}` "
+                "and a median mismatch of "
+                f"`{claims['file_backed_geometry_control_derivative_median_relative_mismatch']:.3e}`."
+            ),
+            (
+                "- The boundary-projected `vmec_jax -> booz_xform_jax -> NTX` "
+                "and `NTX+NEOPAX` forward-mode stress benchmark matches centered "
+                "finite differences with a maximum relative mismatch of "
+                f"`{claims['boundary_forward_mode_current_derivative_max_relative_mismatch']:.3e}` "
+                "and a median mismatch of "
+                f"`{claims['boundary_forward_mode_current_derivative_median_relative_mismatch']:.3e}`."
+            ),
+            (
+                "- The implicit fixed-boundary `vmec_jax -> booz_xform_jax -> NTX` "
+                "diagnostic is mixed on the committed QA case: the equilibrium-volume "
+                "derivative matches centered finite differences with relative mismatch "
+                f"`{claims['implicit_equilibrium_volume_relative_mismatch']:.3e}`, "
+                "while the Boozer scalar and NTX transport observables remain open at "
+                f"`{claims['implicit_equilibrium_booz_relative_mismatch']:.3e}` and "
+                f"`{claims['implicit_equilibrium_transport_relative_mismatch']:.3e}`."
+            ),
+            (
+                "- The matching reverse-mode Boozer-scalar diagnostic on the "
+                "implicit-equilibrium lane remains unavailable because the "
+                "current JAX transform rejects the implicit dynamic-loop solve "
+                "on that path."
+            ),
+            (
+                "- The explicit-relaxed `vmec_jax -> booz_xform_jax -> NTX` "
+                "and `NTX+NEOPAX` boundary-to-current QA/QH stress benchmark matches "
+                "centered finite differences with a maximum relative mismatch of "
+                f"`{explicit_relaxed_max_mismatch:.3e}` "
+                "and a median mismatch of "
+                f"`{explicit_relaxed_median_mismatch:.3e}`, "
+                "while the ordinary and explicit-relaxed primal volumes agree "
+                "to "
+                f"`{explicit_relaxed_volume_difference:.3e}` "
+                "on the committed QA/QH family cases."
             ),
             (
                 "- The differentiable bootstrap-current optimization example "

@@ -24,6 +24,10 @@ FIGURE_PRESETS = {
         "profile_transport",
         "primitive_transport",
         "derivative_benchmark",
+        "geometry_derivative",
+        "boundary_forward_mode",
+        "implicit_equilibrium_forward_mode",
+        "boundary_explicit_relaxed",
         "science",
         "robust_science",
         "validation",
@@ -47,6 +51,10 @@ FIGURE_PRESETS = {
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
+        "geometry_derivative",
+        "boundary_forward_mode",
+        "implicit_equilibrium_forward_mode",
+        "boundary_explicit_relaxed",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -255,6 +263,42 @@ def main() -> None:
             _manifest_path(output_dir / "derivative_path_benchmark.pdf"),
             _manifest_path(output_dir / "derivative_path_benchmark.json"),
         ]
+
+    if "geometry_derivative" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "geometry_control_derivative_benchmark.py"),
+                "--output-prefix",
+                str(output_dir / "geometry_control_derivative_benchmark"),
+            ]
+        )
+        manifest["geometry_derivative"] = [
+            _manifest_path(output_dir / "geometry_control_derivative_benchmark.png"),
+            _manifest_path(output_dir / "geometry_control_derivative_benchmark.pdf"),
+            _manifest_path(output_dir / "geometry_control_derivative_benchmark.json"),
+        ]
+
+    if "boundary_forward_mode" in selected:
+        manifest["boundary_forward_mode"] = _copy_existing_static(
+            "boundary_forward_mode_current_derivative_benchmark",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "implicit_equilibrium_forward_mode" in selected:
+        manifest["implicit_equilibrium_forward_mode"] = _copy_existing_static(
+            "implicit_equilibrium_forward_mode_derivative_benchmark",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "boundary_explicit_relaxed" in selected:
+        manifest["boundary_explicit_relaxed"] = _copy_existing_static(
+            "explicit_relaxed_boundary_current_derivative_benchmark",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
 
     if "profile_uncertainty" in selected:
         _run(
