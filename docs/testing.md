@@ -13,7 +13,7 @@ developer loop:
 - fast PR lane:
   - lint
   - type checking
-  - core unit tests
+  - sharded core unit/workflow/validation tests
   - selected integration/example tests
   - docs build
 - benchmark lane:
@@ -50,7 +50,9 @@ Near-term high-value gates are:
 
 Every new benchmark-like test must declare its lane before it is added to CI:
 
-- `core`: small unit/workflow tests suitable for every PR,
+- `core_foundation`: small algebra, geometry, operator, solver, and helper unit tests,
+- `core_workflows`: small public API, CLI, NEOPAX, profile, and script workflow tests,
+- `core_validation`: small validation, artifact-registry, and physics-gate tests,
 - `integration_examples`: representative imported workflow tests,
 - `heavy_examples_profiles`: slower profile examples,
 - `heavy_examples_derivatives`: local derivative benchmark examples,
@@ -63,7 +65,9 @@ The GitHub Actions sharding is driven by the maintained manifest:
 
 ```bash
 python scripts/test_lane_manifest.py --check
-python scripts/test_lane_manifest.py core
+python scripts/test_lane_manifest.py core_foundation
+python scripts/test_lane_manifest.py core_workflows
+python scripts/test_lane_manifest.py core_validation
 python scripts/test_lane_manifest.py integration_examples
 python scripts/test_lane_manifest.py heavy_examples_profiles
 python scripts/test_lane_manifest.py heavy_examples_derivatives
@@ -218,7 +222,7 @@ modules directly. In the current fast coverage subset:
 Those gains come from narrow branch tests in the unit/workflow lanes, not from
 adding slower benchmark execution to the default developer loop.
 
-The current measured `core + integration_examples` fast lane reached:
+The current measured split-core plus `integration_examples` fast lane reached:
 
 - `243 passed`, `2 skipped`
 - `99.1%` overall repository-owned coverage after the targeted

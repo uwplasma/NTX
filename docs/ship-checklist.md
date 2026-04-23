@@ -26,7 +26,9 @@ work with a clear reason.
 1. `python scripts/test_lane_manifest.py --check` passes and every test belongs
    to exactly one CI lane.
 2. Normal CI lanes remain bounded:
-   - `core`
+   - `core_foundation`
+   - `core_workflows`
+   - `core_validation`
    - `integration_examples`
    - `heavy_examples_profiles`
    - `heavy_examples_derivatives`
@@ -60,8 +62,8 @@ work with a clear reason.
 - A fast owned-surface physics gate now checks `D11`, `D31`, `D33`, Onsager
   residual, and coarse-to-fine angular-grid transfer on the analytic Boozer
   surface.
-- `python scripts/test_lane_manifest.py --check` passes with 49 core tests, 8
-  integration examples, and 18 opt-in heavy example tests.
+- `python scripts/test_lane_manifest.py --check` passes with split core lanes,
+  8 integration examples, and 18 opt-in heavy example tests.
 - `python scripts/build_benchmark_matrix.py` reports every active benchmark
   gate complete and keeps the broader geometry/autodiff breadth lanes planned.
 - `python -m ruff check .`, `python -m mypy src/ntx`, documentation build,

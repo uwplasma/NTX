@@ -23,7 +23,11 @@ def test_ci_lane_manifest_covers_every_test_file_once():
 
 def test_new_benchmark_examples_are_not_in_core_lane():
     module = _load_manifest_module()
-    core = set(module.LANES["core"])
+    core = set().union(
+        module.LANES["core_foundation"],
+        module.LANES["core_workflows"],
+        module.LANES["core_validation"],
+    )
     heavy = set().union(
         module.LANES["heavy_examples_derivatives"],
         module.LANES["heavy_examples_boundary"],
