@@ -101,11 +101,11 @@ Do not declare this program complete until all of the following are true:
 
 - measured coverage is now the primary acceptance gate for the fast lane, but
   the next weak internal modules still need targeted closure:
-  - `vmec.py` (`92.2%`)
   - `vmec_jax_backend.py` (`92.3%`)
-  - `vmec_jax_vmec.py` (`94.8%`)
   - `_geometry_eval.py` (`96.8%` after the sine-series branch test)
   - `_neopax_io.py` (`100%` after the optional-attribute HDF5 test)
+  - `vmec.py` (`99.5%` after the helper/error-path VMEC slice)
+  - `vmec_jax_vmec.py` (`98.3%` after the zero-field branch test)
 - several core modules remain too large for stable review and targeted testing:
   - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
   - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)
@@ -279,8 +279,12 @@ claims until they are anchored to stronger external baselines.
   - the follow-on cheap closure slice then lifted:
     - `_geometry_eval.py` to `96.8%`
     - `_neopax_io.py` to `100%`
-  - the next cheap targets are now mostly the VMEC and `vmec_jax` helper
-    modules listed above
+  - the next VMEC helper slice then lifted:
+    - `vmec.py` to `99.5%`
+    - `vmec_jax_vmec.py` to `98.3%`
+  - the next cheap targets are now mostly `vmec_jax_backend.py` and any
+    remaining low-signal facade modules, so the next step should be chosen only
+    if it keeps the fast-lane runtime stable
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 

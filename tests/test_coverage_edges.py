@@ -331,6 +331,7 @@ def test_vmec_helper_error_branches():
         _resolve_psi_n(np.asarray([0.0, 0.5, 1.0]), 2.0, 0)
     with pytest.raises(ValueError, match="0, 1, or 2"):
         _resolve_psi_n(np.asarray([0.0, 0.5, 1.0]), 0.5, 7)
+    assert _resolve_psi_n(np.asarray([0.0, 0.5, 1.0]), 0.6, 2) == pytest.approx(0.5)
     with pytest.raises(ValueError, match="2D"):
         _interp_mode_columns(np.asarray([0.0, 1.0]), np.asarray([1.0, 2.0]), 0.5)
     with pytest.raises(ValueError, match="1D"):
@@ -355,6 +356,30 @@ def test_vmec_helper_error_branches():
             mpol=3,
             ntor=1,
             option=1,
+            mode_convention="reduced",
+        )
+    with pytest.raises(ValueError, match="filtered_nyquist"):
+        _select_mode_set(
+            np.asarray([0, 1], dtype=np.int32),
+            np.asarray([0, 2], dtype=np.int32),
+            np.asarray([0, 1], dtype=np.int32),
+            np.asarray([0, 2], dtype=np.int32),
+            nfp=2,
+            mpol=3,
+            ntor=1,
+            option=1,
+            mode_convention="invalid",
+        )
+    with pytest.raises(ValueError, match="must be 1 or 2"):
+        _select_mode_set(
+            np.asarray([0, 1], dtype=np.int32),
+            np.asarray([0, 2], dtype=np.int32),
+            np.asarray([0, 1], dtype=np.int32),
+            np.asarray([0, 2], dtype=np.int32),
+            nfp=2,
+            mpol=3,
+            ntor=1,
+            option=7,
             mode_convention="reduced",
         )
 
@@ -385,6 +410,72 @@ def test_vmec_loader_error_branches(monkeypatch, tmp_path):
             load_vmec_surface(fixture, psi_n=psi_n_value)
 
 
+def test_vmec_loader_covers_mode_and_transport_error_branches(monkeypatch, tmp_path):
+    fixture = tmp_path / "wout.nc"
+    fixture.write_text("", encoding="utf-8")
+    pkg, api = _fake_vmec_module(_base_wout())
+    monkeypatch.setitem(sys.modules, "vmec_jax", pkg)
+    monkeypatch.setitem(sys.modules, "vmec_jax.api", api)
+
+    original_interp = load_vmec_surface.__globals__["_interp_mode_columns"]
+    original_select = load_vmec_surface.__globals__["_select_mode_set"]
+    original_resolve = load_vmec_surface.__globals__["_resolve_psi_n"]
+
+    try:
+        def _bad_len_interp(x, values, xq):
+            if getattr(_bad_len_interp, "calls", 0) == 0:
+                _bad_len_interp.calls = 1
+                return np.asarray([1.0], dtype=np.float64)
+            return original_interp(x, values, xq)
+
+        _bad_len_interp.calls = 0
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_interp_mode_columns", _bad_len_interp)
+        with pytest.raises(ValueError, match="mode-number arrays do not match"):
+            load_vmec_surface(fixture, psi_n=0.25)
+
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_interp_mode_columns", original_interp)
+
+        def _bad_select(*args, **kwargs):
+            return (
+                np.asarray([1, 2], dtype=np.int32),
+                np.asarray([0, 2], dtype=np.int32),
+                np.asarray([0, 1], dtype=np.int32),
+            )
+
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_select_mode_set", _bad_select)
+        with pytest.raises(ValueError, match="first VMEC mode"):
+            load_vmec_surface(fixture, psi_n=0.25)
+
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_select_mode_set", original_select)
+
+        def _zero_b0_interp(x, values, xq):
+            if values.shape[0] == 2:
+                return np.asarray([0.0, 0.1], dtype=np.float64)
+            return original_interp(x, values, xq)
+
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_interp_mode_columns", _zero_b0_interp)
+        with pytest.raises(ValueError, match="zero magnetic-field strength"):
+            load_vmec_surface(fixture, psi_n=0.25)
+
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_interp_mode_columns", original_interp)
+        zero_phi_pkg, zero_phi_api = _fake_vmec_module(
+            _base_wout(phi=np.asarray([0.0, 0.0, 0.0], dtype=np.float64))
+        )
+        monkeypatch.setitem(sys.modules, "vmec_jax", zero_phi_pkg)
+        monkeypatch.setitem(sys.modules, "vmec_jax.api", zero_phi_api)
+        monkeypatch.setitem(
+            load_vmec_surface.__globals__,
+            "_resolve_psi_n",
+            lambda *args, **kwargs: 0.25,
+        )
+        with pytest.raises(ValueError, match="dpsi_hat/dr_hat = 0"):
+            load_vmec_surface(fixture, psi_n=0.25)
+    finally:
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_interp_mode_columns", original_interp)
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_select_mode_set", original_select)
+        monkeypatch.setitem(load_vmec_surface.__globals__, "_resolve_psi_n", original_resolve)
+
+
 def test_vmec_jax_vmec_error_branches():
     with pytest.raises(ValueError, match="s must be between 0 and 1"):
         surface_from_vmec_jax_vmec_wout(_base_wout(), s=2.0)
@@ -392,6 +483,11 @@ def test_vmec_jax_vmec_error_branches():
         surface_from_vmec_jax_vmec_wout(_base_wout(ns=1), s=0.25)
     with pytest.raises(ValueError, match="2D"):
         _vmec_jax_interp_mode_columns(np.asarray([0.0, 1.0]), np.asarray([1.0, 2.0]), 0.5)
+    with pytest.raises(ValueError, match="zero magnetic-field strength"):
+        surface_from_vmec_jax_vmec_wout(
+            _base_wout(bmnc=np.asarray([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], dtype=np.float64)),
+            s=0.25,
+        )
 
 
 def test_neopax_shape_and_hdf5_branches(tmp_path):
