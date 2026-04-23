@@ -39,16 +39,17 @@ research checkout.
    git push origin v0.1.0
    ```
 
-6. Let the GitHub release workflow build the distributions and attach them to
-   the tag release.
+6. Let the GitHub release workflow build the distributions, attach them to the
+   tag release, and publish them to PyPI through Trusted Publishing.
 
 ## CI/CD Release Path
 
 - `tests.yml` covers lint, type checking, unit/integration tests, and docs.
 - `package.yml` builds the wheel and sdist, runs `twine check`, and smoke-tests
   installation across the supported Python versions.
-- `release.yml` runs on `v*` tags and publishes the built artifacts to the
-  GitHub release.
+- `release.yml` runs on `v*` tags, publishes the built artifacts to the GitHub
+  release, and uploads the same artifacts to PyPI through the protected `pypi`
+  environment.
 
 ## PyPI Readiness
 
@@ -63,9 +64,16 @@ Before publishing to PyPI:
 3. keep build and publish jobs separate so the exact tested artifacts are the
    artifacts that are uploaded;
 4. configure PyPI Trusted Publishing for the GitHub repository, release
-   workflow, and a protected `pypi` environment;
-5. add a release-job publish step using `pypa/gh-action-pypi-publish` only after
-   the package workflow and wheel/sdist smoke tests are green.
+   workflow, and a protected `pypi` environment.
+
+The repository-side Trusted Publishing job is now present in
+`.github/workflows/release.yml`. It is tag-gated, downloads the exact
+distribution artifact built by the release job, and publishes through
+`pypa/gh-action-pypi-publish` without a long-lived API token. On
+2026-04-23, `python -m pip index versions ntx` returned no matching
+distribution, so the intended package name was not visible on the default PyPI
+index from this workstation. The PyPI project and trusted publisher still need
+to be created/configured in PyPI before the first tag release.
 
 The intended public install surface is:
 
