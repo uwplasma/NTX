@@ -57,6 +57,9 @@ work with a clear reason.
   modules without rerunning expensive boundary/equilibrium artifacts:
   - `src/ntx/_neopax_field.py`: targeted coverage `99.6%`
   - `src/ntx/vmec_jax_backend.py`: combined fast-lane coverage `100.0%`
+- A fast owned-surface physics gate now checks `D11`, `D31`, `D33`, Onsager
+  residual, and coarse-to-fine angular-grid transfer on the analytic Boozer
+  surface.
 - `python scripts/test_lane_manifest.py --check` passes with 49 core tests, 8
   integration examples, and 18 opt-in heavy example tests.
 - `python scripts/build_benchmark_matrix.py` reports every active benchmark

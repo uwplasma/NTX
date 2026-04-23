@@ -183,6 +183,9 @@ and docs that explain which claims are closed versus monitored.
    - Current status: repository artifact gates now assert that the positive
      W7-X transfer and Redl/SFINCS checks pass while the fixed-field closure and
      higher-order `Pmax` checks remain monitored stress metrics.
+   - Current fast-lane addition: `tests/test_physics_gates.py` now includes an
+     owned analytic Boozer-surface gate for `D11`, `D31`, `D33`, Onsager
+     residual, and angular-grid transfer.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint

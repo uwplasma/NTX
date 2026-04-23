@@ -86,6 +86,12 @@ Normal CI still checks the committed artifacts through the benchmark matrix and
 manuscript-artifact tests. The expensive boundary reruns are used when updating
 those artifacts.
 
+The first fast owned-geometry coefficient gate is in
+`tests/test_physics_gates.py`. It checks `D11`, `D31`, `D33`, the Onsager
+residual, and a coarse-to-fine angular-grid transfer on the analytic Boozer
+surface. Larger literature-family convergence ladders remain artifact-backed
+work rather than default pull-request tests.
+
 The physics-facing gate structure is documented separately in
 [`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
 meant to enforce that gate hierarchy, not to replace it.
