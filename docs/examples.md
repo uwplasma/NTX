@@ -449,9 +449,21 @@ parity claim.
 python examples/validation_summary.py
 ```
 
-This writes `docs/_static/validation_summary.{png,pdf}`. It is the recommended
-core validation figure for a methods paper because it combines transport
-trends, Onsager closure, and Legendre convergence.
+This writes:
+
+- `docs/_static/validation_summary.png`
+- `docs/_static/validation_summary.pdf`
+- `docs/_static/validation_summary.json`
+
+It is the recommended core validation figure for a methods paper because it
+combines transport trends, Onsager closure, and Legendre convergence on the
+same DKES-style and VMEC benchmark surfaces. This benchmark is anchored to the
+monoenergetic convergence/benchmarking literature of Escoto et al. 2024 and to
+the low-collisionality regime discussion of Helander, Parra, and Newton 2017.
+
+The JSON sidecar freezes the plotted curves, low-collisionality tail slopes,
+and convergence metrics so the benchmark can be reused in tests and manuscript
+artifacts without scraping the figure.
 
 ## 27. Full Publication Bundle
 

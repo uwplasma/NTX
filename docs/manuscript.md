@@ -7,7 +7,7 @@ examples.
 
 ### Main Text
 
-1. `validation_summary.{png,pdf}`
+1. `validation_summary.{png,pdf,json}`
 2. `bootstrap_current_reference_audit_w7x.{png,pdf}`
 3. `derivative_path_benchmark.{png,pdf,json}`
 4. `bootstrap_current_optimization.{png,pdf,json}`
@@ -31,10 +31,11 @@ examples.
 
 ## Full Figure Inventory
 
-1. `validation_summary.{png,pdf}`
+1. `validation_summary.{png,pdf,json}`
    - transport-curve behavior on the sample DKES-style and VMEC surfaces
    - Onsager closure
    - Legendre convergence
+   - machine-readable benchmark metrics for the literature-anchored methods lane
 2. `autodiff_inverse_problem.{png,pdf}`
    - inverse recovery of a surface harmonic from synthetic transport data
 3. `autodiff_neopax_profiles.{png,pdf}`

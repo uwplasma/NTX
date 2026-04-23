@@ -30,6 +30,7 @@ def test_make_publication_figures_subset_writes_manifest(tmp_path):
     assert set(payload) == {"validation", "science"}
     assert output_dir.joinpath("validation_summary.png").exists()
     assert output_dir.joinpath("validation_summary.pdf").exists()
+    assert output_dir.joinpath("validation_summary.json").exists()
     assert output_dir.joinpath("bootstrap_current_optimization.png").exists()
     assert output_dir.joinpath("bootstrap_current_optimization.pdf").exists()
     assert output_dir.joinpath("bootstrap_current_optimization.json").exists()
@@ -64,6 +65,7 @@ def test_make_publication_figures_main_text_preset_writes_manifest(tmp_path):
         "performance_heavy",
         "primitive_transport",
     }
+    assert any(path.endswith("validation_summary.json") for path in payload["validation"])
 
 
 def test_make_publication_figures_bootstrap_subset_writes_manifest(tmp_path):

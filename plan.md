@@ -228,6 +228,7 @@ Current status:
 
 Research-grade / positive validation surface:
 
+- Escoto-style monoenergetic collisionality/convergence benchmark
 - integrated W7-X transfer gate
 - precise-QS Redl versus archived SFINCS audit
 - derivative audit against centered finite differences
@@ -269,6 +270,14 @@ claims until they are anchored to stronger external baselines.
   - `_checkout_paths.py` reaches `98.9%`
   - these gains come from direct helper/entrypoint tests, not from subprocess
     benchmark expansion
+- [x] the monoenergetic validation summary is now being promoted from a loose
+  example to an artifact-backed research benchmark:
+  - the figure remains the same core methods panel
+  - it now writes `validation_summary.json` with machine-readable transport
+    curves, Onsager residuals, low-collisionality tail slopes, and `N_xi`
+    convergence metrics
+  - docs now classify it as the literature-anchored Escoto/Helander numerical
+    benchmark lane rather than just a convenience figure
 - [x] the next core-shard remeasurement now shows that the fast CI lane is
   already beyond the program headline target while staying inside the intended
   runtime envelope:
