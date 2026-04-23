@@ -49,8 +49,12 @@ Every `tests/test_*.py` file must belong to exactly one maintained lane:
 ```bash
 python scripts/test_lane_manifest.py --check
 python scripts/test_lane_manifest.py core_foundation
-python scripts/test_lane_manifest.py core_workflows
+python scripts/test_lane_manifest.py core_cli_workflows
+python scripts/test_lane_manifest.py core_io_workflows
+python scripts/test_lane_manifest.py core_parallel_workflows
+python scripts/test_lane_manifest.py core_neopax_workflows
 python scripts/test_lane_manifest.py core_profile_workflows
+python scripts/test_lane_manifest.py core_autodiff_profile_workflows
 python scripts/test_lane_manifest.py core_validation
 python scripts/test_lane_manifest.py integration_examples
 python scripts/test_lane_manifest.py heavy_examples_profiles
@@ -62,20 +66,30 @@ python scripts/test_lane_manifest.py heavy_examples_publication
 The split core lanes replace the previous monolithic `core` lane:
 
 - `core_foundation`: algebra, geometry, operator, solver, and helper unit tests,
-- `core_workflows`: small public API, CLI, input-file, packaging, and script
+- `core_cli_workflows`: small public API, CLI, namespace, packaging, and
+  example-discovery tests,
+- `core_io_workflows`: input-file, profile-script, and VMEC scan workflow tests,
+- `core_parallel_workflows`: CPU/GPU script-dispatch and multiprocessing
   workflow tests,
-- `core_profile_workflows`: profile, NEOPAX, and autodiff workflow tests,
+- `core_neopax_workflows`: imported-database mapping and HDF5 round-trip tests,
+- `core_profile_workflows`: profile and primitive-force workflow tests,
+- `core_autodiff_profile_workflows`: autodiff profile and robust-bootstrap
+  workflow tests,
 - `core_validation`: benchmark registry, validation, artifact, and physics-gate
   tests.
 
 Local measured shard checks during the split:
 
 - `core_foundation`: `97 passed` in about `1:23` with coverage,
-- `core_workflows`: `35 passed`, `2 deselected` in about `0:52` with coverage,
-- `core_profile_workflows`: `38 passed` in about `5:20` with coverage,
+- `core_cli_workflows`: `20 passed` in about `0:22` with coverage,
+- `core_io_workflows`: `12 passed` in about `0:15` with coverage,
+- `core_parallel_workflows`: `3 passed`, `2 deselected` in about `0:22` with coverage,
+- `core_neopax_workflows`: `20 passed` in about `0:23` with coverage,
+- `core_profile_workflows`: `16 passed` in about `4:08` with coverage,
+- `core_autodiff_profile_workflows`: `2 passed` in about `0:41` with coverage,
 - `core_validation`: `56 passed` in about `0:31` with coverage.
 
-If either workflow shard grows beyond the CI wall-time target, split it again
+If any workflow shard grows beyond the CI wall-time target, split it again
 before adding more example-style coverage.
 
 ## Verification Order
