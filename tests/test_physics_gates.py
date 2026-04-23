@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import jax.numpy as jnp
 import pytest
 
+from ntx import GridSpec, MonoenergeticCase, example_surface, onsager_error, solve_monoenergetic
 from ntx.physics_gates import (
     PhysicsGate,
     PhysicsGateResult,
@@ -147,6 +149,45 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
     assert results["pmax_convergence_precise_qs"].status == "monitor"
     assert results["w7x_pmax_transfer_regression"].status == "monitor"
+
+
+def test_owned_surface_coefficient_convergence_and_onsager_gate():
+    surface = example_surface()
+    case = MonoenergeticCase(nu_hat=1.0e-2, er_hat=1.0e-3)
+    n_xi_values = (6, 8, 10)
+    results = [
+        solve_monoenergetic(surface, GridSpec(7, 7, n_xi), case)
+        for n_xi in n_xi_values
+    ]
+    reference = results[-1]
+    reference_vector = jnp.asarray([reference.D11, reference.D31, reference.D33])
+
+    relative_errors = []
+    for result in results[:-1]:
+        vector = jnp.asarray([result.D11, result.D31, result.D33])
+        relative_errors.append(
+            jnp.abs(vector - reference_vector) / jnp.maximum(jnp.abs(reference_vector), 1.0e-30)
+        )
+
+    coarser_error, finer_error = relative_errors
+    assert jnp.all(finer_error < coarser_error)
+    assert float(jnp.max(finer_error)) < 2.5e-1
+
+    onsager_relative = onsager_error(reference.D31, reference.D13) / jnp.maximum(
+        jnp.maximum(jnp.abs(reference.D31), jnp.abs(reference.D13)),
+        1.0e-30,
+    )
+    assert float(onsager_relative) < 1.0e-3
+
+    coarse_spatial = solve_monoenergetic(surface, GridSpec(5, 5, 8), case)
+    fine_spatial = solve_monoenergetic(surface, GridSpec(7, 7, 8), case)
+    coarse_vector = jnp.asarray([coarse_spatial.D11, coarse_spatial.D31, coarse_spatial.D33])
+    fine_vector = jnp.asarray([fine_spatial.D11, fine_spatial.D31, fine_spatial.D33])
+    spatial_change = jnp.abs(coarse_vector - fine_vector) / jnp.maximum(
+        jnp.abs(fine_vector),
+        1.0e-30,
+    )
+    assert float(jnp.max(spatial_change)) < 1.0e-1
 
 
 def test_scalar_gate_helpers_cover_fail_greater_equal_and_lookup_error():

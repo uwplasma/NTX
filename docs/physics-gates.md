@@ -20,6 +20,12 @@ solver bug, or a benchmark-specific fit can be mistaken for production physics.
 These are hard structural checks:
 
 - **Onsager symmetry:** `|D13 + D31|` must remain small on converged solves.
+- **Owned-surface coefficient convergence:** on the repository-owned analytic
+  Boozer surface, the fast test suite now checks that the `D11`, `D31`, and
+  `D33` Legendre-resolution errors decrease from `N_\xi=6` to `N_\xi=8`
+  relative to the `N_\xi=10` reference, that the finest fast-lane error remains
+  bounded, and that the same coefficients transfer between the `5x5` and `7x7`
+  angular grids within the current release tolerance.
 - **Exact `P=2` recovery:** the generated Sonine/Hankel projection must recover
   the current three-moment closure exactly at `P=2`.
 - **Low-order collision-block recovery:** the active low-order
