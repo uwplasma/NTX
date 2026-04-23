@@ -35,7 +35,9 @@ jobs:
       fail-fast: false
       matrix:
         shard:
-          - core
+          - core_foundation
+          - core_workflows
+          - core_validation
           - integration_examples
           - heavy_examples_profiles
           - heavy_examples_derivatives
@@ -61,11 +63,25 @@ jobs:
           python scripts/test_lane_manifest.py --check
           python scripts/test_lane_manifest.py "${{ matrix.shard }}" > /tmp/ntx-tests.txt
           xargs pytest -q -m "not gpu" --cov=src/ntx --cov-report= < /tmp/ntx-tests.txt
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+
+          out = Path("coverage-data")
+          out.mkdir(exist_ok=True)
+          copied = 0
+          for index, path in enumerate(sorted(Path(".").glob(".coverage*"))):
+              if path.is_file():
+                  shutil.copy2(path, out / f"coverage.{index}")
+                  copied += 1
+          if copied == 0:
+              raise SystemExit("no shard coverage data written")
+          PY
       - name: Upload shard coverage data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-${{ matrix.shard }}
-          path: .coverage
+          path: coverage-data
 
   coverage-report:
     runs-on: ubuntu-latest
@@ -81,7 +97,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
       - name: Download shard coverage data
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: coverage-*
           path: coverage-artifacts
@@ -96,9 +112,8 @@ jobs:
 
           root = Path("coverage-artifacts")
           copied = 0
-          for path in root.rglob(".coverage"):
-              shard = path.parent.name
-              target = Path(f".coverage.{shard}")
+          for index, path in enumerate(sorted(root.rglob("coverage.*"))):
+              target = Path(f".coverage.shard{index}")
               shutil.copy2(path, target)
               copied += 1
           if copied == 0:
@@ -112,7 +127,7 @@ jobs:
             --text-output coverage-report.txt
           cat coverage-report.txt >> "$GITHUB_STEP_SUMMARY"
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: |

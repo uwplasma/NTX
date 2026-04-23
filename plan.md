@@ -150,14 +150,15 @@ and docs that explain which claims are closed versus monitored.
    - Review untracked directories and generated artifacts before editing them.
    - Remove only obvious throwaway files such as caches after confirming they
      are not benchmark artifacts.
-   - Classify every new example test into `core`, `integration_examples`,
-     `heavy_examples`, or manual benchmark lanes so the PR workflow stays within
-     `5-10` minutes.
+   - Classify every new example test into `core_foundation`,
+     `core_workflows`, `core_validation`, `integration_examples`,
+     `heavy_examples`, or manual benchmark lanes so the PR workflow stays
+     within `5-10` minutes.
    - Replace the CI core-shard exclusion one-liner with a maintained test-lane
      manifest or pytest markers before adding more benchmark tests.
-   - Current status: the maintained manifest is in place and validated; the
-     remaining hygiene task is to split the intentional dirty tree into
-     reviewable commit batches.
+   - Current status: the maintained manifest is in place, core tests are split
+     into foundation/workflow/validation lanes, and the remaining hygiene task
+     is to keep new artifacts tied to scripts/tests/docs.
 
 2. **Benchmark matrix hardening**
    - Require every promoted claim to map to:
