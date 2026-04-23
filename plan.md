@@ -151,7 +151,9 @@ and docs that explain which claims are closed versus monitored.
    - Remove only obvious throwaway files such as caches after confirming they
      are not benchmark artifacts.
    - Classify every new example test into `core_foundation`,
-     `core_workflows`, `core_profile_workflows`, `core_validation`,
+     `core_cli_workflows`, `core_io_workflows`, `core_parallel_workflows`,
+     `core_neopax_workflows`, `core_profile_workflows`,
+     `core_autodiff_profile_workflows`, `core_validation`,
      `integration_examples`, `heavy_examples`, or manual benchmark lanes so the
      PR workflow stays within `5-10` minutes.
    - Replace the CI core-shard exclusion one-liner with a maintained test-lane

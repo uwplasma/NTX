@@ -27,8 +27,12 @@ work with a clear reason.
    to exactly one CI lane.
 2. Normal CI lanes remain bounded:
    - `core_foundation`
-   - `core_workflows`
+   - `core_cli_workflows`
+   - `core_io_workflows`
+   - `core_parallel_workflows`
+   - `core_neopax_workflows`
    - `core_profile_workflows`
+   - `core_autodiff_profile_workflows`
    - `core_validation`
    - `integration_examples`
    - `heavy_examples_profiles`

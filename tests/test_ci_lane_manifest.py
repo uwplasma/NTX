@@ -25,7 +25,11 @@ def test_new_benchmark_examples_are_not_in_core_lane():
     module = _load_manifest_module()
     core = set().union(
         module.LANES["core_foundation"],
-        module.LANES["core_workflows"],
+        module.LANES["core_cli_workflows"],
+        module.LANES["core_io_workflows"],
+        module.LANES["core_parallel_workflows"],
+        module.LANES["core_neopax_workflows"],
+        module.LANES["core_autodiff_profile_workflows"],
         module.LANES["core_profile_workflows"],
         module.LANES["core_validation"],
     )

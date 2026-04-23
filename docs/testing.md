@@ -53,8 +53,12 @@ Near-term high-value gates are:
 Every new benchmark-like test must declare its lane before it is added to CI:
 
 - `core_foundation`: small algebra, geometry, operator, solver, and helper unit tests,
-- `core_workflows`: small public API, CLI, input-file, packaging, and script workflow tests,
-- `core_profile_workflows`: profile, NEOPAX, and autodiff workflow tests,
+- `core_cli_workflows`: small public API, CLI, namespace, packaging, and example-discovery tests,
+- `core_io_workflows`: input-file, profile-script, and VMEC scan workflow tests,
+- `core_parallel_workflows`: CPU/GPU script-dispatch and multiprocessing workflow tests,
+- `core_neopax_workflows`: imported-database mapping and HDF5 round-trip tests,
+- `core_profile_workflows`: profile and primitive-force workflow tests,
+- `core_autodiff_profile_workflows`: autodiff profile and robust-bootstrap workflow tests,
 - `core_validation`: small validation, artifact-registry, and physics-gate tests,
 - `integration_examples`: representative imported workflow tests,
 - `heavy_examples_profiles`: slower profile examples,
@@ -69,8 +73,12 @@ The GitHub Actions sharding is driven by the maintained manifest:
 ```bash
 python scripts/test_lane_manifest.py --check
 python scripts/test_lane_manifest.py core_foundation
-python scripts/test_lane_manifest.py core_workflows
+python scripts/test_lane_manifest.py core_cli_workflows
+python scripts/test_lane_manifest.py core_io_workflows
+python scripts/test_lane_manifest.py core_parallel_workflows
+python scripts/test_lane_manifest.py core_neopax_workflows
 python scripts/test_lane_manifest.py core_profile_workflows
+python scripts/test_lane_manifest.py core_autodiff_profile_workflows
 python scripts/test_lane_manifest.py core_validation
 python scripts/test_lane_manifest.py integration_examples
 python scripts/test_lane_manifest.py heavy_examples_profiles
