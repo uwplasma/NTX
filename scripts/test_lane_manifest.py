@@ -10,6 +10,7 @@ from typing import Literal
 Lane = Literal[
     "core_foundation",
     "core_workflows",
+    "core_profile_workflows",
     "core_validation",
     "integration_examples",
     "heavy_examples_profiles",
@@ -81,8 +82,6 @@ CORE_FOUNDATION_TESTS: tuple[str, ...] = (
 )
 
 CORE_WORKFLOW_TESTS: tuple[str, ...] = (
-    "tests/test_autodiff_profile_uncertainty_example.py",
-    "tests/test_bootstrap_current_robust_optimization_example.py",
     "tests/test_cli.py",
     "tests/test_cli_unit.py",
     "tests/test_examples.py",
@@ -92,15 +91,20 @@ CORE_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_inputfiles_unit.py",
     "tests/test_multiprocess_script.py",
     "tests/test_namespace_imports.py",
+    "tests/test_packaging.py",
+    "tests/test_parallel_script.py",
+    "tests/test_profile_script.py",
+    "tests/test_vmec_scan.py",
+)
+
+CORE_PROFILE_WORKFLOW_TESTS: tuple[str, ...] = (
+    "tests/test_autodiff_profile_uncertainty_example.py",
+    "tests/test_bootstrap_current_robust_optimization_example.py",
     "tests/test_neopax_adapter.py",
     "tests/test_neopax_arrays.py",
     "tests/test_neopax_qi.py",
-    "tests/test_packaging.py",
-    "tests/test_parallel_script.py",
     "tests/test_profile_force_reconstruction_audit_example.py",
-    "tests/test_profile_script.py",
     "tests/test_profiles_workflows.py",
-    "tests/test_vmec_scan.py",
 )
 
 CORE_VALIDATION_TESTS: tuple[str, ...] = (
@@ -122,6 +126,7 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
 LANES: dict[Lane, tuple[str, ...]] = {
     "core_foundation": CORE_FOUNDATION_TESTS,
     "core_workflows": CORE_WORKFLOW_TESTS,
+    "core_profile_workflows": CORE_PROFILE_WORKFLOW_TESTS,
     "core_validation": CORE_VALIDATION_TESTS,
     "integration_examples": INTEGRATION_EXAMPLES,
     "heavy_examples_profiles": HEAVY_EXAMPLES_PROFILES,
