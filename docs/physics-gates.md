@@ -26,6 +26,11 @@ These are hard structural checks:
   relative to the `N_\xi=10` reference, that the finest fast-lane error remains
   bounded, and that the same coefficients transfer between the `5x5` and `7x7`
   angular grids within the current release tolerance.
+- **Constant-field symmetric limit:** when `B` is constant on the Boozer
+  surface, the magnetic-drift source vanishes. The fast test suite therefore
+  requires `D11`, `D31`, and `D13` to vanish while the parallel-conductivity
+  channel remains positive and equal to the Spitzer branch reported as
+  `D33_spitzer`.
 - **Exact `P=2` recovery:** the generated Sonine/Hankel projection must recover
   the current three-moment closure exactly at `P=2`.
 - **Low-order collision-block recovery:** the active low-order

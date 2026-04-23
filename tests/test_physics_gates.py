@@ -6,7 +6,14 @@ from pathlib import Path
 import jax.numpy as jnp
 import pytest
 
-from ntx import GridSpec, MonoenergeticCase, example_surface, onsager_error, solve_monoenergetic
+from ntx import (
+    BoozerSurface,
+    GridSpec,
+    MonoenergeticCase,
+    example_surface,
+    onsager_error,
+    solve_monoenergetic,
+)
 from ntx.physics_gates import (
     PhysicsGate,
     PhysicsGateResult,
@@ -188,6 +195,31 @@ def test_owned_surface_coefficient_convergence_and_onsager_gate():
         1.0e-30,
     )
     assert float(jnp.max(spatial_change)) < 1.0e-1
+
+
+def test_constant_field_symmetric_limit_has_no_radial_transport():
+    surface = BoozerSurface(
+        m=jnp.asarray([0], dtype=jnp.int32),
+        n=jnp.asarray([0], dtype=jnp.int32),
+        b_cos=jnp.asarray([1.0]),
+        nfp=5,
+        iota=0.85,
+        psi_p=1.0,
+        chi_p=0.85,
+        b_theta=0.05,
+        b_zeta=1.0,
+    )
+    result = solve_monoenergetic(
+        surface,
+        GridSpec(5, 5, 6),
+        MonoenergeticCase(nu_hat=1.0e-2, er_hat=1.0e-3),
+    )
+
+    assert result.D11 == pytest.approx(0.0, abs=1.0e-12)
+    assert result.D31 == pytest.approx(0.0, abs=1.0e-12)
+    assert result.D13 == pytest.approx(0.0, abs=1.0e-12)
+    assert result.D33 > 0.0
+    assert result.D33 == pytest.approx(result.D33_spitzer, rel=1.0e-10, abs=1.0e-12)
 
 
 def test_scalar_gate_helpers_cover_fail_greater_equal_and_lookup_error():

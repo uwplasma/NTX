@@ -192,6 +192,9 @@ and docs that explain which claims are closed versus monitored.
    - Current fast-lane addition: `tests/test_physics_gates.py` now includes an
      owned analytic Boozer-surface gate for `D11`, `D31`, `D33`, Onsager
      residual, and angular-grid transfer.
+   - Current symmetric-limit addition: the same physics-gate file now includes
+     a constant-field Boozer-surface gate requiring zero radial transport
+     channels and positive Spitzer-consistent parallel conductivity.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint
