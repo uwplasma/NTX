@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -99,6 +100,13 @@ def _plot_transport_panel(
     ax.legend(loc="best")
     ax.xaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
     ax.xaxis.set_minor_formatter(NullFormatter())
+
+
+def _loglog_tail_slope(x: np.ndarray, y: np.ndarray, tail_points: int = 4) -> float:
+    x_tail = np.asarray(x[-tail_points:], dtype=float)
+    y_tail = np.maximum(np.abs(np.asarray(y[-tail_points:], dtype=float)), 1.0e-30)
+    coeffs = np.polyfit(np.log10(x_tail), np.log10(y_tail), deg=1)
+    return float(coeffs[0])
 
 
 def main() -> None:
@@ -247,10 +255,71 @@ def main() -> None:
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     output_png = output_prefix.with_suffix(".png")
     output_pdf = output_prefix.with_suffix(".pdf")
+    output_json = output_prefix.with_suffix(".json")
     fig.savefig(output_png)
     fig.savefig(output_pdf)
+    payload = {
+        "benchmark": "monoenergetic_validation_summary",
+        "classification": "research-grade numerical validation",
+        "literature_anchors": [
+            {
+                "label": "Escoto et al. 2024 monoenergetic convergence and benchmarking",
+                "doi": "https://doi.org/10.1088/1741-4326/ad3fc9",
+            },
+            {
+                "label": "Helander, Parra, Newton 2017 low-collisionality regime analysis",
+                "doi": "https://doi.org/10.1017/S0022377817000253",
+            },
+        ],
+        "grid": {
+            "n_theta": int(args.n_theta),
+            "n_zeta": int(args.n_zeta),
+            "n_xi": int(args.n_xi),
+        },
+        "nu_hat": np.asarray(nu_hat, dtype=float).tolist(),
+        "er_hat": np.asarray(er_hat, dtype=float).tolist(),
+        "transport_curves": {
+            "dkes_surface": {
+                "D11": np.asarray(dkes_coeffs["D11"], dtype=float).tolist(),
+                "D31": np.asarray(dkes_coeffs["D31"], dtype=float).tolist(),
+                "D13": np.asarray(dkes_coeffs["D13"], dtype=float).tolist(),
+                "D33": np.asarray(dkes_coeffs["D33"], dtype=float).tolist(),
+                "onsager_relative": np.asarray(dkes_onsager_rel, dtype=float).tolist(),
+                "tail_loglog_slopes": {
+                    "D11": _loglog_tail_slope(nu_hat, dkes_coeffs["D11"]),
+                    "D13": _loglog_tail_slope(nu_hat, dkes_coeffs["D13"]),
+                    "D33": _loglog_tail_slope(nu_hat, dkes_coeffs["D33"]),
+                },
+            },
+            "vmec_surface": {
+                "D11": np.asarray(vmec_coeffs["D11"], dtype=float).tolist(),
+                "D31": np.asarray(vmec_coeffs["D31"], dtype=float).tolist(),
+                "D13": np.asarray(vmec_coeffs["D13"], dtype=float).tolist(),
+                "D33": np.asarray(vmec_coeffs["D33"], dtype=float).tolist(),
+                "onsager_relative": np.asarray(vmec_onsager_rel, dtype=float).tolist(),
+                "tail_loglog_slopes": {
+                    "D11": _loglog_tail_slope(nu_hat, vmec_coeffs["D11"]),
+                    "D13": _loglog_tail_slope(nu_hat, vmec_coeffs["D13"]),
+                    "D33": _loglog_tail_slope(nu_hat, vmec_coeffs["D33"]),
+                },
+            },
+        },
+        "legendre_convergence": {
+            "n_xi_values": list(map(int, n_xi_values)),
+            "dkes_surface": np.asarray(dkes_convergence, dtype=float).tolist(),
+            "vmec_surface": np.asarray(vmec_convergence, dtype=float).tolist(),
+        },
+        "summary_metrics": {
+            "dkes_max_onsager_relative": float(np.max(dkes_onsager_rel)),
+            "vmec_max_onsager_relative": float(np.max(vmec_onsager_rel)),
+            "dkes_finest_plotted_error": float(dkes_convergence[-2]),
+            "vmec_finest_plotted_error": float(vmec_convergence[-2]),
+        },
+    }
+    output_json.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {output_png}")
     print(f"Wrote {output_pdf}")
+    print(f"Wrote {output_json}")
 
 
 if __name__ == "__main__":

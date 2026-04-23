@@ -313,6 +313,7 @@ def main() -> None:
         manifest["validation"] = [
             _manifest_path(output_dir / "validation_summary.png"),
             _manifest_path(output_dir / "validation_summary.pdf"),
+            _manifest_path(output_dir / "validation_summary.json"),
         ]
 
     if "bootstrap_proxy" in selected:

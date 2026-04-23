@@ -66,6 +66,29 @@ python scripts/check_physics_gates.py
 
 ### Resolution Convergence
 
+The repository-wide monoenergetic convergence benchmark is:
+
+```bash
+python examples/validation_summary.py
+```
+
+It combines:
+
+- collisionality scans of `D11`, `D13`, and `D33`,
+- Onsager residual tracking,
+- and `N_xi` convergence on representative DKES-style and VMEC surfaces.
+
+It writes:
+
+- `docs/_static/validation_summary.png`
+- `docs/_static/validation_summary.pdf`
+- `docs/_static/validation_summary.json`
+
+This is the recommended literature-anchored numerical benchmark for the NTX
+methods paper. The JSON sidecar freezes the transport curves, low-collisionality
+tail slopes, and convergence metrics for reuse in tests and manuscript
+artifacts.
+
 The W7-X imported workflow is audited with:
 
 ```bash
