@@ -74,7 +74,9 @@ order is:
 1. close repository hygiene and commit batching,
 2. lock CI runtime and `>=95%` coverage,
 3. strengthen literature-anchored physics gates and validation artifacts,
-4. finish or explicitly scope the fixed-field `NTX+NEOPAX` closure lane,
+4. keep the fixed-field `NTX+NEOPAX` closure lane explicitly scoped as a
+   monitored stress metric unless a physics-derived closure closes QA/QH
+   without regressing W7-X,
 5. finish the `vmec_jax`/`booz_xform_jax` derivative gates that are claimed,
 6. add broader W7-X/QI/omnigenous lanes only as artifact-backed planned work
    unless the owned inputs and convergence ladders are already present,
@@ -166,6 +168,9 @@ and docs that explain which claims are closed versus monitored.
      three differentiable geometry-control lanes.
    - Keep fixed-field `NTX+NEOPAX` as a stress gate until the closure branch
      passes both fixed-field QA/QH and integrated W7-X simultaneously.
+   - First-release decision: fixed-field `NTX+NEOPAX` remains scoped as a
+     monitored closure stress metric, not a promoted parity claim. The release
+     claim stays on W7-X integrated transfer and fixed-field Redl/SFINCS.
    - Current status: the matrix builder reports every active gate complete and
      keeps the broader geometry/autodiff breadth work as planned lanes.
 
