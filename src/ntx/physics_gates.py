@@ -98,7 +98,10 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         metric="symmetric-limit ambipolar structure preserved",
         relation="test",
         threshold=None,
-        source="Sugama–Nishimura finite-order moment-equation requirements",
+        source=(
+            "Sugama–Nishimura finite-order moment-equation requirements and "
+            "tests/test_physics_gates.py"
+        ),
         rationale=(
             "At every finite truncation, the projected closure must preserve the "
             "intrinsic ambipolar-diffusion structure in symmetric limits."
