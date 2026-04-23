@@ -19,7 +19,7 @@ work with a clear reason.
 | Documentation | In progress | Keep docs synchronized with source layout, benchmark matrix, test lanes, performance guidance, examples, and release path. |
 | Implicit-equilibrium derivative lane | Open | Boozer and NTX transport observables must match centered finite differences, not just equilibrium volume. |
 | Broader W7-X/QI/omnigenous families | Planned | Add owned inputs, convergence ladders, artifacts, and benchmark-matrix rows before promotion. |
-| PyPI/release automation | Planned | Finish package smoke tests, Trusted Publishing, release provenance, and index-compatible dependency surface. |
+| PyPI/release automation | Repo-side configured | Finish external PyPI project setup, Trusted Publishing environment approval, and first tagged release rehearsal. |
 
 ## Acceptance Criteria
 
@@ -73,6 +73,8 @@ work with a clear reason.
 - Public package metadata no longer exposes Git direct references; optional
   geometry-coupled workflows document direct upstream installs until those
   packages are available from standard package indexes.
+- The repository-side PyPI Trusted Publishing job is present and tag-gated; the
+  remaining setup is the external PyPI trusted publisher/project configuration.
 - The fixed-field `NTX+NEOPAX` lane is explicitly scoped out of first-release
   parity claims. The release claim is the positive W7-X integrated transfer and
   the fixed-field Redl/SFINCS gate; the reduced-closure current mismatch remains

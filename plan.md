@@ -239,11 +239,13 @@ and docs that explain which claims are closed versus monitored.
      workflows.
    - Before PyPI publication, remove Git direct references from published extras
      or replace them with index-published packages when available.
-   - Add Trusted Publishing to the release workflow after package smoke tests
-     are green and PyPI is configured with the GitHub workflow/environment.
+   - Keep the Trusted Publishing release job tag-gated and tied to the protected
+     `pypi` environment; the remaining external step is PyPI project/trusted
+     publisher setup.
    - Current status: Git direct references have been removed from package
      metadata, geometry-coupled workflows are documented as optional external
-     installs, and local wheel/sdist plus clean-venv smoke checks pass.
+     installs, local wheel/sdist plus clean-venv smoke checks pass, and the
+     repository-side PyPI Trusted Publishing workflow is present.
 
 ## 2026 Hardening Program
 
