@@ -144,6 +144,21 @@ modules directly. In the current fast coverage subset:
 Those gains come from narrow branch tests in the unit/workflow lanes, not from
 adding slower benchmark execution to the default developer loop.
 
+After the next cheap-branch hardening pass on `physics_gates.py` and `booz.py`,
+the repository-owned 3.11 core shard reached:
+
+- `207 passed`, `2 deselected`
+- `98.24%` overall coverage for the fast lane
+- with the remaining notable nontrivial modules now concentrated in:
+  - `src/ntx/vmec.py` (`92.2%`)
+  - `src/ntx/vmec_jax_backend.py` (`92.3%`)
+  - `src/ntx/vmec_jax_vmec.py` (`94.8%`)
+  - `src/ntx/_geometry_eval.py` (`96.8%` after the next sine-series branch test)
+  - `src/ntx/_neopax_io.py` (`100%` after the optional-attribute HDF5 round-trip test)
+
+That is the right next target set for cheap coverage work. Heavy example and
+artifact-generation tests stay out of this fast-lane number on purpose.
+
 ## GPU Validation
 
 GPU-only smoke tests are marked and can be run with:

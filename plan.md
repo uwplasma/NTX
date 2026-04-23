@@ -99,8 +99,13 @@ Do not declare this program complete until all of the following are true:
 
 ### Current Gaps To Close
 
-- coverage is discussed in docs and even surfaced in the README badge, but the
-  measured baseline is not yet treated as the primary acceptance gate
+- measured coverage is now the primary acceptance gate for the fast lane, but
+  the next weak internal modules still need targeted closure:
+  - `vmec.py` (`92.2%`)
+  - `vmec_jax_backend.py` (`92.3%`)
+  - `vmec_jax_vmec.py` (`94.8%`)
+  - `_geometry_eval.py` (`96.8%` after the sine-series branch test)
+  - `_neopax_io.py` (`100%` after the optional-attribute HDF5 test)
 - several core modules remain too large for stable review and targeted testing:
   - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
   - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)
@@ -264,6 +269,18 @@ claims until they are anchored to stronger external baselines.
   - `_checkout_paths.py` reaches `98.9%`
   - these gains come from direct helper/entrypoint tests, not from subprocess
     benchmark expansion
+- [x] the next core-shard remeasurement now shows that the fast CI lane is
+  already beyond the program headline target while staying inside the intended
+  runtime envelope:
+  - `207 passed`, `2 deselected` in about `4m31s`
+  - `98.24%` overall coverage on the 3.11 core shard
+  - `physics_gates.py` improved to `97.1%`
+  - `booz.py` is no longer one of the dominant weak modules
+  - the follow-on cheap closure slice then lifted:
+    - `_geometry_eval.py` to `96.8%`
+    - `_neopax_io.py` to `100%`
+  - the next cheap targets are now mostly the VMEC and `vmec_jax` helper
+    modules listed above
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 

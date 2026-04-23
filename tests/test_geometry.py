@@ -4,7 +4,13 @@ from pathlib import Path
 
 import jax.numpy as jnp
 
-from ntx.geometry import BoozerSurface, evaluate_boozer_modes, example_surface, geometry_on_grid
+from ntx.geometry import (
+    BoozerSurface,
+    evaluate_boozer_modes,
+    evaluate_fourier_series,
+    example_surface,
+    geometry_on_grid,
+)
 from ntx.grids import GridSpec, flux_surface_average
 from ntx.io import load_dkes_surface
 
@@ -26,6 +32,24 @@ def test_boozer_mode_evaluation_single_cosine():
     assert jnp.allclose(b, jnp.asarray([1.2, 1.0]))
     assert jnp.allclose(dbdt, jnp.asarray([0.0, -0.2]))
     assert jnp.allclose(dbdz, jnp.zeros_like(dbdz))
+
+
+def test_fourier_series_supports_sine_coefficients():
+    theta = jnp.asarray([0.0, jnp.pi / 2])
+    zeta = jnp.asarray([0.0, 0.0])
+    value, d_dtheta, d_dzeta = evaluate_fourier_series(
+        m=jnp.asarray([1]),
+        n=jnp.asarray([0]),
+        cos_coeffs=jnp.asarray([0.2]),
+        theta=theta,
+        zeta=zeta,
+        nfp=1,
+        sin_coeffs=jnp.asarray([0.3]),
+    )
+
+    assert jnp.allclose(value, jnp.asarray([0.2, 0.3]), atol=1e-12)
+    assert jnp.allclose(d_dtheta, jnp.asarray([0.3, -0.2]), atol=1e-12)
+    assert jnp.allclose(d_dzeta, jnp.zeros_like(d_dzeta))
 
 
 def test_flux_surface_average_of_constant_is_constant():
