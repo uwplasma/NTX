@@ -12,7 +12,7 @@ work with a clear reason.
 | Repository hygiene | In progress | Split the dirty worktree into reviewable commit batches; remove only confirmed temporary files; keep benchmark artifacts only when tied to scripts/tests/docs. |
 | CI runtime and coverage | In progress | Maintain `>=95%` repository-owned coverage, module floors, and a normal CI wall time near `5-10` minutes. |
 | Literature-anchored physics gates | In progress | Add or preserve fast gates for convergence, Onsager residuals, exact low-order recovery, coefficient sign/normalization, and artifact-backed literature comparisons. |
-| Fixed-field `NTX+NEOPAX` closure | Open stress gate | Keep as stress-gate unless a physics-derived closure improves fixed-field QA/QH without regressing integrated W7-X. No fitted bridge constants. |
+| Fixed-field `NTX+NEOPAX` closure | Scoped stress gate | Keep as a monitored stress metric for the first release; do not claim fixed-field parity unless a physics-derived closure improves QA/QH without regressing integrated W7-X. No fitted bridge constants. |
 | Multi-CPU and multi-GPU algorithms | Open performance lane | Add measured CPU/GPU/multiprocess crossover maps on production grids; promote only algorithms that beat serial batched JAX on the target workload. |
 | `vmec_jax` and `booz_xform_jax` integration | Partly closed | Keep projected-boundary and explicit-relaxed lanes; close or document implicit-equilibrium derivative gaps before making broad optimization claims. |
 | SFINCS comparisons | Partly closed | Add more artifact-backed comparisons with aligned physics settings and normalizations; distinguish parity gates from monitored stress gates. |
@@ -71,6 +71,10 @@ work with a clear reason.
 - Public package metadata no longer exposes Git direct references; optional
   geometry-coupled workflows document direct upstream installs until those
   packages are available from standard package indexes.
+- The fixed-field `NTX+NEOPAX` lane is explicitly scoped out of first-release
+  parity claims. The release claim is the positive W7-X integrated transfer and
+  the fixed-field Redl/SFINCS gate; the reduced-closure current mismatch remains
+  a monitored stress metric.
 - The next valuable coverage work should target any remaining weak module
   branch with small synthetic objects, not more slow example reruns.
 - The expensive boundary/equilibrium artifact reruns remain opt-in through
@@ -81,9 +85,7 @@ work with a clear reason.
 1. Finish repository hygiene and commit batching.
 2. Keep the CI lane manifest and benchmark matrix locked as new tests are added.
 3. Add the next high-value physics gate rather than low-value coverage tests.
-4. Decide whether the fixed-field closure lane stays a stress gate for the first
-   release or gets another physics-derived implementation attempt.
-5. Expand owned geometry-family benchmark artifacts only after the current dirty
+4. Expand owned geometry-family benchmark artifacts only after the current dirty
    worktree is clean.
-6. Finish release automation and tag only after all blocking lanes above are
+5. Finish release automation and tag only after all blocking lanes above are
    either closed or explicitly scoped out of the release.
