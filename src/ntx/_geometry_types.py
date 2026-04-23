@@ -18,12 +18,12 @@ class BoozerSurface:
     n: Array
     b_cos: Array
     nfp: int
-    iota: float
-    psi_p: float
-    b_theta: float
-    b_zeta: float
-    chi_p: float | None = None
-    b0: float | None = None
+    iota: float | Array
+    psi_p: float | Array
+    b_theta: float | Array
+    b_zeta: float | Array
+    chi_p: float | Array | None = None
+    b0: float | Array | None = None
     b_sin: Array | None = None
     stellarator_symmetric: bool = True
     source_path: Path | None = None
@@ -145,10 +145,10 @@ class GeometryOnGrid:
     surface_type: str
     surface_path: Path | None
     nfp: int
-    iota: float
-    psi_p: float | None
-    transport_psi_scale: float
-    coefficient_psi_scale: float
+    iota: float | Array
+    psi_p: float | Array | None
+    transport_psi_scale: float | Array
+    coefficient_psi_scale: float | Array
     grid: AngularGrid
     theta_2d: Array
     zeta_2d: Array

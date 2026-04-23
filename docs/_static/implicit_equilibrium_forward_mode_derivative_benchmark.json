@@ -1,0 +1,103 @@
+{
+  "benchmark": "implicit_equilibrium_forward_mode_derivative_benchmark",
+  "classification": "artifact-backed implicit-equilibrium derivative diagnostic",
+  "case": {
+    "id": "qa_lowres",
+    "label": "QA low-res",
+    "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
+    "geometry_path": "implicit_fixed_boundary_residual_solve",
+    "parameter_names": [
+      "rc01"
+    ],
+    "parameter_count": 1
+  },
+  "implicit_solver": {
+    "max_iter": 5,
+    "step_size": 1.0,
+    "vmec_project": false,
+    "residual_tangent_mode": "auto"
+  },
+  "grid": {
+    "n_theta": 5,
+    "n_zeta": 5,
+    "n_xi": 4
+  },
+  "fd_step": 0.0001,
+  "objectives": [
+    {
+      "id": "equilibrium_volume",
+      "value": 0.16396335839351803,
+      "parameter_names": [
+        "rc01"
+      ],
+      "direct_forward_mode": [
+        0.002335806525494394
+      ],
+      "finite_difference": [
+        0.002335590806729071
+      ],
+      "relative_mismatch": [
+        9.236154068657261e-05
+      ],
+      "status": "validated"
+    },
+    {
+      "id": "booz_xform_scalar",
+      "value": 1.5011979493190395,
+      "parameter_names": [
+        "rc01"
+      ],
+      "direct_forward_mode": [
+        0.4993307840172199
+      ],
+      "finite_difference": [
+        0.28801568917935505
+      ],
+      "relative_mismatch": [
+        0.7336929992944701
+      ],
+      "status": "open"
+    },
+    {
+      "id": "ntx_transport_proxy",
+      "value": 1.7130820059697678,
+      "parameter_names": [
+        "rc01"
+      ],
+      "direct_forward_mode": [
+        -35.93789486670645
+      ],
+      "finite_difference": [
+        6.456467225041118
+      ],
+      "relative_mismatch": [
+        6.566185595633931
+      ],
+      "status": "open"
+    }
+  ],
+  "claim_scope": "A representative low-order boundary control propagates through the implicit fixed-boundary vmec_jax residual solve, booz_xform_jax, and an NTX monoenergetic transport observable on the committed QA case. The equilibrium-volume derivative matches centered finite differences, while the Boozer and transport observables remain open on this implicit lane.",
+  "summary_metrics": {
+    "max_relative_mismatch": 6.566185595633931,
+    "median_relative_mismatch": 0.7336929992944701
+  },
+  "reverse_mode_diagnostic": {
+    "status": "unsupported",
+    "objective_id": "booz_xform_scalar",
+    "reverse_mode_gradient": null,
+    "finite_difference": [
+      0.28801568917935505
+    ],
+    "max_relative_mismatch": null,
+    "median_relative_mismatch": null,
+    "error_type": "ValueError",
+    "error_message": "Reverse-mode differentiation does not work for lax.while_loop or lax.fori_loop with dynamic start/stop values. Try using lax.scan, or using fori_loop with static start/stop."
+  },
+  "open_work": [
+    "recover Boozer-scalar parity on the implicit vmec_jax -> booz_xform_jax path",
+    "recover NTX transport parity on the same implicit geometry path",
+    "extend the implicit forward-mode lane from NTX transport to NTX+NEOPAX integrated current",
+    "broaden beyond the committed QA case to additional geometry families",
+    "repair reverse mode through the implicit vmec_jax -> booz_xform_jax path"
+  ]
+}

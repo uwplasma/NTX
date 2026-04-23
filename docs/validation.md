@@ -16,6 +16,10 @@ The gate hierarchy behind those layers is now documented explicitly in
 - the precise-QS fixed-field `NTX+NEOPAX` current benchmark is a closure stress
   test rather than a monoenergetic parity requirement.
 
+The maintained benchmark matrix in [`benchmark-matrix.md`](benchmark-matrix.md)
+maps each promoted claim and monitored stress lane to its scripts, tests,
+artifacts, manuscript figures, and open work.
+
 ## Validation Philosophy
 
 NTX is validated as a standalone solver. The repository therefore emphasizes:

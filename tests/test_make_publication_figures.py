@@ -1,32 +1,66 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
+EXAMPLE = ROOT / "examples" / "make_publication_figures.py"
 
 
-def test_make_publication_figures_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
+def _load_module():
+    spec = importlib.util.spec_from_file_location("ntx_make_publication_figures", EXAMPLE)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _invoke_main(
+    module,
+    monkeypatch: pytest.MonkeyPatch,
+    output_dir: Path,
+    figures: str,
+) -> dict[str, list[str]]:
+    monkeypatch.setattr(
+        sys,
+        "argv",
         [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
+            str(EXAMPLE),
             "--output-dir",
             str(output_dir),
             "--figures",
-            "validation,science",
+            figures,
         ],
-        check=True,
-        text=True,
-        capture_output=True,
     )
-
+    module.main()
     manifest_path = output_dir / "publication_figure_manifest.json"
     assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    return json.loads(manifest_path.read_text(encoding="utf-8"))
+
+
+def _fake_run(command: list[str]) -> None:
+    if "--output-prefix" not in command:
+        return
+    prefix = Path(command[command.index("--output-prefix") + 1])
+    prefix.parent.mkdir(parents=True, exist_ok=True)
+    prefix.with_suffix(".png").write_bytes(b"png")
+    prefix.with_suffix(".pdf").write_bytes(b"pdf")
+    prefix.with_suffix(".json").write_text("{}", encoding="utf-8")
+
+
+def test_make_publication_figures_subset_writes_manifest(tmp_path, monkeypatch: pytest.MonkeyPatch):
+    module = _load_module()
+    monkeypatch.setattr(module, "_run", _fake_run)
+
+    output_dir = tmp_path / "figures"
+    payload = _invoke_main(module, monkeypatch, output_dir, "validation,science")
+
     assert set(payload) == {"validation", "science"}
     assert output_dir.joinpath("validation_summary.png").exists()
     assert output_dir.joinpath("validation_summary.pdf").exists()
@@ -36,27 +70,16 @@ def test_make_publication_figures_subset_writes_manifest(tmp_path):
     assert output_dir.joinpath("bootstrap_current_optimization.json").exists()
 
 
-def test_make_publication_figures_main_text_preset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
-            "main_text",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
+def test_make_publication_figures_main_text_preset_writes_manifest(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    module = _load_module()
+    monkeypatch.setattr(module, "_run", _fake_run)
 
-    payload = json.loads(
-        (output_dir / "publication_figure_manifest.json").read_text(
-            encoding="utf-8"
-        )
-    )
+    output_dir = tmp_path / "figures"
+    payload = _invoke_main(module, monkeypatch, output_dir, "main_text")
+
     assert set(payload) == {
         "validation",
         "w7x_audit",
@@ -68,211 +91,130 @@ def test_make_publication_figures_main_text_preset_writes_manifest(tmp_path):
     assert any(path.endswith("validation_summary.json") for path in payload["validation"])
 
 
-def test_make_publication_figures_bootstrap_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
-            "bootstrap_proxy",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
+def test_make_publication_figures_bootstrap_subset_writes_manifest(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    module = _load_module()
+    monkeypatch.setattr(module, "_run", _fake_run)
 
-    manifest_path = output_dir / "publication_figure_manifest.json"
-    assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    output_dir = tmp_path / "figures"
+    payload = _invoke_main(module, monkeypatch, output_dir, "bootstrap_proxy")
+
     assert set(payload) == {"bootstrap_proxy"}
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.png").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.pdf").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.json").exists()
 
 
-def test_make_publication_figures_profile_uncertainty_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
+@pytest.mark.parametrize(
+    ("figures", "expected_keys", "expected_files"),
+    [
+        (
             "profile_uncertainty",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
-
-    manifest_path = output_dir / "publication_figure_manifest.json"
-    assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"profile_uncertainty"}
-    assert output_dir.joinpath("autodiff_profile_uncertainty.png").exists()
-    assert output_dir.joinpath("autodiff_profile_uncertainty.pdf").exists()
-    assert output_dir.joinpath("autodiff_profile_uncertainty.json").exists()
-
-
-def test_make_publication_figures_robust_science_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
+            {"profile_uncertainty"},
+            (
+                "autodiff_profile_uncertainty.png",
+                "autodiff_profile_uncertainty.pdf",
+                "autodiff_profile_uncertainty.json",
+            ),
+        ),
+        (
             "robust_science",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
-
-    manifest_path = output_dir / "publication_figure_manifest.json"
-    assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"robust_science"}
-    assert output_dir.joinpath("bootstrap_current_robust_optimization.png").exists()
-    assert output_dir.joinpath("bootstrap_current_robust_optimization.pdf").exists()
-    assert output_dir.joinpath("bootstrap_current_robust_optimization.json").exists()
-
-
-def test_make_publication_figures_ambipolar_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
+            {"robust_science"},
+            (
+                "bootstrap_current_robust_optimization.png",
+                "bootstrap_current_robust_optimization.pdf",
+                "bootstrap_current_robust_optimization.json",
+            ),
+        ),
+        (
             "ambipolar",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
-
-    manifest_path = output_dir / "publication_figure_manifest.json"
-    assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"ambipolar"}
-    assert output_dir.joinpath("ambipolar_profile.png").exists()
-    assert output_dir.joinpath("ambipolar_profile.pdf").exists()
-
-
-def test_make_publication_figures_ambipolar_family_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
+            {"ambipolar"},
+            ("ambipolar_profile.png", "ambipolar_profile.pdf"),
+        ),
+        (
             "ambipolar_family",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
-
-    manifest_path = output_dir / "publication_figure_manifest.json"
-    assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"ambipolar_family"}
-    assert output_dir.joinpath("ambipolar_profile_family.png").exists()
-    assert output_dir.joinpath("ambipolar_profile_family.pdf").exists()
-
-
-def test_make_publication_figures_profile_control_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
+            {"ambipolar_family"},
+            ("ambipolar_profile_family.png", "ambipolar_profile_family.pdf"),
+        ),
+        (
             "profile_control",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
-
-    manifest_path = output_dir / "publication_figure_manifest.json"
-    assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"profile_control"}
-    assert output_dir.joinpath("profile_control_optimization.png").exists()
-    assert output_dir.joinpath("profile_control_optimization.pdf").exists()
-
-
-def test_make_publication_figures_profile_basis_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
+            {"profile_control"},
+            ("profile_control_optimization.png", "profile_control_optimization.pdf"),
+        ),
+        (
             "profile_basis",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
-
-    manifest_path = output_dir / "publication_figure_manifest.json"
-    assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"profile_basis"}
-    assert output_dir.joinpath("profile_basis_optimization.png").exists()
-    assert output_dir.joinpath("profile_basis_optimization.pdf").exists()
-
-
-def test_make_publication_figures_profile_transport_subset_writes_manifest(tmp_path):
-    output_dir = tmp_path / "figures"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
-            "--output-dir",
-            str(output_dir),
-            "--figures",
+            {"profile_basis"},
+            ("profile_basis_optimization.png", "profile_basis_optimization.pdf"),
+        ),
+        (
             "profile_transport",
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
-    )
+            {"profile_transport"},
+            ("profile_transport_loop.png", "profile_transport_loop.pdf"),
+        ),
+        (
+            "primitive_transport",
+            {"primitive_transport"},
+            ("primitive_profile_transport.png", "primitive_profile_transport.pdf"),
+        ),
+        (
+            "boundary_forward_mode",
+            {"boundary_forward_mode"},
+            (
+                "boundary_forward_mode_current_derivative_benchmark.png",
+                "boundary_forward_mode_current_derivative_benchmark.pdf",
+                "boundary_forward_mode_current_derivative_benchmark.json",
+            ),
+        ),
+        (
+            "implicit_equilibrium_forward_mode",
+            {"implicit_equilibrium_forward_mode"},
+            (
+                "implicit_equilibrium_forward_mode_derivative_benchmark.png",
+                "implicit_equilibrium_forward_mode_derivative_benchmark.pdf",
+                "implicit_equilibrium_forward_mode_derivative_benchmark.json",
+            ),
+        ),
+        (
+            "boundary_explicit_relaxed",
+            {"boundary_explicit_relaxed"},
+            (
+                "explicit_relaxed_boundary_current_derivative_benchmark.png",
+                "explicit_relaxed_boundary_current_derivative_benchmark.pdf",
+                "explicit_relaxed_boundary_current_derivative_benchmark.json",
+            ),
+        ),
+    ],
+)
+def test_make_publication_figures_stubbed_subset_writes_manifest(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    figures: str,
+    expected_keys: set[str],
+    expected_files: tuple[str, ...],
+):
+    module = _load_module()
+    monkeypatch.setattr(module, "_run", _fake_run)
 
-    manifest_path = output_dir / "publication_figure_manifest.json"
-    assert manifest_path.exists()
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"profile_transport"}
-    assert output_dir.joinpath("profile_transport_loop.png").exists()
-    assert output_dir.joinpath("profile_transport_loop.pdf").exists()
+    output_dir = tmp_path / "figures"
+    payload = _invoke_main(module, monkeypatch, output_dir, figures)
+
+    assert set(payload) == expected_keys
+    for path in expected_files:
+        assert output_dir.joinpath(path).exists()
 
 
-def test_make_publication_figures_primitive_transport_subset_writes_manifest(tmp_path):
+def test_make_publication_figures_geometry_derivative_subset_writes_manifest(tmp_path):
     output_dir = tmp_path / "figures"
     subprocess.run(
         [
             sys.executable,
-            str(ROOT / "examples" / "make_publication_figures.py"),
+            str(EXAMPLE),
             "--output-dir",
             str(output_dir),
             "--figures",
-            "primitive_transport",
+            "geometry_derivative",
         ],
         check=True,
         text=True,
@@ -282,6 +224,7 @@ def test_make_publication_figures_primitive_transport_subset_writes_manifest(tmp
     manifest_path = output_dir / "publication_figure_manifest.json"
     assert manifest_path.exists()
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert set(payload) == {"primitive_transport"}
-    assert output_dir.joinpath("primitive_profile_transport.png").exists()
-    assert output_dir.joinpath("primitive_profile_transport.pdf").exists()
+    assert set(payload) == {"geometry_derivative"}
+    assert output_dir.joinpath("geometry_control_derivative_benchmark.png").exists()
+    assert output_dir.joinpath("geometry_control_derivative_benchmark.pdf").exists()
+    assert output_dir.joinpath("geometry_control_derivative_benchmark.json").exists()

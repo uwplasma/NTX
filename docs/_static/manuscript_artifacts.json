@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "03d024805e46ae8c3ec5cbadbee4fc5b957eb864",
+    "commit": "02d1eb3efa9376f7eabeb0e0a0e6d787729e1ebf",
     "branch": "main"
   },
   "environment": {
@@ -11,7 +11,7 @@
   },
   "tables": {
     "validation": {
-      "bootstrap_current_reference_scale": 31386380.99085678,
+      "bootstrap_current_reference_scale": 31386372.43497639,
       "bootstrap_current_errors": [
         {
           "grid": [
@@ -19,7 +19,7 @@
             17,
             17
           ],
-          "max_relative_error": 103.79572446066453
+          "max_relative_error": 103.79730848200063
         },
         {
           "grid": [
@@ -27,7 +27,7 @@
             25,
             33
           ],
-          "max_relative_error": 29.65039180622074
+          "max_relative_error": 29.65084550836358
         },
         {
           "grid": [
@@ -35,7 +35,7 @@
             25,
             64
           ],
-          "max_relative_error": 0.018305696239054575
+          "max_relative_error": 0.018297079828848713
         }
       ]
     },
@@ -49,7 +49,1182 @@
       "er_min": 1e-06,
       "er_max": 0.003,
       "max_relative_mismatch": 1.0511436761691851e-05,
-      "best_prepared_speedup": 3.8475123937594984
+      "best_prepared_speedup": 3.8606929529957816
+    },
+    "geometry_control_derivatives": {
+      "grid": {
+        "n_theta": 7,
+        "n_zeta": 9,
+        "n_xi": 6
+      },
+      "control_modes": [
+        {
+          "m": 1,
+          "n": 0,
+          "baseline_b_cos": 0.06
+        },
+        {
+          "m": 1,
+          "n": 1,
+          "baseline_b_cos": 0.025
+        },
+        {
+          "m": 2,
+          "n": -1,
+          "baseline_b_cos": 0.01
+        }
+      ],
+      "coefficients": [
+        "D11",
+        "D31",
+        "D33"
+      ],
+      "summary_metrics": {
+        "max_relative_mismatch": 0.0001347698483202203,
+        "median_relative_mismatch": 3.5954257861708703e-06,
+        "max_abs_direct_jacobian": 81738.70067388265,
+        "max_abs_finite_difference_jacobian": 81738.58741816274
+      },
+      "claim_scope": "Direct geometry-control autodiff agrees with centered finite differences on a three-harmonic owned surface. This is not yet a large VMEC/Boozer geometry-control validation."
+    },
+    "file_backed_geometry_control_derivatives": {
+      "cases": [
+        {
+          "id": "boozmn_sample",
+          "label": "Sample Boozer file",
+          "source_kind": "boozmn",
+          "source_path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_boozmn.nc",
+          "rho": 0.5,
+          "s": 0.25,
+          "grid": {
+            "n_theta": 7,
+            "n_zeta": 9,
+            "n_xi": 6
+          },
+          "control_modes": [
+            {
+              "index": 1,
+              "m": 1,
+              "n": 0,
+              "baseline_b_cos": 0.12,
+              "baseline_relative_to_b0": 0.052173913043478265
+            },
+            {
+              "index": 2,
+              "m": 1,
+              "n": 1,
+              "baseline_b_cos": -0.05,
+              "baseline_relative_to_b0": 0.02173913043478261
+            }
+          ],
+          "coefficients": [
+            "D11",
+            "D31",
+            "D33"
+          ],
+          "nu_hat": [
+            2.9999999242136255e-05,
+            9.999999747378752e-05,
+            0.0003000000142492354,
+            0.0010000000474974513,
+            0.003000000026077032
+          ],
+          "er_hat": 0.001,
+          "fd_step": 0.0001,
+          "baseline_response": [
+            [
+              0.022286977662486957,
+              0.04179396157389962,
+              0.026402285774434302,
+              0.009725979124702785,
+              0.003977753303777661
+            ],
+            [
+              -0.2512534779581822,
+              -0.4103678543019519,
+              -0.6102361500148675,
+              -0.5136742507092457,
+              -0.22499481655109713
+            ],
+            [
+              5196.851939261294,
+              1612.7819170757928,
+              573.3174487966813,
+              238.00180286900363,
+              122.59362610039864
+            ]
+          ],
+          "direct_jacobian": [
+            [
+              [
+                0.03828112785190874,
+                0.0061976310582852225
+              ],
+              [
+                0.06934951992219089,
+                0.01651225888468062
+              ],
+              [
+                0.041517836156958955,
+                0.014219562754376538
+              ],
+              [
+                0.014279924417653906,
+                0.005682034515377265
+              ],
+              [
+                0.006199672125547205,
+                0.0029226410352155923
+              ]
+            ],
+            [
+              [
+                1.3814905914122995,
+                -0.32598478979496437
+              ],
+              [
+                0.7703841700554437,
+                -0.03657622077530929
+              ],
+              [
+                0.06725164847249748,
+                0.015173839944193433
+              ],
+              [
+                -0.2992041263916409,
+                -0.1716234770254128
+              ],
+              [
+                -0.281921019589396,
+                -0.11723520760657367
+              ]
+            ],
+            [
+              [
+                -571.6690524137027,
+                -606.2199396489157
+              ],
+              [
+                -140.49986546767366,
+                -115.25262890722819
+              ],
+              [
+                -89.02420747233566,
+                -76.67814233111933
+              ],
+              [
+                -113.19154967924139,
+                -101.19664212252579
+              ],
+              [
+                -33.800648321673066,
+                -30.56713536298202
+              ]
+            ]
+          ],
+          "finite_difference_jacobian": [
+            [
+              [
+                0.038281119370195404,
+                0.00619763244846111
+              ],
+              [
+                0.0693495213601944,
+                0.01651225905091591
+              ],
+              [
+                0.04151783617869359,
+                0.014219562337394742
+              ],
+              [
+                0.014279924395420307,
+                0.005682034514200435
+              ],
+              [
+                0.006199672108425473,
+                0.002922641036311527
+              ]
+            ],
+            [
+              [
+                1.3814962504174466,
+                -0.32597521262639484
+              ],
+              [
+                0.7703843285195022,
+                -0.03657619381564059
+              ],
+              [
+                0.06725183189837391,
+                0.015173424862124918
+              ],
+              [
+                -0.29920413766426623,
+                -0.17162349073007732
+              ],
+              [
+                -0.28192101949819914,
+                -0.11723520772818907
+              ]
+            ],
+            [
+              [
+                -571.8456378463088,
+                -606.1350035224677
+              ],
+              [
+                -140.50338750166702,
+                -115.24812982884214
+              ],
+              [
+                -89.02440796759947,
+                -76.67782884482222
+              ],
+              [
+                -113.19155430996375,
+                -101.19663383790112
+              ],
+              [
+                -33.80064733811139,
+                -30.567134304604338
+              ]
+            ]
+          ],
+          "relative_mismatch": [
+            [
+              [
+                2.215638800055217e-07,
+                2.2430757215123771e-07
+              ],
+              [
+                2.0735593840188045e-08,
+                1.0067386441769075e-08
+              ],
+              [
+                5.235011485573857e-10,
+                2.932451691691065e-08
+              ],
+              [
+                1.5569829382191699e-09,
+                2.071142531129277e-10
+              ],
+              [
+                2.761715730147231e-09,
+                3.7498089139866167e-10
+              ]
+            ],
+            [
+              [
+                4.096287011594634e-06,
+                2.9380051606888888e-05
+              ],
+              [
+                2.056948105969744e-07,
+                7.370823994086208e-07
+              ],
+              [
+                2.7274480301048714e-06,
+                2.735585883127948e-05
+              ],
+              [
+                3.7675365792667056e-08,
+                7.985308104407383e-08
+              ],
+              [
+                3.23483802451676e-10,
+                1.0373624158147813e-09
+              ]
+            ],
+            [
+              [
+                0.0003087991250071381,
+                0.00014012740718541942
+              ],
+              [
+                2.5067253224206078e-05,
+                3.903818997088031e-05
+              ],
+              [
+                2.2521381314289438e-06,
+                4.088356462870189e-06
+              ],
+              [
+                4.091049360251319e-08,
+                8.186660322231082e-08
+              ],
+              [
+                2.9098900583467865e-08,
+                3.4624694405864746e-08
+              ]
+            ]
+          ],
+          "summary_metrics": {
+            "control_count": 2,
+            "max_relative_mismatch": 0.0003087991250071381,
+            "median_relative_mismatch": 8.085984213319232e-08,
+            "max_abs_direct_jacobian": 606.2199396489157,
+            "max_abs_finite_difference_jacobian": 606.1350035224677
+          }
+        },
+        {
+          "id": "vmec_sample",
+          "label": "Sample VMEC-backed surface",
+          "source_kind": "vmec_jax",
+          "source_path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_wout.nc",
+          "rho": 0.5,
+          "s": 0.25,
+          "grid": {
+            "n_theta": 7,
+            "n_zeta": 9,
+            "n_xi": 6
+          },
+          "control_modes": [
+            {
+              "index": 1,
+              "m": 1,
+              "n": 0,
+              "baseline_b_cos": 0.123,
+              "baseline_relative_to_b0": 0.053131749460043204
+            },
+            {
+              "index": 2,
+              "m": 1,
+              "n": -1,
+              "baseline_b_cos": -0.0615,
+              "baseline_relative_to_b0": 0.026565874730021602
+            },
+            {
+              "index": 3,
+              "m": 2,
+              "n": 1,
+              "baseline_b_cos": 0.03075,
+              "baseline_relative_to_b0": 0.013282937365010801
+            }
+          ],
+          "coefficients": [
+            "D11",
+            "D31",
+            "D33"
+          ],
+          "nu_hat": [
+            2.9999999242136255e-05,
+            9.999999747378752e-05,
+            0.0003000000142492354,
+            0.0010000000474974513,
+            0.003000000026077032
+          ],
+          "er_hat": 0.001,
+          "fd_step": 0.0001,
+          "baseline_response": [
+            [
+              0.02981368383396588,
+              0.021980270538367416,
+              0.010365801359149832,
+              0.004260440066535763,
+              0.0017740009232754324
+            ],
+            [
+              0.7008570208281547,
+              1.262787891994576,
+              1.028163311294002,
+              0.2588587282750862,
+              0.041664695739657934
+            ],
+            [
+              5377.845953582031,
+              1777.9317047405184,
+              813.7786632188888,
+              387.36869114554963,
+              162.72837307119804
+            ]
+          ],
+          "direct_jacobian": [
+            [
+              [
+                0.03983569795141721,
+                0.011235719450462336,
+                0.012796208295041142
+              ],
+              [
+                0.02703957159767571,
+                0.015677161478919854,
+                0.00961277886579966
+              ],
+              [
+                0.012880198895763043,
+                0.0072610412642485946,
+                0.0034264906805641345
+              ],
+              [
+                0.0067836702970280405,
+                0.003024295443452834,
+                0.0011608178747989958
+              ],
+              [
+                0.0030977807219008916,
+                0.0011097529342073964,
+                0.0003784785299830151
+              ]
+            ],
+            [
+              [
+                -0.23538083252208802,
+                -0.37730345516673297,
+                -0.6495162780478658
+              ],
+              [
+                0.7306037980013708,
+                -0.5418960620505986,
+                -0.3023228084377716
+              ],
+              [
+                1.0476090954443755,
+                -0.08679596027942715,
+                -0.033355718704577805
+              ],
+              [
+                0.5231110495207415,
+                0.07420395127171375,
+                0.11002400377058347
+              ],
+              [
+                0.1306225839570658,
+                -0.06184435489427869,
+                0.04344348602554002
+              ]
+            ],
+            [
+              [
+                -427.8716130554536,
+                -621.6580618585687,
+                -207.74714555389676
+              ],
+              [
+                -200.68225436029206,
+                -214.5042881638615,
+                -88.48321281501255
+              ],
+              [
+                -281.77808218785896,
+                -252.3204317624192,
+                -110.2102315479182
+              ],
+              [
+                -61.02231321634862,
+                -63.30252907228835,
+                -27.709319651037173
+              ],
+              [
+                -6.688369393210838,
+                -24.916651993159245,
+                -10.618349101552372
+              ]
+            ]
+          ],
+          "finite_difference_jacobian": [
+            [
+              [
+                0.03983569706289894,
+                0.011235719859937349,
+                0.012796208825830574
+              ],
+              [
+                0.027039572336670648,
+                0.015677161361547787,
+                0.00961277926595644
+              ],
+              [
+                0.012880198881903837,
+                0.007261041337853005,
+                0.003426490738983254
+              ],
+              [
+                0.006783670287091245,
+                0.003024295441049138,
+                0.0011608178714008627
+              ],
+              [
+                0.003097780720513277,
+                0.0011097529324232292,
+                0.00037847852984800555
+              ]
+            ],
+            [
+              [
+                -0.23537976846899067,
+                -0.37730502266797306,
+                -0.6495141228074486
+              ],
+              [
+                0.7306029478848508,
+                -0.5418960465675138,
+                -0.30232340062941176
+              ],
+              [
+                1.0476090966704543,
+                -0.08679597822469631,
+                -0.03335581381436192
+              ],
+              [
+                0.5231110504480552,
+                0.07420395183255213,
+                0.11002400397641665
+              ],
+              [
+                0.130622583895193,
+                -0.061844354722860595,
+                0.043443485775868096
+              ]
+            ],
+            [
+              [
+                -427.86808551227296,
+                -621.6746959125885,
+                -207.72893099547218
+              ],
+              [
+                -200.68314699983603,
+                -214.50455069270902,
+                -88.48395674817766
+              ],
+              [
+                -281.7780859254526,
+                -252.32044556673827,
+                -110.21029739822552
+              ],
+              [
+                -61.022310651992484,
+                -63.302529755162595,
+                -27.709319392954512
+              ],
+              [
+                -6.688369500267299,
+                -24.916651925508404,
+                -10.618349501925195
+              ]
+            ]
+          ],
+          "relative_mismatch": [
+            [
+              [
+                2.230457449866678e-08,
+                3.64440390138863e-08,
+                4.1480210172360245e-08
+              ],
+              [
+                2.733012671053053e-08,
+                7.486818832816963e-09,
+                4.162758429886577e-08
+              ],
+              [
+                1.0760086530504914e-09,
+                1.0136894604504137e-08,
+                1.7049256460478588e-08
+              ],
+              [
+                1.46481106682081e-09,
+                7.947954201480021e-10,
+                2.927361133987953e-09
+              ],
+              [
+                4.479382309223554e-10,
+                1.6077157021919626e-09,
+                3.567165906387458e-10
+              ]
+            ],
+            [
+              [
+                4.520580100303274e-06,
+                4.154466932353786e-06,
+                3.3182348798353734e-06
+              ],
+              [
+                1.1635821103900327e-06,
+                2.8572057154361485e-08,
+                1.958801862299664e-06
+              ],
+              [
+                1.1703590565836477e-09,
+                2.067523118766023e-07,
+                2.8513705181107795e-06
+              ],
+              [
+                1.77268988965459e-09,
+                7.558066139200839e-09,
+                1.870802519373189e-09
+              ],
+              [
+                4.736762249224178e-10,
+                2.771766247129403e-09,
+                5.74705085392636e-09
+              ]
+            ],
+            [
+              [
+                8.244464357380873e-06,
+                2.6756845870054595e-05,
+                8.768426399388515e-05
+              ],
+              [
+                4.4480045151162764e-06,
+                1.2238847458789831e-06,
+                8.407548582265054e-06
+              ],
+              [
+                1.3264316301585014e-08,
+                5.470947489251088e-08,
+                5.974968662374281e-07
+              ],
+              [
+                4.202325526212727e-08,
+                1.0787471636652478e-08,
+                9.313929994452317e-09
+              ],
+              [
+                1.6006361710323772e-08,
+                2.7150855410080813e-09,
+                3.7705749167757916e-08
+              ]
+            ]
+          ],
+          "summary_metrics": {
+            "control_count": 3,
+            "max_relative_mismatch": 8.768426399388515e-05,
+            "median_relative_mismatch": 2.230457449866678e-08,
+            "max_abs_direct_jacobian": 621.6580618585687,
+            "max_abs_finite_difference_jacobian": 621.6746959125885
+          }
+        }
+      ],
+      "summary_metrics": {
+        "case_count": 2,
+        "max_relative_mismatch": 0.0003087991250071381,
+        "median_relative_mismatch": 5.158220831592955e-08
+      },
+      "claim_scope": "Direct geometry-control autodiff agrees with centered finite differences on repository-owned file-backed Boozer and VMEC sample surfaces. This is stronger than the owned analytic audit, but it is still not a reusable geometry-family validation claim."
+    },
+    "boundary_forward_mode_current_derivatives": {
+      "case": {
+        "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak",
+        "geometry_path": "boundary_projected_initial_guess",
+        "parameter_names": [
+          "rc10",
+          "zs10"
+        ]
+      },
+      "summary_metrics": {
+        "max_relative_mismatch": 7.17355827984326e-07,
+        "median_relative_mismatch": 3.556284405640031e-07
+      },
+      "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmec_jax geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
+      "objectives": [
+        {
+          "id": "ntx_transport_proxy",
+          "value": 8257.752387437193,
+          "parameter_names": [
+            "rc10",
+            "zs10"
+          ],
+          "direct_forward_mode": [
+            -156.7535911804582,
+            -488.4856996350101
+          ],
+          "finite_difference": [
+            -156.75369823838992,
+            -488.486050053325
+          ],
+          "relative_mismatch": [
+            6.82969096944633e-07,
+            7.17355827984326e-07
+          ]
+        },
+        {
+          "id": "ntx_neopax_integrated_current",
+          "value": 6643.858685761079,
+          "parameter_names": [
+            "rc10",
+            "zs10"
+          ],
+          "direct_forward_mode": [
+            2344.8439922994958,
+            19811.392893283242
+          ],
+          "finite_difference": [
+            2344.8439313733616,
+            19811.39233286285
+          ],
+          "relative_mismatch": [
+            2.5983023174987894e-08,
+            2.8287784183373136e-08
+          ]
+        }
+      ]
+    },
+    "implicit_equilibrium_forward_mode_derivatives": {
+      "case": {
+        "id": "qa_lowres",
+        "label": "QA low-res",
+        "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
+        "geometry_path": "implicit_fixed_boundary_residual_solve",
+        "parameter_names": [
+          "rc01"
+        ],
+        "parameter_count": 1
+      },
+      "implicit_solver": {
+        "max_iter": 5,
+        "step_size": 1.0,
+        "vmec_project": false,
+        "residual_tangent_mode": "auto"
+      },
+      "summary_metrics": {
+        "max_relative_mismatch": 6.566185595633931,
+        "median_relative_mismatch": 0.7336929992944701
+      },
+      "claim_scope": "A representative low-order boundary control propagates through the implicit fixed-boundary vmec_jax residual solve, booz_xform_jax, and an NTX monoenergetic transport observable on the committed QA case. The equilibrium-volume derivative matches centered finite differences, while the Boozer and transport observables remain open on this implicit lane.",
+      "objectives": [
+        {
+          "id": "equilibrium_volume",
+          "value": 0.16396335839351803,
+          "parameter_names": [
+            "rc01"
+          ],
+          "direct_forward_mode": [
+            0.002335806525494394
+          ],
+          "finite_difference": [
+            0.002335590806729071
+          ],
+          "relative_mismatch": [
+            9.236154068657261e-05
+          ],
+          "status": "validated"
+        },
+        {
+          "id": "booz_xform_scalar",
+          "value": 1.5011979493190395,
+          "parameter_names": [
+            "rc01"
+          ],
+          "direct_forward_mode": [
+            0.4993307840172199
+          ],
+          "finite_difference": [
+            0.28801568917935505
+          ],
+          "relative_mismatch": [
+            0.7336929992944701
+          ],
+          "status": "open"
+        },
+        {
+          "id": "ntx_transport_proxy",
+          "value": 1.7130820059697678,
+          "parameter_names": [
+            "rc01"
+          ],
+          "direct_forward_mode": [
+            -35.93789486670645
+          ],
+          "finite_difference": [
+            6.456467225041118
+          ],
+          "relative_mismatch": [
+            6.566185595633931
+          ],
+          "status": "open"
+        }
+      ],
+      "reverse_mode_diagnostic": {
+        "status": "unsupported",
+        "objective_id": "booz_xform_scalar",
+        "reverse_mode_gradient": null,
+        "finite_difference": [
+          0.28801568917935505
+        ],
+        "max_relative_mismatch": null,
+        "median_relative_mismatch": null,
+        "error_type": "ValueError",
+        "error_message": "Reverse-mode differentiation does not work for lax.while_loop or lax.fori_loop with dynamic start/stop values. Try using lax.scan, or using fori_loop with static start/stop."
+      }
+    },
+    "explicit_relaxed_boundary_current_derivatives": {
+      "cases": [
+        {
+          "id": "qa_lowres",
+          "label": "QA low-res",
+          "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
+          "geometry_path": "explicit_relaxed_fixed_boundary",
+          "parameter_names": [
+            "rc01",
+            "zs01",
+            "rc1-1",
+            "zs1-1",
+            "rc10",
+            "zs10",
+            "rc11",
+            "zs11"
+          ],
+          "volume_metrics": {
+            "initial_volume": 0.28235442765400015,
+            "ordinary_volume": 0.282354427640087,
+            "explicit_relaxed_volume": 0.282354427640087,
+            "ordinary_explicit_relative_difference": 0.0
+          },
+          "objectives": [
+            {
+              "id": "booz_xform_scalar",
+              "value": 0.6376681850781121,
+              "parameter_names": [
+                "rc01",
+                "zs01",
+                "rc1-1",
+                "zs1-1",
+                "rc10",
+                "zs10",
+                "rc11",
+                "zs11"
+              ],
+              "direct_forward_mode": [
+                -0.003974602114810058,
+                -0.5466739751980465,
+                -8.806661991962777,
+                -0.8857488067927544,
+                -7.4902468452062685,
+                0.1987848234310734,
+                -6.7622601481604505,
+                -6.198273071873663
+              ],
+              "finite_difference": [
+                -0.003974599593892236,
+                -0.5466739913140284,
+                -8.806662248145303,
+                -0.885748798062913,
+                -7.490247058361542,
+                0.1987847659978836,
+                -6.762260465698055,
+                -6.198273058211078
+              ],
+              "relative_mismatch": [
+                6.342570521033785e-07,
+                2.948005966700335e-08,
+                2.9089627675175605e-08,
+                9.85588851422787e-09,
+                2.8457709367282822e-08,
+                2.8892148499930624e-07,
+                4.69573163916939e-08,
+                2.2042566877812927e-09
+              ]
+            },
+            {
+              "id": "ntx_transport_proxy",
+              "value": 30.74405302577114,
+              "parameter_names": [
+                "rc01",
+                "zs01",
+                "rc1-1",
+                "zs1-1",
+                "rc10",
+                "zs10",
+                "rc11",
+                "zs11"
+              ],
+              "direct_forward_mode": [
+                -17.70186696016797,
+                217.98554536179586,
+                1466.4775276986313,
+                -2571.255507317621,
+                560.1121182190545,
+                -825.7199199390025,
+                910.6507393237671,
+                2313.413684593457
+              ],
+              "finite_difference": [
+                -17.701880244125334,
+                217.9855313414691,
+                1466.4744721631705,
+                -2571.2558155618126,
+                560.1121057006608,
+                -825.7197496774892,
+                910.6502849972386,
+                2313.4114885531076
+              ],
+              "relative_mismatch": [
+                7.504263491798396e-07,
+                6.431769420030853e-08,
+                2.0835926699151202e-06,
+                1.1988079515971458e-07,
+                2.2349800392476462e-08,
+                2.06197700074894e-07,
+                4.989034055868541e-07,
+                9.492649105060551e-07
+              ]
+            },
+            {
+              "id": "ntx_neopax_integrated_current",
+              "value": -2991.040747328036,
+              "parameter_names": [
+                "rc01",
+                "zs01",
+                "rc1-1",
+                "zs1-1",
+                "rc10",
+                "zs10",
+                "rc11",
+                "zs11"
+              ],
+              "direct_forward_mode": [
+                55922.6546383833,
+                -6382.079934530805,
+                -762725.7419974133,
+                -437150.13584775955,
+                -385429.919977383,
+                4245.499011560658,
+                -553297.6490723075,
+                -164730.23772831477
+              ],
+              "finite_difference": [
+                55922.65384518668,
+                -6382.083756716383,
+                -762722.9860435135,
+                -437148.9985630887,
+                -385429.8805733606,
+                4245.387526634659,
+                -553296.7109866831,
+                -164729.2326342267
+              ],
+              "relative_mismatch": [
+                1.4183815733188814e-08,
+                5.988930454722921e-07,
+                3.6133090915661922e-06,
+                2.6015950501505866e-06,
+                1.0223395843710216e-07,
+                2.6260247221222558e-05,
+                1.6954476788651023e-06,
+                6.101491957367258e-06
+              ]
+            }
+          ],
+          "objective_summaries": [
+            {
+              "id": "booz_xform_scalar",
+              "max_relative_mismatch": 6.342570521033785e-07,
+              "median_relative_mismatch": 2.9284843671089477e-08
+            },
+            {
+              "id": "ntx_transport_proxy",
+              "max_relative_mismatch": 2.0835926699151202e-06,
+              "median_relative_mismatch": 3.5255055283087405e-07
+            },
+            {
+              "id": "ntx_neopax_integrated_current",
+              "max_relative_mismatch": 2.6260247221222558e-05,
+              "median_relative_mismatch": 2.1485213645078444e-06
+            }
+          ],
+          "summary_metrics": {
+            "max_relative_mismatch": 2.6260247221222558e-05,
+            "median_relative_mismatch": 2.4755959253710013e-07
+          }
+        },
+        {
+          "id": "qh_warm_start",
+          "label": "QH warm-start",
+          "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.nfp4_QH_warm_start",
+          "geometry_path": "explicit_relaxed_fixed_boundary",
+          "parameter_names": [
+            "rc01",
+            "zs01",
+            "rc1-1",
+            "zs1-1",
+            "rc10",
+            "zs10",
+            "rc11",
+            "zs11"
+          ],
+          "volume_metrics": {
+            "initial_volume": 0.09972302858936753,
+            "ordinary_volume": 0.09972302858830169,
+            "explicit_relaxed_volume": 0.09972302858830169,
+            "ordinary_explicit_relative_difference": 0.0
+          },
+          "objectives": [
+            {
+              "id": "booz_xform_scalar",
+              "value": 1.693347436968211,
+              "parameter_names": [
+                "rc01",
+                "zs01",
+                "rc1-1",
+                "zs1-1",
+                "rc10",
+                "zs10",
+                "rc11",
+                "zs11"
+              ],
+              "direct_forward_mode": [
+                -0.6138527629420887,
+                0.9651269645271745,
+                -20.494924344254446,
+                3.2737083953795767,
+                -16.328678775978766,
+                -6.712313789473916,
+                -10.736729085847996,
+                -2.7882137729523024
+              ],
+              "finite_difference": [
+                -0.613852844943974,
+                0.9651268837007619,
+                -20.494924452696406,
+                3.273708386730689,
+                -16.32867898403445,
+                -6.712313791090717,
+                -10.736729328109096,
+                -2.7882137822787807
+              ],
+              "relative_mismatch": [
+                1.3358557504046815e-07,
+                8.374692895609656e-08,
+                5.2911617050585605e-09,
+                2.641923716602503e-09,
+                1.274173403029474e-08,
+                2.4087087786593467e-10,
+                2.2563770834326003e-08,
+                3.344965266161438e-09
+              ]
+            },
+            {
+              "id": "ntx_transport_proxy",
+              "value": 17.753467905446442,
+              "parameter_names": [
+                "rc01",
+                "zs01",
+                "rc1-1",
+                "zs1-1",
+                "rc10",
+                "zs10",
+                "rc11",
+                "zs11"
+              ],
+              "direct_forward_mode": [
+                -41.57540519707769,
+                -139.1395723375996,
+                229.17336499680803,
+                -80.1950587253155,
+                75.22578649613833,
+                -74.57203066448744,
+                44.29493113131538,
+                435.1283239640104
+              ],
+              "finite_difference": [
+                -41.575400812732255,
+                -139.1395934156492,
+                229.17213619333407,
+                -80.1963934367933,
+                75.2255777680233,
+                -74.57191313360312,
+                44.295138714822706,
+                435.1268609827485
+              ],
+              "relative_mismatch": [
+                1.0545527769081001e-07,
+                1.514885093568494e-07,
+                5.361923549586293e-06,
+                1.6643036184011035e-05,
+                2.7746960704026306e-06,
+                1.5760744144226978e-06,
+                4.68637221484019e-06,
+                3.362194782930531e-06
+              ]
+            },
+            {
+              "id": "ntx_neopax_integrated_current",
+              "value": -8608.412543002123,
+              "parameter_names": [
+                "rc01",
+                "zs01",
+                "rc1-1",
+                "zs1-1",
+                "rc10",
+                "zs10",
+                "rc11",
+                "zs11"
+              ],
+              "direct_forward_mode": [
+                -6643.951028976779,
+                10082.34916966577,
+                231057.38912276062,
+                551747.4158714402,
+                70628.74476500836,
+                -310641.6431065631,
+                474759.57915301004,
+                381410.1928876351
+              ],
+              "finite_difference": [
+                -6643.998430718056,
+                10082.364354184392,
+                231055.9363838365,
+                551745.8475798776,
+                70628.54894529664,
+                -310641.5064956309,
+                474759.1859706517,
+                381410.0892727765
+              ],
+              "relative_mismatch": [
+                7.134520239791219e-06,
+                1.506047400136234e-06,
+                6.287390607066145e-06,
+                2.8424166117214488e-06,
+                2.7725291634091467e-06,
+                4.3977037622447285e-07,
+                8.281721975561034e-07,
+                2.716626054178009e-07
+              ]
+            }
+          ],
+          "objective_summaries": [
+            {
+              "id": "booz_xform_scalar",
+              "max_relative_mismatch": 1.3358557504046815e-07,
+              "median_relative_mismatch": 9.01644786767665e-09
+            },
+            {
+              "id": "ntx_transport_proxy",
+              "max_relative_mismatch": 1.6643036184011035e-05,
+              "median_relative_mismatch": 3.0684454266665806e-06
+            },
+            {
+              "id": "ntx_neopax_integrated_current",
+              "max_relative_mismatch": 7.134520239791219e-06,
+              "median_relative_mismatch": 2.1392882817726903e-06
+            }
+          ],
+          "summary_metrics": {
+            "max_relative_mismatch": 1.6643036184011035e-05,
+            "median_relative_mismatch": 6.339712868902882e-07
+          }
+        }
+      ],
+      "equilibrium_relaxation": {
+        "max_iter": 10,
+        "step_size": 1e-08,
+        "vmec_project": false,
+        "case_ids": [
+          "qa_lowres",
+          "qh_warm_start"
+        ]
+      },
+      "summary_metrics": {
+        "max_relative_mismatch": 2.6260247221222558e-05,
+        "median_relative_mismatch": 4.4076543971369415e-07,
+        "max_ordinary_explicit_volume_relative_difference": 0.0
+      },
+      "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmec_jax solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
+      "objective_ids": [
+        "booz_xform_scalar",
+        "ntx_transport_proxy",
+        "ntx_neopax_integrated_current"
+      ]
     },
     "performance": {
       "cpu_heavy": {
@@ -160,17 +1335,32 @@
       "harmonic_m": 0,
       "harmonic_n": -1,
       "baseline_scale": 1.0,
-      "optimized_scale": 1.2331759062023178,
-      "weighted_gain": 1.10941812424327,
-      "serial_scan_seconds": 1.709677749999173,
-      "parallel_scan_seconds": 2.811376083000141
+      "optimized_scale": 1.296932471472278,
+      "weighted_gain": 1.085158353544606,
+      "serial_scan_seconds": 1.4507751670025755,
+      "parallel_scan_seconds": 2.404615790997923
     }
   },
   "claims": {
-    "w7x_fine_grid_max_relative_error": 0.018305696239054575,
+    "w7x_fine_grid_max_relative_error": 0.018297079828848713,
     "derivative_max_relative_mismatch": 1.0511436761691851e-05,
-    "best_prepared_derivative_speedup": 3.8475123937594984,
-    "bootstrap_current_weighted_gain": 1.10941812424327,
+    "best_prepared_derivative_speedup": 3.8606929529957816,
+    "geometry_control_derivative_max_relative_mismatch": 0.0001347698483202203,
+    "geometry_control_derivative_median_relative_mismatch": 3.5954257861708703e-06,
+    "file_backed_geometry_control_derivative_max_relative_mismatch": 0.0003087991250071381,
+    "file_backed_geometry_control_derivative_median_relative_mismatch": 5.158220831592955e-08,
+    "boundary_forward_mode_current_derivative_max_relative_mismatch": 7.17355827984326e-07,
+    "boundary_forward_mode_current_derivative_median_relative_mismatch": 3.556284405640031e-07,
+    "implicit_equilibrium_forward_mode_derivative_max_relative_mismatch": 6.566185595633931,
+    "implicit_equilibrium_forward_mode_derivative_median_relative_mismatch": 0.7336929992944701,
+    "implicit_equilibrium_volume_relative_mismatch": 9.236154068657261e-05,
+    "implicit_equilibrium_booz_relative_mismatch": 0.7336929992944701,
+    "implicit_equilibrium_transport_relative_mismatch": 6.566185595633931,
+    "implicit_equilibrium_reverse_mode_booz_max_relative_mismatch": null,
+    "explicit_relaxed_boundary_current_derivative_max_relative_mismatch": 2.6260247221222558e-05,
+    "explicit_relaxed_boundary_current_derivative_median_relative_mismatch": 4.4076543971369415e-07,
+    "explicit_relaxed_boundary_current_volume_relative_difference": 0.0,
+    "bootstrap_current_weighted_gain": 1.085158353544606,
     "cpu_heavy_best_multiprocess_speedup": 1.7904466542288835,
     "gpu_heavy_best_multiprocess_speedup": 0.4235861469424724,
     "gpu_heavy_healthy_device_count": 1
@@ -191,6 +1381,11 @@
     "ambipolar_family": [
       "docs/_static/ambipolar_profile_family.png",
       "docs/_static/ambipolar_profile_family.pdf"
+    ],
+    "profile_reconstruction": [
+      "docs/_static/profile_force_reconstruction_audit.png",
+      "docs/_static/profile_force_reconstruction_audit.pdf",
+      "docs/_static/profile_force_reconstruction_audit.json"
     ],
     "profile_control": [
       "docs/_static/profile_control_optimization.png",
@@ -213,14 +1408,45 @@
       "docs/_static/derivative_path_benchmark.pdf",
       "docs/_static/derivative_path_benchmark.json"
     ],
+    "geometry_derivative": [
+      "docs/_static/geometry_control_derivative_benchmark.png",
+      "docs/_static/geometry_control_derivative_benchmark.pdf",
+      "docs/_static/geometry_control_derivative_benchmark.json"
+    ],
+    "boundary_forward_mode": [
+      "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
+      "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
+      "docs/_static/boundary_forward_mode_current_derivative_benchmark.json"
+    ],
+    "implicit_equilibrium_forward_mode": [
+      "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.png",
+      "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf",
+      "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json"
+    ],
+    "boundary_explicit_relaxed": [
+      "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png",
+      "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf",
+      "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json"
+    ],
+    "profile_uncertainty": [
+      "docs/_static/autodiff_profile_uncertainty.png",
+      "docs/_static/autodiff_profile_uncertainty.pdf",
+      "docs/_static/autodiff_profile_uncertainty.json"
+    ],
     "science": [
       "docs/_static/bootstrap_current_optimization.png",
       "docs/_static/bootstrap_current_optimization.pdf",
       "docs/_static/bootstrap_current_optimization.json"
     ],
+    "robust_science": [
+      "docs/_static/bootstrap_current_robust_optimization.png",
+      "docs/_static/bootstrap_current_robust_optimization.pdf",
+      "docs/_static/bootstrap_current_robust_optimization.json"
+    ],
     "validation": [
       "docs/_static/validation_summary.png",
-      "docs/_static/validation_summary.pdf"
+      "docs/_static/validation_summary.pdf",
+      "docs/_static/validation_summary.json"
     ],
     "bootstrap_proxy": [
       "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
@@ -241,6 +1467,1338 @@
       "docs/_static/performance_scaling_heavy.pdf"
     ]
   },
+  "benchmark_matrix": {
+    "entries": [
+      {
+        "entry": {
+          "id": "monoenergetic_validation_summary",
+          "lane": "monoenergetic",
+          "maturity": "positive-gate",
+          "title": "Monoenergetic coefficient convergence and symmetry",
+          "claim_scope": "NTX reproduces the expected monoenergetic coefficient behavior, Onsager residual control, and Legendre convergence on owned DKES-style and VMEC surfaces.",
+          "literature_anchors": [
+            "Escoto et al. 2024 monoenergetic convergence and benchmarking",
+            "Escoto PhD thesis monoenergetic formulation",
+            "Helander, Parra, and Newton 2017 low-collisionality scaling"
+          ],
+          "scripts": [
+            "examples/validation_summary.py"
+          ],
+          "tests": [
+            "tests/test_validation_summary_example.py",
+            "tests/test_make_publication_figures.py"
+          ],
+          "artifacts": [
+            "docs/_static/validation_summary.png",
+            "docs/_static/validation_summary.pdf",
+            "docs/_static/validation_summary.json"
+          ],
+          "manuscript_figures": [
+            "validation_summary"
+          ],
+          "docs": [
+            "docs/validation.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": []
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/validation_summary.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_validation_summary_example.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_make_publication_figures.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/validation_summary.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/validation_summary.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/validation_summary.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/validation.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "precise_qs_redl_sfincs",
+          "lane": "bootstrap-current",
+          "maturity": "positive-gate",
+          "title": "Precise-QS Redl current against archived fixed-field reference",
+          "claim_scope": "The Redl path closes the archived precise-QS fixed-field interior-window gate and is separated from the reduced closure stress metric.",
+          "literature_anchors": [
+            "Landreman and Paul 2022 precise-QS benchmark family",
+            "Redl et al. bootstrap-current fit",
+            "SFINCS fixed-field archive used by the benchmark"
+          ],
+          "scripts": [
+            "examples/precise_qs_redl_sfincs_audit.py",
+            "examples/bootstrap_current_fixed_field_validation.py"
+          ],
+          "tests": [
+            "tests/test_precise_qs_redl_sfincs_audit.py",
+            "tests/test_fixed_field_parallel_flow_audit.py"
+          ],
+          "artifacts": [
+            "docs/_static/bootstrap_current_fixed_field_validation.png",
+            "docs/_static/bootstrap_current_fixed_field_validation.pdf",
+            "docs/_static/bootstrap_current_fixed_field_validation.json"
+          ],
+          "manuscript_figures": [
+            "closure_validation_report"
+          ],
+          "docs": [
+            "docs/physics-gates.md",
+            "docs/validation.md"
+          ],
+          "open_work": []
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/precise_qs_redl_sfincs_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "script",
+            "path": "examples/bootstrap_current_fixed_field_validation.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_precise_qs_redl_sfincs_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_fixed_field_parallel_flow_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_fixed_field_validation.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_fixed_field_validation.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_fixed_field_validation.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/physics-gates.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/validation.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "fixed_field_ntx_neopax_closure_stress",
+          "lane": "bootstrap-current",
+          "maturity": "stress-gate",
+          "title": "Fixed-field current closure stress test",
+          "claim_scope": "The fixed-field NTX+NEOPAX comparison is retained as a monitored closure stress test, not as a promoted monoenergetic parity gate.",
+          "literature_anchors": [
+            "Landreman and Paul 2022 precise-QS benchmark family",
+            "momentum-restoring closure literature for parallel-flow models"
+          ],
+          "scripts": [
+            "examples/bootstrap_current_fixed_field_validation.py",
+            "examples/fixed_field_momentum_correction_diagnostic.py",
+            "examples/momentum_correction_mapping_audit.py"
+          ],
+          "tests": [
+            "tests/test_fixed_field_momentum_correction_diagnostic.py",
+            "tests/test_momentum_correction_mapping_audit.py"
+          ],
+          "artifacts": [
+            "docs/_static/bootstrap_current_fixed_field_validation.png",
+            "docs/_static/bootstrap_current_fixed_field_validation.pdf",
+            "docs/_static/bootstrap_current_fixed_field_validation.json"
+          ],
+          "manuscript_figures": [
+            "closure_validation_report"
+          ],
+          "docs": [
+            "docs/physics-gates.md",
+            "docs/validation.md"
+          ],
+          "open_work": [
+            "derive and implement a transferable momentum-restoring closure",
+            "require no regression on the integrated W7-X workflow"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/bootstrap_current_fixed_field_validation.py",
+            "exists": true
+          },
+          {
+            "kind": "script",
+            "path": "examples/fixed_field_momentum_correction_diagnostic.py",
+            "exists": true
+          },
+          {
+            "kind": "script",
+            "path": "examples/momentum_correction_mapping_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_fixed_field_momentum_correction_diagnostic.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_momentum_correction_mapping_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_fixed_field_validation.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_fixed_field_validation.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_fixed_field_validation.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/physics-gates.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/validation.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "w7x_integrated_transfer",
+          "lane": "integrated-workflow",
+          "maturity": "positive-gate",
+          "title": "Imported W7-X workflow transfer",
+          "claim_scope": "The rebuilt raw-branch NTX database transfers through the imported W7-X workflow without exceeding the current release gate.",
+          "literature_anchors": [
+            "W7-X benchmark profile used by the imported workflow",
+            "neoclassical bootstrap-current profile validation practice"
+          ],
+          "scripts": [
+            "examples/bootstrap_current_reference_audit_w7x.py"
+          ],
+          "tests": [
+            "tests/test_bootstrap_current_reference_audit_w7x.py",
+            "tests/test_w7x_reference_benchmark.py"
+          ],
+          "artifacts": [
+            "docs/_static/bootstrap_current_reference_audit_w7x.png",
+            "docs/_static/bootstrap_current_reference_audit_w7x.pdf",
+            "docs/_static/bootstrap_current_reference_audit_w7x.json"
+          ],
+          "manuscript_figures": [
+            "bootstrap_current_reference_audit_w7x"
+          ],
+          "docs": [
+            "docs/physics-gates.md",
+            "docs/validation.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": []
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/bootstrap_current_reference_audit_w7x.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_bootstrap_current_reference_audit_w7x.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_w7x_reference_benchmark.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_reference_audit_w7x.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_reference_audit_w7x.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_reference_audit_w7x.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/physics-gates.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/validation.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "prepared_derivative_path",
+          "lane": "autodiff",
+          "maturity": "positive-gate",
+          "title": "Prepared implicit-adjoint derivative path",
+          "claim_scope": "Prepared derivatives agree with direct reverse-mode and give a measured speedup on the committed electric-field scan.",
+          "literature_anchors": [
+            "Paul et al. 2019 adjoint neoclassical optimization",
+            "McGreivy 2024 differentiable programming for plasma workflows"
+          ],
+          "scripts": [
+            "examples/derivative_path_benchmark.py"
+          ],
+          "tests": [
+            "tests/test_derivative_path_benchmark_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/derivative_path_benchmark.png",
+            "docs/_static/derivative_path_benchmark.pdf",
+            "docs/_static/derivative_path_benchmark.json"
+          ],
+          "manuscript_figures": [
+            "derivative_path_benchmark"
+          ],
+          "docs": [
+            "docs/autodiff.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": [
+            "reduce memory and factorization overhead on larger geometry-control scans"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/derivative_path_benchmark.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_derivative_path_benchmark_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/derivative_path_benchmark.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/derivative_path_benchmark.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/derivative_path_benchmark.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "geometry_control_derivative_benchmark",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "Three-harmonic geometry-control derivative audit",
+          "claim_scope": "Direct geometry-control autodiff agrees with centered finite differences for three controlled Boozer harmonics on an owned analytic surface.",
+          "literature_anchors": [
+            "Paul et al. 2019 adjoint neoclassical optimization",
+            "McGreivy 2024 differentiable programming for plasma workflows",
+            "Escoto thesis monoenergetic formulation"
+          ],
+          "scripts": [
+            "examples/geometry_control_derivative_benchmark.py"
+          ],
+          "tests": [
+            "tests/test_geometry_control_derivative_benchmark_example.py",
+            "tests/test_make_publication_figures.py"
+          ],
+          "artifacts": [
+            "docs/_static/geometry_control_derivative_benchmark.png",
+            "docs/_static/geometry_control_derivative_benchmark.pdf",
+            "docs/_static/geometry_control_derivative_benchmark.json"
+          ],
+          "manuscript_figures": [
+            "geometry_control_derivative_benchmark"
+          ],
+          "docs": [
+            "docs/autodiff.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": [
+            "transfer this audit to reusable VMEC/Boozer geometry-control families",
+            "compare geometry pullbacks with an implicit-adjoint path once implemented"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/geometry_control_derivative_benchmark.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_geometry_control_derivative_benchmark_example.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_make_publication_figures.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/geometry_control_derivative_benchmark.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/geometry_control_derivative_benchmark.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/geometry_control_derivative_benchmark.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "file_backed_geometry_control_derivative_benchmark",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "File-backed geometry-control derivative audit",
+          "claim_scope": "Direct geometry-control autodiff agrees with centered finite differences on repository-owned Boozer and VMEC sample surfaces.",
+          "literature_anchors": [
+            "Paul et al. 2019 adjoint neoclassical optimization",
+            "McGreivy 2024 differentiable programming for plasma workflows",
+            "Escoto thesis monoenergetic formulation"
+          ],
+          "scripts": [
+            "examples/file_backed_geometry_control_derivative_benchmark.py"
+          ],
+          "tests": [
+            "tests/test_file_backed_geometry_control_derivative_benchmark_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/file_backed_geometry_control_derivative_benchmark.png",
+            "docs/_static/file_backed_geometry_control_derivative_benchmark.pdf",
+            "docs/_static/file_backed_geometry_control_derivative_benchmark.json"
+          ],
+          "manuscript_figures": [
+            "file_backed_geometry_control_derivative_benchmark"
+          ],
+          "docs": [
+            "docs/autodiff.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": [
+            "extend from repository sample files to broader reusable geometry families",
+            "compare geometry pullbacks with an implicit-adjoint path once implemented",
+            "measure memory and factorization reuse on larger geometry-control scans"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/file_backed_geometry_control_derivative_benchmark.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_file_backed_geometry_control_derivative_benchmark_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/file_backed_geometry_control_derivative_benchmark.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/file_backed_geometry_control_derivative_benchmark.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/file_backed_geometry_control_derivative_benchmark.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "boundary_forward_mode_current_derivative_benchmark",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "Boundary-to-output forward-mode derivative audit",
+          "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmec_jax geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
+          "literature_anchors": [
+            "vmec_jax explicit differentiable boundary workflows",
+            "booz_xform_jax JAX-native Boozer transform",
+            "McGreivy 2024 differentiable programming for plasma workflows"
+          ],
+          "scripts": [
+            "examples/boundary_forward_mode_current_derivative_benchmark.py"
+          ],
+          "tests": [
+            "tests/test_boundary_forward_mode_current_derivative_benchmark_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
+            "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
+            "docs/_static/boundary_forward_mode_current_derivative_benchmark.json"
+          ],
+          "manuscript_figures": [],
+          "docs": [
+            "docs/autodiff.md",
+            "docs/research-roadmap.md"
+          ],
+          "open_work": [
+            "keep this fast projected-geometry lane as a low-cost precursor to the equilibrium-relaxed benchmark",
+            "validate broader non-axisymmetric benchmark families beyond the repository sample input",
+            "determine whether reverse-mode can be repaired or whether the boundary-control lane should stay forward-mode only"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/boundary_forward_mode_current_derivative_benchmark.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_boundary_forward_mode_current_derivative_benchmark_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/boundary_forward_mode_current_derivative_benchmark.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/research-roadmap.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "implicit_equilibrium_forward_mode_derivative_benchmark",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "Implicit-equilibrium forward-mode derivative audit",
+          "claim_scope": "The implicit fixed-boundary vmec_jax residual solve reaches Boozer geometry and an NTX transport observable under forward-mode autodiff on the committed QA case, but only the equilibrium-volume derivative currently matches centered finite differences on this lane.",
+          "literature_anchors": [
+            "vmec_jax implicit fixed-boundary differentiation",
+            "booz_xform_jax JAX-native Boozer transform",
+            "McGreivy 2024 differentiable programming for plasma workflows"
+          ],
+          "scripts": [
+            "examples/implicit_equilibrium_forward_mode_derivative_benchmark.py"
+          ],
+          "tests": [
+            "tests/test_implicit_equilibrium_forward_mode_derivative_benchmark_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.png",
+            "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf",
+            "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json"
+          ],
+          "manuscript_figures": [
+            "implicit_equilibrium_forward_mode_derivative_benchmark"
+          ],
+          "docs": [
+            "docs/autodiff.md",
+            "docs/research-roadmap.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": [
+            "recover Boozer-scalar parity on the implicit geometry path",
+            "recover NTX transport parity on the implicit geometry path",
+            "extend the implicit forward-mode lane from NTX transport to NTX+NEOPAX integrated current",
+            "broaden beyond the committed QA case to additional geometry families",
+            "repair reverse mode through the implicit vmec_jax -> booz_xform_jax path"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/implicit_equilibrium_forward_mode_derivative_benchmark.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_implicit_equilibrium_forward_mode_derivative_benchmark_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/research-roadmap.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "explicit_relaxed_boundary_current_derivative_benchmark",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "Explicit-relaxed boundary-to-current derivative audit",
+          "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmec_jax solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
+          "literature_anchors": [
+            "vmec_jax explicit differentiable boundary workflows",
+            "booz_xform_jax JAX-native Boozer transform",
+            "McGreivy 2024 differentiable programming for plasma workflows",
+            "Landreman and Paul 2022 precise-QS benchmark family"
+          ],
+          "scripts": [
+            "examples/explicit_relaxed_boundary_current_derivative_benchmark.py"
+          ],
+          "tests": [
+            "tests/test_explicit_relaxed_boundary_current_derivative_benchmark_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png",
+            "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf",
+            "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json"
+          ],
+          "manuscript_figures": [
+            "explicit_relaxed_boundary_current_derivative_benchmark"
+          ],
+          "docs": [
+            "docs/autodiff.md",
+            "docs/research-roadmap.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": [
+            "widen beyond the committed QA and QH cases to additional geometry families",
+            "establish whether the implicit-equilibrium path can recover the same boundary sensitivities",
+            "determine whether reverse-mode can be repaired on the equilibrium-relaxed boundary-control lane"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/explicit_relaxed_boundary_current_derivative_benchmark.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_explicit_relaxed_boundary_current_derivative_benchmark_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/research-roadmap.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "autodiff_inverse_problem",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "Synthetic inverse-design recovery",
+          "claim_scope": "A differentiable profile/geometry control can recover a generated target on a small owned inverse problem.",
+          "literature_anchors": [
+            "adjoint stellarator-optimization validation practice",
+            "differentiable programming verification by generated targets"
+          ],
+          "scripts": [
+            "examples/autodiff_inverse_problem.py"
+          ],
+          "tests": [
+            "tests/test_autodiff.py",
+            "tests/test_make_publication_figures.py"
+          ],
+          "artifacts": [
+            "docs/_static/autodiff_inverse_problem.png",
+            "docs/_static/autodiff_inverse_problem.pdf"
+          ],
+          "manuscript_figures": [
+            "autodiff_inverse_problem"
+          ],
+          "docs": [
+            "docs/autodiff.md"
+          ],
+          "open_work": [
+            "extend from scalar controls to larger geometry-control families"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/autodiff_inverse_problem.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_autodiff.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_make_publication_figures.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/autodiff_inverse_problem.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/autodiff_inverse_problem.pdf",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "autodiff_profile_uncertainty",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "Linearized profile uncertainty against Monte Carlo",
+          "claim_scope": "Linearized covariance propagation is checked against a small Monte Carlo ensemble on the same differentiable profile map.",
+          "literature_anchors": [
+            "differentiable programming uncertainty propagation",
+            "profile-level neoclassical workflow sensitivity analysis"
+          ],
+          "scripts": [
+            "examples/autodiff_profile_uncertainty.py"
+          ],
+          "tests": [
+            "tests/test_autodiff.py",
+            "tests/test_autodiff_profile_uncertainty_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/autodiff_profile_uncertainty.png",
+            "docs/_static/autodiff_profile_uncertainty.pdf",
+            "docs/_static/autodiff_profile_uncertainty.json"
+          ],
+          "manuscript_figures": [
+            "autodiff_profile_uncertainty"
+          ],
+          "docs": [
+            "docs/autodiff.md"
+          ],
+          "open_work": [
+            "add Fisher or Hessian-vector probes on a larger profile basis"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/autodiff_profile_uncertainty.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_autodiff.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_autodiff_profile_uncertainty_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/autodiff_profile_uncertainty.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/autodiff_profile_uncertainty.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/autodiff_profile_uncertainty.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "robust_bootstrap_current_optimization",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "Robust bootstrap-current optimization under control uncertainty",
+          "claim_scope": "The robust-design objective improves under a prescribed Gaussian control uncertainty on a deterministic owned benchmark.",
+          "literature_anchors": [
+            "adjoint stellarator optimization",
+            "direct neoclassical ion-transport optimization",
+            "robust optimization under parameter uncertainty"
+          ],
+          "scripts": [
+            "examples/bootstrap_current_robust_optimization.py"
+          ],
+          "tests": [
+            "tests/test_autodiff.py",
+            "tests/test_bootstrap_current_robust_optimization_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/bootstrap_current_robust_optimization.png",
+            "docs/_static/bootstrap_current_robust_optimization.pdf",
+            "docs/_static/bootstrap_current_robust_optimization.json"
+          ],
+          "manuscript_figures": [
+            "bootstrap_current_robust_optimization"
+          ],
+          "docs": [
+            "docs/autodiff.md"
+          ],
+          "open_work": [
+            "promote only after testing on broader geometry controls and profile families"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/bootstrap_current_robust_optimization.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_autodiff.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_bootstrap_current_robust_optimization_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_robust_optimization.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_robust_optimization.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_robust_optimization.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "profile_force_reconstruction",
+          "lane": "profile-workflow",
+          "maturity": "stress-gate",
+          "title": "Primitive profile to force reconstruction",
+          "claim_scope": "The primitive-profile builder is audited on the precise-QS profile family and kept as a monitored profile stress benchmark.",
+          "literature_anchors": [
+            "Landreman and Paul 2022 precise-QS density and temperature profiles",
+            "thermodynamic-force formulation of neoclassical transport"
+          ],
+          "scripts": [
+            "examples/profile_force_reconstruction_audit.py"
+          ],
+          "tests": [
+            "tests/test_profile_force_reconstruction_audit_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/profile_force_reconstruction_audit.png",
+            "docs/_static/profile_force_reconstruction_audit.pdf",
+            "docs/_static/profile_force_reconstruction_audit.json"
+          ],
+          "manuscript_figures": [
+            "profile_force_reconstruction_audit"
+          ],
+          "docs": [
+            "docs/profiles.md"
+          ],
+          "open_work": [
+            "tighten profile-level physical diagnostics for long-radius studies"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/profile_force_reconstruction_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_profile_force_reconstruction_audit_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/profile_force_reconstruction_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/profile_force_reconstruction_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/profile_force_reconstruction_audit.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/profiles.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "performance_scaling",
+          "lane": "performance",
+          "maturity": "software-gate",
+          "title": "CPU/GPU throughput characterization",
+          "claim_scope": "Serial, multiprocess, CPU, and GPU execution modes are characterized on committed smoke and heavier-grid cases.",
+          "literature_anchors": [
+            "JAX performance practice for compiled scientific workloads",
+            "multi-process scan execution for independent monoenergetic cases"
+          ],
+          "scripts": [
+            "examples/performance_scaling.py",
+            "scripts/benchmark_scaling.py"
+          ],
+          "tests": [
+            "tests/test_performance_scaling_example.py",
+            "tests/test_benchmark_scaling_script.py"
+          ],
+          "artifacts": [
+            "docs/_static/performance_scaling_smoke.png",
+            "docs/_static/performance_scaling_smoke.pdf",
+            "docs/_static/performance_scaling_cpu_smoke.json",
+            "docs/_static/performance_scaling_gpu_smoke.json",
+            "docs/_static/performance_scaling_heavy.png",
+            "docs/_static/performance_scaling_heavy.pdf",
+            "docs/_static/performance_scaling_cpu_heavy.json",
+            "docs/_static/performance_scaling_gpu_heavy.json"
+          ],
+          "manuscript_figures": [
+            "performance_scaling_heavy"
+          ],
+          "docs": [
+            "docs/performance.md",
+            "docs/gpu.md"
+          ],
+          "open_work": [
+            "map production-grid crossover points more systematically",
+            "improve prepared-geometry reuse across larger scan campaigns"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/performance_scaling.py",
+            "exists": true
+          },
+          {
+            "kind": "script",
+            "path": "scripts/benchmark_scaling.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_performance_scaling_example.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_benchmark_scaling_script.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/performance_scaling_smoke.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/performance_scaling_smoke.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/performance_scaling_cpu_smoke.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/performance_scaling_gpu_smoke.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/performance_scaling_heavy.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/performance_scaling_heavy.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/performance_scaling_cpu_heavy.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/performance_scaling_gpu_heavy.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/performance.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/gpu.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "geometry_breadth_hidden_symmetry",
+          "lane": "geometry-breadth",
+          "maturity": "planned-lane",
+          "title": "Hidden-symmetry and omnigenous geometry families",
+          "claim_scope": "Future research workflows should broaden validation beyond the current W7-X-centered set.",
+          "literature_anchors": [
+            "near-axis quasi-isodynamic construction and verification",
+            "hidden-symmetry optimization literature",
+            "piecewise-omnigenous optimization literature"
+          ],
+          "scripts": [],
+          "tests": [],
+          "artifacts": [],
+          "manuscript_figures": [],
+          "docs": [
+            "docs/research-roadmap.md"
+          ],
+          "open_work": [
+            "identify reusable public inputs for hidden-symmetry studies",
+            "add VMEC/Boozer family examples once inputs are owned",
+            "define convergence gates before promoting figures"
+          ]
+        },
+        "status": "planned",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "doc",
+            "path": "docs/research-roadmap.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "full_monoenergetic_geometry_family",
+          "lane": "monoenergetic",
+          "maturity": "planned-lane",
+          "title": "Full literature monoenergetic geometry-family reproduction",
+          "claim_scope": "The compact validation summary should be broadened into the full literature geometry-family reproduction before claiming coverage of all benchmark cases.",
+          "literature_anchors": [
+            "Escoto et al. 2024 W7-X EIM, W7-X KJM, and CIEMAT-QI benchmarks",
+            "Escoto thesis convergence ladders for D11, D31, and D33"
+          ],
+          "scripts": [],
+          "tests": [],
+          "artifacts": [],
+          "manuscript_figures": [],
+          "docs": [
+            "docs/benchmark-matrix.md",
+            "docs/validation.md"
+          ],
+          "open_work": [
+            "own or regenerate reusable inputs for W7-X EIM, W7-X KJM, and CIEMAT-QI",
+            "add D11, D31, and D33 parity plots for those families",
+            "add N_xi, N_theta, and N_zeta convergence ladders",
+            "include zero and finite radial-electric-field cases where applicable"
+          ]
+        },
+        "status": "planned",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "doc",
+            "path": "docs/benchmark-matrix.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/validation.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "large_geometry_control_autodiff",
+          "lane": "autodiff",
+          "maturity": "planned-lane",
+          "title": "Large geometry-control autodiff validation",
+          "claim_scope": "The scalar derivative and optimization examples should be extended to larger geometry-control families before promoting optimization-grade stellarator-design claims.",
+          "literature_anchors": [
+            "Paul et al. 2019 adjoint neoclassical optimization",
+            "McGreivy 2024 differentiable programming for plasma workflows",
+            "direct neoclassical transport optimization literature"
+          ],
+          "scripts": [],
+          "tests": [],
+          "artifacts": [],
+          "manuscript_figures": [],
+          "docs": [
+            "docs/autodiff.md",
+            "docs/research-roadmap.md"
+          ],
+          "open_work": [
+            "broaden the current analytic and file-backed audits into reusable geometry families",
+            "compare direct autodiff, implicit-adjoint, and finite-difference probes",
+            "measure memory and factorization reuse under real scan workloads",
+            "add publication-ready derivative and optimization figures"
+          ]
+        },
+        "status": "planned",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/research-roadmap.md",
+            "exists": true
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "complete": 15,
+      "incomplete": 0,
+      "planned": 3
+    }
+  },
   "figure_sets": {
     "main_text": [
       "validation",
@@ -253,12 +2811,19 @@
     "supplement": [
       "inverse",
       "profiles",
+      "profile_uncertainty",
+      "geometry_derivative",
+      "boundary_forward_mode",
+      "implicit_equilibrium_forward_mode",
+      "boundary_explicit_relaxed",
       "ambipolar",
       "ambipolar_family",
+      "profile_reconstruction",
       "profile_control",
       "profile_basis",
       "profile_transport",
       "bootstrap_proxy",
+      "robust_science",
       "performance_smoke"
     ]
   },
@@ -267,6 +2832,7 @@
     "main_text_figures": "python examples/make_publication_figures.py --figures main_text",
     "supplement_figures": "python examples/make_publication_figures.py --figures supplement",
     "tables": "python scripts/build_manuscript_artifacts.py",
+    "benchmark_matrix": "python scripts/build_benchmark_matrix.py",
     "validation_subset": "python -m pytest -q tests/test_w7x_reference_benchmark.py tests/test_derivative_path_benchmark_example.py tests/test_bootstrap_current_optimization_example.py tests/test_manuscript_artifacts_script.py tests/test_make_publication_figures.py -k \"subset_writes_manifest or bootstrap_subset_writes_manifest\""
   }
 }

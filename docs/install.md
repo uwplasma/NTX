@@ -25,13 +25,14 @@ python -m pip install -e ".[dev,docs,io]"
 ## Geometry Extras
 
 To use VMEC `wout` files and Boozer `boozmn` files through the JAX geometry
-helpers:
+helpers, install the optional upstream geometry packages directly:
 
 ```bash
-python -m pip install -e ".[geometry]"
+python -m pip install git+https://github.com/uwplasma/vmec_jax.git
+python -m pip install git+https://github.com/uwplasma/booz_xform_jax.git
 ```
 
-That installs the dependencies used by:
+Those packages provide the dependencies used by:
 
 - [`src/ntx/vmec.py`](../src/ntx/vmec.py)
 - [`src/ntx/booz.py`](../src/ntx/booz.py)

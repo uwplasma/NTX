@@ -65,6 +65,177 @@ research problems.
 - [x] shift near-term work toward CI speed, packaging, manuscript clarity, and
   reproducibility rather than new closure-model physics
 
+## Pre-Merge Gate Decision
+
+Do not merge, tag, or ship this branch until the open-lane checklist in
+[`docs/ship-checklist.md`](docs/ship-checklist.md) is satisfied. The release
+order is:
+
+1. close repository hygiene and commit batching,
+2. lock CI runtime and `>=95%` coverage,
+3. strengthen literature-anchored physics gates and validation artifacts,
+4. finish or explicitly scope the fixed-field `NTX+NEOPAX` closure lane,
+5. finish the `vmec_jax`/`booz_xform_jax` derivative gates that are claimed,
+6. add broader W7-X/QI/omnigenous lanes only as artifact-backed planned work
+   unless the owned inputs and convergence ladders are already present,
+7. finish docs, examples, package checks, and PyPI release automation,
+8. then merge, tag, and ship.
+
+## 2026-04 Full Ship-Readiness Audit
+
+This pass consolidates the current plan, git history, source tree, comparison
+codes, and literature into a single execution order. The guiding rule is that
+NTX should be shipped as a small, accurate, differentiable monoenergetic
+transport code, not as an opaque wrapper around heavier neoclassical or
+equilibrium stacks.
+
+### Literature And Code Audit Conclusions
+
+- The promoted NTX equation family remains the finite Legendre/Sonine
+  monoenergetic transport formulation in Escoto's thesis and the associated
+  Fortran reference implementation. The code should keep testing convergence in
+  `Pmax`, `N_xi`, `N_theta`, and `N_zeta` rather than changing the physics model
+  without a literature-backed reason.
+- The International Collaboration on Neoclassical Transport in Stellarators
+  benchmark paper remains the broadest independent benchmark target for
+  `D11`, `D31`, and `D33`, because it compares the three monoenergetic
+  coefficients across several numerical methods and magnetic-optimization
+  strategies.
+- SFINCS remains the high-fidelity comparison lane, but it solves a broader
+  radially local drift-kinetic problem with trajectory and collision-operator
+  options. Therefore SFINCS comparisons are parity/stress gates only when the
+  physics settings and normalizations are explicitly aligned.
+- The Landreman trajectory/collision-operator comparisons set an important
+  acceptance rule: do not expect order-`1e-2` agreement in regimes where the
+  monoenergetic approximation, electric-field resonance physics, or momentum
+  conservation model are intentionally different. In those regimes the gate is
+  convergence, sign, ordering, and bounded relative error, not exact parity.
+- The closure audit has a hard rule: no fitted bridge constants are allowed in
+  production. Any momentum-correction change must be derived from the same
+  moment definitions used by the runtime closure and must improve the fixed-field
+  QA/QH stress cases without regressing the integrated W7-X transfer gate.
+- The differentiable geometry stack is now realistic because `vmec_jax` and
+  `booz_xform_jax` are JAX-native and packageable. NTX should use them as
+  optional workflows, with derivative gates that distinguish projected-boundary,
+  explicitly relaxed equilibrium, and implicit-equilibrium sensitivities.
+- The 2026 piecewise-omnigenous and low-bootstrap-current literature raises the
+  bar for future novelty claims: NTX should include owned hidden-symmetry,
+  omnigenous, and piecewise-omnigenous geometry families before claiming broad
+  design relevance beyond the current W7-X and precise-QS validation surfaces.
+
+### Repository State From Git History
+
+Recent commits show that the project already completed the first source split
+and fast-coverage pass:
+
+- internal solver, profile, autodiff, geometry, input-file, and NEOPAX helper
+  modules were split out of the older facade files;
+- coverage is measured by module in CI and the fast core shard reached the
+  target `>=95%` threshold;
+- benchmark-matrix artifacts now exist and are regenerated from
+  `scripts/build_benchmark_matrix.py`;
+- derivative, profile, robust-optimization, validation-summary, and W7-X audit
+  artifacts are already committed as reproducibility anchors.
+
+The remaining work is therefore not broad low-value coverage. The remaining
+work is to keep the fast CI clean while adding high-value literature gates,
+geometry-family benchmarks, derivative audits, packaging release automation,
+and docs that explain which claims are closed versus monitored.
+
+### Immediate Execution Order
+
+1. **Repository hygiene and CI classification**
+   - Review untracked directories and generated artifacts before editing them.
+   - Remove only obvious throwaway files such as caches after confirming they
+     are not benchmark artifacts.
+   - Classify every new example test into `core`, `integration_examples`,
+     `heavy_examples`, or manual benchmark lanes so the PR workflow stays within
+     `5-10` minutes.
+   - Replace the CI core-shard exclusion one-liner with a maintained test-lane
+     manifest or pytest markers before adding more benchmark tests.
+   - Current status: the maintained manifest is in place and validated; the
+     remaining hygiene task is to split the intentional dirty tree into
+     reviewable commit batches.
+
+2. **Benchmark matrix hardening**
+   - Require every promoted claim to map to:
+     `literature reference -> script -> test -> artifact -> docs/manuscript figure`.
+   - Add explicit rows for:
+     W7-X EIM, W7-X KJM, CIEMAT-QI or successor QI cases, precise-QS QA/QH,
+     low-bootstrap-current omnigenous/piecewise-omnigenous families, and the
+     three differentiable geometry-control lanes.
+   - Keep fixed-field `NTX+NEOPAX` as a stress gate until the closure branch
+     passes both fixed-field QA/QH and integrated W7-X simultaneously.
+   - Current status: the matrix builder reports every active gate complete and
+     keeps the broader geometry/autodiff breadth work as planned lanes.
+
+3. **High-value physics tests**
+   - Add convergence-ladder tests for `D11`, `D31`, `D33`, and Onsager residuals
+     on small owned geometry cases.
+   - Add artifact-backed literature reproductions for larger cases rather than
+     running them in every PR.
+   - Keep analytical and algebraic tests fast:
+     Fourier derivative identities, nullspace condition, operator block
+     structure, source-mode parity, transport coefficient sign/normalization,
+     and exact low-order recovery.
+   - Treat Redl/SFINCS/bootstrap-current comparisons as workflow validation
+     only after the monoenergetic coefficient gates are independently green.
+   - Current status: repository artifact gates now assert that the positive
+     W7-X transfer and Redl/SFINCS checks pass while the fixed-field closure and
+     higher-order `Pmax` checks remain monitored stress metrics.
+
+4. **Differentiability gates**
+   - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint
+     solves, and finite differences side by side on the same scalar outputs.
+   - Promote only the derivative lanes that pass centered finite differences on
+     repository-owned cases.
+   - Keep implicit-equilibrium Boozer and NTX transport sensitivities open until
+     they pass, because the current diagnostic only closes the equilibrium
+     volume scalar.
+   - Add optimization/UQ examples only when their gradients have a prior
+     derivative-audit artifact.
+
+5. **Performance and memory**
+   - Profile compile time and steady-state time separately.
+   - Prefer stable shapes, prepared geometry reuse, reusable compiled callables,
+     and batched scans before adding new dependencies.
+   - Use `jax.vmap` for independent scan axes, `jax.lax.scan` for fixed-length
+     iterative loops that would otherwise unroll inside `jit`, and buffer
+     donation where ownership is clear.
+   - Use persistent compilation cache as a reproducibility aid, not as the only
+     speed fix, since the W7-X closure profile showed the current bottleneck is
+     mostly retracing/static-shape discipline.
+   - Use device-memory profiling and explicit GPU memory policies for heavy GPU
+     campaigns; do not run broad XLA dump passes by default on this workstation.
+   - Evaluate Lineax for repeated structured dense solves or Jacobian-linear
+     operators only after the existing prepared solve profile shows a clear
+     benefit. Evaluate Equinox only for PyTree/module ergonomics and filtered
+     transforms, not as a blanket rewrite.
+
+6. **Code structure target**
+   - Keep public compatibility facades stable.
+   - Move implementation ownership gradually toward:
+     `ntx.core`, `ntx.geometry`, `ntx.io`, `ntx.workflows`, and
+     `ntx.validation`.
+   - Do not move files only for aesthetics. Move a module when the move creates
+     a clearer test surface, public API boundary, or benchmark owner.
+   - Add docstrings to public APIs and short comments only where they explain
+     non-obvious physics normalization, numerical conditioning, or AD behavior.
+
+7. **Docs, examples, manuscript, and release**
+   - Keep examples short and runnable; move long reproduction campaigns to
+     scripts/artifacts and link them from docs.
+   - Add docs pages or sections for test lanes, source layout, benchmark
+     reproduction, derivative validation, performance profiling, and release
+     workflows.
+   - Before PyPI publication, remove Git direct references from published extras
+     or replace them with index-published packages when available.
+   - Add Trusted Publishing to the release workflow after package smoke tests
+     are green and PyPI is configured with the GitHub workflow/environment.
+   - Current status: Git direct references have been removed from package
+     metadata, geometry-coupled workflows are documented as optional external
+     installs, and local wheel/sdist plus clean-venv smoke checks pass.
+
 ## 2026 Hardening Program
 
 This is the next concrete code program. It is scoped to keep NTX scientifically
@@ -89,6 +260,8 @@ Do not declare this program complete until all of the following are true:
    - inverse-design recovery
    - uncertainty propagation
    - optimization loops
+   - low-dimensional boundary-to-output sensitivities on imported `vmec_jax`
+     and `booz_xform_jax` workflows
 5. the public documentation explains:
    - the source-tree structure
    - the testing pyramid
@@ -99,13 +272,12 @@ Do not declare this program complete until all of the following are true:
 
 ### Current Gaps To Close
 
-- measured coverage is now the primary acceptance gate for the fast lane, but
-  the next weak internal modules still need targeted closure:
-  - `vmec_jax_backend.py` (`92.3%`)
-  - `_geometry_eval.py` (`96.8%` after the sine-series branch test)
-  - `_neopax_io.py` (`100%` after the optional-attribute HDF5 test)
-  - `vmec.py` (`99.5%` after the helper/error-path VMEC slice)
-  - `vmec_jax_vmec.py` (`98.3%` after the zero-field branch test)
+- measured coverage is now closed for the current fast lane:
+  - combined `core + integration_examples` coverage is `99.1%`
+  - `_neopax_field.py` is `99.6%`
+  - `vmec_jax_backend.py` is `100.0%`
+  - the next coverage work should be opportunistic and physics-driven, not
+    broad low-value branch chasing
 - several core modules remain too large for stable review and targeted testing:
   - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
   - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)
@@ -240,6 +412,8 @@ Tracked stress benchmarks / open lanes:
 - primitive-to-force profile reconstruction audit
 - autodiff profile uncertainty benchmark
 - robust bootstrap-current optimization benchmark
+- boundary-to-output forward-mode derivative benchmark on boundary-projected
+  `vmec_jax` geometry
 
 These open lanes stay in the repository on purpose. They are useful research
 and methods surfaces, but they should not be promoted to parity or literature
@@ -294,6 +468,104 @@ claims until they are anchored to stronger external baselines.
   - the next cheap targets are now mostly `vmec_jax_backend.py` and any
     remaining low-signal facade modules, so the next step should be chosen only
     if it keeps the fast-lane runtime stable
+- [x] the literature/testing plan now has a maintained benchmark matrix:
+  - `src/ntx/validation/benchmark_matrix.py` is the source of truth
+  - `scripts/build_benchmark_matrix.py` writes
+    `docs/_static/benchmark_matrix.json`
+  - `docs/benchmark-matrix.md` documents positive gates, stress gates,
+    software gates, and planned lanes
+  - `tests/test_benchmark_matrix.py` requires every active lane to declare
+    existing scripts, tests, artifacts, and docs
+  - planned lanes now explicitly keep the full Escoto-style geometry-family
+    reproduction and larger geometry-control autodiff validation visible until
+    they are ready for artifacts
+- [x] the first package-structure namespace step is in place without moving
+  implementation files:
+  - `ntx.core` re-exports solver, scan, and transport helpers
+  - `ntx.workflows` re-exports autodiff, profile, and imported database helpers
+  - `ntx.validation` owns benchmark/validation registries
+  - flat public imports remain supported, so this is a no-behavior-change
+    restructuring step
+- [x] the first larger-geometry-control autodiff slice is artifact-backed:
+  - `examples/geometry_control_derivative_benchmark.py`
+  - controls three independent Boozer-harmonic amplitudes on the owned analytic
+    surface
+  - writes `docs/_static/geometry_control_derivative_benchmark.{png,pdf,json}`
+  - current default max AD/centered-finite-difference mismatch is about
+    `1.35e-4`
+  - kept as a stress benchmark until transferred to reusable VMEC/Boozer
+    geometry-control families
+- [x] the next geometry-control autodiff slice now reaches repository-owned
+  file-backed surfaces:
+  - `examples/file_backed_geometry_control_derivative_benchmark.py`
+  - runs the same AD versus centered-finite-difference audit on the sample
+    Boozer file and the sample VMEC-backed surface
+  - writes
+    `docs/_static/file_backed_geometry_control_derivative_benchmark.{png,pdf,json}`
+  - current default max AD/centered-finite-difference mismatch is about
+    `2.1e-4`
+  - remaining open work is now broader reusable geometry families plus a
+    prepared implicit-adjoint geometry pullback, not the basic transfer from
+    analytic to file-backed geometry
+- [x] manuscript artifact hardening now includes the geometry-control stress
+  benchmarks:
+  - `scripts/build_manuscript_artifacts.py` records the owned-surface and
+    file-backed grids, control modes, coefficient sets, and AD/FD mismatch
+    metrics
+- [x] the first imported boundary-to-output autodiff slice is now
+  artifact-backed:
+  - `examples/boundary_forward_mode_current_derivative_benchmark.py`
+  - uses low-dimensional `vmec_jax` boundary controls, a boundary-projected
+    VMEC state, `booz_xform_jax`, NTX, and NEOPAX
+  - writes
+    `docs/_static/boundary_forward_mode_current_derivative_benchmark.{png,pdf,json}`
+  - current default max AD/centered-finite-difference mismatch is below
+    `1e-4`
+  - this closes the fast forward-mode boundary-control lane on the repository
+    sample input, but it does not yet claim self-consistent equilibrium
+    sensitivity for bootstrap current
+- [x] the first self-consistent forward-mode equilibrium slice is now
+  artifact-backed on committed QA and QH family cases:
+  - `examples/explicit_relaxed_boundary_current_derivative_benchmark.py`
+  - uses an explicitly relaxed fixed-boundary `vmec_jax` solve,
+    `booz_xform_jax`, NTX, and NEOPAX
+  - writes
+    `docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
+  - the JSON artifact records ordinary-versus-explicit primal-volume agreement
+    in addition to the AD/centered-finite-difference mismatch metrics on both
+    committed cases
+  - this closes the first self-consistent forward-mode boundary-to-current lane
+    on committed QA/QH inputs while leaving the implicit-equilibrium and
+    reverse-mode lanes open
+  - the matching implicit QA Boozer-scalar probe still returns an all-zero
+    reverse-mode gradient against a clearly nonzero centered finite difference,
+    so that lane is constrained as broken rather than merely unvalidated
+- [x] the implicit-equilibrium lane now has a maintained diagnostic on the
+  committed QA case:
+  - `examples/implicit_equilibrium_forward_mode_derivative_benchmark.py`
+  - uses the implicit fixed-boundary `vmec_jax` residual solve with
+    `residual_tangent_mode="auto"`
+  - writes
+    `docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
+  - current default objectives are equilibrium volume, a Boozer scalar, and a
+    representative NTX monoenergetic `D33` observable
+  - the current artifact is asymmetric: equilibrium volume matches centered
+    finite differences, but the Boozer and NTX transport observables remain
+    open on the implicit lane
+  - the JSON artifact also records the still-broken reverse-mode Boozer-scalar
+    diagnostic, so the remaining gap is parity through the implicit Boozer and
+    transport path, then integrated current, plus reverse mode
+  - `docs/_static/manuscript_claims.md` reports the max and median mismatch
+    directly from the JSON artifacts
+  - the figure-set metadata now covers every generated main-text and supplement
+    figure, including uncertainty, profile-reconstruction, and robust-design
+    stress figures
+- [x] the literature roadmap has been refreshed around the remaining
+  research-grade validation lanes:
+  - adjoint neoclassical optimization
+  - differentiable-programming verification
+  - direct neoclassical ion-transport optimization
+  - quasi-isodynamic and omnigenous geometry-breadth benchmarks
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 
@@ -635,6 +907,7 @@ The first implementation block after this planning pass should be:
 2. split the oversized modules without changing behavior
 3. reorganize tests into fast/unit, regression, and literature-benchmark lanes
 4. lock the Escoto and W7-X benchmark families into artifact-backed tests
+   and the maintained benchmark matrix
 5. only then push toward the 95% target and the expanded autodiff/UQ program
 
 ## Open Code Lanes

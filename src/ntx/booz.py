@@ -45,7 +45,7 @@ def load_boozmn_surface(
         raise ModuleNotFoundError(
             "load_boozmn_surface requires booz_xform_jax. Install it with "
             "`pip install booz_xform_jax`, `pip install -e ../booz_xform_jax`, "
-            "or `pip install -e '.[geometry]'`."
+            "or `pip install git+https://github.com/uwplasma/booz_xform_jax.git`."
         ) from exc
 
     bx = Booz_xform()

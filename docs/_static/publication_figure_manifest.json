@@ -15,6 +15,11 @@
     "docs/_static/ambipolar_profile_family.png",
     "docs/_static/ambipolar_profile_family.pdf"
   ],
+  "profile_reconstruction": [
+    "docs/_static/profile_force_reconstruction_audit.png",
+    "docs/_static/profile_force_reconstruction_audit.pdf",
+    "docs/_static/profile_force_reconstruction_audit.json"
+  ],
   "profile_control": [
     "docs/_static/profile_control_optimization.png",
     "docs/_static/profile_control_optimization.pdf"
@@ -36,14 +41,45 @@
     "docs/_static/derivative_path_benchmark.pdf",
     "docs/_static/derivative_path_benchmark.json"
   ],
+  "geometry_derivative": [
+    "docs/_static/geometry_control_derivative_benchmark.png",
+    "docs/_static/geometry_control_derivative_benchmark.pdf",
+    "docs/_static/geometry_control_derivative_benchmark.json"
+  ],
+  "boundary_forward_mode": [
+    "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
+    "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
+    "docs/_static/boundary_forward_mode_current_derivative_benchmark.json"
+  ],
+  "implicit_equilibrium_forward_mode": [
+    "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.png",
+    "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf",
+    "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json"
+  ],
+  "boundary_explicit_relaxed": [
+    "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png",
+    "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf",
+    "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json"
+  ],
+  "profile_uncertainty": [
+    "docs/_static/autodiff_profile_uncertainty.png",
+    "docs/_static/autodiff_profile_uncertainty.pdf",
+    "docs/_static/autodiff_profile_uncertainty.json"
+  ],
   "science": [
     "docs/_static/bootstrap_current_optimization.png",
     "docs/_static/bootstrap_current_optimization.pdf",
     "docs/_static/bootstrap_current_optimization.json"
   ],
+  "robust_science": [
+    "docs/_static/bootstrap_current_robust_optimization.png",
+    "docs/_static/bootstrap_current_robust_optimization.pdf",
+    "docs/_static/bootstrap_current_robust_optimization.json"
+  ],
   "validation": [
     "docs/_static/validation_summary.png",
-    "docs/_static/validation_summary.pdf"
+    "docs/_static/validation_summary.pdf",
+    "docs/_static/validation_summary.json"
   ],
   "bootstrap_proxy": [
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
