@@ -12,6 +12,7 @@ from ntx import (
     build_ntx_neopax_scan,
     build_ntx_neopax_scan_from_surfaces,
     example_surface,
+    load_neopax_reference_scan,
     load_vmec_surface,
     neopax_scan_requires_rebuild,
     scan_to_neopax_arrays,
@@ -486,3 +487,41 @@ def test_neopax_scan_requires_rebuild_for_legacy_cache_without_d33_spitzer(tmp_p
         del handle["D33_spitzer"]
         del handle.attrs["format_version"]
     assert neopax_scan_requires_rebuild(path)
+
+
+def test_neopax_scan_roundtrip_preserves_optional_attrs_and_missing_path_requires_rebuild(
+    tmp_path: Path,
+):
+    surfaces = (example_surface(),)
+    rho = jnp.asarray([0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3]])
+    er = jnp.asarray([[0.0, 1.0e-3]])
+    drds = jnp.asarray([1.0])
+    grid = GridSpec(5, 5, 4)
+
+    scan = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Es=es,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    scan = replace(scan, a_b=1.7, psia=2.3, source_name="roundtrip-unit")
+    path = tmp_path / "scan_attrs.h5"
+    write_neopax_scan_hdf5(scan, path)
+
+    restored = load_neopax_reference_scan(path)
+    assert restored.source_name == "roundtrip-unit"
+    assert jnp.allclose(restored.D11, scan.D11)
+    assert jnp.allclose(restored.D33, scan.D33)
+
+    import h5py
+
+    with h5py.File(path, "r") as handle:
+        assert handle.attrs["a_b"] == pytest.approx(1.7)
+        assert handle.attrs["psia"] == pytest.approx(2.3)
+
+    assert neopax_scan_requires_rebuild(tmp_path / "missing_scan.h5")
