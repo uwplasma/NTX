@@ -26,6 +26,7 @@ def test_new_benchmark_examples_are_not_in_core_lane():
     core = set().union(
         module.LANES["core_foundation"],
         module.LANES["core_workflows"],
+        module.LANES["core_profile_workflows"],
         module.LANES["core_validation"],
     )
     heavy = set().union(

@@ -28,6 +28,7 @@ work with a clear reason.
 2. Normal CI lanes remain bounded:
    - `core_foundation`
    - `core_workflows`
+   - `core_profile_workflows`
    - `core_validation`
    - `integration_examples`
    - `heavy_examples_profiles`

@@ -50,6 +50,7 @@ Every `tests/test_*.py` file must belong to exactly one maintained lane:
 python scripts/test_lane_manifest.py --check
 python scripts/test_lane_manifest.py core_foundation
 python scripts/test_lane_manifest.py core_workflows
+python scripts/test_lane_manifest.py core_profile_workflows
 python scripts/test_lane_manifest.py core_validation
 python scripts/test_lane_manifest.py integration_examples
 python scripts/test_lane_manifest.py heavy_examples_profiles
@@ -61,19 +62,21 @@ python scripts/test_lane_manifest.py heavy_examples_publication
 The split core lanes replace the previous monolithic `core` lane:
 
 - `core_foundation`: algebra, geometry, operator, solver, and helper unit tests,
-- `core_workflows`: small public API, CLI, NEOPAX, profile, and script workflow
-  tests,
+- `core_workflows`: small public API, CLI, input-file, packaging, and script
+  workflow tests,
+- `core_profile_workflows`: profile, NEOPAX, and autodiff workflow tests,
 - `core_validation`: benchmark registry, validation, artifact, and physics-gate
   tests.
 
 Local measured shard checks during the split:
 
 - `core_foundation`: `97 passed` in about `1:23` with coverage,
-- `core_workflows`: `73 passed`, `2 deselected` in about `6:08` with coverage,
+- `core_workflows`: `35 passed`, `2 deselected` in about `0:52` with coverage,
+- `core_profile_workflows`: `38 passed` in about `5:20` with coverage,
 - `core_validation`: `56 passed` in about `0:31` with coverage.
 
-If `core_workflows` grows beyond the CI wall-time target, split it again before
-adding more example-style coverage.
+If either workflow shard grows beyond the CI wall-time target, split it again
+before adding more example-style coverage.
 
 ## Verification Order
 

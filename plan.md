@@ -151,14 +151,15 @@ and docs that explain which claims are closed versus monitored.
    - Remove only obvious throwaway files such as caches after confirming they
      are not benchmark artifacts.
    - Classify every new example test into `core_foundation`,
-     `core_workflows`, `core_validation`, `integration_examples`,
-     `heavy_examples`, or manual benchmark lanes so the PR workflow stays
-     within `5-10` minutes.
+     `core_workflows`, `core_profile_workflows`, `core_validation`,
+     `integration_examples`, `heavy_examples`, or manual benchmark lanes so the
+     PR workflow stays within `5-10` minutes.
    - Replace the CI core-shard exclusion one-liner with a maintained test-lane
      manifest or pytest markers before adding more benchmark tests.
    - Current status: the maintained manifest is in place, core tests are split
-     into foundation/workflow/validation lanes, and the remaining hygiene task
-     is to keep new artifacts tied to scripts/tests/docs.
+     into foundation/interface-workflow/profile-workflow/validation lanes, and
+     the remaining hygiene task is to keep new artifacts tied to
+     scripts/tests/docs.
 
 2. **Benchmark matrix hardening**
    - Require every promoted claim to map to:
