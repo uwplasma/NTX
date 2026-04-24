@@ -378,6 +378,42 @@ def test_primitive_profile_transport_loop_returns_finite_histories():
     assert jnp.max(jnp.abs(jnp.diff(result.species_temperature_history[-1], axis=1))) < 1.0
 
 
+def test_primitive_profile_transport_update_preserves_positive_density_temperature():
+    rho = jnp.asarray([0.25, 0.5, 0.75])
+    profile = AmbipolarProfileResult(
+        rho=rho,
+        er_profile=jnp.zeros_like(rho),
+        ambipolar_residual=jnp.zeros_like(rho),
+        bootstrap_current_proxy=jnp.zeros_like(rho),
+        species_particle_flux=jnp.asarray([[1.0e4, 2.0e4, 3.0e4]]),
+        species_current_response=jnp.asarray([[2.0e4, 1.0e4, 3.0e4]]),
+        loss_history=jnp.asarray([0.0]),
+    )
+    primitive = PrimitiveSpeciesProfile(
+        charge=1.0,
+        nu_v=jnp.ones_like(rho) * 1.0e-3,
+        density=jnp.asarray([1.0e-9, 2.0e-9, 3.0e-9]),
+        temperature=jnp.asarray([1.0e-9, 2.0e-9, 3.0e-9]),
+    )
+    closure = ProfileTransportClosureSpec(
+        particle_relaxation=500.0,
+        current_relaxation=500.0,
+        density_relaxation=500.0,
+        temperature_relaxation=500.0,
+        normalization_floor=1.0e-12,
+        primitive_normalization_floor=1.0e-12,
+        max_normalized_update=100.0,
+        max_primitive_normalized_update=100.0,
+    )
+
+    (updated,) = advance_primitive_profile_transport((primitive,), profile, closure)
+
+    assert jnp.all(jnp.isfinite(updated.density))
+    assert jnp.all(jnp.isfinite(updated.temperature))
+    assert jnp.all(updated.density >= 1.0e-8)
+    assert jnp.all(updated.temperature >= 1.0e-8)
+
+
 def test_primitive_profile_transport_loop_handles_rejected_backtracking(monkeypatch):
     scan = example_scan()
     rho = jnp.asarray(scan.rho)

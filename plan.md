@@ -503,6 +503,13 @@ Current status:
   - `src/ntx/_profiles_eval.py` now focuses on ambipolar profile solves and the
     bootstrap-current objective while preserving the old internal import
     surface for compatibility
+- [x] the thirteenth no-behavior-change profile split is complete:
+  - `src/ntx/_profiles_transport_terms.py` owns transport mismatch algebra,
+    update normalization/clipping, primitive density/temperature mismatch
+    terms, and closure-relaxation scaling
+  - `src/ntx/_profiles_transport_closure.py` now focuses on loss assembly and
+    explicit profile/primitive update application while preserving the old
+    internal helper import surface for compatibility
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable
@@ -520,6 +527,11 @@ Current status:
     `sum_s Z_s Gamma_s = 0` exactly
   - this anchors the local residual algebra used by the ambipolar `E_r(r)`
     solve before broader transport or optimization examples are interpreted
+- [x] first primitive-transport state-space gate added:
+  - explicit primitive density/temperature updates must remain finite and
+    positive even under deliberately extreme normalized transport mismatches
+  - this keeps the current proxy transport lane physically bounded while the
+    stronger self-consistent transport model remains planned work
 - [x] first artifact-backed autodiff uncertainty benchmark added:
   - `examples/autodiff_profile_uncertainty.py`
   - linearized covariance propagation against a Monte Carlo ensemble on the

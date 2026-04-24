@@ -74,6 +74,10 @@ These are hard structural checks:
   quasineutral ambipolarity condition `sum_s Z_s Gamma_s(E_r) = 0`, which sets
   the stellarator radial electric field outside intrinsically ambipolar
   symmetry limits.
+- **Primitive transport positivity floor:** explicit primitive-profile updates
+  must keep density and temperature finite and positive. The update uses
+  exponential relaxation plus a small floor, so large transport mismatches
+  cannot create unphysical negative thermodynamic state variables.
 - **Prepared derivative-path consistency:** the committed derivative-path
   benchmark must keep the prepared custom-VJP electric-field derivative within
   `1e-4` relative mismatch of direct reverse-mode on the same prepared surface.
