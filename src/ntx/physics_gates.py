@@ -225,6 +225,19 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="prepared_derivative_path_consistency",
+        category="analytical",
+        metric="max relative prepared-vs-direct derivative mismatch",
+        relation="<=",
+        threshold=1.0e-4,
+        source="docs/_static/derivative_path_benchmark.json",
+        rationale=(
+            "The prepared custom-VJP derivative path supports sensitivity, "
+            "inverse-design, and uncertainty workflows, so it must agree with "
+            "direct JAX differentiation on the committed scalar benchmark."
+        ),
+    ),
+    PhysicsGate(
         name="precise_qs_redl_vs_sfincs",
         category="independent",
         metric="interior max relative error of Redl vs archived SFINCS",
@@ -332,6 +345,35 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
                 value=None,
                 status="missing",
                 details=f"missing artifact: {w7x_path}",
+            )
+        )
+
+    derivative_gate = _gate_by_name("prepared_derivative_path_consistency")
+    derivative_path = static_root / "derivative_path_benchmark.json"
+    if derivative_path.exists():
+        payload = json.loads(derivative_path.read_text())
+        max_mismatch = max(float(item) for item in payload["max_relative_mismatch"])
+        speedups = [float(item) for item in payload["speedup_prepared_vs_direct"]]
+        results.append(
+            PhysicsGateResult(
+                gate=derivative_gate,
+                value=max_mismatch,
+                status="pass"
+                if max_mismatch <= float(derivative_gate.threshold or 0.0)
+                else "fail",
+                details=(
+                    "prepared derivative path compared with direct reverse-mode; "
+                    f"minimum reported speedup={min(speedups):.3g}"
+                ),
+            )
+        )
+    else:
+        results.append(
+            PhysicsGateResult(
+                gate=derivative_gate,
+                value=None,
+                status="missing",
+                details=f"missing artifact: {derivative_path}",
             )
         )
 

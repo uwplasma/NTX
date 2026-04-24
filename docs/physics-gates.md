@@ -46,6 +46,10 @@ These are hard structural checks:
   This catches collisionality and radial-electric-field normalization
   regressions before they can contaminate sensitivity, inverse-design, or
   uncertainty-quantification workflows.
+- **Prepared derivative-path consistency:** the committed derivative-path
+  benchmark must keep the prepared custom-VJP electric-field derivative within
+  `1e-4` relative mismatch of direct reverse-mode on the same prepared surface.
+  The speedup remains reported, but agreement is the release gate.
 - **Exact `P=2` recovery:** the generated Sonine/Hankel projection must recover
   the current three-moment closure exactly at `P=2`.
 - **Low-order collision-block recovery:** the active low-order
@@ -96,6 +100,8 @@ The active acceptance target is:
 
 - **Monoenergetic validation summary:** committed validation-summary finest
   plotted coefficient error `<= 2.5e-1` on both the DKES-style and VMEC surfaces.
+- **Prepared derivative path:** maximum prepared-vs-direct derivative mismatch
+  `<= 1e-4` on the committed derivative-path benchmark.
 - **W7-X rebuilt raw branch:** best observed maximum relative error
   `<= 2e-2` against the frozen reference profile.
 

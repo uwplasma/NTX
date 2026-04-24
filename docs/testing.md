@@ -140,6 +140,11 @@ JAX differentiation of the assembled Legendre-space operator. This is a fast
 way to protect sensitivity-analysis, inverse-design, and uncertainty workflows
 from normalization drift in the collisionality and radial-electric-field terms.
 
+The committed prepared-derivative benchmark is also checked as an artifact gate:
+`derivative_path_benchmark.json` must keep the prepared custom-VJP derivative
+within `1e-4` relative mismatch of direct reverse-mode. The benchmark still
+reports speedup, but CI treats agreement as the release claim.
+
 The physics-facing gate structure is documented separately in
 [`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
 meant to enforce that gate hierarchy, not to replace it.

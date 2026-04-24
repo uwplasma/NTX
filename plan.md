@@ -211,6 +211,11 @@ and docs that explain which claims are closed versus monitored.
      requires the hand-coded `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by
      the implicit-adjoint path to match JAX differentiation of the assembled
      Legendre-space operator.
+   - Current prepared-derivative artifact addition:
+     `docs/_static/derivative_path_benchmark.json` is now checked by
+     `evaluate_artifact_gates`; the prepared custom-VJP derivative must remain
+     within `1e-4` relative mismatch of direct reverse-mode, while speedup is
+     kept as supporting performance evidence.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint
