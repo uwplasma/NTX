@@ -70,7 +70,7 @@ The repository-side Trusted Publishing job is now present in
 `.github/workflows/release.yml`. It is tag-gated, downloads the exact
 distribution artifact built by the release job, and publishes through
 `pypa/gh-action-pypi-publish` without a long-lived API token. On
-2026-04-23, `python -m pip index versions ntx` returned no matching
+2026-04-24, `python -m pip index versions ntx` returned no matching
 distribution, so the intended package name was not visible on the default PyPI
 index from this workstation. The PyPI project and trusted publisher still need
 to be created/configured in PyPI before the first tag release.
