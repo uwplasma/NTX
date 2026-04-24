@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import resource
 import sys
 from pathlib import Path
 from time import perf_counter
@@ -47,6 +48,7 @@ def main(argv: list[str] | None = None) -> int:
         "healthy_parallel_device_count": healthy_parallel_device_count(),
         "local_device_count": local_parallel_device_count(),
         "devices": [str(device) for device in jax.local_devices()],
+        "max_rss_mb": _max_rss_mb(),
         "cases": [
             _profile_case(
                 "dkes_sample_parallel",
@@ -94,6 +96,13 @@ def _profile_case(name, surface, grid, nu, er):
         "serial_first_D11": float(serial_first["D11"][0]),
         "parallel_first_D11": float(parallel_first["D11"][0]),
     }
+
+
+def _max_rss_mb() -> float:
+    max_rss = float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    if sys.platform == "darwin":
+        return max_rss / (1024.0 * 1024.0)
+    return max_rss / 1024.0
 
 
 if __name__ == "__main__":

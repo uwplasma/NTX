@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import resource
 import sys
 from pathlib import Path
 from time import perf_counter
@@ -89,6 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         "local_device_count": local_parallel_device_count(),
         "healthy_parallel_device_count": healthy_parallel_device_count(),
         "devices": [str(device) for device in jax.local_devices()],
+        "max_rss_mb": _max_rss_mb(),
         "sizes": list(sizes),
         "results": results,
     }
@@ -171,6 +173,13 @@ def _timed(fn):
 def _steady_timed(fn):
     _timed(fn)
     return _timed(fn)
+
+
+def _max_rss_mb() -> float:
+    max_rss = float(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    if sys.platform == "darwin":
+        return max_rss / (1024.0 * 1024.0)
+    return max_rss / 1024.0
 
 
 if __name__ == "__main__":

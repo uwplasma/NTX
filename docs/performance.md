@@ -99,6 +99,12 @@ The figure JSON payloads committed in `docs/_static/` are:
 - `performance_scaling_cpu_heavy.json`
 - `performance_scaling_gpu_heavy.json`
 
+Fresh runs of `scripts/benchmark_scaling.py` and
+`scripts/profile_parallel_runtime.py` also record process peak resident memory
+as `max_rss_mb`. That value is intentionally treated as a run-environment
+metric rather than a parity target, but it keeps memory visible whenever timing
+artifacts are regenerated.
+
 They were collected on:
 
 - local workstation CPU with `XLA_FLAGS=--xla_force_host_platform_device_count=4`

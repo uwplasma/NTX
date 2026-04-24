@@ -42,6 +42,7 @@ def test_benchmark_scaling_script_runs(tmp_path):
     assert payload["backend"] == "cpu"
     assert payload["surface"] == "dkes"
     assert payload["sizes"] == [4, 8]
+    assert payload["max_rss_mb"] > 0.0
     assert len(payload["results"]) == 2
     assert all(
         entry["max_abs_delta_serial_vs_multiprocess_d11"] < 1e-10

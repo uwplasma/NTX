@@ -34,6 +34,7 @@ def test_profile_parallel_runtime_script_runs(tmp_path):
     payload = json.loads(proc.stdout)
     assert output_json.exists()
     assert payload["local_device_count"] >= 4
+    assert payload["max_rss_mb"] > 0.0
     assert {case["name"] for case in payload["cases"]} == {
         "dkes_sample_parallel",
         "vmec_sample_parallel",
