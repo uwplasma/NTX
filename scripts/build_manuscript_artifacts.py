@@ -46,6 +46,8 @@ def _format_optional_float(value: float | None, scientific: bool = False) -> str
 def build_payload() -> dict:
     from ntx.validation.benchmark_matrix import benchmark_matrix_payload
 
+    monoenergetic = _load_json(STATIC / "validation_summary.json")
+    fixed_field = _load_json(STATIC / "bootstrap_current_fixed_field_validation.json")
     w7x = _load_json(STATIC / "bootstrap_current_reference_audit_w7x.json")
     derivative = _load_json(STATIC / "derivative_path_benchmark.json")
     geometry_derivative = _load_json(STATIC / "geometry_control_derivative_benchmark.json")
@@ -91,6 +93,17 @@ def build_payload() -> dict:
         "robust_science",
         "performance_smoke",
     ]
+    monoenergetic_metrics = monoenergetic["summary_metrics"]
+    fixed_field_case_errors = {
+        case_id: case["max_relative_error_vs_sfincs_interior"]
+        for case_id, case in fixed_field["cases"].items()
+    }
+    fixed_field_redl_error = max(
+        float(errors["Redl"]) for errors in fixed_field_case_errors.values()
+    )
+    fixed_field_ntx_neopax_error = max(
+        float(errors["NTX+NEOPAX"]) for errors in fixed_field_case_errors.values()
+    )
     fine_w7x_error = w7x["bootstrap_current_errors"][-1]["max_relative_error"]
     cpu_best = max(
         row["multiprocess_speedup_vs_serial"] for row in cpu["results"]
@@ -114,6 +127,24 @@ def build_payload() -> dict:
             "numpy": np.__version__,
         },
         "tables": {
+            "monoenergetic_validation": {
+                "grid": monoenergetic["grid"],
+                "nu_hat": monoenergetic["nu_hat"],
+                "er_hat": monoenergetic["er_hat"],
+                "summary_metrics": monoenergetic_metrics,
+                "literature_anchors": monoenergetic["literature_anchors"],
+                "tail_loglog_slopes": {
+                    case_id: curves["tail_loglog_slopes"]
+                    for case_id, curves in monoenergetic["transport_curves"].items()
+                },
+            },
+            "fixed_field_validation": {
+                "case_errors": fixed_field_case_errors,
+                "redl_max_interior_relative_error": fixed_field_redl_error,
+                "ntx_neopax_max_interior_relative_error": fixed_field_ntx_neopax_error,
+                "sfincs_jax_sample_count": fixed_field["sfincs_jax_sample_count"],
+                "ntx_neopax_radial_points": fixed_field["ntx_neopax_radial_points"],
+            },
             "validation": {
                 "bootstrap_current_reference_scale": w7x["bootstrap_current_reference_scale"],
                 "bootstrap_current_errors": w7x["bootstrap_current_errors"],
@@ -177,6 +208,22 @@ def build_payload() -> dict:
             },
         },
         "claims": {
+            "monoenergetic_dkes_finest_plotted_error": monoenergetic_metrics[
+                "dkes_finest_plotted_error"
+            ],
+            "monoenergetic_vmec_finest_plotted_error": monoenergetic_metrics[
+                "vmec_finest_plotted_error"
+            ],
+            "monoenergetic_dkes_max_onsager_relative": monoenergetic_metrics[
+                "dkes_max_onsager_relative"
+            ],
+            "monoenergetic_vmec_max_onsager_relative": monoenergetic_metrics[
+                "vmec_max_onsager_relative"
+            ],
+            "precise_qs_redl_max_interior_relative_error": fixed_field_redl_error,
+            "precise_qs_ntx_neopax_max_interior_relative_error": (
+                fixed_field_ntx_neopax_error
+            ),
             "w7x_fine_grid_max_relative_error": fine_w7x_error,
             "derivative_max_relative_mismatch": max(derivative["max_relative_mismatch"]),
             "best_prepared_derivative_speedup": max(derivative["speedup_prepared_vs_direct"]),
@@ -268,6 +315,8 @@ def build_payload() -> dict:
 
 def build_markdown(payload: dict) -> str:
     validation_rows = payload["tables"]["validation"]["bootstrap_current_errors"]
+    monoenergetic_validation = payload["tables"]["monoenergetic_validation"]
+    fixed_field_validation = payload["tables"]["fixed_field_validation"]
     cpu_rows = payload["tables"]["performance"]["cpu_heavy"]["results"]
     gpu_rows = payload["tables"]["performance"]["gpu_heavy"]["results"]
     science = payload["tables"]["science"]
@@ -335,6 +384,8 @@ def build_markdown(payload: dict) -> str:
         f"step={implicit_solver['step_size']:.1f}, "
         f"tangent={implicit_solver['residual_tangent_mode']}` |"
     )
+    mono_metrics = monoenergetic_validation["summary_metrics"]
+    fixed_field_case_errors = fixed_field_validation["case_errors"]
     benchmark_rows = payload["benchmark_matrix"]["entries"]
 
     lines = [
@@ -348,6 +399,43 @@ def build_markdown(payload: dict) -> str:
     for row in validation_rows:
         grid = tuple(row["grid"])
         lines.append(f"| `{grid}` | {_format_float(row['max_relative_error'], scientific=True)} |")
+
+    lines.extend(
+        [
+            "",
+            "## Monoenergetic Validation Summary",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            f"| Grid | `{tuple(monoenergetic_validation['grid'].values())}` |",
+            (
+                "| DKES-style finest plotted `N_xi` error | "
+                f"`{mono_metrics['dkes_finest_plotted_error']:.3e}` |"
+            ),
+            (
+                "| VMEC finest plotted `N_xi` error | "
+                f"`{mono_metrics['vmec_finest_plotted_error']:.3e}` |"
+            ),
+            (
+                "| DKES-style max Onsager residual | "
+                f"`{mono_metrics['dkes_max_onsager_relative']:.3e}` |"
+            ),
+            (
+                "| VMEC monitored max Onsager residual | "
+                f"`{mono_metrics['vmec_max_onsager_relative']:.3e}` |"
+            ),
+            "",
+            "## Fixed-Field Precise-QS Benchmark",
+            "",
+            "| Case | Redl/SFINCS interior error | NTX+NEOPAX/SFINCS interior stress |",
+            "| --- | ---: | ---: |",
+        ]
+    )
+    for case_id, errors in sorted(fixed_field_case_errors.items()):
+        lines.append(
+            f"| `{case_id}` | `{float(errors['Redl']):.3e}` | "
+            f"`{float(errors['NTX+NEOPAX']):.3e}` |"
+        )
 
     lines.extend(
         [
@@ -587,6 +675,26 @@ def build_claims_markdown(payload: dict) -> str:
             "These are the current paper-facing technical claims derived directly from the",
             "validated NTX artifacts.",
             "",
+            (
+                "- The monoenergetic validation-summary gate keeps the committed "
+                "DKES-style and VMEC finest plotted `N_xi` convergence errors at "
+                f"`{claims['monoenergetic_dkes_finest_plotted_error']:.3e}` and "
+                f"`{claims['monoenergetic_vmec_finest_plotted_error']:.3e}`; "
+                "the DKES-style max Onsager residual is "
+                f"`{claims['monoenergetic_dkes_max_onsager_relative']:.3e}`, "
+                "while the VMEC Onsager residual is retained as a monitored "
+                "finite-resolution stress metric at "
+                f"`{claims['monoenergetic_vmec_max_onsager_relative']:.3e}`."
+            ),
+            (
+                "- The fixed-field precise-QS benchmark keeps the Redl/SFINCS "
+                "interior maximum relative error at "
+                f"`{claims['precise_qs_redl_max_interior_relative_error']:.3e}`; "
+                "the corresponding `NTX+NEOPAX` current comparison remains a "
+                "closure stress metric at "
+                f"`{claims['precise_qs_ntx_neopax_max_interior_relative_error']:.3e}`, "
+                "not a release parity claim."
+            ),
             (
                 "- W7-X imported-workflow bootstrap-current convergence reaches "
                 "a maximum relative error of "

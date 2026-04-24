@@ -22,6 +22,10 @@ def test_profile_parallel_runtime_script_runs(tmp_path):
         [
             sys.executable,
             str(ROOT / "scripts" / "profile_parallel_runtime.py"),
+            "--num-cases",
+            "2",
+            "--grid",
+            "5,5,4",
             "--output-json",
             str(output_json),
         ],

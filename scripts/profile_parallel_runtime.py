@@ -39,10 +39,24 @@ FIXTURES = ROOT / "tests" / "fixtures"
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-json", type=Path, default=None)
+    parser.add_argument(
+        "--num-cases",
+        type=int,
+        default=16,
+        help="number of collisionality/electric-field scan points",
+    )
+    parser.add_argument(
+        "--grid",
+        type=_parse_grid,
+        default=GridSpec(9, 11, 6),
+        help="grid as Ntheta,Nzeta,Nxi",
+    )
     args = parser.parse_args(argv)
+    if args.num_cases < 1:
+        raise ValueError("--num-cases must be positive")
     enable_x64(True)
-    nu = jnp.logspace(-4, -2, 16)
-    er = jnp.linspace(0.0, 2e-3, 16)
+    nu = jnp.logspace(-4, -2, args.num_cases)
+    er = jnp.linspace(0.0, 2e-3, args.num_cases)
     payload = {
         "backend": jax.default_backend(),
         "healthy_parallel_device_count": healthy_parallel_device_count(),
@@ -53,14 +67,14 @@ def main(argv: list[str] | None = None) -> int:
             _profile_case(
                 "dkes_sample_parallel",
                 load_dkes_surface(FIXTURES / "sample_surface.ddkes2.data"),
-                GridSpec(9, 11, 6),
+                args.grid,
                 nu,
                 er,
             ),
             _profile_case(
                 "vmec_sample_parallel",
                 load_vmec_surface(FIXTURES / "sample_wout.nc", psi_n=0.25),
-                GridSpec(9, 11, 6),
+                args.grid,
                 nu,
                 er,
             ),
@@ -96,6 +110,16 @@ def _profile_case(name, surface, grid, nu, er):
         "serial_first_D11": float(serial_first["D11"][0]),
         "parallel_first_D11": float(parallel_first["D11"][0]),
     }
+
+
+def _parse_grid(value: str) -> GridSpec:
+    try:
+        pieces = tuple(int(piece) for piece in value.split(","))
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("grid must have format Ntheta,Nzeta,Nxi") from exc
+    if len(pieces) != 3:
+        raise argparse.ArgumentTypeError("grid must have format Ntheta,Nzeta,Nxi")
+    return GridSpec(*pieces)
 
 
 def _max_rss_mb() -> float:

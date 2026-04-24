@@ -37,6 +37,9 @@ python scripts/profile_parallel_runtime.py --output-json parallel-runtime.json
 
 This is intended for multi-device CPU or GPU jobs when scan throughput matters
 more than single-case latency.
+For CI or quick local smoke checks, use
+`--num-cases 2 --grid 5,5,4` to keep the serial/device-parallel equality check
+fast while preserving the default profiling behavior for real measurements.
 
 The helper now performs an NTX smoke check on local devices before using them.
 If a visible device fails that check, it is excluded from the parallel solve
