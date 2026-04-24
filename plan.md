@@ -436,8 +436,9 @@ Current status:
   - scan interpolation, ambipolar solves, and primitive profile construction
     live in `src/ntx/_profiles_eval.py`
   - scalar and basis-control helpers live in `src/ntx/_profiles_controls.py`
-  - explicit transport-loop and primitive-transport helpers live in
-    `src/ntx/_profiles_transport.py`
+  - profile-transport closure losses and explicit update algebra live in
+    `src/ntx/_profiles_transport_closure.py`
+  - explicit transport-loop runners live in `src/ntx/_profiles_transport.py`
 - [x] the seventh no-behavior-change workflow split is complete:
   - `src/ntx/_neopax_field.py` now owns the direct raw-array NEOPAX field mirror
   - `src/ntx/_neopax_vmec_jax_field.py` owns the `vmec_jax` / `booz_xform_jax`
@@ -463,6 +464,12 @@ Current status:
     bootstrap-current optimization loops and their geometry-control objective
     assembly
   - public `ntx.autodiff` and `ntx.workflows` imports remain unchanged
+- [x] the eleventh no-behavior-change workflow split is complete:
+  - `src/ntx/_profiles_transport_closure.py` now owns profile-transport losses,
+    mismatch normalization, positivity-preserving primitive updates, and
+    transport-relaxation scaling
+  - `src/ntx/_profiles_transport.py` now owns only the iterative transport-loop
+    runners while preserving the public `ntx.profiles` compatibility exports
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable

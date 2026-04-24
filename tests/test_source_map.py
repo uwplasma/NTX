@@ -25,6 +25,7 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_profiles_controls.py",
     "src/ntx/_profiles_eval.py",
     "src/ntx/_profiles_transport.py",
+    "src/ntx/_profiles_transport_closure.py",
     "src/ntx/_profiles_types.py",
     "src/ntx/_solver_core.py",
     "src/ntx/_solver_factorization.py",

@@ -9,6 +9,7 @@ from ntx import (
     PrimitiveSpeciesProfile,
     ProfileBasisControlSpec,
     ProfileControlSpec,
+    ProfileTransportClosureSpec,
     apply_profile_basis_control,
     apply_profile_control,
     bootstrap_current_objective,
@@ -19,7 +20,10 @@ from ntx import (
     evaluate_species_particle_flux,
 )
 from ntx._profiles_eval import _channel_data, _single_radius_profile, _smooth_radial_profile
-from ntx._profiles_transport import _broadcast_species_transport_field
+from ntx._profiles_transport_closure import (
+    _broadcast_species_transport_field,
+    _scaled_transport_closure,
+)
 
 from ._profile_test_helpers import example_scan, species_profiles
 
@@ -214,3 +218,23 @@ def test_broadcast_species_transport_field_covers_vector_branches():
     assert per_radius.shape == (2, 3)
     assert jnp.allclose(per_species[1], jnp.asarray([2.0, 2.0, 2.0]))
     assert jnp.allclose(per_radius[0], jnp.asarray([0.1, 0.2, 0.3]))
+
+
+def test_transport_closure_scaling_only_changes_relaxation_terms():
+    closure = ProfileTransportClosureSpec(
+        particle_relaxation=jnp.asarray([0.2, 0.4]),
+        current_relaxation=0.3,
+        particle_target=0.1,
+        density_relaxation=0.05,
+        temperature_relaxation=0.07,
+        closure_name="unit closure",
+    )
+
+    scaled = _scaled_transport_closure(closure, jnp.asarray(0.5))
+
+    assert jnp.allclose(scaled.particle_relaxation, jnp.asarray([0.1, 0.2]))
+    assert jnp.allclose(scaled.current_relaxation, 0.15)
+    assert jnp.allclose(scaled.density_relaxation, 0.025)
+    assert jnp.allclose(scaled.temperature_relaxation, 0.035)
+    assert scaled.particle_target == closure.particle_target
+    assert scaled.closure_name == closure.closure_name

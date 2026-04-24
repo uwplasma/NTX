@@ -18,12 +18,14 @@ from ._profiles_eval import (
     solve_ambipolar_profile_family,
 )
 from ._profiles_transport import (
+    solve_primitive_profile_transport_loop,
+    solve_profile_transport_loop,
+)
+from ._profiles_transport_closure import (
     advance_primitive_profile_transport,
     advance_profile_transport,
     primitive_profile_transport_loss,
     profile_transport_loss,
-    solve_primitive_profile_transport_loop,
-    solve_profile_transport_loop,
 )
 from ._profiles_types import (
     AmbipolarProfileFamilyResult,

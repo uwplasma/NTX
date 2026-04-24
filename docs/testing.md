@@ -277,7 +277,8 @@ above the release threshold:
   bridge, is now at `98.1%`,
 - `src/ntx/_autodiff_workflows.py`, `src/ntx/_profiles_eval.py`,
   `src/ntx/_profiles_transport.py`, and `src/ntx/_profiles_controls.py` are all
-  above `98%`,
+  above `98%`, and the split transport-closure owner is now exercised by the
+  same profile unit/workflow lanes,
 - `src/ntx/_solver_scan.py`, `src/ntx/parallel.py`, `src/ntx/cli.py`,
   `src/ntx/io.py`, and `src/ntx/database.py` are at or above `98%`.
 
