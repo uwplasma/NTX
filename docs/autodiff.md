@@ -123,6 +123,11 @@ It shows:
 - speedup of the prepared custom-VJP path,
 - and the max relative mismatch between the two derivative paths.
 
+The JSON sidecar is now checked by the physics-gate registry. The promoted
+release claim is derivative agreement, not benchmark-machine timing: the maximum
+prepared-vs-direct relative mismatch must remain below `1e-4`; the reported
+speedup is retained as performance evidence.
+
 ## Geometry-Control Derivative Benchmark
 
 The script:

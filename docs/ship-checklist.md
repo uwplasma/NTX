@@ -80,6 +80,9 @@ work with a clear reason.
 - A derivative-consistency gate now checks that the hand-coded
   `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by the implicit-adjoint path
   match JAX differentiation of the assembled Legendre-space operator.
+- The prepared derivative-path artifact is now a physics gate: the committed
+  custom-VJP derivative path must stay within `1e-4` relative mismatch of
+  direct reverse-mode, while speedup stays a reported performance metric.
 - `python scripts/test_lane_manifest.py --check` passes with split core lanes,
   8 integration examples, and 18 opt-in heavy example tests.
 - CI test-shard jobs are bounded by a ten-minute timeout, and subprocess-based

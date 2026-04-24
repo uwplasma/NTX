@@ -37,7 +37,7 @@ Current promoted validation gates are:
 | Monoenergetic validation summary | coefficient behavior, Onsager residuals, and Legendre convergence | `docs/_static/validation_summary.json` |
 | Precise-QS Redl/SFINCS comparison | fixed-field Redl agreement on the interior benchmark window | `docs/_static/bootstrap_current_fixed_field_validation.json` |
 | W7-X integrated transfer | imported workflow transfer on the rebuilt raw branch | `docs/_static/bootstrap_current_reference_audit_w7x.json` |
-| Prepared derivative path | implicit-adjoint derivative agreement and timing | `docs/_static/derivative_path_benchmark.json` |
+| Prepared derivative path | implicit-adjoint derivative agreement gate and timing evidence | `docs/_static/derivative_path_benchmark.json` |
 
 Current stress gates are:
 

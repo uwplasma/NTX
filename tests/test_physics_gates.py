@@ -55,6 +55,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "entropy_production_nonnegative" in names
     assert "spitzer_inverse_collisionality_limit" in names
     assert "operator_parameter_derivative_consistency" in names
+    assert "prepared_derivative_path_consistency" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
     assert "precise_qs_ntx_neopax_closure_stress" in names
@@ -85,6 +86,14 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (static_root / "derivative_path_benchmark.json").write_text(
+        json.dumps(
+            {
+                "max_relative_mismatch": [2.0e-6, 3.0e-6],
+                "speedup_prepared_vs_direct": [1.5, 2.0],
+            }
+        )
+    )
     (static_root / "bootstrap_current_fixed_field_validation.json").write_text(
         json.dumps(
             {
@@ -112,6 +121,8 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["monoenergetic_validation_summary"].value == pytest.approx(0.18)
     assert results["w7x_integrated_rebuild_raw"].status == "pass"
     assert results["w7x_integrated_rebuild_raw"].value == 0.01
+    assert results["prepared_derivative_path_consistency"].status == "pass"
+    assert results["prepared_derivative_path_consistency"].value == pytest.approx(3.0e-6)
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
     assert results["precise_qs_redl_vs_sfincs"].value == 0.08
     assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
@@ -165,6 +176,7 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
 
     assert results["monoenergetic_validation_summary"].status == "missing"
     assert results["w7x_integrated_rebuild_raw"].status == "missing"
+    assert results["prepared_derivative_path_consistency"].status == "missing"
     assert "bootstrap_current_reference_audit_w7x.json" in results[
         "w7x_integrated_rebuild_raw"
     ].details
@@ -183,6 +195,8 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["monoenergetic_validation_summary"].value <= 2.5e-1
     assert results["w7x_integrated_rebuild_raw"].status == "pass"
     assert results["w7x_integrated_rebuild_raw"].value <= 2.0e-2
+    assert results["prepared_derivative_path_consistency"].status == "pass"
+    assert results["prepared_derivative_path_consistency"].value <= 1.0e-4
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
     assert results["precise_qs_redl_vs_sfincs"].value <= 1.0e-1
     assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
