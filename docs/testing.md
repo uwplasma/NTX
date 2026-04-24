@@ -306,6 +306,10 @@ python scripts/profile_parallel_runtime.py --output-json parallel-runtime.json
 python scripts/profile_multiprocess_runtime.py --backend gpu --workers 2
 ```
 
+CI exercises `profile_parallel_runtime.py` with a reduced smoke profile
+(`--num-cases 2 --grid 5,5,4`) so the shard checks serial/device-parallel
+agreement without turning the default profiling run into a CI bottleneck.
+
 ## Cross-Checks Against Independent Workflows
 
 NTX is designed to stand on its own, but it is still valuable to compare its

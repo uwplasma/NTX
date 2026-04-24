@@ -8,6 +8,23 @@
 | `(17, 25, 33)` | 2.965e+01 |
 | `(25, 25, 64)` | 1.830e-02 |
 
+## Monoenergetic Validation Summary
+
+| Quantity | Value |
+| --- | ---: |
+| Grid | `(11, 13, 10)` |
+| DKES-style finest plotted `N_xi` error | `1.671e-01` |
+| VMEC finest plotted `N_xi` error | `1.969e-01` |
+| DKES-style max Onsager residual | `2.785e-06` |
+| VMEC monitored max Onsager residual | `1.782e+00` |
+
+## Fixed-Field Precise-QS Benchmark
+
+| Case | Redl/SFINCS interior error | NTX+NEOPAX/SFINCS interior stress |
+| --- | ---: | ---: |
+| `qa` | `6.857e-02` | `1.157e+00` |
+| `qh` | `4.063e-02` | `1.162e+00` |
+
 ## Benchmark Matrix
 
 | Benchmark | Lane | Maturity | Status |
@@ -108,23 +125,23 @@
 
 | Cases | Serial [s] | Multiprocess [s] | Speedup |
 | ---: | ---: | ---: | ---: |
-| 16 | 2.229 | 3.936 | 0.566x |
-| 32 | 4.275 | 4.551 | 0.939x |
-| 64 | 9.044 | 5.051 | 1.790x |
+| 16 | 0.925 | 4.265 | 0.217x |
+| 32 | 1.767 | 4.447 | 0.397x |
+| 64 | 2.568 | 4.342 | 0.591x |
 
 ### GPU heavy-grid scaling
 
 | Cases | Serial [s] | Multiprocess [s] | Speedup | Healthy devices |
 | ---: | ---: | ---: | ---: | ---: |
-| 16 | 5.177 | 26.306 | 0.197x | 1 |
-| 32 | 2.111 | 6.692 | 0.315x | 1 |
-| 64 | 2.976 | 7.025 | 0.424x | 1 |
+| 16 | 1.987 | 6.756 | 0.294x | 1 |
+| 32 | 3.222 | 6.755 | 0.477x | 1 |
+| 64 | 2.956 | 7.076 | 0.418x | 1 |
 
 ## Reproducibility
 
 | Key | Value |
 | --- | --- |
-| Commit | `02d1eb3efa9376f7eabeb0e0a0e6d787729e1ebf` |
+| Commit | `b3a7b2a3b2a5cbf3224fd5bc9d30e33c508fd809` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

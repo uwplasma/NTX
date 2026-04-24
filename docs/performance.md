@@ -118,6 +118,9 @@ metric rather than a parity target, but it keeps memory visible whenever timing
 artifacts are regenerated. The committed CPU artifacts were refreshed locally;
 the committed GPU artifacts were refreshed from a clean temporary checkout on
 the office GPU workstation.
+For CI smoke coverage, `scripts/profile_parallel_runtime.py` accepts
+`--num-cases` and `--grid` so the serial/device-parallel correctness path can
+run on a tiny grid while the default command remains the profiling workload.
 
 They were collected on:
 
