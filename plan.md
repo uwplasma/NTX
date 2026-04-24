@@ -722,6 +722,9 @@ claims until they are anchored to stronger external baselines.
   - lane-owned benchmark-entry modules now split monoenergetic, bootstrap,
     integrated-workflow, autodiff, profile, performance, and geometry-breadth
     metadata while preserving the public `benchmark_matrix()` facade
+  - the autodiff benchmark registry is now split again into derivative-path
+    and design/optimization ownership modules while preserving benchmark order
+    and the public autodiff registry facade
   - `scripts/build_benchmark_matrix.py` writes
     `docs/_static/benchmark_matrix.json`
   - `docs/benchmark-matrix.md` documents positive gates, stress gates,

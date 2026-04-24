@@ -49,6 +49,8 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_vmec_jax_boozer.py",
     "src/ntx/_vmec_jax_surfaces.py",
     "src/ntx/validation/_benchmark_matrix_autodiff.py",
+    "src/ntx/validation/_benchmark_matrix_autodiff_derivatives.py",
+    "src/ntx/validation/_benchmark_matrix_autodiff_design.py",
     "src/ntx/validation/_benchmark_matrix_bootstrap.py",
     "src/ntx/validation/_benchmark_matrix_geometry.py",
     "src/ntx/validation/_benchmark_matrix_integrated.py",
