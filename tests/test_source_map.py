@@ -31,6 +31,7 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_solver_factorization.py",
     "src/ntx/_solver_scan.py",
     "src/ntx/_solver_types.py",
+    "src/ntx/_vmec_jax_boozer.py",
 )
 
 

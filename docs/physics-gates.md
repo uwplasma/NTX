@@ -47,6 +47,12 @@ These are hard structural checks:
   weights, and the parallel-conductivity source must populate only the `k=1`
   row as the physical `B`. This protects the equation-to-code map before any
   solve or closure post-processing is involved.
+- **Imported Boozer handedness:** VMEC-to-Boozer helper paths must choose the
+  same right-handed Boozer convention as the file-backed loader, so
+  `B_\zeta + \iota B_\theta >= 0` before the geometry Jacobian
+  `\mathcal J = |B_\zeta + \iota B_\theta| / B^2` is consumed by the solver
+  or imported closure workflow. This protects the sign convention without
+  fitting any transport coefficient.
 - **Operator parameter-derivative consistency:** the hand-coded
   `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by the implicit-adjoint path
   must match JAX differentiation of the assembled Legendre-space operator.

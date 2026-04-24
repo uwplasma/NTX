@@ -8,6 +8,7 @@ from types import ModuleType, SimpleNamespace
 import jax.numpy as jnp
 
 from ntx import surface_from_vmec_jax_state, surface_from_vmec_jax_wout
+from ntx._vmec_jax_boozer import _apply_boozer_sign_convention_profiles
 from ntx.geometry import BoozerSurface
 from ntx.vmec_jax_backend import (
     _apply_boozer_sign_convention,
@@ -31,6 +32,32 @@ def test_apply_boozer_sign_convention_returns_right_handed_values():
     )
     assert iota == -0.5
     assert b_zeta + iota * b_theta >= 0.0
+
+    flipped_iota, flipped_b_theta, flipped_b_zeta = _apply_boozer_sign_convention(
+        iota=0.5,
+        b_theta=-2.0,
+        b_zeta=0.3,
+    )
+    assert flipped_iota == -0.5
+    assert flipped_b_zeta + flipped_iota * flipped_b_theta >= 0.0
+    assert jnp.allclose(
+        flipped_b_zeta + flipped_iota * flipped_b_theta,
+        jnp.asarray(0.7),
+    )
+
+
+def test_apply_boozer_sign_convention_profiles_keeps_positive_jacobian():
+    iota, b_theta, b_zeta, gmnc = _apply_boozer_sign_convention_profiles(
+        iotaf=jnp.asarray([0.0, 0.4, 0.5]),
+        buco=jnp.asarray([0.0, -2.0, 0.2]),
+        bvco=jnp.asarray([0.0, 0.3, 1.0]),
+        gmnc_b=jnp.asarray([[2.0, 0.1], [3.0, 0.2]]),
+    )
+
+    assert jnp.allclose(iota, jnp.asarray([0.0, -0.4, -0.5]))
+    assert jnp.all(b_zeta[1:] + iota[1:] * b_theta[1:] >= 0.0)
+    assert jnp.allclose(gmnc[0], jnp.asarray([-2.0, -0.1]))
+    assert jnp.allclose(gmnc[1], jnp.asarray([3.0, 0.2]))
 
 
 def test_surface_from_vmec_jax_state_builds_boozer_surface(monkeypatch):
@@ -309,7 +336,7 @@ def test_prepend_checkout_adds_existing_root_once(tmp_path):
 
 
 def test_import_helpers_use_checkout_fallback(monkeypatch, tmp_path):
-    import ntx.vmec_jax_backend as backend
+    import ntx._vmec_jax_boozer as boozer_backend
 
     real_import = builtins.__import__
     fake_vmec = ModuleType("vmec_jax")
@@ -333,9 +360,9 @@ def test_import_helpers_use_checkout_fallback(monkeypatch, tmp_path):
 
     monkeypatch.delitem(sys.modules, "vmec_jax", raising=False)
     monkeypatch.delitem(sys.modules, "booz_xform_jax.jax_api", raising=False)
-    monkeypatch.setattr(backend, "find_vmec_jax_root", lambda: tmp_path / "vmec_jax")
+    monkeypatch.setattr(boozer_backend, "find_vmec_jax_root", lambda: tmp_path / "vmec_jax")
     monkeypatch.setattr(
-        backend,
+        boozer_backend,
         "find_booz_xform_jax_root",
         lambda: tmp_path / "booz_xform_jax",
     )

@@ -15,13 +15,29 @@ from ._neopax_field_utils import (
     _surface_bsqav,
 )
 from ._neopax_types import DifferentiableNeopaxField
+from ._vmec_jax_boozer import (
+    _apply_boozer_sign_convention_profiles,
+    _booz_xform_bundle_from_vmec_jax_state,
+    _booz_xform_gmnc_from_inputs,
+)
 from .vmec_jax_backend import (
     VmecJaxBoundaryContext,
-    _booz_xform_bundle_from_vmec_jax_state,
-    _import_booz_xform_jax_api,
     solve_vmec_jax_boundary_state,
     surfaces_from_vmec_jax_state,
 )
+
+__all__ = [
+    "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
+    "build_differentiable_neopax_field_from_vmec_jax_state",
+    "_apply_boozer_sign_convention_profiles",
+    "_booz_xform_bundle_with_gmnc_from_vmec_jax_state",
+    "_booz_xform_gmnc_from_inputs",
+    "_rho_half_mesh_from_s",
+    "_vmec_edge_r00_from_state",
+    "_vmec_psia_from_indata",
+    "_vmec_psia_from_state",
+    "_vmec_volume_profiles_from_state",
+]
 
 
 def build_differentiable_neopax_field_from_vmec_jax_state(
@@ -245,31 +261,6 @@ def _rho_half_mesh_from_s(s_full):
     )
 
 
-def _apply_boozer_sign_convention_profiles(*, iotaf, buco, bvco, gmnc_b):
-    iotaf_arr = jnp.asarray(iotaf)
-    buco_arr = jnp.asarray(buco)
-    bvco_arr = jnp.asarray(bvco)
-    gmnc_arr = jnp.asarray(gmnc_b)
-
-    iota_value = -iotaf_arr[1:]
-    b_theta_value = -buco_arr[1:]
-    b_zeta_value = bvco_arr[1:]
-    sign = jnp.where((b_zeta_value + iota_value * b_theta_value) >= 0.0, 1.0, -1.0)
-
-    return (
-        jnp.concatenate([jnp.zeros((1,), dtype=iotaf_arr.dtype), iota_value], axis=0),
-        jnp.concatenate(
-            [jnp.zeros((1,), dtype=buco_arr.dtype), sign * b_theta_value],
-            axis=0,
-        ),
-        jnp.concatenate(
-            [jnp.zeros((1,), dtype=bvco_arr.dtype), sign * b_zeta_value],
-            axis=0,
-        ),
-        sign[:, None] * gmnc_arr,
-    )
-
-
 def _vmec_psia_from_state(state, static):
     phipf_out = getattr(state, "phipf_out", None)
     if phipf_out is None:
@@ -362,130 +353,3 @@ def _booz_xform_bundle_with_gmnc_from_vmec_jax_state(
     out_with_gmnc = dict(out)
     out_with_gmnc["gmnc_b"] = gmnc_b
     return inputs, out_with_gmnc
-
-
-def _booz_xform_gmnc_from_inputs(*, inputs, mboz: int, nboz: int, asym: bool):
-    jax_api = _import_booz_xform_jax_api()
-    if not hasattr(jax_api, "_surface_transform") or not hasattr(jax_api, "_init_trig"):
-        raise RuntimeError("booz_xform_jax internal JAX helpers are unavailable")
-
-    constants, grids = jax_api.prepare_booz_xform_constants_from_inputs(
-        inputs=inputs,
-        mboz=int(mboz),
-        nboz=int(nboz),
-        asym=bool(asym),
-    )
-
-    xm_non = jnp.asarray(inputs.xm, dtype=jnp.int32)
-    xn_non = jnp.asarray(inputs.xn, dtype=jnp.int32)
-    xm_nyq = jnp.asarray(inputs.xm_nyq, dtype=jnp.int32)
-    xn_nyq = jnp.asarray(inputs.xn_nyq, dtype=jnp.int32)
-
-    cosm, sinm, cosn, sinn = jax_api._init_trig(
-        grids.theta_grid,
-        grids.zeta_grid,
-        constants.mmax_non,
-        constants.nmax_non,
-        constants.nfp,
-    )
-    cosm_nyq, sinm_nyq, cosn_nyq, sinn_nyq = jax_api._init_trig(
-        grids.theta_grid,
-        grids.zeta_grid,
-        constants.mmax_nyq,
-        constants.nmax_nyq,
-        constants.nfp,
-    )
-
-    cosm_m_non = jnp.take(cosm, xm_non, axis=1)
-    sinm_m_non = jnp.take(sinm, xm_non, axis=1)
-    abs_n_non = jnp.abs(xn_non // constants.nfp)
-    cosn_n_non = jnp.take(cosn, abs_n_non, axis=1)
-    sinn_n_non = jnp.take(sinn, abs_n_non, axis=1)
-    sign_non = jnp.where(xn_non < 0, -1.0, 1.0)[None, :]
-    tcos_non = cosm_m_non * cosn_n_non + sinm_m_non * sinn_n_non * sign_non
-    tsin_non = sinm_m_non * cosn_n_non - cosm_m_non * sinn_n_non * sign_non
-
-    cosm_m_nyq = jnp.take(cosm_nyq, xm_nyq, axis=1)
-    sinm_m_nyq = jnp.take(sinm_nyq, xm_nyq, axis=1)
-    abs_n_nyq = jnp.abs(xn_nyq // constants.nfp)
-    cosn_n_nyq = jnp.take(cosn_nyq, abs_n_nyq, axis=1)
-    sinn_n_nyq = jnp.take(sinn_nyq, abs_n_nyq, axis=1)
-    sign_nyq = jnp.where(xn_nyq < 0, -1.0, 1.0)[None, :]
-    tcos_nyq = cosm_m_nyq * cosn_n_nyq + sinm_m_nyq * sinn_n_nyq * sign_nyq
-    tsin_nyq = sinm_m_nyq * cosn_n_nyq - cosm_m_nyq * sinn_n_nyq * sign_nyq
-
-    m_non_f = xm_non.astype(jnp.float64)
-    n_non_f = xn_non.astype(jnp.float64)
-    m_nyq_f = xm_nyq.astype(jnp.float64)
-    n_nyq_f = xn_nyq.astype(jnp.float64)
-    idx_theta0 = jnp.arange(0, constants.nzeta)
-    idx_thetapi = jnp.arange(
-        (constants.nu2_b - 1) * constants.nzeta,
-        constants.nu2_b * constants.nzeta,
-    )
-    m_b = grids.xm_b
-    abs_n_b = jnp.abs(grids.xn_b // constants.nfp)
-    sign_b = jnp.where(grids.xn_b < 0, -1.0, 1.0)[None, :]
-
-    def surface_transform(
-        rmnc,
-        zmns,
-        lmns,
-        bmnc,
-        bsubumnc,
-        bsubvmnc,
-        iota,
-        bmns,
-        bsubumns,
-        bsubvmns,
-    ):
-        return jax_api._surface_transform(
-            rmnc,
-            zmns,
-            lmns,
-            bmnc,
-            bsubumnc,
-            bsubvmnc,
-            iota,
-            constants=constants,
-            grids=grids,
-            tcos_non=tcos_non,
-            tsin_non=tsin_non,
-            tcos_nyq=tcos_nyq,
-            tsin_nyq=tsin_nyq,
-            m_non_f=m_non_f,
-            n_non_f=n_non_f,
-            m_nyq_f=m_nyq_f,
-            n_nyq_f=n_nyq_f,
-            idx_theta0=idx_theta0,
-            idx_thetapi=idx_thetapi,
-            m_b=m_b,
-            abs_n_b=abs_n_b,
-            sign_b=sign_b,
-            bmns=bmns,
-            bsubumns=bsubumns,
-            bsubvmns=bsubvmns,
-            fourier_mode="vectorized",
-            trig_f32=False,
-        )
-
-    bmns_in = inputs.bmns if inputs.bmns is not None else jnp.zeros_like(inputs.bmnc)
-    bsubumns_in = (
-        inputs.bsubumns if inputs.bsubumns is not None else jnp.zeros_like(inputs.bsubumnc)
-    )
-    bsubvmns_in = (
-        inputs.bsubvmns if inputs.bsubvmns is not None else jnp.zeros_like(inputs.bsubvmnc)
-    )
-    outputs = jax.vmap(surface_transform)(
-        inputs.rmnc,
-        inputs.zmns,
-        inputs.lmns,
-        inputs.bmnc,
-        inputs.bsubumnc,
-        inputs.bsubvmnc,
-        inputs.iota,
-        bmns_in,
-        bsubumns_in,
-        bsubvmns_in,
-    )
-    return outputs[4]

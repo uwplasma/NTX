@@ -450,6 +450,15 @@ Current status:
     backed field builders
   - `src/ntx/_neopax_field_utils.py` owns shared safe numerical helpers used by
     both paths
+- [x] the VMEC-JAX Boozer helper split is complete:
+  - `src/ntx/_vmec_jax_boozer.py` now owns optional checkout imports,
+    in-memory Boozer transform bundling, profile `gmnc` reconstruction, and the
+    right-handed Boozer sign convention
+  - `src/ntx/vmec_jax_backend.py` now focuses on boundary contexts, VMEC state
+    construction, relaxation, and conversion to `BoozerSurface`
+  - the added physics gate checks scalar and profile handedness through
+    `B_\zeta + \iota B_\theta >= 0`, matching the documented Boozer Jacobian
+    convention before any transport solve is run
 - [x] the eighth no-behavior-change workflow split is complete:
   - `src/ntx/_neopax_scan.py` now owns NTX-to-NEOPAX scan assembly from
     callbacks, in-memory surfaces, and imported VMEC-JAX states

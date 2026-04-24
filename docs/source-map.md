@@ -14,7 +14,7 @@ tree.
 | Transport post-processing | `src/ntx/transport.py` | `coefficients_from_modes(...)`, `onsager_error(...)` |
 | CLI/TOML workflow | `src/ntx/inputfiles.py`, `src/ntx/_inputfiles_model.py`, `src/ntx/_inputfiles_reporting.py`, `src/ntx/_inputfiles_run.py`, `src/ntx/cli.py` | `load_run_config(...)`, `run_from_input_file(...)`, `save_run_npz(...)` |
 | VMEC loading | `src/ntx/vmec.py` | `load_vmec_surface(...)` |
-| In-memory `vmec_jax -> booz_xform_jax` boundary workflows | `src/ntx/vmec_jax_backend.py`, `src/ntx/_neopax_vmec_jax_field.py`, `src/ntx/_neopax_field.py` | `build_vmec_jax_boundary_context(...)`, `initial_guess_vmec_jax_boundary_state(...)`, `solve_vmec_jax_boundary_state(...)`, imported Boozer and NEOPAX field builders |
+| In-memory `vmec_jax -> booz_xform_jax` boundary workflows | `src/ntx/vmec_jax_backend.py`, `src/ntx/_vmec_jax_boozer.py`, `src/ntx/_neopax_vmec_jax_field.py`, `src/ntx/_neopax_field.py` | `build_vmec_jax_boundary_context(...)`, `initial_guess_vmec_jax_boundary_state(...)`, `solve_vmec_jax_boundary_state(...)`, imported Boozer and NEOPAX field builders |
 | Boozer file loading | `src/ntx/booz.py` | Boozer harmonic file loaders |
 | NEOPAX coupling | `src/ntx/neopax.py`, `src/ntx/_neopax_types.py`, `src/ntx/_neopax_io.py`, `src/ntx/_neopax_bridge.py`, `src/ntx/_neopax_scan.py`, `src/ntx/_neopax_field.py`, `src/ntx/_neopax_fluxes.py`, `src/ntx/_neopax_field_utils.py`, `src/ntx/_neopax_vmec_jax_field.py` | `build_ntx_neopax_scan(...)`, `scan_to_neopax_arrays(...)`, `write_neopax_scan_hdf5(...)`, differentiable imported-field helpers |
 | Profile-grade imported workflows | `src/ntx/profiles.py`, `src/ntx/_profiles_types.py`, `src/ntx/_profiles_eval.py`, `src/ntx/_profiles_controls.py`, `src/ntx/_profiles_transport_closure.py`, `src/ntx/_profiles_transport.py` | species-profile closures, ambipolar `E_r(r)` solve, controls, and transport loops |
@@ -77,6 +77,11 @@ Implemented in:
 
 - `_boozer_geometry_on_grid(...)` in
   [`src/ntx/geometry.py`](../src/ntx/geometry.py)
+- `_apply_boozer_sign_convention(...)` and
+  `_apply_boozer_sign_convention_profiles(...)` in
+  [`src/ntx/_vmec_jax_boozer.py`](../src/ntx/_vmec_jax_boozer.py), which
+  enforce the same right-handed sign convention for in-memory JAX Boozer data
+  that the file-backed loader applies before constructing `BoozerSurface`
 
 ## Radial-Drift Spatial Factor
 

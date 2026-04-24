@@ -3,15 +3,37 @@
 from __future__ import annotations
 
 import dataclasses
-import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 import jax.numpy as jnp
 
-from ._checkout_paths import find_booz_xform_jax_root, find_vmec_jax_root
+from ._vmec_jax_boozer import (
+    _apply_boozer_sign_convention,
+    _booz_xform_bundle_from_vmec_jax_state,
+    _import_booz_xform_jax_api,
+    _import_vmec_jax,
+    _prepend_checkout,
+)
 from .geometry import BoozerSurface
+
+__all__ = [
+    "VmecJaxBoundaryContext",
+    "build_vmec_jax_boundary_context",
+    "initial_guess_vmec_jax_boundary_state",
+    "relax_vmec_jax_boundary_state_explicit",
+    "solve_vmec_jax_boundary_state",
+    "surface_from_vmec_jax_state",
+    "surface_from_vmec_jax_wout",
+    "surfaces_from_vmec_jax_boundary_params",
+    "surfaces_from_vmec_jax_state",
+    "_apply_boozer_sign_convention",
+    "_booz_xform_bundle_from_vmec_jax_state",
+    "_import_booz_xform_jax_api",
+    "_import_vmec_jax",
+    "_prepend_checkout",
+]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -373,92 +395,3 @@ def surface_from_vmec_jax_wout(
         psi_p=psi_p,
         min_bmn_to_load=min_bmn_to_load,
     )
-
-
-def _apply_boozer_sign_convention(
-    *,
-    iota,
-    b_theta,
-    b_zeta,
-):
-    """Match the right-handed Boozer convention used by the file-backed loader."""
-
-    iota_value = -jnp.asarray(iota)
-    b_theta_value = -jnp.asarray(b_theta)
-    b_zeta_value = jnp.asarray(b_zeta)
-    sign = jnp.where((b_zeta_value + iota_value * b_theta_value) >= 0.0, 1.0, -1.0)
-    return iota_value, sign * b_theta_value, sign * b_zeta_value
-
-
-def _prepend_checkout(root: Path | None) -> None:
-    if root is None:
-        return
-    root_str = str(root)
-    if root_str not in sys.path:
-        sys.path.insert(0, root_str)
-
-
-def _import_vmec_jax():
-    if "vmec_jax" in sys.modules:
-        return sys.modules["vmec_jax"]
-    try:
-        import vmec_jax
-    except ModuleNotFoundError:
-        _prepend_checkout(find_vmec_jax_root())
-        import vmec_jax
-
-    return vmec_jax
-
-
-def _import_booz_xform_jax_api():
-    if "booz_xform_jax.jax_api" in sys.modules:
-        return sys.modules["booz_xform_jax.jax_api"]
-    try:
-        from booz_xform_jax import jax_api
-    except ModuleNotFoundError:
-        _prepend_checkout(find_booz_xform_jax_root())
-        from booz_xform_jax import jax_api
-
-    return jax_api
-
-
-def _booz_xform_bundle_from_vmec_jax_state(
-    *,
-    state,
-    static,
-    indata,
-    signgs: int,
-    s_values: Sequence[float] | None,
-    mboz: int,
-    nboz: int,
-):
-    vmec_jax = _import_vmec_jax()
-    jax_api = _import_booz_xform_jax_api()
-    inputs = vmec_jax.booz_xform_inputs_from_state(
-        state=state,
-        static=static,
-        indata=indata,
-        signgs=signgs,
-    )
-    surface_indices = None
-    if s_values is not None:
-        surface_indices, _surface_values = vmec_jax.surface_indices_from_static(
-            static,
-            [float(s_value) for s_value in s_values],
-        )
-    constants, grids = jax_api.prepare_booz_xform_constants_from_inputs(
-        inputs=inputs,
-        mboz=int(mboz),
-        nboz=int(nboz),
-        asym=bool(static.cfg.lasym),
-    )
-    out = jax_api.booz_xform_from_inputs(
-        inputs=inputs,
-        constants=constants,
-        grids=grids,
-        surface_indices=None
-        if surface_indices is None
-        else jnp.asarray(surface_indices, dtype=jnp.int32),
-        jit=True,
-    )
-    return inputs, out
