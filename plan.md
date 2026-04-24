@@ -321,6 +321,15 @@ Do not declare this program complete until all of the following are true:
   - `vmec_jax_backend.py` is `100.0%`
   - the next coverage work should be opportunistic and physics-driven, not
     broad low-value branch chasing
+- the device-parallel profiling smoke lane is now bounded for CI:
+  - `scripts/profile_parallel_runtime.py` keeps the full default profiling
+    workload for local measurements
+  - CI passes `--num-cases 2 --grid 5,5,4` so serial/device-parallel numerical
+    agreement is checked without making the parallel shard a timing benchmark
+- the manuscript artifact builder now pulls the already-gated monoenergetic
+  validation summary and fixed-field precise-QS benchmark into
+  `manuscript_claims.md` and `manuscript_tables.md`, including the scoped
+  `NTX+NEOPAX` stress metric
 - several core modules remain too large for stable review and targeted testing:
   - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
   - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)
