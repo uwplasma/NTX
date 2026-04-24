@@ -340,10 +340,10 @@ Do not declare this program complete until all of the following are true:
   matrix metadata
 - several core modules remain too large for stable review and targeted testing:
   - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
-  - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)
-  - `autodiff.py` (`79` lines after Phase 1 split; types/workflows moved to internal modules)
-  - `inputfiles.py` (`248` lines after Phase 1 split; parsing/reporting moved to internal modules)
-  - `neopax.py` (`199` lines after Phase 1 split; bridge/types/I/O moved to internal modules)
+  - `solver.py` (`51` lines after Phase 1 split; types/core/scan moved to internal modules)
+  - `autodiff.py` (`92` lines after Phase 1 split; types/workflows/bootstrap moved to internal modules)
+  - `inputfiles.py` (`275` lines after Phase 1 split; parsing/reporting moved to internal modules)
+  - `neopax.py` (`326` lines after Phase 1 split; bridge/types/I/O/field/flux helpers moved to internal modules)
   - `geometry.py` (`19` lines after Phase 1 split; types/evaluation moved to internal modules)
 - public docstrings and internal comments are inconsistent across the source
   tree, particularly in workflow-heavy files

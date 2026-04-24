@@ -20,6 +20,10 @@ def test_core_namespace_preserves_flat_solver_api():
 def test_workflow_namespace_preserves_flat_workflow_api():
     assert ntx_workflows.NeopaxScan is ntx.NeopaxScan
     assert ntx_workflows.build_ntx_neopax_scan is ntx.build_ntx_neopax_scan
+    assert (
+        ntx_workflows.get_differentiable_neopax_fluxes
+        is ntx.get_differentiable_neopax_fluxes
+    )
     assert ntx_workflows.solve_ambipolar_er_profile is ntx.solve_ambipolar_er_profile
     assert ntx_workflows.example_derivative_audit is ntx.example_derivative_audit
 
