@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 
 from ntx.geometry import BoozerSurface, geometry_on_grid
@@ -9,6 +10,7 @@ from ntx.operators import (
     apply_nullspace_condition,
     derivative_blocks,
     operator_blocks,
+    parameter_derivative_blocks,
     source_modes,
 )
 
@@ -73,3 +75,35 @@ def test_operator_block_shapes():
     assert lower.shape == (25, 25)
     assert diagonal.shape == (25, 25)
     assert upper.shape == (25, 25)
+
+
+def test_parameter_derivative_blocks_match_operator_autodiff():
+    spec = GridSpec(5, 5, 4)
+    surface = BoozerSurface(
+        m=jnp.asarray([0, 1, 1, 2], dtype=jnp.int32),
+        n=jnp.asarray([0, 0, 1, -1], dtype=jnp.int32),
+        b_cos=jnp.asarray([1.0, 0.06, 0.025, 0.01]),
+        nfp=5,
+        iota=0.85,
+        psi_p=1.0,
+        chi_p=0.85,
+        b_theta=0.05,
+        b_zeta=1.0,
+    )
+    geom = geometry_on_grid(surface, spec)
+    dtheta, dzeta = derivative_blocks(geom)
+    k = 2
+    nu_hat = jnp.asarray(1.0e-2, dtype=spec.jax_dtype)
+    epsi_hat = jnp.asarray(2.0e-3, dtype=spec.jax_dtype)
+
+    def diagonal_block(nu_value, epsi_value):
+        ctx = OperatorContext(surface, geom, nu_value, epsi_value)
+        return operator_blocks(ctx, k, dtheta, dzeta)[1]
+
+    ctx = OperatorContext(surface, geom, nu_hat, epsi_hat)
+    nu_block, epsi_block = parameter_derivative_blocks(ctx, k, dtheta, dzeta)
+    autodiff_nu_block = jax.jacfwd(lambda value: diagonal_block(value, epsi_hat))(nu_hat)
+    autodiff_epsi_block = jax.jacfwd(lambda value: diagonal_block(nu_hat, value))(epsi_hat)
+
+    assert jnp.allclose(nu_block, autodiff_nu_block, rtol=1.0e-12, atol=1.0e-12)
+    assert jnp.allclose(epsi_block, autodiff_epsi_block, rtol=1.0e-12, atol=1.0e-12)

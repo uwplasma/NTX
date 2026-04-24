@@ -53,6 +53,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "collision_operator_self_adjointness" in names
     assert "entropy_production_nonnegative" in names
     assert "spitzer_inverse_collisionality_limit" in names
+    assert "operator_parameter_derivative_consistency" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
     assert "precise_qs_ntx_neopax_closure_stress" in names

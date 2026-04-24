@@ -73,6 +73,9 @@ work with a clear reason.
 - A symmetric-limit physics gate now checks zero radial transport and the
   inverse-collisionality Spitzer parallel-conductivity normalization on a
   constant-field Boozer surface.
+- A derivative-consistency gate now checks that the hand-coded
+  `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by the implicit-adjoint path
+  match JAX differentiation of the assembled Legendre-space operator.
 - `python scripts/test_lane_manifest.py --check` passes with split core lanes,
   8 integration examples, and 18 opt-in heavy example tests.
 - `python scripts/build_benchmark_matrix.py` reports every active benchmark

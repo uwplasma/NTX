@@ -123,6 +123,12 @@ constant-field Boozer surface must have zero radial transport channels, finite
 parallel conductivity, exact agreement with the `D33_spitzer` branch, and the
 expected inverse-collisionality scaling of that Spitzer branch.
 
+The operator unit tests also include a derivative gate for the implicit-adjoint
+lane: the hand-coded `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks must match
+JAX differentiation of the assembled Legendre-space operator. This is a fast
+way to protect sensitivity-analysis, inverse-design, and uncertainty workflows
+from normalization drift in the collisionality and radial-electric-field terms.
+
 The physics-facing gate structure is documented separately in
 [`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
 meant to enforce that gate hierarchy, not to replace it.

@@ -121,6 +121,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="operator_parameter_derivative_consistency",
+        category="analytical",
+        metric="dD_k/dnu_hat and dD_k/depsi_hat match operator autodiff",
+        relation="test",
+        threshold=None,
+        source="tests/test_operators.py",
+        rationale=(
+            "The implicit-adjoint path differentiates through hand-coded "
+            "parameter-derivative blocks, so those blocks must be exactly the "
+            "derivatives of the assembled Legendre-space operator with respect "
+            "to collisionality and radial-electric-field normalization."
+        ),
+    ),
+    PhysicsGate(
         name="momentum_conservation_null_mode",
         category="analytical",
         metric="common-flow collisional null mode preserved",
