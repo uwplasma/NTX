@@ -136,6 +136,19 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="profile_control_linear_response",
+        category="analytical",
+        metric="scalar and basis profile controls preserve identity and linear response",
+        relation="test",
+        threshold=None,
+        source="tests/test_profiles_unit.py",
+        rationale=(
+            "Profile optimization, sensitivity, and uncertainty workflows rely "
+            "on explicit low-dimensional controls being identity maps at zero "
+            "control and linear maps in their prescribed response basis."
+        ),
+    ),
+    PhysicsGate(
         name="primitive_profile_force_reconstruction",
         category="analytical",
         metric="A1/A3 from primitive density and temperature profiles",

@@ -57,6 +57,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "boozer_jacobian_identity" in names
     assert "operator_parameter_derivative_consistency" in names
     assert "profile_interpolant_parameter_derivative_consistency" in names
+    assert "profile_control_linear_response" in names
     assert "primitive_profile_force_reconstruction" in names
     assert "charge_symmetric_ambipolar_cancellation" in names
     assert "primitive_transport_positivity_floor" in names

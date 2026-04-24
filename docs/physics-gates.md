@@ -75,6 +75,10 @@ These are hard structural checks:
   basis parameters that agree with centered finite differences on a controlled
   coefficient table. This protects the interpolation layer used by profile
   inverse design and uncertainty propagation.
+- **Profile-control linear response:** scalar and radial-basis profile controls
+  must be identity maps at zero control and exactly linear in their prescribed
+  response matrices. This protects the profile optimization, sensitivity, and
+  uncertainty workflows from hidden nonlinearities in the control-to-force map.
 - **Primitive profile force reconstruction:** the profile workflow must recover
   `A3 = d ln T / dr` and
   `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are

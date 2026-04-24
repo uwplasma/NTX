@@ -148,6 +148,55 @@ def test_profile_control_a3_shape_mismatch_raises():
         )
 
 
+def test_profile_scalar_control_is_identity_at_zero_and_linear_in_response():
+    profiles = species_profiles()
+    control_spec = ProfileControlSpec(
+        a1_response=jnp.asarray([0.2, -0.3]),
+        a3_response=jnp.asarray([0.5, 0.0]),
+    )
+
+    identity = apply_profile_control(profiles, 0.0, control_spec)
+    controlled = apply_profile_control(profiles, 0.25, control_spec)
+
+    for baseline, same in zip(profiles, identity, strict=True):
+        assert jnp.allclose(same.A1, baseline.A1)
+        assert jnp.allclose(same.A3, baseline.A3)
+    assert jnp.allclose(controlled[0].A1, profiles[0].A1 * (1.0 + 0.25 * 0.2))
+    assert jnp.allclose(controlled[0].A3, profiles[0].A3 * (1.0 + 0.25 * 0.5))
+    assert jnp.allclose(controlled[1].A1, profiles[1].A1 * (1.0 - 0.25 * 0.3))
+    assert jnp.allclose(controlled[1].A3, profiles[1].A3)
+
+
+def test_profile_basis_control_is_identity_at_zero_and_linear_in_basis():
+    profiles = species_profiles()
+    basis = jnp.asarray(
+        [
+            [1.0, 0.5, 0.0],
+            [0.0, 0.5, 1.0],
+        ]
+    )
+    control = jnp.asarray([0.2, -0.1])
+    control_spec = ProfileBasisControlSpec(
+        basis=basis,
+        a1_response=jnp.asarray([[0.3, 0.0], [0.0, -0.2]]),
+        a3_response=jnp.asarray([[0.5, 0.1], [0.0, 0.0]]),
+    )
+
+    identity = apply_profile_basis_control(profiles, jnp.zeros(2), control_spec)
+    controlled = apply_profile_basis_control(profiles, control, control_spec)
+
+    for baseline, same in zip(profiles, identity, strict=True):
+        assert jnp.allclose(same.A1, baseline.A1)
+        assert jnp.allclose(same.A3, baseline.A3)
+    species0_a1_modifier = jnp.tensordot(control * control_spec.a1_response[0], basis, axes=1)
+    species0_a3_modifier = jnp.tensordot(control * control_spec.a3_response[0], basis, axes=1)
+    species1_a1_modifier = jnp.tensordot(control * control_spec.a1_response[1], basis, axes=1)
+    assert jnp.allclose(controlled[0].A1, profiles[0].A1 * (1.0 + species0_a1_modifier))
+    assert jnp.allclose(controlled[0].A3, profiles[0].A3 * (1.0 + species0_a3_modifier))
+    assert jnp.allclose(controlled[1].A1, profiles[1].A1 * (1.0 + species1_a1_modifier))
+    assert jnp.allclose(controlled[1].A3, profiles[1].A3)
+
+
 def test_profile_basis_species_and_response_shape_mismatch_raises():
     profiles = species_profiles()
     basis = jnp.asarray([[1.0, 0.0, 0.0]])

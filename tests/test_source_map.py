@@ -27,6 +27,8 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_neopax_vmec_jax_field.py",
     "src/ntx/_profiles_controls.py",
     "src/ntx/_profiles_channels.py",
+    "src/ntx/_profiles_control_basis.py",
+    "src/ntx/_profiles_control_scalar.py",
     "src/ntx/_profiles_eval.py",
     "src/ntx/_profiles_primitives.py",
     "src/ntx/_profiles_radial.py",
