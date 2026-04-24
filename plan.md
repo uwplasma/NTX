@@ -1251,6 +1251,9 @@ The first implementation block after this planning pass should be:
   the fixed-field QA/QH reference family
 - [x] add frozen local-only regression tests for the fixed-field audit helpers
   and benchmark discovery
+- [x] split the fixed-field validation artifact helpers into tested metric and
+  plotting modules so publication-figure math can be reviewed without rerunning
+  the expensive QA/QH benchmark
 - [x] add a curated `NTX+NEOPAX` vs SFINCS bootstrap-current validation figure
   to the README, with the benchmark status stated honestly
 - [x] codify the physics-gate hierarchy in shipped docs and a lightweight gate
