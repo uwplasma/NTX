@@ -477,6 +477,16 @@ Current status:
   - `src/ntx/vmec_jax_backend.py` remains the public compatibility facade
   - the boundary-edge transfer gate now checks that traced edge arrays reach
     both implicit and explicit fixed-boundary solve paths
+- [x] the VMEC-JAX to NEOPAX imported-field split is now narrower:
+  - `src/ntx/_neopax_vmec_jax_profiles.py` owns VMEC scalar/profile transfer
+    into the differentiable field builder, including `rho = sqrt(s)`, toroidal
+    flux, edge `R_{00}`, and volume-profile extraction
+  - `src/ntx/_neopax_vmec_jax_boozer.py` owns the Boozer `gmnc` bundle helper
+    used by imported NEOPAX field construction
+  - `src/ntx/_neopax_vmec_jax_field.py` now focuses on assembling
+    `DifferentiableNeopaxField` objects from VMEC-JAX state data
+  - the radial-metric transfer gate now checks the axis-safe imported-field
+    construction before boundary-to-current derivative workflows use it
 - [x] the eighth no-behavior-change workflow split is complete:
   - `src/ntx/_neopax_scan.py` now owns NTX-to-NEOPAX scan assembly from
     callbacks, in-memory surfaces, and imported VMEC-JAX states
@@ -595,6 +605,13 @@ Current status:
   - the same traced arrays are forwarded to the explicit relaxed solve
   - this protects boundary-to-current derivative workflows from accidentally
     using stale non-differentiated boundary data
+- [x] VMEC-JAX to NEOPAX radial-metric transfer gate added:
+  - the imported field builder keeps `rho = sqrt(s)` and axis regularization
+    explicit
+  - enclosed-volume, `V'`, edge-radius, and toroidal-flux scales are tested
+    with fake VMEC-JAX modules before field objects feed current workflows
+  - this protects differentiable bootstrap-current examples from hidden
+    normalization drift in the VMEC-to-NEOPAX bridge
 - [x] first artifact-backed autodiff uncertainty benchmark added:
   - `examples/autodiff_profile_uncertainty.py`
   - linearized covariance propagation against a Monte Carlo ensemble on the

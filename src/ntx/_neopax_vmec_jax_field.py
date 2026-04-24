@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import interpax
 import jax
 import jax.numpy as jnp
@@ -15,10 +13,19 @@ from ._neopax_field_utils import (
     _surface_bsqav,
 )
 from ._neopax_types import DifferentiableNeopaxField
+from ._neopax_vmec_jax_boozer import (
+    _booz_xform_bundle_with_gmnc_from_vmec_jax_state,
+    _booz_xform_gmnc_from_inputs,
+)
+from ._neopax_vmec_jax_profiles import (
+    _rho_half_mesh_from_s,
+    _vmec_edge_r00_from_state,
+    _vmec_psia_from_indata,
+    _vmec_psia_from_state,
+    _vmec_volume_profiles_from_state,
+)
 from ._vmec_jax_boozer import (
     _apply_boozer_sign_convention_profiles,
-    _booz_xform_bundle_from_vmec_jax_state,
-    _booz_xform_gmnc_from_inputs,
 )
 from .vmec_jax_backend import (
     VmecJaxBoundaryContext,
@@ -245,111 +252,3 @@ def build_differentiable_neopax_field_from_vmec_jax_boundary_params(
         nboz=nboz,
         apply_boozer_sign_convention=apply_boozer_sign_convention,
     )
-
-
-def _rho_half_mesh_from_s(s_full):
-    s_arr = jnp.asarray(s_full)
-    if s_arr.shape[0] < 2:
-        return jnp.sqrt(jnp.maximum(s_arr, 0.0))
-    interior = 0.5 * (s_arr[1:] + s_arr[:-1])
-    return jnp.concatenate(
-        [
-            jnp.zeros((1,), dtype=s_arr.dtype),
-            jnp.sqrt(jnp.maximum(interior, 0.0)),
-        ],
-        axis=0,
-    )
-
-
-def _vmec_psia_from_state(state, static):
-    phipf_out = getattr(state, "phipf_out", None)
-    if phipf_out is None:
-        raise AttributeError("vmec_jax state does not expose `phipf_out`")
-
-    try:
-        from vmec_jax.integrals import cumrect_s_halfmesh
-    except ModuleNotFoundError as exc:  # pragma: no cover - local checkout fallback
-        raise ImportError("vmec_jax is required for differentiable field builders") from exc
-
-    phi = cumrect_s_halfmesh(jnp.asarray(phipf_out), jnp.asarray(static.s))
-    return jnp.abs(phi[-1])
-
-
-def _vmec_edge_r00_from_state(state):
-    rcos = getattr(state, "Rcos", None)
-    if rcos is None:
-        raise AttributeError("vmec_jax state does not expose `Rcos`")
-    return jnp.asarray(rcos)[-1, 0]
-
-
-def _vmec_psia_from_indata(*, indata, static, signgs: int):
-    try:
-        from vmec_jax.energy import flux_profiles_from_indata
-        from vmec_jax.integrals import cumrect_s_halfmesh
-    except ModuleNotFoundError as exc:  # pragma: no cover - local checkout fallback
-        raise ImportError("vmec_jax is required for differentiable field builders") from exc
-
-    flux = flux_profiles_from_indata(indata, jnp.asarray(static.s), signgs=int(signgs))
-    phipf_out = jnp.asarray(flux.phipf)
-    phi = cumrect_s_halfmesh(jnp.asarray(phipf_out), jnp.asarray(static.s))
-    return jnp.abs(phi[-1])
-
-
-def _vmec_volume_profiles_from_state(*, state, static, indata, signgs: int):
-    try:
-        from vmec_jax.vmec_forces import vmec_forces_rz_from_wout
-        from vmec_jax.vmec_residue import vmec_force_norms_from_bcovar_dynamic
-    except ModuleNotFoundError as exc:  # pragma: no cover - local checkout fallback
-        raise ImportError("vmec_jax is required for differentiable field builders") from exc
-
-    wout_like = SimpleNamespace(
-        nfp=int(static.cfg.nfp),
-        mpol=int(static.cfg.mpol),
-        ntor=int(static.cfg.ntor),
-        lasym=bool(static.cfg.lasym),
-        signgs=int(signgs),
-    )
-    kernels = vmec_forces_rz_from_wout(
-        state=state,
-        static=static,
-        wout=wout_like,
-        indata=indata,
-        use_vmec_synthesis=True,
-        trig=static.trig_vmec,
-    )
-    norms = vmec_force_norms_from_bcovar_dynamic(
-        bc=kernels.bc,
-        trig=static.trig_vmec,
-        s=jnp.asarray(static.s),
-        signgs=int(signgs),
-    )
-    return jnp.abs(jnp.asarray(norms.volume)) * (4.0 * jnp.pi**2), jnp.abs(jnp.asarray(norms.vp))
-
-
-def _booz_xform_bundle_with_gmnc_from_vmec_jax_state(
-    *,
-    state,
-    static,
-    indata,
-    signgs: int,
-    mboz: int,
-    nboz: int,
-):
-    inputs, out = _booz_xform_bundle_from_vmec_jax_state(
-        state=state,
-        static=static,
-        indata=indata,
-        signgs=signgs,
-        s_values=None,
-        mboz=mboz,
-        nboz=nboz,
-    )
-    gmnc_b = _booz_xform_gmnc_from_inputs(
-        inputs=inputs,
-        mboz=mboz,
-        nboz=nboz,
-        asym=bool(static.cfg.lasym),
-    )
-    out_with_gmnc = dict(out)
-    out_with_gmnc["gmnc_b"] = gmnc_b
-    return inputs, out_with_gmnc

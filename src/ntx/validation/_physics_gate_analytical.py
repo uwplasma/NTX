@@ -204,6 +204,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="vmec_jax_neopax_radial_metric_transfer",
+        category="analytical",
+        metric="VMEC psi, volume, edge radius, and rho=sqrt(s) map into NEOPAX field metrics",
+        relation="test",
+        threshold=None,
+        source="tests/test_differentiable_neopax_field.py",
+        rationale=(
+            "The imported VMEC-JAX to NEOPAX field path must preserve the "
+            "radial coordinate mapping, axis regularization, enclosed-volume "
+            "scale, edge major-radius scale, and toroidal-flux normalization "
+            "before bootstrap-current or boundary-derivative workflows use it."
+        ),
+    ),
+    PhysicsGate(
         name="imported_boozer_handedness",
         category="analytical",
         metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",
