@@ -65,6 +65,9 @@ Interpretation:
   over the tested smoke-grid range
 - the refreshed CPU smoke artifact reports process peak resident memory of
   about `1.76 GB`
+- the refreshed office GPU smoke artifact reports process peak resident memory
+  of about `1.29 GB`, with one of two GPUs passing the single-process
+  device-parallel smoke filter
 
 ## Heavier-Grid Scaling
 
@@ -87,6 +90,8 @@ Interpretation:
   hardware stack
 - the refreshed CPU heavy artifact reports process peak resident memory of
   about `2.70 GB`
+- the refreshed office GPU heavy artifact reports process peak resident memory
+  of about `1.42 GB`, again with one healthy single-process device
 - the practical guidance from these measurements is:
   - use serial batched JAX for small and medium studies
   - use the single-process device-parallel lane on CPU only after checking that
@@ -110,9 +115,9 @@ Fresh runs of `scripts/benchmark_scaling.py` and
 `scripts/profile_parallel_runtime.py` also record process peak resident memory
 as `max_rss_mb`. That value is intentionally treated as a run-environment
 metric rather than a parity target, but it keeps memory visible whenever timing
-artifacts are regenerated. The refreshed local CPU artifacts include this
-field; the GPU artifacts should be refreshed from a clean GPU checkout before
-using them for memory comparisons.
+artifacts are regenerated. The committed CPU artifacts were refreshed locally;
+the committed GPU artifacts were refreshed from a clean temporary checkout on
+the office GPU workstation.
 
 They were collected on:
 
