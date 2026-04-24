@@ -13,6 +13,7 @@ EXAMPLES = ROOT / "examples"
 if str(EXAMPLES) not in sys.path:
     sys.path.insert(0, str(EXAMPLES))
 
+from _fixed_field_validation_closure import build_closure_diagnostics  # noqa: E402
 from _fixed_field_validation_metrics import (  # noqa: E402
     jsonify,
     least_squares_scale,
@@ -154,3 +155,60 @@ def test_fixed_field_summary_helper_builds_traceable_error_payload(tmp_path: Pat
         "label": "QA synthetic",
         "model_count": 3,
     }
+
+
+def test_fixed_field_closure_diagnostics_tracks_species_and_hybrid_errors() -> None:
+    rho = np.asarray([0.25, 0.5, 0.75])
+    case_results = {
+        "SFINCS": {
+            "rho": rho,
+            "jdotb": np.asarray([10.0, 20.0, 40.0]),
+            "electron_current": np.asarray([7.0, 14.0, 28.0]),
+            "ion_current": np.asarray([3.0, 6.0, 12.0]),
+        },
+        "NTX+NEOPAX": {
+            "jdotb": np.asarray([10.0, 16.0, 30.0]),
+            "jdotb_nomom": np.asarray([7.0, 12.0, 21.0]),
+            "jdotb_correction": np.asarray([3.0, 4.0, 9.0]),
+            "electron_current": np.asarray([8.0, 12.0, 20.0]),
+            "ion_current": np.asarray([2.0, 4.0, 10.0]),
+            "electron_current_nomom": np.asarray([6.0, 10.0, 16.0]),
+            "ion_current_nomom": np.asarray([1.0, 2.0, 5.0]),
+            "electron_current_correction": np.asarray([2.0, 2.0, 4.0]),
+            "ion_current_correction": np.asarray([1.0, 2.0, 5.0]),
+            "electron_A1": np.asarray([1.0, 1.1, 1.2]),
+            "ion_A1": np.asarray([0.5, 0.6, 0.7]),
+            "electron_A2": np.asarray([0.2, 0.25, 0.3]),
+            "ion_A2": np.asarray([0.1, 0.15, 0.2]),
+            "electron_L31": np.asarray([2.0, 2.1, 2.2]),
+            "ion_L31": np.asarray([1.0, 1.1, 1.2]),
+            "electron_L32": np.asarray([0.4, 0.5, 0.6]),
+            "ion_L32": np.asarray([0.3, 0.35, 0.4]),
+            "electron_L33": np.asarray([3.0, 3.1, 3.2]),
+            "ion_L33": np.asarray([1.5, 1.6, 1.7]),
+        },
+    }
+
+    diagnostics = build_closure_diagnostics(
+        case_results=case_results,
+        density=np.ones_like(rho),
+        charge_unit=1.0,
+        interior_rho_min=0.25,
+        interior_rho_max=0.75,
+    )
+
+    expected_scale = float(
+        np.dot([10.0, 20.0, 40.0], [10.0, 16.0, 30.0])
+        / np.dot([10.0, 16.0, 30.0], [10.0, 16.0, 30.0])
+    )
+    assert diagnostics["current_scale"] == pytest.approx(expected_scale)
+    assert diagnostics["current_worst_relative_error_interior"] == pytest.approx(0.25)
+    assert diagnostics["current_worst_rho_interior"] == pytest.approx(0.75)
+    assert diagnostics["hybrid_current_max_relative_error_interior"]["total"] == (
+        pytest.approx(0.25)
+    )
+    assert diagnostics["species_scale"]["electron"]["current_sign_mismatch_count_interior"] == 0
+    assert diagnostics["species_scale"]["ion"]["midpoint_snapshot"]["A1"] == pytest.approx(0.6)
+    assert diagnostics["midpoint_snapshot"]["model_current_correction"] == pytest.approx(4.0)
+    assert np.isfinite(diagnostics["thermal_raw_fit_max_relative_error"])
+    assert np.isfinite(diagnostics["thermal_eff_fit_max_relative_error"])

@@ -14,6 +14,13 @@
 | Rebuilt raw-branch max relative error | `1.830e-02` |
 | `Pmax=4` transfer error | `4.942e-01` |
 
+## Fixed-field closure diagnostics
+
+| Case | Current | Raw thermal fit | Effective thermal fit |
+| --- | ---: | ---: | ---: |
+| QA | `1.157e+00` | `2.360e-01` | `1.962e-01` |
+| QH | `1.162e+00` | `3.127e-01` | `2.802e-01` |
+
 ## Higher-order closure stress
 
 | Max successive precise-QS change across `Pmax` | `1.108e-01` |

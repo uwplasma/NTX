@@ -10,6 +10,32 @@
     },
     "redl_gate": 0.1
   },
+  "fixed_field_diagnostics": {
+    "qa": {
+      "current_total": 1.1571902916712908,
+      "current_nomom_scale": -4.183684522253524,
+      "thermal_raw_fit": 0.23601690972930364,
+      "thermal_eff_fit": 0.19622764758858693,
+      "hybrid_errors": {
+        "electron_nomom_ion_total": 1.9197886265642365,
+        "electron_total_ion_nomom": 1.0412413526338955,
+        "nomom": 1.2473953612594306,
+        "total": 1.1572287065678393
+      }
+    },
+    "qh": {
+      "current_total": 1.1620140338095981,
+      "current_nomom_scale": -4.400513488586857,
+      "thermal_raw_fit": 0.3126983416518051,
+      "thermal_eff_fit": 0.2801657269741853,
+      "hybrid_errors": {
+        "electron_nomom_ion_total": 1.2833706209062796,
+        "electron_total_ion_nomom": 1.1452147390794827,
+        "nomom": 1.245170799836142,
+        "total": 1.1614688452597695
+      }
+    }
+  },
   "w7x_transfer": {
     "raw_branch_error": 0.018297079828848713,
     "raw_gate": 0.02,

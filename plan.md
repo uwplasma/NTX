@@ -1254,6 +1254,8 @@ The first implementation block after this planning pass should be:
 - [x] split the fixed-field validation artifact helpers into tested metric and
   plotting/summary modules so publication-figure math and JSON acceptance
   metrics can be reviewed without rerunning the expensive QA/QH benchmark
+- [x] split the fixed-field closure diagnostic assembly into a tested helper
+  and promote its output into the compact closure-validation report figure
 - [x] add a curated `NTX+NEOPAX` vs SFINCS bootstrap-current validation figure
   to the README, with the benchmark status stated honestly
 - [x] codify the physics-gate hierarchy in shipped docs and a lightweight gate

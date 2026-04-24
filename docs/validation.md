@@ -458,9 +458,13 @@ That summary freezes the present interpretation in one place:
 - precise-QS Redl vs archived SFINCS passes the independent-code gate
 - rebuilt W7-X raw-branch transfer passes the integrated-workflow gate
 - fixed-field `NTX+NEOPAX` remains a monitored closure stress test
+- the diagnostic thermal-source fits are reported as audit evidence only; they
+  are not accepted as a production bridge because fitted fixed-field
+  corrections did not transfer to the W7-X workflow
 - the first `Pmax>2` tail model remains rejected because it regresses W7-X
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
+![Closure validation report](_static/closure_validation_report.png)
 
 ### End-To-End Bootstrap-Current Workflow
 
