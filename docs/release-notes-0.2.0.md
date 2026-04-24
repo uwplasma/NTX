@@ -1,7 +1,7 @@
 # NTX 0.2.0 Release Notes
 
-NTX `0.2.0` is the first PyPI-ready release candidate after the existing
-GitHub-only `v0.1.0` tag.
+NTX `0.2.0` is the first PyPI release after the existing GitHub-only `v0.1.0`
+tag.
 
 ## Shipping Scope
 
@@ -42,12 +42,11 @@ Verified locally on 2026-04-24:
 - clean-venv wheel smoke for `ntx --help`, `python -m ntx --help`, and
   importing `GridSpec`
 
-The pushed commit `402ba7e` had green GitHub `tests` and `package` workflows.
-The final `0.2.0` version commit must receive the same green checks before
-tagging.
+The `0.2.0` version commit `f5c97d8` had green GitHub `tests` and `package`
+workflows. The release documentation commit must receive the same green checks
+before tagging.
 
 ## Tagging
 
-Do not reuse `v0.1.0`; it already exists on GitHub. Tag `v0.2.0` only after the
-PyPI project, GitHub `pypi` environment, and PyPI Trusted Publisher are
-configured.
+Do not reuse `v0.1.0`; it already exists on GitHub. Tag `v0.2.0` after the
+release documentation commit is green in CI.
