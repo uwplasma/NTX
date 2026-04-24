@@ -8,6 +8,7 @@ import jax
 import jax.numpy as jnp
 import pytest
 
+import ntx._neopax_scan as neopax_scan_module
 import ntx.neopax as neopax_module
 from ntx import (
     GridSpec,
@@ -131,9 +132,13 @@ def test_build_ntx_neopax_scan_from_vmec_jax_state_forwards_owned_surfaces(monke
         calls["build_kwargs"] = kwargs
         return SimpleNamespace(rho=kwargs["rho"], source_name=kwargs["source_name"])
 
-    monkeypatch.setattr(neopax_module, "surfaces_from_vmec_jax_state", fake_surfaces_from_state)
     monkeypatch.setattr(
-        neopax_module,
+        neopax_scan_module,
+        "surfaces_from_vmec_jax_state",
+        fake_surfaces_from_state,
+    )
+    monkeypatch.setattr(
+        neopax_scan_module,
         "build_ntx_neopax_scan_from_surfaces",
         fake_build_from_surfaces,
     )
@@ -183,12 +188,12 @@ def test_build_ntx_neopax_scan_from_vmec_jax_boundary_params_forwards_owned_surf
         return SimpleNamespace(rho=kwargs["rho"], source_name=kwargs["source_name"])
 
     monkeypatch.setattr(
-        neopax_module,
+        neopax_scan_module,
         "surfaces_from_vmec_jax_boundary_params",
         fake_surfaces_from_boundary,
     )
     monkeypatch.setattr(
-        neopax_module,
+        neopax_scan_module,
         "build_ntx_neopax_scan_from_surfaces",
         fake_build_from_surfaces,
     )
