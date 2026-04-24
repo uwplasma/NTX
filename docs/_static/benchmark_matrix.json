@@ -92,7 +92,8 @@
         ],
         "scripts": [
           "examples/precise_qs_redl_sfincs_audit.py",
-          "examples/bootstrap_current_fixed_field_validation.py"
+          "examples/bootstrap_current_fixed_field_validation.py",
+          "scripts/build_closure_validation_report.py"
         ],
         "tests": [
           "tests/test_precise_qs_redl_sfincs_audit.py",
@@ -101,7 +102,11 @@
         "artifacts": [
           "docs/_static/bootstrap_current_fixed_field_validation.png",
           "docs/_static/bootstrap_current_fixed_field_validation.pdf",
-          "docs/_static/bootstrap_current_fixed_field_validation.json"
+          "docs/_static/bootstrap_current_fixed_field_validation.json",
+          "docs/_static/closure_validation_report.png",
+          "docs/_static/closure_validation_report.pdf",
+          "docs/_static/closure_validation_report.json",
+          "docs/_static/closure_validation_report.txt"
         ],
         "manuscript_figures": [
           "closure_validation_report"
@@ -123,6 +128,11 @@
         {
           "kind": "script",
           "path": "examples/bootstrap_current_fixed_field_validation.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "scripts/build_closure_validation_report.py",
           "exists": true
         },
         {
@@ -151,6 +161,26 @@
           "exists": true
         },
         {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.txt",
+          "exists": true
+        },
+        {
           "kind": "doc",
           "path": "docs/physics-gates.md",
           "exists": true
@@ -176,7 +206,8 @@
         "scripts": [
           "examples/bootstrap_current_fixed_field_validation.py",
           "examples/fixed_field_momentum_correction_diagnostic.py",
-          "examples/momentum_correction_mapping_audit.py"
+          "examples/momentum_correction_mapping_audit.py",
+          "scripts/build_closure_validation_report.py"
         ],
         "tests": [
           "tests/test_fixed_field_momentum_correction_diagnostic.py",
@@ -185,7 +216,11 @@
         "artifacts": [
           "docs/_static/bootstrap_current_fixed_field_validation.png",
           "docs/_static/bootstrap_current_fixed_field_validation.pdf",
-          "docs/_static/bootstrap_current_fixed_field_validation.json"
+          "docs/_static/bootstrap_current_fixed_field_validation.json",
+          "docs/_static/closure_validation_report.png",
+          "docs/_static/closure_validation_report.pdf",
+          "docs/_static/closure_validation_report.json",
+          "docs/_static/closure_validation_report.txt"
         ],
         "manuscript_figures": [
           "closure_validation_report"
@@ -218,6 +253,11 @@
           "exists": true
         },
         {
+          "kind": "script",
+          "path": "scripts/build_closure_validation_report.py",
+          "exists": true
+        },
+        {
           "kind": "test",
           "path": "tests/test_fixed_field_momentum_correction_diagnostic.py",
           "exists": true
@@ -240,6 +280,26 @@
         {
           "kind": "artifact",
           "path": "docs/_static/bootstrap_current_fixed_field_validation.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.txt",
           "exists": true
         },
         {

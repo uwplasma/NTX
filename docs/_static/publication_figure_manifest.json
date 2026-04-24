@@ -86,6 +86,12 @@
     "docs/_static/validation_summary.pdf",
     "docs/_static/validation_summary.json"
   ],
+  "closure_validation": [
+    "docs/_static/closure_validation_report.png",
+    "docs/_static/closure_validation_report.pdf",
+    "docs/_static/closure_validation_report.json",
+    "docs/_static/closure_validation_report.txt"
+  ],
   "bootstrap_proxy": [
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf",

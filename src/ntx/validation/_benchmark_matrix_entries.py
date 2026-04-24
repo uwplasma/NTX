@@ -127,6 +127,7 @@ def benchmark_matrix() -> tuple[BenchmarkEntry, ...]:
             scripts=(
                 "examples/precise_qs_redl_sfincs_audit.py",
                 "examples/bootstrap_current_fixed_field_validation.py",
+                "scripts/build_closure_validation_report.py",
             ),
             tests=(
                 "tests/test_precise_qs_redl_sfincs_audit.py",
@@ -136,6 +137,10 @@ def benchmark_matrix() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/bootstrap_current_fixed_field_validation.png",
                 "docs/_static/bootstrap_current_fixed_field_validation.pdf",
                 "docs/_static/bootstrap_current_fixed_field_validation.json",
+                "docs/_static/closure_validation_report.png",
+                "docs/_static/closure_validation_report.pdf",
+                "docs/_static/closure_validation_report.json",
+                "docs/_static/closure_validation_report.txt",
             ),
             manuscript_figures=("closure_validation_report",),
             docs=("docs/physics-gates.md", "docs/validation.md"),
@@ -157,6 +162,7 @@ def benchmark_matrix() -> tuple[BenchmarkEntry, ...]:
                 "examples/bootstrap_current_fixed_field_validation.py",
                 "examples/fixed_field_momentum_correction_diagnostic.py",
                 "examples/momentum_correction_mapping_audit.py",
+                "scripts/build_closure_validation_report.py",
             ),
             tests=(
                 "tests/test_fixed_field_momentum_correction_diagnostic.py",
@@ -166,6 +172,10 @@ def benchmark_matrix() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/bootstrap_current_fixed_field_validation.png",
                 "docs/_static/bootstrap_current_fixed_field_validation.pdf",
                 "docs/_static/bootstrap_current_fixed_field_validation.json",
+                "docs/_static/closure_validation_report.png",
+                "docs/_static/closure_validation_report.pdf",
+                "docs/_static/closure_validation_report.json",
+                "docs/_static/closure_validation_report.txt",
             ),
             manuscript_figures=("closure_validation_report",),
             docs=("docs/physics-gates.md", "docs/validation.md"),

@@ -82,6 +82,7 @@ def test_make_publication_figures_main_text_preset_writes_manifest(
 
     assert set(payload) == {
         "validation",
+        "closure_validation",
         "w7x_audit",
         "derivative_benchmark",
         "science",
@@ -165,6 +166,16 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
                 "boundary_forward_mode_current_derivative_benchmark.png",
                 "boundary_forward_mode_current_derivative_benchmark.pdf",
                 "boundary_forward_mode_current_derivative_benchmark.json",
+            ),
+        ),
+        (
+            "closure_validation",
+            {"closure_validation"},
+            (
+                "closure_validation_report.png",
+                "closure_validation_report.pdf",
+                "closure_validation_report.json",
+                "closure_validation_report.txt",
             ),
         ),
         (

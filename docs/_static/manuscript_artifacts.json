@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "867fb99b885509519ceb9ae31a9dcc76a6701896",
+    "commit": "e38eb52a66c89a0012bfd9b70900167447b51572",
     "branch": "main"
   },
   "environment": {
@@ -1560,6 +1560,12 @@
       "docs/_static/validation_summary.pdf",
       "docs/_static/validation_summary.json"
     ],
+    "closure_validation": [
+      "docs/_static/closure_validation_report.png",
+      "docs/_static/closure_validation_report.pdf",
+      "docs/_static/closure_validation_report.json",
+      "docs/_static/closure_validation_report.txt"
+    ],
     "bootstrap_proxy": [
       "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
       "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf",
@@ -1673,7 +1679,8 @@
           ],
           "scripts": [
             "examples/precise_qs_redl_sfincs_audit.py",
-            "examples/bootstrap_current_fixed_field_validation.py"
+            "examples/bootstrap_current_fixed_field_validation.py",
+            "scripts/build_closure_validation_report.py"
           ],
           "tests": [
             "tests/test_precise_qs_redl_sfincs_audit.py",
@@ -1682,7 +1689,11 @@
           "artifacts": [
             "docs/_static/bootstrap_current_fixed_field_validation.png",
             "docs/_static/bootstrap_current_fixed_field_validation.pdf",
-            "docs/_static/bootstrap_current_fixed_field_validation.json"
+            "docs/_static/bootstrap_current_fixed_field_validation.json",
+            "docs/_static/closure_validation_report.png",
+            "docs/_static/closure_validation_report.pdf",
+            "docs/_static/closure_validation_report.json",
+            "docs/_static/closure_validation_report.txt"
           ],
           "manuscript_figures": [
             "closure_validation_report"
@@ -1704,6 +1715,11 @@
           {
             "kind": "script",
             "path": "examples/bootstrap_current_fixed_field_validation.py",
+            "exists": true
+          },
+          {
+            "kind": "script",
+            "path": "scripts/build_closure_validation_report.py",
             "exists": true
           },
           {
@@ -1732,6 +1748,26 @@
             "exists": true
           },
           {
+            "kind": "artifact",
+            "path": "docs/_static/closure_validation_report.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/closure_validation_report.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/closure_validation_report.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/closure_validation_report.txt",
+            "exists": true
+          },
+          {
             "kind": "doc",
             "path": "docs/physics-gates.md",
             "exists": true
@@ -1757,7 +1793,8 @@
           "scripts": [
             "examples/bootstrap_current_fixed_field_validation.py",
             "examples/fixed_field_momentum_correction_diagnostic.py",
-            "examples/momentum_correction_mapping_audit.py"
+            "examples/momentum_correction_mapping_audit.py",
+            "scripts/build_closure_validation_report.py"
           ],
           "tests": [
             "tests/test_fixed_field_momentum_correction_diagnostic.py",
@@ -1766,7 +1803,11 @@
           "artifacts": [
             "docs/_static/bootstrap_current_fixed_field_validation.png",
             "docs/_static/bootstrap_current_fixed_field_validation.pdf",
-            "docs/_static/bootstrap_current_fixed_field_validation.json"
+            "docs/_static/bootstrap_current_fixed_field_validation.json",
+            "docs/_static/closure_validation_report.png",
+            "docs/_static/closure_validation_report.pdf",
+            "docs/_static/closure_validation_report.json",
+            "docs/_static/closure_validation_report.txt"
           ],
           "manuscript_figures": [
             "closure_validation_report"
@@ -1799,6 +1840,11 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "scripts/build_closure_validation_report.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_fixed_field_momentum_correction_diagnostic.py",
             "exists": true
@@ -1821,6 +1867,26 @@
           {
             "kind": "artifact",
             "path": "docs/_static/bootstrap_current_fixed_field_validation.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/closure_validation_report.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/closure_validation_report.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/closure_validation_report.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/closure_validation_report.txt",
             "exists": true
           },
           {
@@ -3003,6 +3069,7 @@
   "figure_sets": {
     "main_text": [
       "validation",
+      "closure_validation",
       "w7x_audit",
       "derivative_benchmark",
       "science",
