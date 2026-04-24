@@ -411,6 +411,12 @@ Current status:
   - scalar and basis-control helpers live in `src/ntx/_profiles_controls.py`
   - explicit transport-loop and primitive-transport helpers live in
     `src/ntx/_profiles_transport.py`
+- [x] the seventh no-behavior-change workflow split is complete:
+  - `src/ntx/_neopax_field.py` now owns the direct raw-array NEOPAX field mirror
+  - `src/ntx/_neopax_vmec_jax_field.py` owns the `vmec_jax` / `booz_xform_jax`
+    backed field builders
+  - `src/ntx/_neopax_field_utils.py` owns shared safe numerical helpers used by
+    both paths
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable
