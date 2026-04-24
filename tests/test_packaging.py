@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import importlib.metadata
+from pathlib import Path
+
+import tomllib
 
 import ntx
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 def test_package_version_matches_installed_metadata() -> None:
-    assert importlib.metadata.version("ntx") == ntx.__version__ == "0.1.0"
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    expected = project["project"]["version"]
+    assert importlib.metadata.version("ntx") == ntx.__version__ == expected
 
 
 def test_module_entrypoint_imports() -> None:
