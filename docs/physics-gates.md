@@ -64,6 +64,11 @@ These are hard structural checks:
   This catches collisionality and radial-electric-field normalization
   regressions before they can contaminate sensitivity, inverse-design, or
   uncertainty-quantification workflows.
+- **Profile interpolant derivative consistency:** the imported profile
+  interpolants must give `D33` sensitivities with respect to electric-field
+  basis parameters that agree with centered finite differences on a controlled
+  coefficient table. This protects the interpolation layer used by profile
+  inverse design and uncertainty propagation.
 - **Primitive profile force reconstruction:** the profile workflow must recover
   `A3 = d ln T / dr` and
   `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are

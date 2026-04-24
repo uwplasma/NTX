@@ -108,6 +108,21 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="profile_interpolant_parameter_derivative_consistency",
+        category="analytical",
+        metric="D33 profile sensitivity with respect to electric-field basis parameters",
+        relation="test",
+        threshold=None,
+        source="tests/test_autodiff.py",
+        rationale=(
+            "Profile-level inverse design and uncertainty propagation depend on "
+            "differentiating imported monoenergetic coefficient tables through "
+            "the radial-electric-field profile basis, so the interpolated D33 "
+            "sensitivity must agree with centered finite differences on a "
+            "controlled table."
+        ),
+    ),
+    PhysicsGate(
         name="primitive_profile_force_reconstruction",
         category="analytical",
         metric="A1/A3 from primitive density and temperature profiles",
