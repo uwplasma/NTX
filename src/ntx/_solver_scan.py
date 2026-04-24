@@ -12,7 +12,8 @@ import jax.numpy as jnp
 import numpy as np
 from jax import Array
 
-from ._solver_core import _operator_context, _solve_modes, prepare_monoenergetic_system
+from ._solver_core import _operator_context, prepare_monoenergetic_system
+from ._solver_factorization import _solve_modes
 from ._solver_types import MonoenergeticCase, PreparedMonoenergeticSystem, TransportResult
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
