@@ -165,6 +165,13 @@ The maintained claim-to-artifact map is documented in
 python scripts/build_benchmark_matrix.py
 ```
 
+The committed performance-scaling artifacts are also schema checked in the
+validation lane. That check requires each CPU/GPU smoke/heavy JSON to carry
+peak resident memory, device-count metadata, positive timings/rates, matching
+scan sizes, and numerical agreement between serial, device-parallel, and
+multiprocess `D11` outputs. It deliberately does not require a speedup, since
+the correct interpretation is hardware- and workload-dependent.
+
 ## Running The Suite
 
 Full local suite:
