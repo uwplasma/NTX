@@ -130,6 +130,9 @@ work with a clear reason.
 - The fixed-field closure report is now included in the publication figure
   manifest and traced back to the fixed-field Redl gate plus the monitored
   `NTX+NEOPAX` closure stress lane in the benchmark matrix.
+- The source-code map is now guarded by a focused test, so future internal
+  ownership splits must update the architecture documentation and CI lane
+  manifest in the same change.
 - The next valuable coverage work should be opportunistic and physics-driven;
   coverage is no longer a blocking lane.
 - The expensive boundary/equilibrium artifact reruns remain opt-in through

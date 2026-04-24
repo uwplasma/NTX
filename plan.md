@@ -259,6 +259,9 @@ and docs that explain which claims are closed versus monitored.
      `ntx.validation`.
    - Do not move files only for aesthetics. Move a module when the move creates
      a clearer test surface, public API boundary, or benchmark owner.
+   - Keep `docs/source-map.md` synchronized with internal ownership splits;
+     `tests/test_source_map.py` now fails when a split module is missing from
+     the architecture map.
    - Add docstrings to public APIs and short comments only where they explain
      non-obvious physics normalization, numerical conditioning, or AD behavior.
 

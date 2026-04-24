@@ -47,6 +47,8 @@ Target ownership:
 Compatibility facades should remain stable for users. Internal modules can move
 behind those facades when the new location has direct unit tests and the docs
 map has been updated in the same change.
+`tests/test_source_map.py` keeps the split internal modules listed here, so each
+future ownership split must update this map in the same change.
 
 ## Equation-To-Code Mapping
 
