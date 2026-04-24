@@ -42,6 +42,11 @@ These are hard structural checks:
   limit, the fast test suite checks that `D33_spitzer` scales as `1 / nu_hat`.
   This catches drift-kinetic normalization regressions without needing an
   external benchmark file.
+- **Finite Legendre source projection:** the magnetic-drift drive must populate
+  only the `k=0` and `k=2` source rows with the runtime `2/3` and `1/3`
+  weights, and the parallel-conductivity source must populate only the `k=1`
+  row as the physical `B`. This protects the equation-to-code map before any
+  solve or closure post-processing is involved.
 - **Operator parameter-derivative consistency:** the hand-coded
   `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by the implicit-adjoint path
   must match JAX differentiation of the assembled Legendre-space operator.
