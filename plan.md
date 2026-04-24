@@ -398,6 +398,8 @@ Current status:
   - result dataclasses live in `src/ntx/_autodiff_types.py`
   - inverse/profile/derivative/optimization workflows live in
     `src/ntx/_autodiff_workflows.py`
+  - bootstrap-current deterministic and robust optimization workflows live in
+    `src/ntx/_autodiff_bootstrap.py`
 - [x] the fifth no-behavior-change workflow split is complete:
   - `solver.py` now remains the compatibility surface
   - case/result/prepared-system types live in `src/ntx/_solver_types.py`
@@ -429,6 +431,13 @@ Current status:
   - `src/ntx/_solver_scan.py` imports the low-level solve directly from the new
     factorization module while public `solver.py` compatibility exports remain
     unchanged
+- [x] the ninth no-behavior-change workflow split is complete:
+  - `src/ntx/_autodiff_workflows.py` now owns inverse problems, derivative
+    audits, profile autodiff, and profile uncertainty propagation
+  - `src/ntx/_autodiff_bootstrap.py` owns deterministic and robust
+    bootstrap-current optimization loops and their geometry-control objective
+    assembly
+  - public `ntx.autodiff` and `ntx.workflows` imports remain unchanged
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable
