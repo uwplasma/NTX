@@ -139,6 +139,11 @@ the magnetic-drift drive must enter only the `k=0` and `k=2` rows with the
 `2/3` and `1/3` weights used by the monoenergetic moment equations, while the
 parallel-conductivity drive must enter only the `k=1` row as the physical `B`.
 
+The `vmec_jax`/`booz_xform_jax` backend unit tests now also protect the
+imported Boozer handedness convention directly. Scalar and profile forms must
+leave `B_\zeta + \iota B_\theta >= 0`, matching the file-backed loader before
+the solver evaluates the Boozer Jacobian and drift source terms.
+
 The operator unit tests also include a derivative gate for the implicit-adjoint
 lane: the hand-coded `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks must match
 JAX differentiation of the assembled Legendre-space operator. This is a fast
