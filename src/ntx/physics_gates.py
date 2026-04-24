@@ -108,6 +108,19 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="spitzer_inverse_collisionality_limit",
+        category="analytical",
+        metric="constant-field D33_spitzer proportional to 1/nu_hat",
+        relation="test",
+        threshold=None,
+        source="tests/test_physics_gates.py",
+        rationale=(
+            "In the constant-field limit the drift source vanishes and the "
+            "remaining parallel-conductivity branch should reduce to the "
+            "Spitzer-like inverse-collisionality normalization used by NTX."
+        ),
+    ),
+    PhysicsGate(
         name="momentum_conservation_null_mode",
         category="analytical",
         metric="common-flow collisional null mode preserved",

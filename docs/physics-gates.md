@@ -31,6 +31,10 @@ These are hard structural checks:
   requires `D11`, `D31`, and `D13` to vanish while the parallel-conductivity
   channel remains positive and equal to the Spitzer branch reported as
   `D33_spitzer`.
+- **Spitzer inverse-collisionality normalization:** in the same constant-field
+  limit, the fast test suite checks that `D33_spitzer` scales as `1 / nu_hat`.
+  This catches drift-kinetic normalization regressions without needing an
+  external benchmark file.
 - **Exact `P=2` recovery:** the generated Sonine/Hankel projection must recover
   the current three-moment closure exactly at `P=2`.
 - **Low-order collision-block recovery:** the active low-order

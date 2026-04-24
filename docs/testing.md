@@ -118,6 +118,11 @@ residual, and a coarse-to-fine angular-grid transfer on the analytic Boozer
 surface. Larger literature-family convergence ladders remain artifact-backed
 work rather than default pull-request tests.
 
+The same file also carries the symmetric-limit normalization gates: a
+constant-field Boozer surface must have zero radial transport channels, finite
+parallel conductivity, exact agreement with the `D33_spitzer` branch, and the
+expected inverse-collisionality scaling of that Spitzer branch.
+
 The physics-facing gate structure is documented separately in
 [`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
 meant to enforce that gate hierarchy, not to replace it.
@@ -227,14 +232,16 @@ Recent hardening work used this report to target the refactored workflow
 modules directly. The current full CI coverage report for the split lanes is
 above the release threshold:
 
-- overall repository-owned coverage is `97.2%`,
+- overall repository-owned coverage is `99.0%`,
+- `src/ntx/neopax.py`, `src/ntx/_neopax_io.py`, `src/ntx/_neopax_types.py`,
+  and `src/ntx/_neopax_bridge.py` are now at or above `97%`,
+- `src/ntx/_neopax_field.py`, the imported `vmec_jax`/`booz_xform_jax` field
+  bridge, is now at `98.1%`,
 - `src/ntx/_autodiff_workflows.py`, `src/ntx/_profiles_eval.py`,
   `src/ntx/_profiles_transport.py`, and `src/ntx/_profiles_controls.py` are all
   above `98%`,
 - `src/ntx/_solver_scan.py`, `src/ntx/parallel.py`, `src/ntx/cli.py`,
-  `src/ntx/io.py`, and `src/ntx/database.py` are at or above `98%`,
-- the remaining weaker imported-coupling modules are covered by targeted
-  synthetic bridge tests instead of long optional external-stack reruns.
+  `src/ntx/io.py`, and `src/ntx/database.py` are at or above `98%`.
 
 Those gains come from narrow branch tests in the unit/workflow lanes, not from
 adding slower benchmark execution to the default developer loop.
