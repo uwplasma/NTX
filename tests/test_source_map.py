@@ -32,6 +32,7 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_solver_scan.py",
     "src/ntx/_solver_types.py",
     "src/ntx/_vmec_jax_boozer.py",
+    "src/ntx/validation/_benchmark_matrix_types.py",
     "src/ntx/validation/_physics_gate_artifacts.py",
     "src/ntx/validation/_physics_gate_registry.py",
     "src/ntx/validation/_physics_gate_types.py",

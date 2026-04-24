@@ -1,0 +1,86 @@
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+from typing import Literal
+
+BenchmarkMaturity = Literal[
+    "positive-gate",
+    "stress-gate",
+    "software-gate",
+    "planned-lane",
+]
+BenchmarkLane = Literal[
+    "monoenergetic",
+    "bootstrap-current",
+    "integrated-workflow",
+    "autodiff",
+    "profile-workflow",
+    "performance",
+    "geometry-breadth",
+]
+
+
+@dataclass(frozen=True)
+class BenchmarkEntry:
+    """A maintained map from a research claim to code, tests, and artifacts."""
+
+    id: str
+    lane: BenchmarkLane
+    maturity: BenchmarkMaturity
+    title: str
+    claim_scope: str
+    literature_anchors: tuple[str, ...]
+    scripts: tuple[str, ...]
+    tests: tuple[str, ...]
+    artifacts: tuple[str, ...]
+    manuscript_figures: tuple[str, ...]
+    docs: tuple[str, ...]
+    open_work: tuple[str, ...] = ()
+
+    def as_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class BenchmarkPathStatus:
+    kind: Literal["script", "test", "artifact", "doc"]
+    path: str
+    exists: bool
+
+    def as_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class BenchmarkEvaluation:
+    entry: BenchmarkEntry
+    path_status: tuple[BenchmarkPathStatus, ...]
+
+    @property
+    def missing_required_paths(self) -> tuple[str, ...]:
+        if self.entry.maturity == "planned-lane":
+            return ()
+        return tuple(status.path for status in self.path_status if not status.exists)
+
+    @property
+    def status(self) -> Literal["complete", "incomplete", "planned"]:
+        if self.entry.maturity == "planned-lane":
+            return "planned"
+        return "complete" if not self.missing_required_paths else "incomplete"
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "entry": self.entry.as_dict(),
+            "status": self.status,
+            "missing_required_paths": list(self.missing_required_paths),
+            "path_status": [status.as_dict() for status in self.path_status],
+        }
+
+
+__all__ = [
+    "BenchmarkEntry",
+    "BenchmarkEvaluation",
+    "BenchmarkLane",
+    "BenchmarkMaturity",
+    "BenchmarkPathStatus",
+]

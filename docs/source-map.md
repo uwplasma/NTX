@@ -20,7 +20,7 @@ tree.
 | Profile-grade imported workflows | `src/ntx/profiles.py`, `src/ntx/_profiles_types.py`, `src/ntx/_profiles_eval.py`, `src/ntx/_profiles_controls.py`, `src/ntx/_profiles_transport_closure.py`, `src/ntx/_profiles_transport.py` | species-profile closures, ambipolar `E_r(r)` solve, controls, and transport loops |
 | Throughput-oriented multi-device execution | `src/ntx/parallel.py` | `solve_monoenergetic_multiprocess_scan(...)` |
 | Autodiff examples and optimization helpers | `src/ntx/autodiff.py`, `src/ntx/_autodiff_types.py`, `src/ntx/_autodiff_helpers.py`, `src/ntx/_autodiff_workflows.py`, `src/ntx/_autodiff_bootstrap.py` | inverse, sensitivity, uncertainty, and bootstrap-current optimization helpers |
-| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/validation/_benchmark_matrix_entries.py`, `src/ntx/validation/physics_gates.py`, `src/ntx/validation/_physics_gate_types.py`, `src/ntx/validation/_physics_gate_registry.py`, `src/ntx/validation/_physics_gate_artifacts.py` | benchmark-matrix evaluator, maintained claim metadata, physics-gate definitions, and artifact-gate evaluation |
+| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/validation/_benchmark_matrix_types.py`, `src/ntx/validation/_benchmark_matrix_entries.py`, `src/ntx/validation/physics_gates.py`, `src/ntx/validation/_physics_gate_types.py`, `src/ntx/validation/_physics_gate_registry.py`, `src/ntx/validation/_physics_gate_artifacts.py` | benchmark-matrix evaluator, benchmark claim types, maintained claim metadata, physics-gate definitions, and artifact-gate evaluation |
 
 The compatibility modules remain the primary implementation locations. The
 newer namespace packages provide stable grouped imports:
