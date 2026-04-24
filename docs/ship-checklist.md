@@ -70,6 +70,10 @@ work with a clear reason.
 - A fast owned-surface physics gate now checks `D11`, `D31`, `D33`, Onsager
   residual, and coarse-to-fine angular-grid transfer on the analytic Boozer
   surface.
+- The committed monoenergetic validation-summary artifact is now a physics
+  gate: the maximum finest plotted `N_\xi` convergence error over the DKES-style
+  and VMEC surfaces must stay below `2.5e-1`, and the example test checks the
+  plotted convergence ladder.
 - A symmetric-limit physics gate now checks zero radial transport and the
   inverse-collisionality Spitzer parallel-conductivity normalization on a
   constant-field Boozer surface.

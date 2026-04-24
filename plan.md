@@ -196,6 +196,10 @@ and docs that explain which claims are closed versus monitored.
    - Current status: repository artifact gates now assert that the positive
      W7-X transfer and Redl/SFINCS checks pass while the fixed-field closure and
      higher-order `Pmax` checks remain monitored stress metrics.
+   - Current artifact-gate addition: the committed monoenergetic validation
+     summary is now checked by `evaluate_artifact_gates`; the DKES-style and
+     VMEC finest plotted `N_\xi` convergence errors must stay below `2.5e-1`
+     before that figure supports the promoted monoenergetic claim.
    - Current fast-lane addition: `tests/test_physics_gates.py` now includes an
      owned analytic Boozer-surface gate for `D11`, `D31`, `D33`, Onsager
      residual, and angular-grid transfer.
