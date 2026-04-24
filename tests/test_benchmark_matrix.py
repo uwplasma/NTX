@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from ntx.physics_gates import physics_gate_registry
 from ntx.validation.benchmark_matrix import (
     BenchmarkEntry,
     BenchmarkEvaluation,
@@ -51,6 +52,19 @@ def test_benchmark_matrix_paths_exist_for_active_lanes():
     ]
     assert stress_entries
     assert all(entry.open_work for entry in stress_entries)
+
+
+def test_artifact_gate_sources_are_represented_in_benchmark_matrix():
+    matrix_artifacts = {
+        artifact for entry in benchmark_matrix() for artifact in entry.artifacts
+    }
+    artifact_gate_sources = {
+        gate.source
+        for gate in physics_gate_registry()
+        if gate.source.startswith("docs/_static/") and gate.source.endswith(".json")
+    }
+
+    assert artifact_gate_sources <= matrix_artifacts
 
 
 def test_build_benchmark_matrix_script_writes_machine_readable_artifact(tmp_path):
