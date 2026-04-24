@@ -285,10 +285,12 @@ above the release threshold:
   and `src/ntx/_neopax_bridge.py` are now at or above `97%`,
 - `src/ntx/_neopax_field.py`, the imported `vmec_jax`/`booz_xform_jax` field
   bridge, is now at `98.1%`,
-- `src/ntx/_autodiff_workflows.py`, `src/ntx/_profiles_eval.py`,
-  `src/ntx/_profiles_transport.py`, and `src/ntx/_profiles_controls.py` are all
-  above `98%`, and the split transport-closure owner is now exercised by the
-  same profile unit/workflow lanes,
+- the split autodiff workflow owners (`src/ntx/_autodiff_workflows.py`,
+  `src/ntx/_autodiff_inverse.py`, `src/ntx/_autodiff_derivatives.py`, and
+  `src/ntx/_autodiff_profile.py`), `src/ntx/_profiles_eval.py`,
+  `src/ntx/_profiles_transport.py`, and `src/ntx/_profiles_controls.py` are
+  all covered by the fast unit/workflow lanes, and the split
+  transport-closure owner is exercised by the same profile tests,
 - `src/ntx/_solver_scan.py`, `src/ntx/parallel.py`, `src/ntx/cli.py`,
   `src/ntx/io.py`, and `src/ntx/database.py` are at or above `98%`.
 

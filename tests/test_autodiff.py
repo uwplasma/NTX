@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from types import ModuleType
 
+import jax
 import jax.numpy as jnp
 import pytest
 
@@ -21,6 +22,7 @@ from ntx import (
     surface_from_vmec_jax_vmec_wout_file,
 )
 from ntx._autodiff_workflows import (
+    _er_profile,
     _evaluate_d11_profile,
     _evaluate_d13_profile,
     _evaluate_d33_profile,
@@ -32,6 +34,45 @@ from ntx._neopax_types import NeopaxMonoenergeticArrays
 from ntx.autodiff import _maybe_import_neopax
 
 from .fixture_data import SAMPLE_NEOPAX, SAMPLE_WOUT
+
+
+def _simple_profile_interpolant_arrays() -> NeopaxMonoenergeticArrays:
+    rho = jnp.asarray([0.25, 0.5, 0.75])
+    nu_log = jnp.asarray([-4.0, -3.0])
+    er_log = jnp.asarray(
+        [
+            [-4.0, -3.0],
+            [-4.0, -3.0],
+            [-4.0, -3.0],
+        ]
+    )
+    return NeopaxMonoenergeticArrays(
+        a_b=jnp.asarray(1.0),
+        rho=rho,
+        nu_log=nu_log,
+        Er_list=er_log,
+        D11_log=jnp.asarray(
+            [
+                [[-1.0, -0.8], [-0.6, -0.4]],
+                [[-1.1, -0.9], [-0.7, -0.5]],
+                [[-1.2, -1.0], [-0.8, -0.6]],
+            ]
+        ),
+        D13=jnp.asarray(
+            [
+                [[0.1, 0.2], [0.3, 0.4]],
+                [[0.2, 0.3], [0.4, 0.5]],
+                [[0.3, 0.4], [0.5, 0.6]],
+            ]
+        ),
+        D33=jnp.asarray(
+            [
+                [[1.0, 1.2], [1.4, 1.6]],
+                [[1.1, 1.3], [1.5, 1.7]],
+                [[1.2, 1.4], [1.6, 1.8]],
+            ]
+        ),
+    )
 
 
 def test_inverse_problem_recovers_scalar_amplitude():
@@ -265,39 +306,7 @@ def test_maybe_import_neopax_raises_when_no_root_is_found(monkeypatch):
 
 
 def test_autodiff_profile_interpolants_return_finite_arrays():
-    arrays = NeopaxMonoenergeticArrays(
-        a_b=jnp.asarray(1.0),
-        rho=jnp.asarray([0.25, 0.5, 0.75]),
-        nu_log=jnp.asarray([-4.0, -3.0]),
-        Er_list=jnp.asarray(
-            [
-                [-4.0, -3.0],
-                [-4.0, -3.0],
-                [-4.0, -3.0],
-            ]
-        ),
-        D11_log=jnp.asarray(
-            [
-                [[-1.0, -0.8], [-0.6, -0.4]],
-                [[-1.1, -0.9], [-0.7, -0.5]],
-                [[-1.2, -1.0], [-0.8, -0.6]],
-            ]
-        ),
-        D13=jnp.asarray(
-            [
-                [[0.1, 0.2], [0.3, 0.4]],
-                [[0.2, 0.3], [0.4, 0.5]],
-                [[0.3, 0.4], [0.5, 0.6]],
-            ]
-        ),
-        D33=jnp.asarray(
-            [
-                [[1.0, 1.2], [1.4, 1.6]],
-                [[1.1, 1.3], [1.5, 1.7]],
-                [[1.2, 1.4], [1.6, 1.8]],
-            ]
-        ),
-    )
+    arrays = _simple_profile_interpolant_arrays()
     rho = arrays.rho
     er_profile = jnp.asarray([1.0e-4, 2.0e-4, 3.0e-4])
     nu_value = jnp.asarray(5.0e-4)
@@ -310,3 +319,38 @@ def test_autodiff_profile_interpolants_return_finite_arrays():
     assert jnp.all(jnp.isfinite(d11))
     assert jnp.all(jnp.isfinite(d13))
     assert jnp.all(jnp.isfinite(d33))
+
+
+def test_autodiff_profile_interpolant_gradient_matches_finite_difference():
+    arrays = _simple_profile_interpolant_arrays()
+    rho = arrays.rho
+    nu_value = jnp.asarray(5.0e-4)
+    params = jnp.asarray([4.0e-4, 1.0e-5])
+    fd_step = 2.0e-6
+
+    def response(parameter_vector):
+        return _evaluate_d33_profile(
+            arrays,
+            rho,
+            nu_value,
+            _er_profile(rho, parameter_vector),
+        )
+
+    autodiff_jacobian = jax.jacrev(response)(params)
+    finite_difference_jacobian = jnp.stack(
+        [
+            (response(params + direction) - response(params - direction))
+            / (2.0 * fd_step)
+            for direction in fd_step * jnp.eye(params.size)
+        ],
+        axis=1,
+    )
+
+    assert jnp.all(jnp.isfinite(autodiff_jacobian))
+    assert jnp.all(jnp.isfinite(finite_difference_jacobian))
+    assert jnp.allclose(
+        autodiff_jacobian,
+        finite_difference_jacobian,
+        rtol=2.0e-2,
+        atol=2.0e-4,
+    )

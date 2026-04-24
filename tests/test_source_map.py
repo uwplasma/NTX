@@ -6,7 +6,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_autodiff_bootstrap.py",
+    "src/ntx/_autodiff_derivatives.py",
     "src/ntx/_autodiff_helpers.py",
+    "src/ntx/_autodiff_inverse.py",
+    "src/ntx/_autodiff_profile.py",
     "src/ntx/_autodiff_types.py",
     "src/ntx/_autodiff_workflows.py",
     "src/ntx/_geometry_eval.py",

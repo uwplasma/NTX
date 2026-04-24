@@ -480,8 +480,10 @@ Current status:
     factorization module while public `solver.py` compatibility exports remain
     unchanged
 - [x] the tenth no-behavior-change workflow split is complete:
-  - `src/ntx/_autodiff_workflows.py` now owns inverse problems, derivative
-    audits, profile autodiff, and profile uncertainty propagation
+  - the autodiff workflow lane was first moved behind
+    `src/ntx/_autodiff_workflows.py`; it is now further split into
+    `_autodiff_inverse.py`, `_autodiff_derivatives.py`, and
+    `_autodiff_profile.py`
   - `src/ntx/_autodiff_bootstrap.py` owns deterministic and robust
     bootstrap-current optimization loops and their geometry-control objective
     assembly
@@ -510,6 +512,14 @@ Current status:
   - `src/ntx/_profiles_transport_closure.py` now focuses on loss assembly and
     explicit profile/primitive update application while preserving the old
     internal helper import surface for compatibility
+- [x] the next no-behavior-change autodiff split is complete:
+  - `src/ntx/_autodiff_inverse.py` owns the synthetic inverse-problem workflow
+  - `src/ntx/_autodiff_derivatives.py` owns the finite-difference derivative
+    audit workflow
+  - `src/ntx/_autodiff_profile.py` owns profile electric-field fitting and
+    linearized-versus-Monte-Carlo uncertainty propagation
+  - `src/ntx/_autodiff_workflows.py` is now a compatibility export facade,
+    preserving the previous public and private import surface
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable
@@ -532,6 +542,13 @@ Current status:
     positive even under deliberately extreme normalized transport mismatches
   - this keeps the current proxy transport lane physically bounded while the
     stronger self-consistent transport model remains planned work
+- [x] first profile-interpolant derivative gate added:
+  - `D33` sensitivities through the imported profile interpolation layer and
+    electric-field basis must match centered finite differences on a controlled
+    coefficient table
+  - this protects the interpolation path used by inverse design and
+    uncertainty propagation before broader geometry-family derivative claims
+    are promoted
 - [x] first artifact-backed autodiff uncertainty benchmark added:
   - `examples/autodiff_profile_uncertainty.py`
   - linearized covariance propagation against a Monte Carlo ensemble on the

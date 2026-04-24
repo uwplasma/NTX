@@ -356,6 +356,13 @@ It shows:
 - objective reduction
 - the local sensitivity of `D33` to the profile parameters
 
+The fast test suite now gates this interpolation layer directly:
+`tests/test_autodiff.py` checks that `D33` sensitivities through the
+electric-field profile basis agree with centered finite differences on a
+controlled coefficient table. This keeps the profile inverse-design and
+uncertainty examples tied to a checked differentiable map instead of relying
+only on end-to-end objective reduction.
+
 ![Autodiff NEOPAX profiles](_static/autodiff_neopax_profiles.png)
 
 ## Profile Uncertainty Audit
