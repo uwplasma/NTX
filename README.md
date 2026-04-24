@@ -342,6 +342,9 @@ and freezes the current model-family reading in one place:
 - precise-QS Redl vs archived SFINCS stays inside the `1e-1` gate
 - rebuilt W7-X raw-branch transfer stays inside the `2e-2` gate
 - fixed-field `NTX+NEOPAX` remains a monitored closure stress test
+- fixed-field closure diagnostics show that thermal-source reweighting can
+  reduce the stress metric on the archive, but that diagnostic is not a
+  transferable production closure
 - the first `Pmax>2` tail extension remains rejected because it regresses W7-X
 
 ![Fixed-field precise-QS bootstrap-current benchmark](docs/_static/bootstrap_current_fixed_field_validation.png)

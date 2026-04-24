@@ -29,9 +29,14 @@ def test_build_closure_validation_report_writes_outputs():
     ).read_text(encoding="utf-8")
 
     assert "precise_qs" in payload
+    assert "fixed_field_diagnostics" in payload
     assert "w7x_transfer" in payload
     assert "pmax_stress" in payload
     assert payload["precise_qs"]["qa"]["Redl"] <= 1.0e-1
+    assert payload["fixed_field_diagnostics"]["qa"]["thermal_eff_fit"] <= (
+        payload["fixed_field_diagnostics"]["qa"]["current_total"]
+    )
     assert payload["w7x_transfer"]["raw_branch_error"] <= 2.0e-2
     assert "Closure Validation Report" in markdown
     assert "W7-X integrated transfer" in markdown
+    assert "Fixed-field closure diagnostics" in markdown
