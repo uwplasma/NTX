@@ -145,6 +145,15 @@ The committed prepared-derivative benchmark is also checked as an artifact gate:
 within `1e-4` relative mismatch of direct reverse-mode. The benchmark still
 reports speedup, but CI treats agreement as the release claim.
 
+The committed geometry and boundary-control derivative artifacts are now also
+checked by the same physics-gate registry. The passing gates cover the owned
+analytic geometry-control audit (`2e-4`), file-backed Boozer/VMEC samples
+(`5e-4`), boundary-projected forward-mode current derivatives (`1e-5`), and
+explicit-relaxed QA/QH boundary-to-current derivatives (`1e-4`). The
+implicit-equilibrium derivative artifact remains a monitored open lane because
+only the equilibrium-volume objective currently matches centered finite
+differences.
+
 The physics-facing gate structure is documented separately in
 [`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
 meant to enforce that gate hierarchy, not to replace it.

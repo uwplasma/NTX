@@ -83,6 +83,13 @@ work with a clear reason.
 - The prepared derivative-path artifact is now a physics gate: the committed
   custom-VJP derivative path must stay within `1e-4` relative mismatch of
   direct reverse-mode, while speedup stays a reported performance metric.
+- The committed derivative-geometry artifacts are now physics gates: owned
+  analytic geometry controls, file-backed Boozer/VMEC controls,
+  boundary-projected current derivatives, and explicit-relaxed QA/QH
+  boundary-to-current derivatives must stay within their artifact thresholds.
+  The implicit-equilibrium derivative artifact remains a monitored open lane
+  because Boozer-space and NTX transport objectives still fail centered
+  finite-difference parity.
 - `python scripts/test_lane_manifest.py --check` passes with split core lanes,
   8 integration examples, and 18 opt-in heavy example tests.
 - CI test-shard jobs are bounded by a ten-minute timeout, and subprocess-based

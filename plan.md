@@ -216,6 +216,13 @@ and docs that explain which claims are closed versus monitored.
      `evaluate_artifact_gates`; the prepared custom-VJP derivative must remain
      within `1e-4` relative mismatch of direct reverse-mode, while speedup is
      kept as supporting performance evidence.
+   - Current geometry/autodiff artifact addition: the analytic geometry-control,
+     file-backed geometry-control, boundary-projected current-derivative, and
+     explicit-relaxed boundary-to-current JSON artifacts are now checked by
+     `evaluate_artifact_gates` with finite-difference agreement thresholds. The
+     implicit-equilibrium derivative artifact is kept as a monitored open lane,
+     because only the equilibrium-volume derivative closes on the committed
+     diagnostic.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint

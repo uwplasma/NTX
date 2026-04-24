@@ -153,6 +153,9 @@ This is an artifact-backed autodiff stress benchmark. It is not yet a
 large-geometry-control validation claim; the open lane is to transfer the same
 audit to reusable VMEC/Boozer geometry-control families and to compare geometry
 pullbacks with a prepared implicit-adjoint path once that pullback exists.
+The JSON sidecar is checked by the physics-gate registry with a current
+acceptance threshold of `2e-4` maximum relative direct-AD/finite-difference
+mismatch on this owned analytic surface.
 
 ![Geometry-control derivative benchmark](_static/geometry_control_derivative_benchmark.png)
 
@@ -187,6 +190,8 @@ from an owned analytic surface to repository-owned file-backed magnetic
 geometry. It is still a stress benchmark rather than a promoted design claim,
 since the remaining open work is a reusable family of VMEC/Boozer controls plus
 prepared implicit-adjoint geometry pullbacks.
+The committed JSON sidecar is now a physics gate with a `5e-4` maximum relative
+direct-AD/finite-difference mismatch threshold on the file-backed samples.
 
 ![File-backed geometry-control derivative benchmark](_static/file_backed_geometry_control_derivative_benchmark.png)
 
@@ -221,6 +226,8 @@ It is intentionally scoped to the boundary-projected geometry map, where
 forward-mode autodiff matches centered finite differences on the committed
 sample case. It does not yet claim a fully validated self-consistent
 equilibrium sensitivity workflow for bootstrap current.
+The committed JSON sidecar is checked with a `1e-5` maximum relative
+forward-mode/finite-difference mismatch threshold.
 
 ![Boundary forward-mode current derivative benchmark](_static/boundary_forward_mode_current_derivative_benchmark.png)
 
@@ -267,6 +274,11 @@ So the open work is now concrete rather than vague:
 - broaden the benchmark beyond the committed QA case,
 - and repair reverse mode through the implicit `vmec_jax -> booz_xform_jax` path.
 
+The JSON sidecar is intentionally registered as a monitored stress metric, not
+an acceptance gate. The current maximum relative mismatch is order unity because
+the Boozer-space and NTX transport objectives remain open even though the
+equilibrium-volume objective closes.
+
 ![Implicit-equilibrium forward-mode derivative benchmark](_static/implicit_equilibrium_forward_mode_derivative_benchmark.png)
 
 ## Explicit-Relaxed Equilibrium Benchmark
@@ -306,6 +318,11 @@ The remaining open work is now narrower:
 - extend the implicit-equilibrium forward-mode contract from geometry and NTX
   transport to `NTX+NEOPAX` integrated current,
 - and repair reverse mode on the relaxed-equilibrium lane.
+
+The committed JSON sidecar is now checked by the physics-gate registry with a
+`1e-4` maximum relative forward-mode/finite-difference mismatch threshold. The
+artifact also reports the ordinary-vs-explicit-relaxed volume difference, which
+is currently zero on the committed cases.
 
 At the moment, the reverse-mode implicit path remains open for a concrete
 reason: the matching QA Boozer-scalar probe returns an all-zero reverse-mode

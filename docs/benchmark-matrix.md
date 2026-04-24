@@ -30,7 +30,7 @@ The matrix has four maturity levels:
 - `planned-lane`: a literature-motivated lane that is intentionally not yet a
   validation claim.
 
-Current promoted validation gates are:
+Current machine-checked acceptance gates are:
 
 | Gate | Scope | Primary artifact |
 | --- | --- | --- |
@@ -38,6 +38,7 @@ Current promoted validation gates are:
 | Precise-QS Redl/SFINCS comparison | fixed-field Redl agreement on the interior benchmark window | `docs/_static/bootstrap_current_fixed_field_validation.json` |
 | W7-X integrated transfer | imported workflow transfer on the rebuilt raw branch | `docs/_static/bootstrap_current_reference_audit_w7x.json` |
 | Prepared derivative path | implicit-adjoint derivative agreement gate and timing evidence | `docs/_static/derivative_path_benchmark.json` |
+| Geometry/boundary derivative agreement | finite-difference agreement on analytic, file-backed, boundary-projected, and explicit-relaxed derivative artifacts | `docs/_static/*derivative_benchmark.json` |
 
 Current stress gates are:
 
@@ -45,11 +46,11 @@ Current stress gates are:
 | --- | --- |
 | Fixed-field `NTX+NEOPAX` closure stress | the mismatch is a reduced-closure issue, not a solved parity claim |
 | Synthetic inverse-design recovery | useful differentiable workflow check, but too small to be a research-grade geometry claim |
-| Three-harmonic geometry-control derivatives | direct AD/finite-difference audit on an owned surface; real VMEC/Boozer geometry controls remain open |
-| File-backed geometry-control derivatives | sample Boozer and VMEC files now pass AD/finite-difference checks, but reusable geometry-family controls remain open |
-| Boundary forward-mode current derivatives | low-dimensional boundary controls now reach NTX and NTX+NEOPAX outputs on boundary-projected geometry; this stays as the fast precursor lane |
+| Three-harmonic geometry-control derivatives | direct AD/finite-difference audit is now machine checked on an owned surface; reusable geometry families remain open |
+| File-backed geometry-control derivatives | sample Boozer and VMEC files now pass machine-checked AD/finite-difference thresholds, but reusable geometry-family controls remain open |
+| Boundary forward-mode current derivatives | low-dimensional boundary controls now pass the machine-checked boundary-projected finite-difference audit; self-consistent implicit sensitivities remain open |
 | Implicit-equilibrium forward-mode derivatives | the implicit residual solve reaches Boozer geometry and NTX transport on the committed QA case, but only equilibrium volume matches centered finite differences; Boozer, transport, integrated current, and reverse mode remain open |
-| Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the self-consistent forward-mode audit, but additional families plus implicit/reverse-mode equilibrium sensitivities remain open |
+| Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the machine-checked self-consistent forward-mode audit, but additional families plus implicit/reverse-mode equilibrium sensitivities remain open |
 | Profile uncertainty propagation | validates the current workflow mechanics, but needs broader profile bases |
 | Robust bootstrap-current optimization | useful robust-design stress test, but not yet broad enough for a promoted physics claim |
 | Primitive-profile force reconstruction | literature-profile audit, currently monitored rather than promoted |
