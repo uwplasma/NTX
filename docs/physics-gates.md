@@ -88,6 +88,10 @@ These are hard structural checks:
   enclosed-volume scale, edge major-radius scale, and toroidal-flux
   normalization before any bootstrap-current or boundary-derivative workflow
   consumes the field.
+- **NTX-to-NEOPAX field-channel normalization:** scan assembly must preserve
+  `E_r = E_s * transport_psi_scale` while checking the `rho`, `drds`, and
+  electric-field table shapes before the monoenergetic coefficients are handed
+  to the imported closure workflow.
 - **Primitive profile force reconstruction:** the profile workflow must recover
   `A3 = d ln T / dr` and
   `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are

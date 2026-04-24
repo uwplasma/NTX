@@ -23,6 +23,8 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_neopax_fluxes.py",
     "src/ntx/_neopax_io.py",
     "src/ntx/_neopax_scan.py",
+    "src/ntx/_neopax_scan_coefficients.py",
+    "src/ntx/_neopax_scan_fields.py",
     "src/ntx/_neopax_types.py",
     "src/ntx/_neopax_vmec_jax_boozer.py",
     "src/ntx/_neopax_vmec_jax_field.py",

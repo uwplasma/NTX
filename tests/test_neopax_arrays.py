@@ -21,6 +21,7 @@ from ntx import (
     scan_to_neopax_arrays,
     write_neopax_scan_hdf5,
 )
+from ntx._neopax_scan_fields import normalize_neopax_scan_field_channels
 from ntx.neopax import _surface_reference_bridge
 
 from .fixture_data import SAMPLE_WOUT
@@ -286,6 +287,43 @@ def test_build_ntx_neopax_scan_derives_missing_field_channel():
     )
     assert callback_from_er.Es.shape == er.shape
     assert callback_from_es.Er.shape == es.shape
+
+
+def test_neopax_scan_field_normalization_preserves_transport_scale():
+    surface = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25)
+    rho = jnp.asarray([0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    er = jnp.asarray([[0.0, 1.0e-3, 2.0e-3]])
+    drds = jnp.asarray([1.0])
+    grid = GridSpec(5, 5, 4)
+
+    from_er = normalize_neopax_scan_field_channels(
+        (surface,),
+        rho=rho,
+        nu_v=nu_v,
+        Er=er,
+        Es=None,
+        drds=drds,
+        grid=grid,
+    )
+    expected_es = er / jnp.asarray(surface.transport_psi_scale)
+    from_es = normalize_neopax_scan_field_channels(
+        (surface,),
+        rho=rho,
+        nu_v=nu_v,
+        Er=None,
+        Es=expected_es,
+        drds=drds,
+        grid=grid,
+    )
+
+    assert jnp.allclose(from_er.Es, expected_es)
+    assert jnp.allclose(from_er.Er, er)
+    assert jnp.allclose(from_es.Er, er)
+    assert jnp.allclose(from_es.Es, expected_es)
+    assert jnp.allclose(from_er.rho, rho)
+    assert jnp.allclose(from_er.nu_v, nu_v)
+    assert jnp.allclose(from_er.drds, drds)
 
 
 def test_build_ntx_neopax_scan_from_surfaces_validates_shape_mismatches():
