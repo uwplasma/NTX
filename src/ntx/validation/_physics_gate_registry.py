@@ -122,6 +122,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="charge_symmetric_ambipolar_cancellation",
+        category="analytical",
+        metric="sum_s Z_s Gamma_s for equal-and-opposite species pair",
+        relation="test",
+        threshold=None,
+        source="tests/test_profiles_unit.py",
+        rationale=(
+            "The ambipolar radial-electric-field workflow is built on the "
+            "charge-weighted particle-flux condition sum_s Z_s Gamma_s = 0, "
+            "so equal particle-flux responses with opposite charge must cancel "
+            "exactly before any root solve or profile optimization is trusted."
+        ),
+    ),
+    PhysicsGate(
         name="imported_boozer_handedness",
         category="analytical",
         metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",

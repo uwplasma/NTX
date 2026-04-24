@@ -68,6 +68,12 @@ These are hard structural checks:
   `A3 = d ln T / dr` and
   `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are
   used in particle-flux or bootstrap-current proxy calculations.
+- **Charge-symmetric ambipolar cancellation:** the profile workflow must return
+  zero charge-weighted particle-flux residual for equal particle-flux responses
+  with opposite charges. This is the local implementation gate for the
+  quasineutral ambipolarity condition `sum_s Z_s Gamma_s(E_r) = 0`, which sets
+  the stellarator radial electric field outside intrinsically ambipolar
+  symmetry limits.
 - **Prepared derivative-path consistency:** the committed derivative-path
   benchmark must keep the prepared custom-VJP electric-field derivative within
   `1e-4` relative mismatch of direct reverse-mode on the same prepared surface.

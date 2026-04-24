@@ -7,7 +7,7 @@ from dataclasses import replace
 import jax.numpy as jnp
 from jax import Array
 
-from ._profiles_eval import _broadcast_profile_field, _smooth_radial_profile
+from ._profiles_radial import _broadcast_profile_field, _smooth_radial_profile
 from ._profiles_types import (
     AmbipolarProfileResult,
     MonoenergeticSpeciesProfile,

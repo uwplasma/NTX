@@ -10,6 +10,7 @@ from ntx import (
     ProfileBasisControlSpec,
     ProfileControlSpec,
     ProfileTransportClosureSpec,
+    ambipolar_residual_profile,
     apply_profile_basis_control,
     apply_profile_control,
     bootstrap_current_objective,
@@ -19,7 +20,8 @@ from ntx import (
     evaluate_species_current_response,
     evaluate_species_particle_flux,
 )
-from ntx._profiles_eval import _channel_data, _single_radius_profile, _smooth_radial_profile
+from ntx._profiles_channels import _channel_data
+from ntx._profiles_radial import _single_radius_profile, _smooth_radial_profile
 from ntx._profiles_transport_closure import (
     _broadcast_species_transport_field,
     _scaled_transport_closure,
@@ -53,6 +55,23 @@ def test_species_flux_and_current_shapes_are_consistent():
     assert current.shape == scan.rho.shape
     assert jnp.all(jnp.isfinite(flux))
     assert jnp.all(jnp.isfinite(current))
+
+
+def test_charge_symmetric_pair_has_zero_ambipolar_residual():
+    scan = example_scan()
+    base_species = species_profiles()[0]
+    ion = replace(base_species, charge=1.0, name="ion")
+    electron = replace(base_species, charge=-1.0, name="electron")
+    er_profile = jnp.asarray([-4.0e-4, 0.0, 4.0e-4])
+
+    residual = ambipolar_residual_profile(
+        scan,
+        (ion, electron),
+        er_profile=er_profile,
+    )
+
+    assert residual.shape == scan.rho.shape
+    assert jnp.allclose(residual, 0.0, atol=1.0e-14)
 
 
 def test_profile_helpers_cover_error_branches_and_d31_fallback():

@@ -56,6 +56,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "constant_field_radial_electric_field_invariance" in names
     assert "operator_parameter_derivative_consistency" in names
     assert "primitive_profile_force_reconstruction" in names
+    assert "charge_symmetric_ambipolar_cancellation" in names
     assert "imported_boozer_handedness" in names
     assert "prepared_derivative_path_consistency" in names
     assert "geometry_control_derivative_stress" in names

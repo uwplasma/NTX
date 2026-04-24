@@ -63,6 +63,10 @@ The ambipolar residual is then
 R(r) = \sum_a Z_a \Gamma_a(r),
 ```
 
+so a charge-symmetric pair with identical particle-flux response must cancel
+exactly. The fast physics-gate suite checks this local ambipolarity identity
+before the nonlinear radial-electric-field solve is trusted.
+
 and the current profile proxy is
 
 ```{math}
