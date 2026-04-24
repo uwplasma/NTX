@@ -1,27 +1,28 @@
 from __future__ import annotations
 
+import importlib.util
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_bootstrap_current_robust_optimization_writes_outputs(tmp_path):
+    example_path = ROOT / "examples" / "bootstrap_current_robust_optimization.py"
+    spec = importlib.util.spec_from_file_location("ntx_bootstrap_current_robust", example_path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
     output_prefix = tmp_path / "bootstrap_current_robust_optimization"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "examples" / "bootstrap_current_robust_optimization.py"),
-            "--steps",
-            "10",
-            "--output-prefix",
-            str(output_prefix),
-        ],
-        check=True,
-        text=True,
-        capture_output=True,
+    module.main(
+        output_prefix=output_prefix,
+        steps=2,
+        radial_points=3,
+        grid=module.GridSpec(5, 5, 4),
+        scale_grid_size=5,
+        quadrature_order=3,
     )
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()

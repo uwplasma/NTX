@@ -31,8 +31,12 @@ work with a clear reason.
    - `core_io_workflows`
    - `core_parallel_workflows`
    - `core_neopax_workflows`
-   - `core_profile_workflows`
-   - `core_autodiff_profile_workflows`
+   - `core_profile_audit_workflow`
+   - `core_profile_basic_workflows`
+   - `core_profile_optimization_workflows`
+   - `core_profile_transport_workflows`
+   - `core_autodiff_uncertainty_workflow`
+   - `core_robust_bootstrap_workflow`
    - `core_validation`
    - `integration_examples`
    - `heavy_examples_profiles`

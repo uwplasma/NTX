@@ -44,7 +44,11 @@ wheel/sdist build directories, or external reference-code checkouts.
 
 ## CI Lane Manifest
 
-Every `tests/test_*.py` file must belong to exactly one maintained lane:
+Every `tests/test_*.py` file must be covered by the maintained lane manifest.
+Files can be assigned as whole files or, for slow modules, split by explicit
+pytest node ids. The manifest validator rejects duplicate node selections,
+missing node selections inside split files, and mixed whole-file/node-id
+assignments for the same file:
 
 ```bash
 python scripts/test_lane_manifest.py --check
@@ -53,8 +57,12 @@ python scripts/test_lane_manifest.py core_cli_workflows
 python scripts/test_lane_manifest.py core_io_workflows
 python scripts/test_lane_manifest.py core_parallel_workflows
 python scripts/test_lane_manifest.py core_neopax_workflows
-python scripts/test_lane_manifest.py core_profile_workflows
-python scripts/test_lane_manifest.py core_autodiff_profile_workflows
+python scripts/test_lane_manifest.py core_profile_audit_workflow
+python scripts/test_lane_manifest.py core_profile_basic_workflows
+python scripts/test_lane_manifest.py core_profile_optimization_workflows
+python scripts/test_lane_manifest.py core_profile_transport_workflows
+python scripts/test_lane_manifest.py core_autodiff_uncertainty_workflow
+python scripts/test_lane_manifest.py core_robust_bootstrap_workflow
 python scripts/test_lane_manifest.py core_validation
 python scripts/test_lane_manifest.py integration_examples
 python scripts/test_lane_manifest.py heavy_examples_profiles
@@ -72,9 +80,12 @@ The split core lanes replace the previous monolithic `core` lane:
 - `core_parallel_workflows`: CPU/GPU script-dispatch and multiprocessing
   workflow tests,
 - `core_neopax_workflows`: imported-database mapping and HDF5 round-trip tests,
-- `core_profile_workflows`: profile and primitive-force workflow tests,
-- `core_autodiff_profile_workflows`: autodiff profile and robust-bootstrap
-  workflow tests,
+- `core_profile_audit_workflow`: primitive-force audit artifact workflow test,
+- `core_profile_basic_workflows`: ambipolar-profile and profile-family tests,
+- `core_profile_optimization_workflows`: scalar and basis profile-control tests,
+- `core_profile_transport_workflows`: conservative profile-transport loop tests,
+- `core_autodiff_uncertainty_workflow`: autodiff uncertainty artifact workflow,
+- `core_robust_bootstrap_workflow`: robust-bootstrap artifact workflow,
 - `core_validation`: benchmark registry, validation, artifact, and physics-gate
   tests.
 
@@ -85,8 +96,12 @@ Local measured shard checks during the split:
 - `core_io_workflows`: `12 passed` in about `0:15` with coverage,
 - `core_parallel_workflows`: `3 passed`, `2 deselected` in about `0:22` with coverage,
 - `core_neopax_workflows`: `20 passed` in about `0:23` with coverage,
-- `core_profile_workflows`: `16 passed` in about `4:08` with coverage,
-- `core_autodiff_profile_workflows`: `2 passed` in about `0:41` with coverage,
+- `core_profile_audit_workflow`: `1 passed` in about `0:02` with coverage,
+- `core_profile_basic_workflows`: `5 passed` in about `0:29` with coverage,
+- `core_profile_optimization_workflows`: `4 passed` in about `2:10` with coverage,
+- `core_profile_transport_workflows`: `6 passed` in about `1:27` with coverage,
+- `core_autodiff_uncertainty_workflow`: `1 passed` in about `0:08` with coverage,
+- `core_robust_bootstrap_workflow`: `1 passed` in about `0:19` with coverage,
 - `core_validation`: `56 passed` in about `0:31` with coverage.
 
 If any workflow shard grows beyond the CI wall-time target, split it again
