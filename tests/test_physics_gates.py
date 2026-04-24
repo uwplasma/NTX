@@ -55,6 +55,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "spitzer_inverse_collisionality_limit" in names
     assert "constant_field_radial_electric_field_invariance" in names
     assert "boozer_jacobian_identity" in names
+    assert "finite_legendre_source_projection" in names
     assert "operator_parameter_derivative_consistency" in names
     assert "profile_interpolant_parameter_derivative_consistency" in names
     assert "profile_control_linear_response" in names
