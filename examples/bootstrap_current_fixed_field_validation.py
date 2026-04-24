@@ -40,6 +40,19 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
+from _fixed_field_validation_metrics import (  # noqa: E402
+    jsonify as _jsonify,
+)
+from _fixed_field_validation_metrics import (
+    least_squares_scale as _least_squares_scale,
+)
+from _fixed_field_validation_metrics import (
+    relative_error_array as _relative_error_array,
+)
+from _fixed_field_validation_metrics import (
+    sign_mismatch_count as _sign_mismatch_count,
+)
+
 from ntx import (
     GridSpec,
     build_ntx_neopax_scan_from_surfaces,
@@ -937,42 +950,6 @@ def _panel_label(ax, label: str) -> None:
         ha="left",
         bbox={"boxstyle": "round,pad=0.2", "facecolor": "white", "edgecolor": "none", "alpha": 0.9},
     )
-
-
-def _jsonify(value: Any) -> Any:
-    if isinstance(value, dict):
-        return {str(key): _jsonify(inner) for key, inner in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_jsonify(item) for item in value]
-    if isinstance(value, Path):
-        return str(value)
-    if isinstance(value, np.ndarray):
-        return value.tolist()
-    if isinstance(value, np.generic):
-        return value.item()
-    return value
-
-
-def _least_squares_scale(reference: np.ndarray, model: np.ndarray, mask: np.ndarray) -> float:
-    ref = np.asarray(reference, dtype=float)[mask]
-    trial = np.asarray(model, dtype=float)[mask]
-    denom = float(np.dot(trial, trial))
-    if denom <= 0.0:
-        return float("nan")
-    return float(np.dot(ref, trial) / denom)
-
-
-def _relative_error_array(reference: np.ndarray, model: np.ndarray) -> np.ndarray:
-    ref = np.asarray(reference, dtype=float)
-    trial = np.asarray(model, dtype=float)
-    return np.abs(trial - ref) / np.maximum(np.abs(ref), 1.0)
-
-
-def _sign_mismatch_count(reference: np.ndarray, model: np.ndarray, mask: np.ndarray) -> int:
-    ref = np.asarray(reference, dtype=float)
-    trial = np.asarray(model, dtype=float)
-    valid = mask & (np.abs(ref) > 1.0e-12)
-    return int(np.count_nonzero(np.signbit(ref[valid]) != np.signbit(trial[valid])))
 
 
 def _closure_diagnostics(
