@@ -507,6 +507,9 @@ claims until they are anchored to stronger external baselines.
   - `ntx.validation` owns benchmark/validation registries
   - flat public imports remain supported, so this is a no-behavior-change
     restructuring step
+  - the top-level public export list is now checked for duplicates in the
+    namespace-import tests, so future facade edits cannot silently accumulate
+    repeated names
 - [x] the first larger-geometry-control autodiff slice is artifact-backed:
   - `examples/geometry_control_derivative_benchmark.py`
   - controls three independent Boozer-harmonic amplitudes on the owned analytic
