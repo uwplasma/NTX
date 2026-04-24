@@ -104,9 +104,9 @@ work with a clear reason.
   analytic geometry controls, file-backed Boozer/VMEC controls,
   boundary-projected current derivatives, and explicit-relaxed QA/QH
   boundary-to-current derivatives must stay within their artifact thresholds.
-  The implicit-equilibrium derivative artifact remains a monitored open lane
-  because Boozer-space and NTX transport objectives still fail centered
-  finite-difference parity.
+  The implicit-equilibrium derivative artifact remains a monitored
+  non-shipping diagnostic because residual contraction and Boozer-space/NTX
+  transport tangent parity still fail.
 - `python scripts/test_lane_manifest.py --check` passes with split core lanes,
   8 integration examples, and 18 opt-in heavy example tests.
 - CI test-shard jobs are bounded by a ten-minute timeout, and subprocess-based

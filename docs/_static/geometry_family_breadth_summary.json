@@ -1,7 +1,7 @@
 {
   "benchmark": "geometry_family_breadth_summary",
   "classification": "artifact-backed geometry-breadth stress summary",
-  "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium derivative artifacts. This is broader than a single surface, but it is not a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
+  "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium diagnostic artifacts. This is broader than a single surface, but it is not a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
   "literature_anchors": [
     "Paul et al. 2019 adjoint neoclassical optimization",
     "McGreivy 2024 differentiable programming for plasma workflows",
@@ -89,51 +89,54 @@
       "label": "Implicit volume",
       "geometry_path": "implicit fixed-boundary equilibrium path",
       "observable_scope": "equilibrium volume",
-      "max_relative_mismatch": 9.236154068657261e-05,
-      "median_relative_mismatch": 9.236154068657261e-05,
+      "max_relative_mismatch": 9.235978011505562e-05,
+      "median_relative_mismatch": 9.235978011505562e-05,
       "status": "validated",
       "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
-      "notes": "only the equilibrium-volume objective currently closes on the implicit path"
+      "notes": "scalar volume probe only; implicit surface/transport derivatives are closed as non-shipping diagnostics"
     }
   ],
-  "open_cases": [
+  "open_cases": [],
+  "retired_cases": [
     {
       "id": "implicit_booz_xform_scalar",
       "label": "Implicit Boozer",
       "geometry_path": "implicit fixed-boundary equilibrium path",
       "observable_scope": "booz_xform_scalar",
-      "max_relative_mismatch": 0.7336929992944701,
+      "max_relative_mismatch": 0.854436606579932,
       "median_relative_mismatch": null,
-      "status": "open",
+      "status": "closed-not-shipped",
       "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
-      "notes": "still mismatched against centered finite differences; kept out of promoted claims"
+      "notes": "closed as non-shipping because residual contraction and surface/transport tangent parity do not pass"
     },
     {
       "id": "implicit_ntx_transport_proxy",
       "label": "Implicit NTX",
       "geometry_path": "implicit fixed-boundary equilibrium path",
       "observable_scope": "ntx_transport_proxy",
-      "max_relative_mismatch": 6.566185595633931,
+      "max_relative_mismatch": 6.453988782153136,
       "median_relative_mismatch": null,
-      "status": "open",
+      "status": "closed-not-shipped",
       "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
-      "notes": "still mismatched against centered finite differences; kept out of promoted claims"
+      "notes": "closed as non-shipping because residual contraction and surface/transport tangent parity do not pass"
     }
   ],
   "summary_metrics": {
     "active_case_count": 7,
-    "open_case_count": 2,
+    "open_case_count": 0,
+    "retired_case_count": 2,
     "max_active_relative_mismatch": 0.0003087991250071381,
     "median_active_relative_mismatch": 8.768426399388515e-05,
-    "max_open_relative_mismatch": 6.566185595633931,
+    "max_open_relative_mismatch": 0.0,
+    "max_retired_relative_mismatch": 6.453988782153136,
     "implicit_validated_objective_count": 1,
-    "implicit_open_objective_count": 2
+    "implicit_open_objective_count": 0,
+    "implicit_retired_objective_count": 2
   },
   "open_work": [
     "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
-    "recover Boozer-space and NTX-transport derivative parity on the implicit path",
     "add direct D11/D31/D33 parity and convergence ladders before promoting a full geometry-family claim",
-    "add reverse-mode equilibrium derivative support once the upstream dynamic-loop path is differentiable"
+    "restore implicit-equilibrium derivatives only after residual contraction and surface/transport tangent parity pass"
   ],
   "figure_png": "docs/_static/geometry_family_breadth_summary.png",
   "figure_pdf": "docs/_static/geometry_family_breadth_summary.pdf"

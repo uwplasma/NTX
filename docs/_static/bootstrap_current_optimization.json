@@ -23,8 +23,8 @@
   "weighted_baseline_current": 6.594505886028872e+18,
   "weighted_optimized_current": 7.156083149723304e+18,
   "weighted_gain": 1.085158353544606,
-  "serial_scan_seconds": 1.4507751670025755,
-  "parallel_scan_seconds": 2.404615790997923,
+  "serial_scan_seconds": 0.4012981250125449,
+  "parallel_scan_seconds": 1.705740582983708,
   "objective_history": [
     6.183635298177375,
     6.477428135666688,

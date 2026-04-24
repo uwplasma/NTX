@@ -71,7 +71,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "file_backed_geometry_control_derivative_stress" in names
     assert "boundary_forward_mode_current_derivative_stress" in names
     assert "explicit_relaxed_boundary_current_derivative_stress" in names
-    assert "implicit_equilibrium_derivative_open_stress" in names
+    assert "implicit_equilibrium_derivative_nonshipping_diagnostic" in names
     assert "bootstrap_current_optimization_gain" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
@@ -183,8 +183,8 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["explicit_relaxed_boundary_current_derivative_stress"].value == (
         pytest.approx(2.0e-5)
     )
-    assert results["implicit_equilibrium_derivative_open_stress"].status == "monitor"
-    assert results["implicit_equilibrium_derivative_open_stress"].value == (
+    assert results["implicit_equilibrium_derivative_nonshipping_diagnostic"].status == "monitor"
+    assert results["implicit_equilibrium_derivative_nonshipping_diagnostic"].value == (
         pytest.approx(6.0)
     )
     assert results["bootstrap_current_optimization_gain"].status == "pass"
@@ -250,7 +250,10 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
         results["explicit_relaxed_boundary_current_derivative_stress"].status
         == "missing"
     )
-    assert results["implicit_equilibrium_derivative_open_stress"].status == "missing"
+    assert (
+        results["implicit_equilibrium_derivative_nonshipping_diagnostic"].status
+        == "missing"
+    )
     assert results["bootstrap_current_optimization_gain"].status == "missing"
     assert "bootstrap_current_reference_audit_w7x.json" in results[
         "w7x_integrated_rebuild_raw"
@@ -285,7 +288,10 @@ def test_repository_artifact_gates_match_current_claim_statuses():
         results["explicit_relaxed_boundary_current_derivative_stress"].value
         <= 1.0e-4
     )
-    assert results["implicit_equilibrium_derivative_open_stress"].status == "monitor"
+    assert (
+        results["implicit_equilibrium_derivative_nonshipping_diagnostic"].status
+        == "monitor"
+    )
     assert results["bootstrap_current_optimization_gain"].status == "pass"
     assert results["bootstrap_current_optimization_gain"].value >= 1.0
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"

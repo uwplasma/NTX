@@ -1,6 +1,6 @@
 {
   "benchmark": "implicit_equilibrium_forward_mode_derivative_benchmark",
-  "classification": "artifact-backed implicit-equilibrium derivative diagnostic",
+  "classification": "artifact-backed non-shipping implicit-equilibrium diagnostic",
   "case": {
     "id": "qa_lowres",
     "label": "QA low-res",
@@ -9,13 +9,19 @@
     "parameter_names": [
       "rc01"
     ],
-    "parameter_count": 1
+    "parameter_count": 1,
+    "inferred_signgs": -1
   },
   "implicit_solver": {
     "max_iter": 5,
     "step_size": 1.0,
     "vmec_project": false,
     "residual_tangent_mode": "auto"
+  },
+  "closure_decision": {
+    "status": "closed-not-shipped",
+    "supported_equilibrium_derivative_path": "explicit_relaxed_fixed_boundary",
+    "reason": "The residual-forward implicit path does not provide a validated surface/transport derivative contract on the committed QA case. The residual iteration is non-contracting in this diagnostic, and Boozer/NTX tangent parity fails even though the scalar volume probe remains small."
   },
   "grid": {
     "n_theta": 5,
@@ -31,62 +37,95 @@
         "rc01"
       ],
       "direct_forward_mode": [
-        0.002335806525494394
+        0.002335806521382419
       ],
       "finite_difference": [
         0.002335590806729071
       ],
       "relative_mismatch": [
-        9.236154068657261e-05
+        9.235978011505562e-05
       ],
       "status": "validated"
     },
     {
       "id": "booz_xform_scalar",
-      "value": 1.5011979493190395,
+      "value": 1.501212181821141,
       "parameter_names": [
         "rc01"
       ],
       "direct_forward_mode": [
-        0.4993307840172199
+        0.5343103114699499
       ],
       "finite_difference": [
-        0.28801568917935505
+        0.28812541209233267
       ],
       "relative_mismatch": [
-        0.7336929992944701
+        0.854436606579932
       ],
-      "status": "open"
+      "status": "closed-not-shipped"
     },
     {
       "id": "ntx_transport_proxy",
-      "value": 1.7130820059697678,
+      "value": 1.7108093931111856,
       "parameter_names": [
         "rc01"
       ],
       "direct_forward_mode": [
-        -35.93789486670645
+        -35.12483744403223
       ],
       "finite_difference": [
-        6.456467225041118
+        6.440210797457047
       ],
       "relative_mismatch": [
-        6.566185595633931
+        6.453988782153136
       ],
-      "status": "open"
+      "status": "closed-not-shipped"
     }
   ],
-  "claim_scope": "A representative low-order boundary control propagates through the implicit fixed-boundary vmec_jax residual solve, booz_xform_jax, and an NTX monoenergetic transport observable on the committed QA case. The equilibrium-volume derivative matches centered finite differences, while the Boozer and transport observables remain open on this implicit lane.",
+  "claim_scope": "This artifact closes the previous implicit-equilibrium derivative lane as a non-shipping diagnostic. The scalar equilibrium-volume probe remains near centered finite differences, but the same residual-forward path does not satisfy the surface/transport parity needed for optimization claims. The supported differentiable equilibrium path is the explicit-relaxed fixed-boundary lane.",
   "summary_metrics": {
-    "max_relative_mismatch": 6.566185595633931,
-    "median_relative_mismatch": 0.7336929992944701
+    "max_relative_mismatch": 6.453988782153136,
+    "median_relative_mismatch": 0.854436606579932,
+    "residual_contracts": false
   },
+  "residual_history": [
+    {
+      "max_iter": 5,
+      "status": "ok",
+      "n_iter": 4,
+      "history_size": 5,
+      "first_fsqz2": 0.029314384539653026,
+      "last_fsqz2": 0.029900006457352038,
+      "min_fsqz2": 0.029314384539653026,
+      "contracts": false
+    },
+    {
+      "max_iter": 20,
+      "status": "ok",
+      "n_iter": 19,
+      "history_size": 20,
+      "first_fsqz2": 0.029314384539653026,
+      "last_fsqz2": 0.030450252008826603,
+      "min_fsqz2": 0.029314384539653026,
+      "contracts": false
+    },
+    {
+      "max_iter": 50,
+      "status": "ok",
+      "n_iter": 49,
+      "history_size": 50,
+      "first_fsqz2": 0.029314384539653026,
+      "last_fsqz2": 0.03144906226234273,
+      "min_fsqz2": 0.029314384539653026,
+      "contracts": false
+    }
+  ],
   "reverse_mode_diagnostic": {
     "status": "unsupported",
     "objective_id": "booz_xform_scalar",
     "reverse_mode_gradient": null,
     "finite_difference": [
-      0.28801568917935505
+      0.28812541209233267
     ],
     "max_relative_mismatch": null,
     "median_relative_mismatch": null,
@@ -94,10 +133,7 @@
     "error_message": "Reverse-mode differentiation does not work for lax.while_loop or lax.fori_loop with dynamic start/stop values. Try using lax.scan, or using fori_loop with static start/stop."
   },
   "open_work": [
-    "recover Boozer-scalar parity on the implicit vmec_jax -> booz_xform_jax path",
-    "recover NTX transport parity on the same implicit geometry path",
-    "extend the implicit forward-mode lane from NTX transport to NTX+NEOPAX integrated current",
-    "broaden beyond the committed QA case to additional geometry families",
-    "repair reverse mode through the implicit vmec_jax -> booz_xform_jax path"
+    "restore an implicit-equilibrium derivative lane only after the backend residual solve contracts and Boozer/NTX tangent parity passes on the committed QA case",
+    "keep explicit-relaxed fixed-boundary derivatives as the shipping equilibrium path"
   ]
 }

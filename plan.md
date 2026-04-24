@@ -233,18 +233,18 @@ and docs that explain which claims are closed versus monitored.
      file-backed geometry-control, boundary-projected current-derivative, and
      explicit-relaxed boundary-to-current JSON artifacts are now checked by
      `evaluate_artifact_gates` with finite-difference agreement thresholds. The
-     implicit-equilibrium derivative artifact is kept as a monitored open lane,
-     because only the equilibrium-volume derivative closes on the committed
-     diagnostic.
+     implicit-equilibrium derivative artifact is kept as a monitored
+     non-shipping diagnostic, because only the equilibrium-volume derivative
+     closes on the committed diagnostic.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint
      solves, and finite differences side by side on the same scalar outputs.
    - Promote only the derivative lanes that pass centered finite differences on
      repository-owned cases.
-   - Keep implicit-equilibrium Boozer and NTX transport sensitivities open until
-     they pass, because the current diagnostic only closes the equilibrium
-     volume scalar.
+   - Keep implicit-equilibrium Boozer and NTX transport sensitivities out of
+     shipping claims until residual contraction and tangent parity pass, because
+     the current diagnostic only closes the equilibrium-volume scalar.
    - Add optimization/UQ examples only when their gradients have a prior
      derivative-audit artifact.
 
@@ -795,13 +795,13 @@ claims until they are anchored to stronger external baselines.
     in addition to the AD/centered-finite-difference mismatch metrics on both
     committed cases
   - this closes the first self-consistent forward-mode boundary-to-current lane
-    on committed QA/QH inputs while leaving the implicit-equilibrium and
+    on committed QA/QH inputs while leaving broader geometry-family and
     reverse-mode lanes open
   - the matching implicit QA Boozer-scalar probe still returns an all-zero
     reverse-mode gradient against a clearly nonzero centered finite difference,
     so that lane is constrained as broken rather than merely unvalidated
-- [x] the implicit-equilibrium lane now has a maintained diagnostic on the
-  committed QA case:
+- [x] the implicit-equilibrium lane is now closed as a maintained
+  non-shipping diagnostic on the committed QA case:
   - `examples/implicit_equilibrium_forward_mode_derivative_benchmark.py`
   - uses the implicit fixed-boundary `vmec_jax` residual solve with
     `residual_tangent_mode="auto"`
@@ -810,11 +810,11 @@ claims until they are anchored to stronger external baselines.
   - current default objectives are equilibrium volume, a Boozer scalar, and a
     representative NTX monoenergetic `D33` observable
   - the current artifact is asymmetric: equilibrium volume matches centered
-    finite differences, but the Boozer and NTX transport observables remain
-    open on the implicit lane
+    finite differences, but residual contraction is absent and the Boozer and
+    NTX transport observables fail tangent parity
   - the JSON artifact also records the still-broken reverse-mode Boozer-scalar
-    diagnostic, so the remaining gap is parity through the implicit Boozer and
-    transport path, then integrated current, plus reverse mode
+    diagnostic, so this lane is excluded from shipping sensitivity claims until
+    the backend residual solve contracts and Boozer/NTX tangent parity passes
   - `docs/_static/manuscript_claims.md` reports the max and median mismatch
     directly from the JSON artifacts
   - the figure-set metadata now covers every generated main-text and supplement
@@ -831,8 +831,8 @@ claims until they are anchored to stronger external baselines.
   - reads the committed analytic, file-backed, boundary-projected,
     explicit-relaxed, and implicit-equilibrium derivative artifacts
   - writes `docs/_static/geometry_family_breadth_summary.{png,pdf,json}`
-  - keeps implicit Boozer/transport and broader W7-X/QI/omnigenous cases as
-    open work rather than promoted geometry-family validation claims
+  - keeps retired implicit Boozer/transport diagnostics and broader
+    W7-X/QI/omnigenous cases out of promoted geometry-family validation claims
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 

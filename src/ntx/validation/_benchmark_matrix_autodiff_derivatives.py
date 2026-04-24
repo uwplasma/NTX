@@ -136,13 +136,14 @@ def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             id="implicit_equilibrium_forward_mode_derivative_benchmark",
             lane="autodiff",
             maturity="stress-gate",
-            title="Implicit-equilibrium forward-mode derivative audit",
+            title="Implicit-equilibrium non-shipping derivative diagnostic",
             claim_scope=(
-                "The implicit fixed-boundary vmec_jax residual solve reaches "
-                "Boozer geometry and an NTX transport observable under "
-                "forward-mode autodiff on the committed QA case, but only the "
-                "equilibrium-volume derivative currently matches centered "
-                "finite differences on this lane."
+                "The implicit fixed-boundary residual-forward path is retained "
+                "as an artifact-backed diagnostic, but it is closed as "
+                "non-shipping because residual contraction and Boozer/NTX "
+                "surface-transport tangent parity do not pass on the committed "
+                "QA case. The explicit-relaxed lane is the supported "
+                "differentiable equilibrium path."
             ),
             literature_anchors=(
                 "vmec_jax implicit fixed-boundary differentiation",
@@ -159,14 +160,12 @@ def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             manuscript_figures=("implicit_equilibrium_forward_mode_derivative_benchmark",),
             docs=("docs/autodiff.md", "docs/research-roadmap.md", "docs/manuscript.md"),
             open_work=(
-                "recover Boozer-scalar parity on the implicit geometry path",
-                "recover NTX transport parity on the implicit geometry path",
                 (
-                    "extend the implicit forward-mode lane from NTX transport to "
-                    "NTX+NEOPAX integrated current"
+                    "restore an implicit-equilibrium derivative lane only after "
+                    "residual contraction and Boozer/NTX tangent parity pass"
                 ),
                 "broaden beyond the committed QA case to additional geometry families",
-                "repair reverse mode through the implicit vmec_jax -> booz_xform_jax path",
+                "keep explicit-relaxed derivatives as the shipping equilibrium route",
             ),
         ),
         BenchmarkEntry(

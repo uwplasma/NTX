@@ -48,10 +48,10 @@ Current stress gates are:
 | Synthetic inverse-design recovery | useful differentiable workflow check, but too small to be a research-grade geometry claim |
 | Three-harmonic geometry-control derivatives | direct AD/finite-difference audit is now machine checked on an owned surface; reusable geometry families remain open |
 | File-backed geometry-control derivatives | sample Boozer and VMEC files now pass machine-checked AD/finite-difference thresholds, but reusable geometry-family controls remain open |
-| Boundary forward-mode current derivatives | low-dimensional boundary controls now pass the machine-checked boundary-projected finite-difference audit; self-consistent implicit sensitivities remain open |
-| Implicit-equilibrium forward-mode derivatives | the implicit residual solve reaches Boozer geometry and NTX transport on the committed QA case, but only equilibrium volume matches centered finite differences; Boozer, transport, integrated current, and reverse mode remain open |
-| Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the machine-checked self-consistent forward-mode audit, but additional families plus implicit/reverse-mode equilibrium sensitivities remain open |
-| Artifact-backed geometry-family breadth summary | analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-volume derivative artifacts are summarized in one figure, while implicit Boozer/transport and broader W7-X/QI/omnigenous families stay open |
+| Boundary forward-mode current derivatives | low-dimensional boundary controls now pass the machine-checked boundary-projected finite-difference audit; self-consistent shipping claims use the explicit-relaxed lane |
+| Implicit-equilibrium forward-mode derivatives | retained as a non-shipping diagnostic: equilibrium volume matches centered finite differences, but residual contraction and Boozer/NTX tangent parity do not pass |
+| Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the machine-checked self-consistent forward-mode audit, but additional families plus reverse-mode equilibrium sensitivities remain open |
+| Artifact-backed geometry-family breadth summary | analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-volume derivative artifacts are summarized in one figure, while retired implicit Boozer/transport diagnostics are excluded from promoted geometry-family claims |
 | Profile uncertainty propagation | validates the current workflow mechanics, but needs broader profile bases |
 | Bootstrap-current optimization | machine-checked weighted-current improvement on the committed W7-X study, but not yet broad enough for a stellarator-design claim |
 | Robust bootstrap-current optimization | useful robust-design stress test, but not yet broad enough for a promoted physics claim |
@@ -65,6 +65,6 @@ Planned lanes that must stay visible are:
 | Larger geometry-control autodiff | broaden the current analytic and file-backed audits into reusable geometry families; add direct autodiff, implicit-adjoint, and finite-difference agreement on that basis |
 | Hidden-symmetry and omnigenous families | owned input families and convergence gates before adding research-grade figures |
 | QI and piecewise-omnigenous low-bootstrap families | owned input families; `D11`, `D31`, `D33`, bootstrap-current proxy, and radial-profile convergence; comparison to published qualitative ordering before any design claim |
-| Implicit-equilibrium sensitivity transfer | Boozer and NTX transport observables must match centered finite differences, not only equilibrium volume |
+| Implicit-equilibrium sensitivity transfer | restore only after the backend residual solve contracts and Boozer/NTX transport observables match centered finite differences |
 | Performance and memory crossover maps | compile/steady-state split, resident memory, device memory, and CPU/GPU/multiprocess crossover on production grids |
 | PyPI release readiness | standard-index dependency surface, wheel/sdist smoke tests, Trusted Publishing configuration, and release artifact provenance |

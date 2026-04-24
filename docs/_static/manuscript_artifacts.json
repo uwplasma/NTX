@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "fb88f7327e22ec54cfe67b279ae8f42dea9a8563",
+    "commit": "8b8873ac0c00a31db7038abaa8e2cea9e4df4116",
     "branch": "main"
   },
   "environment": {
@@ -124,7 +124,7 @@
       "er_min": 1e-06,
       "er_max": 0.003,
       "max_relative_mismatch": 1.0511436761691851e-05,
-      "best_prepared_speedup": 3.8606929529957816
+      "best_prepared_speedup": 4.033326916049324
     },
     "geometry_control_derivatives": {
       "grid": {
@@ -844,7 +844,8 @@
         "parameter_names": [
           "rc01"
         ],
-        "parameter_count": 1
+        "parameter_count": 1,
+        "inferred_signgs": -1
       },
       "implicit_solver": {
         "max_iter": 5,
@@ -853,10 +854,11 @@
         "residual_tangent_mode": "auto"
       },
       "summary_metrics": {
-        "max_relative_mismatch": 6.566185595633931,
-        "median_relative_mismatch": 0.7336929992944701
+        "max_relative_mismatch": 6.453988782153136,
+        "median_relative_mismatch": 0.854436606579932,
+        "residual_contracts": false
       },
-      "claim_scope": "A representative low-order boundary control propagates through the implicit fixed-boundary vmec_jax residual solve, booz_xform_jax, and an NTX monoenergetic transport observable on the committed QA case. The equilibrium-volume derivative matches centered finite differences, while the Boozer and transport observables remain open on this implicit lane.",
+      "claim_scope": "This artifact closes the previous implicit-equilibrium derivative lane as a non-shipping diagnostic. The scalar equilibrium-volume probe remains near centered finite differences, but the same residual-forward path does not satisfy the surface/transport parity needed for optimization claims. The supported differentiable equilibrium path is the explicit-relaxed fixed-boundary lane.",
       "objectives": [
         {
           "id": "equilibrium_volume",
@@ -865,49 +867,49 @@
             "rc01"
           ],
           "direct_forward_mode": [
-            0.002335806525494394
+            0.002335806521382419
           ],
           "finite_difference": [
             0.002335590806729071
           ],
           "relative_mismatch": [
-            9.236154068657261e-05
+            9.235978011505562e-05
           ],
           "status": "validated"
         },
         {
           "id": "booz_xform_scalar",
-          "value": 1.5011979493190395,
+          "value": 1.501212181821141,
           "parameter_names": [
             "rc01"
           ],
           "direct_forward_mode": [
-            0.4993307840172199
+            0.5343103114699499
           ],
           "finite_difference": [
-            0.28801568917935505
+            0.28812541209233267
           ],
           "relative_mismatch": [
-            0.7336929992944701
+            0.854436606579932
           ],
-          "status": "open"
+          "status": "closed-not-shipped"
         },
         {
           "id": "ntx_transport_proxy",
-          "value": 1.7130820059697678,
+          "value": 1.7108093931111856,
           "parameter_names": [
             "rc01"
           ],
           "direct_forward_mode": [
-            -35.93789486670645
+            -35.12483744403223
           ],
           "finite_difference": [
-            6.456467225041118
+            6.440210797457047
           ],
           "relative_mismatch": [
-            6.566185595633931
+            6.453988782153136
           ],
-          "status": "open"
+          "status": "closed-not-shipped"
         }
       ],
       "reverse_mode_diagnostic": {
@@ -915,7 +917,7 @@
         "objective_id": "booz_xform_scalar",
         "reverse_mode_gradient": null,
         "finite_difference": [
-          0.28801568917935505
+          0.28812541209233267
         ],
         "max_relative_mismatch": null,
         "median_relative_mismatch": null,
@@ -1374,52 +1376,55 @@
           "label": "Implicit volume",
           "geometry_path": "implicit fixed-boundary equilibrium path",
           "observable_scope": "equilibrium volume",
-          "max_relative_mismatch": 9.236154068657261e-05,
-          "median_relative_mismatch": 9.236154068657261e-05,
+          "max_relative_mismatch": 9.235978011505562e-05,
+          "median_relative_mismatch": 9.235978011505562e-05,
           "status": "validated",
           "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
-          "notes": "only the equilibrium-volume objective currently closes on the implicit path"
+          "notes": "scalar volume probe only; implicit surface/transport derivatives are closed as non-shipping diagnostics"
         }
       ],
-      "open_cases": [
+      "open_cases": [],
+      "retired_cases": [
         {
           "id": "implicit_booz_xform_scalar",
           "label": "Implicit Boozer",
           "geometry_path": "implicit fixed-boundary equilibrium path",
           "observable_scope": "booz_xform_scalar",
-          "max_relative_mismatch": 0.7336929992944701,
+          "max_relative_mismatch": 0.854436606579932,
           "median_relative_mismatch": null,
-          "status": "open",
+          "status": "closed-not-shipped",
           "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
-          "notes": "still mismatched against centered finite differences; kept out of promoted claims"
+          "notes": "closed as non-shipping because residual contraction and surface/transport tangent parity do not pass"
         },
         {
           "id": "implicit_ntx_transport_proxy",
           "label": "Implicit NTX",
           "geometry_path": "implicit fixed-boundary equilibrium path",
           "observable_scope": "ntx_transport_proxy",
-          "max_relative_mismatch": 6.566185595633931,
+          "max_relative_mismatch": 6.453988782153136,
           "median_relative_mismatch": null,
-          "status": "open",
+          "status": "closed-not-shipped",
           "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
-          "notes": "still mismatched against centered finite differences; kept out of promoted claims"
+          "notes": "closed as non-shipping because residual contraction and surface/transport tangent parity do not pass"
         }
       ],
       "summary_metrics": {
         "active_case_count": 7,
-        "open_case_count": 2,
+        "open_case_count": 0,
+        "retired_case_count": 2,
         "max_active_relative_mismatch": 0.0003087991250071381,
         "median_active_relative_mismatch": 8.768426399388515e-05,
-        "max_open_relative_mismatch": 6.566185595633931,
+        "max_open_relative_mismatch": 0.0,
+        "max_retired_relative_mismatch": 6.453988782153136,
         "implicit_validated_objective_count": 1,
-        "implicit_open_objective_count": 2
+        "implicit_open_objective_count": 0,
+        "implicit_retired_objective_count": 2
       },
-      "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium derivative artifacts. This is broader than a single surface, but it is not a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
+      "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium diagnostic artifacts. This is broader than a single surface, but it is not a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
       "open_work": [
         "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
-        "recover Boozer-space and NTX-transport derivative parity on the implicit path",
         "add direct D11/D31/D33 parity and convergence ladders before promoting a full geometry-family claim",
-        "add reverse-mode equilibrium derivative support once the upstream dynamic-loop path is differentiable"
+        "restore implicit-equilibrium derivatives only after residual contraction and surface/transport tangent parity pass"
       ]
     },
     "performance": {
@@ -1559,8 +1564,8 @@
       "baseline_scale": 1.0,
       "optimized_scale": 1.296932471472278,
       "weighted_gain": 1.085158353544606,
-      "serial_scan_seconds": 1.4507751670025755,
-      "parallel_scan_seconds": 2.404615790997923
+      "serial_scan_seconds": 0.4012981250125449,
+      "parallel_scan_seconds": 1.705740582983708
     }
   },
   "claims": {
@@ -1572,25 +1577,26 @@
     "precise_qs_ntx_neopax_max_interior_relative_error": 1.1620140338095981,
     "w7x_fine_grid_max_relative_error": 0.018297079828848713,
     "derivative_max_relative_mismatch": 1.0511436761691851e-05,
-    "best_prepared_derivative_speedup": 3.8606929529957816,
+    "best_prepared_derivative_speedup": 4.033326916049324,
     "geometry_control_derivative_max_relative_mismatch": 0.0001347698483202203,
     "geometry_control_derivative_median_relative_mismatch": 3.5954257861708703e-06,
     "file_backed_geometry_control_derivative_max_relative_mismatch": 0.0003087991250071381,
     "file_backed_geometry_control_derivative_median_relative_mismatch": 5.158220831592955e-08,
     "boundary_forward_mode_current_derivative_max_relative_mismatch": 7.17355827984326e-07,
     "boundary_forward_mode_current_derivative_median_relative_mismatch": 3.556284405640031e-07,
-    "implicit_equilibrium_forward_mode_derivative_max_relative_mismatch": 6.566185595633931,
-    "implicit_equilibrium_forward_mode_derivative_median_relative_mismatch": 0.7336929992944701,
-    "implicit_equilibrium_volume_relative_mismatch": 9.236154068657261e-05,
-    "implicit_equilibrium_booz_relative_mismatch": 0.7336929992944701,
-    "implicit_equilibrium_transport_relative_mismatch": 6.566185595633931,
+    "implicit_equilibrium_forward_mode_derivative_max_relative_mismatch": 6.453988782153136,
+    "implicit_equilibrium_forward_mode_derivative_median_relative_mismatch": 0.854436606579932,
+    "implicit_equilibrium_volume_relative_mismatch": 9.235978011505562e-05,
+    "implicit_equilibrium_booz_relative_mismatch": 0.854436606579932,
+    "implicit_equilibrium_transport_relative_mismatch": 6.453988782153136,
     "implicit_equilibrium_reverse_mode_booz_max_relative_mismatch": null,
     "explicit_relaxed_boundary_current_derivative_max_relative_mismatch": 2.6260247221222558e-05,
     "explicit_relaxed_boundary_current_derivative_median_relative_mismatch": 4.4076543971369415e-07,
     "explicit_relaxed_boundary_current_volume_relative_difference": 0.0,
     "geometry_family_breadth_active_case_count": 7,
     "geometry_family_breadth_max_active_relative_mismatch": 0.0003087991250071381,
-    "geometry_family_breadth_max_open_relative_mismatch": 6.566185595633931,
+    "geometry_family_breadth_max_open_relative_mismatch": 0.0,
+    "geometry_family_breadth_max_retired_relative_mismatch": 6.453988782153136,
     "bootstrap_current_weighted_gain": 1.085158353544606,
     "cpu_heavy_best_multiprocess_speedup": 0.5914798110217425,
     "gpu_heavy_best_multiprocess_speedup": 0.47696975821147963,
@@ -2424,8 +2430,8 @@
           "id": "implicit_equilibrium_forward_mode_derivative_benchmark",
           "lane": "autodiff",
           "maturity": "stress-gate",
-          "title": "Implicit-equilibrium forward-mode derivative audit",
-          "claim_scope": "The implicit fixed-boundary vmec_jax residual solve reaches Boozer geometry and an NTX transport observable under forward-mode autodiff on the committed QA case, but only the equilibrium-volume derivative currently matches centered finite differences on this lane.",
+          "title": "Implicit-equilibrium non-shipping derivative diagnostic",
+          "claim_scope": "The implicit fixed-boundary residual-forward path is retained as an artifact-backed diagnostic, but it is closed as non-shipping because residual contraction and Boozer/NTX surface-transport tangent parity do not pass on the committed QA case. The explicit-relaxed lane is the supported differentiable equilibrium path.",
           "literature_anchors": [
             "vmec_jax implicit fixed-boundary differentiation",
             "booz_xform_jax JAX-native Boozer transform",
@@ -2451,11 +2457,9 @@
             "docs/manuscript.md"
           ],
           "open_work": [
-            "recover Boozer-scalar parity on the implicit geometry path",
-            "recover NTX transport parity on the implicit geometry path",
-            "extend the implicit forward-mode lane from NTX transport to NTX+NEOPAX integrated current",
+            "restore an implicit-equilibrium derivative lane only after residual contraction and Boozer/NTX tangent parity pass",
             "broaden beyond the committed QA case to additional geometry families",
-            "repair reverse mode through the implicit vmec_jax -> booz_xform_jax path"
+            "keep explicit-relaxed derivatives as the shipping equilibrium route"
           ]
         },
         "status": "complete",
@@ -3076,7 +3080,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Artifact-backed geometry-family derivative breadth summary",
-          "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium derivative artifacts without promoting a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
+          "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium diagnostic artifacts without promoting a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
           "literature_anchors": [
             "Paul et al. 2019 adjoint neoclassical optimization",
             "McGreivy 2024 differentiable programming for plasma workflows",
@@ -3105,8 +3109,8 @@
           ],
           "open_work": [
             "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
-            "recover Boozer-space and NTX-transport derivative parity on the implicit path",
-            "add D11/D31/D33 parity and convergence ladders before full geometry-family promotion"
+            "add D11/D31/D33 parity and convergence ladders before full geometry-family promotion",
+            "restore implicit-equilibrium derivatives only after residual contraction and surface/transport tangent parity pass"
           ]
         },
         "status": "complete",

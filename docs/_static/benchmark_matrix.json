@@ -708,8 +708,8 @@
         "id": "implicit_equilibrium_forward_mode_derivative_benchmark",
         "lane": "autodiff",
         "maturity": "stress-gate",
-        "title": "Implicit-equilibrium forward-mode derivative audit",
-        "claim_scope": "The implicit fixed-boundary vmec_jax residual solve reaches Boozer geometry and an NTX transport observable under forward-mode autodiff on the committed QA case, but only the equilibrium-volume derivative currently matches centered finite differences on this lane.",
+        "title": "Implicit-equilibrium non-shipping derivative diagnostic",
+        "claim_scope": "The implicit fixed-boundary residual-forward path is retained as an artifact-backed diagnostic, but it is closed as non-shipping because residual contraction and Boozer/NTX surface-transport tangent parity do not pass on the committed QA case. The explicit-relaxed lane is the supported differentiable equilibrium path.",
         "literature_anchors": [
           "vmec_jax implicit fixed-boundary differentiation",
           "booz_xform_jax JAX-native Boozer transform",
@@ -735,11 +735,9 @@
           "docs/manuscript.md"
         ],
         "open_work": [
-          "recover Boozer-scalar parity on the implicit geometry path",
-          "recover NTX transport parity on the implicit geometry path",
-          "extend the implicit forward-mode lane from NTX transport to NTX+NEOPAX integrated current",
+          "restore an implicit-equilibrium derivative lane only after residual contraction and Boozer/NTX tangent parity pass",
           "broaden beyond the committed QA case to additional geometry families",
-          "repair reverse mode through the implicit vmec_jax -> booz_xform_jax path"
+          "keep explicit-relaxed derivatives as the shipping equilibrium route"
         ]
       },
       "status": "complete",
@@ -1360,7 +1358,7 @@
         "lane": "geometry-breadth",
         "maturity": "stress-gate",
         "title": "Artifact-backed geometry-family derivative breadth summary",
-        "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium derivative artifacts without promoting a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
+        "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium diagnostic artifacts without promoting a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
         "literature_anchors": [
           "Paul et al. 2019 adjoint neoclassical optimization",
           "McGreivy 2024 differentiable programming for plasma workflows",
@@ -1389,8 +1387,8 @@
         ],
         "open_work": [
           "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
-          "recover Boozer-space and NTX-transport derivative parity on the implicit path",
-          "add D11/D31/D33 parity and convergence ladders before full geometry-family promotion"
+          "add D11/D31/D33 parity and convergence ladders before full geometry-family promotion",
+          "restore implicit-equilibrium derivatives only after residual contraction and surface/transport tangent parity pass"
         ]
       },
       "status": "complete",

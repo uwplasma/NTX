@@ -273,7 +273,8 @@ artifacts and makes the current validation scope explicit:
 
 - active stress cases stay below the committed derivative thresholds
 - the implicit-volume objective closes on the committed QA case
-- implicit Boozer and NTX transport objectives remain open
+- implicit Boozer and NTX transport objectives are closed as non-shipping
+  diagnostics until residual contraction and tangent parity pass
 - broad W7-X/QI/omnigenous geometry-family validation remains planned work
 
 ![Geometry-family derivative breadth summary](docs/_static/geometry_family_breadth_summary.png)

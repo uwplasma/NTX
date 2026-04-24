@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Forward-mode derivative benchmark on the implicit fixed-boundary VMEC lane."""
+"""Forward-mode diagnostic for the non-shipping implicit fixed-boundary lane."""
 
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ import numpy as np  # noqa: E402
 from ntx import (  # noqa: E402
     GridSpec,
     build_vmec_jax_boundary_context,
+    initial_guess_vmec_jax_boundary_state,
     solve_monoenergetic_scan,
     solve_vmec_jax_boundary_state,
     surface_from_vmec_jax_state,
@@ -109,6 +110,69 @@ def _finite_difference_gradient(objective, params, *, fd_step: float) -> jnp.nda
     return jnp.asarray(columns)
 
 
+def _infer_signgs(vmec_jax, context, params) -> int:
+    state = initial_guess_vmec_jax_boundary_state(context, params, vmec_project=True)
+    geom = vmec_jax.eval_geom(state, context.static)
+    return int(vmec_jax.signgs_from_sqrtg(np.asarray(geom.sqrtg), axis_index=1))
+
+
+def _residual_history(vmec_jax, context, params) -> list[dict[str, object]]:
+    """Return a compact residual-contraction diagnostic for the implicit solver."""
+
+    state_init = initial_guess_vmec_jax_boundary_state(context, params, vmec_project=True)
+    geom = vmec_jax.eval_geom(state_init, context.static)
+    signgs = int(vmec_jax.signgs_from_sqrtg(np.asarray(geom.sqrtg), axis_index=1))
+    rows: list[dict[str, object]] = []
+    for max_iter in (5, 20, 50):
+        try:
+            result = vmec_jax.solve_fixed_boundary_residual_iter(
+                state_init,
+                context.static,
+                indata=context.indata,
+                signgs=signgs,
+                ftol=None,
+                max_iter=int(max_iter),
+                step_size=DEFAULT_STEP_SIZE,
+                vmec2000_control=True,
+                reference_mode=False,
+                backtracking=True,
+                limit_dt_from_force=True,
+                limit_update_rms=True,
+                verbose=False,
+                verbose_vmec2000_table=False,
+                jit_forces="auto",
+                use_scan=False,
+            )
+        except Exception as exc:  # pragma: no cover - optional backend diagnostic
+            rows.append(
+                {
+                    "max_iter": int(max_iter),
+                    "status": "error",
+                    "error_type": type(exc).__name__,
+                    "error_message": str(exc).splitlines()[0],
+                }
+            )
+            continue
+        history = np.asarray(getattr(result, "fsqz2_history", []), dtype=float)
+        first = None if history.size == 0 else float(history[0])
+        last = None if history.size == 0 else float(history[-1])
+        rows.append(
+            {
+                "max_iter": int(max_iter),
+                "status": "ok",
+                "n_iter": int(getattr(result, "n_iter", -1)),
+                "history_size": int(history.size),
+                "first_fsqz2": first,
+                "last_fsqz2": last,
+                "min_fsqz2": None if history.size == 0 else float(np.min(history)),
+                "contracts": bool(
+                    first is not None and last is not None and float(last) < float(first)
+                ),
+            }
+        )
+    return rows
+
+
 def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
     if not _has_boundary_stack():
         raise RuntimeError("requires local vmec_jax and booz_xform_jax checkouts")
@@ -130,6 +194,9 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
 
     params0 = jnp.zeros((len(context.specs),), dtype=jnp.float64)
     parameter_names = [spec.name for spec in context.specs]
+    inferred_signgs = _infer_signgs(vmec_jax, context, params0)
+    if inferred_signgs != context.signgs:
+        context = dataclasses.replace(context, signgs=inferred_signgs)
     implicit = ImplicitFixedBoundaryOptions(residual_tangent_mode="auto")
 
     def _state_from_params(params):
@@ -214,7 +281,11 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
                 "direct_forward_mode": direct.tolist(),
                 "finite_difference": finite_difference.tolist(),
                 "relative_mismatch": mismatch.tolist(),
-                "status": "validated" if float(np.max(mismatch)) < 1.0e-3 else "open",
+                "status": (
+                    "validated"
+                    if float(np.max(mismatch)) < 1.0e-3
+                    else "closed-not-shipped"
+                ),
             }
         )
         summary_max = max(summary_max, float(np.max(mismatch)))
@@ -247,9 +318,16 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
             "error_message": None,
         }
 
+    residual_history = _residual_history(vmec_jax, context, params0)
+    residual_contracts = all(
+        bool(row.get("contracts", False))
+        for row in residual_history
+        if row.get("status") == "ok"
+    )
+
     return {
         "benchmark": "implicit_equilibrium_forward_mode_derivative_benchmark",
-        "classification": "artifact-backed implicit-equilibrium derivative diagnostic",
+        "classification": "artifact-backed non-shipping implicit-equilibrium diagnostic",
         "case": {
             "id": "qa_lowres",
             "label": "QA low-res",
@@ -257,12 +335,24 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
             "geometry_path": "implicit_fixed_boundary_residual_solve",
             "parameter_names": parameter_names,
             "parameter_count": len(parameter_names),
+            "inferred_signgs": int(inferred_signgs),
         },
         "implicit_solver": {
             "max_iter": DEFAULT_MAX_ITER,
             "step_size": DEFAULT_STEP_SIZE,
             "vmec_project": False,
             "residual_tangent_mode": "auto",
+        },
+        "closure_decision": {
+            "status": "closed-not-shipped",
+            "supported_equilibrium_derivative_path": "explicit_relaxed_fixed_boundary",
+            "reason": (
+                "The residual-forward implicit path does not provide a validated "
+                "surface/transport derivative contract on the committed QA case. "
+                "The residual iteration is non-contracting in this diagnostic, "
+                "and Boozer/NTX tangent parity fails even though the scalar "
+                "volume probe remains small."
+            ),
         },
         "grid": {
             "n_theta": grid.n_theta,
@@ -272,27 +362,27 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
         "fd_step": float(fd_step),
         "objectives": objective_payloads,
         "claim_scope": (
-            "A representative low-order boundary control propagates through the "
-            "implicit fixed-boundary vmec_jax residual solve, booz_xform_jax, "
-            "and an NTX monoenergetic transport observable on the committed QA "
-            "case. The equilibrium-volume derivative matches centered finite "
-            "differences, while the Boozer and transport observables remain "
-            "open on this implicit lane."
+            "This artifact closes the previous implicit-equilibrium derivative "
+            "lane as a non-shipping diagnostic. The scalar equilibrium-volume "
+            "probe remains near centered finite differences, but the same "
+            "residual-forward path does not satisfy the surface/transport "
+            "parity needed for optimization claims. The supported differentiable "
+            "equilibrium path is the explicit-relaxed fixed-boundary lane."
         ),
         "summary_metrics": {
             "max_relative_mismatch": float(summary_max),
             "median_relative_mismatch": float(np.median(np.asarray(summary_samples))),
+            "residual_contracts": bool(residual_contracts),
         },
+        "residual_history": residual_history,
         "reverse_mode_diagnostic": reverse_mode_diagnostic,
         "open_work": [
-            "recover Boozer-scalar parity on the implicit vmec_jax -> booz_xform_jax path",
-            "recover NTX transport parity on the same implicit geometry path",
             (
-                "extend the implicit forward-mode lane from NTX transport to "
-                "NTX+NEOPAX integrated current"
+                "restore an implicit-equilibrium derivative lane only after the "
+                "backend residual solve contracts and Boozer/NTX tangent parity "
+                "passes on the committed QA case"
             ),
-            "broaden beyond the committed QA case to additional geometry families",
-            "repair reverse mode through the implicit vmec_jax -> booz_xform_jax path",
+            "keep explicit-relaxed fixed-boundary derivatives as the shipping equilibrium path",
         ],
     }
 
@@ -358,10 +448,13 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
             f"Forward max mismatch: {payload['summary_metrics']['max_relative_mismatch']:.2e}\n"
             "Forward median mismatch: "
             f"{payload['summary_metrics']['median_relative_mismatch']:.2e}\n\n"
+            f"Closure: {payload['closure_decision']['status']}\n"
             "Objective status:\n"
             f"  equilibrium_volume={payload['objectives'][0]['status']}\n"
             f"  booz_xform_scalar={payload['objectives'][1]['status']}\n"
             f"  ntx_transport_proxy={payload['objectives'][2]['status']}\n\n"
+            "Residual contraction:\n"
+            f"  contracts={payload['summary_metrics']['residual_contracts']}\n\n"
             f"{reverse_text}\n\n"
             "Objectives:\n"
             "  equilibrium_volume\n"
@@ -376,7 +469,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     )
 
     fig.suptitle(
-        "Implicit-equilibrium forward-mode derivative benchmark",
+        "Implicit-equilibrium derivative diagnostic: closed as non-shipping",
         fontsize=13,
     )
     output_png = output_prefix.with_suffix(".png")

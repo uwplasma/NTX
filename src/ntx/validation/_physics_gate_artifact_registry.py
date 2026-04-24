@@ -98,7 +98,7 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
-        name="implicit_equilibrium_derivative_open_stress",
+        name="implicit_equilibrium_derivative_nonshipping_diagnostic",
         category="stress",
         metric="max relative forward-mode vs finite-difference mismatch",
         relation="monitor",
@@ -108,9 +108,9 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "implicit_equilibrium_forward_mode_derivative_benchmark.json"
         ),
         rationale=(
-            "The implicit-equilibrium derivative diagnostic is kept visible as "
-            "an open stress lane: equilibrium volume closes, but Boozer-space "
-            "and NTX transport observables do not yet pass."
+            "The implicit-equilibrium derivative diagnostic is kept visible but "
+            "closed as a non-shipping lane: residual contraction and Boozer/NTX "
+            "transport tangent parity do not yet pass."
         ),
     ),
     PhysicsGate(

@@ -58,7 +58,7 @@
 | `nu_hat` | `3.000e-04` |
 | `E_r` scan | `1.000e-06` to `3.000e-03` |
 | Max relative mismatch | `1.051e-05` |
-| Best prepared speedup | `3.861x` |
+| Best prepared speedup | `4.033x` |
 
 ## Geometry-Control Derivatives
 
@@ -84,13 +84,13 @@
 | --- | ---: |
 | Controlled parameters | `rc01` |
 | Implicit solver | `iter=5, step=1.0, tangent=auto` |
-| Max AD/centered-FD mismatch | `6.566e+00` |
-| Median AD/centered-FD mismatch | `7.337e-01` |
+| Max AD/centered-FD mismatch | `6.454e+00` |
+| Median AD/centered-FD mismatch | `8.544e-01` |
 | Reverse-mode Boozer max mismatch | `unsupported` |
 | Reverse-mode Boozer status | `unsupported` |
 | Equilibrium-volume mismatch | `9.236e-05` |
-| Boozer-scalar mismatch | `7.337e-01` |
-| NTX transport mismatch | `6.566e+00` |
+| Boozer-scalar mismatch | `8.544e-01` |
+| NTX transport mismatch | `6.454e+00` |
 
 ## Explicit-Relaxed Boundary Current Derivatives
 
@@ -115,11 +115,13 @@
 | Quantity | Value |
 | --- | ---: |
 | Active artifact-backed cases | `7` |
-| Open implicit objectives | `2` |
+| Open implicit objectives | `0` |
+| Retired implicit diagnostics | `2` |
 | Active case ids | `analytic_geometry_control, file_backed_boozmn_sample, file_backed_vmec_sample, boundary_projected_current, explicit_relaxed_qa_lowres, explicit_relaxed_qh_warm_start, implicit_equilibrium_volume` |
-| Open case ids | `implicit_booz_xform_scalar, implicit_ntx_transport_proxy` |
+| Open case ids | `` |
+| Retired implicit ids | `implicit_booz_xform_scalar, implicit_ntx_transport_proxy` |
 | Max active AD/centered-FD mismatch | `3.088e-04` |
-| Max open implicit mismatch | `6.566e+00` |
+| Max retired implicit mismatch | `6.454e+00` |
 
 ## Bootstrap-Current Optimization
 
@@ -129,8 +131,8 @@
 | Baseline scale | `1.000` |
 | Optimized scale | `1.297` |
 | Weighted current gain | `1.085x` |
-| Serial scan time | `1.451 s` |
-| Parallel scan time | `2.405 s` |
+| Serial scan time | `0.401 s` |
+| Parallel scan time | `1.706 s` |
 
 ## Performance
 
@@ -154,7 +156,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `fb88f7327e22ec54cfe67b279ae8f42dea9a8563` |
+| Commit | `8b8873ac0c00a31db7038abaa8e2cea9e4df4116` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

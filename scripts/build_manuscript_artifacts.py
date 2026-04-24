@@ -201,6 +201,7 @@ def build_payload() -> dict:
             "geometry_family_breadth": {
                 "active_cases": geometry_family_breadth["active_cases"],
                 "open_cases": geometry_family_breadth["open_cases"],
+                "retired_cases": geometry_family_breadth.get("retired_cases", []),
                 "summary_metrics": geometry_family_breadth["summary_metrics"],
                 "claim_scope": geometry_family_breadth["claim_scope"],
                 "open_work": geometry_family_breadth["open_work"],
@@ -299,6 +300,12 @@ def build_payload() -> dict:
             ),
             "geometry_family_breadth_max_open_relative_mismatch": (
                 geometry_family_breadth["summary_metrics"]["max_open_relative_mismatch"]
+            ),
+            "geometry_family_breadth_max_retired_relative_mismatch": (
+                geometry_family_breadth["summary_metrics"].get(
+                    "max_retired_relative_mismatch",
+                    0.0,
+                )
             ),
             "bootstrap_current_weighted_gain": science["weighted_gain"],
             "cpu_heavy_best_multiprocess_speedup": cpu_best,
@@ -405,6 +412,7 @@ def build_markdown(payload: dict) -> str:
     ]["median_relative_mismatch"]
     geometry_family_active = geometry_family_breadth["active_cases"]
     geometry_family_open = geometry_family_breadth["open_cases"]
+    geometry_family_retired = geometry_family_breadth.get("retired_cases", [])
     geometry_family_metrics = geometry_family_breadth["summary_metrics"]
     implicit_solver = implicit_equilibrium_forward_mode_derivatives["implicit_solver"]
     implicit_solver_text = (
@@ -630,6 +638,10 @@ def build_markdown(payload: dict) -> str:
                 f"`{geometry_family_metrics['open_case_count']}` |"
             ),
             (
+                "| Retired implicit diagnostics | "
+                f"`{geometry_family_metrics.get('retired_case_count', 0)}` |"
+            ),
+            (
                 "| Active case ids | `"
                 + ", ".join(case["id"] for case in geometry_family_active)
                 + "` |"
@@ -640,12 +652,17 @@ def build_markdown(payload: dict) -> str:
                 + "` |"
             ),
             (
+                "| Retired implicit ids | `"
+                + ", ".join(case["id"] for case in geometry_family_retired)
+                + "` |"
+            ),
+            (
                 "| Max active AD/centered-FD mismatch | "
                 f"`{geometry_family_metrics['max_active_relative_mismatch']:.3e}` |"
             ),
             (
-                "| Max open implicit mismatch | "
-                f"`{geometry_family_metrics['max_open_relative_mismatch']:.3e}` |"
+                "| Max retired implicit mismatch | "
+                f"`{geometry_family_metrics.get('max_retired_relative_mismatch', 0.0):.3e}` |"
             ),
             "",
             "## Bootstrap-Current Optimization",
@@ -798,16 +815,18 @@ def build_claims_markdown(payload: dict) -> str:
             ),
             (
                 "- The implicit fixed-boundary `vmec_jax -> booz_xform_jax -> NTX` "
-                "diagnostic is mixed on the committed QA case: the equilibrium-volume "
+                "diagnostic is closed as non-shipping on the committed QA case: "
+                "the equilibrium-volume "
                 "derivative matches centered finite differences with relative mismatch "
                 f"`{claims['implicit_equilibrium_volume_relative_mismatch']:.3e}`, "
-                "while the Boozer scalar and NTX transport observables remain open at "
+                "while the Boozer scalar and NTX transport observables fail the "
+                "surface/transport parity contract at "
                 f"`{claims['implicit_equilibrium_booz_relative_mismatch']:.3e}` and "
                 f"`{claims['implicit_equilibrium_transport_relative_mismatch']:.3e}`."
             ),
             (
                 "- The matching reverse-mode Boozer-scalar diagnostic on the "
-                "implicit-equilibrium lane remains unavailable because the "
+                "non-shipping implicit-equilibrium diagnostic remains unavailable because the "
                 "current JAX transform rejects the implicit dynamic-loop solve "
                 "on that path."
             ),
@@ -829,9 +848,9 @@ def build_claims_markdown(payload: dict) -> str:
                 "analytic, file-backed, boundary-projected, explicit-relaxed, "
                 "and implicit-volume stress cases with maximum active mismatch "
                 f"`{claims['geometry_family_breadth_max_active_relative_mismatch']:.3e}`. "
-                "The remaining open implicit Boozer and NTX transport objectives "
-                "reach maximum mismatch "
-                f"`{claims['geometry_family_breadth_max_open_relative_mismatch']:.3e}` "
+                "The implicit Boozer and NTX transport objectives are closed as "
+                "non-shipping diagnostics with maximum mismatch "
+                f"`{claims['geometry_family_breadth_max_retired_relative_mismatch']:.3e}` "
                 "and are excluded from promoted geometry-family claims."
             ),
             (
