@@ -719,12 +719,17 @@ claims until they are anchored to stronger external baselines.
     if it keeps the fast-lane runtime stable
 - [x] the literature/testing plan now has a maintained benchmark matrix:
   - `src/ntx/validation/benchmark_matrix.py` is the source of truth
+  - lane-owned benchmark-entry modules now split monoenergetic, bootstrap,
+    integrated-workflow, autodiff, profile, performance, and geometry-breadth
+    metadata while preserving the public `benchmark_matrix()` facade
   - `scripts/build_benchmark_matrix.py` writes
     `docs/_static/benchmark_matrix.json`
   - `docs/benchmark-matrix.md` documents positive gates, stress gates,
     software gates, and planned lanes
   - `tests/test_benchmark_matrix.py` requires every active lane to declare
     existing scripts, tests, artifacts, and docs
+  - the same test file now requires every benchmark claim to carry literature
+    anchors, docs, and the right active-versus-planned artifact contract
   - planned lanes now explicitly keep the full Escoto-style geometry-family
     reproduction and larger geometry-control autodiff validation visible until
     they are ready for artifacts
