@@ -1,0 +1,639 @@
+from __future__ import annotations
+
+import json
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Literal
+
+GateCategory = Literal["analytical", "independent", "transfer", "stress"]
+GateRelation = Literal["<=", ">=", "monitor", "test"]
+GateStatus = Literal["pass", "fail", "monitor", "missing"]
+
+
+@dataclass(frozen=True)
+class PhysicsGate:
+    name: str
+    category: GateCategory
+    metric: str
+    relation: GateRelation
+    threshold: float | None
+    source: str
+    rationale: str
+
+    def as_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class PhysicsGateResult:
+    gate: PhysicsGate
+    value: float | None
+    status: GateStatus
+    details: str = ""
+
+    def as_dict(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "gate": self.gate.as_dict(),
+            "value": self.value,
+            "status": self.status,
+        }
+        if self.details:
+            payload["details"] = self.details
+        return payload
+
+
+ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
+    PhysicsGate(
+        name="onsager_symmetry",
+        category="analytical",
+        metric="|D13 + D31|",
+        relation="test",
+        threshold=None,
+        source="tests/test_solver.py and examples/validation_summary.py",
+        rationale=(
+            "The monoenergetic solve must preserve the Onsager symmetry expected "
+            "for the source split and the Legendre-space discretization."
+        ),
+    ),
+    PhysicsGate(
+        name="p2_projection_exact_recovery",
+        category="analytical",
+        metric="generated Sonine/Hankel P=2 recovery",
+        relation="<=",
+        threshold=1.0e-12,
+        source="local imported closure tests/test_moment_projection.py",
+        rationale=(
+            "Any higher-order closure work must reduce exactly to the present "
+            "three-moment system at P=2 before new physics is introduced."
+        ),
+    ),
+    PhysicsGate(
+        name="low_order_collision_block_recovery",
+        category="analytical",
+        metric="generated low-order momentum-conserving collision blocks",
+        relation="test",
+        threshold=None,
+        source="standard low-order moment equations and local closure tests",
+        rationale=(
+            "The active low-order collisional blocks must be reproducible from "
+            "the standard momentum-conserving moment equations, up to the "
+            "heat-flow basis convention used by the runtime."
+        ),
+    ),
+    PhysicsGate(
+        name="observable_map_fixed",
+        category="analytical",
+        metric="U_parallel = n c0",
+        relation="test",
+        threshold=None,
+        source="closure derivation in the manuscript and fixed-field audits",
+        rationale=(
+            "The parallel-flow observable is fixed by the Sonine basis and must "
+            "not be changed to fit a benchmark."
+        ),
+    ),
+    PhysicsGate(
+        name="intrinsic_ambipolarity_symmetric_limit",
+        category="analytical",
+        metric="symmetric-limit ambipolar structure preserved",
+        relation="test",
+        threshold=None,
+        source=(
+            "Sugama–Nishimura finite-order moment-equation requirements and "
+            "tests/test_physics_gates.py"
+        ),
+        rationale=(
+            "At every finite truncation, the projected closure must preserve the "
+            "intrinsic ambipolar-diffusion structure in symmetric limits."
+        ),
+    ),
+    PhysicsGate(
+        name="spitzer_inverse_collisionality_limit",
+        category="analytical",
+        metric="constant-field D33_spitzer proportional to 1/nu_hat",
+        relation="test",
+        threshold=None,
+        source="tests/test_physics_gates.py",
+        rationale=(
+            "In the constant-field limit the drift source vanishes and the "
+            "remaining parallel-conductivity branch should reduce to the "
+            "Spitzer-like inverse-collisionality normalization used by NTX."
+        ),
+    ),
+    PhysicsGate(
+        name="operator_parameter_derivative_consistency",
+        category="analytical",
+        metric="dD_k/dnu_hat and dD_k/depsi_hat match operator autodiff",
+        relation="test",
+        threshold=None,
+        source="tests/test_operators.py",
+        rationale=(
+            "The implicit-adjoint path differentiates through hand-coded "
+            "parameter-derivative blocks, so those blocks must be exactly the "
+            "derivatives of the assembled Legendre-space operator with respect "
+            "to collisionality and radial-electric-field normalization."
+        ),
+    ),
+    PhysicsGate(
+        name="momentum_conservation_null_mode",
+        category="analytical",
+        metric="common-flow collisional null mode preserved",
+        relation="test",
+        threshold=None,
+        source="momentum-restoring closure derivation and local closure tests",
+        rationale=(
+            "The higher-order collisional blocks must conserve total parallel "
+            "momentum, so a common-flow null mode remains present."
+        ),
+    ),
+    PhysicsGate(
+        name="particle_conservation_invariant",
+        category="analytical",
+        metric="collisional particle invariant preserved",
+        relation="test",
+        threshold=None,
+        source="linearized collision-operator moment-equation constraints",
+        rationale=(
+            "The projected collision model must not generate a spurious particle "
+            "source at any truncation."
+        ),
+    ),
+    PhysicsGate(
+        name="energy_conservation_invariant",
+        category="analytical",
+        metric="collisional energy invariant preserved",
+        relation="test",
+        threshold=None,
+        source="linearized collision-operator moment-equation constraints",
+        rationale=(
+            "The collisional blocks must preserve the energy invariant in the "
+            "same projected basis used for higher-order closure."
+        ),
+    ),
+    PhysicsGate(
+        name="collision_operator_self_adjointness",
+        category="analytical",
+        metric="weighted collisional form is self-adjoint",
+        relation="test",
+        threshold=None,
+        source="finite-order Laguerre/Sonine Coulomb-operator literature",
+        rationale=(
+            "The finite-order collisional operator should preserve the "
+            "self-adjoint structure underlying Onsager symmetry and the H-theorem."
+        ),
+    ),
+    PhysicsGate(
+        name="entropy_production_nonnegative",
+        category="analytical",
+        metric="symmetric collisional form is positive semidefinite",
+        relation="test",
+        threshold=None,
+        source="Sugama–Horton entropy-production constraints",
+        rationale=(
+            "The finite-order collision model must not violate the "
+            "non-negativity of entropy production."
+        ),
+    ),
+)
+
+
+ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
+    PhysicsGate(
+        name="monoenergetic_validation_summary",
+        category="analytical",
+        metric="max finest plotted Legendre-convergence error",
+        relation="<=",
+        threshold=2.5e-1,
+        source="docs/_static/validation_summary.json",
+        rationale=(
+            "The repository-owned DKES-style and VMEC validation surfaces must "
+            "show bounded Legendre convergence for the promoted monoenergetic "
+            "coefficient benchmark before broader literature comparisons are "
+            "interpreted."
+        ),
+    ),
+    PhysicsGate(
+        name="w7x_integrated_rebuild_raw",
+        category="transfer",
+        metric="best W7-X imported-workflow max relative error",
+        relation="<=",
+        threshold=2.0e-2,
+        source="docs/_static/bootstrap_current_reference_audit_w7x.json",
+        rationale=(
+            "The rebuilt raw-branch integrated workflow must stay aligned with "
+            "the frozen W7-X reference profile."
+        ),
+    ),
+    PhysicsGate(
+        name="prepared_derivative_path_consistency",
+        category="analytical",
+        metric="max relative prepared-vs-direct derivative mismatch",
+        relation="<=",
+        threshold=1.0e-4,
+        source="docs/_static/derivative_path_benchmark.json",
+        rationale=(
+            "The prepared custom-VJP derivative path supports sensitivity, "
+            "inverse-design, and uncertainty workflows, so it must agree with "
+            "direct JAX differentiation on the committed scalar benchmark."
+        ),
+    ),
+    PhysicsGate(
+        name="geometry_control_derivative_stress",
+        category="stress",
+        metric="max relative direct-AD vs finite-difference mismatch",
+        relation="<=",
+        threshold=2.0e-4,
+        source="docs/_static/geometry_control_derivative_benchmark.json",
+        rationale=(
+            "Owned analytic geometry-control derivatives should agree with "
+            "centered finite differences before the same workflow is used for "
+            "sensitivity, inverse-design, or uncertainty studies."
+        ),
+    ),
+    PhysicsGate(
+        name="file_backed_geometry_control_derivative_stress",
+        category="stress",
+        metric="max relative direct-AD vs finite-difference mismatch",
+        relation="<=",
+        threshold=5.0e-4,
+        source="docs/_static/file_backed_geometry_control_derivative_benchmark.json",
+        rationale=(
+            "The geometry-control derivative audit must transfer from the "
+            "owned analytic surface to repository-owned file-backed Boozer and "
+            "VMEC sample surfaces."
+        ),
+    ),
+    PhysicsGate(
+        name="boundary_forward_mode_current_derivative_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="<=",
+        threshold=1.0e-5,
+        source="docs/_static/boundary_forward_mode_current_derivative_benchmark.json",
+        rationale=(
+            "The boundary-projected geometry path through optional JAX "
+            "geometry backends, NTX, and the integrated-current objective must "
+            "stay differentiable on the committed sample case."
+        ),
+    ),
+    PhysicsGate(
+        name="explicit_relaxed_boundary_current_derivative_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="<=",
+        threshold=1.0e-4,
+        source=(
+            "docs/_static/"
+            "explicit_relaxed_boundary_current_derivative_benchmark.json"
+        ),
+        rationale=(
+            "The explicit-relaxed boundary-to-current family should preserve "
+            "forward-mode agreement with centered finite differences on the "
+            "committed QA/QH cases."
+        ),
+    ),
+    PhysicsGate(
+        name="implicit_equilibrium_derivative_open_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="monitor",
+        threshold=None,
+        source=(
+            "docs/_static/"
+            "implicit_equilibrium_forward_mode_derivative_benchmark.json"
+        ),
+        rationale=(
+            "The implicit-equilibrium derivative diagnostic is kept visible as "
+            "an open stress lane: equilibrium volume closes, but Boozer-space "
+            "and NTX transport observables do not yet pass."
+        ),
+    ),
+    PhysicsGate(
+        name="precise_qs_redl_vs_sfincs",
+        category="independent",
+        metric="interior max relative error of Redl vs archived SFINCS",
+        relation="<=",
+        threshold=1.0e-1,
+        source="docs/_static/bootstrap_current_fixed_field_validation.json",
+        rationale=(
+            "The precise-QS benchmark should reproduce the established Redl "
+            "agreement with archived SFINCS on the interior window."
+        ),
+    ),
+    PhysicsGate(
+        name="precise_qs_ntx_neopax_closure_stress",
+        category="stress",
+        metric="interior max relative error of NTX+NEOPAX vs archived SFINCS",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/bootstrap_current_fixed_field_validation.json",
+        rationale=(
+            "This benchmark is retained as a closure-model stress test. It is "
+            "monitored continuously but is not a solver-side release gate."
+        ),
+    ),
+    PhysicsGate(
+        name="pmax_convergence_precise_qs",
+        category="stress",
+        metric="max relative change between successive Pmax levels",
+        relation="monitor",
+        threshold=None,
+        source="future closure_pmax_convergence.json artifact",
+        rationale=(
+            "Higher-order closure work must show controlled convergence in "
+            "Pmax on the precise-QS QA/QH stress family."
+        ),
+    ),
+    PhysicsGate(
+        name="w7x_pmax_transfer_regression",
+        category="transfer",
+        metric="integrated W7-X max relative error under higher-order closure",
+        relation="monitor",
+        threshold=None,
+        source="future closure_pmax_convergence.json artifact",
+        rationale=(
+            "Any higher-order closure extension must transfer to the "
+            "integrated W7-X workflow without regressing the imported path."
+        ),
+    ),
+)
+
+
+def physics_gate_registry() -> tuple[PhysicsGate, ...]:
+    return ANALYTICAL_GATES + ARTIFACT_GATES
+
+
+def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
+    root = Path(root)
+    static_root = root / "docs" / "_static"
+    results: list[PhysicsGateResult] = []
+
+    validation_gate = _gate_by_name("monoenergetic_validation_summary")
+    validation_path = static_root / "validation_summary.json"
+    if validation_path.exists():
+        payload = json.loads(validation_path.read_text())
+        metrics = payload["summary_metrics"]
+        finest_error = max(
+            float(metrics["dkes_finest_plotted_error"]),
+            float(metrics["vmec_finest_plotted_error"]),
+        )
+        results.append(
+            PhysicsGateResult(
+                gate=validation_gate,
+                value=finest_error,
+                status="pass"
+                if finest_error <= float(validation_gate.threshold or 0.0)
+                else "fail",
+                details=(
+                    "max of DKES-style and VMEC finest plotted N_xi errors "
+                    "against the finest validation-summary reference"
+                ),
+            )
+        )
+    else:
+        results.append(
+            PhysicsGateResult(
+                gate=validation_gate,
+                value=None,
+                status="missing",
+                details=f"missing artifact: {validation_path}",
+            )
+        )
+
+    w7x_gate = _gate_by_name("w7x_integrated_rebuild_raw")
+    w7x_path = static_root / "bootstrap_current_reference_audit_w7x.json"
+    if w7x_path.exists():
+        payload = json.loads(w7x_path.read_text())
+        best_error = min(
+            float(item["max_relative_error"])
+            for item in payload["bootstrap_current_errors"]
+        )
+        results.append(_evaluate_scalar_gate(w7x_gate, best_error))
+    else:
+        results.append(
+            PhysicsGateResult(
+                gate=w7x_gate,
+                value=None,
+                status="missing",
+                details=f"missing artifact: {w7x_path}",
+            )
+        )
+
+    derivative_gate = _gate_by_name("prepared_derivative_path_consistency")
+    derivative_path = static_root / "derivative_path_benchmark.json"
+    if derivative_path.exists():
+        payload = json.loads(derivative_path.read_text())
+        max_mismatch = max(float(item) for item in payload["max_relative_mismatch"])
+        speedups = [float(item) for item in payload["speedup_prepared_vs_direct"]]
+        results.append(
+            PhysicsGateResult(
+                gate=derivative_gate,
+                value=max_mismatch,
+                status="pass"
+                if max_mismatch <= float(derivative_gate.threshold or 0.0)
+                else "fail",
+                details=(
+                    "prepared derivative path compared with direct reverse-mode; "
+                    f"minimum reported speedup={min(speedups):.3g}"
+                ),
+            )
+        )
+    else:
+        results.append(
+            PhysicsGateResult(
+                gate=derivative_gate,
+                value=None,
+                status="missing",
+                details=f"missing artifact: {derivative_path}",
+            )
+        )
+
+    _append_summary_metric_gate(
+        results,
+        gate_name="geometry_control_derivative_stress",
+        path=static_root / "geometry_control_derivative_benchmark.json",
+        metric_key="max_relative_mismatch",
+        details=(
+            "owned analytic geometry-control direct AD compared with centered "
+            "finite differences"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
+        gate_name="file_backed_geometry_control_derivative_stress",
+        path=static_root / "file_backed_geometry_control_derivative_benchmark.json",
+        metric_key="max_relative_mismatch",
+        details=(
+            "file-backed Boozer/VMEC geometry-control direct AD compared with "
+            "centered finite differences"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
+        gate_name="boundary_forward_mode_current_derivative_stress",
+        path=static_root / "boundary_forward_mode_current_derivative_benchmark.json",
+        metric_key="max_relative_mismatch",
+        details=(
+            "boundary-projected forward-mode derivatives compared with "
+            "centered finite differences"
+        ),
+    )
+
+    explicit_gate = _gate_by_name("explicit_relaxed_boundary_current_derivative_stress")
+    explicit_path = (
+        static_root / "explicit_relaxed_boundary_current_derivative_benchmark.json"
+    )
+    if explicit_path.exists():
+        payload = json.loads(explicit_path.read_text())
+        metrics = payload["summary_metrics"]
+        max_mismatch = float(metrics["max_relative_mismatch"])
+        volume_difference = float(
+            metrics["max_ordinary_explicit_volume_relative_difference"]
+        )
+        results.append(
+            _evaluate_scalar_gate(
+                explicit_gate,
+                max_mismatch,
+                details=(
+                    "explicit-relaxed forward-mode derivatives compared with "
+                    "centered finite differences; max ordinary-vs-explicit "
+                    f"volume relative difference={volume_difference:.3g}"
+                ),
+            )
+        )
+    else:
+        _append_missing_artifact_gate(results, explicit_gate, explicit_path)
+
+    _append_summary_metric_gate(
+        results,
+        gate_name="implicit_equilibrium_derivative_open_stress",
+        path=static_root / "implicit_equilibrium_forward_mode_derivative_benchmark.json",
+        metric_key="max_relative_mismatch",
+        details=(
+            "monitored implicit-equilibrium diagnostic; volume derivative "
+            "closes while Boozer-space and NTX transport observables remain open"
+        ),
+    )
+
+    fixed_gate_redl = _gate_by_name("precise_qs_redl_vs_sfincs")
+    fixed_gate_closure = _gate_by_name("precise_qs_ntx_neopax_closure_stress")
+    fixed_path = static_root / "bootstrap_current_fixed_field_validation.json"
+    if fixed_path.exists():
+        payload = json.loads(fixed_path.read_text())
+        redl_error = max(
+            float(case["max_relative_error_vs_sfincs_interior"]["Redl"])
+            for case in payload["cases"].values()
+        )
+        closure_error = max(
+            float(case["max_relative_error_vs_sfincs_interior"]["NTX+NEOPAX"])
+            for case in payload["cases"].values()
+        )
+        results.append(_evaluate_scalar_gate(fixed_gate_redl, redl_error))
+        results.append(
+            PhysicsGateResult(
+                gate=fixed_gate_closure,
+                value=closure_error,
+                status="monitor",
+                details="tracked as a closure-model stress metric, not a parity gate",
+            )
+        )
+    else:
+        for gate in (fixed_gate_redl, fixed_gate_closure):
+            results.append(
+                PhysicsGateResult(
+                    gate=gate,
+                    value=None,
+                    status="missing",
+                    details=f"missing artifact: {fixed_path}",
+                )
+            )
+
+    convergence_path = static_root / "closure_pmax_convergence.json"
+    for gate in (
+        _gate_by_name("pmax_convergence_precise_qs"),
+        _gate_by_name("w7x_pmax_transfer_regression"),
+    ):
+        if convergence_path.exists():
+            payload = json.loads(convergence_path.read_text())
+            key = (
+                "precise_qs_max_successive_change"
+                if gate.name == "pmax_convergence_precise_qs"
+                else "w7x_max_relative_error"
+            )
+            results.append(
+                PhysicsGateResult(
+                    gate=gate,
+                    value=float(payload[key]),
+                    status="monitor",
+                    details="tracked for higher-order closure development",
+                )
+            )
+        else:
+            results.append(
+                PhysicsGateResult(
+                    gate=gate,
+                    value=None,
+                    status="missing",
+                    details=f"missing artifact: {convergence_path}",
+                )
+            )
+
+    return results
+
+
+def _gate_by_name(name: str) -> PhysicsGate:
+    for gate in physics_gate_registry():
+        if gate.name == name:
+            return gate
+    raise KeyError(name)
+
+
+def _append_summary_metric_gate(
+    results: list[PhysicsGateResult],
+    *,
+    gate_name: str,
+    path: Path,
+    metric_key: str,
+    details: str,
+) -> None:
+    gate = _gate_by_name(gate_name)
+    if path.exists():
+        payload = json.loads(path.read_text())
+        value = float(payload["summary_metrics"][metric_key])
+        results.append(_evaluate_scalar_gate(gate, value, details=details))
+    else:
+        _append_missing_artifact_gate(results, gate, path)
+
+
+def _append_missing_artifact_gate(
+    results: list[PhysicsGateResult],
+    gate: PhysicsGate,
+    path: Path,
+) -> None:
+    results.append(
+        PhysicsGateResult(
+            gate=gate,
+            value=None,
+            status="missing",
+            details=f"missing artifact: {path}",
+        )
+    )
+
+
+def _evaluate_scalar_gate(
+    gate: PhysicsGate,
+    value: float,
+    *,
+    details: str = "",
+) -> PhysicsGateResult:
+    if gate.relation == "<=":
+        assert gate.threshold is not None
+        status: GateStatus = "pass" if value <= gate.threshold else "fail"
+    elif gate.relation == ">=":
+        assert gate.threshold is not None
+        status = "pass" if value >= gate.threshold else "fail"
+    elif gate.relation == "monitor":
+        status = "monitor"
+    else:
+        status = "monitor"
+    return PhysicsGateResult(gate=gate, value=value, status=status, details=details)
