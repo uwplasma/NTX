@@ -60,8 +60,11 @@ Interpretation:
   choice on both CPU and GPU for small and medium scans
 - the smallest GPU point is startup dominated and should not be interpreted as a
   real throughput crossover
-- on the office workstation, the multiprocess lane is numerically correct but
-  still slower than serial over the tested smoke-grid range
+- on the refreshed local CPU run, the multiprocess and single-process
+  device-parallel lanes are numerically correct but still slower than serial
+  over the tested smoke-grid range
+- the refreshed CPU smoke artifact reports process peak resident memory of
+  about `1.76 GB`
 
 ## Heavier-Grid Scaling
 
@@ -76,16 +79,20 @@ docs/_static/performance_scaling_heavy.pdf
 
 Interpretation:
 
-- on the heavier DKES grid `17 x 25 x 16`, the local 4-worker CPU multiprocess
-  lane is close to the serial batched path by `32` cases and becomes faster by
-  `64` cases
+- on the heavier DKES grid `17 x 25 x 16`, the refreshed local CPU artifact
+  shows the single-process device-parallel lane crossing serial by `32` cases,
+  while the 4-worker CPU multiprocess lane remains slower through `64` cases
 - on the same heavier grid, the office 2-GPU multiprocess lane remains slower
   than serial in the tested range under the current shared-office software and
   hardware stack
+- the refreshed CPU heavy artifact reports process peak resident memory of
+  about `2.70 GB`
 - the practical guidance from these measurements is:
   - use serial batched JAX for small and medium studies
-  - use the multiprocess lane when the run is large enough that process startup
-    is amortized, especially on CPU
+  - use the single-process device-parallel lane on CPU only after checking that
+    the target grid/scan size has crossed over
+  - use the multiprocess lane only when a measured workload shows enough
+    amortization of process startup on the target machine
   - treat office multi-GPU multiprocess execution as a robust isolation path
     first, and as a throughput path only after benchmarking the specific
     production workload
@@ -103,7 +110,9 @@ Fresh runs of `scripts/benchmark_scaling.py` and
 `scripts/profile_parallel_runtime.py` also record process peak resident memory
 as `max_rss_mb`. That value is intentionally treated as a run-environment
 metric rather than a parity target, but it keeps memory visible whenever timing
-artifacts are regenerated.
+artifacts are regenerated. The refreshed local CPU artifacts include this
+field; the GPU artifacts should be refreshed from a clean GPU checkout before
+using them for memory comparisons.
 
 They were collected on:
 
