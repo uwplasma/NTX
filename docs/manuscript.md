@@ -20,18 +20,19 @@ examples.
 2. `autodiff_neopax_profiles.{png,pdf}`
 3. `autodiff_profile_uncertainty.{png,pdf,json}`
 4. `geometry_control_derivative_benchmark.{png,pdf,json}`
-5. `boundary_forward_mode_current_derivative_benchmark.{png,pdf,json}`
-6. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
-7. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
-8. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-9. `bootstrap_current_robust_optimization.{png,pdf,json}`
-10. `performance_scaling_smoke.{png,pdf}`
-11. `ambipolar_profile.{png,pdf}`
-12. `ambipolar_profile_family.{png,pdf}`
-13. `profile_force_reconstruction_audit.{png,pdf,json}`
-14. `profile_control_optimization.{png,pdf}`
-15. `profile_basis_optimization.{png,pdf}`
-16. `profile_transport_loop.{png,pdf}`
+5. `file_backed_geometry_control_derivative_benchmark.{png,pdf,json}`
+6. `boundary_forward_mode_current_derivative_benchmark.{png,pdf,json}`
+7. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
+8. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
+9. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+10. `bootstrap_current_robust_optimization.{png,pdf,json}`
+11. `performance_scaling_smoke.{png,pdf}`
+12. `ambipolar_profile.{png,pdf}`
+13. `ambipolar_profile_family.{png,pdf}`
+14. `profile_force_reconstruction_audit.{png,pdf,json}`
+15. `profile_control_optimization.{png,pdf}`
+16. `profile_basis_optimization.{png,pdf}`
+17. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 

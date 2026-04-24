@@ -334,6 +334,10 @@ Do not declare this program complete until all of the following are true:
   to the benchmark matrix and a physics-gate artifact check: the optimized
   weighted-current proxy must remain at least as large as the committed
   baseline before the manuscript cites the gain
+- the manuscript figure inventory now carries the file-backed geometry-control
+  derivative audit in the supplement bundle, and the boundary-forward
+  derivative audit is explicitly marked as a manuscript figure in the benchmark
+  matrix metadata
 - several core modules remain too large for stable review and targeted testing:
   - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
   - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)

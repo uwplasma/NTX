@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_benchmark_matrix_has_unique_ids_and_expected_lanes():
     entries = benchmark_matrix()
+    by_id = {entry.id: entry for entry in entries}
     ids = [entry.id for entry in entries]
     assert len(ids) == len(set(ids))
     assert "monoenergetic_validation_summary" in ids
@@ -35,6 +36,9 @@ def test_benchmark_matrix_has_unique_ids_and_expected_lanes():
     assert "geometry_breadth_hidden_symmetry" in ids
     assert "full_monoenergetic_geometry_family" in ids
     assert "large_geometry_control_autodiff" in ids
+    assert by_id["boundary_forward_mode_current_derivative_benchmark"].manuscript_figures == (
+        "boundary_forward_mode_current_derivative_benchmark",
+    )
 
 
 def test_benchmark_matrix_paths_exist_for_active_lanes():

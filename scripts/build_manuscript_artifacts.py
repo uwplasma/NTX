@@ -80,6 +80,7 @@ def build_payload() -> dict:
         "profiles",
         "profile_uncertainty",
         "geometry_derivative",
+        "file_backed_geometry_derivative",
         "boundary_forward_mode",
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",

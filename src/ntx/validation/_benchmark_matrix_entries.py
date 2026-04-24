@@ -310,7 +310,7 @@ def benchmark_matrix() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
                 "docs/_static/boundary_forward_mode_current_derivative_benchmark.json",
             ),
-            manuscript_figures=(),
+            manuscript_figures=("boundary_forward_mode_current_derivative_benchmark",),
             docs=("docs/autodiff.md", "docs/research-roadmap.md"),
             open_work=(
                 (

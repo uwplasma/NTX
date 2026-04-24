@@ -25,6 +25,7 @@ FIGURE_PRESETS = {
         "primitive_transport",
         "derivative_benchmark",
         "geometry_derivative",
+        "file_backed_geometry_derivative",
         "boundary_forward_mode",
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",
@@ -52,6 +53,7 @@ FIGURE_PRESETS = {
         "ambipolar_family",
         "profile_reconstruction",
         "geometry_derivative",
+        "file_backed_geometry_derivative",
         "boundary_forward_mode",
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",
@@ -278,6 +280,13 @@ def main() -> None:
             _manifest_path(output_dir / "geometry_control_derivative_benchmark.pdf"),
             _manifest_path(output_dir / "geometry_control_derivative_benchmark.json"),
         ]
+
+    if "file_backed_geometry_derivative" in selected:
+        manifest["file_backed_geometry_derivative"] = _copy_existing_static(
+            "file_backed_geometry_control_derivative_benchmark",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
 
     if "boundary_forward_mode" in selected:
         manifest["boundary_forward_mode"] = _copy_existing_static(
