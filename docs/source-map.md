@@ -20,7 +20,7 @@ tree.
 | Profile-grade imported workflows | `src/ntx/profiles.py`, `src/ntx/_profiles_types.py`, `src/ntx/_profiles_radial.py`, `src/ntx/_profiles_channels.py`, `src/ntx/_profiles_primitives.py`, `src/ntx/_profiles_eval.py`, `src/ntx/_profiles_controls.py`, `src/ntx/_profiles_transport_terms.py`, `src/ntx/_profiles_transport_closure.py`, `src/ntx/_profiles_transport.py` | radial profile helpers, scan-channel interpolation, primitive-force reconstruction, ambipolar `E_r(r)` solve, controls, normalized transport terms, closures, and transport loops |
 | Throughput-oriented multi-device execution | `src/ntx/parallel.py` | `solve_monoenergetic_multiprocess_scan(...)` |
 | Autodiff examples and optimization helpers | `src/ntx/autodiff.py`, `src/ntx/_autodiff_types.py`, `src/ntx/_autodiff_helpers.py`, `src/ntx/_autodiff_workflows.py`, `src/ntx/_autodiff_inverse.py`, `src/ntx/_autodiff_derivatives.py`, `src/ntx/_autodiff_profile.py`, `src/ntx/_autodiff_bootstrap.py` | inverse, sensitivity, uncertainty, and bootstrap-current optimization helpers |
-| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/validation/_benchmark_matrix_types.py`, `src/ntx/validation/_benchmark_matrix_entries.py`, `src/ntx/validation/physics_gates.py`, `src/ntx/validation/_physics_gate_types.py`, `src/ntx/validation/_physics_gate_registry.py`, `src/ntx/validation/_physics_gate_artifacts.py` | benchmark-matrix evaluator, benchmark claim types, maintained claim metadata, physics-gate definitions, and artifact-gate evaluation |
+| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/validation/_benchmark_matrix_types.py`, `src/ntx/validation/_benchmark_matrix_entries.py`, `src/ntx/validation/physics_gates.py`, `src/ntx/validation/_physics_gate_types.py`, `src/ntx/validation/_physics_gate_analytical.py`, `src/ntx/validation/_physics_gate_artifact_registry.py`, `src/ntx/validation/_physics_gate_registry.py`, `src/ntx/validation/_physics_gate_artifacts.py` | benchmark-matrix evaluator, benchmark claim types, maintained claim metadata, analytical physics-gate definitions, artifact-backed gate definitions, registry facade, and artifact-gate evaluation |
 
 The compatibility modules remain the primary implementation locations. The
 newer namespace packages provide stable grouped imports:
@@ -82,6 +82,11 @@ Implemented in:
   [`src/ntx/_vmec_jax_boozer.py`](../src/ntx/_vmec_jax_boozer.py), which
   enforce the same right-handed sign convention for in-memory JAX Boozer data
   that the file-backed loader applies before constructing `BoozerSurface`
+
+The fast physics-gate suite checks the right-handed Boozer identity
+`\mathcal J B^2 = B_\zeta + \iota B_\theta`, plus the corresponding
+contravariant identities `B^\theta \mathcal J = \iota` and
+`B^\zeta \mathcal J = 1`, before any transport coefficient is interpreted.
 
 ## Radial-Drift Spatial Factor
 

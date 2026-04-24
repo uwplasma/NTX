@@ -76,6 +76,10 @@ work with a clear reason.
 - A symmetric-limit physics gate now checks zero radial transport and the
   inverse-collisionality Spitzer parallel-conductivity normalization on a
   constant-field Boozer surface.
+- A Boozer-coordinate normalization gate now checks
+  `J B^2 = B_zeta + iota B_theta`, `B^theta J = iota`, and
+  `B^zeta J = 1` on the owned analytic surface before solver coefficients are
+  interpreted.
 - A finite Legendre source-projection gate now checks that the magnetic-drift
   source occupies only the expected `k=0` and `k=2` rows and that the
   parallel-conductivity source occupies only the physical-`B` `k=1` row.

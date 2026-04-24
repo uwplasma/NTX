@@ -47,6 +47,12 @@ These are hard structural checks:
   parallel-conductivity branch. This guards the radial-electric-field advection
   term against producing unphysical transport when the magnetic-drift drive is
   absent.
+- **Boozer Jacobian identity:** the Boozer geometry projection must preserve
+  `\mathcal J B^2 = B_\zeta + \iota B_\theta` together with
+  `B^\theta \mathcal J = \iota` and `B^\zeta \mathcal J = 1` on owned
+  surfaces. This anchors the field normalization used by the drift source,
+  parallel streaming, and imported geometry handoff before any benchmark
+  coefficient is interpreted.
 - **Finite Legendre source projection:** the magnetic-drift drive must populate
   only the `k=0` and `k=2` source rows with the runtime `2/3` and `1/3`
   weights, and the parallel-conductivity source must populate only the `k=1`

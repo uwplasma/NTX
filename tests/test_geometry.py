@@ -63,6 +63,17 @@ def test_flux_surface_average_of_constant_is_constant():
     assert jnp.allclose(value, 3.0)
 
 
+def test_boozer_jacobian_matches_right_handed_covariant_identity():
+    surface = example_surface()
+    geom = geometry_on_grid(surface, GridSpec(7, 9, 4))
+    denominator = surface.b_zeta + surface.iota * surface.b_theta
+
+    assert denominator > 0.0
+    assert jnp.allclose(geom.jacobian * geom.b**2, denominator, rtol=1.0e-12)
+    assert jnp.allclose(geom.b_sup_theta * geom.jacobian, surface.iota, rtol=1.0e-12)
+    assert jnp.allclose(geom.b_sup_zeta * geom.jacobian, 1.0, rtol=1.0e-12)
+
+
 def test_load_dkes_surface_matches_reference_sign_convention():
     fixture = Path(__file__).resolve().parent / "fixtures" / "sample_surface.ddkes2.data"
     surface = load_dkes_surface(fixture)

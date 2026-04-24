@@ -527,6 +527,13 @@ Current status:
     coefficient pullback, and adjoint parameter-gradient accumulation
   - `src/ntx/_solver_core.py` remains focused on public prepared solves,
     coefficient-vector entry points, and transport-result assembly
+- [x] the physics-gate registry is now split by ownership:
+  - `src/ntx/validation/_physics_gate_analytical.py` owns test-backed
+    analytical and normalization gates
+  - `src/ntx/validation/_physics_gate_artifact_registry.py` owns
+    artifact-backed and monitored stress-gate definitions
+  - `src/ntx/validation/_physics_gate_registry.py` remains the compatibility
+    facade used by public validation imports and artifact evaluators
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable
@@ -556,6 +563,11 @@ Current status:
   - this protects the interpolation path used by inverse design and
     uncertainty propagation before broader geometry-family derivative claims
     are promoted
+- [x] Boozer-coordinate normalization gate added:
+  - owned Boozer surfaces must satisfy
+    `J B^2 = B_zeta + iota B_theta`, `B^theta J = iota`, and `B^zeta J = 1`
+  - this anchors the geometry normalization consumed by parallel streaming,
+    magnetic-drift source terms, and imported geometry workflows
 - [x] first artifact-backed autodiff uncertainty benchmark added:
   - `examples/autodiff_profile_uncertainty.py`
   - linearized covariance propagation against a Monte Carlo ensemble on the
