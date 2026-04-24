@@ -90,6 +90,9 @@ work with a clear reason.
   controls preserve the zero-control identity and exactly follow their
   prescribed response matrices before profile optimization and UQ workflows use
   them.
+- A VMEC-JAX boundary-edge transfer gate now checks that traced fixed-boundary
+  Fourier edge arrays are passed into both implicit and explicit equilibrium
+  paths before any boundary-to-output derivative claim is interpreted.
 - The prepared derivative-path artifact is now a physics gate: the committed
   custom-VJP derivative path must stay within `1e-4` relative mismatch of
   direct reverse-mode, while speedup stays a reported performance metric.

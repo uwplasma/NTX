@@ -79,6 +79,10 @@ These are hard structural checks:
   must be identity maps at zero control and exactly linear in their prescribed
   response matrices. This protects the profile optimization, sensitivity, and
   uncertainty workflows from hidden nonlinearities in the control-to-force map.
+- **VMEC-JAX boundary edge transfer:** the traced fixed-boundary Fourier edge
+  arrays must be forwarded to both the implicit VMEC residual solve and the
+  explicit relaxation solve. This protects boundary-to-output derivatives from
+  accidentally following stale non-differentiated boundary data.
 - **Primitive profile force reconstruction:** the profile workflow must recover
   `A3 = d ln T / dr` and
   `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are
