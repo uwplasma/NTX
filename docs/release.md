@@ -99,10 +99,9 @@ distribution, so the intended package name was not visible on the default PyPI
 index from this workstation. The PyPI project and trusted publisher still need
 to be created/configured in PyPI before the first tag release.
 
-Also on 2026-04-24, the GitHub environments API returned no repository
-environments for `uwplasma/NTX`. The release workflow references the `pypi`
-environment, so create or approve that environment in GitHub and configure the
-matching PyPI Trusted Publisher before pushing `v0.2.0`.
+On 2026-04-24, the GitHub `pypi` environment was created for `uwplasma/NTX`
+and the release workflow references that environment. Configure the matching
+PyPI Trusted Publisher before pushing `v0.2.0`.
 
 The intended public install surface is:
 
