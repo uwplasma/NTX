@@ -3,13 +3,23 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import replace
 from typing import Any
 
 import jax
 import jax.numpy as jnp
 from jax import Array
 
+from ._autodiff_helpers import (
+    dominant_nonaxisymmetric_mode as _dominant_nonaxisymmetric_mode,
+)
+from ._autodiff_helpers import er_profile as _er_profile
+from ._autodiff_helpers import evaluate_d11_profile as _evaluate_d11_profile
+from ._autodiff_helpers import evaluate_d13_profile as _evaluate_d13_profile  # noqa: F401
+from ._autodiff_helpers import evaluate_d33_profile as _evaluate_d33_profile
+from ._autodiff_helpers import inverse_problem_response as _inverse_problem_response
+from ._autodiff_helpers import mode_value_for_surface as _mode_value_for_surface
+from ._autodiff_helpers import scale_surface_mode as _scale_surface_mode
+from ._autodiff_helpers import surface_with_amplitude as _surface_with_amplitude
 from ._autodiff_types import (
     BootstrapOptimizationResult,
     DerivativeAuditResult,
@@ -18,10 +28,9 @@ from ._autodiff_types import (
     NeopaxProfileUncertaintyResult,
     RobustBootstrapOptimizationResult,
 )
-from .geometry import BoozerSurface, VmecSurface, example_surface
+from .geometry import example_surface
 from .grids import GridSpec
 from .neopax import (
-    NeopaxMonoenergeticArrays,
     build_ntx_neopax_scan_from_surfaces,
     scan_to_neopax_arrays,
 )
@@ -703,126 +712,3 @@ def example_bootstrap_current_robust_optimization(
         uncertainty_sigma=sigma,
         risk_aversion=risk,
     )
-
-
-def _surface_with_amplitude(
-    surface: BoozerSurface,
-    coefficient_index: int,
-    amplitude: float | Array,
-) -> BoozerSurface:
-    return replace(surface, b_cos=surface.b_cos.at[coefficient_index].set(amplitude))
-
-
-def _inverse_problem_response(
-    surface: BoozerSurface,
-    grid: GridSpec,
-    nu_hat: Array,
-    er_hat: float,
-) -> Array:
-    coeffs = solve_monoenergetic_scan(surface, grid, nu_hat, er_hat=jnp.full_like(nu_hat, er_hat))
-    return coeffs["D11"]
-
-
-def _er_profile(rho: Array, params: Array) -> Array:
-    return params[0] * rho + params[1] * rho**3
-
-
-def _evaluate_d33_profile(
-    arrays: NeopaxMonoenergeticArrays,
-    rho: Array,
-    nu_value: Array,
-    er_profile: Array,
-) -> Array:
-    import interpax
-
-    log_nu = jnp.log10(jnp.maximum(nu_value, 1e-12))
-
-    def per_radius(index, er_value):
-        radius_scale = jnp.maximum(arrays.a_b * rho[index], 1e-8)
-        er_log = jnp.log10(jnp.maximum(1e-8, jnp.abs(er_value / radius_scale)))
-        interpolator = interpax.Interpolator2D(
-            arrays.nu_log,
-            arrays.Er_list[index],
-            arrays.D33[index],
-            extrap=True,
-        )
-        return interpolator(log_nu, er_log)
-
-    return jax.vmap(per_radius)(jnp.arange(rho.size), er_profile)
-
-
-def _evaluate_d11_profile(
-    arrays: NeopaxMonoenergeticArrays,
-    rho: Array,
-    nu_value: Array,
-    er_profile: Array,
-) -> Array:
-    import interpax
-
-    log_nu = jnp.log10(jnp.maximum(nu_value, 1e-12))
-
-    def per_radius(index, er_value):
-        radius_scale = jnp.maximum(arrays.a_b * rho[index], 1e-8)
-        er_log = jnp.log10(jnp.maximum(1e-8, jnp.abs(er_value / radius_scale)))
-        interpolator = interpax.Interpolator2D(
-            arrays.nu_log,
-            arrays.Er_list[index],
-            arrays.D11_log[index],
-            extrap=True,
-        )
-        return 10.0 ** interpolator(log_nu, er_log)
-
-    return jax.vmap(per_radius)(jnp.arange(rho.size), er_profile)
-
-
-def _evaluate_d13_profile(
-    arrays: NeopaxMonoenergeticArrays,
-    rho: Array,
-    nu_value: Array,
-    er_profile: Array,
-) -> Array:
-    import interpax
-
-    log_nu = jnp.log10(jnp.maximum(nu_value, 1e-12))
-
-    def per_radius(index, er_value):
-        radius_scale = jnp.maximum(arrays.a_b * rho[index], 1e-8)
-        er_log = jnp.log10(jnp.maximum(1e-8, jnp.abs(er_value / radius_scale)))
-        interpolator = interpax.Interpolator2D(
-            arrays.nu_log,
-            arrays.Er_list[index],
-            arrays.D13[index],
-            extrap=True,
-        )
-        return interpolator(log_nu, er_log)
-
-    return jax.vmap(per_radius)(jnp.arange(rho.size), er_profile)
-
-
-def _dominant_nonaxisymmetric_mode(surface: BoozerSurface | VmecSurface) -> tuple[int, int]:
-    mask = jnp.logical_not(jnp.logical_and(surface.m == 0, surface.n == 0))
-    masked_amplitude = jnp.where(mask, jnp.abs(surface.b_cos), -1.0)
-    index = int(jnp.argmax(masked_amplitude))
-    return int(surface.m[index]), int(surface.n[index])
-
-
-def _mode_value_for_surface(
-    surface: BoozerSurface | VmecSurface,
-    harmonic_m: int,
-    harmonic_n: int,
-) -> Array:
-    matches = jnp.logical_and(surface.m == harmonic_m, surface.n == harmonic_n)
-    index = jnp.argmax(matches)
-    return surface.b_cos[index]
-
-
-def _scale_surface_mode(
-    surface: BoozerSurface | VmecSurface,
-    harmonic_m: int,
-    harmonic_n: int,
-    scale: Array,
-) -> BoozerSurface | VmecSurface:
-    matches = jnp.logical_and(surface.m == harmonic_m, surface.n == harmonic_n)
-    index = jnp.argmax(matches)
-    scaled = surface.b_cos.at[index].set(surface.b_cos[index] * scale)
-    return replace(surface, b_cos=jnp.where(matches, scaled, surface.b_cos))
