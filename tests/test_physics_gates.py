@@ -26,6 +26,20 @@ from ntx.physics_gates import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _constant_field_surface() -> BoozerSurface:
+    return BoozerSurface(
+        m=jnp.asarray([0], dtype=jnp.int32),
+        n=jnp.asarray([0], dtype=jnp.int32),
+        b_cos=jnp.asarray([1.0]),
+        nfp=5,
+        iota=0.85,
+        psi_p=1.0,
+        chi_p=0.85,
+        b_theta=0.05,
+        b_zeta=1.0,
+    )
+
+
 def test_physics_gate_registry_contains_expected_gate_families():
     names = {gate.name for gate in physics_gate_registry()}
     assert "onsager_symmetry" in names
@@ -38,6 +52,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "energy_conservation_invariant" in names
     assert "collision_operator_self_adjointness" in names
     assert "entropy_production_nonnegative" in names
+    assert "spitzer_inverse_collisionality_limit" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
     assert "precise_qs_ntx_neopax_closure_stress" in names
@@ -198,17 +213,7 @@ def test_owned_surface_coefficient_convergence_and_onsager_gate():
 
 
 def test_constant_field_symmetric_limit_has_no_radial_transport():
-    surface = BoozerSurface(
-        m=jnp.asarray([0], dtype=jnp.int32),
-        n=jnp.asarray([0], dtype=jnp.int32),
-        b_cos=jnp.asarray([1.0]),
-        nfp=5,
-        iota=0.85,
-        psi_p=1.0,
-        chi_p=0.85,
-        b_theta=0.05,
-        b_zeta=1.0,
-    )
+    surface = _constant_field_surface()
     result = solve_monoenergetic(
         surface,
         GridSpec(5, 5, 6),
@@ -220,6 +225,38 @@ def test_constant_field_symmetric_limit_has_no_radial_transport():
     assert result.D13 == pytest.approx(0.0, abs=1.0e-12)
     assert result.D33 > 0.0
     assert result.D33 == pytest.approx(result.D33_spitzer, rel=1.0e-10, abs=1.0e-12)
+
+
+def test_constant_field_spitzer_branch_scales_with_inverse_collisionality():
+    surface = _constant_field_surface()
+    grid = GridSpec(5, 5, 6)
+    low_nu = 5.0e-3
+    high_nu = 2.0e-2
+    low_collision = solve_monoenergetic(
+        surface,
+        grid,
+        MonoenergeticCase(nu_hat=low_nu, er_hat=0.0),
+    )
+    high_collision = solve_monoenergetic(
+        surface,
+        grid,
+        MonoenergeticCase(nu_hat=high_nu, er_hat=0.0),
+    )
+
+    assert low_collision.D33 == pytest.approx(
+        low_collision.D33_spitzer,
+        rel=1.0e-10,
+        abs=1.0e-12,
+    )
+    assert high_collision.D33 == pytest.approx(
+        high_collision.D33_spitzer,
+        rel=1.0e-10,
+        abs=1.0e-12,
+    )
+    assert low_collision.D33_spitzer / high_collision.D33_spitzer == pytest.approx(
+        high_nu / low_nu,
+        rel=1.0e-12,
+    )
 
 
 def test_scalar_gate_helpers_cover_fail_greater_equal_and_lookup_error():

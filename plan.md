@@ -160,9 +160,9 @@ and docs that explain which claims are closed versus monitored.
      PR workflow stays within `5-10` minutes.
    - Replace the CI core-shard exclusion one-liner with a maintained test-lane
      manifest or pytest markers before adding more benchmark tests.
-   - Current status: the maintained manifest is in place, core tests are split
-     into foundation/interface-workflow/profile-workflow/validation lanes, and
-     the remaining hygiene task is to keep new artifacts tied to
+   - Current status: closed for the current branch. The maintained manifest is
+     in place, core tests are split into explicit workflow/validation lanes,
+     generated caches have been removed, and new artifacts are tied to
      scripts/tests/docs.
 
 2. **Benchmark matrix hardening**
@@ -198,8 +198,9 @@ and docs that explain which claims are closed versus monitored.
      owned analytic Boozer-surface gate for `D11`, `D31`, `D33`, Onsager
      residual, and angular-grid transfer.
    - Current symmetric-limit addition: the same physics-gate file now includes
-     a constant-field Boozer-surface gate requiring zero radial transport
-     channels and positive Spitzer-consistent parallel conductivity.
+     constant-field Boozer-surface gates requiring zero radial transport
+     channels, positive Spitzer-consistent parallel conductivity, and
+     inverse-collisionality scaling of the Spitzer branch.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint
@@ -291,9 +292,10 @@ Do not declare this program complete until all of the following are true:
 
 ### Current Gaps To Close
 
-- measured coverage is now closed for the current fast lane:
-  - combined `core + integration_examples` coverage is `99.1%`
-  - `_neopax_field.py` is `99.6%`
+- measured coverage is now closed for the current split CI lanes:
+  - full split-lane CI coverage is `99.0%`
+  - `_neopax_field.py` is `98.1%`
+  - `neopax.py` is `100.0%`
   - `vmec_jax_backend.py` is `100.0%`
   - the next coverage work should be opportunistic and physics-driven, not
     broad low-value branch chasing

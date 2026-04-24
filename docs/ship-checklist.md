@@ -10,7 +10,7 @@ work with a clear reason.
 | --- | --- | --- |
 | Code refactoring | In progress | Keep public facades stable while moving implementation ownership toward `ntx.core`, `ntx.workflows`, `ntx.validation`, `ntx.geometry`, and `ntx.io`; each move needs tests and docs. |
 | Repository hygiene | In progress | Split the dirty worktree into reviewable commit batches; remove only confirmed temporary files; keep benchmark artifacts only when tied to scripts/tests/docs. |
-| CI runtime and coverage | In progress | Maintain `>=95%` repository-owned coverage, module floors, and a normal CI wall time near `5-10` minutes. |
+| CI runtime and coverage | Closed; monitor | Maintain `>=95%` repository-owned coverage, module floors, and a normal CI wall time near `5-10` minutes. |
 | Literature-anchored physics gates | In progress | Add or preserve fast gates for convergence, Onsager residuals, exact low-order recovery, coefficient sign/normalization, and artifact-backed literature comparisons. |
 | Fixed-field `NTX+NEOPAX` closure | Scoped stress gate | Keep as a monitored stress metric for the first release; do not claim fixed-field parity unless a physics-derived closure improves QA/QH without regressing integrated W7-X. No fitted bridge constants. |
 | Multi-CPU and multi-GPU algorithms | Open performance lane | Add measured CPU/GPU/multiprocess crossover maps on production grids; promote only algorithms that beat serial batched JAX on the target workload. |
@@ -58,16 +58,21 @@ work with a clear reason.
 ## Current Audit Notes
 
 - Full split-lane CI coverage is currently above the release threshold at
-  `97.2%`.
+  `99.0%`.
 - The maintained coverage-report script now accepts both absolute and relative
   `src/ntx/...` paths from `coverage json`, so local and CI module tables are
   comparable.
 - The validation registry now has additional direct unit coverage.
-- Fast synthetic imported-workflow tests exercise weak helper modules without
-  rerunning expensive boundary/equilibrium artifacts in every shard.
+- Fast synthetic imported-workflow tests exercise the imported field/database
+  bridge without rerunning expensive boundary/equilibrium artifacts in every
+  shard; the current CI report has `_neopax_field.py` at `98.1%` and
+  `neopax.py` at `100%`.
 - A fast owned-surface physics gate now checks `D11`, `D31`, `D33`, Onsager
   residual, and coarse-to-fine angular-grid transfer on the analytic Boozer
   surface.
+- A symmetric-limit physics gate now checks zero radial transport and the
+  inverse-collisionality Spitzer parallel-conductivity normalization on a
+  constant-field Boozer surface.
 - `python scripts/test_lane_manifest.py --check` passes with split core lanes,
   8 integration examples, and 18 opt-in heavy example tests.
 - `python scripts/build_benchmark_matrix.py` reports every active benchmark
@@ -85,17 +90,16 @@ work with a clear reason.
   parity claims. The release claim is the positive W7-X integrated transfer and
   the fixed-field Redl/SFINCS gate; the reduced-closure current mismatch remains
   a monitored stress metric.
-- The next valuable coverage work should target any remaining weak module
-  branch with small synthetic objects, not more slow example reruns.
+- The next valuable coverage work should be opportunistic and physics-driven;
+  coverage is no longer a blocking lane.
 - The expensive boundary/equilibrium artifact reruns remain opt-in through
   `NTX_RUN_HEAVY_BOUNDARY_EXAMPLES=1`.
 
 ## Immediate Next Order
 
-1. Finish repository hygiene and commit batching.
-2. Keep the CI lane manifest and benchmark matrix locked as new tests are added.
-3. Add the next high-value physics gate rather than low-value coverage tests.
-4. Expand owned geometry-family benchmark artifacts only after the current dirty
-   worktree is clean.
-5. Finish release automation and tag only after all blocking lanes above are
+1. Keep the CI lane manifest and benchmark matrix locked as new tests are added.
+2. Add the next high-value physics gate rather than low-value coverage tests.
+3. Expand owned geometry-family benchmark artifacts only from committed
+   scripts/tests/docs.
+4. Finish release automation and tag only after all blocking lanes above are
    either closed or explicitly scoped out of the release.
