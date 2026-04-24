@@ -42,6 +42,11 @@ These are hard structural checks:
   limit, the fast test suite checks that `D33_spitzer` scales as `1 / nu_hat`.
   This catches drift-kinetic normalization regressions without needing an
   external benchmark file.
+- **Constant-field radial-electric-field invariance:** in the constant-field
+  limit, sweeping `er_hat` must not create radial transport or change the
+  parallel-conductivity branch. This guards the radial-electric-field advection
+  term against producing unphysical transport when the magnetic-drift drive is
+  absent.
 - **Finite Legendre source projection:** the magnetic-drift drive must populate
   only the `k=0` and `k=2` source rows with the runtime `2/3` and `1/3`
   weights, and the parallel-conductivity source must populate only the `k=1`

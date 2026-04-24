@@ -53,6 +53,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "collision_operator_self_adjointness" in names
     assert "entropy_production_nonnegative" in names
     assert "spitzer_inverse_collisionality_limit" in names
+    assert "constant_field_radial_electric_field_invariance" in names
     assert "operator_parameter_derivative_consistency" in names
     assert "imported_boozer_handedness" in names
     assert "prepared_derivative_path_consistency" in names
@@ -368,6 +369,27 @@ def test_constant_field_spitzer_branch_scales_with_inverse_collisionality():
         high_nu / low_nu,
         rel=1.0e-12,
     )
+
+
+def test_constant_field_transport_is_invariant_under_radial_electric_field():
+    surface = _constant_field_surface()
+    grid = GridSpec(5, 5, 6)
+    cases = [
+        solve_monoenergetic(
+            surface,
+            grid,
+            MonoenergeticCase(nu_hat=1.0e-2, er_hat=er_hat),
+        )
+        for er_hat in (-1.0e-2, 0.0, 1.0e-2)
+    ]
+    reference = cases[1]
+
+    for result in cases:
+        assert result.D11 == pytest.approx(0.0, abs=1.0e-12)
+        assert result.D31 == pytest.approx(0.0, abs=1.0e-12)
+        assert result.D13 == pytest.approx(0.0, abs=1.0e-12)
+        assert result.D33 == pytest.approx(result.D33_spitzer, rel=1.0e-10)
+        assert result.D33 == pytest.approx(reference.D33, rel=1.0e-10)
 
 
 def test_scalar_gate_helpers_cover_fail_greater_equal_and_lookup_error():
