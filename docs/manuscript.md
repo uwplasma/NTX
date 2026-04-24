@@ -191,6 +191,12 @@ It uses:
 - a weighted bootstrap-current proxy based on the current-response coefficients
 - JAX autodiff to optimize that control directly
 
+The committed JSON artifact is also a monitored benchmark-matrix and
+physics-gate entry: the optimized weighted-current proxy must remain at least
+as large as the baseline before the manuscript cites the gain. Broader
+stellarator-design claims still require reusable geometry-family controls and
+their derivative audits.
+
 This is the recommended figure for a paper focused on differentiable bootstrap
 current analysis and optimization with NTX.
 

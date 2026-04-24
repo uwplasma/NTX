@@ -60,6 +60,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "boundary_forward_mode_current_derivative_stress" in names
     assert "explicit_relaxed_boundary_current_derivative_stress" in names
     assert "implicit_equilibrium_derivative_open_stress" in names
+    assert "bootstrap_current_optimization_gain" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
     assert "precise_qs_ntx_neopax_closure_stress" in names
@@ -122,6 +123,9 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     (
         static_root / "implicit_equilibrium_forward_mode_derivative_benchmark.json"
     ).write_text(json.dumps({"summary_metrics": {"max_relative_mismatch": 6.0}}))
+    (static_root / "bootstrap_current_optimization.json").write_text(
+        json.dumps({"weighted_gain": 1.08})
+    )
     (static_root / "bootstrap_current_fixed_field_validation.json").write_text(
         json.dumps(
             {
@@ -171,6 +175,8 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["implicit_equilibrium_derivative_open_stress"].value == (
         pytest.approx(6.0)
     )
+    assert results["bootstrap_current_optimization_gain"].status == "pass"
+    assert results["bootstrap_current_optimization_gain"].value == pytest.approx(1.08)
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
     assert results["precise_qs_redl_vs_sfincs"].value == 0.08
     assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
@@ -233,6 +239,7 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
         == "missing"
     )
     assert results["implicit_equilibrium_derivative_open_stress"].status == "missing"
+    assert results["bootstrap_current_optimization_gain"].status == "missing"
     assert "bootstrap_current_reference_audit_w7x.json" in results[
         "w7x_integrated_rebuild_raw"
     ].details
@@ -267,6 +274,8 @@ def test_repository_artifact_gates_match_current_claim_statuses():
         <= 1.0e-4
     )
     assert results["implicit_equilibrium_derivative_open_stress"].status == "monitor"
+    assert results["bootstrap_current_optimization_gain"].status == "pass"
+    assert results["bootstrap_current_optimization_gain"].value >= 1.0
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
     assert results["precise_qs_redl_vs_sfincs"].value <= 1.0e-1
     assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"

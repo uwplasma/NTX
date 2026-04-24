@@ -120,6 +120,10 @@ work with a clear reason.
   convergence gate and the fixed-field Redl/SFINCS gate alongside the monitored
   `NTX+NEOPAX` stress metric, so paper-facing claims match the active physics
   gates.
+- The differentiable bootstrap-current optimization figure is now represented
+  in the benchmark matrix and physics-gate registry as a monitored stress gate:
+  the committed weighted-current gain must stay above the baseline before the
+  manuscript cites that science-case number.
 - The next valuable coverage work should be opportunistic and physics-driven;
   coverage is no longer a blocking lane.
 - The expensive boundary/equilibrium artifact reruns remain opt-in through

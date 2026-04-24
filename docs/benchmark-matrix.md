@@ -52,6 +52,7 @@ Current stress gates are:
 | Implicit-equilibrium forward-mode derivatives | the implicit residual solve reaches Boozer geometry and NTX transport on the committed QA case, but only equilibrium volume matches centered finite differences; Boozer, transport, integrated current, and reverse mode remain open |
 | Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the machine-checked self-consistent forward-mode audit, but additional families plus implicit/reverse-mode equilibrium sensitivities remain open |
 | Profile uncertainty propagation | validates the current workflow mechanics, but needs broader profile bases |
+| Bootstrap-current optimization | machine-checked weighted-current improvement on the committed W7-X study, but not yet broad enough for a stellarator-design claim |
 | Robust bootstrap-current optimization | useful robust-design stress test, but not yet broad enough for a promoted physics claim |
 | Primitive-profile force reconstruction | literature-profile audit, currently monitored rather than promoted |
 
