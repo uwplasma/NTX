@@ -20,7 +20,7 @@ tree.
 | Profile-grade imported workflows | `src/ntx/profiles.py`, `src/ntx/_profiles_types.py`, `src/ntx/_profiles_eval.py`, `src/ntx/_profiles_controls.py`, `src/ntx/_profiles_transport.py` | species-profile closures, ambipolar `E_r(r)` solve, controls, and transport loops |
 | Throughput-oriented multi-device execution | `src/ntx/parallel.py` | `solve_monoenergetic_multiprocess_scan(...)` |
 | Autodiff examples and optimization helpers | `src/ntx/autodiff.py`, `src/ntx/_autodiff_types.py`, `src/ntx/_autodiff_workflows.py` | inverse, sensitivity, and bootstrap-current optimization helpers |
-| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/validation/physics_gates.py` | benchmark-matrix metadata and physics-gate definitions |
+| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/validation/_benchmark_matrix_entries.py`, `src/ntx/validation/physics_gates.py` | benchmark-matrix evaluator, maintained claim metadata, and physics-gate definitions |
 
 The compatibility modules remain the primary implementation locations. The
 newer namespace packages provide stable grouped imports:
