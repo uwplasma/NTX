@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ntx
 import ntx.core as ntx_core
+import ntx.validation as ntx_validation
 import ntx.workflows as ntx_workflows
 
 
@@ -21,3 +22,9 @@ def test_workflow_namespace_preserves_flat_workflow_api():
     assert ntx_workflows.build_ntx_neopax_scan is ntx.build_ntx_neopax_scan
     assert ntx_workflows.solve_ambipolar_er_profile is ntx.solve_ambipolar_er_profile
     assert ntx_workflows.example_derivative_audit is ntx.example_derivative_audit
+
+
+def test_validation_namespace_preserves_flat_validation_api():
+    assert ntx_validation.PhysicsGate is ntx.PhysicsGate
+    assert ntx_validation.physics_gate_registry is ntx.physics_gate_registry
+    assert ntx_validation.evaluate_artifact_gates is ntx.evaluate_artifact_gates

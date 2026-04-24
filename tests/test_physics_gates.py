@@ -17,11 +17,10 @@ from ntx import (
 from ntx.physics_gates import (
     PhysicsGate,
     PhysicsGateResult,
-    _evaluate_scalar_gate,
-    _gate_by_name,
     evaluate_artifact_gates,
     physics_gate_registry,
 )
+from ntx.validation.physics_gates import _evaluate_scalar_gate, _gate_by_name
 
 ROOT = Path(__file__).resolve().parents[1]
 

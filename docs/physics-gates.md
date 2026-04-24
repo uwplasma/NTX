@@ -152,6 +152,8 @@ The gate registry is exposed in the public API:
 
 - `ntx.physics_gates.physics_gate_registry()`
 - `ntx.physics_gates.evaluate_artifact_gates(...)`
+- `ntx.validation.physics_gate_registry()`
+- `ntx.validation.evaluate_artifact_gates(...)`
 
 To inspect the tracked artifact-backed gates locally:
 
