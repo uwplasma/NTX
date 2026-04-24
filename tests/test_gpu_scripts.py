@@ -24,6 +24,7 @@ def test_gpu_regression_script_handles_missing_gpu():
         text=True,
         capture_output=True,
         env=_env(),
+        timeout=60,
     )
     assert proc.returncode == 1
     assert "No JAX GPU device is available" in proc.stdout
