@@ -19,7 +19,7 @@ work with a clear reason.
 | Documentation | In progress | Keep docs synchronized with source layout, benchmark matrix, test lanes, performance guidance, examples, and release path. |
 | Implicit-equilibrium derivative lane | Closed as non-shipping diagnostic | Do not promote this path for optimization claims; restore only after Boozer and NTX transport observables match centered finite differences, not just equilibrium volume. |
 | Broader W7-X/QI/omnigenous families | Stress artifact added | Keep the new VMEC family convergence artifact as reduced NTX stress evidence; add paper-resolution independent-code parity, owned W7-X KJM input coverage, and radial/electric-field ladders before promotion. |
-| PyPI/release automation | Repo-side workflow and GitHub environment configured; PyPI setup open | Finish PyPI project setup, configure PyPI Trusted Publishing for the GitHub `pypi` environment, and run the first `v0.2.0` tag release rehearsal. |
+| PyPI/release automation | Ready for tag release | PyPI Trusted Publishing is configured for `uwplasma/NTX` and `release.yml`; wait for green release-commit CI, then push the first `v0.2.0` tag release. |
 
 ## Acceptance Criteria
 
@@ -127,9 +127,9 @@ work with a clear reason.
   packages are available from standard package indexes.
 - The flat public API remains supported, and namespace-import tests now also
   require the top-level export list to stay duplicate-free.
-- The repository-side PyPI Trusted Publishing job is present and tag-gated, and
-  the GitHub `pypi` environment exists. The remaining setup is the external
-  PyPI project and PyPI trusted publisher configuration.
+- The repository-side PyPI Trusted Publishing job is present and tag-gated, the
+  GitHub `pypi` environment exists, and PyPI has a trusted-publisher entry for
+  `uwplasma/NTX` using `release.yml`.
 - The fixed-field `NTX+NEOPAX` lane is explicitly scoped out of first-release
   parity claims. The release claim is the positive W7-X integrated transfer and
   the fixed-field Redl/SFINCS gate; the reduced-closure current mismatch remains
@@ -169,5 +169,5 @@ work with a clear reason.
 2. Add the next high-value physics gate rather than low-value coverage tests.
 3. Expand owned geometry-family benchmark artifacts only from committed
    scripts/tests/docs.
-4. Finish external PyPI Trusted Publisher setup, wait for green `tests` and
-   `package` workflows on the `0.2.0` version commit, then tag `v0.2.0`.
+4. Wait for green `tests` and `package` workflows on the release documentation
+   commit, then tag `v0.2.0`.

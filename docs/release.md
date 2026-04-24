@@ -87,21 +87,24 @@ Before publishing to PyPI:
    constraints;
 3. keep build and publish jobs separate so the exact tested artifacts are the
    artifacts that are uploaded;
-4. configure PyPI Trusted Publishing for the GitHub repository, release
-   workflow, and a protected `pypi` environment.
+4. configure PyPI Trusted Publishing for the GitHub repository and release
+   workflow. The GitHub release workflow publishes through the repository
+   `pypi` environment; PyPI may accept any environment name when the trusted
+   publisher entry is configured that way.
 
 The repository-side Trusted Publishing job is now present in
 `.github/workflows/release.yml`. It is tag-gated, downloads the exact
 distribution artifact built by the release job, and publishes through
-`pypa/gh-action-pypi-publish` without a long-lived API token. On
-2026-04-24, `python -m pip index versions ntx` returned no matching
-distribution, so the intended package name was not visible on the default PyPI
-index from this workstation. The PyPI project and trusted publisher still need
-to be created/configured in PyPI before the first tag release.
+`pypa/gh-action-pypi-publish` without a long-lived API token. On 2026-04-24,
+`python -m pip index versions ntx` returned no matching distribution, so the
+intended package name was not visible on the default PyPI index from this
+workstation before the first publication.
 
-On 2026-04-24, the GitHub `pypi` environment was created for `uwplasma/NTX`
-and the release workflow references that environment. Configure the matching
-PyPI Trusted Publisher before pushing `v0.2.0`.
+On 2026-04-24, the GitHub `pypi` environment was created for `uwplasma/NTX`,
+and PyPI Trusted Publishing was configured for repository `uwplasma/NTX`,
+workflow `release.yml`, and project name `NTX` with no environment-name
+restriction. The next step is to push the `v0.2.0` tag after the release commit
+has green `tests` and `package` workflows.
 
 The intended public install surface is:
 
