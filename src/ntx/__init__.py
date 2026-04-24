@@ -163,7 +163,6 @@ __all__ = [
     "build_differentiable_neopax_field_from_vmec_jax_state",
     "build_vmec_jax_boundary_context",
     "initial_guess_vmec_jax_boundary_state",
-    "relax_vmec_jax_boundary_state_explicit",
     "build_monoenergetic_database_arrays",
     "build_ntx_neopax_scan",
     "build_ntx_neopax_scan_from_vmec_jax_boundary_params",
@@ -232,10 +231,8 @@ __all__ = [
     "NeopaxProfileAutodiffResult",
     "NeopaxProfileUncertaintyResult",
     "RobustBootstrapOptimizationResult",
-    "BootstrapOptimizationResult",
     "example_inverse_problem",
     "example_neopax_profile_autodiff",
     "example_neopax_profile_uncertainty",
-    "example_bootstrap_current_optimization",
     "example_bootstrap_current_robust_optimization",
 ]

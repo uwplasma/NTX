@@ -5,6 +5,10 @@ import ntx.core as ntx_core
 import ntx.workflows as ntx_workflows
 
 
+def test_top_level_public_exports_are_unique():
+    assert len(ntx.__all__) == len(set(ntx.__all__))
+
+
 def test_core_namespace_preserves_flat_solver_api():
     assert ntx_core.MonoenergeticCase is ntx.MonoenergeticCase
     assert ntx_core.solve_monoenergetic is ntx.solve_monoenergetic

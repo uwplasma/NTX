@@ -84,6 +84,8 @@ work with a clear reason.
 - Public package metadata no longer exposes Git direct references; optional
   geometry-coupled workflows document direct upstream installs until those
   packages are available from standard package indexes.
+- The flat public API remains supported, and namespace-import tests now also
+  require the top-level export list to stay duplicate-free.
 - The repository-side PyPI Trusted Publishing job is present and tag-gated; the
   remaining setup is the external PyPI trusted publisher/project configuration.
 - The fixed-field `NTX+NEOPAX` lane is explicitly scoped out of first-release
