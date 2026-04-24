@@ -124,6 +124,9 @@ work with a clear reason.
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the
   manuscript cites that science-case number.
+- The publication figure manifest now includes the file-backed
+  geometry-control derivative audit, and the boundary-forward derivative audit
+  is explicitly marked as a manuscript figure in the benchmark matrix.
 - The next valuable coverage work should be opportunistic and physics-driven;
   coverage is no longer a blocking lane.
 - The expensive boundary/equilibrium artifact reruns remain opt-in through

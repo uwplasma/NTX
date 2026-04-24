@@ -142,7 +142,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `442e173289b94b53023e3165dcc655e481d5c5df` |
+| Commit | `867fb99b885509519ceb9ae31a9dcc76a6701896` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

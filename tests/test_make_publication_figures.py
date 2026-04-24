@@ -168,6 +168,15 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
             ),
         ),
         (
+            "file_backed_geometry_derivative",
+            {"file_backed_geometry_derivative"},
+            (
+                "file_backed_geometry_control_derivative_benchmark.png",
+                "file_backed_geometry_control_derivative_benchmark.pdf",
+                "file_backed_geometry_control_derivative_benchmark.json",
+            ),
+        ),
+        (
             "implicit_equilibrium_forward_mode",
             {"implicit_equilibrium_forward_mode"},
             (

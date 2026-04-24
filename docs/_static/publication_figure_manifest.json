@@ -46,6 +46,11 @@
     "docs/_static/geometry_control_derivative_benchmark.pdf",
     "docs/_static/geometry_control_derivative_benchmark.json"
   ],
+  "file_backed_geometry_derivative": [
+    "docs/_static/file_backed_geometry_control_derivative_benchmark.png",
+    "docs/_static/file_backed_geometry_control_derivative_benchmark.pdf",
+    "docs/_static/file_backed_geometry_control_derivative_benchmark.json"
+  ],
   "boundary_forward_mode": [
     "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
     "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",

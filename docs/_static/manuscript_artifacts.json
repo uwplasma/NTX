@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "442e173289b94b53023e3165dcc655e481d5c5df",
+    "commit": "867fb99b885509519ceb9ae31a9dcc76a6701896",
     "branch": "main"
   },
   "environment": {
@@ -1520,6 +1520,11 @@
       "docs/_static/geometry_control_derivative_benchmark.pdf",
       "docs/_static/geometry_control_derivative_benchmark.json"
     ],
+    "file_backed_geometry_derivative": [
+      "docs/_static/file_backed_geometry_control_derivative_benchmark.png",
+      "docs/_static/file_backed_geometry_control_derivative_benchmark.pdf",
+      "docs/_static/file_backed_geometry_control_derivative_benchmark.json"
+    ],
     "boundary_forward_mode": [
       "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
       "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
@@ -2166,7 +2171,9 @@
             "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
             "docs/_static/boundary_forward_mode_current_derivative_benchmark.json"
           ],
-          "manuscript_figures": [],
+          "manuscript_figures": [
+            "boundary_forward_mode_current_derivative_benchmark"
+          ],
           "docs": [
             "docs/autodiff.md",
             "docs/research-roadmap.md"
@@ -3007,6 +3014,7 @@
       "profiles",
       "profile_uncertainty",
       "geometry_derivative",
+      "file_backed_geometry_derivative",
       "boundary_forward_mode",
       "implicit_equilibrium_forward_mode",
       "boundary_explicit_relaxed",
