@@ -206,7 +206,11 @@ and docs that explain which claims are closed versus monitored.
    - Current symmetric-limit addition: the same physics-gate file now includes
      constant-field Boozer-surface gates requiring zero radial transport
      channels, positive Spitzer-consistent parallel conductivity, and
-     inverse-collisionality scaling of the Spitzer branch.
+     inverse-collisionality scaling of the Spitzer branch. It now also sweeps
+     the normalized radial electric field in the same constant-field limit to
+     require that electric-field advection does not create radial transport or
+     change the parallel-conductivity branch when the magnetic-drift drive is
+     absent.
    - Current source-projection addition: `tests/test_operators.py` now checks
      the finite Legendre source projection directly, requiring the
      magnetic-drift drive to occupy only the `k=0` and `k=2` rows with the
@@ -717,6 +721,9 @@ Target package structure:
   - physics-gate registry
   - artifact readers
   - benchmark summaries
+  - current split: physics-gate types, registry definitions, and artifact-gate
+    evaluation now live in separate internal modules behind the stable
+    `ntx.validation.physics_gates` facade
 
 Concrete file splits to prioritize:
 

@@ -1,0 +1,377 @@
+from __future__ import annotations
+
+from ._physics_gate_types import PhysicsGate
+
+ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
+    PhysicsGate(
+        name="onsager_symmetry",
+        category="analytical",
+        metric="|D13 + D31|",
+        relation="test",
+        threshold=None,
+        source="tests/test_solver.py and examples/validation_summary.py",
+        rationale=(
+            "The monoenergetic solve must preserve the Onsager symmetry expected "
+            "for the source split and the Legendre-space discretization."
+        ),
+    ),
+    PhysicsGate(
+        name="p2_projection_exact_recovery",
+        category="analytical",
+        metric="generated Sonine/Hankel P=2 recovery",
+        relation="<=",
+        threshold=1.0e-12,
+        source="local imported closure tests/test_moment_projection.py",
+        rationale=(
+            "Any higher-order closure work must reduce exactly to the present "
+            "three-moment system at P=2 before new physics is introduced."
+        ),
+    ),
+    PhysicsGate(
+        name="low_order_collision_block_recovery",
+        category="analytical",
+        metric="generated low-order momentum-conserving collision blocks",
+        relation="test",
+        threshold=None,
+        source="standard low-order moment equations and local closure tests",
+        rationale=(
+            "The active low-order collisional blocks must be reproducible from "
+            "the standard momentum-conserving moment equations, up to the "
+            "heat-flow basis convention used by the runtime."
+        ),
+    ),
+    PhysicsGate(
+        name="observable_map_fixed",
+        category="analytical",
+        metric="U_parallel = n c0",
+        relation="test",
+        threshold=None,
+        source="closure derivation in the manuscript and fixed-field audits",
+        rationale=(
+            "The parallel-flow observable is fixed by the Sonine basis and must "
+            "not be changed to fit a benchmark."
+        ),
+    ),
+    PhysicsGate(
+        name="intrinsic_ambipolarity_symmetric_limit",
+        category="analytical",
+        metric="symmetric-limit ambipolar structure preserved",
+        relation="test",
+        threshold=None,
+        source=(
+            "Sugama-Nishimura finite-order moment-equation requirements and "
+            "tests/test_physics_gates.py"
+        ),
+        rationale=(
+            "At every finite truncation, the projected closure must preserve the "
+            "intrinsic ambipolar-diffusion structure in symmetric limits."
+        ),
+    ),
+    PhysicsGate(
+        name="spitzer_inverse_collisionality_limit",
+        category="analytical",
+        metric="constant-field D33_spitzer proportional to 1/nu_hat",
+        relation="test",
+        threshold=None,
+        source="tests/test_physics_gates.py",
+        rationale=(
+            "In the constant-field limit the drift source vanishes and the "
+            "remaining parallel-conductivity branch should reduce to the "
+            "Spitzer-like inverse-collisionality normalization used by NTX."
+        ),
+    ),
+    PhysicsGate(
+        name="constant_field_radial_electric_field_invariance",
+        category="analytical",
+        metric="constant-field transport invariant under er_hat sweep",
+        relation="test",
+        threshold=None,
+        source="tests/test_physics_gates.py",
+        rationale=(
+            "With constant B on the flux surface, the magnetic-drift source "
+            "vanishes. Sweeping the normalized radial electric field must not "
+            "create radial transport or alter the parallel-conductivity branch."
+        ),
+    ),
+    PhysicsGate(
+        name="operator_parameter_derivative_consistency",
+        category="analytical",
+        metric="dD_k/dnu_hat and dD_k/depsi_hat match operator autodiff",
+        relation="test",
+        threshold=None,
+        source="tests/test_operators.py",
+        rationale=(
+            "The implicit-adjoint path differentiates through hand-coded "
+            "parameter-derivative blocks, so those blocks must be exactly the "
+            "derivatives of the assembled Legendre-space operator with respect "
+            "to collisionality and radial-electric-field normalization."
+        ),
+    ),
+    PhysicsGate(
+        name="imported_boozer_handedness",
+        category="analytical",
+        metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",
+        relation="test",
+        threshold=None,
+        source="tests/test_vmec_jax_backend.py",
+        rationale=(
+            "The in-memory VMEC-to-Boozer path must use the same right-handed "
+            "Boozer convention as the file-backed loader before NTX consumes "
+            "the Boozer Jacobian and drift source terms."
+        ),
+    ),
+    PhysicsGate(
+        name="momentum_conservation_null_mode",
+        category="analytical",
+        metric="common-flow collisional null mode preserved",
+        relation="test",
+        threshold=None,
+        source="momentum-restoring closure derivation and local closure tests",
+        rationale=(
+            "The higher-order collisional blocks must conserve total parallel "
+            "momentum, so a common-flow null mode remains present."
+        ),
+    ),
+    PhysicsGate(
+        name="particle_conservation_invariant",
+        category="analytical",
+        metric="collisional particle invariant preserved",
+        relation="test",
+        threshold=None,
+        source="linearized collision-operator moment-equation constraints",
+        rationale=(
+            "The projected collision model must not generate a spurious particle "
+            "source at any truncation."
+        ),
+    ),
+    PhysicsGate(
+        name="energy_conservation_invariant",
+        category="analytical",
+        metric="collisional energy invariant preserved",
+        relation="test",
+        threshold=None,
+        source="linearized collision-operator moment-equation constraints",
+        rationale=(
+            "The collisional blocks must preserve the energy invariant in the "
+            "same projected basis used for higher-order closure."
+        ),
+    ),
+    PhysicsGate(
+        name="collision_operator_self_adjointness",
+        category="analytical",
+        metric="weighted collisional form is self-adjoint",
+        relation="test",
+        threshold=None,
+        source="finite-order Laguerre/Sonine Coulomb-operator literature",
+        rationale=(
+            "The finite-order collisional operator should preserve the "
+            "self-adjoint structure underlying Onsager symmetry and the H-theorem."
+        ),
+    ),
+    PhysicsGate(
+        name="entropy_production_nonnegative",
+        category="analytical",
+        metric="symmetric collisional form is positive semidefinite",
+        relation="test",
+        threshold=None,
+        source="Sugama-Horton entropy-production constraints",
+        rationale=(
+            "The finite-order collision model must not violate the "
+            "non-negativity of entropy production."
+        ),
+    ),
+)
+
+
+ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
+    PhysicsGate(
+        name="monoenergetic_validation_summary",
+        category="analytical",
+        metric="max finest plotted Legendre-convergence error",
+        relation="<=",
+        threshold=2.5e-1,
+        source="docs/_static/validation_summary.json",
+        rationale=(
+            "The repository-owned DKES-style and VMEC validation surfaces must "
+            "show bounded Legendre convergence for the promoted monoenergetic "
+            "coefficient benchmark before broader literature comparisons are "
+            "interpreted."
+        ),
+    ),
+    PhysicsGate(
+        name="w7x_integrated_rebuild_raw",
+        category="transfer",
+        metric="best W7-X imported-workflow max relative error",
+        relation="<=",
+        threshold=2.0e-2,
+        source="docs/_static/bootstrap_current_reference_audit_w7x.json",
+        rationale=(
+            "The rebuilt raw-branch integrated workflow must stay aligned with "
+            "the frozen W7-X reference profile."
+        ),
+    ),
+    PhysicsGate(
+        name="prepared_derivative_path_consistency",
+        category="analytical",
+        metric="max relative prepared-vs-direct derivative mismatch",
+        relation="<=",
+        threshold=1.0e-4,
+        source="docs/_static/derivative_path_benchmark.json",
+        rationale=(
+            "The prepared custom-VJP derivative path supports sensitivity, "
+            "inverse-design, and uncertainty workflows, so it must agree with "
+            "direct JAX differentiation on the committed scalar benchmark."
+        ),
+    ),
+    PhysicsGate(
+        name="geometry_control_derivative_stress",
+        category="stress",
+        metric="max relative direct-AD vs finite-difference mismatch",
+        relation="<=",
+        threshold=2.0e-4,
+        source="docs/_static/geometry_control_derivative_benchmark.json",
+        rationale=(
+            "Owned analytic geometry-control derivatives should agree with "
+            "centered finite differences before the same workflow is used for "
+            "sensitivity, inverse-design, or uncertainty studies."
+        ),
+    ),
+    PhysicsGate(
+        name="file_backed_geometry_control_derivative_stress",
+        category="stress",
+        metric="max relative direct-AD vs finite-difference mismatch",
+        relation="<=",
+        threshold=5.0e-4,
+        source="docs/_static/file_backed_geometry_control_derivative_benchmark.json",
+        rationale=(
+            "The geometry-control derivative audit must transfer from the "
+            "owned analytic surface to repository-owned file-backed Boozer and "
+            "VMEC sample surfaces."
+        ),
+    ),
+    PhysicsGate(
+        name="boundary_forward_mode_current_derivative_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="<=",
+        threshold=1.0e-5,
+        source="docs/_static/boundary_forward_mode_current_derivative_benchmark.json",
+        rationale=(
+            "The boundary-projected geometry path through optional JAX "
+            "geometry backends, NTX, and the integrated-current objective must "
+            "stay differentiable on the committed sample case."
+        ),
+    ),
+    PhysicsGate(
+        name="explicit_relaxed_boundary_current_derivative_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="<=",
+        threshold=1.0e-4,
+        source=(
+            "docs/_static/"
+            "explicit_relaxed_boundary_current_derivative_benchmark.json"
+        ),
+        rationale=(
+            "The explicit-relaxed boundary-to-current family should preserve "
+            "forward-mode agreement with centered finite differences on the "
+            "committed QA/QH cases."
+        ),
+    ),
+    PhysicsGate(
+        name="implicit_equilibrium_derivative_open_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="monitor",
+        threshold=None,
+        source=(
+            "docs/_static/"
+            "implicit_equilibrium_forward_mode_derivative_benchmark.json"
+        ),
+        rationale=(
+            "The implicit-equilibrium derivative diagnostic is kept visible as "
+            "an open stress lane: equilibrium volume closes, but Boozer-space "
+            "and NTX transport observables do not yet pass."
+        ),
+    ),
+    PhysicsGate(
+        name="bootstrap_current_optimization_gain",
+        category="stress",
+        metric="weighted optimized-current gain",
+        relation=">=",
+        threshold=1.0,
+        source="docs/_static/bootstrap_current_optimization.json",
+        rationale=(
+            "The differentiable bootstrap-current optimization figure should "
+            "remain an actual improvement over the committed baseline before "
+            "the manuscript cites the weighted-gain number."
+        ),
+    ),
+    PhysicsGate(
+        name="precise_qs_redl_vs_sfincs",
+        category="independent",
+        metric="interior max relative error of Redl vs archived SFINCS",
+        relation="<=",
+        threshold=1.0e-1,
+        source="docs/_static/bootstrap_current_fixed_field_validation.json",
+        rationale=(
+            "The precise-QS benchmark should reproduce the established Redl "
+            "agreement with archived SFINCS on the interior window."
+        ),
+    ),
+    PhysicsGate(
+        name="precise_qs_ntx_neopax_closure_stress",
+        category="stress",
+        metric="interior max relative error of NTX+NEOPAX vs archived SFINCS",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/bootstrap_current_fixed_field_validation.json",
+        rationale=(
+            "This benchmark is retained as a closure-model stress test. It is "
+            "monitored continuously but is not a solver-side release gate."
+        ),
+    ),
+    PhysicsGate(
+        name="pmax_convergence_precise_qs",
+        category="stress",
+        metric="max relative change between successive Pmax levels",
+        relation="monitor",
+        threshold=None,
+        source="future closure_pmax_convergence.json artifact",
+        rationale=(
+            "Higher-order closure work must show controlled convergence in "
+            "Pmax on the precise-QS QA/QH stress family."
+        ),
+    ),
+    PhysicsGate(
+        name="w7x_pmax_transfer_regression",
+        category="transfer",
+        metric="integrated W7-X max relative error under higher-order closure",
+        relation="monitor",
+        threshold=None,
+        source="future closure_pmax_convergence.json artifact",
+        rationale=(
+            "Any higher-order closure extension must transfer to the "
+            "integrated W7-X workflow without regressing the imported path."
+        ),
+    ),
+)
+
+
+def physics_gate_registry() -> tuple[PhysicsGate, ...]:
+    return ANALYTICAL_GATES + ARTIFACT_GATES
+
+
+def _gate_by_name(name: str) -> PhysicsGate:
+    for gate in physics_gate_registry():
+        if gate.name == name:
+            return gate
+    raise KeyError(name)
+
+
+__all__ = [
+    "ANALYTICAL_GATES",
+    "ARTIFACT_GATES",
+    "_gate_by_name",
+    "physics_gate_registry",
+]
