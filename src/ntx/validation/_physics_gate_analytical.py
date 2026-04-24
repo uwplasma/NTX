@@ -218,6 +218,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="ntx_neopax_field_channel_normalization",
+        category="analytical",
+        metric="Er = Es * transport_psi_scale with rho/drds shape consistency",
+        relation="test",
+        threshold=None,
+        source="tests/test_neopax_arrays.py",
+        rationale=(
+            "The NTX-to-NEOPAX scan handoff must preserve the electric-field "
+            "normalization between physical Er and NTX epsi_hat channels while "
+            "checking radial-shape consistency before any transport coefficient "
+            "table is interpreted."
+        ),
+    ),
+    PhysicsGate(
         name="imported_boozer_handedness",
         category="analytical",
         metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",

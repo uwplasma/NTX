@@ -490,6 +490,16 @@ Current status:
 - [x] the eighth no-behavior-change workflow split is complete:
   - `src/ntx/_neopax_scan.py` now owns NTX-to-NEOPAX scan assembly from
     callbacks, in-memory surfaces, and imported VMEC-JAX states
+- [x] the NTX-to-NEOPAX scan split is now narrower:
+  - `src/ntx/_neopax_scan_fields.py` owns radial, collisionality, `drds`, and
+    `E_s`/`E_r` field-channel validation
+  - `src/ntx/_neopax_scan_coefficients.py` owns monoenergetic coefficient
+    solves and reference-normalization bridge blocks
+  - `src/ntx/_neopax_scan.py` remains the compatibility builder for callback,
+    explicit-surface, VMEC-JAX state, and VMEC-JAX boundary workflows
+  - the field-channel normalization gate now checks
+    `E_r = E_s * transport_psi_scale` before any imported closure workflow
+    consumes the scan
 - [x] the ninth no-behavior-change workflow split is complete:
   - `src/ntx/_solver_core.py` now owns prepared solve entry points, coefficient
     assembly, and the custom-VJP contract
@@ -612,6 +622,13 @@ Current status:
     with fake VMEC-JAX modules before field objects feed current workflows
   - this protects differentiable bootstrap-current examples from hidden
     normalization drift in the VMEC-to-NEOPAX bridge
+- [x] NTX-to-NEOPAX field-channel normalization gate added:
+  - radial `rho`, `drds`, and electric-field table shape validation is owned by
+    a small helper module
+  - missing `E_s` or `E_r` channels are reconstructed through the surface
+    transport normalization
+  - this protects bootstrap-current and profile workflows from silent
+    electric-field convention drift in the database handoff
 - [x] first artifact-backed autodiff uncertainty benchmark added:
   - `examples/autodiff_profile_uncertainty.py`
   - linearized covariance propagation against a Monte Carlo ensemble on the
