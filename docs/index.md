@@ -86,6 +86,7 @@ parallel-throughput workflows.
 - [Research Roadmap](research-roadmap.md): next research-grade development lanes
 - [Manuscript Figures](manuscript.md): publication-ready figure inventory
 - [Literature](literature.md): thesis and package links
+- [Release Notes 0.2.0](release-notes-0.2.0.md): current release-candidate notes
 
 ## Contents
 
@@ -115,4 +116,5 @@ research-roadmap
 manuscript
 literature
 release
+release-notes-0.2.0
 ```
