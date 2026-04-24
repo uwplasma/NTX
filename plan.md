@@ -469,6 +469,14 @@ Current status:
   - the added physics gate checks scalar and profile handedness through
     `B_\zeta + \iota B_\theta >= 0`, matching the documented Boozer Jacobian
     convention before any transport solve is run
+- [x] the VMEC-JAX backend split is now narrower:
+  - `src/ntx/_vmec_jax_boundary.py` owns boundary contexts, boundary-projected
+    initial states, implicit solves, and explicit relaxation
+  - `src/ntx/_vmec_jax_surfaces.py` owns VMEC-JAX state/wout conversion to
+    `BoozerSurface` objects
+  - `src/ntx/vmec_jax_backend.py` remains the public compatibility facade
+  - the boundary-edge transfer gate now checks that traced edge arrays reach
+    both implicit and explicit fixed-boundary solve paths
 - [x] the eighth no-behavior-change workflow split is complete:
   - `src/ntx/_neopax_scan.py` now owns NTX-to-NEOPAX scan assembly from
     callbacks, in-memory surfaces, and imported VMEC-JAX states
@@ -581,6 +589,12 @@ Current status:
     and radial basis functions
   - this protects differentiable profile optimization and uncertainty
     workflows from hidden nonlinear control-map changes
+- [x] VMEC-JAX boundary-edge transfer gate added:
+  - traced `Rcos`, `Rsin`, `Zcos`, and `Zsin` edge arrays are forwarded to the
+    implicit residual solve
+  - the same traced arrays are forwarded to the explicit relaxed solve
+  - this protects boundary-to-current derivative workflows from accidentally
+    using stale non-differentiated boundary data
 - [x] first artifact-backed autodiff uncertainty benchmark added:
   - `examples/autodiff_profile_uncertainty.py`
   - linearized covariance propagation against a Monte Carlo ensemble on the

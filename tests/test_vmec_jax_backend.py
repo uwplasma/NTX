@@ -114,7 +114,10 @@ def test_surface_from_vmec_jax_wout_updates_static_from_wout(monkeypatch, tmp_pa
         captured.update(kwargs)
         return "surface"
 
-    monkeypatch.setattr("ntx.vmec_jax_backend.surface_from_vmec_jax_state", fake_surface_from_state)
+    monkeypatch.setattr(
+        "ntx._vmec_jax_surfaces.surface_from_vmec_jax_state",
+        fake_surface_from_state,
+    )
     result = surface_from_vmec_jax_wout(
         input_path=tmp_path / "input.vmec",
         wout_path=tmp_path / "wout.nc",
@@ -151,7 +154,7 @@ def test_surface_from_vmec_jax_wout_keeps_matching_static(monkeypatch, tmp_path)
         return "surface"
 
     monkeypatch.setattr(
-        "ntx.vmec_jax_backend.surface_from_vmec_jax_state",
+        "ntx._vmec_jax_surfaces.surface_from_vmec_jax_state",
         fake_surface_from_state,
     )
 
@@ -237,6 +240,9 @@ def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
     assert solved is solved_state
     assert calls["implicit"]["max_iter"] == 3
     assert jnp.allclose(calls["implicit"]["edge_Rcos"], jnp.asarray([1.0, 2.0]))
+    assert jnp.allclose(calls["implicit"]["edge_Rsin"], jnp.asarray([3.0, 4.0]))
+    assert jnp.allclose(calls["implicit"]["edge_Zcos"], jnp.asarray([5.0, 6.0]))
+    assert jnp.allclose(calls["implicit"]["edge_Zsin"], jnp.asarray([7.0, 8.0]))
 
     relaxed = relax_vmec_jax_boundary_state_explicit(
         context,
@@ -250,6 +256,10 @@ def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
     assert calls["relax"]["max_iter"] == 4
     assert calls["relax"]["gamma"] == 1.5
     assert jnp.allclose(calls["relax"]["pressure"], jnp.asarray([1.0, 2.0, 3.0]))
+    assert jnp.allclose(calls["relax"]["edge_Rcos"], jnp.asarray([1.0, 2.0]))
+    assert jnp.allclose(calls["relax"]["edge_Rsin"], jnp.asarray([3.0, 4.0]))
+    assert jnp.allclose(calls["relax"]["edge_Zcos"], jnp.asarray([5.0, 6.0]))
+    assert jnp.allclose(calls["relax"]["edge_Zsin"], jnp.asarray([7.0, 8.0]))
 
     relaxed_zero_pressure = relax_vmec_jax_boundary_state_explicit(
         context,
@@ -261,7 +271,7 @@ def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
 
 
 def test_surfaces_from_boundary_params_delegates(monkeypatch):
-    import ntx.vmec_jax_backend as backend
+    import ntx._vmec_jax_surfaces as surfaces
 
     context = SimpleNamespace(static="static", indata="indata", signgs=1)
     calls = {}
@@ -274,8 +284,8 @@ def test_surfaces_from_boundary_params_delegates(monkeypatch):
         calls["surfaces"] = kwargs
         return ("surface",)
 
-    monkeypatch.setattr(backend, "solve_vmec_jax_boundary_state", fake_solve)
-    monkeypatch.setattr(backend, "surfaces_from_vmec_jax_state", fake_surfaces)
+    monkeypatch.setattr(surfaces, "solve_vmec_jax_boundary_state", fake_solve)
+    monkeypatch.setattr(surfaces, "surfaces_from_vmec_jax_state", fake_surfaces)
 
     result = surfaces_from_vmec_jax_boundary_params(
         context,

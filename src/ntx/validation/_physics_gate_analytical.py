@@ -190,6 +190,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="vmec_jax_boundary_edge_transfer",
+        category="analytical",
+        metric="traced boundary edge arrays forwarded to implicit and explicit VMEC solves",
+        relation="test",
+        threshold=None,
+        source="tests/test_vmec_jax_backend.py",
+        rationale=(
+            "Boundary-to-output derivatives require the traced fixed-boundary "
+            "Fourier edge arrays to reach both the implicit residual solve and "
+            "the explicit relaxation solve without being replaced by stale "
+            "non-differentiated boundary data."
+        ),
+    ),
+    PhysicsGate(
         name="imported_boozer_handedness",
         category="analytical",
         metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",
