@@ -59,6 +59,24 @@ def test_benchmark_matrix_paths_exist_for_active_lanes():
     assert all(entry.open_work for entry in stress_entries)
 
 
+def test_benchmark_matrix_entries_have_claim_traceability():
+    for entry in benchmark_matrix():
+        assert entry.claim_scope
+        assert entry.literature_anchors, entry.id
+        assert entry.docs, entry.id
+
+        if entry.maturity == "planned-lane":
+            assert entry.open_work, entry.id
+            assert entry.scripts == (), entry.id
+            assert entry.tests == (), entry.id
+            assert entry.artifacts == (), entry.id
+            assert entry.manuscript_figures == (), entry.id
+        else:
+            assert entry.scripts, entry.id
+            assert entry.tests, entry.id
+            assert entry.artifacts, entry.id
+
+
 def test_artifact_gate_sources_are_represented_in_benchmark_matrix():
     matrix_artifacts = {
         artifact for entry in benchmark_matrix() for artifact in entry.artifacts
