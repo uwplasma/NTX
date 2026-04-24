@@ -19,6 +19,9 @@ This is the primary reference for:
   [Cambridge University Press](https://www.cambridge.org/core/books/collisional-transport-in-magnetized-plasmas/4A96C54BF9245C61B8A4F0D94574E2D7)
 - Helander 2014, theory of non-axisymmetric confinement:
   [Reports on Progress in Physics](https://doi.org/10.1088/0034-4885/77/8/087001)
+- Helander and Simakov 2008, intrinsic ambipolarity and stellarator rotation:
+  [Physical Review Letters](https://doi.org/10.1103/PhysRevLett.101.145003),
+  [PubMed](https://pubmed.ncbi.nlm.nih.gov/18851538/)
 - Landreman 2011, monoenergetic approximation limits:
   [PPCF](https://doi.org/10.1088/0741-3335/53/8/082003),
   [arXiv:1102.2508](https://arxiv.org/abs/1102.2508)
@@ -33,6 +36,8 @@ These are the main references for:
 
 - radially local drift-kinetic ordering
 - thermodynamic forces
+- the ambipolar radial-current condition that determines `E_r` in
+  non-quasisymmetric stellarators
 - neoclassical transport matrix structure
 - bootstrap-current interpretation
 - expected limits of exact parity between reduced monoenergetic workflows and

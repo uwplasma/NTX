@@ -1,110 +1,49 @@
-"""Evaluation and ambipolar-profile solvers built on NTX scan data."""
+"""Ambipolar-profile solvers built on NTX scan data."""
 
 from __future__ import annotations
 
-import interpax
 import jax
 import jax.numpy as jnp
 from jax import Array
 
+from ._profiles_channels import (
+    _channel_data,
+    ambipolar_residual_profile,
+    evaluate_scan_channel,
+    evaluate_species_current_response,
+    evaluate_species_particle_flux,
+)
+from ._profiles_primitives import (
+    build_species_profile_from_primitives,
+    build_species_profiles_from_primitives,
+)
+from ._profiles_radial import (
+    _broadcast_profile_field,
+    _single_radius_profile,
+    _smooth_radial_profile,
+)
 from ._profiles_types import (
     AmbipolarProfileFamilyResult,
     AmbipolarProfileResult,
     MonoenergeticSpeciesProfile,
-    PrimitiveSpeciesProfile,
 )
 from .neopax import NeopaxScan
 
-
-def evaluate_scan_channel(
-    scan: NeopaxScan,
-    channel: str,
-    rho: Array,
-    nu_v: Array,
-    er_profile: Array,
-) -> Array:
-    """Interpolate one NTX scan channel over `(rho, nu_v, E_r)`."""
-
-    rho_arr = jnp.asarray(rho)
-    nu_arr = _broadcast_profile_field(nu_v, rho_arr)
-    er_arr = _broadcast_profile_field(er_profile, rho_arr)
-    if rho_arr.shape != jnp.asarray(scan.rho).shape:
-        raise ValueError("rho must match scan.rho shape")
-    data = _channel_data(scan, channel)
-    log_nu_axis = jnp.log10(jnp.asarray(scan.nu_v))
-
-    def per_radius(index, nu_value, er_value):
-        er_axis = jnp.asarray(scan.Er[index])
-        values = data[index]
-        interpolator = interpax.Interpolator2D(
-            log_nu_axis,
-            er_axis,
-            values,
-            extrap=True,
-        )
-        if channel == "D11":
-            return 10.0 ** interpolator(jnp.log10(jnp.maximum(nu_value, 1e-30)), er_value)
-        return interpolator(jnp.log10(jnp.maximum(nu_value, 1e-30)), er_value)
-
-    return jax.vmap(per_radius)(jnp.arange(rho_arr.size), nu_arr, er_arr)
-
-
-def evaluate_species_particle_flux(
-    scan: NeopaxScan,
-    species: MonoenergeticSpeciesProfile,
-    *,
-    rho: Array | None = None,
-    er_profile: Array,
-) -> Array:
-    """Return the monoenergetic particle-flux proxy for one species."""
-
-    rho_eval = jnp.asarray(scan.rho) if rho is None else jnp.asarray(rho)
-    d11 = evaluate_scan_channel(scan, "D11", rho_eval, species.nu_v, er_profile)
-    d13 = evaluate_scan_channel(scan, "D13", rho_eval, species.nu_v, er_profile)
-    a1 = _broadcast_profile_field(species.A1, rho_eval)
-    a3 = _broadcast_profile_field(species.A3, rho_eval)
-    particle_weight = _broadcast_profile_field(species.particle_weight, rho_eval)
-    return -particle_weight * (d11 * a1 + d13 * a3)
-
-
-def evaluate_species_current_response(
-    scan: NeopaxScan,
-    species: MonoenergeticSpeciesProfile,
-    *,
-    rho: Array | None = None,
-    er_profile: Array,
-) -> Array:
-    """Return the monoenergetic bootstrap-current proxy for one species."""
-
-    rho_eval = jnp.asarray(scan.rho) if rho is None else jnp.asarray(rho)
-    d31 = evaluate_scan_channel(scan, "D31", rho_eval, species.nu_v, er_profile)
-    d33 = evaluate_scan_channel(scan, "D33", rho_eval, species.nu_v, er_profile)
-    a1 = _broadcast_profile_field(species.A1, rho_eval)
-    a3 = _broadcast_profile_field(species.A3, rho_eval)
-    current_weight = _broadcast_profile_field(species.current_weight, rho_eval)
-    return -current_weight * (d31 * a1 + d33 * a3)
-
-
-def ambipolar_residual_profile(
-    scan: NeopaxScan,
-    species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
-    *,
-    er_profile: Array,
-) -> Array:
-    """Return the charge-weighted monoenergetic ambipolar residual profile."""
-
-    rho = jnp.asarray(scan.rho)
-    er_arr = _broadcast_profile_field(er_profile, rho)
-    residual = jnp.zeros_like(rho)
-    for species in species_profiles:
-        charge = _broadcast_profile_field(species.charge, rho)
-        residual = residual + charge * evaluate_species_particle_flux(
-            scan,
-            species,
-            rho=rho,
-            er_profile=er_arr,
-        )
-    return residual
+__all__ = [
+    "_broadcast_profile_field",
+    "_channel_data",
+    "_single_radius_profile",
+    "_smooth_radial_profile",
+    "ambipolar_residual_profile",
+    "bootstrap_current_objective",
+    "build_species_profile_from_primitives",
+    "build_species_profiles_from_primitives",
+    "evaluate_scan_channel",
+    "evaluate_species_current_response",
+    "evaluate_species_particle_flux",
+    "solve_ambipolar_er_profile",
+    "solve_ambipolar_profile_family",
+]
 
 
 def solve_ambipolar_er_profile(
@@ -271,101 +210,4 @@ def bootstrap_current_objective(
     else:
         weight_arr = _broadcast_profile_field(weight, rho_arr)
     return jnp.trapezoid(weight_arr * profile**2, rho_arr)
-
-
-def build_species_profile_from_primitives(
-    rho: Array,
-    primitive: PrimitiveSpeciesProfile,
-    *,
-    er_profile: Array,
-) -> MonoenergeticSpeciesProfile:
-    """Construct `A1(r)` and `A3(r)` from primitive density/temperature profiles."""
-
-    rho_arr = jnp.asarray(rho)
-    density = _broadcast_profile_field(primitive.density, rho_arr)
-    temperature = _broadcast_profile_field(primitive.temperature, rho_arr)
-    charge = _broadcast_profile_field(primitive.charge, rho_arr)
-    er_arr = _broadcast_profile_field(er_profile, rho_arr)
-    prefactor = _broadcast_profile_field(primitive.electrostatic_prefactor, rho_arr)
-
-    def grad(values):
-        safe_values = _smooth_radial_profile(values, jnp.asarray(0.35, dtype=rho_arr.dtype))
-        return jnp.gradient(safe_values, rho_arr)
-
-    log_density_grad = grad(
-        jnp.log(jnp.maximum(density, jnp.asarray(1.0e-12, dtype=rho_arr.dtype)))
-    )
-    log_temperature_grad = grad(
-        jnp.log(jnp.maximum(temperature, jnp.asarray(1.0e-12, dtype=rho_arr.dtype)))
-    )
-    a3 = log_temperature_grad
-    a1 = log_density_grad - 1.5 * log_temperature_grad + prefactor * charge * er_arr
-    return MonoenergeticSpeciesProfile(
-        charge=primitive.charge,
-        nu_v=_broadcast_profile_field(primitive.nu_v, rho_arr),
-        A1=a1,
-        A3=a3,
-        particle_weight=primitive.particle_weight,
-        current_weight=primitive.current_weight,
-        name=primitive.name,
-    )
-
-
-def build_species_profiles_from_primitives(
-    rho: Array,
-    primitives: tuple[PrimitiveSpeciesProfile, ...],
-    *,
-    er_profile: Array,
-) -> tuple[MonoenergeticSpeciesProfile, ...]:
-    """Vectorized helper for primitive-to-monoenergetic profile construction."""
-
-    return tuple(
-        build_species_profile_from_primitives(rho, primitive, er_profile=er_profile)
-        for primitive in primitives
-    )
-
-
-def _broadcast_profile_field(values, rho: Array) -> Array:
-    array = jnp.asarray(values)
-    if array.ndim == 0:
-        return jnp.full_like(rho, array)
-    if array.shape == rho.shape:
-        return array
-    raise ValueError("profile field must be scalar or match rho shape")
-
-
-def _smooth_radial_profile(values: Array, strength: Array) -> Array:
-    if jnp.asarray(values).ndim != 1:
-        raise ValueError("values must be one-dimensional for radial smoothing")
-    if jnp.asarray(values).shape[0] < 3:
-        return values
-    strength_value = jnp.clip(jnp.asarray(strength), 0.0, 1.0)
-    left = jnp.concatenate([values[:1], values[:-1]])
-    right = jnp.concatenate([values[1:], values[-1:]])
-    smoothed = 0.25 * left + 0.5 * values + 0.25 * right
-    return (1.0 - strength_value) * values + strength_value * smoothed
-
-
-def _channel_data(scan: NeopaxScan, channel: str) -> Array:
-    if channel == "D11":
-        return jnp.log10(jnp.maximum(jnp.asarray(scan.D11), 1.0e-30))
-    if channel == "D13":
-        return jnp.asarray(scan.D13)
-    if channel == "D33":
-        return jnp.asarray(scan.D33)
-    if channel == "D31":
-        if scan.D31 is None:
-            return -jnp.asarray(scan.D13)
-        return jnp.asarray(scan.D31)
-    raise ValueError(f"unsupported channel '{channel}'")
-
-
-def _single_radius_profile(
-    rho: Array,
-    rho_value: Array,
-    er_profile: Array,
-    er_trial: Array,
-) -> Array:
-    index = jnp.argmin(jnp.abs(rho - rho_value))
-    return er_profile.at[index].set(er_trial)
 

@@ -9,10 +9,10 @@ import jax.numpy as jnp
 from jax import Array
 
 from ._profiles_eval import (
-    _broadcast_profile_field,
     bootstrap_current_objective,
     solve_ambipolar_er_profile,
 )
+from ._profiles_radial import _broadcast_profile_field
 from ._profiles_types import (
     MonoenergeticSpeciesProfile,
     ProfileBasisControlSpec,
@@ -327,4 +327,3 @@ def optimize_profile_basis_control(
 
 def _basis_profile_modifier(control: Array, response: Array, basis: Array) -> Array:
     return jnp.tensordot(control * response, basis, axes=1)
-

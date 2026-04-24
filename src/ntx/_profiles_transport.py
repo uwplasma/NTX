@@ -6,10 +6,10 @@ import jax.numpy as jnp
 from jax import Array
 
 from ._profiles_eval import (
-    _broadcast_profile_field,
     build_species_profiles_from_primitives,
     solve_ambipolar_er_profile,
 )
+from ._profiles_radial import _broadcast_profile_field
 from ._profiles_transport_closure import (
     _broadcast_species_transport_field as _broadcast_species_transport_field,
 )

@@ -447,7 +447,7 @@ Current status:
   - `profiles.py` now remains the compatibility surface
   - workflow dataclasses live in `src/ntx/_profiles_types.py`
   - scan interpolation, ambipolar solves, and primitive profile construction
-    live in `src/ntx/_profiles_eval.py`
+    were first split into `src/ntx/_profiles_eval.py`
   - scalar and basis-control helpers live in `src/ntx/_profiles_controls.py`
   - profile-transport closure losses and explicit update algebra live in
     `src/ntx/_profiles_transport_closure.py`
@@ -492,6 +492,17 @@ Current status:
     transport-relaxation scaling
   - `src/ntx/_profiles_transport.py` now owns only the iterative transport-loop
     runners while preserving the public `ntx.profiles` compatibility exports
+- [x] the twelfth no-behavior-change profile split is complete:
+  - `src/ntx/_profiles_radial.py` owns shared radial broadcast, smoothing, and
+    single-radius helper algebra
+  - `src/ntx/_profiles_channels.py` owns NTX scan-channel interpolation,
+    species particle/current response proxies, and the charge-weighted
+    ambipolar residual
+  - `src/ntx/_profiles_primitives.py` owns primitive density/temperature to
+    thermodynamic-force reconstruction
+  - `src/ntx/_profiles_eval.py` now focuses on ambipolar profile solves and the
+    bootstrap-current objective while preserving the old internal import
+    surface for compatibility
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable
@@ -504,6 +515,11 @@ Current status:
   - archived precise-QS QA/QH primitive-to-force reconstruction figure and JSON
   - treated as a monitored benchmark-family stress test for the current
     primitive-profile builder, not a parity gate
+- [x] first fast ambipolarity profile identity gate added:
+  - charge-symmetric species with equal particle-flux response must give
+    `sum_s Z_s Gamma_s = 0` exactly
+  - this anchors the local residual algebra used by the ambipolar `E_r(r)`
+    solve before broader transport or optimization examples are interpreted
 - [x] first artifact-backed autodiff uncertainty benchmark added:
   - `examples/autodiff_profile_uncertainty.py`
   - linearized covariance propagation against a Monte Carlo ensemble on the
