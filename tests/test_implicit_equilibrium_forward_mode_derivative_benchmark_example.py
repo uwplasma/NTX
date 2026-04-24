@@ -48,7 +48,12 @@ def test_implicit_equilibrium_forward_mode_derivative_benchmark_writes_outputs(t
     assert payload["benchmark"] == "implicit_equilibrium_forward_mode_derivative_benchmark"
     assert (
         payload["classification"]
-        == "artifact-backed implicit-equilibrium derivative diagnostic"
+        == "artifact-backed non-shipping implicit-equilibrium diagnostic"
+    )
+    assert payload["closure_decision"]["status"] == "closed-not-shipped"
+    assert (
+        payload["closure_decision"]["supported_equilibrium_derivative_path"]
+        == "explicit_relaxed_fixed_boundary"
     )
     objective_ids = {objective["id"] for objective in payload["objectives"]}
     assert objective_ids == {
@@ -59,10 +64,12 @@ def test_implicit_equilibrium_forward_mode_derivative_benchmark_writes_outputs(t
     objectives = {objective["id"]: objective for objective in payload["objectives"]}
     assert objectives["equilibrium_volume"]["status"] == "validated"
     assert objectives["equilibrium_volume"]["relative_mismatch"][0] < 1.0e-3
-    assert objectives["booz_xform_scalar"]["status"] == "open"
+    assert objectives["booz_xform_scalar"]["status"] == "closed-not-shipped"
     assert objectives["booz_xform_scalar"]["relative_mismatch"][0] > 1.0e-1
-    assert objectives["ntx_transport_proxy"]["status"] == "open"
+    assert objectives["ntx_transport_proxy"]["status"] == "closed-not-shipped"
     assert objectives["ntx_transport_proxy"]["relative_mismatch"][0] > 1.0
+    assert payload["summary_metrics"]["residual_contracts"] is False
+    assert payload["residual_history"]
     assert payload["reverse_mode_diagnostic"]["objective_id"] == "booz_xform_scalar"
     assert payload["reverse_mode_diagnostic"]["status"] == "unsupported"
     assert payload["reverse_mode_diagnostic"]["error_type"] == "ValueError"

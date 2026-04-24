@@ -257,27 +257,22 @@ docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf
 docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json
 ```
 
-This does not close the implicit-equilibrium lane. The current JSON artifact
-shows a mixed result on the committed QA case:
+This closes the implicit-equilibrium lane as a non-shipping diagnostic, not as a
+supported optimization path. The current JSON artifact shows a mixed result on
+the committed QA case:
 
 - the equilibrium-volume derivative matches centered finite differences,
-- the Boozer scalar remains mismatched on the implicit lane,
-- the NTX transport observable remains more strongly mismatched on the same lane,
-- and the matching reverse-mode Boozer-scalar diagnostic is still unavailable
-  because JAX rejects reverse mode through the dynamic-loop implicit solve.
+- the Boozer scalar fails tangent parity on the implicit lane,
+- the NTX transport observable fails more strongly on the same lane,
+- the residual history does not contract under the committed iteration ladder,
+- and the matching reverse-mode Boozer-scalar diagnostic is unavailable because
+  the dynamic-loop implicit solve is not a valid promoted reverse-mode path.
 
-So the open work is now concrete rather than vague:
-
-- recover Boozer-scalar parity on the implicit geometry path,
-- recover NTX transport parity on the same implicit geometry path,
-- extend the implicit forward-mode lane to the `NTX+NEOPAX` integrated-current objective,
-- broaden the benchmark beyond the committed QA case,
-- and repair reverse mode through the implicit `vmec_jax -> booz_xform_jax` path.
-
-The JSON sidecar is intentionally registered as a monitored stress metric, not
-an acceptance gate. The current maximum relative mismatch is order unity because
-the Boozer-space and NTX transport objectives remain open even though the
-equilibrium-volume objective closes.
+The JSON sidecar is intentionally registered as a monitored diagnostic, not an
+acceptance gate. The supported self-consistent equilibrium derivative route is
+the explicit-relaxed fixed-boundary lane below. The implicit lane should only be
+restored after the backend residual solve contracts and Boozer/NTX centered-FD
+tangent parity passes.
 
 ![Implicit-equilibrium forward-mode derivative benchmark](_static/implicit_equilibrium_forward_mode_derivative_benchmark.png)
 
@@ -315,8 +310,7 @@ just an internally consistent autodiff loop on a different equilibrium branch.
 The remaining open work is now narrower:
 
 - widen from the committed QA/QH cases to additional geometry families,
-- extend the implicit-equilibrium forward-mode contract from geometry and NTX
-  transport to `NTX+NEOPAX` integrated current,
+- add integrated-current objectives on the supported explicit-relaxed lane,
 - and repair reverse mode on the relaxed-equilibrium lane.
 
 The committed JSON sidecar is now checked by the physics-gate registry with a
@@ -324,10 +318,10 @@ The committed JSON sidecar is now checked by the physics-gate registry with a
 artifact also reports the ordinary-vs-explicit-relaxed volume difference, which
 is currently zero on the committed cases.
 
-At the moment, the reverse-mode implicit path remains open for a concrete
-reason: the matching QA Boozer-scalar probe returns an all-zero reverse-mode
-gradient while centered finite differences are nonzero, so this is still a
-broken lane, not a promoted sensitivity workflow.
+At the moment, the reverse-mode implicit diagnostic remains non-shipping for a
+concrete reason: the matching QA Boozer-scalar probe is unavailable or guarded
+to zero while centered finite differences are nonzero, so it is not a promoted
+sensitivity workflow.
 
 ![Explicit-relaxed boundary current derivative benchmark](_static/explicit_relaxed_boundary_current_derivative_benchmark.png)
 
@@ -348,7 +342,7 @@ publication-ready figure:
 - boundary-projected current derivatives,
 - explicit-relaxed QA/QH boundary-to-current derivatives,
 - and the implicit-equilibrium diagnostic split into the validated volume
-  objective and the still-open Boozer/NTX transport objectives.
+  objective and the retired non-shipping Boozer/NTX transport diagnostics.
 
 The figure is written to:
 

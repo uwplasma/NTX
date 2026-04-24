@@ -12,7 +12,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             title="Artifact-backed geometry-family derivative breadth summary",
             claim_scope=(
                 "Summarizes committed analytic, file-backed, boundary-projected, "
-                "explicit-relaxed, and implicit-equilibrium derivative artifacts "
+                "explicit-relaxed, and implicit-equilibrium diagnostic artifacts "
                 "without promoting a full hidden-symmetry, omnigenous, or broad "
                 "W7-X/QI validation claim."
             ),
@@ -38,10 +38,13 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             ),
             open_work=(
                 "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
-                "recover Boozer-space and NTX-transport derivative parity on the implicit path",
                 (
                     "add D11/D31/D33 parity and convergence ladders before full "
                     "geometry-family promotion"
+                ),
+                (
+                    "restore implicit-equilibrium derivatives only after residual "
+                    "contraction and surface/transport tangent parity pass"
                 ),
             ),
         ),

@@ -186,17 +186,21 @@ def build_payload() -> dict[str, object]:
                 "docs/_static/"
                 "implicit_equilibrium_forward_mode_derivative_benchmark.json"
             ),
-            notes="only the equilibrium-volume objective currently closes on the implicit path",
+            notes=(
+                "scalar volume probe only; implicit surface/transport derivatives "
+                "are closed as non-shipping diagnostics"
+            ),
         )
     )
 
     open_cases: list[dict[str, object]] = []
+    retired_cases: list[dict[str, object]] = []
     for objective_id, label in (
         ("booz_xform_scalar", "Implicit Boozer"),
         ("ntx_transport_proxy", "Implicit NTX"),
     ):
         objective = implicit_objectives[objective_id]
-        open_cases.append(
+        retired_cases.append(
             _case(
                 case_id=f"implicit_{objective_id}",
                 label=label,
@@ -210,20 +214,21 @@ def build_payload() -> dict[str, object]:
                     "implicit_equilibrium_forward_mode_derivative_benchmark.json"
                 ),
                 notes=(
-                    "still mismatched against centered finite differences; "
-                    "kept out of promoted claims"
+                    "closed as non-shipping because residual contraction and "
+                    "surface/transport tangent parity do not pass"
                 ),
             )
         )
 
     active_values = [float(case["max_relative_mismatch"]) for case in active_cases]
     open_values = [float(case["max_relative_mismatch"]) for case in open_cases]
+    retired_values = [float(case["max_relative_mismatch"]) for case in retired_cases]
     return {
         "benchmark": "geometry_family_breadth_summary",
         "classification": "artifact-backed geometry-breadth stress summary",
         "claim_scope": (
             "Summarizes committed analytic, file-backed, boundary-projected, "
-            "explicit-relaxed, and implicit-equilibrium derivative artifacts. "
+            "explicit-relaxed, and implicit-equilibrium diagnostic artifacts. "
             "This is broader than a single surface, but it is not a full "
             "hidden-symmetry, omnigenous, or broad W7-X/QI validation claim."
         ),
@@ -247,25 +252,28 @@ def build_payload() -> dict[str, object]:
         ],
         "active_cases": active_cases,
         "open_cases": open_cases,
+        "retired_cases": retired_cases,
         "summary_metrics": {
             "active_case_count": len(active_cases),
             "open_case_count": len(open_cases),
+            "retired_case_count": len(retired_cases),
             "max_active_relative_mismatch": _max(active_values),
             "median_active_relative_mismatch": float(np.median(active_values)),
-            "max_open_relative_mismatch": _max(open_values),
+            "max_open_relative_mismatch": _max(open_values) if open_values else 0.0,
+            "max_retired_relative_mismatch": _max(retired_values),
             "implicit_validated_objective_count": 1,
             "implicit_open_objective_count": len(open_cases),
+            "implicit_retired_objective_count": len(retired_cases),
         },
         "open_work": [
             "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
-            "recover Boozer-space and NTX-transport derivative parity on the implicit path",
             (
                 "add direct D11/D31/D33 parity and convergence ladders before "
                 "promoting a full geometry-family claim"
             ),
             (
-                "add reverse-mode equilibrium derivative support once the "
-                "upstream dynamic-loop path is differentiable"
+                "restore implicit-equilibrium derivatives only after residual "
+                "contraction and surface/transport tangent parity pass"
             ),
         ],
         "figure_png": "docs/_static/geometry_family_breadth_summary.png",
@@ -317,7 +325,7 @@ def _plot_bars(ax, cases: list[dict[str, object]], *, title: str, color: str) ->
 def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX) -> None:
     _configure_style()
     active_cases = list(payload["active_cases"])
-    open_cases = list(payload["open_cases"])
+    retired_cases = list(payload["retired_cases"])
     fig, (ax_active, ax_open) = plt.subplots(
         1,
         2,
@@ -332,15 +340,15 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
     )
     _plot_bars(
         ax_open,
-        open_cases,
-        title="(b) Implicit path still open",
+        retired_cases,
+        title="(b) Retired implicit diagnostics",
         color="#c85200",
     )
     summary = payload["summary_metrics"]
     fig.suptitle(
         "Geometry-family derivative breadth summary: "
         f"{summary['active_case_count']} active stress cases, "
-        f"{summary['open_case_count']} open implicit objectives",
+        f"{summary['retired_case_count']} retired implicit diagnostics",
         y=0.98,
         fontsize=13.0,
     )

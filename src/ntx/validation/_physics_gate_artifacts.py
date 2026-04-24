@@ -150,12 +150,13 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
 
     _append_summary_metric_gate(
         results,
-        gate_name="implicit_equilibrium_derivative_open_stress",
+        gate_name="implicit_equilibrium_derivative_nonshipping_diagnostic",
         path=static_root / "implicit_equilibrium_forward_mode_derivative_benchmark.json",
         metric_key="max_relative_mismatch",
         details=(
-            "monitored implicit-equilibrium diagnostic; volume derivative "
-            "closes while Boozer-space and NTX transport observables remain open"
+            "monitored implicit-equilibrium diagnostic closed as non-shipping; "
+            "the explicit-relaxed path remains the supported equilibrium "
+            "derivative route"
         ),
     )
 

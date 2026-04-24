@@ -122,7 +122,8 @@ Together these figures cover:
 - file-backed Boozer and VMEC geometry-control derivative auditing
 - boundary-to-output forward-mode auditing on projected `vmec_jax` geometry
 - implicit-equilibrium derivative diagnostics that isolate where parity is lost:
-  equilibrium volume matches, but Boozer geometry and NTX transport remain open
+  equilibrium volume matches, but Boozer geometry and NTX transport are closed
+  as non-shipping diagnostics
 - equilibrium-relaxed boundary-to-current forward-mode auditing on committed QA/QH family cases
 - artifact-backed geometry-breadth status across the committed derivative
   families, with unresolved implicit objectives kept out of promoted claims

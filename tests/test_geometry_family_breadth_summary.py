@@ -30,10 +30,13 @@ def test_geometry_family_breadth_summary_builds_from_committed_artifacts():
     assert payload["benchmark"] == "geometry_family_breadth_summary"
     assert payload["classification"] == "artifact-backed geometry-breadth stress summary"
     assert payload["summary_metrics"]["active_case_count"] >= 7
-    assert payload["summary_metrics"]["open_case_count"] == 2
+    assert payload["summary_metrics"]["open_case_count"] == 0
+    assert payload["summary_metrics"]["retired_case_count"] == 2
     assert payload["summary_metrics"]["max_active_relative_mismatch"] < 5.0e-4
-    assert payload["summary_metrics"]["max_open_relative_mismatch"] > 1.0e-1
-    assert {case["status"] for case in payload["open_cases"]} == {"open"}
+    assert payload["summary_metrics"]["max_retired_relative_mismatch"] > 1.0e-1
+    assert {case["status"] for case in payload["retired_cases"]} == {
+        "closed-not-shipped"
+    }
 
 
 def test_geometry_family_breadth_summary_writes_outputs(tmp_path):
@@ -47,4 +50,5 @@ def test_geometry_family_breadth_summary_writes_outputs(tmp_path):
     payload = json.loads(output_prefix.with_suffix(".json").read_text(encoding="utf-8"))
     assert payload["benchmark"] == "geometry_family_breadth_summary"
     assert payload["summary_metrics"]["implicit_validated_objective_count"] == 1
-    assert payload["summary_metrics"]["implicit_open_objective_count"] == 2
+    assert payload["summary_metrics"]["implicit_open_objective_count"] == 0
+    assert payload["summary_metrics"]["implicit_retired_objective_count"] == 2

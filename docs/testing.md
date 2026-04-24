@@ -163,9 +163,9 @@ checked by the same physics-gate registry. The passing gates cover the owned
 analytic geometry-control audit (`2e-4`), file-backed Boozer/VMEC samples
 (`5e-4`), boundary-projected forward-mode current derivatives (`1e-5`), and
 explicit-relaxed QA/QH boundary-to-current derivatives (`1e-4`). The
-implicit-equilibrium derivative artifact remains a monitored open lane because
-only the equilibrium-volume objective currently matches centered finite
-differences.
+implicit-equilibrium derivative artifact remains a monitored non-shipping
+diagnostic because only the equilibrium-volume objective currently matches
+centered finite differences and the residual history does not contract.
 
 The physics-facing gate structure is documented separately in
 [`physics-gates.md`](physics-gates.md). The test suite and benchmark scripts are
