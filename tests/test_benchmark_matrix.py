@@ -33,6 +33,8 @@ def test_benchmark_matrix_has_unique_ids_and_expected_lanes():
     assert "implicit_equilibrium_forward_mode_derivative_benchmark" in ids
     assert "explicit_relaxed_boundary_current_derivative_benchmark" in ids
     assert "geometry_family_breadth_summary" in ids
+    assert "geometry_family_transport_convergence" in ids
+    assert "prepared_geometry_reuse_profile" in ids
     assert "bootstrap_current_optimization" in ids
     assert "geometry_breadth_hidden_symmetry" in ids
     assert "full_monoenergetic_geometry_family" in ids

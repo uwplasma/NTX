@@ -13,12 +13,12 @@ work with a clear reason.
 | CI runtime and coverage | Closed; monitor | Maintain `>=95%` repository-owned coverage, module floors, and a normal CI wall time near `5-10` minutes. |
 | Literature-anchored physics gates | In progress | Add or preserve fast gates for convergence, Onsager residuals, exact low-order recovery, coefficient sign/normalization, and artifact-backed literature comparisons. |
 | Fixed-field `NTX+NEOPAX` closure | Scoped stress gate | Keep as a monitored stress metric for the first release; do not claim fixed-field parity unless a physics-derived closure improves QA/QH without regressing integrated W7-X. No fitted bridge constants. |
-| Multi-CPU and multi-GPU algorithms | Open performance lane | Add measured CPU/GPU/multiprocess crossover maps on production grids; promote only algorithms that beat serial batched JAX on the target workload. |
-| `vmec_jax` and `booz_xform_jax` integration | Partly closed | Keep projected-boundary and explicit-relaxed lanes; close or document implicit-equilibrium derivative gaps before making broad optimization claims. |
+| Multi-CPU and multi-GPU algorithms | Partly closed; production profiling remains | CPU/GPU/multiprocess crossover maps and prepared-geometry reuse profiles are artifact-backed; promote only algorithms that beat serial batched JAX on the target production workload. |
+| `vmec_jax` and `booz_xform_jax` integration | Closed for first release; broader sensitivities planned | Keep projected-boundary and explicit-relaxed lanes as the promoted differentiable paths; the implicit-equilibrium diagnostic is documented as non-shipping. |
 | SFINCS comparisons | Partly closed | Add more artifact-backed comparisons with aligned physics settings and normalizations; distinguish parity gates from monitored stress gates. |
 | Documentation | In progress | Keep docs synchronized with source layout, benchmark matrix, test lanes, performance guidance, examples, and release path. |
-| Implicit-equilibrium derivative lane | Open | Boozer and NTX transport observables must match centered finite differences, not just equilibrium volume. |
-| Broader W7-X/QI/omnigenous families | Planned | Add owned inputs, convergence ladders, artifacts, and benchmark-matrix rows before promotion. |
+| Implicit-equilibrium derivative lane | Closed as non-shipping diagnostic | Do not promote this path for optimization claims; restore only after Boozer and NTX transport observables match centered finite differences, not just equilibrium volume. |
+| Broader W7-X/QI/omnigenous families | Stress artifact added | Keep the new VMEC family convergence artifact as reduced NTX stress evidence; add paper-resolution independent-code parity, owned W7-X KJM input coverage, and radial/electric-field ladders before promotion. |
 | PyPI/release automation | Repo-side configured | Finish external PyPI project setup, Trusted Publishing environment approval, and first tagged release rehearsal. |
 
 ## Acceptance Criteria
@@ -158,6 +158,9 @@ work with a clear reason.
   coverage is no longer a blocking lane.
 - The expensive boundary/equilibrium artifact reruns remain opt-in through
   `NTX_RUN_HEAVY_BOUNDARY_EXAMPLES=1`.
+- The prepared-geometry reuse profile is now a performance software gate: the
+  compiled prepared steady path must remain coefficient-consistent with direct
+  solves, while speedup stays a measured performance claim.
 
 ## Immediate Next Order
 

@@ -15,9 +15,11 @@ validated NTX artifacts.
 - The matching reverse-mode Boozer-scalar diagnostic on the non-shipping implicit-equilibrium diagnostic remains unavailable because the current JAX transform rejects the implicit dynamic-loop solve on that path.
 - The explicit-relaxed `vmec_jax -> booz_xform_jax -> NTX` and `NTX+NEOPAX` boundary-to-current QA/QH stress benchmark matches centered finite differences with a maximum relative mismatch of `2.626e-05` and a median mismatch of `4.408e-07`, while the ordinary and explicit-relaxed primal volumes agree to `0.000e+00` on the committed QA/QH family cases.
 - The artifact-backed geometry-family breadth summary now covers `7` active analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-volume stress cases with maximum active mismatch `3.088e-04`. The implicit Boozer and NTX transport objectives are closed as non-shipping diagnostics with maximum mismatch `6.454e+00` and are excluded from promoted geometry-family claims.
+- The geometry-family transport convergence stress diagnostic solves `11` public VMEC-family cases, with `5` below the smoke-grid convergence tolerance and maximum last-step relative D11/D31/D33 change `1.952e+00`. It is a reduced NTX convergence diagnostic, not an independent-code parity claim.
 - The differentiable bootstrap-current optimization example improves the weighted current proxy by `1.085x` on the committed W7-X study.
 - On the heavy CPU benchmark, multiprocess execution reaches a best observed speedup of `0.591x`.
 - On the heavy GPU benchmark, the current multiprocess path reaches a best observed speedup of `0.477x` with `1` healthy parallel GPU device(s), so the current paper should frame GPU multiprocess as a characterized execution mode rather than a throughput win.
+- On the prepared-geometry reuse profile, the compiled steady solver reaches a best observed speedup of `150.369x` against direct repeated solves with maximum coefficient mismatch `1.856e-09`.
 
 These claims should be used consistently in the manuscript text, captions, and
 response-to-reviewer notes.

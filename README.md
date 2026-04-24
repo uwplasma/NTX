@@ -241,6 +241,8 @@ python examples/neopax_autodiff_profiles.py
 python examples/derivative_audit.py
 python examples/derivative_path_benchmark.py
 python examples/geometry_family_breadth_summary.py
+python examples/geometry_family_transport_convergence.py --preset paper
+python examples/prepared_geometry_reuse_profile.py --preset paper
 python examples/ambipolar_profile.py
 python examples/ambipolar_profile_family.py
 python examples/profile_control_optimization.py
@@ -258,6 +260,8 @@ These generate figures for:
 - direct autodiff versus finite-difference derivative audits
 - direct reverse-mode versus prepared custom-VJP derivative timing
 - artifact-backed geometry-family derivative breadth status
+- VMEC geometry-family `D11/D31/D33` convergence stress scans
+- prepared-geometry and compiled-solver reuse performance profiling
 - ambipolar residual landscapes and bootstrap-current-proxy profile solves
 - controlled families of ambipolar and bootstrap-current-proxy profiles
 - differentiable optimization of scalar profile controls
@@ -278,6 +282,23 @@ artifacts and makes the current validation scope explicit:
 - broad W7-X/QI/omnigenous geometry-family validation remains planned work
 
 ![Geometry-family derivative breadth summary](docs/_static/geometry_family_breadth_summary.png)
+
+The direct VMEC geometry-family transport diagnostic discovers reusable local
+examples from the surrounding `vmec_jax`, STELLOPT, and SIMSOPT checkouts and
+runs a `D11/D31/D33` grid ladder:
+
+```bash
+python examples/geometry_family_transport_convergence.py --preset paper
+```
+
+The current artifact solves tokamak, precise-QS QA/QH, QI-style, W7-X
+EIM/EJM, LHD, HSX, and NCSX-family cases when those local public inputs are
+available. It is intentionally reported as a reduced NTX convergence stress
+diagnostic, not as hidden parity with an independent solver; paper-resolution
+independent parity and an owned W7-X KJM input remain explicit promotion
+requirements.
+
+![Geometry-family transport convergence](docs/_static/geometry_family_transport_convergence.png)
 
 ## Bootstrap-Current Validation
 
@@ -401,6 +422,8 @@ NTX supports:
 Current practical guidance:
 
 - use serial batched JAX for small and medium studies
+- compile and reuse prepared fixed-geometry closures for repeated
+  monoenergetic scans and optimization loops
 - use the multiprocess lane for larger throughput-oriented jobs
 
 See:

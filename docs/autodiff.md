@@ -360,6 +360,31 @@ derivative parity.
 
 ![Geometry-family breadth summary](_static/geometry_family_breadth_summary.png)
 
+## Geometry-Family Transport Convergence
+
+The script:
+
+```bash
+python examples/geometry_family_transport_convergence.py --preset paper
+```
+
+discovers reusable VMEC `wout` examples from local `vmec_jax`, STELLOPT, and
+SIMSOPT checkouts, loads each surface through the NTX VMEC path, and runs a
+`D11/D31/D33` grid ladder. The figure and JSON sidecar are written to:
+
+```text
+docs/_static/geometry_family_transport_convergence.png
+docs/_static/geometry_family_transport_convergence.pdf
+docs/_static/geometry_family_transport_convergence.json
+```
+
+The current artifact is a convergence stress diagnostic across the available
+public geometry families. It distinguishes cases that are below the tracked
+stress tolerance from cases that need paper-resolution or independent-reference
+promotion work.
+
+![Geometry-family transport convergence](_static/geometry_family_transport_convergence.png)
+
 ## NEOPAX-Style Profile Example
 
 The script:

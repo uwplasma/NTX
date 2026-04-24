@@ -222,8 +222,17 @@ The committed artifact-backed status is summarized in
 That script reads the analytic, file-backed, boundary-projected,
 explicit-relaxed, and implicit-equilibrium derivative artifacts and produces a
 manuscript-ready figure without rerunning expensive equilibrium solves. It is a
-stress-summary lane: retired implicit Boozer/transport diagnostics plus broader
-W7-X/QI/omnigenous families remain explicit planned work.
+stress-summary lane: retired implicit Boozer/transport diagnostics remain
+excluded from promoted claims.
+
+The direct VMEC transport-convergence breadth check now lives in
+[`examples/geometry_family_transport_convergence.py`](../examples/geometry_family_transport_convergence.py).
+It discovers local public VMEC examples from `vmec_jax`, STELLOPT, and SIMSOPT,
+then records `D11/D31/D33` grid-ladder behavior across tokamak, precise-QS,
+QI-style, W7-X EIM/EJM, and stellarator-family inputs. That closes the
+reduced-grid NTX geometry-family stress artifact; independent-code parity,
+paper-resolution radial/electric-field/collisionality ladders, and owned W7-X
+KJM input coverage remain promotion requirements.
 
 ## Phase 4: Production Throughput
 
@@ -237,10 +246,13 @@ The performance conclusion from the current benchmarks is:
 
 - serial batched JAX is the right default for small and medium studies,
 - multiprocess execution is the throughput lane for larger campaigns.
+- prepared geometry reuse by itself is only near parity on the committed
+  fixed-geometry profile, while the compiled prepared steady path is the
+  current high-leverage optimization route.
 
 The next work is not just “more parallelism.” It is:
 
-1. better prepared-geometry reuse for large database scans,
+1. broader prepared compiled-closure reuse for large database scans,
 2. stable multi-device throughput on production grids,
 3. clear crossover maps for CPU, GPU, and multi-process paths,
 4. and, if needed, multi-host scan orchestration.
@@ -249,6 +261,7 @@ This work belongs mainly in:
 
 - [`src/ntx/solver.py`](../src/ntx/solver.py)
 - [`src/ntx/parallel.py`](../src/ntx/parallel.py)
+- [`examples/prepared_geometry_reuse_profile.py`](../examples/prepared_geometry_reuse_profile.py)
 - [`scripts/benchmark_scaling.py`](../scripts/benchmark_scaling.py)
 - [`scripts/profile_parallel_runtime.py`](../scripts/profile_parallel_runtime.py)
 
@@ -288,8 +301,8 @@ lane:
 
 1. keep every promoted result mapped to a script, test, artifact, and manuscript
    figure through `scripts/build_benchmark_matrix.py`,
-2. broaden the monoenergetic validation family toward the W7-X EIM, W7-X KJM,
-   and CIEMAT-QI cases listed in the hardening plan,
+2. promote the new VMEC geometry-family convergence stress artifact only after
+   independent-code parity and paper-resolution radial/electric-field ladders,
 3. transfer the three-control derivative audit to reusable VMEC/Boozer
    geometry-control families and compare direct autodiff, prepared adjoints, and
    centered finite differences,
@@ -312,8 +325,8 @@ The next code pass should execute in this order:
    pytest markers;
 2. audit untracked generated files and keep only benchmark artifacts that are
    referenced by docs, tests, or the benchmark matrix;
-3. add the missing benchmark-matrix rows for W7-X EIM/KJM, QI-family,
-   hidden-symmetry, explicit-relaxed, and implicit-equilibrium derivative lanes;
+3. add the remaining benchmark-matrix rows for W7-X KJM ownership,
+   hidden-symmetry, and the non-shipping implicit-equilibrium derivative lane;
 4. add small convergence-ladder tests for the monoenergetic coefficients before
    adding more profile or current examples;
 5. extend the explicit-relaxed boundary-control derivative audit to additional

@@ -66,9 +66,15 @@ def build_payload() -> dict:
     geometry_family_breadth = _load_json(
         STATIC / "geometry_family_breadth_summary.json"
     )
+    geometry_family_transport = _load_json(
+        STATIC / "geometry_family_transport_convergence.json"
+    )
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
     gpu = _load_json(STATIC / "performance_scaling_gpu_heavy.json")
+    prepared_geometry_reuse = _load_json(
+        STATIC / "prepared_geometry_reuse_profile.json"
+    )
     figures = _load_json(STATIC / "publication_figure_manifest.json")
     main_text = [
         "validation",
@@ -89,6 +95,7 @@ def build_payload() -> dict:
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
+        "geometry_family_transport",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -98,6 +105,7 @@ def build_payload() -> dict:
         "bootstrap_proxy",
         "robust_science",
         "performance_smoke",
+        "prepared_geometry_reuse",
     ]
     monoenergetic_metrics = monoenergetic["summary_metrics"]
     fixed_field_case_errors = {
@@ -206,9 +214,17 @@ def build_payload() -> dict:
                 "claim_scope": geometry_family_breadth["claim_scope"],
                 "open_work": geometry_family_breadth["open_work"],
             },
+            "geometry_family_transport": {
+                "cases": geometry_family_transport["cases"],
+                "summary_metrics": geometry_family_transport["summary_metrics"],
+                "claim_scope": geometry_family_transport["claim_scope"],
+                "inputs": geometry_family_transport["inputs"],
+                "open_work": geometry_family_transport["open_work"],
+            },
             "performance": {
                 "cpu_heavy": cpu,
                 "gpu_heavy": gpu,
+                "prepared_geometry_reuse": prepared_geometry_reuse,
             },
             "science": {
                 "wout": science["wout"],
@@ -307,10 +323,29 @@ def build_payload() -> dict:
                     0.0,
                 )
             ),
+            "geometry_family_transport_successful_case_count": (
+                geometry_family_transport["summary_metrics"]["successful_case_count"]
+            ),
+            "geometry_family_transport_stress_pass_case_count": (
+                geometry_family_transport["summary_metrics"]["stress_pass_case_count"]
+            ),
+            "geometry_family_transport_max_last_step_relative_change": (
+                geometry_family_transport["summary_metrics"][
+                    "max_successful_last_step_relative_change"
+                ]
+            ),
             "bootstrap_current_weighted_gain": science["weighted_gain"],
             "cpu_heavy_best_multiprocess_speedup": cpu_best,
             "gpu_heavy_best_multiprocess_speedup": gpu_best,
             "gpu_heavy_healthy_device_count": gpu["healthy_parallel_device_count"],
+            "prepared_geometry_reuse_best_compiled_steady_speedup": (
+                prepared_geometry_reuse["summary_metrics"][
+                    "best_compiled_steady_speedup_vs_direct"
+                ]
+            ),
+            "prepared_geometry_reuse_max_compiled_relative_mismatch": (
+                prepared_geometry_reuse["summary_metrics"]["max_compiled_relative_mismatch"]
+            ),
         },
         "figures": figures,
         "benchmark_matrix": benchmark_matrix_payload(ROOT),
@@ -350,6 +385,7 @@ def build_markdown(payload: dict) -> str:
     fixed_field_validation = payload["tables"]["fixed_field_validation"]
     cpu_rows = payload["tables"]["performance"]["cpu_heavy"]["results"]
     gpu_rows = payload["tables"]["performance"]["gpu_heavy"]["results"]
+    prepared_reuse = payload["tables"]["performance"]["prepared_geometry_reuse"]
     science = payload["tables"]["science"]
     derivatives = payload["tables"]["derivatives"]
     geometry_derivatives = payload["tables"]["geometry_control_derivatives"]
@@ -364,6 +400,7 @@ def build_markdown(payload: dict) -> str:
         "explicit_relaxed_boundary_current_derivatives"
     ]
     geometry_family_breadth = payload["tables"]["geometry_family_breadth"]
+    geometry_family_transport = payload["tables"]["geometry_family_transport"]
     file_backed_max_mismatch = file_backed_geometry_derivatives["summary_metrics"][
         "max_relative_mismatch"
     ]
@@ -414,6 +451,10 @@ def build_markdown(payload: dict) -> str:
     geometry_family_open = geometry_family_breadth["open_cases"]
     geometry_family_retired = geometry_family_breadth.get("retired_cases", [])
     geometry_family_metrics = geometry_family_breadth["summary_metrics"]
+    geometry_transport_cases = [
+        case for case in geometry_family_transport["cases"] if case["status"] != "skipped"
+    ]
+    geometry_transport_metrics = geometry_family_transport["summary_metrics"]
     implicit_solver = implicit_equilibrium_forward_mode_derivatives["implicit_solver"]
     implicit_solver_text = (
         f"`iter={implicit_solver['max_iter']}, "
@@ -665,6 +706,32 @@ def build_markdown(payload: dict) -> str:
                 f"`{geometry_family_metrics.get('max_retired_relative_mismatch', 0.0):.3e}` |"
             ),
             "",
+            "## Geometry-Family Transport Convergence",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            (
+                "| Solved VMEC cases | "
+                f"`{geometry_transport_metrics['successful_case_count']}` |"
+            ),
+            (
+                "| Below smoke convergence rtol | "
+                f"`{geometry_transport_metrics['stress_pass_case_count']}` |"
+            ),
+            (
+                "| Max last-step relative change | "
+                f"`{geometry_transport_metrics['max_successful_last_step_relative_change']:.3e}` |"
+            ),
+            (
+                "| Max relative change to finest grid | "
+                f"`{geometry_transport_metrics['max_successful_relative_change_to_finest']:.3e}` |"
+            ),
+            (
+                "| Solved case ids | `"
+                + ", ".join(case["id"] for case in geometry_transport_cases)
+                + "` |"
+            ),
+            "",
             "## Bootstrap-Current Optimization",
             "",
             "| Quantity | Value |",
@@ -706,6 +773,26 @@ def build_markdown(payload: dict) -> str:
             f"{_format_float(row['multiprocess_seconds'])} | "
             f"{_format_float(row['multiprocess_speedup_vs_serial'])}x | "
             f"{payload['tables']['performance']['gpu_heavy']['healthy_parallel_device_count']} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "### Prepared-geometry reuse",
+            "",
+            (
+                "| Cases | Direct [s] | Prepared total [s] | Compiled steady [s] | "
+                "Compiled speedup |"
+            ),
+            "| ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for row in prepared_reuse["results"]:
+        lines.append(
+            f"| {row['num_cases']} | {_format_float(row['direct_seconds'])} | "
+            f"{_format_float(row['prepared_total_seconds'])} | "
+            f"{_format_float(row['compiled_steady_seconds'])} | "
+            f"{_format_float(row['compiled_steady_speedup_vs_direct'])}x |"
         )
 
     lines.extend(
@@ -854,6 +941,17 @@ def build_claims_markdown(payload: dict) -> str:
                 "and are excluded from promoted geometry-family claims."
             ),
             (
+                "- The geometry-family transport convergence stress diagnostic "
+                f"solves `{claims['geometry_family_transport_successful_case_count']}` "
+                "public VMEC-family cases, with "
+                f"`{claims['geometry_family_transport_stress_pass_case_count']}` "
+                "below the smoke-grid convergence tolerance and maximum last-step "
+                "relative D11/D31/D33 change "
+                f"`{claims['geometry_family_transport_max_last_step_relative_change']:.3e}`. "
+                "It is a reduced NTX convergence diagnostic, not an "
+                "independent-code parity claim."
+            ),
+            (
                 "- The differentiable bootstrap-current optimization example "
                 "improves the weighted current proxy by "
                 f"`{claims['bootstrap_current_weighted_gain']:.3f}x` on the "
@@ -872,6 +970,13 @@ def build_claims_markdown(payload: dict) -> str:
                 "GPU device(s), so the current paper should frame GPU "
                 "multiprocess as a characterized execution mode rather than a "
                 "throughput win."
+            ),
+            (
+                "- On the prepared-geometry reuse profile, the compiled steady "
+                "solver reaches a best observed speedup of "
+                f"`{claims['prepared_geometry_reuse_best_compiled_steady_speedup']:.3f}x` "
+                "against direct repeated solves with maximum coefficient mismatch "
+                f"`{claims['prepared_geometry_reuse_max_compiled_relative_mismatch']:.3e}`."
             ),
             "",
             "These claims should be used consistently in the manuscript text, captions, and",

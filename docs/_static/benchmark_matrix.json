@@ -1274,7 +1274,7 @@
         ],
         "open_work": [
           "map production-grid crossover points more systematically",
-          "improve prepared-geometry reuse across larger scan campaigns"
+          "repeat the same matrix on dedicated production GPU nodes"
         ]
       },
       "status": "complete",
@@ -1348,6 +1348,86 @@
         {
           "kind": "doc",
           "path": "docs/gpu.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "prepared_geometry_reuse_profile",
+        "lane": "performance",
+        "maturity": "software-gate",
+        "title": "Prepared-geometry and compiled-solver reuse profile",
+        "claim_scope": "Measures repeated monoenergetic solves with direct calls, prepared geometry reuse, and a compiled prepared solver on one fixed geometry. This is a performance and reproducibility gate, not a physics-validation claim.",
+        "literature_anchors": [
+          "JAX performance practice for compiled scientific workloads",
+          "reuse of fixed-geometry DKE operators across monoenergetic scans"
+        ],
+        "scripts": [
+          "examples/prepared_geometry_reuse_profile.py"
+        ],
+        "tests": [
+          "tests/test_prepared_geometry_reuse_profile_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/prepared_geometry_reuse_profile.png",
+          "docs/_static/prepared_geometry_reuse_profile.pdf",
+          "docs/_static/prepared_geometry_reuse_profile.json"
+        ],
+        "manuscript_figures": [
+          "prepared_geometry_reuse_profile"
+        ],
+        "docs": [
+          "docs/performance.md",
+          "docs/numerics.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "repeat the profile on larger production VMEC-family scans",
+          "evaluate reusable factorization or linear-operator approaches after profiling"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/prepared_geometry_reuse_profile.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_prepared_geometry_reuse_profile_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/prepared_geometry_reuse_profile.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/prepared_geometry_reuse_profile.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/prepared_geometry_reuse_profile.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/performance.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/numerics.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
           "exists": true
         }
       ]
@@ -1437,6 +1517,101 @@
         {
           "kind": "doc",
           "path": "docs/research-roadmap.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "geometry_family_transport_convergence",
+        "lane": "geometry-breadth",
+        "maturity": "stress-gate",
+        "title": "VMEC geometry-family D11/D31/D33 convergence stress diagnostic",
+        "claim_scope": "Runs reusable public VMEC examples through NTX and reports D11, D31, and D33 coarse-to-fine changes. This closes a broad reduced-grid NTX stress diagnostic, not an independent-code parity claim.",
+        "literature_anchors": [
+          "W7-X standard-configuration benchmark workflows",
+          "Landreman and Paul 2022 precise-QS benchmark family",
+          "quasi-isodynamic and omnigenous geometry-family validation literature",
+          "VMEC, STELLOPT, and SIMSOPT public equilibrium example suites"
+        ],
+        "scripts": [
+          "examples/geometry_family_transport_convergence.py"
+        ],
+        "tests": [
+          "tests/test_geometry_family_transport_convergence.py"
+        ],
+        "artifacts": [
+          "docs/_static/geometry_family_transport_convergence.png",
+          "docs/_static/geometry_family_transport_convergence.pdf",
+          "docs/_static/geometry_family_transport_convergence.json"
+        ],
+        "manuscript_figures": [
+          "geometry_family_transport_convergence"
+        ],
+        "docs": [
+          "README.md",
+          "docs/benchmark-matrix.md",
+          "docs/manuscript.md",
+          "docs/research-roadmap.md",
+          "docs/validation.md"
+        ],
+        "open_work": [
+          "promote only after paper-resolution sweeps with independent reference parity on each family",
+          "add an owned W7-X KJM input once a reusable public reference input is identified or regenerated",
+          "add radial and collisionality ladders before claiming broad bootstrap-current-profile validation"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/geometry_family_transport_convergence.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_geometry_family_transport_convergence.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_transport_convergence.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_transport_convergence.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_transport_convergence.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "README.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/research-roadmap.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
           "exists": true
         }
       ]
@@ -1561,7 +1736,7 @@
     }
   ],
   "summary": {
-    "complete": 17,
+    "complete": 19,
     "incomplete": 0,
     "planned": 3
   }

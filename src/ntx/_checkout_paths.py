@@ -89,6 +89,10 @@ def find_simsopt_root() -> Path | None:
     return _discover("SIMSOPT_ROOT", "tests/simsopt", "simsopt")
 
 
+def find_stellopt_root() -> Path | None:
+    return _discover("STELLOPT_ROOT", "STELLOPT", "tests/STELLOPT")
+
+
 def find_vmec_jax_root() -> Path | None:
     return _discover("VMEC_JAX_ROOT", "vmec_jax", "tests/vmec_jax")
 

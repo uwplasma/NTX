@@ -57,6 +57,7 @@ HEAVY_EXAMPLES_PUBLICATION: tuple[str, ...] = (
     "tests/test_make_publication_figures.py",
     "tests/test_manuscript_artifacts_script.py",
     "tests/test_performance_scaling_example.py",
+    "tests/test_prepared_geometry_reuse_profile_example.py",
     "tests/test_validation_summary_example.py",
 )
 
@@ -169,6 +170,7 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
     "tests/test_fixed_field_transport_matrix_audit.py",
     "tests/test_fixed_field_validation_metrics.py",
     "tests/test_geometry_family_breadth_summary.py",
+    "tests/test_geometry_family_transport_convergence.py",
     "tests/test_momentum_correction_mapping_audit.py",
     "tests/test_physics_gates.py",
     "tests/test_w7x_reference_benchmark.py",

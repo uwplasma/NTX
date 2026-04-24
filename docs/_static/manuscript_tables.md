@@ -45,7 +45,9 @@
 | `robust_bootstrap_current_optimization` | `autodiff` | `stress-gate` | `complete` |
 | `profile_force_reconstruction` | `profile-workflow` | `stress-gate` | `complete` |
 | `performance_scaling` | `performance` | `software-gate` | `complete` |
+| `prepared_geometry_reuse_profile` | `performance` | `software-gate` | `complete` |
 | `geometry_family_breadth_summary` | `geometry-breadth` | `stress-gate` | `complete` |
+| `geometry_family_transport_convergence` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_breadth_hidden_symmetry` | `geometry-breadth` | `planned-lane` | `planned` |
 | `full_monoenergetic_geometry_family` | `monoenergetic` | `planned-lane` | `planned` |
 | `large_geometry_control_autodiff` | `autodiff` | `planned-lane` | `planned` |
@@ -123,6 +125,16 @@
 | Max active AD/centered-FD mismatch | `3.088e-04` |
 | Max retired implicit mismatch | `6.454e+00` |
 
+## Geometry-Family Transport Convergence
+
+| Quantity | Value |
+| --- | ---: |
+| Solved VMEC cases | `11` |
+| Below smoke convergence rtol | `5` |
+| Max last-step relative change | `1.952e+00` |
+| Max relative change to finest grid | `1.022e+01` |
+| Solved case ids | `circular_tokamak, shaped_tokamak, precise_qs_qa_reactor, precise_qs_qh_reactor, nfp3_qi, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, lhd, hsx_qhs, ncsx` |
+
 ## Bootstrap-Current Optimization
 
 | Quantity | Value |
@@ -152,11 +164,19 @@
 | 32 | 3.222 | 6.755 | 0.477x | 1 |
 | 64 | 2.956 | 7.076 | 0.418x | 1 |
 
+### Prepared-geometry reuse
+
+| Cases | Direct [s] | Prepared total [s] | Compiled steady [s] | Compiled speedup |
+| ---: | ---: | ---: | ---: | ---: |
+| 4 | 0.653 | 0.680 | 0.009 | 75.742x |
+| 16 | 3.001 | 2.774 | 0.020 | 150.369x |
+| 48 | 8.545 | 7.931 | 0.062 | 137.292x |
+
 ## Reproducibility
 
 | Key | Value |
 | --- | --- |
-| Commit | `8b8873ac0c00a31db7038abaa8e2cea9e4df4116` |
+| Commit | `8fec8d1e5f0811530d8fd486909d9e9dd12dee21` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

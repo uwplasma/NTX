@@ -106,6 +106,25 @@ This script rebuilds a reduced W7-X scan at several NTX resolutions, evaluates
 the resulting bootstrap-current profile, and writes a publication-ready
 convergence figure.
 
+The broader VMEC geometry-family transport stress diagnostic is:
+
+```bash
+python examples/geometry_family_transport_convergence.py --preset paper
+```
+
+It discovers local public examples from the surrounding `vmec_jax`, STELLOPT,
+and SIMSOPT checkouts and runs a `D11/D31/D33` convergence ladder. The current
+artifact includes tokamak, precise-QS QA/QH, QI-style, W7-X EIM/EJM, LHD, HSX,
+and NCSX-family cases when those inputs are present. This is monitored as
+reduced-grid NTX convergence breadth; independent-code parity and a reusable
+W7-X KJM input remain explicit promotion requirements.
+
+It writes:
+
+- `docs/_static/geometry_family_transport_convergence.png`
+- `docs/_static/geometry_family_transport_convergence.pdf`
+- `docs/_static/geometry_family_transport_convergence.json`
+
 ### Precise-QS Redl Benchmark
 
 The archived Landreman--Paul precise-QS fixed-field benchmark can be reproduced

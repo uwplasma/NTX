@@ -214,6 +214,24 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
                 "geometry_family_breadth_summary.json",
             ),
         ),
+        (
+            "geometry_family_transport",
+            {"geometry_family_transport"},
+            (
+                "geometry_family_transport_convergence.png",
+                "geometry_family_transport_convergence.pdf",
+                "geometry_family_transport_convergence.json",
+            ),
+        ),
+        (
+            "prepared_geometry_reuse",
+            {"prepared_geometry_reuse"},
+            (
+                "prepared_geometry_reuse_profile.png",
+                "prepared_geometry_reuse_profile.pdf",
+                "prepared_geometry_reuse_profile.json",
+            ),
+        ),
     ],
 )
 def test_make_publication_figures_stubbed_subset_writes_manifest(

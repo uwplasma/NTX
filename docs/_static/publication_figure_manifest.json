@@ -71,6 +71,11 @@
     "docs/_static/geometry_family_breadth_summary.pdf",
     "docs/_static/geometry_family_breadth_summary.json"
   ],
+  "geometry_family_transport": [
+    "docs/_static/geometry_family_transport_convergence.png",
+    "docs/_static/geometry_family_transport_convergence.pdf",
+    "docs/_static/geometry_family_transport_convergence.json"
+  ],
   "profile_uncertainty": [
     "docs/_static/autodiff_profile_uncertainty.png",
     "docs/_static/autodiff_profile_uncertainty.pdf",
@@ -114,5 +119,10 @@
   "performance_heavy": [
     "docs/_static/performance_scaling_heavy.png",
     "docs/_static/performance_scaling_heavy.pdf"
+  ],
+  "prepared_geometry_reuse": [
+    "docs/_static/prepared_geometry_reuse_profile.png",
+    "docs/_static/prepared_geometry_reuse_profile.pdf",
+    "docs/_static/prepared_geometry_reuse_profile.json"
   ]
 }

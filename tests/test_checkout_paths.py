@@ -12,6 +12,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
     sfincs_fortran_root = tmp_path / "sfincs"
     sfincs_executable = sfincs_fortran_root / "fortran" / "version3" / "sfincs"
     finite_beta_root = tmp_path / "single_stage_optimization_finite_beta"
+    stellopt_root = tmp_path / "STELLOPT"
     zenodo_root = (
         tmp_path
         / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
@@ -27,6 +28,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
         sfincs_root,
         sfincs_fortran_root,
         finite_beta_root,
+        stellopt_root,
         zenodo_root,
         vmec_root,
     ):
@@ -38,6 +40,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
     monkeypatch.setenv("SFINCS_JAX_ROOT", str(sfincs_root))
     monkeypatch.setenv("SFINCS_ROOT", str(sfincs_fortran_root))
     monkeypatch.setenv("SINGLE_STAGE_FINITE_BETA_ROOT", str(finite_beta_root))
+    monkeypatch.setenv("STELLOPT_ROOT", str(stellopt_root))
     monkeypatch.setenv("QS_ZENODO_ROOT", str(zenodo_root))
     monkeypatch.setenv("VMEC_JAX_ROOT", str(vmec_root))
 
@@ -47,6 +50,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
     assert cp.find_sfincs_root() == sfincs_fortran_root.resolve()
     assert cp.find_sfincs_executable() == sfincs_executable.resolve()
     assert cp.find_single_stage_finite_beta_root() == finite_beta_root.resolve()
+    assert cp.find_stellopt_root() == stellopt_root.resolve()
     assert cp.find_qs_zenodo_root() == zenodo_root.resolve()
     assert cp.find_vmec_jax_root() == vmec_root.resolve()
     assert cp.find_vmec_jax_example_input() == example_input

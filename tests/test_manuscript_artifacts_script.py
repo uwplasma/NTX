@@ -45,7 +45,9 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "implicit_equilibrium_forward_mode_derivatives" in payload["tables"]
     assert "explicit_relaxed_boundary_current_derivatives" in payload["tables"]
     assert "geometry_family_breadth" in payload["tables"]
+    assert "geometry_family_transport" in payload["tables"]
     assert "performance" in payload["tables"]
+    assert "prepared_geometry_reuse" in payload["tables"]["performance"]
     assert "benchmark_matrix" in payload
     assert payload["benchmark_matrix"]["summary"]["incomplete"] == 0
     assert "main_text" in payload["figure_sets"]
@@ -62,7 +64,9 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "Explicit-Relaxed Boundary Current Derivatives" in markdown
     assert "File-Backed Geometry-Control Derivatives" in markdown
     assert "Geometry-Family Breadth Summary" in markdown
+    assert "Geometry-Family Transport Convergence" in markdown
     assert "Bootstrap-Current Optimization" in markdown
+    assert "Prepared-geometry reuse" in markdown
     assert "| Commit |" in markdown
     assert "monoenergetic validation-summary gate" in claims
     assert "fixed-field precise-QS benchmark" in claims
@@ -73,6 +77,8 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "implicit fixed-boundary `vmec_jax -> booz_xform_jax -> NTX`" in claims
     assert "explicit-relaxed `vmec_jax -> booz_xform_jax -> NTX`" in claims
     assert "artifact-backed geometry-family breadth summary" in claims
+    assert "geometry-family transport convergence stress diagnostic" in claims
+    assert "prepared-geometry reuse profile" in claims
 
 
 def test_manuscript_figure_sets_match_publication_presets():
