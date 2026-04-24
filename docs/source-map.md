@@ -216,6 +216,11 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `primitive_profile_transport.py`
 - `plot_output_npz.py`
 
+The fixed-field validation script delegates reviewable artifact math to
+`examples/_fixed_field_validation_metrics.py` and
+`examples/_fixed_field_validation_plotting.py`; the expensive QA/QH simulation
+path remains in `examples/bootstrap_current_fixed_field_validation.py`.
+
 The figure bundle generator is:
 
 - `make_publication_figures.py`

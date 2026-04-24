@@ -25,11 +25,6 @@ from typing import Any
 import f90nml
 import h5py
 import jax
-import matplotlib
-
-matplotlib.use("Agg")
-
-import matplotlib.pyplot as plt
 import numpy as np
 from netCDF4 import Dataset
 from scipy.constants import elementary_charge
@@ -51,6 +46,9 @@ from _fixed_field_validation_metrics import (
 )
 from _fixed_field_validation_metrics import (
     sign_mismatch_count as _sign_mismatch_count,
+)
+from _fixed_field_validation_plotting import (  # noqa: E402
+    plot_fixed_field_validation as _plot_fixed_field_validation,
 )
 
 from ntx import (
@@ -912,46 +910,6 @@ def _compute_archived_sfincs_profile(case: FixedFieldCase) -> dict[str, np.ndarr
     return payload
 
 
-def _display_label(key: str) -> str:
-    return {
-        "SFINCS": "SFINCS",
-        "SFINCS-JAX": "SFINCS-JAX",
-        "NTX+NEOPAX": "NTX+NEOPAX",
-        "Redl": "Redl (Boozer)",
-    }[key]
-
-
-def _styles() -> dict[str, dict[str, Any]]:
-    return {
-        "SFINCS": dict(color="#111111", lw=2.8, ls="-"),
-        "SFINCS-JAX": dict(color="#d55e00", lw=2.0, ls="--"),
-        "NTX+NEOPAX": dict(color="#1f77b4", lw=2.4, ls="-"),
-        "Redl": dict(color="#009e73", lw=2.0, ls="-."),
-    }
-
-
-def _plot_order(case_results: dict[str, dict[str, np.ndarray]]) -> tuple[str, ...]:
-    order = ["SFINCS"]
-    if "SFINCS-JAX" in case_results:
-        order.append("SFINCS-JAX")
-    order.extend(["NTX+NEOPAX", "Redl"])
-    return tuple(order)
-
-
-def _panel_label(ax, label: str) -> None:
-    ax.text(
-        0.02,
-        0.96,
-        label,
-        transform=ax.transAxes,
-        fontsize=12,
-        fontweight="bold",
-        va="top",
-        ha="left",
-        bbox={"boxstyle": "round,pad=0.2", "facecolor": "white", "edgecolor": "none", "alpha": 0.9},
-    )
-
-
 def _closure_diagnostics(
     case: FixedFieldCase,
     case_results: dict[str, dict[str, np.ndarray]],
@@ -1121,90 +1079,14 @@ def _plot(
     results: dict[str, dict[str, dict[str, np.ndarray]]],
     cases: dict[str, FixedFieldCase],
 ) -> None:
-    fig, axes = plt.subplots(
-        2,
-        2,
-        figsize=(11.8, 8.4),
-        constrained_layout=True,
-        sharex="col",
-        gridspec_kw={"height_ratios": (1.0, 0.55)},
+    _plot_fixed_field_validation(
+        results=results,
+        cases=cases,
+        output_prefix=OUTPUT_PREFIX,
+        interior_rho_min=INTERIOR_RHO_MIN,
+        interior_rho_max=INTERIOR_RHO_MAX,
+        interp_profile=_interp_profile,
     )
-    styles = _styles()
-    for col, key in enumerate(("qa", "qh")):
-        case_results = results[key]
-        ref = np.asarray(case_results["SFINCS"]["jdotb"], dtype=float)
-        ax = axes[0, col]
-        ax.axvspan(INTERIOR_RHO_MIN, INTERIOR_RHO_MAX, color="#f0f0f0", alpha=0.5, zorder=0)
-        for name in _plot_order(case_results):
-            payload = case_results[name]
-            ax.plot(
-                np.asarray(payload["rho"], dtype=float),
-                np.asarray(payload["jdotb"], dtype=float) / 1.0e6,
-                label=_display_label(name),
-                **styles[name],
-            )
-            if name == "SFINCS-JAX" and "rho_sample" in payload:
-                ax.plot(
-                    np.asarray(payload["rho_sample"], dtype=float),
-                    np.asarray(payload["jdotb_sample"], dtype=float) / 1.0e6,
-                    marker="o",
-                    ms=4.2,
-                    lw=0,
-                    color=styles[name]["color"],
-                )
-        ax.set_title(cases[key].label)
-        ax.set_ylabel(r"$\langle \mathbf{J}\cdot\mathbf{B}\rangle$ [MA T A m$^{-2}$]")
-        ax.grid(alpha=0.24, lw=0.6)
-        _panel_label(ax, f"({chr(ord('a') + col)})")
-
-        ax_err = axes[1, col]
-        ref_scale = np.maximum(np.abs(ref), 1.0)
-        ax_err.axvspan(INTERIOR_RHO_MIN, INTERIOR_RHO_MAX, color="#f0f0f0", alpha=0.5, zorder=0)
-        err_order = [name for name in ("SFINCS-JAX", "NTX+NEOPAX", "Redl") if name in case_results]
-        for name in err_order:
-            payload = case_results[name]
-            rel = np.abs(np.asarray(payload["jdotb"], dtype=float) - ref) / ref_scale
-            ax_err.plot(
-                np.asarray(payload["rho"], dtype=float),
-                rel,
-                label=f"{_display_label(name)} vs SFINCS",
-                **styles[name],
-            )
-            if name == "SFINCS-JAX" and "rho_sample" in payload:
-                sample_ref = _interp_profile(
-                    np.asarray(case_results["SFINCS"]["rho"], dtype=float),
-                    ref,
-                    np.asarray(payload["rho_sample"], dtype=float),
-                )
-                sample_rel = np.abs(
-                    np.asarray(payload["jdotb_sample"], dtype=float) - sample_ref
-                ) / np.maximum(np.abs(sample_ref), 1.0)
-                ax_err.plot(
-                    np.asarray(payload["rho_sample"], dtype=float),
-                    sample_rel,
-                    marker="o",
-                    ms=4.2,
-                    lw=0,
-                    color=styles[name]["color"],
-                )
-        ax_err.set_xlabel(r"$\rho$")
-        ax_err.set_ylabel("relative error")
-        ax_err.set_yscale("log")
-        ax_err.grid(alpha=0.24, lw=0.6)
-        _panel_label(ax_err, f"({chr(ord('c') + col)})")
-
-    handles, labels = axes[0, 0].get_legend_handles_labels()
-    fig.legend(
-        handles,
-        labels,
-        loc="upper center",
-        ncol=4,
-        frameon=False,
-        bbox_to_anchor=(0.5, 1.03),
-    )
-    fig.savefig(OUTPUT_PREFIX.with_suffix(".png"), dpi=260, bbox_inches="tight")
-    fig.savefig(OUTPUT_PREFIX.with_suffix(".pdf"), bbox_inches="tight")
-    plt.close(fig)
 
 
 def run_case(case: FixedFieldCase) -> dict[str, dict[str, np.ndarray]]:
