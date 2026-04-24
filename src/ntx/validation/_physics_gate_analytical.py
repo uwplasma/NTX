@@ -107,6 +107,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="finite_legendre_source_projection",
+        category="analytical",
+        metric="magnetic-drift source in k=0,2 and parallel source in physical-B k=1",
+        relation="test",
+        threshold=None,
+        source="tests/test_operators.py",
+        rationale=(
+            "The source-side Legendre projection fixes the runtime equation map: "
+            "the magnetic-drift drive must enter only the expected k=0 and k=2 "
+            "rows, while the parallel-conductivity drive must enter the k=1 row "
+            "as physical B rather than B/B0."
+        ),
+    ),
+    PhysicsGate(
         name="operator_parameter_derivative_consistency",
         category="analytical",
         metric="dD_k/dnu_hat and dD_k/depsi_hat match operator autodiff",
