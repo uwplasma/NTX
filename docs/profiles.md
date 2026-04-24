@@ -93,6 +93,11 @@ profile vector rather than solving each radius independently. This suppresses
 the checkerboard artifacts that appear when adjacent radii are updated without
 any radial regularization.
 
+Primitive density and temperature updates use exponential relaxation and a
+strict positive floor. That preserves the physical state-space constraint
+`n(r) > 0`, `T(r) > 0` even when a transport mismatch is large enough to
+underflow an unconstrained explicit update.
+
 ## Main Helpers
 
 - `evaluate_scan_channel(...)`

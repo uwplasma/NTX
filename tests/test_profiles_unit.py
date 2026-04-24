@@ -22,7 +22,7 @@ from ntx import (
 )
 from ntx._profiles_channels import _channel_data
 from ntx._profiles_radial import _single_radius_profile, _smooth_radial_profile
-from ntx._profiles_transport_closure import (
+from ntx._profiles_transport_terms import (
     _broadcast_species_transport_field,
     _scaled_transport_closure,
 )

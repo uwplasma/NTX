@@ -11,15 +11,15 @@ from ._profiles_eval import (
 )
 from ._profiles_radial import _broadcast_profile_field
 from ._profiles_transport_closure import (
-    _broadcast_species_transport_field as _broadcast_species_transport_field,
-)
-from ._profiles_transport_closure import (
-    _scaled_transport_closure,
     advance_primitive_profile_transport,
     advance_profile_transport,
     primitive_profile_transport_loss,
     profile_transport_loss,
 )
+from ._profiles_transport_terms import (
+    _broadcast_species_transport_field as _broadcast_species_transport_field,
+)
+from ._profiles_transport_terms import _scaled_transport_closure
 from ._profiles_types import (
     AmbipolarProfileResult,
     MonoenergeticSpeciesProfile,

@@ -136,6 +136,19 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="primitive_transport_positivity_floor",
+        category="analytical",
+        metric="density and temperature stay positive after primitive transport update",
+        relation="test",
+        threshold=None,
+        source="tests/test_profiles_workflows.py",
+        rationale=(
+            "Primitive profile transport updates act on density and temperature, "
+            "which must remain positive thermodynamic state variables even under "
+            "large explicit relaxation steps."
+        ),
+    ),
+    PhysicsGate(
         name="imported_boozer_handedness",
         category="analytical",
         metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",

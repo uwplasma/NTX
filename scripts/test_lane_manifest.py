@@ -144,6 +144,7 @@ CORE_PROFILE_TRANSPORT_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_profiles_workflows.py::test_profile_transport_loop_handles_rejected_backtracking",
     "tests/test_profiles_workflows.py::test_advance_profile_transport_rejects_species_shape_mismatch",
     "tests/test_profiles_workflows.py::test_primitive_profile_transport_loop_returns_finite_histories",
+    "tests/test_profiles_workflows.py::test_primitive_profile_transport_update_preserves_positive_density_temperature",
     "tests/test_profiles_workflows.py::test_primitive_profile_transport_loop_handles_rejected_backtracking",
 )
 
