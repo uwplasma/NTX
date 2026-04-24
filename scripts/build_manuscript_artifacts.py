@@ -63,6 +63,9 @@ def build_payload() -> dict:
     explicit_relaxed_boundary = _load_json(
         STATIC / "explicit_relaxed_boundary_current_derivative_benchmark.json"
     )
+    geometry_family_breadth = _load_json(
+        STATIC / "geometry_family_breadth_summary.json"
+    )
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
     gpu = _load_json(STATIC / "performance_scaling_gpu_heavy.json")
@@ -85,6 +88,7 @@ def build_payload() -> dict:
         "boundary_forward_mode",
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",
+        "geometry_family_breadth",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -194,6 +198,13 @@ def build_payload() -> dict:
                 "claim_scope": explicit_relaxed_boundary["claim_scope"],
                 "objective_ids": explicit_relaxed_boundary["objective_ids"],
             },
+            "geometry_family_breadth": {
+                "active_cases": geometry_family_breadth["active_cases"],
+                "open_cases": geometry_family_breadth["open_cases"],
+                "summary_metrics": geometry_family_breadth["summary_metrics"],
+                "claim_scope": geometry_family_breadth["claim_scope"],
+                "open_work": geometry_family_breadth["open_work"],
+            },
             "performance": {
                 "cpu_heavy": cpu,
                 "gpu_heavy": gpu,
@@ -278,6 +289,17 @@ def build_payload() -> dict:
                     "max_ordinary_explicit_volume_relative_difference"
                 ]
             ),
+            "geometry_family_breadth_active_case_count": (
+                geometry_family_breadth["summary_metrics"]["active_case_count"]
+            ),
+            "geometry_family_breadth_max_active_relative_mismatch": (
+                geometry_family_breadth["summary_metrics"][
+                    "max_active_relative_mismatch"
+                ]
+            ),
+            "geometry_family_breadth_max_open_relative_mismatch": (
+                geometry_family_breadth["summary_metrics"]["max_open_relative_mismatch"]
+            ),
             "bootstrap_current_weighted_gain": science["weighted_gain"],
             "cpu_heavy_best_multiprocess_speedup": cpu_best,
             "gpu_heavy_best_multiprocess_speedup": gpu_best,
@@ -334,6 +356,7 @@ def build_markdown(payload: dict) -> str:
     explicit_relaxed_boundary_derivatives = payload["tables"][
         "explicit_relaxed_boundary_current_derivatives"
     ]
+    geometry_family_breadth = payload["tables"]["geometry_family_breadth"]
     file_backed_max_mismatch = file_backed_geometry_derivatives["summary_metrics"][
         "max_relative_mismatch"
     ]
@@ -380,6 +403,9 @@ def build_markdown(payload: dict) -> str:
     explicit_relaxed_median_mismatch = explicit_relaxed_boundary_derivatives[
         "summary_metrics"
     ]["median_relative_mismatch"]
+    geometry_family_active = geometry_family_breadth["active_cases"]
+    geometry_family_open = geometry_family_breadth["open_cases"]
+    geometry_family_metrics = geometry_family_breadth["summary_metrics"]
     implicit_solver = implicit_equilibrium_forward_mode_derivatives["implicit_solver"]
     implicit_solver_text = (
         f"`iter={implicit_solver['max_iter']}, "
@@ -591,6 +617,37 @@ def build_markdown(payload: dict) -> str:
                 f"`{file_backed_median_mismatch:.3e}` |"
             ),
             "",
+            "## Geometry-Family Breadth Summary",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            (
+                "| Active artifact-backed cases | "
+                f"`{geometry_family_metrics['active_case_count']}` |"
+            ),
+            (
+                "| Open implicit objectives | "
+                f"`{geometry_family_metrics['open_case_count']}` |"
+            ),
+            (
+                "| Active case ids | `"
+                + ", ".join(case["id"] for case in geometry_family_active)
+                + "` |"
+            ),
+            (
+                "| Open case ids | `"
+                + ", ".join(case["id"] for case in geometry_family_open)
+                + "` |"
+            ),
+            (
+                "| Max active AD/centered-FD mismatch | "
+                f"`{geometry_family_metrics['max_active_relative_mismatch']:.3e}` |"
+            ),
+            (
+                "| Max open implicit mismatch | "
+                f"`{geometry_family_metrics['max_open_relative_mismatch']:.3e}` |"
+            ),
+            "",
             "## Bootstrap-Current Optimization",
             "",
             "| Quantity | Value |",
@@ -765,6 +822,17 @@ def build_claims_markdown(payload: dict) -> str:
                 "to "
                 f"`{explicit_relaxed_volume_difference:.3e}` "
                 "on the committed QA/QH family cases."
+            ),
+            (
+                "- The artifact-backed geometry-family breadth summary now covers "
+                f"`{claims['geometry_family_breadth_active_case_count']}` active "
+                "analytic, file-backed, boundary-projected, explicit-relaxed, "
+                "and implicit-volume stress cases with maximum active mismatch "
+                f"`{claims['geometry_family_breadth_max_active_relative_mismatch']:.3e}`. "
+                "The remaining open implicit Boozer and NTX transport objectives "
+                "reach maximum mismatch "
+                f"`{claims['geometry_family_breadth_max_open_relative_mismatch']:.3e}` "
+                "and are excluded from promoted geometry-family claims."
             ),
             (
                 "- The differentiable bootstrap-current optimization example "

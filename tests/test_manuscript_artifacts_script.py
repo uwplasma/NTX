@@ -44,6 +44,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "file_backed_geometry_control_derivatives" in payload["tables"]
     assert "implicit_equilibrium_forward_mode_derivatives" in payload["tables"]
     assert "explicit_relaxed_boundary_current_derivatives" in payload["tables"]
+    assert "geometry_family_breadth" in payload["tables"]
     assert "performance" in payload["tables"]
     assert "benchmark_matrix" in payload
     assert payload["benchmark_matrix"]["summary"]["incomplete"] == 0
@@ -60,6 +61,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "Implicit-Equilibrium Forward-Mode Derivatives" in markdown
     assert "Explicit-Relaxed Boundary Current Derivatives" in markdown
     assert "File-Backed Geometry-Control Derivatives" in markdown
+    assert "Geometry-Family Breadth Summary" in markdown
     assert "Bootstrap-Current Optimization" in markdown
     assert "| Commit |" in markdown
     assert "monoenergetic validation-summary gate" in claims
@@ -70,6 +72,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "boundary-projected `vmec_jax -> booz_xform_jax -> NTX`" in claims
     assert "implicit fixed-boundary `vmec_jax -> booz_xform_jax -> NTX`" in claims
     assert "explicit-relaxed `vmec_jax -> booz_xform_jax -> NTX`" in claims
+    assert "artifact-backed geometry-family breadth summary" in claims
 
 
 def test_manuscript_figure_sets_match_publication_presets():

@@ -208,6 +208,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `geometry_control_derivative_benchmark.py`
 - `file_backed_geometry_control_derivative_benchmark.py`
 - `explicit_relaxed_boundary_current_derivative_benchmark.py`
+- `geometry_family_breadth_summary.py`
 - `ambipolar_profile.py`
 - `ambipolar_profile_family.py`
 - `profile_control_optimization.py`

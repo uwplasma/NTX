@@ -216,6 +216,14 @@ That pushes on:
 - [`src/ntx/vmec_jax_vmec.py`](../src/ntx/vmec_jax_vmec.py)
 - [`src/ntx/vmec_jax_backend.py`](../src/ntx/vmec_jax_backend.py)
 
+The committed artifact-backed status is summarized in
+[`examples/geometry_family_breadth_summary.py`](../examples/geometry_family_breadth_summary.py).
+That script reads the analytic, file-backed, boundary-projected,
+explicit-relaxed, and implicit-equilibrium derivative artifacts and produces a
+manuscript-ready figure without rerunning expensive equilibrium solves. It is a
+stress-summary lane: unresolved implicit Boozer/transport objectives plus
+broader W7-X/QI/omnigenous families remain explicit open work.
+
 ## Phase 4: Production Throughput
 
 NTX already has:

@@ -205,6 +205,15 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
                 "explicit_relaxed_boundary_current_derivative_benchmark.json",
             ),
         ),
+        (
+            "geometry_family_breadth",
+            {"geometry_family_breadth"},
+            (
+                "geometry_family_breadth_summary.png",
+                "geometry_family_breadth_summary.pdf",
+                "geometry_family_breadth_summary.json",
+            ),
+        ),
     ],
 )
 def test_make_publication_figures_stubbed_subset_writes_manifest(

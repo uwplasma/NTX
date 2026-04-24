@@ -6,6 +6,46 @@ from ._benchmark_matrix_types import BenchmarkEntry
 def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
         BenchmarkEntry(
+            id="geometry_family_breadth_summary",
+            lane="geometry-breadth",
+            maturity="stress-gate",
+            title="Artifact-backed geometry-family derivative breadth summary",
+            claim_scope=(
+                "Summarizes committed analytic, file-backed, boundary-projected, "
+                "explicit-relaxed, and implicit-equilibrium derivative artifacts "
+                "without promoting a full hidden-symmetry, omnigenous, or broad "
+                "W7-X/QI validation claim."
+            ),
+            literature_anchors=(
+                "Paul et al. 2019 adjoint neoclassical optimization",
+                "McGreivy 2024 differentiable programming for plasma workflows",
+                "Landreman and Paul 2022 precise-QS benchmark family",
+                "omnigenous and quasi-isodynamic geometry-breadth literature",
+            ),
+            scripts=("examples/geometry_family_breadth_summary.py",),
+            tests=("tests/test_geometry_family_breadth_summary.py",),
+            artifacts=(
+                "docs/_static/geometry_family_breadth_summary.png",
+                "docs/_static/geometry_family_breadth_summary.pdf",
+                "docs/_static/geometry_family_breadth_summary.json",
+            ),
+            manuscript_figures=("geometry_family_breadth_summary",),
+            docs=(
+                "docs/benchmark-matrix.md",
+                "docs/autodiff.md",
+                "docs/manuscript.md",
+                "docs/research-roadmap.md",
+            ),
+            open_work=(
+                "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
+                "recover Boozer-space and NTX-transport derivative parity on the implicit path",
+                (
+                    "add D11/D31/D33 parity and convergence ladders before full "
+                    "geometry-family promotion"
+                ),
+            ),
+        ),
+        BenchmarkEntry(
             id="geometry_breadth_hidden_symmetry",
             lane="geometry-breadth",
             maturity="planned-lane",

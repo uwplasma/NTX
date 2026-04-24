@@ -29,6 +29,7 @@ FIGURE_PRESETS = {
         "boundary_forward_mode",
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",
+        "geometry_family_breadth",
         "science",
         "robust_science",
         "validation",
@@ -59,6 +60,7 @@ FIGURE_PRESETS = {
         "boundary_forward_mode",
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",
+        "geometry_family_breadth",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -310,6 +312,21 @@ def main() -> None:
             output_dir,
             (".png", ".pdf", ".json"),
         )
+
+    if "geometry_family_breadth" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "geometry_family_breadth_summary.py"),
+                "--output-prefix",
+                str(output_dir / "geometry_family_breadth_summary"),
+            ]
+        )
+        manifest["geometry_family_breadth"] = [
+            _manifest_path(output_dir / "geometry_family_breadth_summary.png"),
+            _manifest_path(output_dir / "geometry_family_breadth_summary.pdf"),
+            _manifest_path(output_dir / "geometry_family_breadth_summary.json"),
+        ]
 
     if "profile_uncertainty" in selected:
         _run(
