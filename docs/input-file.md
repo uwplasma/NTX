@@ -238,7 +238,7 @@ Metadata is also stored as JSON strings:
 - `algorithm_metadata_json`
 
 All of this is written in `save_run_npz(...)` in
-[`src/ntx/inputfiles.py`](../src/ntx/inputfiles.py).
+[`src/ntx/_inputfiles_run.py`](../src/ntx/_inputfiles_run.py).
 
 ## Example Inputs
 

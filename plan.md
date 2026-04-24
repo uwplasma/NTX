@@ -345,7 +345,7 @@ Do not declare this program complete until all of the following are true:
   - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
   - `solver.py` (`51` lines after Phase 1 split; types/core/scan moved to internal modules)
   - `autodiff.py` (`92` lines after Phase 1 split; types/workflows/bootstrap moved to internal modules)
-  - `inputfiles.py` (`275` lines after Phase 1 split; parsing/reporting moved to internal modules)
+  - `inputfiles.py` (`59` lines after Phase 1 split; parsing/reporting/run-output moved to internal modules)
   - `neopax.py` (`47` lines after Phase 1 split; bridge/types/I/O/field/flux/scan helpers moved to internal modules)
   - `geometry.py` (`19` lines after Phase 1 split; types/evaluation moved to internal modules)
 - public docstrings and internal comments are inconsistent across the source
@@ -404,6 +404,8 @@ Current status:
   - TOML parsing and config dataclasses live in `src/ntx/_inputfiles_model.py`
   - Rich tables and metadata/source helpers live in
     `src/ntx/_inputfiles_reporting.py`
+  - TOML execution and `.npz` artifact writing live in
+    `src/ntx/_inputfiles_run.py`
 - [x] the second no-behavior-change workflow split is complete:
   - `neopax.py` now remains the compatibility surface
   - scan dataclasses/constants live in `src/ntx/_neopax_types.py`
