@@ -1791,6 +1791,10 @@ templates:
         shard-combined coverage artifacts
       - the testing docs now distinguish fast PR, benchmark, and hardware
         lanes explicitly
+      - manuscript-figure traceability now covers the fixed-field closure
+        report: the publication bundle, benchmark matrix, and generated
+        manuscript artifacts all point to the same Redl gate and monitored
+        `NTX+NEOPAX` stress metric
       - the next implementation step after this instrumentation is to use the
         module-wise coverage report to choose the first no-behavior-change file
         splits in `solver.py`, `profiles.py`, and `autodiff.py`

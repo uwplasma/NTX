@@ -32,6 +32,7 @@ FIGURE_PRESETS = {
         "science",
         "robust_science",
         "validation",
+        "closure_validation",
         "bootstrap_proxy",
         "w7x_audit",
         "performance_smoke",
@@ -39,6 +40,7 @@ FIGURE_PRESETS = {
     },
     "main_text": {
         "validation",
+        "closure_validation",
         "w7x_audit",
         "derivative_benchmark",
         "science",
@@ -368,6 +370,19 @@ def main() -> None:
             _manifest_path(output_dir / "validation_summary.pdf"),
             _manifest_path(output_dir / "validation_summary.json"),
         ]
+
+    if "closure_validation" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "build_closure_validation_report.py"),
+            ]
+        )
+        manifest["closure_validation"] = _copy_existing_static(
+            "closure_validation_report",
+            output_dir,
+            (".png", ".pdf", ".json", ".txt"),
+        )
 
     if "bootstrap_proxy" in selected:
         _run(

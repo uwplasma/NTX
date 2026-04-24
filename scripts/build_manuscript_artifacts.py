@@ -69,6 +69,7 @@ def build_payload() -> dict:
     figures = _load_json(STATIC / "publication_figure_manifest.json")
     main_text = [
         "validation",
+        "closure_validation",
         "w7x_audit",
         "derivative_benchmark",
         "science",

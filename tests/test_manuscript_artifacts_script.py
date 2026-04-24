@@ -1,18 +1,30 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+MANUSCRIPT_SCRIPT = ROOT / "scripts" / "build_manuscript_artifacts.py"
+FIGURE_SCRIPT = ROOT / "examples" / "make_publication_figures.py"
+
+
+def _load_module(path: Path, name: str):
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def test_build_manuscript_artifacts_script_writes_outputs():
     subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "build_manuscript_artifacts.py"),
+            str(MANUSCRIPT_SCRIPT),
         ],
         check=True,
         text=True,
@@ -58,3 +70,14 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "boundary-projected `vmec_jax -> booz_xform_jax -> NTX`" in claims
     assert "implicit fixed-boundary `vmec_jax -> booz_xform_jax -> NTX`" in claims
     assert "explicit-relaxed `vmec_jax -> booz_xform_jax -> NTX`" in claims
+
+
+def test_manuscript_figure_sets_match_publication_presets():
+    manuscript = _load_module(MANUSCRIPT_SCRIPT, "ntx_build_manuscript_artifacts")
+    figures = _load_module(FIGURE_SCRIPT, "ntx_make_publication_figures_for_manuscript")
+
+    payload = manuscript.build_payload()
+
+    assert set(payload["figures"]) == figures.FIGURE_PRESETS["all"]
+    assert set(payload["figure_sets"]["main_text"]) == figures.FIGURE_PRESETS["main_text"]
+    assert set(payload["figure_sets"]["supplement"]) == figures.FIGURE_PRESETS["supplement"]

@@ -72,6 +72,36 @@ def test_artifact_gate_sources_are_represented_in_benchmark_matrix():
     assert artifact_gate_sources <= matrix_artifacts
 
 
+def test_active_manuscript_figures_are_traceable_to_bundle_and_artifacts():
+    manifest = json.loads(
+        (ROOT / "docs" / "_static" / "publication_figure_manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    bundled_figure_ids = set(manifest)
+    bundled_artifact_stems = {
+        Path(path).stem for paths in manifest.values() for path in paths
+    }
+
+    for entry in benchmark_matrix():
+        if entry.maturity == "planned-lane":
+            continue
+
+        artifact_stems = {Path(path).stem for path in entry.artifacts}
+        has_publication_artifact = any(
+            Path(path).suffix in {".png", ".pdf"} for path in entry.artifacts
+        )
+        if has_publication_artifact:
+            assert entry.manuscript_figures, entry.id
+
+        for figure_id in entry.manuscript_figures:
+            assert figure_id in artifact_stems, (entry.id, figure_id)
+            assert figure_id in bundled_figure_ids | bundled_artifact_stems, (
+                entry.id,
+                figure_id,
+            )
+
+
 def test_build_benchmark_matrix_script_writes_machine_readable_artifact(tmp_path):
     output_json = tmp_path / "benchmark_matrix.json"
     subprocess.run(

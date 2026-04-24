@@ -8,11 +8,12 @@ examples.
 ### Main Text
 
 1. `validation_summary.{png,pdf,json}`
-2. `bootstrap_current_reference_audit_w7x.{png,pdf}`
-3. `derivative_path_benchmark.{png,pdf,json}`
-4. `bootstrap_current_optimization.{png,pdf,json}`
-5. `performance_scaling_heavy.{png,pdf}`
-6. `primitive_profile_transport.{png,pdf}`
+2. `closure_validation_report.{png,pdf,json,txt}`
+3. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+4. `derivative_path_benchmark.{png,pdf,json}`
+5. `bootstrap_current_optimization.{png,pdf,json}`
+6. `performance_scaling_heavy.{png,pdf}`
+7. `primitive_profile_transport.{png,pdf}`
 
 ### Supplement
 
@@ -41,70 +42,74 @@ examples.
    - Onsager closure
    - Legendre convergence
    - machine-readable benchmark metrics for the literature-anchored methods lane
-2. `autodiff_inverse_problem.{png,pdf}`
+2. `closure_validation_report.{png,pdf,json,txt}`
+   - fixed-field precise-QS Redl gate and monitored NTX+NEOPAX closure stress
+     metric in the same manuscript-facing validation report
+3. `autodiff_inverse_problem.{png,pdf}`
    - inverse recovery of a surface harmonic from synthetic transport data
-3. `autodiff_neopax_profiles.{png,pdf}`
+4. `autodiff_neopax_profiles.{png,pdf}`
    - autodiff-based profile inversion on NEOPAX-style arrays
-4. `autodiff_profile_uncertainty.{png,pdf,json}`
+5. `autodiff_profile_uncertainty.{png,pdf,json}`
    - linearized versus Monte Carlo uncertainty propagation on the same
      differentiable profile fit under a prescribed Gaussian parameter
      perturbation
-5. `geometry_control_derivative_benchmark.{png,pdf,json}`
+6. `geometry_control_derivative_benchmark.{png,pdf,json}`
    - three-harmonic geometry-control derivative audit against centered finite
      differences; tracked as an autodiff stress benchmark
-6. `file_backed_geometry_control_derivative_benchmark.{png,pdf,json}`
+7. `file_backed_geometry_control_derivative_benchmark.{png,pdf,json}`
    - file-backed Boozer and VMEC geometry-control derivative audit against
      centered finite differences; stronger than the owned-surface stress test
      but still below a reusable geometry-family claim
-7. `boundary_forward_mode_current_derivative_benchmark.{png,pdf,json}`
+8. `boundary_forward_mode_current_derivative_benchmark.{png,pdf,json}`
    - low-dimensional boundary controls propagated through boundary-projected
      `vmec_jax -> booz_xform_jax -> NTX` and an `NTX+NEOPAX` integrated-current
      objective under forward mode
-8. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
+9. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
    - low-dimensional boundary controls propagated through the implicit
      fixed-boundary `vmec_jax` residual solve, `booz_xform_jax`, and an NTX
      monoenergetic transport proxy under forward mode, with the reverse-mode
      Boozer failure recorded in the JSON artifact
-9. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
+10. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
    - low-dimensional boundary controls propagated through an explicitly relaxed
      fixed-boundary `vmec_jax -> booz_xform_jax -> NTX` path and an
      `NTX+NEOPAX` integrated-current objective, with ordinary-versus-explicit
      primal-volume agreement recorded on committed QA and QH family cases
-10. `derivative_path_benchmark.{png,pdf}`
+11. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-11. `bootstrap_current_optimization.{png,pdf}`
+12. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-12. `bootstrap_current_robust_optimization.{png,pdf,json}`
+13. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
-13. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+14. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-14. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+15. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-15. `performance_scaling_smoke.{png,pdf}`
+16. `performance_scaling_smoke.{png,pdf}`
    - CPU/GPU scaling on the repository smoke grid
-16. `performance_scaling_heavy.{png,pdf}`
+17. `performance_scaling_heavy.{png,pdf}`
    - heavier-grid scaling where throughput effects are visible
-17. `ambipolar_profile.{png,pdf}`
+18. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-18. `ambipolar_profile_family.{png,pdf}`
+19. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-19. `profile_force_reconstruction_audit.{png,pdf,json}`
+20. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-20. `profile_control_optimization.{png,pdf}`
+21. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-21. `profile_basis_optimization.{png,pdf}`
+22. `profile_basis_optimization.{png,pdf}`
    - low-dimensional radial-basis optimization of the same profile closure
-22. `profile_transport_loop.{png,pdf}`
+23. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-23. `primitive_profile_transport.{png,pdf}`
+24. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
 
 - formulation and numerical behavior
 - validation and convergence
+- fixed-field Redl validation and reduced-closure stress reporting
 - differentiable inverse and profile problems
 - differentiable uncertainty propagation on the same profile map
 - multi-parameter geometry-control derivative auditing
