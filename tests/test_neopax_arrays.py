@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import jax
 import jax.numpy as jnp
 import pytest
 
+import ntx.neopax as neopax_module
 from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
@@ -114,6 +116,120 @@ def test_build_ntx_neopax_scan_validates_basic_shapes():
             drds=jnp.asarray([1.0, 1.5]),
             grid=grid,
         )
+
+
+def test_build_ntx_neopax_scan_from_vmec_jax_state_forwards_owned_surfaces(monkeypatch):
+    surfaces = (example_surface(), example_surface())
+    calls: dict[str, object] = {}
+
+    def fake_surfaces_from_state(**kwargs):
+        calls["surface_kwargs"] = kwargs
+        return surfaces
+
+    def fake_build_from_surfaces(surface_tuple, **kwargs):
+        calls["build_surfaces"] = surface_tuple
+        calls["build_kwargs"] = kwargs
+        return SimpleNamespace(rho=kwargs["rho"], source_name=kwargs["source_name"])
+
+    monkeypatch.setattr(neopax_module, "surfaces_from_vmec_jax_state", fake_surfaces_from_state)
+    monkeypatch.setattr(
+        neopax_module,
+        "build_ntx_neopax_scan_from_surfaces",
+        fake_build_from_surfaces,
+    )
+
+    rho = jnp.asarray([0.25, 0.5])
+    result = neopax_module.build_ntx_neopax_scan_from_vmec_jax_state(
+        state="state",
+        static="static",
+        indata="indata",
+        signgs=-1,
+        rho=rho,
+        nu_v=jnp.asarray([1.0e-3]),
+        Er=jnp.ones((2, 1)),
+        drds=jnp.ones(2),
+        grid=GridSpec(5, 5, 4),
+        source_name="state-scan",
+        mboz=4,
+        nboz=5,
+        psi_p=2.0,
+        min_bmn_to_load=1.0e-6,
+    )
+
+    assert result.source_name == "state-scan"
+    assert calls["build_surfaces"] is surfaces
+    assert calls["surface_kwargs"]["s_values"] == pytest.approx((0.0625, 0.25))
+    assert calls["surface_kwargs"]["mboz"] == 4
+    assert calls["surface_kwargs"]["nboz"] == 5
+    assert calls["surface_kwargs"]["psi_p"] == 2.0
+    assert calls["surface_kwargs"]["min_bmn_to_load"] == 1.0e-6
+    assert jnp.allclose(calls["build_kwargs"]["rho"], rho)
+
+
+def test_build_ntx_neopax_scan_from_vmec_jax_boundary_params_forwards_owned_surfaces(monkeypatch):
+    surfaces = (example_surface(),)
+    context = SimpleNamespace(static="static", indata="indata", signgs=1)
+    calls: dict[str, object] = {}
+
+    def fake_surfaces_from_boundary(context_arg, params_arg, **kwargs):
+        calls["context"] = context_arg
+        calls["params"] = params_arg
+        calls["surface_kwargs"] = kwargs
+        return surfaces
+
+    def fake_build_from_surfaces(surface_tuple, **kwargs):
+        calls["build_surfaces"] = surface_tuple
+        calls["build_kwargs"] = kwargs
+        return SimpleNamespace(rho=kwargs["rho"], source_name=kwargs["source_name"])
+
+    monkeypatch.setattr(
+        neopax_module,
+        "surfaces_from_vmec_jax_boundary_params",
+        fake_surfaces_from_boundary,
+    )
+    monkeypatch.setattr(
+        neopax_module,
+        "build_ntx_neopax_scan_from_surfaces",
+        fake_build_from_surfaces,
+    )
+
+    rho = jnp.asarray([0.4])
+    params = jnp.asarray([0.01, -0.02])
+    result = neopax_module.build_ntx_neopax_scan_from_vmec_jax_boundary_params(
+        context,
+        params,
+        rho=rho,
+        nu_v=jnp.asarray([1.0e-3]),
+        Es=jnp.ones((1, 1)),
+        drds=jnp.ones(1),
+        grid=GridSpec(5, 5, 4),
+        source_name="boundary-scan",
+        vmec_project=False,
+        max_iter=3,
+        step_size=0.25,
+        ftol=1.0e-8,
+        implicit="implicit",
+        mboz=6,
+        nboz=7,
+        psi_p=1.5,
+        min_bmn_to_load=2.0e-6,
+    )
+
+    assert result.source_name == "boundary-scan"
+    assert calls["context"] is context
+    assert jnp.allclose(calls["params"], params)
+    assert calls["build_surfaces"] is surfaces
+    assert calls["surface_kwargs"]["s_values"] == pytest.approx((0.16,))
+    assert calls["surface_kwargs"]["vmec_project"] is False
+    assert calls["surface_kwargs"]["max_iter"] == 3
+    assert calls["surface_kwargs"]["step_size"] == 0.25
+    assert calls["surface_kwargs"]["ftol"] == 1.0e-8
+    assert calls["surface_kwargs"]["implicit"] == "implicit"
+    assert calls["surface_kwargs"]["mboz"] == 6
+    assert calls["surface_kwargs"]["nboz"] == 7
+    assert calls["surface_kwargs"]["psi_p"] == 1.5
+    assert calls["surface_kwargs"]["min_bmn_to_load"] == 2.0e-6
+    assert jnp.allclose(calls["build_kwargs"]["rho"], rho)
 
 
 def test_build_ntx_neopax_scan_derives_missing_field_channel():

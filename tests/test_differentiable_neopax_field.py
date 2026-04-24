@@ -110,6 +110,20 @@ def _make_species(NEOPAX, field):
     )
 
 
+def _synthetic_imported_surface(*, iota=0.4, b0=2.0, b10=0.2, b_theta=0.1, b_zeta=1.0):
+    return BoozerSurface(
+        m=jnp.asarray([0, 1, 2]),
+        n=jnp.asarray([0, 0, 1]),
+        b_cos=jnp.asarray([b0, b10, 0.03]),
+        nfp=1,
+        iota=jnp.asarray(iota),
+        psi_p=jnp.asarray(1.2),
+        b_theta=jnp.asarray(b_theta),
+        b_zeta=jnp.asarray(b_zeta),
+        b0=jnp.asarray(b0),
+    )
+
+
 def test_to_neopax_monoenergetic_preserves_jax_scalar_a_b():
     scan = ModuleType("scan")
     scan.rho = jnp.asarray([0.25, 0.5])
@@ -356,6 +370,164 @@ def test_vmec_scalar_profile_helpers_with_fake_modules(monkeypatch):
         _vmec_psia_from_state(SimpleNamespace(phipf_out=None), static)
     with pytest.raises(AttributeError, match="Rcos"):
         _vmec_edge_r00_from_state(SimpleNamespace(Rcos=None))
+
+
+def test_differentiable_neopax_field_from_vmec_state_uses_axis_safe_profiles(monkeypatch):
+    import ntx._neopax_field as neopax_field_module
+
+    static = SimpleNamespace(s=jnp.asarray([0.0, 0.25, 0.5, 0.75, 1.0]))
+    state = SimpleNamespace(
+        phipf_out=jnp.asarray([0.0, -0.2, -0.3]),
+        Rcos=jnp.asarray([[0.0], [6.0]]),
+    )
+    calls: dict[str, object] = {}
+
+    def fake_surfaces_from_state(**kwargs):
+        calls["s_values"] = kwargs["s_values"]
+        return (
+            _synthetic_imported_surface(iota=0.35, b0=2.1, b10=0.21, b_theta=0.12, b_zeta=1.05),
+            _synthetic_imported_surface(iota=0.45, b0=2.2, b10=0.11, b_theta=0.15, b_zeta=1.10),
+        )
+
+    monkeypatch.setattr(
+        neopax_field_module,
+        "_vmec_volume_profiles_from_state",
+        lambda **kwargs: (
+            jnp.asarray(80.0),
+            jnp.asarray([0.0, 12.0, 11.0, 10.0, 9.0]),
+        ),
+    )
+    monkeypatch.setattr(
+        neopax_field_module,
+        "_vmec_psia_from_state",
+        lambda state, static: jnp.asarray(1.2),
+    )
+    monkeypatch.setattr(
+        neopax_field_module,
+        "_vmec_edge_r00_from_state",
+        lambda state: jnp.asarray(6.0),
+    )
+    monkeypatch.setattr(
+        neopax_field_module,
+        "surfaces_from_vmec_jax_state",
+        fake_surfaces_from_state,
+    )
+
+    field = build_differentiable_neopax_field_from_vmec_jax_state(
+        state=state,
+        static=static,
+        indata=object(),
+        signgs=-1,
+        n_r=4,
+        mboz=3,
+        nboz=3,
+    )
+
+    assert calls["s_values"] == pytest.approx((1.0 / 9.0, 4.0 / 9.0))
+    assert field.n_r == 4
+    assert jnp.allclose(field.r_grid[0], 0.5 * field.r_grid[1])
+    assert jnp.allclose(field.overVprime[0], 0.0)
+    assert jnp.allclose(field.B_10[0], 0.0)
+    assert jnp.allclose(field.B_10[-1], field.B_10[-2])
+    assert jnp.allclose(field.iota[0], 0.0)
+    assert jnp.allclose(field.iota[-1], field.iota[-2])
+    assert jnp.all(jnp.isfinite(field.Bsqav))
+    assert jnp.all(jnp.isfinite(field.sqrtg00_value))
+
+
+def test_differentiable_neopax_field_from_vmec_state_falls_back_to_indata_psia(monkeypatch):
+    import ntx._neopax_field as neopax_field_module
+
+    monkeypatch.setattr(
+        neopax_field_module,
+        "_vmec_volume_profiles_from_state",
+        lambda **kwargs: (
+            jnp.asarray(40.0),
+            jnp.asarray([0.0, 5.0, 4.0]),
+        ),
+    )
+    monkeypatch.setattr(
+        neopax_field_module,
+        "_vmec_psia_from_indata",
+        lambda **kwargs: jnp.asarray(0.75),
+    )
+    monkeypatch.setattr(
+        neopax_field_module,
+        "_vmec_edge_r00_from_state",
+        lambda state: jnp.asarray(5.0),
+    )
+    monkeypatch.setattr(
+        neopax_field_module,
+        "surfaces_from_vmec_jax_state",
+        lambda **kwargs: (_synthetic_imported_surface(),),
+    )
+
+    field = build_differentiable_neopax_field_from_vmec_jax_state(
+        state=SimpleNamespace(Rcos=jnp.asarray([[0.0], [5.0]])),
+        static=SimpleNamespace(s=jnp.asarray([0.0, 0.5, 1.0])),
+        indata=object(),
+        signgs=1,
+        n_r=3,
+    )
+
+    assert jnp.allclose(field.Psia_value, 0.75)
+    assert field.r_grid.shape == (3,)
+    assert jnp.all(jnp.isfinite(field.G_PS))
+
+
+def test_differentiable_neopax_fluxes_copy_axis_block_and_apply_lij_forces(monkeypatch):
+    fake_neoclassical = ModuleType("NEOPAX._neoclassical")
+
+    def fake_lij_matrix(species, grid, field, database, species_index, radial_index):
+        base = 100.0 * species_index + 10.0 * radial_index
+        return jnp.asarray(
+            [
+                [base + 1.0, base + 2.0, base + 3.0],
+                [base + 4.0, base + 5.0, base + 6.0],
+                [base + 7.0, base + 8.0, base + 9.0],
+            ]
+        )
+
+    fake_neoclassical.get_Lij_matrix = fake_lij_matrix
+    monkeypatch.setitem(sys.modules, "NEOPAX", ModuleType("NEOPAX"))
+    monkeypatch.setitem(sys.modules, "NEOPAX._neoclassical", fake_neoclassical)
+
+    species = SimpleNamespace(
+        species_indeces=jnp.asarray([0, 1]),
+        A1=jnp.asarray([[1.0, 1.1, 1.2], [0.7, 0.8, 0.9]]),
+        A2=jnp.asarray([[0.2, 0.3, 0.4], [0.5, 0.6, 0.7]]),
+        A3=jnp.asarray([0.05, 0.06, 0.07]),
+        temperature=jnp.asarray([[2.0, 2.1, 2.2], [3.0, 3.1, 3.2]]),
+        density=jnp.asarray([[4.0, 4.1, 4.2], [5.0, 5.1, 5.2]]),
+    )
+    grid = SimpleNamespace(full_grid_indeces=jnp.asarray([0, 1, 2]))
+    lij, gamma, heat, upar = get_differentiable_neopax_fluxes(
+        species,
+        grid,
+        field=object(),
+        database=object(),
+    )
+
+    assert lij.shape == (2, 3, 3, 3)
+    assert jnp.allclose(lij[:, 0], lij[:, 1])
+    expected_gamma_axis = -species.density[0, 0] * (
+        lij[0, 0, 0, 0] * species.A1[0, 0]
+        + lij[0, 0, 0, 1] * species.A2[0, 0]
+        + lij[0, 0, 0, 2] * species.A3[0]
+    )
+    expected_heat_axis = -species.temperature[1, 0] * species.density[1, 0] * (
+        lij[1, 0, 1, 0] * species.A1[1, 0]
+        + lij[1, 0, 1, 1] * species.A2[1, 0]
+        + lij[1, 0, 1, 2] * species.A3[0]
+    )
+    expected_upar_edge = -species.density[1, 2] * (
+        lij[1, 2, 2, 0] * species.A1[1, 2]
+        + lij[1, 2, 2, 1] * species.A2[1, 2]
+        + lij[1, 2, 2, 2] * species.A3[2]
+    )
+    assert jnp.allclose(gamma[0, 0], expected_gamma_axis)
+    assert jnp.allclose(heat[1, 0], expected_heat_axis)
+    assert jnp.allclose(upar[1, 2], expected_upar_edge)
 
 
 def test_boundary_params_field_builder_delegates_to_state_builder(monkeypatch):
