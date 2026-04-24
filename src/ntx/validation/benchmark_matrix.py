@@ -4,13 +4,13 @@ import json
 from pathlib import Path
 from typing import Literal
 
-from ._benchmark_matrix_entries import (
+from ._benchmark_matrix_entries import benchmark_matrix
+from ._benchmark_matrix_types import (
     BenchmarkEntry,
     BenchmarkEvaluation,
     BenchmarkLane,
     BenchmarkMaturity,
     BenchmarkPathStatus,
-    benchmark_matrix,
 )
 
 __all__ = [

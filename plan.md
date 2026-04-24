@@ -724,6 +724,8 @@ Target package structure:
   - current split: physics-gate types, registry definitions, and artifact-gate
     evaluation now live in separate internal modules behind the stable
     `ntx.validation.physics_gates` facade
+  - current split: benchmark-matrix dataclasses and literal lane types now live
+    separately from the maintained benchmark-entry registry
 
 Concrete file splits to prioritize:
 
