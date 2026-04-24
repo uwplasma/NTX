@@ -494,7 +494,7 @@ A_{1,a}(r) =
 ```
 
 where `C_{E,a}(r)` is the user-supplied electrostatic prefactor. This mapping
-is implemented by:
+is covered by a fast analytical physics gate and implemented by:
 
 - `PrimitiveSpeciesProfile`
 - `build_species_profile_from_primitives(...)`
