@@ -3,12 +3,14 @@
 NTX uses explicit physics gates so that validation claims are tied to the
 actual model scope.
 
-These gates separate four different questions:
+These gates separate five different questions:
 
 1. is the monoenergetic solver algebra correct?
 2. is the database handoff to the closure workflow correct?
 3. does the imported integrated workflow transfer cleanly?
-4. where does the reduced closure model stop matching fuller collisional tools?
+4. do differentiable geometry and boundary-control workflows match centered
+   finite differences on their claimed scope?
+5. where does the reduced closure model stop matching fuller collisional tools?
 
 That separation matters. Without it, a closure-model gap can be mistaken for a
 solver bug, or a benchmark-specific fit can be mistaken for production physics.
@@ -77,7 +79,29 @@ These are hard structural checks:
 These are not benchmark fits. They come directly from the model derivation and
 from the present closure basis.
 
-## 2. Independent-Code Comparison Gates
+## 2. Differentiability Artifact Gates
+
+These gates protect the end-to-end JAX workflows without overstating their
+geometry breadth:
+
+- **Owned analytic geometry-control derivatives:** direct AD must match
+  centered finite differences below `2e-4` on the committed three-harmonic
+  analytic-surface audit.
+- **File-backed geometry-control derivatives:** the same direct AD/finite
+  difference comparison must stay below `5e-4` on the repository-owned Boozer
+  and VMEC sample surfaces.
+- **Boundary-projected current derivatives:** forward-mode derivatives through
+  the optional JAX geometry backends, NTX coefficients, and the integrated
+  current objective must stay below `1e-5` on the committed sample input.
+- **Explicit-relaxed boundary-to-current derivatives:** the self-consistent
+  forward-mode QA/QH family must stay below `1e-4`; the artifact also reports
+  the ordinary-vs-explicit-relaxed volume agreement so the derivative check is
+  not hiding a branch mismatch.
+- **Implicit-equilibrium derivatives:** this remains a monitored stress lane,
+  not a passing gate. The current artifact validates the equilibrium-volume
+  derivative but leaves the Boozer-space and NTX transport observables open.
+
+## 3. Independent-Code Comparison Gates
 
 These are trust-building comparisons against independent workflows:
 
@@ -91,7 +115,7 @@ These comparisons are useful because they check the physical bridge to
 well-established neoclassical calculations without redefining NTX as “whatever
  matches another code.”
 
-### 3. Integrated-Workflow Transfer Gate
+### 4. Integrated-Workflow Transfer Gate
 
 The strongest imported-workflow gate is the rebuilt W7-X bootstrap-current
 workflow.
@@ -102,6 +126,10 @@ The active acceptance target is:
   plotted coefficient error `<= 2.5e-1` on both the DKES-style and VMEC surfaces.
 - **Prepared derivative path:** maximum prepared-vs-direct derivative mismatch
   `<= 1e-4` on the committed derivative-path benchmark.
+- **Differentiable geometry path:** the promoted finite-difference agreement
+  gates above must pass for the analytic, file-backed, boundary-projected, and
+  explicit-relaxed artifacts; the implicit-equilibrium artifact is monitored
+  separately until it closes.
 - **W7-X rebuilt raw branch:** best observed maximum relative error
   `<= 2e-2` against the frozen reference profile.
 
@@ -109,7 +137,7 @@ This gate is important because it validates the full path:
 
 `NTX monoenergetic tables -> database normalization -> imported closure workflow`.
 
-### 4. Closure Stress Tests
+### 5. Closure Stress Tests
 
 The fixed-field precise-QS `NTX+NEOPAX` current comparison is retained as a
 stress test, not as a release gate for the monoenergetic solver.

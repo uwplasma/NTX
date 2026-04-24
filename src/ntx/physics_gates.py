@@ -238,6 +238,77 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="geometry_control_derivative_stress",
+        category="stress",
+        metric="max relative direct-AD vs finite-difference mismatch",
+        relation="<=",
+        threshold=2.0e-4,
+        source="docs/_static/geometry_control_derivative_benchmark.json",
+        rationale=(
+            "Owned analytic geometry-control derivatives should agree with "
+            "centered finite differences before the same workflow is used for "
+            "sensitivity, inverse-design, or uncertainty studies."
+        ),
+    ),
+    PhysicsGate(
+        name="file_backed_geometry_control_derivative_stress",
+        category="stress",
+        metric="max relative direct-AD vs finite-difference mismatch",
+        relation="<=",
+        threshold=5.0e-4,
+        source="docs/_static/file_backed_geometry_control_derivative_benchmark.json",
+        rationale=(
+            "The geometry-control derivative audit must transfer from the "
+            "owned analytic surface to repository-owned file-backed Boozer and "
+            "VMEC sample surfaces."
+        ),
+    ),
+    PhysicsGate(
+        name="boundary_forward_mode_current_derivative_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="<=",
+        threshold=1.0e-5,
+        source="docs/_static/boundary_forward_mode_current_derivative_benchmark.json",
+        rationale=(
+            "The boundary-projected geometry path through optional JAX "
+            "geometry backends, NTX, and the integrated-current objective must "
+            "stay differentiable on the committed sample case."
+        ),
+    ),
+    PhysicsGate(
+        name="explicit_relaxed_boundary_current_derivative_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="<=",
+        threshold=1.0e-4,
+        source=(
+            "docs/_static/"
+            "explicit_relaxed_boundary_current_derivative_benchmark.json"
+        ),
+        rationale=(
+            "The explicit-relaxed boundary-to-current family should preserve "
+            "forward-mode agreement with centered finite differences on the "
+            "committed QA/QH cases."
+        ),
+    ),
+    PhysicsGate(
+        name="implicit_equilibrium_derivative_open_stress",
+        category="stress",
+        metric="max relative forward-mode vs finite-difference mismatch",
+        relation="monitor",
+        threshold=None,
+        source=(
+            "docs/_static/"
+            "implicit_equilibrium_forward_mode_derivative_benchmark.json"
+        ),
+        rationale=(
+            "The implicit-equilibrium derivative diagnostic is kept visible as "
+            "an open stress lane: equilibrium volume closes, but Boozer-space "
+            "and NTX transport observables do not yet pass."
+        ),
+    ),
+    PhysicsGate(
         name="precise_qs_redl_vs_sfincs",
         category="independent",
         metric="interior max relative error of Redl vs archived SFINCS",
@@ -377,6 +448,73 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             )
         )
 
+    _append_summary_metric_gate(
+        results,
+        gate_name="geometry_control_derivative_stress",
+        path=static_root / "geometry_control_derivative_benchmark.json",
+        metric_key="max_relative_mismatch",
+        details=(
+            "owned analytic geometry-control direct AD compared with centered "
+            "finite differences"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
+        gate_name="file_backed_geometry_control_derivative_stress",
+        path=static_root / "file_backed_geometry_control_derivative_benchmark.json",
+        metric_key="max_relative_mismatch",
+        details=(
+            "file-backed Boozer/VMEC geometry-control direct AD compared with "
+            "centered finite differences"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
+        gate_name="boundary_forward_mode_current_derivative_stress",
+        path=static_root / "boundary_forward_mode_current_derivative_benchmark.json",
+        metric_key="max_relative_mismatch",
+        details=(
+            "boundary-projected forward-mode derivatives compared with "
+            "centered finite differences"
+        ),
+    )
+
+    explicit_gate = _gate_by_name("explicit_relaxed_boundary_current_derivative_stress")
+    explicit_path = (
+        static_root / "explicit_relaxed_boundary_current_derivative_benchmark.json"
+    )
+    if explicit_path.exists():
+        payload = json.loads(explicit_path.read_text())
+        metrics = payload["summary_metrics"]
+        max_mismatch = float(metrics["max_relative_mismatch"])
+        volume_difference = float(
+            metrics["max_ordinary_explicit_volume_relative_difference"]
+        )
+        results.append(
+            _evaluate_scalar_gate(
+                explicit_gate,
+                max_mismatch,
+                details=(
+                    "explicit-relaxed forward-mode derivatives compared with "
+                    "centered finite differences; max ordinary-vs-explicit "
+                    f"volume relative difference={volume_difference:.3g}"
+                ),
+            )
+        )
+    else:
+        _append_missing_artifact_gate(results, explicit_gate, explicit_path)
+
+    _append_summary_metric_gate(
+        results,
+        gate_name="implicit_equilibrium_derivative_open_stress",
+        path=static_root / "implicit_equilibrium_forward_mode_derivative_benchmark.json",
+        metric_key="max_relative_mismatch",
+        details=(
+            "monitored implicit-equilibrium diagnostic; volume derivative "
+            "closes while Boozer-space and NTX transport observables remain open"
+        ),
+    )
+
     fixed_gate_redl = _gate_by_name("precise_qs_redl_vs_sfincs")
     fixed_gate_closure = _gate_by_name("precise_qs_ntx_neopax_closure_stress")
     fixed_path = static_root / "bootstrap_current_fixed_field_validation.json"
@@ -450,7 +588,44 @@ def _gate_by_name(name: str) -> PhysicsGate:
     raise KeyError(name)
 
 
-def _evaluate_scalar_gate(gate: PhysicsGate, value: float) -> PhysicsGateResult:
+def _append_summary_metric_gate(
+    results: list[PhysicsGateResult],
+    *,
+    gate_name: str,
+    path: Path,
+    metric_key: str,
+    details: str,
+) -> None:
+    gate = _gate_by_name(gate_name)
+    if path.exists():
+        payload = json.loads(path.read_text())
+        value = float(payload["summary_metrics"][metric_key])
+        results.append(_evaluate_scalar_gate(gate, value, details=details))
+    else:
+        _append_missing_artifact_gate(results, gate, path)
+
+
+def _append_missing_artifact_gate(
+    results: list[PhysicsGateResult],
+    gate: PhysicsGate,
+    path: Path,
+) -> None:
+    results.append(
+        PhysicsGateResult(
+            gate=gate,
+            value=None,
+            status="missing",
+            details=f"missing artifact: {path}",
+        )
+    )
+
+
+def _evaluate_scalar_gate(
+    gate: PhysicsGate,
+    value: float,
+    *,
+    details: str = "",
+) -> PhysicsGateResult:
     if gate.relation == "<=":
         assert gate.threshold is not None
         status: GateStatus = "pass" if value <= gate.threshold else "fail"
@@ -461,4 +636,4 @@ def _evaluate_scalar_gate(gate: PhysicsGate, value: float) -> PhysicsGateResult:
         status = "monitor"
     else:
         status = "monitor"
-    return PhysicsGateResult(gate=gate, value=value, status=status)
+    return PhysicsGateResult(gate=gate, value=value, status=status, details=details)

@@ -56,6 +56,11 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "spitzer_inverse_collisionality_limit" in names
     assert "operator_parameter_derivative_consistency" in names
     assert "prepared_derivative_path_consistency" in names
+    assert "geometry_control_derivative_stress" in names
+    assert "file_backed_geometry_control_derivative_stress" in names
+    assert "boundary_forward_mode_current_derivative_stress" in names
+    assert "explicit_relaxed_boundary_current_derivative_stress" in names
+    assert "implicit_equilibrium_derivative_open_stress" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
     assert "precise_qs_ntx_neopax_closure_stress" in names
@@ -94,6 +99,30 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (static_root / "geometry_control_derivative_benchmark.json").write_text(
+        json.dumps({"summary_metrics": {"max_relative_mismatch": 1.0e-4}})
+    )
+    (
+        static_root / "file_backed_geometry_control_derivative_benchmark.json"
+    ).write_text(json.dumps({"summary_metrics": {"max_relative_mismatch": 2.0e-4}}))
+    (
+        static_root / "boundary_forward_mode_current_derivative_benchmark.json"
+    ).write_text(json.dumps({"summary_metrics": {"max_relative_mismatch": 5.0e-7}}))
+    (
+        static_root / "explicit_relaxed_boundary_current_derivative_benchmark.json"
+    ).write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "max_relative_mismatch": 2.0e-5,
+                    "max_ordinary_explicit_volume_relative_difference": 0.0,
+                }
+            }
+        )
+    )
+    (
+        static_root / "implicit_equilibrium_forward_mode_derivative_benchmark.json"
+    ).write_text(json.dumps({"summary_metrics": {"max_relative_mismatch": 6.0}}))
     (static_root / "bootstrap_current_fixed_field_validation.json").write_text(
         json.dumps(
             {
@@ -123,6 +152,26 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["w7x_integrated_rebuild_raw"].value == 0.01
     assert results["prepared_derivative_path_consistency"].status == "pass"
     assert results["prepared_derivative_path_consistency"].value == pytest.approx(3.0e-6)
+    assert results["geometry_control_derivative_stress"].status == "pass"
+    assert results["geometry_control_derivative_stress"].value == pytest.approx(1.0e-4)
+    assert results["file_backed_geometry_control_derivative_stress"].status == "pass"
+    assert results["file_backed_geometry_control_derivative_stress"].value == (
+        pytest.approx(2.0e-4)
+    )
+    assert results["boundary_forward_mode_current_derivative_stress"].status == "pass"
+    assert results["boundary_forward_mode_current_derivative_stress"].value == (
+        pytest.approx(5.0e-7)
+    )
+    assert (
+        results["explicit_relaxed_boundary_current_derivative_stress"].status == "pass"
+    )
+    assert results["explicit_relaxed_boundary_current_derivative_stress"].value == (
+        pytest.approx(2.0e-5)
+    )
+    assert results["implicit_equilibrium_derivative_open_stress"].status == "monitor"
+    assert results["implicit_equilibrium_derivative_open_stress"].value == (
+        pytest.approx(6.0)
+    )
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
     assert results["precise_qs_redl_vs_sfincs"].value == 0.08
     assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
@@ -177,6 +226,14 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
     assert results["monoenergetic_validation_summary"].status == "missing"
     assert results["w7x_integrated_rebuild_raw"].status == "missing"
     assert results["prepared_derivative_path_consistency"].status == "missing"
+    assert results["geometry_control_derivative_stress"].status == "missing"
+    assert results["file_backed_geometry_control_derivative_stress"].status == "missing"
+    assert results["boundary_forward_mode_current_derivative_stress"].status == "missing"
+    assert (
+        results["explicit_relaxed_boundary_current_derivative_stress"].status
+        == "missing"
+    )
+    assert results["implicit_equilibrium_derivative_open_stress"].status == "missing"
     assert "bootstrap_current_reference_audit_w7x.json" in results[
         "w7x_integrated_rebuild_raw"
     ].details
@@ -197,6 +254,20 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["w7x_integrated_rebuild_raw"].value <= 2.0e-2
     assert results["prepared_derivative_path_consistency"].status == "pass"
     assert results["prepared_derivative_path_consistency"].value <= 1.0e-4
+    assert results["geometry_control_derivative_stress"].status == "pass"
+    assert results["geometry_control_derivative_stress"].value <= 2.0e-4
+    assert results["file_backed_geometry_control_derivative_stress"].status == "pass"
+    assert results["file_backed_geometry_control_derivative_stress"].value <= 5.0e-4
+    assert results["boundary_forward_mode_current_derivative_stress"].status == "pass"
+    assert results["boundary_forward_mode_current_derivative_stress"].value <= 1.0e-5
+    assert (
+        results["explicit_relaxed_boundary_current_derivative_stress"].status == "pass"
+    )
+    assert (
+        results["explicit_relaxed_boundary_current_derivative_stress"].value
+        <= 1.0e-4
+    )
+    assert results["implicit_equilibrium_derivative_open_stress"].status == "monitor"
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
     assert results["precise_qs_redl_vs_sfincs"].value <= 1.0e-1
     assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
