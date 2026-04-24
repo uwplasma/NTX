@@ -78,6 +78,9 @@ work with a clear reason.
   match JAX differentiation of the assembled Legendre-space operator.
 - `python scripts/test_lane_manifest.py --check` passes with split core lanes,
   8 integration examples, and 18 opt-in heavy example tests.
+- CI test-shard jobs are bounded by a ten-minute timeout, and subprocess-based
+  parallel smoke tests have explicit subprocess timeouts to prevent silent
+  workflow stalls.
 - `python scripts/build_benchmark_matrix.py` reports every active benchmark
   gate complete and keeps the broader geometry/autodiff breadth lanes planned.
 - `python -m ruff check .`, `python -m mypy src/ntx`, documentation build,

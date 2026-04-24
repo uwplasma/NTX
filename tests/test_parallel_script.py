@@ -29,6 +29,7 @@ def test_profile_parallel_runtime_script_runs(tmp_path):
         text=True,
         capture_output=True,
         env=env,
+        timeout=180,
     )
     payload = json.loads(proc.stdout)
     assert output_json.exists()

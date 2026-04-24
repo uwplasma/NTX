@@ -112,6 +112,11 @@ Normal CI still checks the committed artifacts through the benchmark matrix and
 manuscript-artifact tests. The expensive boundary reruns are used when updating
 those artifacts.
 
+Each CI test-shard job has a ten-minute job timeout. The subprocess-based
+parallel profiling smoke tests also set explicit subprocess timeouts, so a
+device-discovery or multiprocessing hang fails as a diagnosable test error
+instead of stalling the whole workflow.
+
 The first fast owned-geometry coefficient gate is in
 `tests/test_physics_gates.py`. It checks `D11`, `D31`, `D33`, the Onsager
 residual, and a coarse-to-fine angular-grid transfer on the analytic Boozer

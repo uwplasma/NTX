@@ -163,7 +163,9 @@ and docs that explain which claims are closed versus monitored.
    - Current status: closed for the current branch. The maintained manifest is
      in place, core tests are split into explicit workflow/validation lanes,
      generated caches have been removed, and new artifacts are tied to
-     scripts/tests/docs.
+     scripts/tests/docs. Each test-shard job is now capped at ten minutes, and
+     subprocess-based parallel smoke tests have their own explicit subprocess
+     timeouts so CI stalls fail as bounded test errors.
 
 2. **Benchmark matrix hardening**
    - Require every promoted claim to map to:
