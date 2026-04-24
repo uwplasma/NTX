@@ -402,6 +402,9 @@ Current status:
   - `solver.py` now remains the compatibility surface
   - case/result/prepared-system types live in `src/ntx/_solver_types.py`
   - prepared solve and custom-VJP core live in `src/ntx/_solver_core.py`
+  - block-tridiagonal factorization, low-mode back-substitution, residual
+    checks, and factorized adjoint solves live in
+    `src/ntx/_solver_factorization.py`
   - scan/device helpers live in `src/ntx/_solver_scan.py`
 - [x] the sixth no-behavior-change workflow split is complete:
   - `profiles.py` now remains the compatibility surface
@@ -417,6 +420,15 @@ Current status:
     backed field builders
   - `src/ntx/_neopax_field_utils.py` owns shared safe numerical helpers used by
     both paths
+- [x] the eighth no-behavior-change workflow split is complete:
+  - `src/ntx/_solver_core.py` now owns prepared solve entry points, coefficient
+    assembly, and the custom-VJP contract
+  - `src/ntx/_solver_factorization.py` owns the dense block-tridiagonal Schur
+    recursion, reusable LU factors, low-order back-substitution, residual
+    checks, and the factorized adjoint solve
+  - `src/ntx/_solver_scan.py` imports the low-level solve directly from the new
+    factorization module while public `solver.py` compatibility exports remain
+    unchanged
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable

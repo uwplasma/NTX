@@ -84,7 +84,8 @@ X_k = \Delta_k^{-1} L_k.
 ```
 
 This is implemented in `_solve_modes(...)` in
-[`src/ntx/solver.py`](../src/ntx/solver.py) with a `jax.lax.scan`.
+[`src/ntx/_solver_factorization.py`](../src/ntx/_solver_factorization.py)
+with a `jax.lax.scan`.
 
 ### Why Only Modes 0, 1, And 2 Are Stored
 
@@ -129,7 +130,8 @@ That choice is visible in:
 - `_solve_modes(...)`
 - `compile_prepared_solver(...)`
 
-in [`src/ntx/solver.py`](../src/ntx/solver.py).
+in [`src/ntx/_solver_factorization.py`](../src/ntx/_solver_factorization.py)
+and [`src/ntx/_solver_core.py`](../src/ntx/_solver_core.py).
 
 ## Complexity
 
