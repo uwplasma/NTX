@@ -95,6 +95,10 @@ work with a clear reason.
 - CI test-shard jobs are bounded by a ten-minute timeout, and subprocess-based
   parallel smoke tests have explicit subprocess timeouts to prevent silent
   workflow stalls.
+- The device-parallel profiling script now exposes explicit smoke-profile
+  controls, and CI uses `--num-cases 2 --grid 5,5,4` to check
+  serial/device-parallel agreement without rerunning the full profiling
+  workload.
 - `python scripts/build_benchmark_matrix.py` reports every active benchmark
   gate complete and keeps the broader geometry/autodiff breadth lanes planned.
 - `python -m ruff check .`, `python -m mypy src/ntx`, documentation build,
@@ -112,6 +116,10 @@ work with a clear reason.
   parity claims. The release claim is the positive W7-X integrated transfer and
   the fixed-field Redl/SFINCS gate; the reduced-closure current mismatch remains
   a monitored stress metric.
+- Manuscript claim artifacts now include the monoenergetic validation-summary
+  convergence gate and the fixed-field Redl/SFINCS gate alongside the monitored
+  `NTX+NEOPAX` stress metric, so paper-facing claims match the active physics
+  gates.
 - The next valuable coverage work should be opportunistic and physics-driven;
   coverage is no longer a blocking lane.
 - The expensive boundary/equilibrium artifact reruns remain opt-in through
