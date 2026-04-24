@@ -64,9 +64,8 @@ work with a clear reason.
   comparable.
 - The validation registry now has additional direct unit coverage.
 - Fast synthetic imported-workflow tests exercise the imported field/database
-  bridge without rerunning expensive boundary/equilibrium artifacts in every
-  shard; the current CI report has `_neopax_field.py` at `98.1%` and
-  `neopax.py` at `100%`.
+  bridge and NTX-to-NEOPAX scan owner without rerunning expensive
+  boundary/equilibrium artifacts in every shard.
 - A fast owned-surface physics gate now checks `D11`, `D31`, `D33`, Onsager
   residual, and coarse-to-fine angular-grid transfer on the analytic Boozer
   surface.

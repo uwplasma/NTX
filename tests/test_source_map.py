@@ -18,6 +18,7 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_neopax_field_utils.py",
     "src/ntx/_neopax_fluxes.py",
     "src/ntx/_neopax_io.py",
+    "src/ntx/_neopax_scan.py",
     "src/ntx/_neopax_types.py",
     "src/ntx/_neopax_vmec_jax_field.py",
     "src/ntx/_profiles_controls.py",

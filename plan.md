@@ -346,7 +346,7 @@ Do not declare this program complete until all of the following are true:
   - `solver.py` (`51` lines after Phase 1 split; types/core/scan moved to internal modules)
   - `autodiff.py` (`92` lines after Phase 1 split; types/workflows/bootstrap moved to internal modules)
   - `inputfiles.py` (`275` lines after Phase 1 split; parsing/reporting moved to internal modules)
-  - `neopax.py` (`326` lines after Phase 1 split; bridge/types/I/O/field/flux helpers moved to internal modules)
+  - `neopax.py` (`47` lines after Phase 1 split; bridge/types/I/O/field/flux/scan helpers moved to internal modules)
   - `geometry.py` (`19` lines after Phase 1 split; types/evaluation moved to internal modules)
 - public docstrings and internal comments are inconsistent across the source
   tree, particularly in workflow-heavy files
@@ -405,7 +405,7 @@ Current status:
   - Rich tables and metadata/source helpers live in
     `src/ntx/_inputfiles_reporting.py`
 - [x] the second no-behavior-change workflow split is complete:
-  - `neopax.py` now remains the compatibility surface and scan builder
+  - `neopax.py` now remains the compatibility surface
   - scan dataclasses/constants live in `src/ntx/_neopax_types.py`
   - HDF5/reference-scan I/O lives in `src/ntx/_neopax_io.py`
   - differentiable array/database mapping lives in `src/ntx/_neopax_bridge.py`
@@ -443,6 +443,9 @@ Current status:
   - `src/ntx/_neopax_field_utils.py` owns shared safe numerical helpers used by
     both paths
 - [x] the eighth no-behavior-change workflow split is complete:
+  - `src/ntx/_neopax_scan.py` now owns NTX-to-NEOPAX scan assembly from
+    callbacks, in-memory surfaces, and imported VMEC-JAX states
+- [x] the ninth no-behavior-change workflow split is complete:
   - `src/ntx/_solver_core.py` now owns prepared solve entry points, coefficient
     assembly, and the custom-VJP contract
   - `src/ntx/_solver_factorization.py` owns the dense block-tridiagonal Schur
@@ -451,7 +454,7 @@ Current status:
   - `src/ntx/_solver_scan.py` imports the low-level solve directly from the new
     factorization module while public `solver.py` compatibility exports remain
     unchanged
-- [x] the ninth no-behavior-change workflow split is complete:
+- [x] the tenth no-behavior-change workflow split is complete:
   - `src/ntx/_autodiff_workflows.py` now owns inverse problems, derivative
     audits, profile autodiff, and profile uncertainty propagation
   - `src/ntx/_autodiff_bootstrap.py` owns deterministic and robust
