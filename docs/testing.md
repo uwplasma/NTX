@@ -38,6 +38,9 @@ Near-term high-value gates are:
 
 - monoenergetic convergence ladders for `D11`, `D31`, `D33`, and
   `onsager_residual` on small repository-owned geometries,
+- Boozer-coordinate normalization identities such as
+  `\mathcal J B^2 = B_\zeta + \iota B_\theta` before transport solves consume
+  the geometry,
 - symmetric-limit checks where a constant-field Boozer surface has no radial
   transport channels but retains the finite parallel-conductivity branch,
 - artifact-backed reproductions of larger W7-X, precise-QS, and QI-family
