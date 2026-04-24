@@ -201,6 +201,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `bootstrap_current_fixed_field_validation.py`
 - `bootstrap_current_reference_audit_w7x.py`
 - `performance_scaling.py`
+- `prepared_geometry_reuse_profile.py`
 - `autodiff_inverse_problem.py`
 - `neopax_autodiff_profiles.py`
 - `derivative_audit.py`
@@ -209,6 +210,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `file_backed_geometry_control_derivative_benchmark.py`
 - `explicit_relaxed_boundary_current_derivative_benchmark.py`
 - `geometry_family_breadth_summary.py`
+- `geometry_family_transport_convergence.py`
 - `ambipolar_profile.py`
 - `ambipolar_profile_family.py`
 - `profile_control_optimization.py`

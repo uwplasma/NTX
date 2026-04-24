@@ -30,6 +30,7 @@ FIGURE_PRESETS = {
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
+        "geometry_family_transport",
         "science",
         "robust_science",
         "validation",
@@ -38,6 +39,7 @@ FIGURE_PRESETS = {
         "w7x_audit",
         "performance_smoke",
         "performance_heavy",
+        "prepared_geometry_reuse",
     },
     "main_text": {
         "validation",
@@ -61,12 +63,14 @@ FIGURE_PRESETS = {
         "implicit_equilibrium_forward_mode",
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
+        "geometry_family_transport",
         "profile_control",
         "profile_basis",
         "profile_transport",
         "bootstrap_proxy",
         "robust_science",
         "performance_smoke",
+        "prepared_geometry_reuse",
     },
 }
 
@@ -328,6 +332,21 @@ def main() -> None:
             _manifest_path(output_dir / "geometry_family_breadth_summary.json"),
         ]
 
+    if "geometry_family_transport" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "geometry_family_transport_convergence.py"),
+                "--output-prefix",
+                str(output_dir / "geometry_family_transport_convergence"),
+            ]
+        )
+        manifest["geometry_family_transport"] = [
+            _manifest_path(output_dir / "geometry_family_transport_convergence.png"),
+            _manifest_path(output_dir / "geometry_family_transport_convergence.pdf"),
+            _manifest_path(output_dir / "geometry_family_transport_convergence.json"),
+        ]
+
     if "profile_uncertainty" in selected:
         _run(
             [
@@ -468,6 +487,23 @@ def main() -> None:
         manifest["performance_heavy"] = [
             _manifest_path(output_dir / "performance_scaling_heavy.png"),
             _manifest_path(output_dir / "performance_scaling_heavy.pdf"),
+        ]
+
+    if "prepared_geometry_reuse" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "prepared_geometry_reuse_profile.py"),
+                "--preset",
+                "paper",
+                "--output-prefix",
+                str(output_dir / "prepared_geometry_reuse_profile"),
+            ]
+        )
+        manifest["prepared_geometry_reuse"] = [
+            _manifest_path(output_dir / "prepared_geometry_reuse_profile.png"),
+            _manifest_path(output_dir / "prepared_geometry_reuse_profile.pdf"),
+            _manifest_path(output_dir / "prepared_geometry_reuse_profile.json"),
         ]
 
     manifest_path = output_dir / "publication_figure_manifest.json"

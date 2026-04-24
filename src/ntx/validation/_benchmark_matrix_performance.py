@@ -37,7 +37,36 @@ def performance_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             docs=("docs/performance.md", "docs/gpu.md"),
             open_work=(
                 "map production-grid crossover points more systematically",
-                "improve prepared-geometry reuse across larger scan campaigns",
+                "repeat the same matrix on dedicated production GPU nodes",
+            ),
+        ),
+        BenchmarkEntry(
+            id="prepared_geometry_reuse_profile",
+            lane="performance",
+            maturity="software-gate",
+            title="Prepared-geometry and compiled-solver reuse profile",
+            claim_scope=(
+                "Measures repeated monoenergetic solves with direct calls, "
+                "prepared geometry reuse, and a compiled prepared solver on "
+                "one fixed geometry. This is a performance and reproducibility "
+                "gate, not a physics-validation claim."
+            ),
+            literature_anchors=(
+                "JAX performance practice for compiled scientific workloads",
+                "reuse of fixed-geometry DKE operators across monoenergetic scans",
+            ),
+            scripts=("examples/prepared_geometry_reuse_profile.py",),
+            tests=("tests/test_prepared_geometry_reuse_profile_example.py",),
+            artifacts=(
+                "docs/_static/prepared_geometry_reuse_profile.png",
+                "docs/_static/prepared_geometry_reuse_profile.pdf",
+                "docs/_static/prepared_geometry_reuse_profile.json",
+            ),
+            manuscript_figures=("prepared_geometry_reuse_profile",),
+            docs=("docs/performance.md", "docs/numerics.md", "docs/manuscript.md"),
+            open_work=(
+                "repeat the profile on larger production VMEC-family scans",
+                "evaluate reusable factorization or linear-operator approaches after profiling",
             ),
         ),
     )

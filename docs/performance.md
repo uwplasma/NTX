@@ -102,6 +102,42 @@ Interpretation:
     first, and as a throughput path only after benchmarking the specific
     production workload
 
+## Prepared-Geometry Reuse
+
+The prepared-geometry reuse artifact isolates the repeated fixed-geometry solve
+path from the multiprocess throughput lane:
+
+```bash
+python examples/prepared_geometry_reuse_profile.py --preset paper
+```
+
+Figure assets:
+
+```text
+docs/_static/prepared_geometry_reuse_profile.png
+docs/_static/prepared_geometry_reuse_profile.pdf
+docs/_static/prepared_geometry_reuse_profile.json
+```
+
+![Prepared-geometry reuse](_static/prepared_geometry_reuse_profile.png)
+
+Current local CPU interpretation:
+
+- direct repeated solves and un-jitted prepared solves are near parity after
+  one warmup solve, so hoisting geometry arrays alone is not the main win on
+  this grid
+- the compiled prepared steady path reaches a best observed speedup of about
+  `1.50e2x` against direct repeated solves with maximum coefficient mismatch
+  below `2e-9`
+- the first compiled call is still visible at about `0.43 s`, which confirms
+  that optimization workflows should compile once per fixed geometry and reuse
+  stable shapes across collisionality, electric-field, species, and radial axes
+- the process peak resident memory in this run is about `1.24 GB`
+
+This turns the speed lane into a concrete engineering target: stabilize and
+reuse prepared compiled closures before deeper linear-algebra rewrites or
+multi-process orchestration.
+
 ## Reproducibility
 
 The figure JSON payloads committed in `docs/_static/` are:
@@ -110,6 +146,7 @@ The figure JSON payloads committed in `docs/_static/` are:
 - `performance_scaling_gpu_smoke.json`
 - `performance_scaling_cpu_heavy.json`
 - `performance_scaling_gpu_heavy.json`
+- `prepared_geometry_reuse_profile.json`
 
 Fresh runs of `scripts/benchmark_scaling.py` and
 `scripts/profile_parallel_runtime.py` also record process peak resident memory

@@ -159,6 +159,16 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "derivative route"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="geometry_family_transport_convergence_stress",
+        path=static_root / "geometry_family_transport_convergence.json",
+        metric_key="max_successful_last_step_relative_change",
+        details=(
+            "monitored D11/D31/D33 last-step convergence across reusable VMEC "
+            "geometry families; not an independent-code parity gate"
+        ),
+    )
 
     optimization_gate = _gate_by_name("bootstrap_current_optimization_gain")
     optimization_path = static_root / "bootstrap_current_optimization.json"

@@ -26,15 +26,17 @@ examples.
 7. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
 8. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
 9. `geometry_family_breadth_summary.{png,pdf,json}`
-10. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-11. `bootstrap_current_robust_optimization.{png,pdf,json}`
-12. `performance_scaling_smoke.{png,pdf}`
-13. `ambipolar_profile.{png,pdf}`
-14. `ambipolar_profile_family.{png,pdf}`
-15. `profile_force_reconstruction_audit.{png,pdf,json}`
-16. `profile_control_optimization.{png,pdf}`
-17. `profile_basis_optimization.{png,pdf}`
-18. `profile_transport_loop.{png,pdf}`
+10. `geometry_family_transport_convergence.{png,pdf,json}`
+11. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+12. `bootstrap_current_robust_optimization.{png,pdf,json}`
+13. `performance_scaling_smoke.{png,pdf}`
+14. `prepared_geometry_reuse_profile.{png,pdf,json}`
+15. `ambipolar_profile.{png,pdf}`
+16. `ambipolar_profile_family.{png,pdf}`
+17. `profile_force_reconstruction_audit.{png,pdf,json}`
+18. `profile_control_optimization.{png,pdf}`
+19. `profile_basis_optimization.{png,pdf}`
+20. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -80,35 +82,44 @@ examples.
      boundary-projected, explicit-relaxed, and implicit-equilibrium derivative
      paths; this is a stress summary and not a broad geometry-family
      validation claim
-12. `derivative_path_benchmark.{png,pdf}`
+12. `geometry_family_transport_convergence.{png,pdf,json}`
+   - public VMEC example-family `D11/D31/D33` convergence stress scan across
+     tokamak, precise-QS, QI-style, W7-X, and stellarator-family inputs when
+     the local checkouts are available; this is not an independent-code parity
+     claim
+13. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-13. `bootstrap_current_optimization.{png,pdf}`
+14. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-14. `bootstrap_current_robust_optimization.{png,pdf,json}`
+15. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
-15. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+16. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-16. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+17. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-17. `performance_scaling_smoke.{png,pdf}`
+18. `performance_scaling_smoke.{png,pdf}`
    - CPU/GPU scaling on the repository smoke grid
-18. `performance_scaling_heavy.{png,pdf}`
+19. `performance_scaling_heavy.{png,pdf}`
    - heavier-grid scaling where throughput effects are visible
-19. `ambipolar_profile.{png,pdf}`
+20. `prepared_geometry_reuse_profile.{png,pdf,json}`
+   - fixed-geometry repeated-solve profile showing the direct, prepared, and
+     compiled prepared solver paths with coefficient agreement recorded in the
+     JSON artifact
+21. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-20. `ambipolar_profile_family.{png,pdf}`
+22. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-21. `profile_force_reconstruction_audit.{png,pdf,json}`
+23. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-22. `profile_control_optimization.{png,pdf}`
+24. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-23. `profile_basis_optimization.{png,pdf}`
+25. `profile_basis_optimization.{png,pdf}`
    - low-dimensional radial-basis optimization of the same profile closure
-24. `profile_transport_loop.{png,pdf}`
+26. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-25. `primitive_profile_transport.{png,pdf}`
+27. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
@@ -140,6 +151,7 @@ Together these figures cover:
 - a primitive-profile transport view with positive density and temperature updates
 - a W7-X imported-workflow convergence figure
 - practical performance guidance
+- prepared-geometry and compiled-solver reuse guidance for optimization workloads
 
 ## Manuscript Tables And Reproducibility
 

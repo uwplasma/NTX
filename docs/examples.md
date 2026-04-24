@@ -115,7 +115,26 @@ imported workflow, and writes a convergence figure:
 
 ![W7-X bootstrap-current convergence](_static/bootstrap_current_reference_audit_w7x.png)
 
-## 9. Bootstrap Current With NEOPAX
+## 9. VMEC Geometry-Family Transport Convergence
+
+```bash
+python examples/geometry_family_transport_convergence.py --preset paper
+```
+
+This optional artifact discovers local public VMEC examples from `vmec_jax`,
+STELLOPT, and SIMSOPT checkouts, then runs a `D11/D31/D33` convergence ladder.
+It is a reduced NTX stress diagnostic across available geometry families, not
+an independent-code parity claim.
+
+It writes:
+
+- `docs/_static/geometry_family_transport_convergence.png`
+- `docs/_static/geometry_family_transport_convergence.pdf`
+- `docs/_static/geometry_family_transport_convergence.json`
+
+![Geometry-family transport convergence](_static/geometry_family_transport_convergence.png)
+
+## 10. Bootstrap Current With NEOPAX
 
 ```bash
 python examples/bootstrap_current_with_neopax.py
@@ -424,7 +443,23 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 25. Profile Force Reconstruction Audit
+## 25. Prepared-Geometry Reuse Profile
+
+```bash
+python examples/prepared_geometry_reuse_profile.py --preset paper
+```
+
+This writes:
+
+- `docs/_static/prepared_geometry_reuse_profile.png`
+- `docs/_static/prepared_geometry_reuse_profile.pdf`
+- `docs/_static/prepared_geometry_reuse_profile.json`
+
+and profiles direct repeated solves, prepared geometry reuse, and a compiled
+prepared solver on one fixed geometry. It is a performance artifact for
+optimization workflows, not a physics-parity claim.
+
+## 26. Profile Force Reconstruction Audit
 
 ```bash
 python examples/profile_force_reconstruction_audit.py

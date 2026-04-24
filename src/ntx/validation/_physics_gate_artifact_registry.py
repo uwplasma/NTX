@@ -114,6 +114,19 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="geometry_family_transport_convergence_stress",
+        category="stress",
+        metric="max last-step relative D11/D31/D33 change across solved VMEC families",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/geometry_family_transport_convergence.json",
+        rationale=(
+            "Broad VMEC example families should at least produce finite "
+            "transport coefficients with visible grid-convergence behavior "
+            "before they are promoted to independent-code parity claims."
+        ),
+    ),
+    PhysicsGate(
         name="bootstrap_current_optimization_gain",
         category="stress",
         metric="weighted optimized-current gain",
