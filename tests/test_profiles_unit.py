@@ -185,6 +185,50 @@ def test_build_species_profiles_from_primitives_returns_finite_forces():
     assert len(family) == 1
 
 
+def test_primitive_profile_force_reconstruction_matches_thermodynamic_formula():
+    rho = jnp.linspace(0.2, 0.8, 5)
+    er_profile = jnp.linspace(-2.0e-3, 2.0e-3, rho.size)
+    electrostatic_prefactor = 0.25
+    charge = -2.0
+    primitive = PrimitiveSpeciesProfile(
+        charge=charge,
+        nu_v=1.0e-3,
+        density=jnp.ones_like(rho),
+        temperature=jnp.ones_like(rho),
+        electrostatic_prefactor=electrostatic_prefactor,
+    )
+
+    species = build_species_profile_from_primitives(
+        rho,
+        primitive,
+        er_profile=er_profile,
+    )
+
+    assert jnp.allclose(species.A3, 0.0)
+    assert jnp.allclose(species.A1, electrostatic_prefactor * charge * er_profile)
+
+    density_gradient = 0.7
+    temperature_gradient = -0.2
+    exponential_primitive = PrimitiveSpeciesProfile(
+        charge=charge,
+        nu_v=1.0e-3,
+        density=jnp.exp(density_gradient * rho),
+        temperature=jnp.exp(temperature_gradient * rho),
+        electrostatic_prefactor=0.0,
+    )
+    exponential_species = build_species_profile_from_primitives(
+        rho,
+        exponential_primitive,
+        er_profile=jnp.zeros_like(rho),
+    )
+    center = rho.size // 2
+
+    assert exponential_species.A3[center] == pytest.approx(temperature_gradient)
+    assert exponential_species.A1[center] == pytest.approx(
+        density_gradient - 1.5 * temperature_gradient,
+    )
+
+
 def test_bootstrap_objective_accepts_explicit_weight():
     rho = jnp.asarray([0.25, 0.5, 0.75])
     current = jnp.asarray([1.0, -0.5, 0.25])

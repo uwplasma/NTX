@@ -64,6 +64,10 @@ These are hard structural checks:
   This catches collisionality and radial-electric-field normalization
   regressions before they can contaminate sensitivity, inverse-design, or
   uncertainty-quantification workflows.
+- **Primitive profile force reconstruction:** the profile workflow must recover
+  `A3 = d ln T / dr` and
+  `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are
+  used in particle-flux or bootstrap-current proxy calculations.
 - **Prepared derivative-path consistency:** the committed derivative-path
   benchmark must keep the prepared custom-VJP electric-field derivative within
   `1e-4` relative mismatch of direct reverse-mode on the same prepared surface.

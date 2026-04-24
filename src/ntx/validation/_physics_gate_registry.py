@@ -108,6 +108,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="primitive_profile_force_reconstruction",
+        category="analytical",
+        metric="A1/A3 from primitive density and temperature profiles",
+        relation="test",
+        threshold=None,
+        source="tests/test_profiles_unit.py",
+        rationale=(
+            "Profile-level workflows must reconstruct the thermodynamic-force "
+            "proxies from primitive density, temperature, charge, and radial "
+            "electric-field inputs before those forces are used in particle "
+            "flux or bootstrap-current proxy calculations."
+        ),
+    ),
+    PhysicsGate(
         name="imported_boozer_handedness",
         category="analytical",
         metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",
