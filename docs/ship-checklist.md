@@ -57,17 +57,14 @@ work with a clear reason.
 
 ## Current Audit Notes
 
-- Combined `core + integration_examples` coverage is currently `99.1%` after
-  appending the synthetic imported-workflow branch tests to the measured fast
-  lane.
+- Full split-lane CI coverage is currently above the release threshold at
+  `97.2%`.
 - The maintained coverage-report script now accepts both absolute and relative
   `src/ntx/...` paths from `coverage json`, so local and CI module tables are
   comparable.
 - The validation registry now has additional direct unit coverage.
-- Fast synthetic imported-workflow tests now exercise the previous weak helper
-  modules without rerunning expensive boundary/equilibrium artifacts:
-  - `src/ntx/_neopax_field.py`: targeted coverage `99.6%`
-  - `src/ntx/vmec_jax_backend.py`: combined fast-lane coverage `100.0%`
+- Fast synthetic imported-workflow tests exercise weak helper modules without
+  rerunning expensive boundary/equilibrium artifacts in every shard.
 - A fast owned-surface physics gate now checks `D11`, `D31`, `D33`, Onsager
   residual, and coarse-to-fine angular-grid transfer on the analytic Boozer
   surface.

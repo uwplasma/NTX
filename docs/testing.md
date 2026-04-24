@@ -224,38 +224,25 @@ It should not be interpreted as a physics-validation substitute. Physics gates
 and literature benchmarks remain separate acceptance surfaces.
 
 Recent hardening work used this report to target the refactored workflow
-modules directly. In the current fast coverage subset:
+modules directly. The current full CI coverage report for the split lanes is
+above the release threshold:
 
-- `src/ntx/_autodiff_workflows.py` is fully covered
-- `src/ntx/_profiles_transport.py` is fully covered
-- `src/ntx/_profiles_eval.py` and `src/ntx/_profiles_controls.py` are both
-  above `98%`
-- in the targeted facade/scan coverage slice:
-  - `src/ntx/neopax.py` is fully covered
-  - `src/ntx/_solver_scan.py` is above `98%`
-  - `src/ntx/parallel.py` is above `99%`
-  - `src/ntx/autodiff.py` is above `96%`
-- in the next cheap utility-cluster slice:
-  - `src/ntx/cli.py` is fully covered
-  - `src/ntx/io.py` is fully covered
-  - `src/ntx/database.py` is fully covered
-  - `src/ntx/_checkout_paths.py` is above `98%`
+- overall repository-owned coverage is `97.2%`,
+- `src/ntx/_autodiff_workflows.py`, `src/ntx/_profiles_eval.py`,
+  `src/ntx/_profiles_transport.py`, and `src/ntx/_profiles_controls.py` are all
+  above `98%`,
+- `src/ntx/_solver_scan.py`, `src/ntx/parallel.py`, `src/ntx/cli.py`,
+  `src/ntx/io.py`, and `src/ntx/database.py` are at or above `98%`,
+- the remaining weaker imported-coupling modules are covered by targeted
+  synthetic bridge tests instead of long optional external-stack reruns.
 
 Those gains come from narrow branch tests in the unit/workflow lanes, not from
 adding slower benchmark execution to the default developer loop.
 
-The current measured split-core plus `integration_examples` fast lane reached:
-
-- `243 passed`, `2 skipped`
-- `99.1%` overall repository-owned coverage after the targeted
-  imported-workflow branch tests were appended to the measured fast lane
-- `src/ntx/_neopax_field.py` at `99.6%`
-- `src/ntx/vmec_jax_backend.py` at `100.0%`
-
 The coverage-report helper accepts both absolute and relative `src/ntx/...`
 paths from `coverage json`, which keeps local reports and GitHub Actions
-summaries comparable. Heavy example and artifact-generation tests stay out of
-this fast-lane number on purpose.
+summaries comparable. Coverage is a release gate, not a replacement for the
+literature-anchored physics gates and benchmark artifacts.
 
 ## GPU Validation
 
