@@ -187,7 +187,7 @@ The `ntx input.toml` workflow writes the evaluated geometry into the output
 - `b2_mean`
 
 These are written in `save_run_npz(...)` in
-[`src/ntx/inputfiles.py`](../src/ntx/inputfiles.py).
+[`src/ntx/_inputfiles_run.py`](../src/ntx/_inputfiles_run.py).
 
 ## Recommended Input Strategy
 

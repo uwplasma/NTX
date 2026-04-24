@@ -13,6 +13,7 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_geometry_types.py",
     "src/ntx/_inputfiles_model.py",
     "src/ntx/_inputfiles_reporting.py",
+    "src/ntx/_inputfiles_run.py",
     "src/ntx/_neopax_bridge.py",
     "src/ntx/_neopax_field.py",
     "src/ntx/_neopax_field_utils.py",
