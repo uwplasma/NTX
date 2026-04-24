@@ -76,6 +76,9 @@ work with a clear reason.
 - A symmetric-limit physics gate now checks zero radial transport and the
   inverse-collisionality Spitzer parallel-conductivity normalization on a
   constant-field Boozer surface.
+- A finite Legendre source-projection gate now checks that the magnetic-drift
+  source occupies only the expected `k=0` and `k=2` rows and that the
+  parallel-conductivity source occupies only the physical-`B` `k=1` row.
 - A derivative-consistency gate now checks that the hand-coded
   `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by the implicit-adjoint path
   match JAX differentiation of the assembled Legendre-space operator.

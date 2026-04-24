@@ -3,8 +3,9 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 
+from ntx import example_surface
 from ntx.geometry import BoozerSurface, geometry_on_grid
-from ntx.grids import GridSpec
+from ntx.grids import GridSpec, flatten_fs
 from ntx.operators import (
     OperatorContext,
     apply_nullspace_condition,
@@ -55,6 +56,28 @@ def test_parallel_source_uses_b_not_b_over_b0():
     ctx = OperatorContext(surface, geom, jnp.asarray(1e-2), jnp.asarray(0.0))
     _, s3 = source_modes(ctx, spec.n_xi)
     assert jnp.allclose(s3[1], 2.0)
+
+
+def test_source_modes_match_finite_legendre_projection():
+    spec = GridSpec(5, 5, 4)
+    surface = example_surface()
+    geom = geometry_on_grid(surface, spec)
+    ctx = OperatorContext(surface, geom, jnp.asarray(1e-2), jnp.asarray(0.0))
+    s1, s3 = source_modes(ctx, spec.n_xi)
+
+    vm0 = flatten_fs(geom.radial_drift_spatial * (2.0 / 3.0))
+    vm2 = flatten_fs(geom.radial_drift_spatial / 3.0)
+
+    assert s1.shape == (spec.n_xi + 1, spec.n_fs)
+    assert s3.shape == (spec.n_xi + 1, spec.n_fs)
+    assert jnp.allclose(s1[0, 0], 0.0)
+    assert jnp.allclose(s1[0, 1:], -vm0[1:])
+    assert jnp.allclose(s1[1], 0.0)
+    assert jnp.allclose(s1[2], -vm2)
+    assert jnp.allclose(s1[3:], 0.0)
+    assert jnp.allclose(s3[0], 0.0)
+    assert jnp.allclose(s3[1], flatten_fs(geom.b))
+    assert jnp.allclose(s3[2:], 0.0)
 
 
 def test_nullspace_condition_replaces_first_row():

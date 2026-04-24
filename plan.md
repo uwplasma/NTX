@@ -207,6 +207,11 @@ and docs that explain which claims are closed versus monitored.
      constant-field Boozer-surface gates requiring zero radial transport
      channels, positive Spitzer-consistent parallel conductivity, and
      inverse-collisionality scaling of the Spitzer branch.
+   - Current source-projection addition: `tests/test_operators.py` now checks
+     the finite Legendre source projection directly, requiring the
+     magnetic-drift drive to occupy only the `k=0` and `k=2` rows with the
+     runtime `2/3` and `1/3` weights and the parallel drive to occupy only the
+     `k=1` row as physical `B`.
    - Current derivative-consistency addition: `tests/test_operators.py` now
      requires the hand-coded `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by
      the implicit-adjoint path to match JAX differentiation of the assembled

@@ -134,6 +134,11 @@ constant-field Boozer surface must have zero radial transport channels, finite
 parallel conductivity, exact agreement with the `D33_spitzer` branch, and the
 expected inverse-collisionality scaling of that Spitzer branch.
 
+The operator unit tests protect the finite Legendre source projection directly:
+the magnetic-drift drive must enter only the `k=0` and `k=2` rows with the
+`2/3` and `1/3` weights used by the monoenergetic moment equations, while the
+parallel-conductivity drive must enter only the `k=1` row as the physical `B`.
+
 The operator unit tests also include a derivative gate for the implicit-adjoint
 lane: the hand-coded `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks must match
 JAX differentiation of the assembled Legendre-space operator. This is a fast
