@@ -201,6 +201,10 @@ and docs that explain which claims are closed versus monitored.
      constant-field Boozer-surface gates requiring zero radial transport
      channels, positive Spitzer-consistent parallel conductivity, and
      inverse-collisionality scaling of the Spitzer branch.
+   - Current derivative-consistency addition: `tests/test_operators.py` now
+     requires the hand-coded `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by
+     the implicit-adjoint path to match JAX differentiation of the assembled
+     Legendre-space operator.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint

@@ -63,6 +63,13 @@ That is the contract point for the prepared implicit-adjoint derivative path:
 the forward solve remains the same, while the backward rule stays isolated from
 user-facing optimization scripts.
 
+The low-level operator derivative used by this path is now test-gated directly:
+`tests/test_operators.py` requires the hand-coded `dD_k/dnu_hat` and
+`dD_k/depsi_hat` blocks to match JAX differentiation of the assembled
+Legendre-space operator. This keeps the collisionality and radial-electric-field
+normalizations tied to the implemented equations rather than to a downstream
+finite-difference fit.
+
 The figure is written to:
 
 ```text
