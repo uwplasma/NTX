@@ -439,6 +439,8 @@ Current status:
   - `solver.py` now remains the compatibility surface
   - case/result/prepared-system types live in `src/ntx/_solver_types.py`
   - prepared solve and custom-VJP core live in `src/ntx/_solver_core.py`
+  - prepared custom-VJP adjoint helper algebra now lives in
+    `src/ntx/_solver_adjoint.py`
   - block-tridiagonal factorization, low-mode back-substitution, residual
     checks, and factorized adjoint solves live in
     `src/ntx/_solver_factorization.py`
@@ -520,6 +522,11 @@ Current status:
     linearized-versus-Monte-Carlo uncertainty propagation
   - `src/ntx/_autodiff_workflows.py` is now a compatibility export facade,
     preserving the previous public and private import surface
+- [x] the prepared-solver derivative path is now easier to audit:
+  - `src/ntx/_solver_adjoint.py` owns the prepared custom-VJP primal cache,
+    coefficient pullback, and adjoint parameter-gradient accumulation
+  - `src/ntx/_solver_core.py` remains focused on public prepared solves,
+    coefficient-vector entry points, and transport-result assembly
 - [ ] next restructuring target should be chosen from the remaining largest
   internal modules, with the next likely focus being documentation/testing
   structure or a split of any new workflow module that grows past reviewable

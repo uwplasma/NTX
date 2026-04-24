@@ -131,7 +131,9 @@ That choice is visible in:
 - `compile_prepared_solver(...)`
 
 in [`src/ntx/_solver_factorization.py`](../src/ntx/_solver_factorization.py)
-and [`src/ntx/_solver_core.py`](../src/ntx/_solver_core.py).
+[`src/ntx/_solver_core.py`](../src/ntx/_solver_core.py), and the prepared
+custom-VJP adjoint helpers in
+[`src/ntx/_solver_adjoint.py`](../src/ntx/_solver_adjoint.py).
 
 ## Complexity
 
