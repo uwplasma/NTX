@@ -61,3 +61,10 @@ def test_validation_summary_example_writes_benchmark_metrics(tmp_path):
     assert len(payload["transport_curves"]["vmec_surface"]["onsager_relative"]) == 10
     assert len(payload["legendre_convergence"]["n_xi_values"]) == 5
     assert payload["summary_metrics"]["dkes_max_onsager_relative"] >= 0.0
+    assert payload["summary_metrics"]["dkes_finest_plotted_error"] <= 2.5e-1
+    assert payload["summary_metrics"]["vmec_finest_plotted_error"] <= 2.5e-1
+
+    for key in ("dkes_surface", "vmec_surface"):
+        errors = payload["legendre_convergence"][key]
+        assert errors[-1] <= 1.0e-14
+        assert errors[-2] < errors[-3]

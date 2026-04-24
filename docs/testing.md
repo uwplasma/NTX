@@ -123,6 +123,12 @@ residual, and a coarse-to-fine angular-grid transfer on the analytic Boozer
 surface. Larger literature-family convergence ladders remain artifact-backed
 work rather than default pull-request tests.
 
+The committed `validation_summary.json` artifact is now checked by the physics
+gate registry as the release-level monoenergetic convergence artifact. The gate
+requires the maximum of the DKES-style and VMEC finest plotted `N_\xi` errors to
+stay below `2.5e-1`; the example test also verifies that the plotted convergence
+ladder decreases toward the finest reference point.
+
 The same file also carries the symmetric-limit normalization gates: a
 constant-field Boozer surface must have zero radial transport channels, finite
 parallel conductivity, exact agreement with the `D33_spitzer` branch, and the

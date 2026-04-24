@@ -43,6 +43,7 @@ def _constant_field_surface() -> BoozerSurface:
 def test_physics_gate_registry_contains_expected_gate_families():
     names = {gate.name for gate in physics_gate_registry()}
     assert "onsager_symmetry" in names
+    assert "monoenergetic_validation_summary" in names
     assert "p2_projection_exact_recovery" in names
     assert "low_order_collision_block_recovery" in names
     assert "observable_map_fixed" in names
@@ -64,6 +65,16 @@ def test_physics_gate_registry_contains_expected_gate_families():
 def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     static_root = tmp_path / "docs" / "_static"
     static_root.mkdir(parents=True)
+    (static_root / "validation_summary.json").write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "dkes_finest_plotted_error": 0.12,
+                    "vmec_finest_plotted_error": 0.18,
+                }
+            }
+        )
+    )
     (static_root / "bootstrap_current_reference_audit_w7x.json").write_text(
         json.dumps(
             {
@@ -97,6 +108,8 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
 
     results = {result.gate.name: result for result in evaluate_artifact_gates(tmp_path)}
 
+    assert results["monoenergetic_validation_summary"].status == "pass"
+    assert results["monoenergetic_validation_summary"].value == pytest.approx(0.18)
     assert results["w7x_integrated_rebuild_raw"].status == "pass"
     assert results["w7x_integrated_rebuild_raw"].value == 0.01
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
@@ -150,6 +163,7 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
 
     results = {result.gate.name: result for result in evaluate_artifact_gates(tmp_path)}
 
+    assert results["monoenergetic_validation_summary"].status == "missing"
     assert results["w7x_integrated_rebuild_raw"].status == "missing"
     assert "bootstrap_current_reference_audit_w7x.json" in results[
         "w7x_integrated_rebuild_raw"
@@ -165,6 +179,8 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
 def test_repository_artifact_gates_match_current_claim_statuses():
     results = {result.gate.name: result for result in evaluate_artifact_gates(ROOT)}
 
+    assert results["monoenergetic_validation_summary"].status == "pass"
+    assert results["monoenergetic_validation_summary"].value <= 2.5e-1
     assert results["w7x_integrated_rebuild_raw"].status == "pass"
     assert results["w7x_integrated_rebuild_raw"].value <= 2.0e-2
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"

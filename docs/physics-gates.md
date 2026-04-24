@@ -19,6 +19,11 @@ solver bug, or a benchmark-specific fit can be mistaken for production physics.
 
 These are hard structural checks:
 
+- **Monoenergetic validation summary:** the committed
+  `validation_summary.json` artifact is now a release gate. The maximum of the
+  DKES-style and VMEC finest plotted `N_\xi` convergence errors must stay below
+  `2.5e-1` against the finest plotted reference. This keeps the promoted
+  methods figure tied to a machine-checked convergence metric.
 - **Onsager symmetry:** `|D13 + D31|` must remain small on converged solves.
 - **Owned-surface coefficient convergence:** on the repository-owned analytic
   Boozer surface, the fast test suite now checks that the `D11`, `D31`, and
@@ -89,6 +94,8 @@ workflow.
 
 The active acceptance target is:
 
+- **Monoenergetic validation summary:** committed validation-summary finest
+  plotted coefficient error `<= 2.5e-1` on both the DKES-style and VMEC surfaces.
 - **W7-X rebuilt raw branch:** best observed maximum relative error
   `<= 2e-2` against the frozen reference profile.
 

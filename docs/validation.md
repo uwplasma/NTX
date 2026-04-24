@@ -91,7 +91,10 @@ It writes:
 This is the recommended literature-anchored numerical benchmark for the NTX
 methods paper. The JSON sidecar freezes the transport curves, low-collisionality
 tail slopes, and convergence metrics for reuse in tests and manuscript
-artifacts.
+artifacts. The sidecar is also part of the physics-gate registry: the maximum
+of the DKES-style and VMEC finest plotted `N_\xi` convergence errors must remain
+below `2.5e-1` against the finest plotted reference before the figure can support
+the promoted monoenergetic validation claim.
 
 The W7-X imported workflow is audited with:
 

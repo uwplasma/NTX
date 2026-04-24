@@ -199,6 +199,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
 
 ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
     PhysicsGate(
+        name="monoenergetic_validation_summary",
+        category="analytical",
+        metric="max finest plotted Legendre-convergence error",
+        relation="<=",
+        threshold=2.5e-1,
+        source="docs/_static/validation_summary.json",
+        rationale=(
+            "The repository-owned DKES-style and VMEC validation surfaces must "
+            "show bounded Legendre convergence for the promoted monoenergetic "
+            "coefficient benchmark before broader literature comparisons are "
+            "interpreted."
+        ),
+    ),
+    PhysicsGate(
         name="w7x_integrated_rebuild_raw",
         category="transfer",
         metric="best W7-X imported-workflow max relative error",
@@ -269,6 +283,38 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
     root = Path(root)
     static_root = root / "docs" / "_static"
     results: list[PhysicsGateResult] = []
+
+    validation_gate = _gate_by_name("monoenergetic_validation_summary")
+    validation_path = static_root / "validation_summary.json"
+    if validation_path.exists():
+        payload = json.loads(validation_path.read_text())
+        metrics = payload["summary_metrics"]
+        finest_error = max(
+            float(metrics["dkes_finest_plotted_error"]),
+            float(metrics["vmec_finest_plotted_error"]),
+        )
+        results.append(
+            PhysicsGateResult(
+                gate=validation_gate,
+                value=finest_error,
+                status="pass"
+                if finest_error <= float(validation_gate.threshold or 0.0)
+                else "fail",
+                details=(
+                    "max of DKES-style and VMEC finest plotted N_xi errors "
+                    "against the finest validation-summary reference"
+                ),
+            )
+        )
+    else:
+        results.append(
+            PhysicsGateResult(
+                gate=validation_gate,
+                value=None,
+                status="missing",
+                details=f"missing artifact: {validation_path}",
+            )
+        )
 
     w7x_gate = _gate_by_name("w7x_integrated_rebuild_raw")
     w7x_path = static_root / "bootstrap_current_reference_audit_w7x.json"
