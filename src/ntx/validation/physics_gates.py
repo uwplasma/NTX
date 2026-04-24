@@ -135,6 +135,19 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="imported_boozer_handedness",
+        category="analytical",
+        metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",
+        relation="test",
+        threshold=None,
+        source="tests/test_vmec_jax_backend.py",
+        rationale=(
+            "The in-memory VMEC-to-Boozer path must use the same right-handed "
+            "Boozer convention as the file-backed loader before NTX consumes "
+            "the Boozer Jacobian and drift source terms."
+        ),
+    ),
+    PhysicsGate(
         name="momentum_conservation_null_mode",
         category="analytical",
         metric="common-flow collisional null mode preserved",

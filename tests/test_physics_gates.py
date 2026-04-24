@@ -54,6 +54,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "entropy_production_nonnegative" in names
     assert "spitzer_inverse_collisionality_limit" in names
     assert "operator_parameter_derivative_consistency" in names
+    assert "imported_boozer_handedness" in names
     assert "prepared_derivative_path_consistency" in names
     assert "geometry_control_derivative_stress" in names
     assert "file_backed_geometry_control_derivative_stress" in names
