@@ -25,6 +25,7 @@ from _fixed_field_validation_plotting import (  # noqa: E402
     plot_order,
     plot_styles,
 )
+from _fixed_field_validation_summary import build_fixed_field_summary_payload  # noqa: E402
 
 
 def test_fixed_field_validation_metric_helpers_are_masked_and_scaled() -> None:
@@ -109,3 +110,47 @@ def test_fixed_field_plotting_helper_writes_publication_artifacts(tmp_path: Path
 
     assert output_prefix.with_suffix(".png").stat().st_size > 0
     assert output_prefix.with_suffix(".pdf").stat().st_size > 0
+
+
+def test_fixed_field_summary_helper_builds_traceable_error_payload(tmp_path: Path) -> None:
+    rho = np.asarray([0.2, 0.5, 0.9])
+    reference = np.asarray([10.0, 20.0, 40.0])
+    results = {
+        "qa": {
+            "SFINCS": {"rho": rho, "jdotb": reference},
+            "NTX+NEOPAX": {"rho": rho, "jdotb": reference * np.asarray([1.2, 0.9, 1.1])},
+            "Redl": {"rho": rho, "jdotb": reference * np.asarray([1.01, 1.02, 0.99])},
+        }
+    }
+    cases = {"qa": SimpleNamespace(label="QA synthetic")}
+
+    payload = build_fixed_field_summary_payload(
+        results=results,
+        cases=cases,
+        output_prefix=tmp_path / "fixed_field",
+        interior_rho_min=0.25,
+        interior_rho_max=0.85,
+        closure_diagnostics=lambda case, case_results: {
+            "label": case.label,
+            "model_count": len(case_results),
+        },
+    )
+
+    assert payload["figure_png"] == str((tmp_path / "fixed_field").with_suffix(".png"))
+    assert payload["figure_pdf"] == str((tmp_path / "fixed_field").with_suffix(".pdf"))
+    assert payload["cases"]["qa"]["NTX+NEOPAX"]["jdotb"] == pytest.approx(
+        [12.0, 18.0, 44.0]
+    )
+    assert payload["cases"]["qa"]["max_relative_error_vs_sfincs"]["NTX+NEOPAX"] == (
+        pytest.approx(0.2)
+    )
+    assert payload["cases"]["qa"]["max_relative_error_vs_sfincs_interior"]["NTX+NEOPAX"] == (
+        pytest.approx(0.1)
+    )
+    assert payload["cases"]["qa"]["max_relative_error_vs_sfincs_interior"]["Redl"] == (
+        pytest.approx(0.02)
+    )
+    assert payload["cases"]["qa"]["closure_diagnostics"] == {
+        "label": "QA synthetic",
+        "model_count": 3,
+    }

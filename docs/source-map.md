@@ -218,7 +218,8 @@ The publication-ready example scripts live in [`examples/`](../examples):
 
 The fixed-field validation script delegates reviewable artifact math to
 `examples/_fixed_field_validation_metrics.py` and
-`examples/_fixed_field_validation_plotting.py`; the expensive QA/QH simulation
+`examples/_fixed_field_validation_plotting.py`, and
+`examples/_fixed_field_validation_summary.py`; the expensive QA/QH simulation
 path remains in `examples/bootstrap_current_fixed_field_validation.py`.
 
 The figure bundle generator is:
