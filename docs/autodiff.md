@@ -331,6 +331,41 @@ broken lane, not a promoted sensitivity workflow.
 
 ![Explicit-relaxed boundary current derivative benchmark](_static/explicit_relaxed_boundary_current_derivative_benchmark.png)
 
+## Geometry-Family Breadth Summary
+
+The script:
+
+```bash
+python examples/geometry_family_breadth_summary.py
+```
+
+does not rerun expensive equilibrium solves. It reads the committed derivative
+artifacts and summarizes the current geometry-breadth status in one
+publication-ready figure:
+
+- analytic geometry-control derivatives,
+- file-backed Boozer and VMEC geometry-control derivatives,
+- boundary-projected current derivatives,
+- explicit-relaxed QA/QH boundary-to-current derivatives,
+- and the implicit-equilibrium diagnostic split into the validated volume
+  objective and the still-open Boozer/NTX transport objectives.
+
+The figure is written to:
+
+```text
+docs/_static/geometry_family_breadth_summary.png
+docs/_static/geometry_family_breadth_summary.pdf
+docs/_static/geometry_family_breadth_summary.json
+```
+
+This closes the artifact-backed geometry-breadth summary lane, not the full
+geometry-family validation lane. The remaining promotion requirements are
+explicit in the JSON sidecar: broader W7-X/QI/omnigenous inputs, direct
+`D11/D31/D33` parity and convergence ladders, and implicit Boozer/transport
+derivative parity.
+
+![Geometry-family breadth summary](_static/geometry_family_breadth_summary.png)
+
 ## NEOPAX-Style Profile Example
 
 The script:

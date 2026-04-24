@@ -240,6 +240,7 @@ python examples/autodiff_inverse_problem.py
 python examples/neopax_autodiff_profiles.py
 python examples/derivative_audit.py
 python examples/derivative_path_benchmark.py
+python examples/geometry_family_breadth_summary.py
 python examples/ambipolar_profile.py
 python examples/ambipolar_profile_family.py
 python examples/profile_control_optimization.py
@@ -256,6 +257,7 @@ These generate figures for:
 - sensitivity analysis
 - direct autodiff versus finite-difference derivative audits
 - direct reverse-mode versus prepared custom-VJP derivative timing
+- artifact-backed geometry-family derivative breadth status
 - ambipolar residual landscapes and bootstrap-current-proxy profile solves
 - controlled families of ambipolar and bootstrap-current-proxy profiles
 - differentiable optimization of scalar profile controls
@@ -264,6 +266,17 @@ These generate figures for:
 - primitive density/temperature transport workflows with explicit source-target closure
 - differentiable bootstrap-current optimization
 - radial bootstrap-current profiles from NTX + NEOPAX
+
+The geometry-family breadth summary reads the committed analytic, file-backed,
+boundary-projected, explicit-relaxed, and implicit-equilibrium derivative
+artifacts and makes the current validation scope explicit:
+
+- active stress cases stay below the committed derivative thresholds
+- the implicit-volume objective closes on the committed QA case
+- implicit Boozer and NTX transport objectives remain open
+- broad W7-X/QI/omnigenous geometry-family validation remains planned work
+
+![Geometry-family derivative breadth summary](docs/_static/geometry_family_breadth_summary.png)
 
 ## Bootstrap-Current Validation
 

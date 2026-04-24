@@ -826,6 +826,13 @@ claims until they are anchored to stronger external baselines.
   - differentiable-programming verification
   - direct neoclassical ion-transport optimization
   - quasi-isodynamic and omnigenous geometry-breadth benchmarks
+- [x] the artifact-backed geometry-breadth status now has a maintained summary:
+  - `examples/geometry_family_breadth_summary.py`
+  - reads the committed analytic, file-backed, boundary-projected,
+    explicit-relaxed, and implicit-equilibrium derivative artifacts
+  - writes `docs/_static/geometry_family_breadth_summary.{png,pdf,json}`
+  - keeps implicit Boozer/transport and broader W7-X/QI/omnigenous cases as
+    open work rather than promoted geometry-family validation claims
 
 ### Phase 1: Source-Tree Restructuring Without Physics Changes
 

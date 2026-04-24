@@ -168,6 +168,7 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
     "tests/test_fixed_field_parallel_flow_audit.py",
     "tests/test_fixed_field_transport_matrix_audit.py",
     "tests/test_fixed_field_validation_metrics.py",
+    "tests/test_geometry_family_breadth_summary.py",
     "tests/test_momentum_correction_mapping_audit.py",
     "tests/test_physics_gates.py",
     "tests/test_w7x_reference_benchmark.py",

@@ -1,0 +1,140 @@
+{
+  "benchmark": "geometry_family_breadth_summary",
+  "classification": "artifact-backed geometry-breadth stress summary",
+  "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium derivative artifacts. This is broader than a single surface, but it is not a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
+  "literature_anchors": [
+    "Paul et al. 2019 adjoint neoclassical optimization",
+    "McGreivy 2024 differentiable programming for plasma workflows",
+    "Landreman and Paul 2022 precise-QS benchmark family",
+    "Plunk, Landreman, and Helander 2019 omnigenous near-axis construction",
+    "Rodriguez, Plunk, and Jorge 2025 quasi-isodynamic near-axis construction",
+    "Calvo, Velasco, Helander, and Parra 2025 piecewise-omnigenous low-bootstrap-current motivation"
+  ],
+  "source_artifacts": [
+    "docs/_static/geometry_control_derivative_benchmark.json",
+    "docs/_static/file_backed_geometry_control_derivative_benchmark.json",
+    "docs/_static/boundary_forward_mode_current_derivative_benchmark.json",
+    "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json",
+    "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json"
+  ],
+  "active_cases": [
+    {
+      "id": "analytic_geometry_control",
+      "label": "Analytic control",
+      "geometry_path": "owned analytic Boozer surface",
+      "observable_scope": "D11, D31, D33",
+      "max_relative_mismatch": 0.0001347698483202203,
+      "median_relative_mismatch": 3.5954257861708703e-06,
+      "status": "stress-pass",
+      "artifact": "docs/_static/geometry_control_derivative_benchmark.json",
+      "notes": "direct geometry-control autodiff versus centered finite differences"
+    },
+    {
+      "id": "file_backed_boozmn_sample",
+      "label": "Sample Boozer file",
+      "geometry_path": "file-backed boozmn surface",
+      "observable_scope": "D11, D31, D33",
+      "max_relative_mismatch": 0.0003087991250071381,
+      "median_relative_mismatch": 8.085984213319232e-08,
+      "status": "stress-pass",
+      "artifact": "docs/_static/file_backed_geometry_control_derivative_benchmark.json",
+      "notes": "file-backed geometry-control autodiff versus centered finite differences"
+    },
+    {
+      "id": "file_backed_vmec_sample",
+      "label": "Sample VMEC-backed surface",
+      "geometry_path": "file-backed vmec_jax surface",
+      "observable_scope": "D11, D31, D33",
+      "max_relative_mismatch": 8.768426399388515e-05,
+      "median_relative_mismatch": 2.230457449866678e-08,
+      "status": "stress-pass",
+      "artifact": "docs/_static/file_backed_geometry_control_derivative_benchmark.json",
+      "notes": "file-backed geometry-control autodiff versus centered finite differences"
+    },
+    {
+      "id": "boundary_projected_current",
+      "label": "Projected boundary",
+      "geometry_path": "boundary-projected VMEC/Boozer path",
+      "observable_scope": "NTX proxy and integrated current",
+      "max_relative_mismatch": 7.17355827984326e-07,
+      "median_relative_mismatch": 3.556284405640031e-07,
+      "status": "stress-pass",
+      "artifact": "docs/_static/boundary_forward_mode_current_derivative_benchmark.json",
+      "notes": "forward-mode derivatives through the projected boundary path"
+    },
+    {
+      "id": "explicit_relaxed_qa_lowres",
+      "label": "QA low-res",
+      "geometry_path": "explicit-relaxed fixed-boundary path",
+      "observable_scope": "Boozer scalar, NTX proxy, and integrated current",
+      "max_relative_mismatch": 2.6260247221222558e-05,
+      "median_relative_mismatch": 2.4755959253710013e-07,
+      "status": "stress-pass",
+      "artifact": "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json",
+      "notes": "self-consistent forward-mode derivatives on committed QA/QH cases"
+    },
+    {
+      "id": "explicit_relaxed_qh_warm_start",
+      "label": "QH warm-start",
+      "geometry_path": "explicit-relaxed fixed-boundary path",
+      "observable_scope": "Boozer scalar, NTX proxy, and integrated current",
+      "max_relative_mismatch": 1.6643036184011035e-05,
+      "median_relative_mismatch": 6.339712868902882e-07,
+      "status": "stress-pass",
+      "artifact": "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json",
+      "notes": "self-consistent forward-mode derivatives on committed QA/QH cases"
+    },
+    {
+      "id": "implicit_equilibrium_volume",
+      "label": "Implicit volume",
+      "geometry_path": "implicit fixed-boundary equilibrium path",
+      "observable_scope": "equilibrium volume",
+      "max_relative_mismatch": 9.236154068657261e-05,
+      "median_relative_mismatch": 9.236154068657261e-05,
+      "status": "validated",
+      "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
+      "notes": "only the equilibrium-volume objective currently closes on the implicit path"
+    }
+  ],
+  "open_cases": [
+    {
+      "id": "implicit_booz_xform_scalar",
+      "label": "Implicit Boozer",
+      "geometry_path": "implicit fixed-boundary equilibrium path",
+      "observable_scope": "booz_xform_scalar",
+      "max_relative_mismatch": 0.7336929992944701,
+      "median_relative_mismatch": null,
+      "status": "open",
+      "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
+      "notes": "still mismatched against centered finite differences; kept out of promoted claims"
+    },
+    {
+      "id": "implicit_ntx_transport_proxy",
+      "label": "Implicit NTX",
+      "geometry_path": "implicit fixed-boundary equilibrium path",
+      "observable_scope": "ntx_transport_proxy",
+      "max_relative_mismatch": 6.566185595633931,
+      "median_relative_mismatch": null,
+      "status": "open",
+      "artifact": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
+      "notes": "still mismatched against centered finite differences; kept out of promoted claims"
+    }
+  ],
+  "summary_metrics": {
+    "active_case_count": 7,
+    "open_case_count": 2,
+    "max_active_relative_mismatch": 0.0003087991250071381,
+    "median_active_relative_mismatch": 8.768426399388515e-05,
+    "max_open_relative_mismatch": 6.566185595633931,
+    "implicit_validated_objective_count": 1,
+    "implicit_open_objective_count": 2
+  },
+  "open_work": [
+    "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
+    "recover Boozer-space and NTX-transport derivative parity on the implicit path",
+    "add direct D11/D31/D33 parity and convergence ladders before promoting a full geometry-family claim",
+    "add reverse-mode equilibrium derivative support once the upstream dynamic-loop path is differentiable"
+  ],
+  "figure_png": "docs/_static/geometry_family_breadth_summary.png",
+  "figure_pdf": "docs/_static/geometry_family_breadth_summary.pdf"
+}

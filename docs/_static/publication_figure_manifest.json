@@ -66,6 +66,11 @@
     "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf",
     "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json"
   ],
+  "geometry_family_breadth": [
+    "docs/_static/geometry_family_breadth_summary.png",
+    "docs/_static/geometry_family_breadth_summary.pdf",
+    "docs/_static/geometry_family_breadth_summary.json"
+  ],
   "profile_uncertainty": [
     "docs/_static/autodiff_profile_uncertainty.png",
     "docs/_static/autodiff_profile_uncertainty.pdf",

@@ -144,6 +144,10 @@ work with a clear reason.
 - The publication figure manifest now includes the file-backed
   geometry-control derivative audit, and the boundary-forward derivative audit
   is explicitly marked as a manuscript figure in the benchmark matrix.
+- The geometry-family breadth summary now reads committed analytic,
+  file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium
+  derivative artifacts into a single publication-ready stress figure; broad
+  W7-X/QI/omnigenous validation remains scoped as future work.
 - The fixed-field closure report is now included in the publication figure
   manifest and traced back to the fixed-field Redl gate plus the monitored
   `NTX+NEOPAX` closure stress lane in the benchmark matrix.

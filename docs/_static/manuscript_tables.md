@@ -45,6 +45,7 @@
 | `robust_bootstrap_current_optimization` | `autodiff` | `stress-gate` | `complete` |
 | `profile_force_reconstruction` | `profile-workflow` | `stress-gate` | `complete` |
 | `performance_scaling` | `performance` | `software-gate` | `complete` |
+| `geometry_family_breadth_summary` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_breadth_hidden_symmetry` | `geometry-breadth` | `planned-lane` | `planned` |
 | `full_monoenergetic_geometry_family` | `monoenergetic` | `planned-lane` | `planned` |
 | `large_geometry_control_autodiff` | `autodiff` | `planned-lane` | `planned` |
@@ -109,6 +110,17 @@
 | Max AD/centered-FD mismatch | `3.088e-04` |
 | Median AD/centered-FD mismatch | `5.158e-08` |
 
+## Geometry-Family Breadth Summary
+
+| Quantity | Value |
+| --- | ---: |
+| Active artifact-backed cases | `7` |
+| Open implicit objectives | `2` |
+| Active case ids | `analytic_geometry_control, file_backed_boozmn_sample, file_backed_vmec_sample, boundary_projected_current, explicit_relaxed_qa_lowres, explicit_relaxed_qh_warm_start, implicit_equilibrium_volume` |
+| Open case ids | `implicit_booz_xform_scalar, implicit_ntx_transport_proxy` |
+| Max active AD/centered-FD mismatch | `3.088e-04` |
+| Max open implicit mismatch | `6.566e+00` |
+
 ## Bootstrap-Current Optimization
 
 | Quantity | Value |
@@ -142,7 +154,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `e38eb52a66c89a0012bfd9b70900167447b51572` |
+| Commit | `3dbcee82f63fb179cfd6655e0eb8326da25d9210` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
