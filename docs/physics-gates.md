@@ -100,6 +100,10 @@ geometry breadth:
 - **Implicit-equilibrium derivatives:** this remains a monitored stress lane,
   not a passing gate. The current artifact validates the equilibrium-volume
   derivative but leaves the Boozer-space and NTX transport observables open.
+- **Bootstrap-current optimization gain:** the committed science/application
+  artifact must keep the optimized weighted-current proxy at least equal to the
+  baseline before the manuscript cites the gain. This is a stress gate, not a
+  broad optimization-design claim.
 
 ## 3. Independent-Code Comparison Gates
 

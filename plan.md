@@ -330,6 +330,10 @@ Do not declare this program complete until all of the following are true:
   validation summary and fixed-field precise-QS benchmark into
   `manuscript_claims.md` and `manuscript_tables.md`, including the scoped
   `NTX+NEOPAX` stress metric
+- the differentiable bootstrap-current optimization science figure is now tied
+  to the benchmark matrix and a physics-gate artifact check: the optimized
+  weighted-current proxy must remain at least as large as the committed
+  baseline before the manuscript cites the gain
 - several core modules remain too large for stable review and targeted testing:
   - `profiles.py` (`73` lines after Phase 1 split; types/eval/controls/transport moved to internal modules)
   - `solver.py` (`43` lines after Phase 1 split; types/core/scan moved to internal modules)

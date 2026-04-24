@@ -309,6 +309,19 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="bootstrap_current_optimization_gain",
+        category="stress",
+        metric="weighted optimized-current gain",
+        relation=">=",
+        threshold=1.0,
+        source="docs/_static/bootstrap_current_optimization.json",
+        rationale=(
+            "The differentiable bootstrap-current optimization figure should "
+            "remain an actual improvement over the committed baseline before "
+            "the manuscript cites the weighted-gain number."
+        ),
+    ),
+    PhysicsGate(
         name="precise_qs_redl_vs_sfincs",
         category="independent",
         metric="interior max relative error of Redl vs archived SFINCS",
@@ -514,6 +527,21 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "closes while Boozer-space and NTX transport observables remain open"
         ),
     )
+
+    optimization_gate = _gate_by_name("bootstrap_current_optimization_gain")
+    optimization_path = static_root / "bootstrap_current_optimization.json"
+    if optimization_path.exists():
+        payload = json.loads(optimization_path.read_text())
+        weighted_gain = float(payload["weighted_gain"])
+        results.append(
+            _evaluate_scalar_gate(
+                optimization_gate,
+                weighted_gain,
+                details="optimized weighted bootstrap-current proxy divided by baseline",
+            )
+        )
+    else:
+        _append_missing_artifact_gate(results, optimization_gate, optimization_path)
 
     fixed_gate_redl = _gate_by_name("precise_qs_redl_vs_sfincs")
     fixed_gate_closure = _gate_by_name("precise_qs_ntx_neopax_closure_stress")

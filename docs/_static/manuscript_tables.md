@@ -41,6 +41,7 @@
 | `explicit_relaxed_boundary_current_derivative_benchmark` | `autodiff` | `stress-gate` | `complete` |
 | `autodiff_inverse_problem` | `autodiff` | `stress-gate` | `complete` |
 | `autodiff_profile_uncertainty` | `autodiff` | `stress-gate` | `complete` |
+| `bootstrap_current_optimization` | `autodiff` | `stress-gate` | `complete` |
 | `robust_bootstrap_current_optimization` | `autodiff` | `stress-gate` | `complete` |
 | `profile_force_reconstruction` | `profile-workflow` | `stress-gate` | `complete` |
 | `performance_scaling` | `performance` | `software-gate` | `complete` |
@@ -141,7 +142,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `b3a7b2a3b2a5cbf3224fd5bc9d30e33c508fd809` |
+| Commit | `442e173289b94b53023e3165dcc655e481d5c5df` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

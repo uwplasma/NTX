@@ -458,6 +458,38 @@ def benchmark_matrix() -> tuple[BenchmarkEntry, ...]:
             open_work=("add Fisher or Hessian-vector probes on a larger profile basis",),
         ),
         BenchmarkEntry(
+            id="bootstrap_current_optimization",
+            lane="autodiff",
+            maturity="stress-gate",
+            title="Differentiable bootstrap-current optimization",
+            claim_scope=(
+                "The differentiable bootstrap-current objective improves a "
+                "weighted current proxy on the committed W7-X study while "
+                "remaining scoped below a broad stellarator-design claim."
+            ),
+            literature_anchors=(
+                "Paul et al. 2019 adjoint neoclassical optimization",
+                "direct neoclassical ion-transport optimization literature",
+                "differentiable programming verification by generated objectives",
+            ),
+            scripts=("examples/bootstrap_current_optimization.py",),
+            tests=(
+                "tests/test_autodiff.py",
+                "tests/test_bootstrap_current_optimization_example.py",
+            ),
+            artifacts=(
+                "docs/_static/bootstrap_current_optimization.png",
+                "docs/_static/bootstrap_current_optimization.pdf",
+                "docs/_static/bootstrap_current_optimization.json",
+            ),
+            manuscript_figures=("bootstrap_current_optimization",),
+            docs=("docs/autodiff.md", "docs/examples.md", "docs/manuscript.md"),
+            open_work=(
+                "promote only after broader geometry-family controls are added",
+                "tie future optimization claims to reusable derivative-audit gates",
+            ),
+        ),
+        BenchmarkEntry(
             id="robust_bootstrap_current_optimization",
             lane="autodiff",
             maturity="stress-gate",

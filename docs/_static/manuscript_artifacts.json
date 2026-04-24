@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "b3a7b2a3b2a5cbf3224fd5bc9d30e33c508fd809",
+    "commit": "442e173289b94b53023e3165dcc655e481d5c5df",
     "branch": "main"
   },
   "environment": {
@@ -2526,6 +2526,93 @@
       },
       {
         "entry": {
+          "id": "bootstrap_current_optimization",
+          "lane": "autodiff",
+          "maturity": "stress-gate",
+          "title": "Differentiable bootstrap-current optimization",
+          "claim_scope": "The differentiable bootstrap-current objective improves a weighted current proxy on the committed W7-X study while remaining scoped below a broad stellarator-design claim.",
+          "literature_anchors": [
+            "Paul et al. 2019 adjoint neoclassical optimization",
+            "direct neoclassical ion-transport optimization literature",
+            "differentiable programming verification by generated objectives"
+          ],
+          "scripts": [
+            "examples/bootstrap_current_optimization.py"
+          ],
+          "tests": [
+            "tests/test_autodiff.py",
+            "tests/test_bootstrap_current_optimization_example.py"
+          ],
+          "artifacts": [
+            "docs/_static/bootstrap_current_optimization.png",
+            "docs/_static/bootstrap_current_optimization.pdf",
+            "docs/_static/bootstrap_current_optimization.json"
+          ],
+          "manuscript_figures": [
+            "bootstrap_current_optimization"
+          ],
+          "docs": [
+            "docs/autodiff.md",
+            "docs/examples.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": [
+            "promote only after broader geometry-family controls are added",
+            "tie future optimization claims to reusable derivative-audit gates"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/bootstrap_current_optimization.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_autodiff.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_bootstrap_current_optimization_example.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_optimization.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_optimization.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/bootstrap_current_optimization.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/autodiff.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/examples.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
           "id": "robust_bootstrap_current_optimization",
           "lane": "autodiff",
           "maturity": "stress-gate",
@@ -2901,7 +2988,7 @@
       }
     ],
     "summary": {
-      "complete": 15,
+      "complete": 16,
       "incomplete": 0,
       "planned": 3
     }
