@@ -35,9 +35,6 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from _fixed_field_validation_metrics import (  # noqa: E402
-    jsonify as _jsonify,
-)
 from _fixed_field_validation_metrics import (
     least_squares_scale as _least_squares_scale,
 )
@@ -49,6 +46,9 @@ from _fixed_field_validation_metrics import (
 )
 from _fixed_field_validation_plotting import (  # noqa: E402
     plot_fixed_field_validation as _plot_fixed_field_validation,
+)
+from _fixed_field_validation_summary import (  # noqa: E402
+    build_fixed_field_summary_payload as _build_fixed_field_summary_payload,
 )
 
 from ntx import (
@@ -1042,37 +1042,14 @@ def _summary_payload(
     results: dict[str, dict[str, dict[str, np.ndarray]]],
     cases: dict[str, FixedFieldCase],
 ) -> dict[str, Any]:
-    out: dict[str, Any] = {
-        "cases": {},
-        "figure_png": str(OUTPUT_PREFIX.with_suffix(".png")),
-        "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf")),
-    }
-    for key, case_results in results.items():
-        ref = np.asarray(case_results["SFINCS"]["jdotb"], dtype=float)
-        ref_scale = np.maximum(np.abs(ref), 1.0)
-        rho_ref = np.asarray(case_results["SFINCS"]["rho"], dtype=float)
-        interior = (rho_ref >= INTERIOR_RHO_MIN) & (rho_ref <= INTERIOR_RHO_MAX)
-        out["cases"][key] = {
-            name: {subkey: _jsonify(value) for subkey, value in payload.items()}
-            for name, payload in case_results.items()
-        }
-        out["cases"][key]["max_relative_error_vs_sfincs"] = {
-            name: float(np.max(np.abs(np.asarray(payload["jdotb"], dtype=float) - ref) / ref_scale))
-            for name, payload in case_results.items()
-            if name != "SFINCS"
-        }
-        out["cases"][key]["max_relative_error_vs_sfincs_interior"] = {
-            name: float(
-                np.max(
-                    np.abs(np.asarray(payload["jdotb"], dtype=float)[interior] - ref[interior])
-                    / np.maximum(np.abs(ref[interior]), 1.0)
-                )
-            )
-            for name, payload in case_results.items()
-            if name != "SFINCS"
-        }
-        out["cases"][key]["closure_diagnostics"] = _closure_diagnostics(cases[key], case_results)
-    return out
+    return _build_fixed_field_summary_payload(
+        results=results,
+        cases=cases,
+        output_prefix=OUTPUT_PREFIX,
+        interior_rho_min=INTERIOR_RHO_MIN,
+        interior_rho_max=INTERIOR_RHO_MAX,
+        closure_diagnostics=_closure_diagnostics,
+    )
 
 
 def _plot(
