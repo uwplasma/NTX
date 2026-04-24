@@ -514,6 +514,13 @@ Current status:
   - `src/ntx/_profiles_transport_closure.py` now focuses on loss assembly and
     explicit profile/primitive update application while preserving the old
     internal helper import surface for compatibility
+- [x] the profile-control ownership split is complete:
+  - `src/ntx/_profiles_control_scalar.py` owns scalar control application and
+    scalar profile-control optimization
+  - `src/ntx/_profiles_control_basis.py` owns radial-basis control application,
+    basis optimization, and basis modifier algebra
+  - `src/ntx/_profiles_controls.py` remains a compatibility facade for public
+    and internal imports
 - [x] the next no-behavior-change autodiff split is complete:
   - `src/ntx/_autodiff_inverse.py` owns the synthetic inverse-problem workflow
   - `src/ntx/_autodiff_derivatives.py` owns the finite-difference derivative
@@ -568,6 +575,12 @@ Current status:
     `J B^2 = B_zeta + iota B_theta`, `B^theta J = iota`, and `B^zeta J = 1`
   - this anchors the geometry normalization consumed by parallel streaming,
     magnetic-drift source terms, and imported geometry workflows
+- [x] profile-control linear-response gate added:
+  - scalar and radial-basis controls are identity maps at zero control
+  - finite controls exactly follow their prescribed species response matrices
+    and radial basis functions
+  - this protects differentiable profile optimization and uncertainty
+    workflows from hidden nonlinear control-map changes
 - [x] first artifact-backed autodiff uncertainty benchmark added:
   - `examples/autodiff_profile_uncertainty.py`
   - linearized covariance propagation against a Monte Carlo ensemble on the

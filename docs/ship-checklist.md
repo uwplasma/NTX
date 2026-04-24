@@ -86,6 +86,10 @@ work with a clear reason.
 - A derivative-consistency gate now checks that the hand-coded
   `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by the implicit-adjoint path
   match JAX differentiation of the assembled Legendre-space operator.
+- A profile-control linear-response gate now checks that scalar and radial-basis
+  controls preserve the zero-control identity and exactly follow their
+  prescribed response matrices before profile optimization and UQ workflows use
+  them.
 - The prepared derivative-path artifact is now a physics gate: the committed
   custom-VJP derivative path must stay within `1e-4` relative mismatch of
   direct reverse-mode, while speedup stays a reported performance metric.
