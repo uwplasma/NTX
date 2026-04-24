@@ -68,6 +68,10 @@ def main(
     uncertainty_sigma: float = 6.0e-2,
     risk_aversion: float = 0.35,
     wout: Path | None = None,
+    radial_points: int = 7,
+    grid: GridSpec | None = None,
+    scale_grid_size: int = 29,
+    quadrature_order: int = 5,
 ) -> None:
     enable_x64(True)
     _configure_style()
@@ -82,7 +86,11 @@ def main(
     output_json = output_prefix.with_suffix(".json")
     output_png.parent.mkdir(parents=True, exist_ok=True)
 
-    rho = jnp.linspace(0.15, 0.75, 7)
+    if radial_points < 3:
+        raise ValueError("radial_points must be at least 3")
+    grid = GridSpec(7, 9, 6) if grid is None else grid
+
+    rho = jnp.linspace(0.15, 0.75, radial_points)
     nu_v = jnp.array([1.0e-4, 3.0e-4, 1.0e-3, 3.0e-3, 1.0e-2])
     er_scan = jnp.array([1.0e-6, 3.0e-6, 1.0e-5, 3.0e-5, 1.0e-4, 3.0e-4, 1.0e-3])
     Er = jnp.tile(er_scan, (rho.size, 1))
@@ -99,12 +107,14 @@ def main(
         Es=Es,
         Er=Er,
         drds=drds,
-        grid=GridSpec(7, 9, 6),
+        grid=grid,
         learning_rate=1.1,
         steps=steps,
         regularization=1.0,
         uncertainty_sigma=uncertainty_sigma,
         risk_aversion=risk_aversion,
+        scale_grid_size=scale_grid_size,
+        quadrature_order=quadrature_order,
     )
 
     rho_np = np.asarray(result.rho)
@@ -240,6 +250,28 @@ if __name__ == "__main__":
     )
     parser.add_argument("--steps", type=int, default=40, help="Gradient-ascent iterations.")
     parser.add_argument(
+        "--radial-points",
+        type=int,
+        default=7,
+        help="Number of radial surfaces used in the example.",
+    )
+    parser.add_argument("--grid-nalpha", type=int, default=7, help="Alpha grid size.")
+    parser.add_argument("--grid-ntheta", type=int, default=9, help="Theta grid size.")
+    parser.add_argument("--grid-nzeta", type=int, default=6, help="Zeta grid size.")
+    parser.add_argument(
+        "--scale-grid-size",
+        type=int,
+        default=29,
+        help="Number of points in the plotted robust-objective landscape.",
+    )
+    parser.add_argument(
+        "--quadrature-order",
+        type=int,
+        choices=(3, 5),
+        default=5,
+        help="Gaussian quadrature order for the control-uncertainty moments.",
+    )
+    parser.add_argument(
         "--uncertainty-sigma",
         type=float,
         default=6.0e-2,
@@ -258,4 +290,8 @@ if __name__ == "__main__":
         uncertainty_sigma=cli_args.uncertainty_sigma,
         risk_aversion=cli_args.risk_aversion,
         wout=cli_args.wout,
+        radial_points=cli_args.radial_points,
+        grid=GridSpec(cli_args.grid_nalpha, cli_args.grid_ntheta, cli_args.grid_nzeta),
+        scale_grid_size=cli_args.scale_grid_size,
+        quadrature_order=cli_args.quadrature_order,
     )

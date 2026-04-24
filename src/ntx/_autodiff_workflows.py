@@ -556,10 +556,16 @@ def example_bootstrap_current_robust_optimization(
     regularization: float = 5.0e-3,
     uncertainty_sigma: float = 6.0e-2,
     risk_aversion: float = 0.35,
+    scale_grid_size: int = 29,
+    quadrature_order: int = 5,
 ) -> RobustBootstrapOptimizationResult:
     """Optimize a bootstrap-current proxy under prescribed control uncertainty."""
 
     del Es, Er, drds
+    if scale_grid_size < 2:
+        raise ValueError("scale_grid_size must be at least 2")
+    if quadrature_order not in (3, 5):
+        raise ValueError("quadrature_order must be 3 or 5")
     rho_grid = jnp.asarray(rho)
     dtype = rho_grid.dtype
     nu_value = jnp.asarray(nu_v[nu_index], dtype=dtype)
@@ -568,7 +574,7 @@ def example_bootstrap_current_robust_optimization(
     density_gradient = jnp.asarray(jnp.gradient(jnp.log(density), rho_grid))
     temperature_gradient = jnp.asarray(jnp.gradient(jnp.log(temperature), rho_grid))
     objective_weight = jnp.exp(-0.5 * ((rho_grid - 0.45) / 0.16) ** 2)
-    scale_grid = jnp.linspace(0.65, 1.35, 29, dtype=dtype)
+    scale_grid = jnp.linspace(0.65, 1.35, scale_grid_size, dtype=dtype)
     harmonic_m, harmonic_n = _dominant_nonaxisymmetric_mode(surfaces[len(surfaces) // 2])
     harmonic_reference_value = _mode_value_for_surface(
         surfaces[len(surfaces) // 2],
@@ -579,11 +585,15 @@ def example_bootstrap_current_robust_optimization(
     unit_drds = jnp.ones_like(rho_grid)
     sigma = jnp.asarray(uncertainty_sigma, dtype=dtype)
     risk = jnp.asarray(risk_aversion, dtype=dtype)
-    quadrature_nodes = jnp.asarray([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=dtype)
-    quadrature_weights = jnp.asarray(
-        [0.05448868, 0.24420134, 0.40261995, 0.24420134, 0.05448868],
-        dtype=dtype,
-    )
+    if quadrature_order == 3:
+        quadrature_nodes = jnp.asarray([-1.7320508075688772, 0.0, 1.7320508075688772], dtype=dtype)
+        quadrature_weights = jnp.asarray([1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0], dtype=dtype)
+    else:
+        quadrature_nodes = jnp.asarray([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=dtype)
+        quadrature_weights = jnp.asarray(
+            [0.05448868, 0.24420134, 0.40261995, 0.24420134, 0.05448868],
+            dtype=dtype,
+        )
 
     def bounded_scale(raw_scale: Array) -> Array:
         return 1.0 + 0.35 * jnp.tanh(raw_scale)

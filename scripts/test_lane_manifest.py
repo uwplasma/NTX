@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 from pathlib import Path
 from typing import Literal
 
@@ -13,8 +14,12 @@ Lane = Literal[
     "core_io_workflows",
     "core_parallel_workflows",
     "core_neopax_workflows",
-    "core_profile_workflows",
-    "core_autodiff_profile_workflows",
+    "core_profile_audit_workflow",
+    "core_profile_basic_workflows",
+    "core_profile_optimization_workflows",
+    "core_profile_transport_workflows",
+    "core_autodiff_uncertainty_workflow",
+    "core_robust_bootstrap_workflow",
     "core_validation",
     "integration_examples",
     "heavy_examples_profiles",
@@ -113,13 +118,39 @@ CORE_NEOPAX_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_neopax_qi.py",
 )
 
-CORE_PROFILE_WORKFLOW_TESTS: tuple[str, ...] = (
+CORE_PROFILE_AUDIT_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_profile_force_reconstruction_audit_example.py",
-    "tests/test_profiles_workflows.py",
 )
 
-CORE_AUTODIFF_PROFILE_WORKFLOW_TESTS: tuple[str, ...] = (
+CORE_PROFILE_BASIC_WORKFLOW_TESTS: tuple[str, ...] = (
+    "tests/test_profiles_workflows.py::test_ambipolar_profile_solver_returns_finite_result_and_reduces_loss",
+    "tests/test_profiles_workflows.py::test_ambipolar_residual_and_solver_are_differentiable",
+    "tests/test_profiles_workflows.py::test_ambipolar_residual_profile_has_expected_shape",
+    "tests/test_profiles_workflows.py::test_profile_family_solver_and_bootstrap_objective_return_finite_results",
+    "tests/test_profiles_workflows.py::test_profile_family_solver_defaults_control_index",
+)
+
+CORE_PROFILE_OPTIMIZATION_WORKFLOW_TESTS: tuple[str, ...] = (
+    "tests/test_profiles_workflows.py::test_profile_control_application_and_optimization_return_finite_results",
+    "tests/test_profiles_workflows.py::test_profile_control_optimization_supports_unbounded_control",
+    "tests/test_profiles_workflows.py::test_profile_basis_control_application_and_optimization_return_finite_results",
+    "tests/test_profiles_workflows.py::test_profile_basis_optimization_supports_unbounded_control",
+)
+
+CORE_PROFILE_TRANSPORT_WORKFLOW_TESTS: tuple[str, ...] = (
+    "tests/test_profiles_workflows.py::test_profile_transport_loop_returns_finite_histories",
+    "tests/test_profiles_workflows.py::test_profile_transport_closure_shape_mismatch_raises",
+    "tests/test_profiles_workflows.py::test_profile_transport_loop_handles_rejected_backtracking",
+    "tests/test_profiles_workflows.py::test_advance_profile_transport_rejects_species_shape_mismatch",
+    "tests/test_profiles_workflows.py::test_primitive_profile_transport_loop_returns_finite_histories",
+    "tests/test_profiles_workflows.py::test_primitive_profile_transport_loop_handles_rejected_backtracking",
+)
+
+CORE_AUTODIFF_UNCERTAINTY_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_autodiff_profile_uncertainty_example.py",
+)
+
+CORE_ROBUST_BOOTSTRAP_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_bootstrap_current_robust_optimization_example.py",
 )
 
@@ -145,8 +176,12 @@ LANES: dict[Lane, tuple[str, ...]] = {
     "core_io_workflows": CORE_IO_WORKFLOW_TESTS,
     "core_parallel_workflows": CORE_PARALLEL_WORKFLOW_TESTS,
     "core_neopax_workflows": CORE_NEOPAX_WORKFLOW_TESTS,
-    "core_profile_workflows": CORE_PROFILE_WORKFLOW_TESTS,
-    "core_autodiff_profile_workflows": CORE_AUTODIFF_PROFILE_WORKFLOW_TESTS,
+    "core_profile_audit_workflow": CORE_PROFILE_AUDIT_WORKFLOW_TESTS,
+    "core_profile_basic_workflows": CORE_PROFILE_BASIC_WORKFLOW_TESTS,
+    "core_profile_optimization_workflows": CORE_PROFILE_OPTIMIZATION_WORKFLOW_TESTS,
+    "core_profile_transport_workflows": CORE_PROFILE_TRANSPORT_WORKFLOW_TESTS,
+    "core_autodiff_uncertainty_workflow": CORE_AUTODIFF_UNCERTAINTY_WORKFLOW_TESTS,
+    "core_robust_bootstrap_workflow": CORE_ROBUST_BOOTSTRAP_WORKFLOW_TESTS,
     "core_validation": CORE_VALIDATION_TESTS,
     "integration_examples": INTEGRATION_EXAMPLES,
     "heavy_examples_profiles": HEAVY_EXAMPLES_PROFILES,
@@ -160,10 +195,39 @@ def all_manifest_tests() -> tuple[str, ...]:
     return tuple(path for lane in LANES.values() for path in lane)
 
 
+def selection_file(selection: str) -> str:
+    """Return the file path for a pytest file or node-id selection."""
+
+    return selection.split("::", 1)[0]
+
+
 def discovered_tests(root: Path = ROOT) -> tuple[str, ...]:
     return tuple(
         sorted(path.relative_to(root).as_posix() for path in (root / "tests").glob("test_*.py"))
     )
+
+
+def discovered_test_nodes(root: Path = ROOT) -> dict[str, tuple[str, ...]]:
+    """Return top-level pytest node ids discoverable without importing tests."""
+
+    nodes_by_file: dict[str, tuple[str, ...]] = {}
+    for file_path in discovered_tests(root):
+        path = root / file_path
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=file_path)
+        nodes: list[str] = []
+        for item in tree.body:
+            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name.startswith(
+                "test_"
+            ):
+                nodes.append(f"{file_path}::{item.name}")
+            if isinstance(item, ast.ClassDef) and item.name.startswith("Test"):
+                for method in item.body:
+                    if isinstance(
+                        method, (ast.FunctionDef, ast.AsyncFunctionDef)
+                    ) and method.name.startswith("test_"):
+                        nodes.append(f"{file_path}::{item.name}::{method.name}")
+        nodes_by_file[file_path] = tuple(sorted(nodes))
+    return nodes_by_file
 
 
 def validate_manifest(root: Path = ROOT) -> tuple[str, ...]:
@@ -175,16 +239,40 @@ def validate_manifest(root: Path = ROOT) -> tuple[str, ...]:
         {path for path in manifest_tests if manifest_tests.count(path) > 1}
     )
     if duplicate_paths:
-        errors.append("duplicate test-lane paths: " + ", ".join(duplicate_paths))
+        errors.append("duplicate test-lane selections: " + ", ".join(duplicate_paths))
 
     discovered = set(discovered_tests(root))
-    manifest = set(manifest_tests)
-    missing_from_manifest = sorted(discovered - manifest)
-    missing_on_disk = sorted(manifest - discovered)
+    manifest_files = {selection_file(selection) for selection in manifest_tests}
+    missing_from_manifest = sorted(discovered - manifest_files)
+    missing_on_disk = sorted(manifest_files - discovered)
     if missing_from_manifest:
         errors.append("unclassified test files: " + ", ".join(missing_from_manifest))
     if missing_on_disk:
         errors.append("manifest paths missing on disk: " + ", ".join(missing_on_disk))
+
+    whole_file_selections = {selection for selection in manifest_tests if "::" not in selection}
+    node_selection_files = {
+        selection_file(selection) for selection in manifest_tests if "::" in selection
+    }
+    mixed_selection_files = sorted(whole_file_selections & node_selection_files)
+    if mixed_selection_files:
+        errors.append(
+            "files cannot mix whole-file and node-id lane selections: "
+            + ", ".join(mixed_selection_files)
+        )
+
+    nodes_by_file = discovered_test_nodes(root)
+    for file_path in sorted(node_selection_files):
+        declared_nodes = {
+            selection for selection in manifest_tests if selection_file(selection) == file_path
+        }
+        discovered_nodes = set(nodes_by_file.get(file_path, ()))
+        unknown_nodes = sorted(declared_nodes - discovered_nodes)
+        missing_nodes = sorted(discovered_nodes - declared_nodes)
+        if unknown_nodes:
+            errors.append("unknown test node selections: " + ", ".join(unknown_nodes))
+        if missing_nodes:
+            errors.append("unclassified test nodes: " + ", ".join(missing_nodes))
     return tuple(errors)
 
 

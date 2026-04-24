@@ -29,8 +29,12 @@ def test_new_benchmark_examples_are_not_in_core_lane():
         module.LANES["core_io_workflows"],
         module.LANES["core_parallel_workflows"],
         module.LANES["core_neopax_workflows"],
-        module.LANES["core_autodiff_profile_workflows"],
-        module.LANES["core_profile_workflows"],
+        module.LANES["core_profile_audit_workflow"],
+        module.LANES["core_profile_basic_workflows"],
+        module.LANES["core_profile_optimization_workflows"],
+        module.LANES["core_profile_transport_workflows"],
+        module.LANES["core_autodiff_uncertainty_workflow"],
+        module.LANES["core_robust_bootstrap_workflow"],
         module.LANES["core_validation"],
     )
     heavy = set().union(

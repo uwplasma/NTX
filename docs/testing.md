@@ -57,8 +57,12 @@ Every new benchmark-like test must declare its lane before it is added to CI:
 - `core_io_workflows`: input-file, profile-script, and VMEC scan workflow tests,
 - `core_parallel_workflows`: CPU/GPU script-dispatch and multiprocessing workflow tests,
 - `core_neopax_workflows`: imported-database mapping and HDF5 round-trip tests,
-- `core_profile_workflows`: profile and primitive-force workflow tests,
-- `core_autodiff_profile_workflows`: autodiff profile and robust-bootstrap workflow tests,
+- `core_profile_audit_workflow`: primitive-force audit artifact workflow test,
+- `core_profile_basic_workflows`: ambipolar-profile and profile-family tests,
+- `core_profile_optimization_workflows`: scalar and basis profile-control tests,
+- `core_profile_transport_workflows`: conservative profile-transport loop tests,
+- `core_autodiff_uncertainty_workflow`: autodiff uncertainty artifact workflow,
+- `core_robust_bootstrap_workflow`: robust-bootstrap artifact workflow,
 - `core_validation`: small validation, artifact-registry, and physics-gate tests,
 - `integration_examples`: representative imported workflow tests,
 - `heavy_examples_profiles`: slower profile examples,
@@ -77,8 +81,12 @@ python scripts/test_lane_manifest.py core_cli_workflows
 python scripts/test_lane_manifest.py core_io_workflows
 python scripts/test_lane_manifest.py core_parallel_workflows
 python scripts/test_lane_manifest.py core_neopax_workflows
-python scripts/test_lane_manifest.py core_profile_workflows
-python scripts/test_lane_manifest.py core_autodiff_profile_workflows
+python scripts/test_lane_manifest.py core_profile_audit_workflow
+python scripts/test_lane_manifest.py core_profile_basic_workflows
+python scripts/test_lane_manifest.py core_profile_optimization_workflows
+python scripts/test_lane_manifest.py core_profile_transport_workflows
+python scripts/test_lane_manifest.py core_autodiff_uncertainty_workflow
+python scripts/test_lane_manifest.py core_robust_bootstrap_workflow
 python scripts/test_lane_manifest.py core_validation
 python scripts/test_lane_manifest.py integration_examples
 python scripts/test_lane_manifest.py heavy_examples_profiles
@@ -87,8 +95,10 @@ python scripts/test_lane_manifest.py heavy_examples_boundary
 python scripts/test_lane_manifest.py heavy_examples_publication
 ```
 
-Any new `tests/test_*.py` file must be added to exactly one lane. This prevents
-new benchmark scripts from silently landing in the fast core shard.
+Any new `tests/test_*.py` file must be added to the lane manifest. Slow modules
+may be split by explicit pytest node ids, but every discovered test function in
+that file must be listed exactly once. This prevents new benchmark scripts from
+silently landing in the fast core shard.
 
 The imported boundary/equilibrium example reruns are intentionally opt-in:
 
