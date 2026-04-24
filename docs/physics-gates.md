@@ -83,6 +83,11 @@ These are hard structural checks:
   arrays must be forwarded to both the implicit VMEC residual solve and the
   explicit relaxation solve. This protects boundary-to-output derivatives from
   accidentally following stale non-differentiated boundary data.
+- **VMEC-JAX to NEOPAX radial metric transfer:** the imported field builder
+  must preserve the `rho = sqrt(s)` radial mapping, axis regularization,
+  enclosed-volume scale, edge major-radius scale, and toroidal-flux
+  normalization before any bootstrap-current or boundary-derivative workflow
+  consumes the field.
 - **Primitive profile force reconstruction:** the profile workflow must recover
   `A3 = d ln T / dr` and
   `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are

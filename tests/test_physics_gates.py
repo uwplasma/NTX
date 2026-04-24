@@ -62,6 +62,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "charge_symmetric_ambipolar_cancellation" in names
     assert "primitive_transport_positivity_floor" in names
     assert "vmec_jax_boundary_edge_transfer" in names
+    assert "vmec_jax_neopax_radial_metric_transfer" in names
     assert "imported_boozer_handedness" in names
     assert "prepared_derivative_path_consistency" in names
     assert "geometry_control_derivative_stress" in names

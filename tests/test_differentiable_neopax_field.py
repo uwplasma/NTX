@@ -575,7 +575,7 @@ def test_boundary_params_field_builder_delegates_to_state_builder(monkeypatch):
 
 
 def test_booz_xform_gmnc_helpers_with_fake_internal_api(monkeypatch):
-    import ntx._neopax_vmec_jax_field as neopax_field_module
+    import ntx._neopax_vmec_jax_boozer as vmec_jax_boozer_module
 
     jax_api = ModuleType("booz_xform_jax.jax_api")
 
@@ -634,7 +634,7 @@ def test_booz_xform_gmnc_helpers_with_fake_internal_api(monkeypatch):
     assert jnp.allclose(gmnc, jnp.asarray([[2.3, 0.6]]))
 
     monkeypatch.setattr(
-        neopax_field_module,
+        vmec_jax_boozer_module,
         "_booz_xform_bundle_from_vmec_jax_state",
         lambda **kwargs: (inputs, {"bmnc_b": jnp.asarray([[2.0, 0.2]])}),
     )

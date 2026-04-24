@@ -93,6 +93,10 @@ work with a clear reason.
 - A VMEC-JAX boundary-edge transfer gate now checks that traced fixed-boundary
   Fourier edge arrays are passed into both implicit and explicit equilibrium
   paths before any boundary-to-output derivative claim is interpreted.
+- A VMEC-JAX to NEOPAX radial-metric transfer gate checks the imported
+  `rho = sqrt(s)` mesh, axis regularization, volume scale, edge-radius scale,
+  and toroidal-flux normalization before bootstrap-current derivative workflows
+  consume the field.
 - The prepared derivative-path artifact is now a physics gate: the committed
   custom-VJP derivative path must stay within `1e-4` relative mismatch of
   direct reverse-mode, while speedup stays a reported performance metric.
