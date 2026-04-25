@@ -7,7 +7,14 @@ from dataclasses import replace
 import jax.numpy as jnp
 from jax import Array
 
+from ._profiles_ambipolar_types import (
+    AmbipolarProfileResult,
+)
 from ._profiles_radial import _smooth_radial_profile
+from ._profiles_species_types import (
+    MonoenergeticSpeciesProfile,
+    PrimitiveSpeciesProfile,
+)
 from ._profiles_transport_terms import (
     _broadcast_species_transport_field,
     _normalized_primitive_updates,
@@ -16,10 +23,7 @@ from ._profiles_transport_terms import (
     _scaled_transport_closure,
     _transport_mismatch,
 )
-from ._profiles_types import (
-    AmbipolarProfileResult,
-    MonoenergeticSpeciesProfile,
-    PrimitiveSpeciesProfile,
+from ._profiles_transport_types import (
     ProfileTransportClosureSpec,
 )
 

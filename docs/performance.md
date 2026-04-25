@@ -12,6 +12,7 @@ Collect scaling data:
 ```bash
 python scripts/benchmark_scaling.py --backend cpu --surface dkes --sizes 8,16,32,64
 python scripts/benchmark_scaling.py --backend gpu --surface dkes --sizes 16,32,64 --workers 2
+python scripts/benchmark_strong_scaling.py --backend cpu --surface dkes --num-cases 64
 ```
 
 Generate publication-style figures:
@@ -22,9 +23,40 @@ python examples/performance_scaling.py \
   --gpu-json docs/_static/performance_scaling_gpu_smoke.json \
   --figure-title "Smoke-grid serial vs multiprocess scaling" \
   --output-prefix docs/_static/performance_scaling_smoke
+
+python examples/performance_strong_scaling.py \
+  --cpu-json docs/_static/performance_strong_scaling_cpu_production.json \
+  --gpu-json docs/_static/performance_strong_scaling_gpu_production.json \
+  --figure-title "Production fixed-workload strong scaling" \
+  --output-prefix docs/_static/performance_strong_scaling_production
 ```
 
-The example writes both PNG and PDF outputs.
+The example writes PNG, PDF, and JSON summary outputs. The summary JSON records
+CPU/GPU crossover cases, process peak resident memory, device counts, and
+serial-vs-parallel coefficient deltas.
+
+For the committed production-grid map:
+
+```bash
+XLA_FLAGS=--xla_force_host_platform_device_count=4 \
+python scripts/benchmark_scaling.py \
+  --backend cpu --surface dkes --sizes 16,32,64,128 \
+  --workers 4 --n-theta 17 --n-zeta 25 --n-xi 16 \
+  --output-json docs/_static/performance_scaling_cpu_production.json
+
+python examples/performance_scaling.py \
+  --cpu-json docs/_static/performance_scaling_cpu_production.json \
+  --gpu-json docs/_static/performance_scaling_gpu_production.json \
+  --figure-title "Production-grid serial vs parallel scaling" \
+  --output-prefix docs/_static/performance_scaling_production
+
+XLA_FLAGS=--xla_force_host_platform_device_count=4 \
+python scripts/benchmark_strong_scaling.py \
+  --backend cpu --surface dkes --num-cases 128 \
+  --worker-counts 1,2,4 --device-counts 1,2,4 \
+  --n-theta 17 --n-zeta 25 --n-xi 16 \
+  --output-json docs/_static/performance_strong_scaling_cpu_production.json
+```
 
 Profile the corrected integrated W7-X workflow:
 
@@ -50,6 +82,7 @@ Figure assets:
 ```text
 docs/_static/performance_scaling_smoke.png
 docs/_static/performance_scaling_smoke.pdf
+docs/_static/performance_scaling_smoke.json
 ```
 
 ![Smoke-grid scaling](_static/performance_scaling_smoke.png)
@@ -76,6 +109,7 @@ Figure assets:
 ```text
 docs/_static/performance_scaling_heavy.png
 docs/_static/performance_scaling_heavy.pdf
+docs/_static/performance_scaling_heavy.json
 ```
 
 ![Heavier-grid scaling](_static/performance_scaling_heavy.png)
@@ -101,6 +135,82 @@ Interpretation:
   - treat office multi-GPU multiprocess execution as a robust isolation path
     first, and as a throughput path only after benchmarking the specific
     production workload
+
+## Production-Grid Scaling
+
+Figure assets:
+
+```text
+docs/_static/performance_scaling_production.png
+docs/_static/performance_scaling_production.pdf
+docs/_static/performance_scaling_production.json
+```
+
+![Production-grid scaling](_static/performance_scaling_production.png)
+
+Interpretation:
+
+- the committed production map uses the same `17 x 25 x 16` DKES-style grid as
+  the heavier-grid artifact but extends the scan ladder to `128` cases
+- with four logical CPU devices exposed to JAX, the single-process
+  device-parallel lane crosses serial at `32` cases and reaches a best observed
+  speedup of about `1.72x` at `128` cases
+- the 4-worker CPU multiprocess lane remains below serial through `128` cases,
+  reaching about `0.92x`; process startup and duplicated runtime state still
+  dominate this workload
+- the office two-GPU workstation run found two CUDA devices, but only one device
+  passed the NTX smoke solve for single-process parallel execution under the
+  tested software stack
+- on that GPU workload, single-process device-parallel timing is characterized
+  and numerically identical to serial for `D11`, but multiprocess remains below
+  serial through `128` cases
+- peak resident memory is about `4.39 GB` for the 4-device CPU run and
+  `1.50 GB` for the tested GPU run
+
+The production-grid guidance is therefore:
+
+- use compiled prepared-geometry reuse first when the geometry and array shapes
+  are fixed
+- use single-process JAX device parallelism for CPU scan ladders after a local
+  crossover measurement
+- keep multiprocess and multi-GPU execution as workload-specific isolation or
+  throughput paths until the exact target grid shows a measured win
+
+## Production Strong Scaling
+
+Figure assets:
+
+```text
+docs/_static/performance_strong_scaling_production.png
+docs/_static/performance_strong_scaling_production.pdf
+docs/_static/performance_strong_scaling_production.json
+```
+
+![Production strong scaling](_static/performance_strong_scaling_production.png)
+
+Interpretation:
+
+- the committed strong-scaling map fixes the workload at `128` cases on the
+  `17 x 25 x 16` DKES-style grid, then varies workers or requested devices
+- on CPU, single-process device parallelism scales from `1.01x` at one exposed
+  device to `1.74x` at four devices; the corresponding efficiency drops from
+  startup parity to about `0.43` at four devices, so this is useful but not
+  ideal strong scaling
+- on CPU, the multiprocess lane improves with more workers but remains below
+  serial at `0.93x` for four workers, which confirms that process startup and
+  duplicated runtime state are still too costly for this fixed workload
+- on the tested two-GPU workstation, both CUDA devices are visible but only one
+  passes the NTX single-process smoke solve; the strong-scaling artifact
+  therefore records one healthy parallel GPU and does not promote multi-GPU
+  speedup
+- all CPU and GPU strong-scaling lanes reproduce serial `D11` to the committed
+  numerical tolerance; the largest GPU multiprocess delta is about `2.34e-8`
+- peak resident memory is about `2.83 GB` for the CPU strong-scaling run and
+  `1.37 GB` for the GPU strong-scaling run
+
+This closes the first artifact-backed strong-scaling lane. The next performance
+work should target device-health reproducibility and larger VMEC-family
+workloads before claiming general multi-GPU scaling.
 
 ## Prepared-Geometry Reuse
 
@@ -146,6 +256,12 @@ The figure JSON payloads committed in `docs/_static/` are:
 - `performance_scaling_gpu_smoke.json`
 - `performance_scaling_cpu_heavy.json`
 - `performance_scaling_gpu_heavy.json`
+- `performance_scaling_cpu_production.json`
+- `performance_scaling_gpu_production.json`
+- `performance_scaling_production.json`
+- `performance_strong_scaling_cpu_production.json`
+- `performance_strong_scaling_gpu_production.json`
+- `performance_strong_scaling_production.json`
 - `prepared_geometry_reuse_profile.json`
 
 Fresh runs of `scripts/benchmark_scaling.py` and

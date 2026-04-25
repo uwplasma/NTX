@@ -88,6 +88,11 @@ class NeopaxProfileUncertaintyResult:
     monte_carlo_d33_std: Array
     monte_carlo_d33_quantile_low: Array
     monte_carlo_d33_quantile_high: Array
+    fisher_matrix: Array
+    fisher_eigenvalues: Array
+    hessian_vector_probe: Array
+    gauss_newton_vector_probe: Array
+    hessian_probe_relative_error: Array
     sample_count: Array
 
 
@@ -107,6 +112,11 @@ tree_util.register_dataclass(
         "monte_carlo_d33_std",
         "monte_carlo_d33_quantile_low",
         "monte_carlo_d33_quantile_high",
+        "fisher_matrix",
+        "fisher_eigenvalues",
+        "hessian_vector_probe",
+        "gauss_newton_vector_probe",
+        "hessian_probe_relative_error",
         "sample_count",
     ),
     meta_fields=(),

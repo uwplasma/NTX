@@ -56,6 +56,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "constant_field_radial_electric_field_invariance" in names
     assert "boozer_jacobian_identity" in names
     assert "finite_legendre_source_projection" in names
+    assert "monoenergetic_small_grid_ladder" in names
     assert "operator_parameter_derivative_consistency" in names
     assert "profile_interpolant_parameter_derivative_consistency" in names
     assert "profile_control_linear_response" in names
@@ -205,7 +206,7 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["bootstrap_current_optimization_gain"].value == pytest.approx(1.08)
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
     assert results["precise_qs_redl_vs_sfincs"].value == 0.08
-    assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
+    assert results["precise_qs_ntx_neopax_closure_stress"].status == "fail"
     assert results["precise_qs_ntx_neopax_closure_stress"].value == 1.1
     assert results["pmax_convergence_precise_qs"].status == "missing"
     assert results["w7x_pmax_transfer_regression"].status == "missing"
@@ -311,7 +312,8 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["bootstrap_current_optimization_gain"].value >= 1.0
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
     assert results["precise_qs_redl_vs_sfincs"].value <= 1.0e-1
-    assert results["precise_qs_ntx_neopax_closure_stress"].status == "monitor"
+    assert results["precise_qs_ntx_neopax_closure_stress"].status == "pass"
+    assert results["precise_qs_ntx_neopax_closure_stress"].value <= 1.0e-1
     assert results["pmax_convergence_precise_qs"].status == "monitor"
     assert results["w7x_pmax_transfer_regression"].status == "monitor"
 

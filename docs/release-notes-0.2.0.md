@@ -42,11 +42,11 @@ Verified locally on 2026-04-24:
 - clean-venv wheel smoke for `ntx --help`, `python -m ntx --help`, and
   importing `GridSpec`
 
-The `0.2.0` version commit `f5c97d8` had green GitHub `tests` and `package`
-workflows. The release documentation commit must receive the same green checks
-before tagging.
+The release commit `c98ec8c` had green GitHub `tests` and `package` workflows
+on `main`. The `v0.2.0` tag workflows were green for `tests`, `package`, and
+`release`, and the release workflow published the wheel and sdist to PyPI
+through Trusted Publishing.
 
 ## Tagging
 
-Do not reuse `v0.1.0`; it already exists on GitHub. Tag `v0.2.0` after the
-release documentation commit is green in CI.
+The published tag is `v0.2.0`.

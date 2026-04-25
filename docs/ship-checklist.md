@@ -1,25 +1,24 @@
-# Pre-Merge Ship Checklist
+# Ship Checklist
 
-NTX should not be merged, tagged, or shipped until the open research and
-software lanes below are either closed or explicitly moved to documented future
-work with a clear reason.
+For each NTX release, open research and software lanes should either be closed
+or explicitly moved to documented future work with a clear reason.
 
 ## Blocking Lanes
 
 | Lane | Current Status | Required Before Merge |
 | --- | --- | --- |
-| Code refactoring | In progress | Keep public facades stable while moving implementation ownership toward `ntx.core`, `ntx.workflows`, `ntx.validation`, `ntx.geometry`, and `ntx.io`; each move needs tests and docs. |
-| Repository hygiene | In progress | Split the dirty worktree into reviewable commit batches; remove only confirmed temporary files; keep benchmark artifacts only when tied to scripts/tests/docs. |
+| Code refactoring | Partly closed; continue | Public facades remain stable while solver, bootstrap-autodiff, and profile dataclass ownership have been split into smaller internal modules; keep shrinking only with tests and docs. |
+| Repository hygiene | Current worktree audited | Split the dirty worktree into reviewable commit batches; all current untracked source/artifact files are tied to scripts/tests/docs, and local caches should stay removed. |
 | CI runtime and coverage | Closed; monitor | Maintain `>=95%` repository-owned coverage, module floors, and a normal CI wall time near `5-10` minutes. |
 | Literature-anchored physics gates | In progress | Add or preserve fast gates for convergence, Onsager residuals, exact low-order recovery, coefficient sign/normalization, and artifact-backed literature comparisons. |
-| Fixed-field `NTX+NEOPAX` closure | Scoped stress gate | Keep as a monitored stress metric for the first release; do not claim fixed-field parity unless a physics-derived closure improves QA/QH without regressing integrated W7-X. No fitted bridge constants. |
-| Multi-CPU and multi-GPU algorithms | Partly closed; production profiling remains | CPU/GPU/multiprocess crossover maps and prepared-geometry reuse profiles are artifact-backed; promote only algorithms that beat serial batched JAX on the target production workload. |
+| Fixed-field `NTX+NEOPAX` closure | Scoped total-current stress gate closed | Keep the passing QA/QH total-current stress gate artifact-backed; do not claim species-current parity or promote a broader default closure unless a physics-derived model preserves this gate and the integrated W7-X raw-branch transfer. No fitted bridge constants. |
+| Multi-CPU and multi-GPU algorithms | Production and strong-scaling maps artifact-backed; monitor | CPU/GPU/device-parallel/multiprocess crossover maps, fixed-workload strong-scaling maps, and prepared-geometry reuse profiles are artifact-backed; promote only algorithms that beat serial batched JAX on the target production workload. Additional healthy GPU nodes and device-memory timelines remain future work. |
 | `vmec_jax` and `booz_xform_jax` integration | Closed for first release; broader sensitivities planned | Keep projected-boundary and explicit-relaxed lanes as the promoted differentiable paths; the implicit-equilibrium diagnostic is documented as non-shipping. |
-| SFINCS comparisons | Partly closed | Add more artifact-backed comparisons with aligned physics settings and normalizations; distinguish parity gates from monitored stress gates. |
+| SFINCS comparisons | Partly closed | Add more artifact-backed comparisons with aligned physics settings and normalizations; distinguish promoted agreement gates from monitored stress gates. |
 | Documentation | In progress | Keep docs synchronized with source layout, benchmark matrix, test lanes, performance guidance, examples, and release path. |
 | Implicit-equilibrium derivative lane | Closed as non-shipping diagnostic | Do not promote this path for optimization claims; restore only after Boozer and NTX transport observables match centered finite differences, not just equilibrium volume. |
 | Broader W7-X/QI/omnigenous families | Stress artifact added | Keep the new VMEC family convergence artifact as reduced NTX stress evidence; add paper-resolution independent-code parity, owned W7-X KJM input coverage, and radial/electric-field ladders before promotion. |
-| PyPI/release automation | Ready for tag release | PyPI Trusted Publishing is configured for `uwplasma/NTX` and `release.yml`; wait for green release-commit CI, then push the first `v0.2.0` tag release. |
+| PyPI/release automation | Closed for `v0.2.0`; monitor | PyPI Trusted Publishing published `v0.2.0` from `release.yml`; future releases should keep the same green-CI, tag, artifact-provenance, and PyPI smoke-test path. |
 
 ## Acceptance Criteria
 
@@ -83,6 +82,9 @@ work with a clear reason.
 - A finite Legendre source-projection gate now checks that the magnetic-drift
   source occupies only the expected `k=0` and `k=2` rows and that the
   parallel-conductivity source occupies only the physical-`B` `k=1` row.
+- A small owned-surface monoenergetic ladder now checks that
+  `D11/D31/D13/D33/D33_spitzer` move toward the finest small-grid reference as
+  angular and Legendre resolution are increased.
 - A derivative-consistency gate now checks that the hand-coded
   `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks used by the implicit-adjoint path
   match JAX differentiation of the assembled Legendre-space operator.
@@ -129,15 +131,17 @@ work with a clear reason.
   require the top-level export list to stay duplicate-free.
 - The repository-side PyPI Trusted Publishing job is present and tag-gated, the
   GitHub `pypi` environment exists, and PyPI has a trusted-publisher entry for
-  `uwplasma/NTX` using `release.yml`.
-- The fixed-field `NTX+NEOPAX` lane is explicitly scoped out of first-release
-  parity claims. The release claim is the positive W7-X integrated transfer and
-  the fixed-field Redl/SFINCS gate; the reduced-closure current mismatch remains
-  a monitored stress metric.
+  `uwplasma/NTX` using `release.yml`. The `v0.2.0` tag release published to
+  PyPI successfully on 2026-04-24.
+- The fixed-field `NTX+NEOPAX` lane is explicitly scoped as a total-current
+  stress gate. The release claim is the positive W7-X integrated transfer, the
+  fixed-field Redl/SFINCS gate, and the fixed-field `NTX+NEOPAX` total-current
+  stress result below `1e-1`; species-current parity and broader closure
+  transfer remain future work.
 - Manuscript claim artifacts now include the monoenergetic validation-summary
-  convergence gate and the fixed-field Redl/SFINCS gate alongside the monitored
-  `NTX+NEOPAX` stress metric, so paper-facing claims match the active physics
-  gates.
+  convergence gate, the fixed-field Redl/SFINCS gate, and the scoped
+  fixed-field `NTX+NEOPAX` total-current stress gate, so paper-facing claims
+  match the active physics gates.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the
@@ -150,11 +154,18 @@ work with a clear reason.
   derivative artifacts into a single publication-ready stress figure; broad
   W7-X/QI/omnigenous validation remains scoped as future work.
 - The fixed-field closure report is now included in the publication figure
-  manifest and traced back to the fixed-field Redl gate plus the monitored
-  `NTX+NEOPAX` closure stress lane in the benchmark matrix.
+  manifest and traced back to the fixed-field Redl gate plus the scoped
+  `NTX+NEOPAX` total-current stress gate in the benchmark matrix.
 - The source-code map is now guarded by a focused test, so future internal
   ownership splits must update the architecture documentation and CI lane
   manifest in the same change.
+- The current refactoring pass split bootstrap-current autodiff workflows into
+  common, deterministic, and robust modules, and split profile dataclasses into
+  species, ambipolar-result, control, and transport-result ownership modules
+  while preserving the flat public API and compatibility facades.
+- The current repo-hygiene pass verified every untracked source/artifact file
+  against docs, tests, or benchmark metadata and removed local cache
+  directories.
 - The next valuable coverage work should be opportunistic and physics-driven;
   coverage is no longer a blocking lane.
 - The expensive boundary/equilibrium artifact reruns remain opt-in through
@@ -166,8 +177,7 @@ work with a clear reason.
 ## Immediate Next Order
 
 1. Keep the CI lane manifest and benchmark matrix locked as new tests are added.
-2. Add the next high-value physics gate rather than low-value coverage tests.
-3. Expand owned geometry-family benchmark artifacts only from committed
+2. Expand owned geometry-family benchmark artifacts only from committed
    scripts/tests/docs.
-4. Wait for green `tests` and `package` workflows on the release documentation
-   commit, then tag `v0.2.0`.
+3. Keep release documentation synchronized with the published package state and
+   require green `tests`, `package`, and `release` workflows before the next tag.

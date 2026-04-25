@@ -44,6 +44,33 @@ def test_example_surface_returns_finite_coefficients():
     assert result.D11 >= -1e-10
 
 
+def test_example_surface_coefficients_converge_on_small_grid_ladder():
+    surface = example_surface()
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    grids = (
+        GridSpec(5, 5, 4),
+        GridSpec(7, 7, 6),
+        GridSpec(9, 9, 8),
+    )
+    vectors = [
+        jnp.asarray(
+            [
+                result.D11,
+                result.D31,
+                result.D13,
+                result.D33,
+                result.D33_spitzer,
+            ]
+        )
+        for result in (solve_monoenergetic(surface, grid, case) for grid in grids)
+    ]
+    reference = vectors[-1]
+    coarse_error = jnp.abs(vectors[0] - reference) / jnp.maximum(1.0, jnp.abs(reference))
+    medium_error = jnp.abs(vectors[1] - reference) / jnp.maximum(1.0, jnp.abs(reference))
+    assert jnp.all(medium_error < coarse_error)
+    assert float(jnp.max(medium_error)) < 0.15
+
+
 def test_n_xi_two_boundary_case_runs():
     result = solve_monoenergetic(example_surface(), GridSpec(5, 5, 2), MonoenergeticCase(1e-2))
     assert jnp.isfinite(result.D33_spitzer)

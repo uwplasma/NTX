@@ -339,6 +339,7 @@ writes:
 ```text
 docs/_static/profile_basis_optimization.png
 docs/_static/profile_basis_optimization.pdf
+docs/_static/profile_basis_optimization.json
 ```
 
 It shows:
@@ -347,6 +348,10 @@ It shows:
 - the basis functions and the final optimized modifier
 - the residual-profile reduction relative to the uncontrolled baseline
 - the optimized bootstrap-current proxy profile
+
+The JSON sidecar records the objective improvement, residual norm ratio, and
+optimized basis coefficients so this profile-basis workflow can be tracked as a
+stress artifact rather than only as a picture.
 
 ![Profile basis optimization](_static/profile_basis_optimization.png)
 

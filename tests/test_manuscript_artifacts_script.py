@@ -48,6 +48,8 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "geometry_family_transport" in payload["tables"]
     assert "performance" in payload["tables"]
     assert "prepared_geometry_reuse" in payload["tables"]["performance"]
+    assert "production" in payload["tables"]["performance"]
+    assert "strong_scaling" in payload["tables"]["performance"]
     assert "benchmark_matrix" in payload
     assert payload["benchmark_matrix"]["summary"]["incomplete"] == 0
     assert "main_text" in payload["figure_sets"]
@@ -78,6 +80,8 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "explicit-relaxed `vmec_jax -> booz_xform_jax -> NTX`" in claims
     assert "artifact-backed geometry-family breadth summary" in claims
     assert "geometry-family transport convergence stress diagnostic" in claims
+    assert "production-grid CPU performance" in claims
+    assert "fixed-workload CPU strong-scaling" in claims
     assert "prepared-geometry reuse profile" in claims
 
 

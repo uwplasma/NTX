@@ -124,7 +124,7 @@ from .vmec_jax_vmec import surface_from_vmec_jax_vmec_wout, surface_from_vmec_ja
 try:
     __version__ = version("ntx")
 except PackageNotFoundError:
-    __version__ = "0.2.0"
+    __version__ = "0.2.1"
 
 __all__ = [
     "__version__",

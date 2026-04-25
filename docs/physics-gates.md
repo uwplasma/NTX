@@ -10,7 +10,8 @@ These gates separate five different questions:
 3. does the imported integrated workflow transfer cleanly?
 4. do differentiable geometry and boundary-control workflows match centered
    finite differences on their claimed scope?
-5. where does the reduced closure model stop matching fuller collisional tools?
+5. where does the reduced closure model pass as a total-current stress
+   diagnostic, and where does it still stop matching fuller collisional tools?
 
 That separation matters. Without it, a closure-model gap can be mistaken for a
 solver bug, or a benchmark-specific fit can be mistaken for production physics.
@@ -204,12 +205,39 @@ This gate is important because it validates the full path:
 
 ### 5. Closure Stress Tests
 
-The fixed-field precise-QS `NTX+NEOPAX` current comparison is retained as a
-stress test, not as a release gate for the monoenergetic solver.
+The fixed-field precise-QS `NTX+NEOPAX` current comparison is a scoped
+total-current stress gate, not a release gate for the monoenergetic solver and
+not an independent species-current parity claim.
 
-The current interior QA/QH errors are tracked continuously, but they are
-interpreted as a **reduced momentum-restoring closure-model gap** rather than
-as a remaining normalization bug in NTX.
+The current interior QA/QH total-current errors now pass the documented
+`1e-1` stress tolerance after applying only physics-normalization choices that
+are already part of the closure model:
+
+- the archived SFINCS observable is compared through its
+  flux-surface-averaged parallel-flow convention,
+- the reduced fixed-field branch uses the explicit low-order
+  Spitzer-conductivity block,
+- the closure grid uses the `P=2` low-order moment system.
+
+No fitted bridge constants, benchmark-specific scale factors, or hard
+thresholds are used in the current fixed-field branch.
+
+The current compact closure report records:
+
+- Redl fixed-field QA/QH maximum interior errors of `6.86e-2` and `4.06e-2`
+- NTX+NEOPAX fixed-field QA/QH total-current stress errors of `8.30e-2`
+  and `9.95e-2`
+- rebuilt W7-X raw-branch integrated transfer error of `1.83e-2`
+
+Those numbers are intentionally interpreted together. The fixed-field stress
+case compares a reduced momentum-restoring closure built from monoenergetic
+coefficients against a fuller drift-kinetic reference, while the integrated
+W7-X transfer checks the actual database normalization and imported workflow
+used by NTX. The low-order Spitzer-conductivity fixed-field branch does not
+transfer to the imported W7-X database convention, so the W7-X release gate
+remains the validated raw branch. A broader closure default is promotable only
+if it preserves both the precise-QS total-current gate and the integrated W7-X
+raw-branch transfer gate.
 
 ## Current Policy
 
@@ -252,10 +280,11 @@ Any higher-order closure change must satisfy all of the following:
 3. recover the present three-moment system exactly at `P=2`
 4. preserve finite-order symmetry structure as far as the projected model
    allows
-5. improve the fixed-field precise-QS closure stress test only if it also
+5. preserve the fixed-field precise-QS total-current closure stress gate
+6. improve species-resolved fixed-field closure parity only if it also
    preserves the integrated W7-X workflow
-6. show controlled convergence in `Pmax` on the precise-QS QA/QH family
-7. avoid any regression in the integrated W7-X workflow when `Pmax` changes
+7. show controlled convergence in `Pmax` on the precise-QS QA/QH family
+8. avoid any regression in the integrated W7-X workflow when `Pmax` changes
 
 That is the standard for physically defensible closure work in this repository.
 

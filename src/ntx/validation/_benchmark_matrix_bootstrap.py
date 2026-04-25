@@ -47,8 +47,10 @@ def bootstrap_current_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             maturity="stress-gate",
             title="Fixed-field current closure stress test",
             claim_scope=(
-                "The fixed-field NTX+NEOPAX comparison is retained as a monitored "
-                "closure stress test, not as a promoted monoenergetic parity gate."
+                "The fixed-field NTX+NEOPAX total-current comparison passes the "
+                "documented reduced-closure stress gate with the low-order "
+                "Spitzer-conductivity branch; species-current parity and broader "
+                "closure defaults remain separate claims."
             ),
             literature_anchors=(
                 "Landreman and Paul 2022 precise-QS benchmark family",
@@ -72,12 +74,15 @@ def bootstrap_current_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/closure_validation_report.pdf",
                 "docs/_static/closure_validation_report.json",
                 "docs/_static/closure_validation_report.txt",
+                "docs/_static/closure_pmax_convergence.png",
+                "docs/_static/closure_pmax_convergence.pdf",
+                "docs/_static/closure_pmax_convergence.json",
             ),
             manuscript_figures=("closure_validation_report",),
             docs=("docs/physics-gates.md", "docs/validation.md"),
             open_work=(
-                "derive and implement a transferable momentum-restoring closure",
-                "require no regression on the integrated W7-X workflow",
+                "derive any broader default from the same moment-equation closure",
+                "keep the integrated W7-X raw-branch transfer regression separate",
             ),
         ),
     )

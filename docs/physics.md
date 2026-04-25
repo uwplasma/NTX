@@ -294,6 +294,167 @@ NTX provides that through:
 in [`src/ntx/solver.py`](../src/ntx/solver.py) and
 [`src/ntx/neopax.py`](../src/ntx/neopax.py).
 
+The public database bridge defaults to the raw `D33` convention because that is
+the branch that preserves the integrated W7-X transfer gate. The
+`D33_spitzer` branch remains available as an explicit fixed-field closure
+stress option, but it is not a global runtime default.
+
+## Database Bridge And Bootstrap-Current Observable
+
+The NTX-to-NEOPAX bridge is a normalization bridge between two well-defined
+physics objects:
+
+1. NTX computes monoenergetic geometric coefficients on a flux surface.
+2. The downstream energy convolution evaluates species transport matrices from
+   those coefficients and the thermodynamic forces.
+3. The momentum-restoring closure solves a finite Sonine moment system for the
+   corrected parallel-flow moments.
+4. The bootstrap-current density is assembled from the species parallel flows.
+
+No fitted scalar is used in this chain.
+
+### Thermodynamic-Force Form
+
+For species `a`, the reduced closure uses the linear-response form
+
+```{math}
+\begin{pmatrix}
+\Gamma_a/n_a \\
+Q_a/(n_a T_a) \\
+U_{\parallel a}/n_a
+\end{pmatrix}
+=
+-
+\begin{pmatrix}
+L_{11,a} & L_{12,a} & L_{13,a} \\
+L_{21,a} & L_{22,a} & L_{23,a} \\
+L_{31,a} & L_{32,a} & L_{33,a}
+\end{pmatrix}
+\begin{pmatrix}
+A_{1,a} \\
+A_{2,a} \\
+A_3
+\end{pmatrix}.
+```
+
+Here `A1` is the density/electrostatic drive, `A2` is the temperature-gradient
+drive, and `A3` is the parallel-electric-field drive. This separation matters
+for validation: the fixed-field bootstrap current is not determined by a single
+monoenergetic coefficient, but by how the density and temperature drives enter
+the row-3 response and the momentum-restoring Sonine solve.
+
+The no-momentum parallel-flow branch is therefore
+
+```{math}
+U_{\parallel a}^{(0)}
+=
+-n_a\left(L_{31,a} A_{1,a}
+        +L_{32,a} A_{2,a}
+        +L_{33,a} A_3\right).
+```
+
+The momentum-restoring branch solves for Sonine coefficients `c_{ak}`. In the
+current finite basis the observable is fixed by the moment definition:
+
+```{math}
+U_{\parallel a}=n_a c_{a0}.
+```
+
+This is why NTX keeps the observable map fixed in validation. Changing a fitted
+linear combination of `c_{a0}, c_{a1}, ...` can improve one benchmark but would
+change the physical moment definition. Any accepted closure improvement has to
+change the projected moment equations or collision blocks, not the current
+observable by a benchmark-tuned remap.
+
+### Monoenergetic Coefficient Scaling
+
+The database bridge follows the dimensional role of each coefficient in the
+energy convolution:
+
+```{math}
+D_{11}^{\mathrm{db}} = D_{11}^{\mathrm{NTX}}\left(\frac{dr}{ds}\right)^2,
+\qquad
+D_{13}^{\mathrm{db}} = D_{13}^{\mathrm{NTX}}\frac{dr}{ds},
+\qquad
+D_{33}^{\mathrm{db}} = \nu D_{33}^{\mathrm{NTX}}.
+```
+
+The first factor appears twice in `D11` because radial particle/heat transport
+contains two radial-gradient normalizations. The mixed `D13` coefficient
+contains one radial and one parallel response, so it receives one `dr/ds`
+factor. The parallel conductivity coefficient is stored as `nu * D33` because
+the consumer reconstructs the monoenergetic conductivity integrand by dividing
+by the collisionality used in the energy convolution. This is the exact mapping
+implemented in [`src/ntx/_neopax_bridge.py`](../src/ntx/_neopax_bridge.py).
+
+`D33_spitzer` is not a fitted alternate normalization. It is the analytic
+Spitzer-conductivity contribution
+
+```{math}
+\hat D_{33,\mathrm{Sp}}
+=
+\frac{2}{3\hat \nu}
+\left\langle\frac{B^2}{B_0^2}\right\rangle,
+```
+
+which is the constant-field conductivity limit of the monoenergetic system. The
+fixed-field QA/QH stress audit can select this branch explicitly because the
+low-order momentum-restoring closure is a parallel-flow conductivity model.
+The public bridge still defaults to raw `D33`, because the integrated W7-X
+database transfer is validated on that convention.
+
+### Current Assembly And SFINCS Observable
+
+The species current density from the closure is
+
+```{math}
+j_{\parallel a}=Z_a e\,U_{\parallel a}.
+```
+
+The archived fixed-field reference stores flux-surface-averaged parallel-flow
+observables. In the SFINCS output convention,
+
+```{math}
+\mathrm{FSABjHat} = \sum_a Z_a\,\mathrm{FSABFlow}_a,
+\qquad
+\mathrm{FSABjHatOverB0}
+=
+\frac{\mathrm{FSABjHat}}{\mathrm{B0OverBBar}}.
+```
+
+The comparison therefore uses the archived `B0OverBBar` and the imported Boozer
+handedness convention to convert the closure current into the same
+flux-surface-averaged observable before comparing with the archived profile.
+Both pieces are read from the reference output or from the imported geometry;
+neither is fitted to the QA/QH current.
+
+The other important implementation point is semantic rather than numerical:
+`get_Neoclassical_Fluxes_With_Momentum_Correction(...)` returns the total
+corrected `U_parallel`. It is not an increment to add to the no-momentum
+`U_parallel`. Treating it as an increment double-counts the no-momentum branch
+and produces an unphysical current. The shipped examples and validation scripts
+now use the corrected return directly.
+
+### Why The Fixed-Field Gate Is A Stress Gate
+
+The precise-QS fixed-field comparison now passes the total-current stress gate
+using only physics-derived operations:
+
+- exact NTX coefficient normalizations,
+- explicit `D33_spitzer` conductivity branch for the fixed-field stress model,
+- SFINCS observable conversion from archived `B0OverBBar`,
+- total corrected `U_parallel` semantics,
+- no fitted constants and no species-dependent bridge factors.
+
+It is still not promoted as species-current parity. Continuum drift-kinetic
+solvers with fuller linearized Fokker-Planck physics can resolve
+species-current components that a low-order momentum-restoring closure built
+from monoenergetic coefficients is not guaranteed to reproduce coefficient by
+coefficient. The promoted statement is therefore deliberately narrower:
+the total bootstrap-current profile is inside the documented fixed-field stress
+gate while the independent Redl comparison and the integrated W7-X raw-branch
+transfer remain separate validation gates.
+
 ## Closure-Model Gates
 
 The monoenergetic coefficient pipeline and the downstream momentum-restoring

@@ -184,6 +184,16 @@ def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTrans
     )
     _add_case(
         cases,
+        root=vmec_jax_root,
+        relative_path="examples/data/wout_basic_non_stellsym_simsopt.nc",
+        case_id="basic_non_stellsym",
+        label="Non-stellsym",
+        family="non-stellarator-symmetric",
+        source="vmec_jax examples",
+        notes="non-stellarator-symmetric public example from the local VMEC-JAX suite",
+    )
+    _add_case(
+        cases,
         root=simsopt_root,
         relative_path=(
             "tests/test_files/"
@@ -224,6 +234,45 @@ def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTrans
         family="QS",
         source="SIMSOPT test files",
         notes="high-aspect-ratio quasi-symmetric reference",
+    )
+    _add_case(
+        cases,
+        root=simsopt_root,
+        relative_path=(
+            "tests/test_files/"
+            "wout_LandremanSenguptaPlunk_section5p3_reference.nc"
+        ),
+        case_id="landreman_sengupta_plunk_non_stellsym",
+        label="LSP non-stellsym",
+        family="non-stellarator-symmetric",
+        source="SIMSOPT test files",
+        notes=(
+            "section 5.3 Landreman-Sengupta-Plunk public reference; local "
+            "README identifies this case as not stellarator symmetric"
+        ),
+    )
+    _add_case(
+        cases,
+        root=simsopt_root,
+        relative_path="tests/test_files/wout_li383_low_res_reference.nc",
+        case_id="li383_low_res",
+        label="LI383",
+        family="NCSX/QS",
+        source="SIMSOPT test files",
+        notes=(
+            "low-resolution LI383 configuration used in public quasisymmetry "
+            "diagnostic tests"
+        ),
+    )
+    _add_case(
+        cases,
+        root=simsopt_root,
+        relative_path="tests/test_files/wout_n3are_R7.75B5.7_lowres.nc",
+        case_id="n3are_lowres",
+        label="N3ARE",
+        family="stellarator",
+        source="SIMSOPT test files",
+        notes="public low-resolution three-field-period stellarator-family equilibrium",
     )
     _add_case(
         cases,

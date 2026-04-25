@@ -54,8 +54,11 @@ def main(
     output_prefix: Path | None = None,
     monte_carlo_samples: int = 96,
     steps: int = 48,
+    basis_size: int = 3,
 ) -> None:
     enable_x64(True)
+    if basis_size < 2:
+        raise ValueError("basis_size must be at least 2")
     _configure_style()
     output_prefix = (
         ROOT / "docs" / "_static" / "autodiff_profile_uncertainty"
@@ -67,6 +70,15 @@ def main(
     surfaces = tuple(
         surface_from_vmec_jax_vmec_wout_file(wout, s=float(rho_value**2)) for rho_value in scan.rho
     )
+    target_params = np.zeros((basis_size,), dtype=float)
+    initial_params = np.zeros((basis_size,), dtype=float)
+    parameter_std = np.zeros((basis_size,), dtype=float)
+    target_params[:3] = np.asarray([1.4e-3, -6.0e-4, 1.8e-4])[:basis_size]
+    initial_params[:3] = np.asarray([5.0e-4, 2.0e-4, -1.0e-4])[:basis_size]
+    parameter_std[:3] = np.asarray([5.0e-5, 2.0e-5, 1.0e-5])[:basis_size]
+    if basis_size > 3:
+        decay = np.arange(3, basis_size, dtype=float) - 2.0
+        parameter_std[3:] = 5.0e-6 / decay
     result = example_neopax_profile_uncertainty(
         surfaces,
         rho=scan.rho,
@@ -78,6 +90,9 @@ def main(
         a_b=1.0,
         learning_rate=0.35,
         steps=steps,
+        target_params=target_params,
+        initial_params=initial_params,
+        parameter_std=parameter_std,
         monte_carlo_samples=monte_carlo_samples,
     )
 
@@ -96,6 +111,11 @@ def main(
     q_high = np.asarray(result.monte_carlo_d33_quantile_high)
     covariance = np.asarray(result.parameter_covariance)
     correlation = np.asarray(result.parameter_correlation)
+    fisher = np.asarray(result.fisher_matrix)
+    fisher_eigenvalues = np.asarray(result.fisher_eigenvalues)
+    hessian_probe = np.asarray(result.hessian_vector_probe)
+    gauss_newton_probe = np.asarray(result.gauss_newton_vector_probe)
+    hessian_probe_relative_error = float(result.hessian_probe_relative_error)
     std_rel_mismatch = np.abs(linear_std - mc_std) / np.maximum(mc_std, 1.0e-30)
     mean_shift_rel = np.abs(mc_mean - fitted) / np.maximum(np.abs(fitted), 1.0e-30)
 
@@ -152,8 +172,9 @@ def main(
     )
 
     im = axes[1, 0].imshow(correlation, vmin=-1.0, vmax=1.0, cmap="coolwarm")
-    axes[1, 0].set_xticks([0, 1], labels=["$p_0$", "$p_1$"])
-    axes[1, 0].set_yticks([0, 1], labels=["$p_0$", "$p_1$"])
+    parameter_labels = [f"$p_{index}$" for index in range(correlation.shape[0])]
+    axes[1, 0].set_xticks(range(correlation.shape[0]), labels=parameter_labels)
+    axes[1, 0].set_yticks(range(correlation.shape[0]), labels=parameter_labels)
     axes[1, 0].set_title("Gauss-Newton parameter correlation")
     for row in range(correlation.shape[0]):
         for col in range(correlation.shape[1]):
@@ -181,6 +202,20 @@ def main(
     axes[1, 1].set_ylabel("Relative metric")
     axes[1, 1].set_title("Uncertainty-closure quality checks")
     axes[1, 1].legend(loc="upper right")
+    axes[1, 1].text(
+        0.03,
+        0.96,
+        (
+            rf"basis size$={basis_size}$" "\n"
+            rf"$\lambda_{{\max}}(F)={fisher_eigenvalues.max():.2e}$" "\n"
+            rf"HVP rel. error$={hessian_probe_relative_error:.2e}$"
+        ),
+        transform=axes[1, 1].transAxes,
+        ha="left",
+        va="top",
+        fontsize=9.2,
+        bbox={"boxstyle": "round,pad=0.25", "fc": "white", "ec": "#d1d5db", "alpha": 0.96},
+    )
 
     for label, ax in zip(("a", "b", "c", "d"), axes.ravel(), strict=True):
         ax.text(
@@ -206,6 +241,12 @@ def main(
         "parameter_covariance": covariance.tolist(),
         "parameter_std": np.asarray(result.parameter_std).tolist(),
         "parameter_correlation": correlation.tolist(),
+        "fisher_matrix": fisher.tolist(),
+        "fisher_eigenvalues": fisher_eigenvalues.tolist(),
+        "hessian_vector_probe": hessian_probe.tolist(),
+        "gauss_newton_vector_probe": gauss_newton_probe.tolist(),
+        "hessian_probe_relative_error": hessian_probe_relative_error,
+        "basis_size": basis_size,
         "sample_count": int(result.sample_count),
         "max_std_relative_mismatch": float(std_rel_mismatch.max()),
         "max_mean_relative_shift": float(mean_shift_rel.max()),
@@ -236,9 +277,16 @@ if __name__ == "__main__":
         default=48,
         help="Autodiff profile-fit iterations before uncertainty propagation.",
     )
+    parser.add_argument(
+        "--basis-size",
+        type=int,
+        default=3,
+        help="Number of odd-power radial electric-field basis functions.",
+    )
     cli_args = parser.parse_args()
     main(
         output_prefix=cli_args.output_prefix,
         monte_carlo_samples=cli_args.monte_carlo_samples,
         steps=cli_args.steps,
+        basis_size=cli_args.basis_size,
     )

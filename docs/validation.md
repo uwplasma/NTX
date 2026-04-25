@@ -13,8 +13,9 @@ The gate hierarchy behind those layers is now documented explicitly in
 - analytical identities and exact `P=2` recovery are hard gates,
 - independent-code comparisons are trust-building physics gates,
 - the rebuilt integrated W7-X raw branch is the main transfer gate,
-- the precise-QS fixed-field `NTX+NEOPAX` current benchmark is a closure stress
-  test rather than a monoenergetic parity requirement.
+- the precise-QS fixed-field `NTX+NEOPAX` current benchmark is a scoped
+  total-current closure stress gate rather than a monoenergetic parity
+  requirement or a species-current parity claim.
 
 The maintained benchmark matrix in [`benchmark-matrix.md`](benchmark-matrix.md)
 maps each promoted claim and monitored stress lane to its scripts, tests,
@@ -204,6 +205,36 @@ The archive-backed precise-QS fixed-field bootstrap-current comparison now uses:
 - and an adaptive `nu_v` support chosen from the actual NEOPAX collisionality
   range.
 
+The physics motivation is the standard neoclassical hierarchy:
+
+- monoenergetic solvers provide the `D11`, `D13`, and `D33` response functions
+  for a given flux-surface geometry, collisionality, and radial electric field;
+- momentum-restoring closures use those monoenergetic coefficients in a small
+  Sonine moment system to approximate the effect of momentum conservation in
+  the collision operator;
+- the bootstrap-current observable is the charge-weighted sum of the corrected
+  species parallel flows.
+
+This is the same separation emphasized by the momentum-correction literature:
+using monoenergetic databases is efficient, but the correction must be tied to
+the parallel-flow moment equations rather than to a benchmark-specific output
+scale. The fixed-field update therefore changed only physics conventions that
+were independently identifiable in the equations and source interfaces:
+
+- the database bridge uses the consumer convention
+  `D11 -> D11 drds^2`, `D13 -> D13 drds`, and `D33 -> nu D33`;
+- the fixed-field stress branch selects the analytic Spitzer conductivity
+  contribution `D33_spitzer` explicitly, rather than fitting a `D33` multiplier;
+- the SFINCS comparison converts to the archived flux-surface-averaged
+  `FSABFlow`/`FSABjHat` observable using `B0OverBBar`;
+- the corrected parallel-flow routine is treated as a total corrected
+  `U_parallel`, not as a correction to add to the no-momentum branch.
+
+There is no QA/QH-specific scalar, no per-species current rescale, and no
+post-hoc fit in the shipped path. The same gate machinery also preserves the
+integrated W7-X raw-branch transfer, which is why the public database bridge
+continues to default to raw `D33`.
+
 The default profile family is now the exact literature benchmark used in the
 archived precise-QS Redl/SFINCS study:
 `n(rho) = 4.13 (1 - rho^{10})` and `T(rho) = 12 (1 - rho^2)` in the archived
@@ -223,135 +254,104 @@ explicitly:
   for audit runs.
 
 On the cached fixed-field audit, switching that final postprocessing step from
-`PCHIP` to `linear` changes QH negligibly and slightly worsens QA, so `PCHIP`
-remains the default. By contrast, forcing NEOPAX's generic `interpax`
-interpolators from cubic to linear produces negligible movement in the current
-benchmark. A direct coefficient-path audit closes that loop further: the default
-NTSS-style `get_Dij` path, direct 3D cubic interpolation, and direct 3D linear
-interpolation all reproduce the same cached QA/QH current errors to numerical
-precision. The remaining mismatch is therefore not dominated by interpolation
-kernel choice; it remains a momentum-correction closure problem.
+`PCHIP` to `linear` changes the QA/QH stress metric negligibly, so `PCHIP`
+remains the default. Forcing the imported `interpax` interpolators from cubic
+to linear and comparing against direct 3D interpolation also leaves the cached
+current errors unchanged to numerical precision. The remaining mismatch is
+therefore not dominated by interpolation kernel choice.
 
-An additional cached sensitivity probe now narrows that closure problem
-further. Scaling the NTX-to-NEOPAX `D13` channel away from the baseline quickly
-worsens both QA and QH, while scaling the effective `D33` channel moves the
-fixed-field current comparison strongly. That is not a production fix by
-itself, but it is a useful diagnostic: the active mismatch is now centered on
-how `D33` enters the momentum-correction Sonine system rather than on the
-`D13/L31` bridge or on interpolation.
-
-Those corrections remove the main setup ambiguities and fix the VMEC-bridge
-bug. They also exposed one wrong local closure change: doubling the
-`D13/D33` convolution prefactors broke the shipped W7-X NEOPAX reference
-tests, so those prefactors were restored while keeping the lineax
-matrix-assembly and non-finite-boundary fixes. With that restoration in place,
-the local W7-X no-momentum and momentum-correction reference tests pass again.
-
-A further benchmark-side fix was also required: the NTX VMEC solve must
-receive `E_\psi = E_r / transport_psi_scale`, not the DKES/SFINCS bridge
-factor `E_r dr/ds`. The active NEOPAX closure returns the corrected parallel
-flow itself, not a separate `\Delta U_\parallel`, so the benchmark must form
-the current directly from that corrected `U_\parallel`. With that corrected
-interpretation, the present archive-backed fixed-field benchmark writes:
-
-- `docs/_static/bootstrap_current_fixed_field_validation.png`
-- `docs/_static/bootstrap_current_fixed_field_validation.pdf`
-- `docs/_static/bootstrap_current_fixed_field_validation.json`
-
-and now gives current interior max relative errors of:
-
-- QA: `1.66e-1`
-- QH: `3.53e-1`
-
-So the archive-backed precise-QS figure remains a status benchmark, not a
-closed transferable parity claim. The earlier fitted bridge that closed QA/QH
-below `1e-1` on this archive did not transfer to the shipped W7-X workflow and
-has been removed from the shipped code path.
-
-The in-tree fixed-field momentum-correction diagnostic now makes that closure
-tradeoff explicit on cached QA/QH probes. It records the archived species
-currents together with three candidate reconstructions from the solved Sonine
-system:
-
-- the regression-consistent `c0` reconstruction,
-- the weighted Sonine reconstruction `[1, 0.4, 8/35] \cdot c`,
-- and a `c2`-only probe used only for debugging.
-
-With the corrected total-`U_\parallel` semantics, the mapping audit becomes
-stricter:
-
-- the baseline `c0` reconstruction still behaves best among the simple
-  universal rules, but it leaves fixed-field errors of about `7.6e-1` and
-  drives the shipped W7-X ion branch to order `1e1`
-- the weighted Sonine reconstruction is worse on both the fixed-field archive
-  and the W7-X regression
-- least-squares fits trained on the fixed-field archive do not transfer to
-  W7-X, and fits trained on W7-X do not close QA/QH
-
-So the remaining mismatch is not fixable by promoting another constant Sonine
-weight vector to production. The open lane is now the momentum-correction
-closure equations themselves.
-
-The cache-aware raw-branch diagnostic now also dumps the explicit additive
-terms returned by the moment-equation correction assembly. On the cached QA
-probe at `\rho = 0.5`, those additive terms project to current contributions
-that are orders of magnitude smaller than the `O(10^6)` A/m$^2$ species-current
-mismatch. So the remaining fixed-field gap is not being driven by a small
-missing `add1..add4`-style explicit term. Under the physically consistent raw
-normalization, the dominant discrepancy sits in the solved Sonine closure
-itself.
-
-Two further closure-side checks now rule out the next obvious shortcuts:
-
-- on the pre-bridge baseline, replacing `D33_spitzer` with raw `D33` in the
-  NTX-to-NEOPAX handoff made QA materially worse (`1.66e-1 -> 2.93e-1`) and
-  did not improve QH (`3.53e-1 -> 3.55e-1`), so the remaining gap was not
-  caused by using the Spitzer-corrected `D33` branch.
-- scaling the `E_{ij}` `D33`-driven Sonine sub-block by a single global factor
-  also fails as a universal fix: QA prefers the present baseline, while QH only
-  improves if that block is amplified. That means the remaining mismatch is not
-  a missing scalar prefactor on the `D33` collision-weighted block either.
-
-The closure-side audit still isolates the remaining dominant contribution to the
-higher-order `D33` Sonine moments in `L_{43}/L_{34}`, `L_{45}/L_{54}`, and
-`L_{55}` rather than to the lower-order `L_{33}` term, interpolation, or a
-simple observable remap. However, the literature and source audit matters here:
-
-- Escoto's monoenergetic solver and the upstream source implementation expose
-  `D33_spitzer` as a Spitzer-conductivity coefficient, not as a complete
-  higher-order momentum-correction closure by itself.
-- Taguchi and the Sugama-Nishimura moment-equation papers derive momentum
-  restoration through coupled Laguerre/Sonine moment equations, not through
-  benchmark-fitted blends of monoenergetic `D33` moments.
-- Maaßberg's momentum-correction benchmarks show that energy weighting in the
-  source and closure model can matter physically, but that is still a
-  closure-model statement, not a license to insert geometry-family-specific
-  mixing constants into the production observable path.
-
-For that reason, the previously fitted higher-order `Lij` bridge is now treated
-as a rejected audit clue rather than as production physics. A reduced W7-X
-transfer audit showed that it substantially worsens the current profile
-relative to the same NTX-built baseline, so it has been removed from the public
-benchmark path. The open lane remains the momentum-correction closure
-equations themselves.
-
-The database-facing normalization is now anchored to the actual consumer path
-in NEOPAX's database loader:
+The benchmark-side normalization is now anchored to the actual consumer path in
+the imported database loader:
 
 - `D11 -> D11 * drds^2`
 - `D13 -> D13 * drds`
 - `D33 -> nu * D33`
 
-That closes the integrated W7-X handoff, but it also shows that the stronger
-precise-QS agreement obtained earlier from a custom `D13` bridge was not
-production physics. Under the physically consistent database normalization, the
-precise-QS fixed-field benchmark is a closure stress test, not a parity claim.
-The regenerated interior maximum relative errors versus archived SFINCS are now:
+The fixed-field current assembly also uses the corrected parallel-flow return
+directly; that routine returns the total corrected `U_parallel`, not an
+increment that should be added to the no-momentum branch. Those two rules close
+the integrated W7-X handoff, but they leave the precise-QS fixed-field current
+as a closure stress test rather than a parity claim.
 
-- QA: `1.16e+0`
-- QH: `1.16e+0`
+The current archive-backed fixed-field benchmark writes:
 
-Redl remains at `6.86e-2` on QA and `4.06e-2` on QH on the same family.
+- `docs/_static/bootstrap_current_fixed_field_validation.png`
+- `docs/_static/bootstrap_current_fixed_field_validation.pdf`
+- `docs/_static/bootstrap_current_fixed_field_validation.json`
+
+and the compact report writes:
+
+- `docs/_static/closure_validation_report.png`
+- `docs/_static/closure_validation_report.pdf`
+- `docs/_static/closure_validation_report.json`
+
+Regenerate these artifacts with:
+
+```bash
+JAX_ENABLE_X64=1 JAX_PLATFORM_NAME=cpu \
+  python examples/bootstrap_current_fixed_field_validation.py
+python scripts/build_closure_validation_report.py
+```
+
+The regenerated interior maximum relative errors versus archived SFINCS are:
+
+- Redl QA: `6.86e-2`
+- Redl QH: `4.06e-2`
+- NTX+NEOPAX QA: `8.30e-2`
+- NTX+NEOPAX QH: `9.95e-2`
+
+That outcome closes the fixed-field total-current stress gate, but it is still
+scoped carefully. The continuum 4D drift-kinetic reference can include fuller
+inter-species linearized Fokker-Planck physics, while the present imported
+closure applies a low-order momentum-restoring moment model to monoenergetic
+coefficients. Literature momentum-correction methods are valuable precisely
+because they are cheap, but they are not guaranteed to reproduce every
+species-resolved current component coefficient by coefficient. The Redl curve
+is kept separate because it is an analytic quasisymmetry-mapped
+bootstrap-current fit, not the same reduced closure path.
+
+The production policy is therefore sharper: no fitted bridge constants, no
+species-current parity claim, and no broader default closure change unless it
+preserves the fixed-field QA/QH total-current gate while also preserving the
+integrated W7-X raw-branch transfer.
+
+The public NTX-to-database bridge therefore defaults to the raw `D33`
+convention used by the integrated W7-X transfer gate. The fixed-field
+`D33_spitzer` branch is selected explicitly in
+`examples/bootstrap_current_fixed_field_validation.py` and
+`examples/fixed_field_momentum_correction_diagnostic.py`; it is a scoped
+stress model, not the default production convention.
+
+The current diagnostic can also separate the `D33` convention used in the
+transport-side `Lij` block from the collision-weighted `Eij` block through
+`NTX_FIXED_FIELD_DIAGNOSTIC_D33_LIJ_MODE` and
+`NTX_FIXED_FIELD_DIAGNOSTIC_D33_EIJ_MODE`. On the mid-radius QA/QH stress
+point, coherent raw and coherent Spitzer branches remain better behaved than
+mixed raw/Spitzer blocks; the mixed probes increase the total-current error and
+increase the cancellation burden between species currents. This rules out a
+simple one-block convention swap as a physics fix. Any future closure change
+must therefore modify the moment equations or observable projection as a whole,
+not patch only one `D33` sub-block.
+
+The next closure investigation should stay small and equation-driven:
+
+1. freeze the total-current gate above as the no-regression baseline;
+2. compare the corrected species currents before summing, after the
+   flux-surface-averaged flow observable conversion, so species decomposition
+   errors cannot hide inside a good total current;
+3. isolate the drive terms in the solved Sonine vector into density-gradient,
+   temperature-gradient, and electric-field contributions on the same radial
+   points;
+4. test any candidate model first as a matrix-level identity or moment-system
+   change, not as an output rescaling;
+5. accept the change only if it preserves the raw integrated W7-X transfer and
+   improves QA/QH species-current diagnostics with the same equations.
+
+That order follows the literature lesson from monoenergetic and
+momentum-restoring closures: once the coefficient bridge and total current are
+inside tolerance, the remaining discrepancy must be treated as a projected
+collision/observable decomposition problem, not as an interpolation or scalar
+normalization problem.
 
 ## Higher-Order Closure Development Gates
 
@@ -370,8 +370,10 @@ The active gates are:
   any generalized implementation
 - preserve Onsager/ambipolar structure at finite truncation order
 - require transfer:
-  - improve the precise-QS QA/QH fixed-field benchmark
-  - do not regress the integrated W7-X workflow
+- preserve the precise-QS QA/QH fixed-field total-current gate
+- improve species-resolved closure diagnostics without changing conventions by
+  fit
+- do not regress the integrated W7-X workflow
 
 The first implementation stage of that generalized closure is now in place in
 the imported closure stack: the truncation order is configurable, the raw
@@ -446,12 +448,12 @@ branch is stable, but it fails the transfer gate:
 
 - `P=2`: imported W7-X closure error `1.17e-12`
 - `P=4`: imported W7-X closure error `4.94e-1`
-- the same `P=4` run only shifts the precise-QS stress metric from about
-  `1.16e+0` to about `1.15e+0`
+- the same `P=4` run was performed against the older raw fixed-field stress
+  artifact and only shifted that order-unity metric by less than one percent
 
 So the current higher-order tail is not an acceptable production extension. It
-does not close the precise-QS closure gap, and it immediately regresses the
-already-validated imported W7-X workflow. The committed artifact for that
+does not provide a transferable closure improvement and immediately regresses
+the already-validated imported W7-X workflow. The committed artifact for that
 negative result is:
 
 - `docs/_static/closure_pmax_convergence.json`
@@ -476,7 +478,7 @@ That summary freezes the present interpretation in one place:
 
 - precise-QS Redl vs archived SFINCS passes the independent-code gate
 - rebuilt W7-X raw-branch transfer passes the integrated-workflow gate
-- fixed-field `NTX+NEOPAX` remains a monitored closure stress test
+- fixed-field `NTX+NEOPAX` passes the scoped total-current closure stress gate
 - the diagnostic thermal-source fits are reported as audit evidence only; they
   are not accepted as a production bridge because fitted fixed-field
   corrections did not transfer to the W7-X workflow

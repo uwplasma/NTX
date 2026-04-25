@@ -13,9 +13,15 @@ def scan_to_neopax_arrays(
     scan: NeopaxScan,
     *,
     a_b: float | Array,
-    d33_mode: str = "spitzer",
+    d33_mode: str = "raw",
 ) -> NeopaxMonoenergeticArrays:
-    """Map NTX scan data into the pure arrays consumed by `NEOPAX.Monoenergetic`."""
+    """Map NTX scan data into the pure arrays consumed by `NEOPAX.Monoenergetic`.
+
+    The default `raw` branch preserves the historical database convention used
+    by the integrated workflow. The `spitzer` and `conductivity_difference`
+    branches are explicit audit/stress-test choices and should not be promoted
+    as global defaults without a transfer gate.
+    """
 
     rho = jnp.asarray(scan.rho)
     nu_v = jnp.asarray(scan.nu_v)
@@ -64,7 +70,7 @@ def to_neopax_monoenergetic(
     scan: NeopaxScan,
     *,
     a_b: float | Array,
-    d33_mode: str = "spitzer",
+    d33_mode: str = "raw",
 ):
     """Construct `NEOPAX.Monoenergetic` from NTX scan data."""
 

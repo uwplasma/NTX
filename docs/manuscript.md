@@ -12,7 +12,7 @@ examples.
 3. `bootstrap_current_reference_audit_w7x.{png,pdf}`
 4. `derivative_path_benchmark.{png,pdf,json}`
 5. `bootstrap_current_optimization.{png,pdf,json}`
-6. `performance_scaling_heavy.{png,pdf}`
+6. `performance_scaling_production.{png,pdf,json}`
 7. `primitive_profile_transport.{png,pdf}`
 
 ### Supplement
@@ -29,14 +29,16 @@ examples.
 10. `geometry_family_transport_convergence.{png,pdf,json}`
 11. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
 12. `bootstrap_current_robust_optimization.{png,pdf,json}`
-13. `performance_scaling_smoke.{png,pdf}`
-14. `prepared_geometry_reuse_profile.{png,pdf,json}`
-15. `ambipolar_profile.{png,pdf}`
-16. `ambipolar_profile_family.{png,pdf}`
-17. `profile_force_reconstruction_audit.{png,pdf,json}`
-18. `profile_control_optimization.{png,pdf}`
-19. `profile_basis_optimization.{png,pdf}`
-20. `profile_transport_loop.{png,pdf}`
+13. `performance_scaling_smoke.{png,pdf,json}`
+14. `performance_scaling_heavy.{png,pdf,json}`
+15. `performance_strong_scaling_production.{png,pdf,json}`
+16. `prepared_geometry_reuse_profile.{png,pdf,json}`
+17. `ambipolar_profile.{png,pdf}`
+18. `ambipolar_profile_family.{png,pdf}`
+19. `profile_force_reconstruction_audit.{png,pdf,json}`
+20. `profile_control_optimization.{png,pdf}`
+21. `profile_basis_optimization.{png,pdf,json}`
+22. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -46,16 +48,16 @@ examples.
    - Legendre convergence
    - machine-readable benchmark metrics for the literature-anchored methods lane
 2. `closure_validation_report.{png,pdf,json,txt}`
-   - fixed-field precise-QS Redl gate and monitored NTX+NEOPAX closure stress
-     metric in the same manuscript-facing validation report
+   - fixed-field precise-QS Redl gate and scoped NTX+NEOPAX total-current
+     closure stress gate in the same manuscript-facing validation report
 3. `autodiff_inverse_problem.{png,pdf}`
    - inverse recovery of a surface harmonic from synthetic transport data
 4. `autodiff_neopax_profiles.{png,pdf}`
    - autodiff-based profile inversion on NEOPAX-style arrays
 5. `autodiff_profile_uncertainty.{png,pdf,json}`
-   - linearized versus Monte Carlo uncertainty propagation on the same
-     differentiable profile fit under a prescribed Gaussian parameter
-     perturbation
+   - three-term radial-basis uncertainty propagation on the same differentiable
+     profile fit, including Monte Carlo, linearized covariance, and
+     Fisher/Hessian-vector consistency diagnostics
 6. `geometry_control_derivative_benchmark.{png,pdf,json}`
    - three-harmonic geometry-control derivative audit against centered finite
      differences; tracked as an autodiff stress benchmark
@@ -99,34 +101,41 @@ examples.
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
 17. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-18. `performance_scaling_smoke.{png,pdf}`
+18. `performance_scaling_smoke.{png,pdf,json}`
    - CPU/GPU scaling on the repository smoke grid
-19. `performance_scaling_heavy.{png,pdf}`
+19. `performance_scaling_heavy.{png,pdf,json}`
    - heavier-grid scaling where throughput effects are visible
-20. `prepared_geometry_reuse_profile.{png,pdf,json}`
+20. `performance_scaling_production.{png,pdf,json}`
+   - production-grid CPU/GPU scaling with serial, device-parallel,
+     multiprocess, memory, and coefficient-agreement metadata
+21. `performance_strong_scaling_production.{png,pdf,json}`
+   - fixed-workload CPU/GPU strong scaling with worker/device sweeps, memory,
+     and coefficient-agreement metadata
+22. `prepared_geometry_reuse_profile.{png,pdf,json}`
    - fixed-geometry repeated-solve profile showing the direct, prepared, and
      compiled prepared solver paths with coefficient agreement recorded in the
      JSON artifact
-21. `ambipolar_profile.{png,pdf}`
+23. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-22. `ambipolar_profile_family.{png,pdf}`
+24. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-23. `profile_force_reconstruction_audit.{png,pdf,json}`
+25. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-24. `profile_control_optimization.{png,pdf}`
+26. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-25. `profile_basis_optimization.{png,pdf}`
+27. `profile_basis_optimization.{png,pdf,json}`
    - low-dimensional radial-basis optimization of the same profile closure
-26. `profile_transport_loop.{png,pdf}`
+28. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-27. `primitive_profile_transport.{png,pdf}`
+29. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
 
 - formulation and numerical behavior
 - validation and convergence
-- fixed-field Redl validation and reduced-closure stress reporting
+- fixed-field Redl validation and reduced-closure total-current stress
+  reporting
 - differentiable inverse and profile problems
 - differentiable uncertainty propagation on the same profile map
 - multi-parameter geometry-control derivative auditing
@@ -168,8 +177,9 @@ docs/_static/manuscript_claims.md
 ```
 
 These artifacts collect the current NTX commit, software environment, the
-validated W7-X convergence numbers, derivative benchmark summaries, heavy-grid
-CPU/GPU performance tables, geometry-control derivative stress metrics,
+validated W7-X convergence numbers, derivative benchmark summaries,
+production-grid CPU/GPU performance and strong-scaling tables,
+geometry-control derivative stress metrics,
 bootstrap-current optimization summaries, and the exact commands needed to
 regenerate the figures and validation subset used in the manuscript.
 
@@ -336,6 +346,7 @@ This writes:
 ```text
 docs/_static/profile_basis_optimization.png
 docs/_static/profile_basis_optimization.pdf
+docs/_static/profile_basis_optimization.json
 ```
 
 Use this figure when the paper needs a profile-control optimization panel beyond

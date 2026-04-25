@@ -1,10 +1,8 @@
 # Research Roadmap
 
-NTX has a strong monoenergetic transport base, but the current development
-branch is not ready to merge, tag, or ship until the pre-merge gates in
-[`ship-checklist.md`](ship-checklist.md) are resolved. The next step is to turn
-the current open lanes into a research platform for open stellarator transport
-and optimization problems.
+NTX has a strong monoenergetic transport base and a published `0.2.0` package.
+The next step is to turn the current open lanes into a research platform for
+open stellarator transport and optimization problems.
 
 This page summarizes the active development lanes, why they matter, and where
 they map onto the current source tree.
@@ -27,7 +25,7 @@ forward problem described there in:
 - [`src/ntx/solver.py`](../src/ntx/solver.py)
 - [`src/ntx/transport.py`](../src/ntx/transport.py)
 
-The research-grade roadmap starts where the shipped `1.0` package currently
+The research-grade roadmap starts where the shipped `0.2.0` package currently
 stops.
 
 ## Why These Lanes Matter
@@ -245,7 +243,13 @@ NTX already has:
 The performance conclusion from the current benchmarks is:
 
 - serial batched JAX is the right default for small and medium studies,
-- multiprocess execution is the throughput lane for larger campaigns.
+- single-process device-parallel CPU scans now show production-grid crossover
+  and fixed-workload strong-scaling wins once the scan is large enough,
+- the tested two-GPU workstation exposes two CUDA devices but only one healthy
+  NTX single-process parallel device, so the current GPU maps are
+  characterization artifacts rather than multi-GPU speedup claims,
+- multiprocess execution remains workload-specific and should not be promoted
+  without a measured crossover on the target machine,
 - prepared geometry reuse by itself is only near parity on the committed
   fixed-geometry profile, while the compiled prepared steady path is the
   current high-leverage optimization route.
@@ -253,8 +257,9 @@ The performance conclusion from the current benchmarks is:
 The next work is not just “more parallelism.” It is:
 
 1. broader prepared compiled-closure reuse for large database scans,
-2. stable multi-device throughput on production grids,
-3. clear crossover maps for CPU, GPU, and multi-process paths,
+2. repeat the production-grid and strong-scaling maps on additional dedicated
+   GPU nodes with reproducibly healthy devices,
+3. add device-memory timelines and larger VMEC-family workload maps,
 4. and, if needed, multi-host scan orchestration.
 
 This work belongs mainly in:
@@ -263,6 +268,7 @@ This work belongs mainly in:
 - [`src/ntx/parallel.py`](../src/ntx/parallel.py)
 - [`examples/prepared_geometry_reuse_profile.py`](../examples/prepared_geometry_reuse_profile.py)
 - [`scripts/benchmark_scaling.py`](../scripts/benchmark_scaling.py)
+- [`scripts/benchmark_strong_scaling.py`](../scripts/benchmark_strong_scaling.py)
 - [`scripts/profile_parallel_runtime.py`](../scripts/profile_parallel_runtime.py)
 
 ## Phase 5: Physics Expansion
@@ -311,8 +317,9 @@ lane:
    NTX and NTX+NEOPAX outputs,
 5. define reusable hidden-symmetry and omnigenous input families before adding
    new research-grade figures,
-6. and keep the fixed-field current comparison as a monitored closure stress
-   test until a transferable closure model passes the integrated W7-X gate.
+6. and keep the fixed-field current comparison scoped to the passing
+   total-current stress gate until a transferable species-resolved closure model
+   also passes the integrated W7-X gate.
 
 This is the shortest path from a strong forward solver to a research tool with
 reviewable validation claims instead of isolated example scripts.
@@ -321,21 +328,17 @@ reviewable validation claims instead of isolated example scripts.
 
 The next code pass should execute in this order:
 
-1. replace the CI test-shard exclusion list with a maintained lane manifest or
-   pytest markers;
-2. audit untracked generated files and keep only benchmark artifacts that are
-   referenced by docs, tests, or the benchmark matrix;
-3. add the remaining benchmark-matrix rows for W7-X KJM ownership,
-   hidden-symmetry, and the non-shipping implicit-equilibrium derivative lane;
-4. add small convergence-ladder tests for the monoenergetic coefficients before
-   adding more profile or current examples;
-5. extend the explicit-relaxed boundary-control derivative audit to additional
+1. keep the CI lane manifest, source map, and benchmark matrix locked as new
+   tests and ownership splits are added;
+2. expand owned geometry-family benchmark artifacts only from committed
+   scripts/tests/docs;
+3. extend the explicit-relaxed boundary-control derivative audit to additional
    owned QA/QH/QI cases;
-6. restore the implicit-equilibrium Boozer and transport derivative lane only
+4. restore the implicit-equilibrium Boozer and transport derivative lane only
    after residual contraction and centered-finite-difference parity pass;
-7. profile prepared-geometry reuse and closure recompiles before evaluating
+5. profile prepared-geometry reuse and closure recompiles before evaluating
    Lineax or Equinox;
-8. update the manuscript figure list only from artifacts generated by these
+6. update the manuscript figure list only from artifacts generated by these
    maintained scripts.
 
 This order avoids two failure modes: slow CI from benchmark creep, and strong

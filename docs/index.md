@@ -18,7 +18,7 @@ NTX provides:
 Install the package:
 
 ```bash
-python -m pip install ntx
+pip install ntx
 ```
 
 Run the bundled analytic sample:
@@ -86,7 +86,7 @@ parallel-throughput workflows.
 - [Research Roadmap](research-roadmap.md): next research-grade development lanes
 - [Manuscript Figures](manuscript.md): publication-ready figure inventory
 - [Literature](literature.md): thesis and package links
-- [Release Notes 0.2.0](release-notes-0.2.0.md): current release-candidate notes
+- [Release Notes 0.2.1](release-notes-0.2.1.md): current release notes
 
 ## Contents
 
@@ -116,5 +116,6 @@ research-roadmap
 manuscript
 literature
 release
+release-notes-0.2.1
 release-notes-0.2.0
 ```

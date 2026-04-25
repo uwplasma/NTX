@@ -54,6 +54,28 @@ def _fake_run(command: list[str]) -> None:
     prefix.with_suffix(".json").write_text("{}", encoding="utf-8")
 
 
+def test_publication_figure_runner_defaults_to_x64(monkeypatch: pytest.MonkeyPatch):
+    module = _load_module()
+    captured: dict[str, object] = {}
+
+    def fake_subprocess_run(command, *, check, cwd, env):
+        captured["command"] = command
+        captured["check"] = check
+        captured["cwd"] = cwd
+        captured["env"] = env
+
+    monkeypatch.delenv("JAX_ENABLE_X64", raising=False)
+    monkeypatch.setattr(subprocess, "run", fake_subprocess_run)
+
+    module._run([sys.executable, "-c", "pass"])
+
+    assert captured["check"] is True
+    assert captured["cwd"] == ROOT
+    env = captured["env"]
+    assert isinstance(env, dict)
+    assert env["JAX_ENABLE_X64"] == "1"
+
+
 def test_make_publication_figures_subset_writes_manifest(tmp_path, monkeypatch: pytest.MonkeyPatch):
     module = _load_module()
     monkeypatch.setattr(module, "_run", _fake_run)
@@ -86,7 +108,7 @@ def test_make_publication_figures_main_text_preset_writes_manifest(
         "w7x_audit",
         "derivative_benchmark",
         "science",
-        "performance_heavy",
+        "performance_production",
         "primitive_transport",
     }
     assert any(path.endswith("validation_summary.json") for path in payload["validation"])
@@ -106,6 +128,26 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.png").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.pdf").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.json").exists()
+
+
+def test_geometry_family_transport_uses_paper_preset(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    module = _load_module()
+    commands: list[list[str]] = []
+
+    def fake_run(command: list[str]) -> None:
+        commands.append(command)
+        _fake_run(command)
+
+    monkeypatch.setattr(module, "_run", fake_run)
+
+    _invoke_main(module, monkeypatch, tmp_path / "figures", "geometry_family_transport")
+
+    assert commands
+    command = commands[0]
+    assert command[command.index("--preset") + 1] == "paper"
 
 
 @pytest.mark.parametrize(
@@ -147,7 +189,11 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
         (
             "profile_basis",
             {"profile_basis"},
-            ("profile_basis_optimization.png", "profile_basis_optimization.pdf"),
+            (
+                "profile_basis_optimization.png",
+                "profile_basis_optimization.pdf",
+                "profile_basis_optimization.json",
+            ),
         ),
         (
             "profile_transport",
@@ -230,6 +276,24 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
                 "prepared_geometry_reuse_profile.png",
                 "prepared_geometry_reuse_profile.pdf",
                 "prepared_geometry_reuse_profile.json",
+            ),
+        ),
+        (
+            "performance_production",
+            {"performance_production"},
+            (
+                "performance_scaling_production.png",
+                "performance_scaling_production.pdf",
+                "performance_scaling_production.json",
+            ),
+        ),
+        (
+            "performance_strong",
+            {"performance_strong"},
+            (
+                "performance_strong_scaling_production.png",
+                "performance_strong_scaling_production.pdf",
+                "performance_strong_scaling_production.json",
             ),
         ),
     ],

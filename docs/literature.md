@@ -29,6 +29,12 @@ This is the primary reference for:
   collision-operator comparisons:
   [Physics of Plasmas](https://doi.org/10.1063/1.4870077),
   [arXiv:1312.6058](https://arxiv.org/abs/1312.6058)
+- Redl, Angioni, Belli, and Sauter 2021, analytic bootstrap-current and
+  neoclassical-conductivity formulae:
+  [PDF](https://pure.mpg.de/pubman/item/item_3288698_4/component/file_3288920/Redl_New.pdf)
+- Landreman, Buller, and Drevlak 2022, quasisymmetric-stellarator use of the
+  Redl bootstrap-current formula and comparison to a 4D drift-kinetic solver:
+  [arXiv:2205.02914](https://arxiv.org/abs/2205.02914)
 - Beidler et al. 2011, international monoenergetic coefficient benchmark:
   [Nuclear Fusion](https://doi.org/10.1088/0029-5515/51/7/076001)
 
@@ -42,6 +48,8 @@ These are the main references for:
 - bootstrap-current interpretation
 - expected limits of exact parity between reduced monoenergetic workflows and
   broader drift-kinetic solvers
+- why the Redl precise-QS comparison is a separate analytic bootstrap-current
+  validation from the reduced NTX+NEOPAX closure stress metric
 - the required benchmark surface for `D11`, `D31`, and `D33`
 
 ## Differentiable And Optimization Workflows

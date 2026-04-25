@@ -155,12 +155,13 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         name="precise_qs_ntx_neopax_closure_stress",
         category="stress",
         metric="interior max relative error of NTX+NEOPAX vs archived SFINCS",
-        relation="monitor",
-        threshold=None,
+        relation="<=",
+        threshold=1.0e-1,
         source="docs/_static/bootstrap_current_fixed_field_validation.json",
         rationale=(
-            "This benchmark is retained as a closure-model stress test. It is "
-            "monitored continuously but is not a solver-side release gate."
+            "The reduced fixed-field closure must reproduce the archived "
+            "precise-QS total bootstrap-current profile within the documented "
+            "interior-window stress tolerance without fitted constants."
         ),
     ),
     PhysicsGate(
@@ -169,7 +170,7 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         metric="max relative change between successive Pmax levels",
         relation="monitor",
         threshold=None,
-        source="future closure_pmax_convergence.json artifact",
+        source="docs/_static/closure_pmax_convergence.json",
         rationale=(
             "Higher-order closure work must show controlled convergence in "
             "Pmax on the precise-QS QA/QH stress family."
@@ -181,7 +182,7 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         metric="integrated W7-X max relative error under higher-order closure",
         relation="monitor",
         threshold=None,
-        source="future closure_pmax_convergence.json artifact",
+        source="docs/_static/closure_pmax_convergence.json",
         rationale=(
             "Any higher-order closure extension must transfer to the "
             "integrated W7-X workflow without regressing the imported path."

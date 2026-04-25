@@ -429,10 +429,19 @@ python examples/autodiff_profile_uncertainty.py
 
 uses the same differentiable NEOPAX-style profile fit, then compares two
 uncertainty-propagation paths for the recovered `D33(\rho)` profile under a
-small prescribed Gaussian uncertainty on the fitted profile parameters:
+small prescribed Gaussian uncertainty on the fitted radial electric-field basis
+parameters:
 
 - a linearized covariance propagation through the sensitivity matrix,
 - and a small Monte Carlo ensemble in the fitted profile-parameter space.
+
+The committed artifact uses a three-term odd-power radial basis by default and
+also records a local Fisher/Gauss-Newton matrix plus a Hessian-vector-product
+probe for the same combined `D11`/`D33` residual used by the fit. The HVP probe
+is evaluated at the recovered profile parameters, where the residual term
+vanishes, so it should agree with the Fisher/Gauss-Newton product. This
+provides a local mathematical gate for profile-UQ derivatives without promoting
+the synthetic profile family to a broad design claim.
 
 The figure is written to:
 
@@ -447,7 +456,8 @@ It shows:
 - the fitted transport profile with propagated uncertainty bands,
 - linearized versus Monte Carlo standard deviations,
 - the fitted profile-parameter correlation matrix,
-- and the relative mismatch between the two uncertainty paths.
+- the relative mismatch between the two uncertainty paths,
+- and the Fisher/HVP consistency metrics stored in the JSON artifact.
 
 This is the current artifact-backed uncertainty-propagation benchmark for the
 autodiff lane. It is intentionally synthetic and is tracked as a monitored

@@ -214,9 +214,10 @@ def _bridge_from_scalars(
     nu_n = float(nu_prime) * float(b0_over_bbar) / denom
     # Landreman/H. Smith VMEC-s-coordinate bridge used in the benchmark scripts.
     factor_31 = 4.0 * float(surface_b0) * float(psi_a_hat) / (np.sqrt(np.pi) * float(g_hat))
-    # The historical MONKES formula carries the opposite sign because its stored D33 convention
-    # differs from NTX's raw D33 sign. NTX raw D33 is positive on the current fixed-field cases,
-    # so the bridge here is written in the NTX sign convention.
+    # The archived formula carries the opposite sign because its stored D33
+    # convention differs from NTX's raw D33 sign. NTX raw D33 is positive on
+    # the current fixed-field cases, so the bridge here is written in the NTX
+    # sign convention.
     factor_33 = 2.0 * float(surface_b0) / (denom * np.sqrt(np.pi))
     return MonoenergeticBridge(
         nu_n=float(nu_n),

@@ -62,18 +62,16 @@ def plot_fixed_field_validation(
     interp_profile: Callable[[np.ndarray, np.ndarray, np.ndarray], np.ndarray],
 ) -> None:
     fig, axes = plt.subplots(
+        1,
         2,
-        2,
-        figsize=(11.8, 8.4),
+        figsize=(11.2, 4.7),
         constrained_layout=True,
-        sharex="col",
-        gridspec_kw={"height_ratios": (1.0, 0.55)},
+        sharey=True,
     )
     styles = plot_styles()
     for col, key in enumerate(("qa", "qh")):
         case_results = results[key]
-        ref = np.asarray(case_results["SFINCS"]["jdotb"], dtype=float)
-        ax = axes[0, col]
+        ax = axes[col]
         ax.axvspan(interior_rho_min, interior_rho_max, color="#f0f0f0", alpha=0.5, zorder=0)
         for name in plot_order(case_results):
             payload = case_results[name]
@@ -93,54 +91,20 @@ def plot_fixed_field_validation(
                     color=styles[name]["color"],
                 )
         ax.set_title(cases[key].label)
-        ax.set_ylabel(r"$\langle \mathbf{J}\cdot\mathbf{B}\rangle$ [MA T A m$^{-2}$]")
+        if col == 0:
+            ax.set_ylabel(r"$\langle \mathbf{J}\cdot\mathbf{B}\rangle$ [MA T m$^{-2}$]")
+        ax.set_xlabel(r"$\rho$")
         ax.grid(alpha=0.24, lw=0.6)
         panel_label(ax, f"({chr(ord('a') + col)})")
 
-        ax_err = axes[1, col]
-        ref_scale = np.maximum(np.abs(ref), 1.0)
-        ax_err.axvspan(interior_rho_min, interior_rho_max, color="#f0f0f0", alpha=0.5, zorder=0)
-        err_order = [name for name in ("SFINCS-JAX", "NTX+NEOPAX", "Redl") if name in case_results]
-        for name in err_order:
-            payload = case_results[name]
-            rel = np.abs(np.asarray(payload["jdotb"], dtype=float) - ref) / ref_scale
-            ax_err.plot(
-                np.asarray(payload["rho"], dtype=float),
-                rel,
-                label=f"{display_label(name)} vs SFINCS",
-                **styles[name],
-            )
-            if name == "SFINCS-JAX" and "rho_sample" in payload:
-                sample_ref = interp_profile(
-                    np.asarray(case_results["SFINCS"]["rho"], dtype=float),
-                    ref,
-                    np.asarray(payload["rho_sample"], dtype=float),
-                )
-                sample_rel = np.abs(
-                    np.asarray(payload["jdotb_sample"], dtype=float) - sample_ref
-                ) / np.maximum(np.abs(sample_ref), 1.0)
-                ax_err.plot(
-                    np.asarray(payload["rho_sample"], dtype=float),
-                    sample_rel,
-                    marker="o",
-                    ms=4.2,
-                    lw=0,
-                    color=styles[name]["color"],
-                )
-        ax_err.set_xlabel(r"$\rho$")
-        ax_err.set_ylabel("relative error")
-        ax_err.set_yscale("log")
-        ax_err.grid(alpha=0.24, lw=0.6)
-        panel_label(ax_err, f"({chr(ord('c') + col)})")
-
-    handles, labels = axes[0, 0].get_legend_handles_labels()
+    handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(
         handles,
         labels,
-        loc="upper center",
+        loc="lower center",
         ncol=4,
         frameon=False,
-        bbox_to_anchor=(0.5, 1.03),
+        bbox_to_anchor=(0.5, -0.07),
     )
     fig.savefig(output_prefix.with_suffix(".png"), dpi=260, bbox_inches="tight")
     fig.savefig(output_prefix.with_suffix(".pdf"), bbox_inches="tight")

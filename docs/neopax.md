@@ -87,6 +87,18 @@ scan = build_ntx_neopax_scan(
 arrays = scan_to_neopax_arrays(scan, a_b=1.0)
 ```
 
+By default, the conversion keeps the raw `D33` database convention used by the
+integrated workflow:
+
+```python
+arrays = scan_to_neopax_arrays(scan, a_b=1.0, d33_mode="raw")
+```
+
+The `d33_mode="spitzer"` and `d33_mode="conductivity_difference"` branches are
+explicit audit choices. They are useful for fixed-field closure stress tests,
+but they are not the public default because they do not satisfy the integrated
+W7-X transfer gate.
+
 ## Explicit-Surface Workflow
 
 If the surfaces are already in memory, avoid the callback boundary:

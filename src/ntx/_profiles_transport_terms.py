@@ -7,10 +7,12 @@ from dataclasses import replace
 import jax.numpy as jnp
 from jax import Array
 
-from ._profiles_radial import _broadcast_profile_field
-from ._profiles_types import (
+from ._profiles_ambipolar_types import (
     AmbipolarProfileResult,
-    PrimitiveSpeciesProfile,
+)
+from ._profiles_radial import _broadcast_profile_field
+from ._profiles_species_types import PrimitiveSpeciesProfile
+from ._profiles_transport_types import (
     ProfileTransportClosureSpec,
 )
 
