@@ -39,19 +39,20 @@ Current machine-checked acceptance gates are:
 | W7-X integrated transfer | imported workflow transfer on the rebuilt raw branch | `docs/_static/bootstrap_current_reference_audit_w7x.json` |
 | Prepared derivative path | implicit-adjoint derivative agreement gate and timing evidence | `docs/_static/derivative_path_benchmark.json` |
 | Geometry/boundary derivative agreement | finite-difference agreement on analytic, file-backed, boundary-projected, and explicit-relaxed derivative artifacts | `docs/_static/*derivative_benchmark.json` |
+| Fixed-field `NTX+NEOPAX` closure stress | precise-QS total-current stress gate below `1e-1`, scoped away from species-current parity | `docs/_static/bootstrap_current_fixed_field_validation.json` |
 
 Current software gates are:
 
 | Gate | Scope | Primary artifact |
 | --- | --- | --- |
-| CPU/GPU throughput characterization | serial, multiprocess, CPU, and GPU scan scaling on committed smoke and heavier grids | `docs/_static/performance_scaling_heavy.png` |
+| CPU/GPU throughput and strong-scaling characterization | serial, device-parallel, multiprocess, CPU, and GPU scan scaling on committed smoke, heavier, production, and fixed-workload strong-scaling grids | `docs/_static/performance_strong_scaling_production.png` |
 | Prepared-geometry reuse profile | direct repeated solves, prepared geometry reuse, and compiled prepared steady-state reuse on one fixed geometry | `docs/_static/prepared_geometry_reuse_profile.json` |
 
 Current stress gates are:
 
 | Gate | Why It Stays Open |
 | --- | --- |
-| Fixed-field `NTX+NEOPAX` closure stress | the mismatch is a reduced-closure issue, not a solved parity claim |
+| Fixed-field species-current closure parity | the total current passes the scoped stress gate, but species-resolved current decomposition and broader closure defaults remain reduced-closure issues |
 | Synthetic inverse-design recovery | useful differentiable workflow check, but too small to be a research-grade geometry claim |
 | Three-harmonic geometry-control derivatives | direct AD/finite-difference audit is now machine checked on an owned surface; reusable geometry families remain open |
 | File-backed geometry-control derivatives | sample Boozer and VMEC files now pass machine-checked AD/finite-difference thresholds, but reusable geometry-family controls remain open |
@@ -60,7 +61,7 @@ Current stress gates are:
 | Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the machine-checked self-consistent forward-mode audit, but additional families plus reverse-mode equilibrium sensitivities remain open |
 | Artifact-backed geometry-family breadth summary | analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-volume derivative artifacts are summarized in one figure, while retired implicit Boozer/transport diagnostics are excluded from promoted geometry-family claims |
 | VMEC geometry-family transport convergence | public VMEC example families now have a committed `D11/D31/D33` convergence stress artifact; independent-code parity and paper-resolution promotion remain separate gates |
-| Profile uncertainty propagation | validates the current workflow mechanics, but needs broader profile bases |
+| Profile uncertainty propagation | three-term radial-basis covariance propagation and Fisher/HVP consistency are machine checked; cross-geometry profile families remain open |
 | Bootstrap-current optimization | machine-checked weighted-current improvement on the committed W7-X study, but not yet broad enough for a stellarator-design claim |
 | Robust bootstrap-current optimization | useful robust-design stress test, but not yet broad enough for a promoted physics claim |
 | Primitive-profile force reconstruction | literature-profile audit, currently monitored rather than promoted |
@@ -74,5 +75,4 @@ Planned lanes that must stay visible are:
 | Hidden-symmetry and omnigenous families | owned input families and convergence gates before adding research-grade figures |
 | QI and piecewise-omnigenous low-bootstrap families | owned input families; `D11`, `D31`, `D33`, bootstrap-current proxy, and radial-profile convergence; comparison to published qualitative ordering before any design claim |
 | Implicit-equilibrium sensitivity transfer | restore only after the backend residual solve contracts and Boozer/NTX transport observables match centered finite differences |
-| Performance and memory crossover maps | compile/steady-state split, resident memory, device memory, and CPU/GPU/multiprocess crossover on production grids |
-| PyPI release readiness | standard-index dependency surface, wheel/sdist smoke tests, Trusted Publishing configuration, and release artifact provenance |
+| Performance and memory crossover maps | repeat the production grid on additional GPU nodes and add device-memory timelines for larger VMEC-family workloads |

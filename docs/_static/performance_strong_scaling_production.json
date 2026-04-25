@@ -1,0 +1,40 @@
+{
+  "artifact": "strong_scaling_summary",
+  "claim_scope": "Summarizes fixed-workload strong scaling for serial, single-process device-parallel, and multiprocess NTX scans.",
+  "cpu": {
+    "backend": "cpu",
+    "best_device_parallel_speedup_vs_serial": 1.7357897253735677,
+    "best_multiprocess_speedup_vs_serial": 0.9312913072384599,
+    "grid": {
+      "n_theta": 17,
+      "n_xi": 16,
+      "n_zeta": 25
+    },
+    "healthy_parallel_device_count": 4,
+    "local_device_count": 4,
+    "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+    "max_abs_delta_serial_vs_multiprocess_d11": 0.0,
+    "max_rss_mb": 2834.84375,
+    "num_cases": 128,
+    "serial_seconds": 4.5154306670010556,
+    "surface": "dkes"
+  },
+  "gpu": {
+    "backend": "gpu",
+    "best_device_parallel_speedup_vs_serial": 0.9198222042510561,
+    "best_multiprocess_speedup_vs_serial": 0.5637919238488435,
+    "grid": {
+      "n_theta": 17,
+      "n_xi": 16,
+      "n_zeta": 25
+    },
+    "healthy_parallel_device_count": 1,
+    "local_device_count": 2,
+    "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+    "max_abs_delta_serial_vs_multiprocess_d11": 2.3378703417620272e-08,
+    "max_rss_mb": 1370.73046875,
+    "num_cases": 128,
+    "serial_seconds": 4.482162817148492,
+    "surface": "dkes"
+  }
+}

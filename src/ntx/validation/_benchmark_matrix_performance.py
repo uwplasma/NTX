@@ -12,13 +12,20 @@ def performance_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             title="CPU/GPU throughput characterization",
             claim_scope=(
                 "Serial, multiprocess, CPU, and GPU execution modes are "
-                "characterized on committed smoke and heavier-grid cases."
+                "characterized on committed smoke, heavier-grid, and "
+                "production-grid cases, with a separate fixed-workload "
+                "strong-scaling artifact."
             ),
             literature_anchors=(
                 "JAX performance practice for compiled scientific workloads",
                 "multi-process scan execution for independent monoenergetic cases",
             ),
-            scripts=("examples/performance_scaling.py", "scripts/benchmark_scaling.py"),
+            scripts=(
+                "examples/performance_scaling.py",
+                "examples/performance_strong_scaling.py",
+                "scripts/benchmark_scaling.py",
+                "scripts/benchmark_strong_scaling.py",
+            ),
             tests=(
                 "tests/test_performance_scaling_example.py",
                 "tests/test_benchmark_scaling_script.py",
@@ -26,18 +33,33 @@ def performance_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             artifacts=(
                 "docs/_static/performance_scaling_smoke.png",
                 "docs/_static/performance_scaling_smoke.pdf",
+                "docs/_static/performance_scaling_smoke.json",
                 "docs/_static/performance_scaling_cpu_smoke.json",
                 "docs/_static/performance_scaling_gpu_smoke.json",
                 "docs/_static/performance_scaling_heavy.png",
                 "docs/_static/performance_scaling_heavy.pdf",
+                "docs/_static/performance_scaling_heavy.json",
                 "docs/_static/performance_scaling_cpu_heavy.json",
                 "docs/_static/performance_scaling_gpu_heavy.json",
+                "docs/_static/performance_scaling_production.png",
+                "docs/_static/performance_scaling_production.pdf",
+                "docs/_static/performance_scaling_production.json",
+                "docs/_static/performance_scaling_cpu_production.json",
+                "docs/_static/performance_scaling_gpu_production.json",
+                "docs/_static/performance_strong_scaling_production.png",
+                "docs/_static/performance_strong_scaling_production.pdf",
+                "docs/_static/performance_strong_scaling_production.json",
+                "docs/_static/performance_strong_scaling_cpu_production.json",
+                "docs/_static/performance_strong_scaling_gpu_production.json",
             ),
-            manuscript_figures=("performance_scaling_heavy",),
+            manuscript_figures=(
+                "performance_scaling_production",
+                "performance_strong_scaling_production",
+            ),
             docs=("docs/performance.md", "docs/gpu.md"),
             open_work=(
-                "map production-grid crossover points more systematically",
-                "repeat the same matrix on dedicated production GPU nodes",
+                "repeat the production and strong-scaling matrices on additional GPU nodes",
+                "add device-memory timelines for larger VMEC-family workloads",
             ),
         ),
         BenchmarkEntry(

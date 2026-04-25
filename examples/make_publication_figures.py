@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -39,6 +40,8 @@ FIGURE_PRESETS = {
         "w7x_audit",
         "performance_smoke",
         "performance_heavy",
+        "performance_production",
+        "performance_strong",
         "prepared_geometry_reuse",
     },
     "main_text": {
@@ -47,7 +50,7 @@ FIGURE_PRESETS = {
         "w7x_audit",
         "derivative_benchmark",
         "science",
-        "performance_heavy",
+        "performance_production",
         "primitive_transport",
     },
     "supplement": {
@@ -70,13 +73,17 @@ FIGURE_PRESETS = {
         "bootstrap_proxy",
         "robust_science",
         "performance_smoke",
+        "performance_heavy",
+        "performance_strong",
         "prepared_geometry_reuse",
     },
 }
 
 
 def _run(command: list[str]) -> None:
-    subprocess.run(command, check=True, cwd=ROOT)
+    env = os.environ.copy()
+    env.setdefault("JAX_ENABLE_X64", "1")
+    subprocess.run(command, check=True, cwd=ROOT, env=env)
 
 
 def _manifest_path(path: Path) -> str:
@@ -216,13 +223,14 @@ def main() -> None:
                 str(ROOT / "examples" / "profile_basis_optimization.py"),
             ]
         )
-        for suffix in (".png", ".pdf"):
+        for suffix in (".png", ".pdf", ".json"):
             source = ROOT / "docs" / "_static" / f"profile_basis_optimization{suffix}"
             target = output_dir / source.name
             target.write_bytes(source.read_bytes())
         manifest["profile_basis"] = [
             _manifest_path(output_dir / "profile_basis_optimization.png"),
             _manifest_path(output_dir / "profile_basis_optimization.pdf"),
+            _manifest_path(output_dir / "profile_basis_optimization.json"),
         ]
 
     if "profile_transport" in selected:
@@ -337,6 +345,8 @@ def main() -> None:
             [
                 sys.executable,
                 str(ROOT / "examples" / "geometry_family_transport_convergence.py"),
+                "--preset",
+                "paper",
                 "--output-prefix",
                 str(output_dir / "geometry_family_transport_convergence"),
             ]
@@ -448,6 +458,10 @@ def main() -> None:
     smoke_gpu = ROOT / "docs" / "_static" / "performance_scaling_gpu_smoke.json"
     heavy_cpu = ROOT / "docs" / "_static" / "performance_scaling_cpu_heavy.json"
     heavy_gpu = ROOT / "docs" / "_static" / "performance_scaling_gpu_heavy.json"
+    production_cpu = ROOT / "docs" / "_static" / "performance_scaling_cpu_production.json"
+    production_gpu = ROOT / "docs" / "_static" / "performance_scaling_gpu_production.json"
+    strong_cpu = ROOT / "docs" / "_static" / "performance_strong_scaling_cpu_production.json"
+    strong_gpu = ROOT / "docs" / "_static" / "performance_strong_scaling_gpu_production.json"
 
     if "performance_smoke" in selected:
         _run(
@@ -487,6 +501,48 @@ def main() -> None:
         manifest["performance_heavy"] = [
             _manifest_path(output_dir / "performance_scaling_heavy.png"),
             _manifest_path(output_dir / "performance_scaling_heavy.pdf"),
+        ]
+
+    if "performance_production" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "performance_scaling.py"),
+                "--cpu-json",
+                str(production_cpu),
+                "--gpu-json",
+                str(production_gpu),
+                "--figure-title",
+                "Production-grid serial vs parallel scaling",
+                "--output-prefix",
+                str(output_dir / "performance_scaling_production"),
+            ]
+        )
+        manifest["performance_production"] = [
+            _manifest_path(output_dir / "performance_scaling_production.png"),
+            _manifest_path(output_dir / "performance_scaling_production.pdf"),
+            _manifest_path(output_dir / "performance_scaling_production.json"),
+        ]
+
+    if "performance_strong" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "performance_strong_scaling.py"),
+                "--cpu-json",
+                str(strong_cpu),
+                "--gpu-json",
+                str(strong_gpu),
+                "--figure-title",
+                "Production fixed-workload strong scaling",
+                "--output-prefix",
+                str(output_dir / "performance_strong_scaling_production"),
+            ]
+        )
+        manifest["performance_strong"] = [
+            _manifest_path(output_dir / "performance_strong_scaling_production.png"),
+            _manifest_path(output_dir / "performance_strong_scaling_production.pdf"),
+            _manifest_path(output_dir / "performance_strong_scaling_production.json"),
         ]
 
     if "prepared_geometry_reuse" in selected:

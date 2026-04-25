@@ -406,6 +406,29 @@ def test_scan_to_neopax_arrays_matches_expected_scalings():
     assert jnp.allclose(mapped.nu_log, jnp.log10(nu_v))
     assert jnp.allclose(mapped.D11_log, jnp.log10(scan.D11 * drds[:, None, None] ** 2))
     assert jnp.allclose(mapped.D13, scan.D13 * drds[:, None, None])
+    assert jnp.allclose(mapped.D33, scan.D33 * nu_v[None, :, None])
+
+
+def test_scan_to_neopax_arrays_supports_spitzer_d33_mode():
+    surfaces = (example_surface(), example_surface())
+    rho = jnp.asarray([0.25, 0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    er = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    drds = jnp.asarray([1.0, 1.5])
+    grid = GridSpec(5, 5, 4)
+
+    scan = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Es=es,
+        Er=er,
+        drds=drds,
+        grid=grid,
+    )
+    mapped = scan_to_neopax_arrays(scan, a_b=1.0, d33_mode="spitzer")
+
     assert scan.D33_spitzer is not None
     assert jnp.allclose(mapped.D33, scan.D33_spitzer * nu_v[None, :, None])
 

@@ -1,11 +1,13 @@
 """Dense JAX block-tridiagonal monoenergetic DKE solver."""
 
+from ._solver_context import _operator_context
 from ._solver_core import (
-    _operator_context,
-    compile_prepared_solver,
     prepare_monoenergetic_system,
     solve_monoenergetic,
     solve_monoenergetic_internal,
+)
+from ._solver_prepared import (
+    compile_prepared_solver,
     solve_prepared,
     solve_prepared_coefficient_vector,
     solve_prepared_coefficient_vector_vjp,

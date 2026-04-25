@@ -69,9 +69,12 @@ def build_payload() -> dict:
     geometry_family_transport = _load_json(
         STATIC / "geometry_family_transport_convergence.json"
     )
+    profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
     gpu = _load_json(STATIC / "performance_scaling_gpu_heavy.json")
+    production_performance = _load_json(STATIC / "performance_scaling_production.json")
+    strong_performance = _load_json(STATIC / "performance_strong_scaling_production.json")
     prepared_geometry_reuse = _load_json(
         STATIC / "prepared_geometry_reuse_profile.json"
     )
@@ -82,7 +85,7 @@ def build_payload() -> dict:
         "w7x_audit",
         "derivative_benchmark",
         "science",
-        "performance_heavy",
+        "performance_production",
         "primitive_transport",
     ]
     supplement = [
@@ -105,6 +108,8 @@ def build_payload() -> dict:
         "bootstrap_proxy",
         "robust_science",
         "performance_smoke",
+        "performance_heavy",
+        "performance_strong",
         "prepared_geometry_reuse",
     ]
     monoenergetic_metrics = monoenergetic["summary_metrics"]
@@ -158,6 +163,8 @@ def build_payload() -> dict:
                 "ntx_neopax_max_interior_relative_error": fixed_field_ntx_neopax_error,
                 "sfincs_jax_sample_count": fixed_field["sfincs_jax_sample_count"],
                 "ntx_neopax_radial_points": fixed_field["ntx_neopax_radial_points"],
+                "ntx_neopax_n_order": fixed_field.get("ntx_neopax_n_order"),
+                "ntx_neopax_d33_mode": fixed_field.get("ntx_neopax_d33_mode"),
             },
             "validation": {
                 "bootstrap_current_reference_scale": w7x["bootstrap_current_reference_scale"],
@@ -221,9 +228,26 @@ def build_payload() -> dict:
                 "inputs": geometry_family_transport["inputs"],
                 "open_work": geometry_family_transport["open_work"],
             },
+            "profile_uncertainty": {
+                "basis_size": profile_uncertainty["basis_size"],
+                "sample_count": profile_uncertainty["sample_count"],
+                "parameter_std": profile_uncertainty["parameter_std"],
+                "max_std_relative_mismatch": profile_uncertainty[
+                    "max_std_relative_mismatch"
+                ],
+                "max_mean_relative_shift": profile_uncertainty[
+                    "max_mean_relative_shift"
+                ],
+                "fisher_eigenvalues": profile_uncertainty["fisher_eigenvalues"],
+                "hessian_probe_relative_error": profile_uncertainty[
+                    "hessian_probe_relative_error"
+                ],
+            },
             "performance": {
                 "cpu_heavy": cpu,
                 "gpu_heavy": gpu,
+                "production": production_performance,
+                "strong_scaling": strong_performance,
                 "prepared_geometry_reuse": prepared_geometry_reuse,
             },
             "science": {
@@ -254,6 +278,8 @@ def build_payload() -> dict:
             "precise_qs_ntx_neopax_max_interior_relative_error": (
                 fixed_field_ntx_neopax_error
             ),
+            "precise_qs_ntx_neopax_n_order": fixed_field.get("ntx_neopax_n_order"),
+            "precise_qs_ntx_neopax_d33_mode": fixed_field.get("ntx_neopax_d33_mode"),
             "w7x_fine_grid_max_relative_error": fine_w7x_error,
             "derivative_max_relative_mismatch": max(derivative["max_relative_mismatch"]),
             "best_prepared_derivative_speedup": max(derivative["speedup_prepared_vs_direct"]),
@@ -334,10 +360,60 @@ def build_payload() -> dict:
                     "max_successful_last_step_relative_change"
                 ]
             ),
+            "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
+            "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
+            "profile_uncertainty_max_std_relative_mismatch": (
+                profile_uncertainty["max_std_relative_mismatch"]
+            ),
+            "profile_uncertainty_max_mean_relative_shift": (
+                profile_uncertainty["max_mean_relative_shift"]
+            ),
+            "profile_uncertainty_min_fisher_eigenvalue": min(
+                profile_uncertainty["fisher_eigenvalues"]
+            ),
+            "profile_uncertainty_max_fisher_eigenvalue": max(
+                profile_uncertainty["fisher_eigenvalues"]
+            ),
+            "profile_uncertainty_hessian_probe_relative_error": (
+                profile_uncertainty["hessian_probe_relative_error"]
+            ),
             "bootstrap_current_weighted_gain": science["weighted_gain"],
             "cpu_heavy_best_multiprocess_speedup": cpu_best,
             "gpu_heavy_best_multiprocess_speedup": gpu_best,
             "gpu_heavy_healthy_device_count": gpu["healthy_parallel_device_count"],
+            "cpu_production_best_device_parallel_speedup": (
+                production_performance["cpu"]["best_device_parallel_speedup_vs_serial"]
+            ),
+            "cpu_production_device_parallel_crossover_cases": (
+                production_performance["cpu"]["device_parallel_crossover_cases"]
+            ),
+            "cpu_production_best_multiprocess_speedup": (
+                production_performance["cpu"]["best_multiprocess_speedup_vs_serial"]
+            ),
+            "gpu_production_best_device_parallel_speedup": (
+                production_performance["gpu"]["best_device_parallel_speedup_vs_serial"]
+            ),
+            "gpu_production_best_multiprocess_speedup": (
+                production_performance["gpu"]["best_multiprocess_speedup_vs_serial"]
+            ),
+            "gpu_production_healthy_device_count": (
+                production_performance["gpu"]["healthy_parallel_device_count"]
+            ),
+            "cpu_strong_best_device_parallel_speedup": (
+                strong_performance["cpu"]["best_device_parallel_speedup_vs_serial"]
+            ),
+            "cpu_strong_best_multiprocess_speedup": (
+                strong_performance["cpu"]["best_multiprocess_speedup_vs_serial"]
+            ),
+            "gpu_strong_best_device_parallel_speedup": (
+                strong_performance["gpu"]["best_device_parallel_speedup_vs_serial"]
+            ),
+            "gpu_strong_best_multiprocess_speedup": (
+                strong_performance["gpu"]["best_multiprocess_speedup_vs_serial"]
+            ),
+            "gpu_strong_healthy_device_count": (
+                strong_performance["gpu"]["healthy_parallel_device_count"]
+            ),
             "prepared_geometry_reuse_best_compiled_steady_speedup": (
                 prepared_geometry_reuse["summary_metrics"][
                     "best_compiled_steady_speedup_vs_direct"
@@ -401,6 +477,7 @@ def build_markdown(payload: dict) -> str:
     ]
     geometry_family_breadth = payload["tables"]["geometry_family_breadth"]
     geometry_family_transport = payload["tables"]["geometry_family_transport"]
+    profile_uncertainty = payload["tables"]["profile_uncertainty"]
     file_backed_max_mismatch = file_backed_geometry_derivatives["summary_metrics"][
         "max_relative_mismatch"
     ]
@@ -732,6 +809,30 @@ def build_markdown(payload: dict) -> str:
                 + "` |"
             ),
             "",
+            "## Profile Uncertainty",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            f"| Radial electric-field basis size | `{profile_uncertainty['basis_size']}` |",
+            f"| Monte Carlo samples | `{profile_uncertainty['sample_count']}` |",
+            (
+                "| Max linearized/Monte-Carlo std mismatch | "
+                f"`{profile_uncertainty['max_std_relative_mismatch']:.3e}` |"
+            ),
+            (
+                "| Max Monte-Carlo mean shift | "
+                f"`{profile_uncertainty['max_mean_relative_shift']:.3e}` |"
+            ),
+            (
+                "| Fisher eigenvalue range | "
+                f"`{min(profile_uncertainty['fisher_eigenvalues']):.3e}` to "
+                f"`{max(profile_uncertainty['fisher_eigenvalues']):.3e}` |"
+            ),
+            (
+                "| Hessian-vector/Fisher probe mismatch | "
+                f"`{profile_uncertainty['hessian_probe_relative_error']:.3e}` |"
+            ),
+            "",
             "## Bootstrap-Current Optimization",
             "",
             "| Quantity | Value |",
@@ -853,10 +954,12 @@ def build_claims_markdown(payload: dict) -> str:
                 "- The fixed-field precise-QS benchmark keeps the Redl/SFINCS "
                 "interior maximum relative error at "
                 f"`{claims['precise_qs_redl_max_interior_relative_error']:.3e}`; "
-                "the corresponding `NTX+NEOPAX` current comparison remains a "
-                "closure stress metric at "
+                "the corresponding `NTX+NEOPAX` total-current closure stress "
+                "comparison uses "
+                f"`d33_mode={claims['precise_qs_ntx_neopax_d33_mode']}` and "
+                f"`n_order={claims['precise_qs_ntx_neopax_n_order']}`, reaching "
                 f"`{claims['precise_qs_ntx_neopax_max_interior_relative_error']:.3e}`, "
-                "not a release parity claim."
+                "while species-current parity remains out of scope."
             ),
             (
                 "- W7-X imported-workflow bootstrap-current convergence reaches "
@@ -952,6 +1055,19 @@ def build_claims_markdown(payload: dict) -> str:
                 "independent-code parity claim."
             ),
             (
+                "- The profile uncertainty stress benchmark now uses a "
+                f"`{claims['profile_uncertainty_basis_size']}`-term radial "
+                "electric-field basis and "
+                f"`{claims['profile_uncertainty_sample_count']}` Monte Carlo "
+                "samples; the local combined-residual Hessian-vector probe "
+                "matches the Fisher/Gauss-Newton product to relative error "
+                f"`{claims['profile_uncertainty_hessian_probe_relative_error']:.3e}`. "
+                "The current D33-only propagated-standard-deviation comparison "
+                "is retained as a stress metric at "
+                f"`{claims['profile_uncertainty_max_std_relative_mismatch']:.3e}` "
+                "rather than a promoted profile-UQ claim."
+            ),
+            (
                 "- The differentiable bootstrap-current optimization example "
                 "improves the weighted current proxy by "
                 f"`{claims['bootstrap_current_weighted_gain']:.3f}x` on the "
@@ -970,6 +1086,40 @@ def build_claims_markdown(payload: dict) -> str:
                 "GPU device(s), so the current paper should frame GPU "
                 "multiprocess as a characterized execution mode rather than a "
                 "throughput win."
+            ),
+            (
+                "- The production-grid CPU performance map shows the "
+                "single-process device-parallel lane crossing serial at "
+                f"`{claims['cpu_production_device_parallel_crossover_cases']}` "
+                "cases and reaching a best observed speedup of "
+                f"`{claims['cpu_production_best_device_parallel_speedup']:.3f}x`; "
+                "the same production-grid multiprocess lane remains below "
+                f"`{claims['cpu_production_best_multiprocess_speedup']:.3f}x`."
+            ),
+            (
+                "- The production-grid GPU map uses "
+                f"`{claims['gpu_production_healthy_device_count']}` healthy "
+                "parallel GPU device(s) on the tested two-GPU workstation; "
+                "device-parallel timing is characterized, but multiprocess "
+                "throughput remains below serial at "
+                f"`{claims['gpu_production_best_multiprocess_speedup']:.3f}x`."
+            ),
+            (
+                "- The fixed-workload CPU strong-scaling map reaches best "
+                "observed device-parallel and multiprocess speedups of "
+                f"`{claims['cpu_strong_best_device_parallel_speedup']:.3f}x` "
+                "and "
+                f"`{claims['cpu_strong_best_multiprocess_speedup']:.3f}x`, "
+                "respectively."
+            ),
+            (
+                "- The fixed-workload GPU strong-scaling map reports "
+                f"`{claims['gpu_strong_healthy_device_count']}` healthy "
+                "parallel GPU device(s), with best observed device-parallel "
+                "and multiprocess speedups of "
+                f"`{claims['gpu_strong_best_device_parallel_speedup']:.3f}x` "
+                "and "
+                f"`{claims['gpu_strong_best_multiprocess_speedup']:.3f}x`."
             ),
             (
                 "- On the prepared-geometry reuse profile, the compiled steady "

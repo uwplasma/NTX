@@ -265,11 +265,12 @@ def _w7x_samples() -> list[Sample]:
     solution_vectors = []
     for radial_index in range(n_radial):
         cm_ab, cn_ab, tau = jax.vmap(
-            jax.vmap(get_Collision_Operator_terms, in_axes=(None, None, 0, None)),
-            in_axes=(None, 0, None, None),
-        )(species, species.species_indeces, species.species_indeces, radial_index)
-        rhs = jax.vmap(get_rhs, in_axes=(None, 0, None, 0))(
+            jax.vmap(get_Collision_Operator_terms, in_axes=(None, None, None, 0, None)),
+            in_axes=(None, None, 0, None, None),
+        )(species, grid, species.species_indeces, species.species_indeces, radial_index)
+        rhs = jax.vmap(get_rhs, in_axes=(None, None, 0, None, 0))(
             species,
+            grid,
             species.species_indeces,
             radial_index,
             lij_full[:, radial_index, :, :],

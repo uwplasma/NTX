@@ -6,6 +6,10 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
+from ._profiles_ambipolar_types import (
+    AmbipolarProfileFamilyResult,
+    AmbipolarProfileResult,
+)
 from ._profiles_channels import (
     _channel_data,
     ambipolar_residual_profile,
@@ -22,9 +26,7 @@ from ._profiles_radial import (
     _single_radius_profile,
     _smooth_radial_profile,
 )
-from ._profiles_types import (
-    AmbipolarProfileFamilyResult,
-    AmbipolarProfileResult,
+from ._profiles_species_types import (
     MonoenergeticSpeciesProfile,
 )
 from .neopax import NeopaxScan
@@ -210,4 +212,3 @@ def bootstrap_current_objective(
     else:
         weight_arr = _broadcast_profile_field(weight, rho_arr)
     return jnp.trapezoid(weight_arr * profile**2, rho_arr)
-

@@ -54,3 +54,80 @@ def test_performance_scaling_example_writes_outputs(tmp_path):
 
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()
+    summary = json.loads(output_prefix.with_suffix(".json").read_text(encoding="utf-8"))
+    assert summary["artifact"] == "performance_scaling_summary"
+    assert summary["cpu"]["multiprocess_crossover_cases"] == 64
+    assert summary["gpu"]["device_parallel_crossover_cases"] == 64
+
+
+def test_performance_strong_scaling_example_writes_outputs(tmp_path):
+    cpu_json = tmp_path / "cpu_strong.json"
+    gpu_json = tmp_path / "gpu_strong.json"
+    output_prefix = tmp_path / "performance_strong_scaling"
+
+    payload = {
+        "artifact": "strong_scaling_benchmark",
+        "backend": "cpu",
+        "surface": "dkes",
+        "grid": {"n_theta": 9, "n_zeta": 11, "n_xi": 6},
+        "num_cases": 16,
+        "local_device_count": 2,
+        "healthy_parallel_device_count": 2,
+        "max_rss_mb": 123.0,
+        "serial": {"seconds": 4.0, "cases_per_second": 4.0},
+        "device_parallel": [
+            {
+                "requested_device_count": 1,
+                "effective_device_count": 1,
+                "seconds": 4.0,
+                "speedup_vs_serial": 1.0,
+                "max_abs_delta_serial_d11": 0.0,
+            },
+            {
+                "requested_device_count": 2,
+                "effective_device_count": 2,
+                "seconds": 2.5,
+                "speedup_vs_serial": 1.6,
+                "max_abs_delta_serial_d11": 0.0,
+            },
+        ],
+        "multiprocess": [
+            {
+                "workers": 1,
+                "seconds": 5.0,
+                "speedup_vs_serial": 0.8,
+                "max_abs_delta_serial_d11": 0.0,
+            },
+            {
+                "workers": 2,
+                "seconds": 3.0,
+                "speedup_vs_serial": 1.3333333333,
+                "max_abs_delta_serial_d11": 0.0,
+            },
+        ],
+    }
+    cpu_json.write_text(json.dumps(payload), encoding="utf-8")
+    gpu_json.write_text(json.dumps({**payload, "backend": "gpu"}), encoding="utf-8")
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "examples" / "performance_strong_scaling.py"),
+            "--cpu-json",
+            str(cpu_json),
+            "--gpu-json",
+            str(gpu_json),
+            "--output-prefix",
+            str(output_prefix),
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+
+    assert output_prefix.with_suffix(".png").exists()
+    assert output_prefix.with_suffix(".pdf").exists()
+    summary = json.loads(output_prefix.with_suffix(".json").read_text(encoding="utf-8"))
+    assert summary["artifact"] == "strong_scaling_summary"
+    assert summary["cpu"]["best_device_parallel_speedup_vs_serial"] == 1.6
+    assert summary["gpu"]["best_multiprocess_speedup_vs_serial"] == 1.3333333333

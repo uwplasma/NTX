@@ -29,6 +29,34 @@ def profile_workflow_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             docs=("docs/profiles.md",),
             open_work=("tighten profile-level physical diagnostics for long-radius studies",),
         ),
+        BenchmarkEntry(
+            id="profile_basis_optimization",
+            lane="profile-workflow",
+            maturity="stress-gate",
+            title="Radial-basis profile-control optimization",
+            claim_scope=(
+                "A three-function radial basis control is optimized through the "
+                "profile closure, with objective, residual, and control metrics "
+                "stored as a monitored workflow artifact."
+            ),
+            literature_anchors=(
+                "profile-level neoclassical transport sensitivity workflows",
+                "differentiable programming verification by controlled objectives",
+            ),
+            scripts=("examples/profile_basis_optimization.py",),
+            tests=("tests/test_profile_basis_optimization_example.py",),
+            artifacts=(
+                "docs/_static/profile_basis_optimization.png",
+                "docs/_static/profile_basis_optimization.pdf",
+                "docs/_static/profile_basis_optimization.json",
+            ),
+            manuscript_figures=("profile_basis_optimization",),
+            docs=("docs/profiles.md", "docs/manuscript.md"),
+            open_work=(
+                "broaden the radial basis to reusable physics-motivated profile families",
+                "promote only after cross-geometry profile/current validation",
+            ),
+        ),
     )
 
 

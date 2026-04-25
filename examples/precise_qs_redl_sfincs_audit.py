@@ -244,7 +244,7 @@ def _case_summary(case: PreciseQSCase) -> dict[str, Any]:
 
 
 def _plot(summary: dict[str, Any]) -> None:
-    fig, axes = plt.subplots(2, 2, figsize=(11.4, 8.2), sharex="col", constrained_layout=True)
+    fig, axes = plt.subplots(1, 2, figsize=(11.2, 4.7), sharey=True, constrained_layout=True)
     for col, key in enumerate(("qa", "qh")):
         payload = summary[key]
         s = np.asarray(payload["surfaces"], dtype=float)
@@ -252,43 +252,21 @@ def _plot(summary: dict[str, Any]) -> None:
         vmec = np.asarray(payload["redl_vmec_jdotb"], dtype=float) / 1.0e6
         booz = np.asarray(payload["redl_boozer_jdotb"], dtype=float) / 1.0e6
 
-        ax = axes[0, col]
+        ax = axes[col]
         ax.plot(s, sfincs, color="black", lw=2.0, label="SFINCS")
         ax.plot(s, vmec, color="#1f77b4", lw=1.8, label="Redl (VMEC)")
         ax.plot(s, booz, color="#d95f02", lw=1.8, ls="--", label="Redl (Boozer)")
         ax.set_title(payload["case"]["label"])
-        ax.set_ylabel(r"$\langle J \cdot B \rangle$ [MA T m$^{-2}$]")
+        if col == 0:
+            ax.set_ylabel(r"$\langle J \cdot B \rangle$ [MA T m$^{-2}$]")
+        ax.set_xlabel("Normalized toroidal flux $s$")
         ax.grid(alpha=0.25)
         if col == 0:
             ax.legend(frameon=False, fontsize=9)
 
-        err_ax = axes[1, col]
-        err_ax.plot(
-            s,
-            100.0 * np.abs(vmec - sfincs) / np.maximum(np.abs(sfincs), 1.0e-12),
-            color="#1f77b4",
-            lw=1.8,
-            label="VMEC path",
-        )
-        err_ax.plot(
-            s,
-            100.0 * np.abs(booz - sfincs) / np.maximum(np.abs(sfincs), 1.0e-12),
-            color="#d95f02",
-            lw=1.8,
-            ls="--",
-            label="Boozer path",
-        )
-        err_ax.axhline(10.0, color="0.45", ls=":", lw=1.2)
-        err_ax.set_ylabel("Absolute relative error [%]")
-        err_ax.set_xlabel("Normalized toroidal flux $s$")
-        err_ax.set_ylim(bottom=0.0)
-        err_ax.grid(alpha=0.25)
-        if col == 0:
-            err_ax.legend(frameon=False, fontsize=9)
-
     fig.suptitle("Precise-QS Redl benchmark against archived SFINCS profiles", fontsize=14)
-    fig.savefig(OUTPUT_PREFIX.with_suffix(".png"), dpi=250)
-    fig.savefig(OUTPUT_PREFIX.with_suffix(".pdf"))
+    fig.savefig(OUTPUT_PREFIX.with_suffix(".png"), dpi=250, bbox_inches="tight")
+    fig.savefig(OUTPUT_PREFIX.with_suffix(".pdf"), bbox_inches="tight")
     plt.close(fig)
 
 

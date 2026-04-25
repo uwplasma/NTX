@@ -8,6 +8,7 @@ JSON summary written next to ``OUTPUT_PREFIX``.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -60,6 +61,7 @@ GRID = GridSpec(n_theta=17, n_zeta=25, n_xi=32)
 NU_INDICES = np.array([0, 3, 7, 11], dtype=int)
 ER_INDICES = np.array([0, 3, 7, 11], dtype=int)
 USE_MOMENTUM_CORRECTION = False
+D33_MODE = os.environ.get("NTX_BOOTSTRAP_EXAMPLE_D33_MODE", "raw")
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "bootstrap_current_with_neopax"
 
 
@@ -158,7 +160,7 @@ def solve_profiles() -> dict[str, np.ndarray | float | bool]:
         source_name="w7x_bootstrap_current_example",
     )
     field, neopax_grid, species, ne, te = _build_species_and_field()
-    database = to_neopax_monoenergetic(scan, a_b=1.0)
+    database = to_neopax_monoenergetic(scan, a_b=1.0, d33_mode=D33_MODE)
     closure = _bootstrap_current_profile(database, neopax_grid, field, species)
 
     return {
@@ -246,6 +248,7 @@ def write_summary(data: dict[str, np.ndarray | float | bool]) -> None:
         "boozmn": BOOZMN_PATH.name,
         "reference_scan": REFERENCE_PATH.name,
         "use_momentum_correction": bool(data["use_momentum_correction"]),
+        "d33_mode": D33_MODE,
         "grid": {
             "n_theta": int(data["grid"][0]),
             "n_zeta": int(data["grid"][1]),

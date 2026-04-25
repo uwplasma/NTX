@@ -6,13 +6,12 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
+from ._solver_context import _operator_context
 from ._solver_factorization import (
     _factorize_prepared_modes,
     _solve_factorized_modes,
 )
 from ._solver_types import PreparedMonoenergeticSystem
-from .geometry import BoozerSurface, VmecSurface
-from .grids import GridSpec
 from .operators import OperatorContext, parameter_derivative_blocks, source_modes
 from .transport import coefficients_from_modes
 
@@ -89,18 +88,3 @@ def _parameter_gradient_from_adjoint(
             + jnp.vdot(lambda3[k], diagonal_epsi @ f3_full[k])
         )
     return nu_bar, epsi_bar
-
-
-def _operator_context(
-    surface: BoozerSurface | VmecSurface,
-    geom,
-    grid: GridSpec,
-    nu_hat,
-    epsi_hat,
-) -> OperatorContext:
-    return OperatorContext(
-        surface=surface,
-        geometry=geom,
-        nu_hat=jnp.asarray(nu_hat, dtype=grid.jax_dtype),
-        epsi_hat=jnp.asarray(epsi_hat, dtype=grid.jax_dtype),
-    )

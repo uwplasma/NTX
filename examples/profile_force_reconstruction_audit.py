@@ -52,6 +52,7 @@ class ArchivedProfiles:
     dT_hat_drhat: np.ndarray
     er: np.ndarray
     alpha: np.ndarray
+    a_hat: float
 
 
 def _configure_style() -> None:
@@ -157,7 +158,7 @@ def _archived_profiles(case: FixedFieldCase) -> ArchivedProfiles:
     psi_n = np.asarray(psi_n_values, dtype=float)
     order = np.argsort(psi_n)
     with Dataset(case.wout_path) as ds:
-        _ = float(np.asarray(ds.variables["Aminor_p"]).reshape(()))
+        a_hat = float(np.asarray(ds.variables["Aminor_p"]).reshape(()))
     return ArchivedProfiles(
         rho=np.sqrt(psi_n[order]),
         n_hat=np.asarray(n_hat_values, dtype=float)[order],
@@ -166,6 +167,7 @@ def _archived_profiles(case: FixedFieldCase) -> ArchivedProfiles:
         dT_hat_drhat=np.asarray(dt_hat_values, dtype=float)[order],
         er=np.asarray(er_values, dtype=float)[order],
         alpha=np.asarray(alpha_values, dtype=float)[order],
+        a_hat=a_hat,
     )
 
 
@@ -183,17 +185,19 @@ def _reference_force_profiles(
 def _resample_profiles(profiles: ArchivedProfiles, rho_eval: np.ndarray) -> ArchivedProfiles:
     rho_nodes = np.asarray(profiles.rho, dtype=float)
     rho_query = np.asarray(rho_eval, dtype=float)
+    rhat_nodes = rho_nodes * float(profiles.a_hat)
+    rhat_query = rho_query * float(profiles.a_hat)
 
     def hermite_pair(values: np.ndarray, derivatives: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         spline = CubicHermiteSpline(
-            rho_nodes,
+            rhat_nodes,
             np.asarray(values, dtype=float),
             np.asarray(derivatives, dtype=float),
             extrapolate=True,
         )
         return (
-            np.asarray(spline(rho_query), dtype=float),
-            np.asarray(spline.derivative()(rho_query), dtype=float),
+            np.asarray(spline(rhat_query), dtype=float),
+            np.asarray(spline.derivative()(rhat_query), dtype=float),
         )
 
     n_hat, dn_hat = hermite_pair(profiles.n_hat, profiles.dn_hat_drhat)
@@ -208,6 +212,7 @@ def _resample_profiles(profiles: ArchivedProfiles, rho_eval: np.ndarray) -> Arch
         dT_hat_drhat=dt_hat,
         er=er,
         alpha=alpha,
+        a_hat=float(profiles.a_hat),
     )
 
 
@@ -223,7 +228,7 @@ def _reconstructed_force_profiles(
         electrostatic_prefactor=profiles.alpha,
     )
     species = build_species_profile_from_primitives(
-        profiles.rho,
+        profiles.rho * profiles.a_hat,
         primitive,
         er_profile=profiles.er,
     )

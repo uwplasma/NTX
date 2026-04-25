@@ -121,6 +121,20 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="monoenergetic_small_grid_ladder",
+        category="analytical",
+        metric="D11/D31/D13/D33/D33_spitzer improve on a 3-grid owned-surface ladder",
+        relation="test",
+        threshold=None,
+        source="tests/test_solver.py",
+        rationale=(
+            "Before expensive geometry-family scans are promoted, a fast owned "
+            "surface should show that the solved monoenergetic coefficients move "
+            "toward the finest small-grid reference as angular and Legendre "
+            "resolution are increased."
+        ),
+    ),
+    PhysicsGate(
         name="operator_parameter_derivative_consistency",
         category="analytical",
         metric="dD_k/dnu_hat and dD_k/depsi_hat match operator autodiff",

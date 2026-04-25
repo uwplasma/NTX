@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,3 +23,7 @@ def test_profile_basis_optimization_example_writes_outputs(tmp_path):
 
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()
+    payload = json.loads(output_prefix.with_suffix(".json").read_text(encoding="utf-8"))
+    assert payload["artifact"] == "profile_basis_optimization"
+    assert payload["basis_count"] == 3
+    assert payload["residual_l2_ratio"] >= 0.0

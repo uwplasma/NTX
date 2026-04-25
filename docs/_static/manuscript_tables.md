@@ -22,8 +22,8 @@
 
 | Case | Redl/SFINCS interior error | NTX+NEOPAX/SFINCS interior stress |
 | --- | ---: | ---: |
-| `qa` | `6.857e-02` | `1.157e+00` |
-| `qh` | `4.063e-02` | `1.162e+00` |
+| `qa` | `6.857e-02` | `8.305e-02` |
+| `qh` | `4.063e-02` | `9.954e-02` |
 
 ## Benchmark Matrix
 
@@ -44,6 +44,7 @@
 | `bootstrap_current_optimization` | `autodiff` | `stress-gate` | `complete` |
 | `robust_bootstrap_current_optimization` | `autodiff` | `stress-gate` | `complete` |
 | `profile_force_reconstruction` | `profile-workflow` | `stress-gate` | `complete` |
+| `profile_basis_optimization` | `profile-workflow` | `stress-gate` | `complete` |
 | `performance_scaling` | `performance` | `software-gate` | `complete` |
 | `prepared_geometry_reuse_profile` | `performance` | `software-gate` | `complete` |
 | `geometry_family_breadth_summary` | `geometry-breadth` | `stress-gate` | `complete` |
@@ -60,7 +61,7 @@
 | `nu_hat` | `3.000e-04` |
 | `E_r` scan | `1.000e-06` to `3.000e-03` |
 | Max relative mismatch | `1.051e-05` |
-| Best prepared speedup | `4.033x` |
+| Best prepared speedup | `3.789x` |
 
 ## Geometry-Control Derivatives
 
@@ -129,11 +130,22 @@
 
 | Quantity | Value |
 | --- | ---: |
-| Solved VMEC cases | `11` |
+| Solved VMEC cases | `13` |
 | Below smoke convergence rtol | `5` |
 | Max last-step relative change | `1.952e+00` |
 | Max relative change to finest grid | `1.022e+01` |
-| Solved case ids | `circular_tokamak, shaped_tokamak, precise_qs_qa_reactor, precise_qs_qh_reactor, nfp3_qi, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, lhd, hsx_qhs, ncsx` |
+| Solved case ids | `circular_tokamak, shaped_tokamak, precise_qs_qa_reactor, precise_qs_qh_reactor, nfp3_qi, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, li383_low_res, n3are_lowres, lhd, hsx_qhs, ncsx` |
+
+## Profile Uncertainty
+
+| Quantity | Value |
+| --- | ---: |
+| Radial electric-field basis size | `3` |
+| Monte Carlo samples | `96` |
+| Max linearized/Monte-Carlo std mismatch | `1.000e+00` |
+| Max Monte-Carlo mean shift | `5.004e-16` |
+| Fisher eigenvalue range | `8.520e-21` to `2.043e-02` |
+| Hessian-vector/Fisher probe mismatch | `1.753e-16` |
 
 ## Bootstrap-Current Optimization
 
@@ -143,8 +155,8 @@
 | Baseline scale | `1.000` |
 | Optimized scale | `1.297` |
 | Weighted current gain | `1.085x` |
-| Serial scan time | `0.401 s` |
-| Parallel scan time | `1.706 s` |
+| Serial scan time | `0.423 s` |
+| Parallel scan time | `1.750 s` |
 
 ## Performance
 
@@ -168,15 +180,15 @@
 
 | Cases | Direct [s] | Prepared total [s] | Compiled steady [s] | Compiled speedup |
 | ---: | ---: | ---: | ---: | ---: |
-| 4 | 0.653 | 0.680 | 0.009 | 75.742x |
-| 16 | 3.001 | 2.774 | 0.020 | 150.369x |
-| 48 | 8.545 | 7.931 | 0.062 | 137.292x |
+| 4 | 0.626 | 0.644 | 0.005 | 137.996x |
+| 16 | 2.675 | 2.488 | 0.020 | 130.591x |
+| 48 | 7.762 | 7.519 | 0.059 | 130.789x |
 
 ## Reproducibility
 
 | Key | Value |
 | --- | --- |
-| Commit | `8fec8d1e5f0811530d8fd486909d9e9dd12dee21` |
+| Commit | `c98ec8c28bfdcccce56e629d478ea7c1457c5b41` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

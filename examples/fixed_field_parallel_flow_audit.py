@@ -143,16 +143,15 @@ class ArchivedProfiles:
 
     @property
     def density_rho_derivative_si(self) -> np.ndarray:
-        # The archived gradients are already provided with respect to rHat=r/a,
-        # and this spline is parameterized in rho=rHat, so only the density
-        # normalization belongs here.
-        return self.dn_hat_drhat * 1.0e20
+        # SFINCS stores d/d rHat, with rHat = aHat * rho for this archive.
+        # Cubic-Hermite interpolation below is parameterized in rho, so the
+        # supplied slope must be converted by drHat/drho = aHat.
+        return self.dn_hat_drhat * self.a_hat * 1.0e20
 
     @property
     def temperature_rho_derivative_ev(self) -> np.ndarray:
-        # Same logic as density_rho_derivative_si(): keep the derivative in the
-        # spline coordinate rho rather than introducing an extra factor of aHat.
-        return self.dT_hat_drhat * 1.0e3
+        # Same coordinate conversion as density_rho_derivative_si().
+        return self.dT_hat_drhat * self.a_hat * 1.0e3
 
     @property
     def electric_field_kv_per_m(self) -> np.ndarray:
@@ -184,8 +183,8 @@ def _exact_precise_qs_profiles(
         rho=rho_arr,
         n_hat=4.13 * (1.0 - rho_arr**10),
         t_hat=12.0 * (1.0 - rho_arr**2),
-        dn_hat_drhat=-41.3 * rho_arr**9,
-        dT_hat_drhat=-24.0 * rho_arr,
+        dn_hat_drhat=(-41.3 * rho_arr**9) / max(float(a_hat), 1.0e-30),
+        dT_hat_drhat=(-24.0 * rho_arr) / max(float(a_hat), 1.0e-30),
         er=np.asarray(er, dtype=float),
         alpha=np.asarray(alpha, dtype=float),
         a_hat=float(a_hat),
@@ -676,6 +675,9 @@ def _relative_error(values: np.ndarray, reference: np.ndarray) -> list[float]:
 
 
 def _rhsmode2_hat_sources(*, which_rhs: int, n_hat: float, t_hat: float) -> tuple[float, float]:
+    # Match the reference solver branch used by the precise-QS archive:
+    # fortran/version3/solver.F90 sets the thermal column with
+    # dnHatdpsiHats = (3/2) * nHats(1) * THats(1), dTHatdpsiHats = 1.
     if which_rhs == 1:
         return 1.0, 0.0
     if which_rhs == 2:

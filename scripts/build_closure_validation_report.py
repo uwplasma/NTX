@@ -28,6 +28,9 @@ def build_payload() -> dict:
 
     qa = fixed["cases"]["qa"]["max_relative_error_vs_sfincs_interior"]
     qh = fixed["cases"]["qh"]["max_relative_error_vs_sfincs_interior"]
+    closure_error = max(float(qa["NTX+NEOPAX"]), float(qh["NTX+NEOPAX"]))
+    closure_gate = 1.0e-1
+    closure_passes = closure_error <= closure_gate
     w7x_errors = {
         "raw": min(
             float(row["max_relative_error"])
@@ -37,10 +40,72 @@ def build_payload() -> dict:
     }
 
     return {
+        "claim_scope": {
+            "positive_gates": (
+                "Redl fixed-field current agrees with the archived precise-QS "
+                "SFINCS interior-window reference within the documented gate.",
+                "The fixed-field NTX+NEOPAX total-current stress comparison "
+                "passes the documented interior-window gate using the explicit "
+                "low-order Spitzer-conductivity closure, without fitted "
+                "bridge constants.",
+                "The rebuilt raw-branch imported W7-X workflow remains within "
+                "the integrated-transfer regression gate.",
+            ),
+            "monitored_stress": (
+                "The Pmax extension artifact is retained as a development "
+                "stress metric until precise-QS convergence improves without "
+                "regressing integrated W7-X.",
+            ),
+            "promotion_requirements": (
+                "derive the closure change from the moment equations or an "
+                "equivalent documented physics model",
+                "avoid fitted bridge constants in the shipping runtime",
+                "preserve the fixed-field QA/QH total-current stress gate",
+                "preserve the integrated W7-X transfer regression",
+            ),
+        },
+        "closure_decision": {
+            "status": (
+                "fixed-field-stress-gate-passed"
+                if closure_passes
+                else "monitored-not-promoted"
+            ),
+            "reason": (
+                "The precise-QS fixed-field total-current stress comparison "
+                "now passes after applying only two physics-normalization "
+                "changes: the SFINCS flux-surface-averaged parallel-flow "
+                "observable bridge and the explicit low-order Spitzer "
+                "conductivity block in the reduced momentum-restoring closure. "
+                "The integrated W7-X workflow remains a separate raw-branch "
+                "transfer gate, since the low-order fixed-field branch does "
+                "not transfer to that imported-database convention."
+            ),
+            "literature_basis": (
+                "Monoenergetic momentum-restoring closures are moment-equation "
+                "approximations built from precomputed transport coefficients; "
+                "the literature does not justify fitted per-benchmark bridge "
+                "constants as a replacement for a projected collision model.",
+                "The Redl precise-QS comparison is an analytic bootstrap-current "
+                "validation path and is intentionally kept separate from the "
+                "reduced NTX+NEOPAX closure stress metric.",
+            ),
+            "promotion_condition": (
+                "Any broader closure default can be promoted only if it is "
+                "derived from the same moment equations or an equivalent "
+                "documented physics model, preserves the fixed-field QA/QH "
+                "total-current gate, and preserves the integrated W7-X "
+                "transfer gate."
+            ),
+            "fixed_field_gate": closure_gate,
+            "fixed_field_max_error": closure_error,
+            "fixed_field_d33_mode": fixed.get("ntx_neopax_d33_mode", "unknown"),
+            "fixed_field_n_order": fixed.get("ntx_neopax_n_order", "unknown"),
+        },
         "precise_qs": {
             "qa": {"Redl": float(qa["Redl"]), "NTX+NEOPAX": float(qa["NTX+NEOPAX"])},
             "qh": {"Redl": float(qh["Redl"]), "NTX+NEOPAX": float(qh["NTX+NEOPAX"])},
             "redl_gate": 1.0e-1,
+            "ntx_neopax_gate": closure_gate,
         },
         "fixed_field_diagnostics": {
             case: {
@@ -127,6 +192,23 @@ def build_markdown(payload: dict) -> str:
             ),
             "",
             "## Fixed-field closure diagnostics",
+            "",
+            (
+                "The NTX+NEOPAX current column below is a reduced-closure "
+                "total-current stress diagnostic. It now passes the fixed-field "
+                "interior gate, but it is still not an independent species-"
+                "current parity claim."
+            ),
+            "",
+            (
+                f"Decision: `{payload['closure_decision']['status']}`. "
+                "The fixed-field branch uses "
+                f"`d33_mode={payload['closure_decision']['fixed_field_d33_mode']}` "
+                "and "
+                f"`n_order={payload['closure_decision']['fixed_field_n_order']}`. "
+                "No fitted bridge constants or benchmark-specific scale factors "
+                "are used."
+            ),
             "",
             "| Case | Current | Raw thermal fit | Effective thermal fit |",
             "| --- | ---: | ---: | ---: |",

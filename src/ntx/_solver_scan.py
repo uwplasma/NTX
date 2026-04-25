@@ -12,8 +12,10 @@ import jax.numpy as jnp
 import numpy as np
 from jax import Array
 
-from ._solver_core import _operator_context, prepare_monoenergetic_system
+from ._solver_context import _operator_context
+from ._solver_core import prepare_monoenergetic_system
 from ._solver_factorization import _solve_modes
+from ._solver_prepared import solve_prepared
 from ._solver_types import MonoenergeticCase, PreparedMonoenergeticSystem, TransportResult
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
@@ -26,8 +28,6 @@ def solve_scan(
     cases: tuple[MonoenergeticCase, ...],
 ) -> list[TransportResult]:
     """Solve a Python-level scan of monoenergetic cases."""
-
-    from ._solver_core import solve_prepared
 
     prepared = prepare_monoenergetic_system(surface, grid)
     return [solve_prepared(prepared, case) for case in cases]

@@ -6,7 +6,10 @@ import jax.numpy as jnp
 from jax import Array
 
 from ._profiles_radial import _broadcast_profile_field, _smooth_radial_profile
-from ._profiles_types import MonoenergeticSpeciesProfile, PrimitiveSpeciesProfile
+from ._profiles_species_types import (
+    MonoenergeticSpeciesProfile,
+    PrimitiveSpeciesProfile,
+)
 
 
 def build_species_profile_from_primitives(

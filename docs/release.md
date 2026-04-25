@@ -32,39 +32,39 @@ research checkout.
 
 4. Push `main` and confirm the `tests` and `package` workflows are green.
 
-5. Confirm the version is not already tagged. The previous GitHub release
-   `v0.1.0` already exists, so the next release candidate is `v0.2.0`.
+5. Confirm the version is not already tagged.
 
 6. Create an annotated tag:
 
    ```bash
-   git tag -a v0.2.0 -m "NTX 0.2.0"
-   git push origin v0.2.0
+   git tag -a v0.2.1 -m "NTX 0.2.1"
+   git push origin v0.2.1
    ```
 
 7. Let the GitHub release workflow build the distributions, attach them to the
    tag release, and publish them to PyPI through Trusted Publishing.
 
-## Current Release Candidate
+## Current Release
 
-The current candidate is `0.2.0`.
+The current release is `0.2.1`.
 
-Verified locally on 2026-04-24:
+Verified locally on 2026-04-25:
 
 - `python -m ruff check .`
 - `python -m mypy src/ntx`
-- `python -m pytest -q`: `320 passed, 5 skipped`
+- `python -m pytest -q`: `331 passed, 5 skipped`
 - `python -m sphinx -b html docs docs/_build/html`
 - `python -m build`
 - `python -m twine check dist/*`
-- clean-venv wheel smoke test:
-  - `ntx --help`
-  - `python -m ntx --help`
-  - `python -c "import ntx; from ntx import GridSpec"`
+- clean-venv wheel smoke test for `ntx --help`, `python -m ntx --help`, and
+  `python -c "import ntx; from ntx import GridSpec"`
 
-GitHub Actions for commit `402ba7e` were green for both `tests` and `package`.
-After the `0.2.0` version commit lands, rerun or wait for the same two
-workflows before tagging.
+The previous `v0.2.0` tag workflows were green for `tests`, `package`, and
+`release`, and published successfully through Trusted Publishing. The `v0.2.1`
+release uses the same tag-gated workflow:
+
+- [GitHub release v0.2.1](https://github.com/uwplasma/NTX/releases/tag/v0.2.1)
+- [PyPI ntx 0.2.1](https://pypi.org/project/ntx/0.2.1/)
 
 ## CI/CD Release Path
 
@@ -75,9 +75,9 @@ workflows before tagging.
   release, and uploads the same artifacts to PyPI through the protected `pypi`
   environment.
 
-## PyPI Readiness
+## PyPI Publishing
 
-Before publishing to PyPI:
+Before publishing a release to PyPI:
 
 1. keep the base dependency set restricted to packages installable from normal
    indexes;
@@ -92,25 +92,21 @@ Before publishing to PyPI:
    `pypi` environment; PyPI may accept any environment name when the trusted
    publisher entry is configured that way.
 
-The repository-side Trusted Publishing job is now present in
+The repository-side Trusted Publishing job is present in
 `.github/workflows/release.yml`. It is tag-gated, downloads the exact
 distribution artifact built by the release job, and publishes through
-`pypa/gh-action-pypi-publish` without a long-lived API token. On 2026-04-24,
-`python -m pip index versions ntx` returned no matching distribution, so the
-intended package name was not visible on the default PyPI index from this
-workstation before the first publication.
+`pypa/gh-action-pypi-publish` without a long-lived API token.
 
-On 2026-04-24, the GitHub `pypi` environment was created for `uwplasma/NTX`,
-and PyPI Trusted Publishing was configured for repository `uwplasma/NTX`,
-workflow `release.yml`, and project name `NTX` with no environment-name
-restriction. The next step is to push the `v0.2.0` tag after the release commit
-has green `tests` and `package` workflows.
+On 2026-04-24, PyPI Trusted Publishing was configured for repository
+`uwplasma/NTX`, workflow `release.yml`, and project name `NTX` with no
+environment-name restriction. The `v0.2.0` tag release published successfully
+to PyPI the same day.
 
 The intended public install surface is:
 
 ```bash
-python -m pip install ntx
-python -m pip install "ntx[io]"
+pip install ntx
+pip install "ntx[io]"
 ```
 
 Geometry-coupled examples should remain documented optional workflows until the

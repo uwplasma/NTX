@@ -33,6 +33,8 @@ NU_HAT = 3.0e-4
 SCAN_SIZES = (1, 2, 4, 8, 16, 32)
 ER_MIN = 1.0e-6
 ER_MAX = 3.0e-3
+NU_MIN = 3.0e-5
+NU_MAX = 3.0e-3
 REPEATS = 3
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "derivative_path_benchmark"
 
@@ -88,34 +90,69 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
             MonoenergeticCase(nu_hat=NU_HAT, er_hat=er_hat),
         )[3]
 
-    direct_grad = jax.jit(jax.vmap(jax.grad(direct_scalar)))
-    custom_grad = jax.jit(jax.vmap(jax.grad(custom_scalar)))
+    def direct_nu_scalar(nu_hat):
+        return solve_prepared_coefficient_vector(
+            prepared,
+            MonoenergeticCase(nu_hat=nu_hat, er_hat=ER_MIN),
+        )[0]
+
+    def custom_nu_scalar(nu_hat):
+        return solve_prepared_coefficient_vector_vjp(
+            prepared,
+            MonoenergeticCase(nu_hat=nu_hat, er_hat=ER_MIN),
+        )[0]
+
+    direct_er_grad = jax.jit(jax.vmap(jax.grad(direct_scalar)))
+    custom_er_grad = jax.jit(jax.vmap(jax.grad(custom_scalar)))
+    direct_nu_grad = jax.jit(jax.vmap(jax.grad(direct_nu_scalar)))
+    custom_nu_grad = jax.jit(jax.vmap(jax.grad(custom_nu_scalar)))
+
+    def direct_pair(inputs):
+        er_hat_scan, nu_hat_scan = inputs
+        return jnp.stack((direct_er_grad(er_hat_scan), direct_nu_grad(nu_hat_scan)))
+
+    def custom_pair(inputs):
+        er_hat_scan, nu_hat_scan = inputs
+        return jnp.stack((custom_er_grad(er_hat_scan), custom_nu_grad(nu_hat_scan)))
 
     counts = []
     direct_times = []
     custom_times = []
     max_relative_mismatch = []
+    er_d33_relative_mismatch = []
+    nu_d11_relative_mismatch = []
 
     for count in SCAN_SIZES:
         er_hat_scan = jnp.geomspace(ER_MIN, ER_MAX, count)
+        nu_hat_scan = jnp.geomspace(NU_MIN, NU_MAX, count)
+        inputs = (er_hat_scan, nu_hat_scan)
 
-        _ = direct_grad(er_hat_scan)
-        _ = custom_grad(er_hat_scan)
+        _ = direct_pair(inputs)
+        _ = custom_pair(inputs)
 
-        direct_measurements = [_time_callable(direct_grad, er_hat_scan) for _ in range(REPEATS)]
-        custom_measurements = [_time_callable(custom_grad, er_hat_scan) for _ in range(REPEATS)]
+        direct_measurements = [_time_callable(direct_pair, inputs) for _ in range(REPEATS)]
+        custom_measurements = [_time_callable(custom_pair, inputs) for _ in range(REPEATS)]
 
-        direct_values = np.asarray(direct_grad(er_hat_scan))
-        custom_values = np.asarray(custom_grad(er_hat_scan))
-        mismatch = np.max(
-            np.abs(direct_values - custom_values)
-            / np.maximum(np.abs(direct_values), 1.0e-30)
+        direct_er_values = np.asarray(direct_er_grad(er_hat_scan))
+        custom_er_values = np.asarray(custom_er_grad(er_hat_scan))
+        direct_nu_values = np.asarray(direct_nu_grad(nu_hat_scan))
+        custom_nu_values = np.asarray(custom_nu_grad(nu_hat_scan))
+        er_mismatch = np.max(
+            np.abs(direct_er_values - custom_er_values)
+            / np.maximum(np.abs(direct_er_values), 1.0e-30)
         )
+        nu_mismatch = np.max(
+            np.abs(direct_nu_values - custom_nu_values)
+            / np.maximum(np.abs(direct_nu_values), 1.0e-30)
+        )
+        mismatch = max(er_mismatch, nu_mismatch)
 
         counts.append(count)
         direct_times.append(min(direct_measurements))
         custom_times.append(min(custom_measurements))
         max_relative_mismatch.append(mismatch)
+        er_d33_relative_mismatch.append(er_mismatch)
+        nu_d11_relative_mismatch.append(nu_mismatch)
 
     counts_array = np.asarray(counts, dtype=float)
     direct_times_array = np.asarray(direct_times)
@@ -145,14 +182,15 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     )
     axes[0].set_xlabel("Scan size")
     axes[0].set_ylabel("Best-of-3 wall time [s]")
-    axes[0].set_title(r"$\partial D_{33}/\partial \hat E_r$ on a prepared surface")
+    axes[0].set_title(r"Two prepared parameter derivatives on one surface")
     axes[0].legend(loc="upper left")
     axes[0].text(
         0.03,
         0.04,
         (
             rf"$N_\theta={GRID.n_theta}$, $N_\zeta={GRID.n_zeta}$, $N_\xi={GRID.n_xi}$" "\n"
-            rf"$\hat\nu={NU_HAT:.1e}$, $\hat E_r \in [{ER_MIN:.1e}, {ER_MAX:.1e}]$"
+            rf"$\partial D_{{33}}/\partial \hat E_r$, "
+            rf"$\partial D_{{11}}/\partial \hat\nu$"
         ),
         transform=axes[0].transAxes,
         ha="left",
@@ -199,11 +237,27 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         "nu_hat": NU_HAT,
         "er_min": ER_MIN,
         "er_max": ER_MAX,
+        "nu_min": NU_MIN,
+        "nu_max": NU_MAX,
         "scan_sizes": counts,
         "direct_times_seconds": direct_times,
         "prepared_times_seconds": custom_times,
         "speedup_prepared_vs_direct": speedup_array.tolist(),
         "max_relative_mismatch": max_relative_mismatch,
+        "gradient_channels": {
+            "dD33_dEr": {
+                "fixed_nu_hat": NU_HAT,
+                "er_min": ER_MIN,
+                "er_max": ER_MAX,
+                "max_relative_mismatch": er_d33_relative_mismatch,
+            },
+            "dD11_dnu": {
+                "fixed_er_hat": ER_MIN,
+                "nu_min": NU_MIN,
+                "nu_max": NU_MAX,
+                "max_relative_mismatch": nu_d11_relative_mismatch,
+            },
+        },
         "figure_png": str(output_prefix.with_suffix(".png")),
         "figure_pdf": str(output_prefix.with_suffix(".pdf")),
     }

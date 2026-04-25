@@ -8,7 +8,7 @@ import jax.numpy as jnp
 from jax import Array
 
 from ._profiles_radial import _broadcast_profile_field
-from ._profiles_types import MonoenergeticSpeciesProfile
+from ._profiles_species_types import MonoenergeticSpeciesProfile
 from .neopax import NeopaxScan
 
 

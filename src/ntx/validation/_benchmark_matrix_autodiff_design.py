@@ -32,10 +32,11 @@ def autodiff_design_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             id="autodiff_profile_uncertainty",
             lane="autodiff",
             maturity="stress-gate",
-            title="Linearized profile uncertainty against Monte Carlo",
+            title="Radial-basis profile uncertainty and Fisher/HVP audit",
             claim_scope=(
-                "Linearized covariance propagation is checked against a small "
-                "Monte Carlo ensemble on the same differentiable profile map."
+                "Linearized covariance propagation, Monte Carlo sampling, and "
+                "a Fisher/Gauss-Newton versus Hessian-vector-product probe are "
+                "checked on the same differentiable radial-basis profile map."
             ),
             literature_anchors=(
                 "differentiable programming uncertainty propagation",
@@ -53,7 +54,9 @@ def autodiff_design_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             ),
             manuscript_figures=("autodiff_profile_uncertainty",),
             docs=("docs/autodiff.md",),
-            open_work=("add Fisher or Hessian-vector probes on a larger profile basis",),
+            open_work=(
+                "broaden from the committed radial-basis audit to cross-geometry profile families",
+            ),
         ),
         BenchmarkEntry(
             id="bootstrap_current_optimization",

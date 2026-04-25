@@ -176,9 +176,11 @@ It writes:
 - `docs/_static/bootstrap_current_fixed_field_validation.json`
 
 Use this script for the fixed-field validation figure that is shown in the
-README. The current benchmark is strong enough to expose the remaining QA
-closure mismatch clearly, but it is still an active audit lane rather than a
-finished parity claim.
+README. The figure intentionally overlays only bootstrap-current profiles; the
+interior-window relative-error gates are stored in the JSON artifact and checked
+by the physics-gate tests. The current artifact keeps both the Redl analytic
+comparison and the reduced `NTX+NEOPAX` total-current stress comparison below
+the `1e-1` gate.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
@@ -212,7 +214,9 @@ It compares the archived SFINCS bootstrap-current profiles against:
   `booz_xform_jax`
 
 Use this script when auditing the analytic fixed-field benchmark itself, not
-the integrated `NTX+NEOPAX` workflow.
+the integrated `NTX+NEOPAX` workflow. The plot is an overlay-only
+bootstrap-current comparison; the relative-error metrics remain in the JSON
+artifact.
 
 ## 13. Fixed-Field Transport-Matrix Audit
 

@@ -26,7 +26,8 @@
   ],
   "profile_basis": [
     "docs/_static/profile_basis_optimization.png",
-    "docs/_static/profile_basis_optimization.pdf"
+    "docs/_static/profile_basis_optimization.pdf",
+    "docs/_static/profile_basis_optimization.json"
   ],
   "profile_transport": [
     "docs/_static/profile_transport_loop.png",
@@ -119,6 +120,16 @@
   "performance_heavy": [
     "docs/_static/performance_scaling_heavy.png",
     "docs/_static/performance_scaling_heavy.pdf"
+  ],
+  "performance_production": [
+    "docs/_static/performance_scaling_production.png",
+    "docs/_static/performance_scaling_production.pdf",
+    "docs/_static/performance_scaling_production.json"
+  ],
+  "performance_strong": [
+    "docs/_static/performance_strong_scaling_production.png",
+    "docs/_static/performance_strong_scaling_production.pdf",
+    "docs/_static/performance_strong_scaling_production.json"
   ],
   "prepared_geometry_reuse": [
     "docs/_static/prepared_geometry_reuse_profile.png",

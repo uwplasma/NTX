@@ -35,6 +35,8 @@ def example_neopax_profile_autodiff(
     nu_index: int = 1,
     learning_rate: float = 0.25,
     steps: int = 32,
+    target_params: Array | None = None,
+    initial_params: Array | None = None,
     use_neopax_package: bool = False,
     maybe_import_neopax: Callable[[], Any] | None = None,
 ) -> NeopaxProfileAutodiffResult:
@@ -53,8 +55,18 @@ def example_neopax_profile_autodiff(
     arrays = scan_to_neopax_arrays(scan, a_b=a_b)
     rho_grid = jnp.asarray(arrays.rho)
     nu_value = 10.0 ** arrays.nu_log[nu_index]
-    target_params = jnp.asarray([1.4e-3, -6.0e-4], dtype=rho_grid.dtype)
-    initial_params = jnp.asarray([5.0e-4, 2.0e-4], dtype=rho_grid.dtype)
+    target_params = (
+        jnp.asarray([1.4e-3, -6.0e-4], dtype=rho_grid.dtype)
+        if target_params is None
+        else jnp.asarray(target_params, dtype=rho_grid.dtype)
+    )
+    initial_params = (
+        jnp.asarray([5.0e-4, 2.0e-4], dtype=rho_grid.dtype)
+        if initial_params is None
+        else jnp.asarray(initial_params, dtype=rho_grid.dtype)
+    )
+    if target_params.shape != initial_params.shape:
+        raise ValueError("target_params and initial_params must have the same shape")
     target_er_profile = er_profile(rho_grid, target_params)
     target_d11_profile = evaluate_d11_profile(arrays, rho_grid, nu_value, target_er_profile)
     target_d33_profile = evaluate_d33_profile(arrays, rho_grid, nu_value, target_er_profile)
@@ -125,6 +137,9 @@ def example_neopax_profile_uncertainty(
     steps: int = 32,
     parameter_std: Array | None = None,
     parameter_correlation: float = -0.35,
+    target_params: Array | None = None,
+    initial_params: Array | None = None,
+    hessian_probe: Array | None = None,
     monte_carlo_samples: int = 64,
     random_seed: int = 0,
 ) -> NeopaxProfileUncertaintyResult:
@@ -142,6 +157,8 @@ def example_neopax_profile_uncertainty(
         nu_index=nu_index,
         learning_rate=learning_rate,
         steps=steps,
+        target_params=target_params,
+        initial_params=initial_params,
     )
     scan = build_ntx_neopax_scan_from_surfaces(
         surfaces,
@@ -163,10 +180,17 @@ def example_neopax_profile_uncertainty(
         if parameter_std is None
         else jnp.asarray(parameter_std, dtype=rho_grid.dtype)
     )
+    if parameter_std.shape != params.shape:
+        raise ValueError("parameter_std must have the same shape as the fitted parameters")
     parameter_covariance = jnp.diag(parameter_std**2)
-    correlation_entry = parameter_correlation * parameter_std[0] * parameter_std[1]
-    parameter_covariance = parameter_covariance.at[0, 1].set(correlation_entry)
-    parameter_covariance = parameter_covariance.at[1, 0].set(correlation_entry)
+    indices = jnp.arange(parameter_std.size)
+    off_diagonal_correlation = parameter_correlation ** jnp.abs(indices[:, None] - indices[None, :])
+    off_diagonal_correlation = off_diagonal_correlation.at[
+        jnp.diag_indices(parameter_std.size)
+    ].set(1.0)
+    parameter_covariance = (
+        off_diagonal_correlation * parameter_std[:, None] * parameter_std[None, :]
+    )
     parameter_correlation_matrix = parameter_covariance / (
         parameter_std[:, None] * parameter_std[None, :]
     )
@@ -198,6 +222,44 @@ def example_neopax_profile_uncertainty(
     monte_carlo_d33_std = jnp.std(monte_carlo_d33, axis=0, ddof=1)
     monte_carlo_d33_quantile_low = jnp.quantile(monte_carlo_d33, 0.16, axis=0)
     monte_carlo_d33_quantile_high = jnp.quantile(monte_carlo_d33, 0.84, axis=0)
+
+    d33_sensitivity_scale = jnp.maximum(jnp.abs(fit.fitted_d33_profile), 1.0e-12)
+
+    def local_profile_residual(trial_params: Array) -> Array:
+        trial_er_profile = er_profile(rho_grid, trial_params)
+        trial_d11 = evaluate_d11_profile(arrays, rho_grid, nu_value, trial_er_profile)
+        trial_d33 = evaluate_d33_profile(arrays, rho_grid, nu_value, trial_er_profile)
+        d11_residual = (
+            jnp.log10(jnp.maximum(trial_d11, 1e-30))
+            - jnp.log10(jnp.maximum(fit.fitted_d11_profile, 1e-30))
+        )
+        d33_residual = (trial_d33 - fit.fitted_d33_profile) / d33_sensitivity_scale
+        return jnp.concatenate((d11_residual, d33_residual))
+
+    residual_jacobian = jax.jacrev(local_profile_residual)(params)
+    fisher_matrix = residual_jacobian.T @ residual_jacobian / residual_jacobian.shape[0]
+    fisher_eigenvalues = jnp.linalg.eigvalsh(fisher_matrix)
+    hessian_probe = (
+        jnp.linspace(1.0, -0.5, params.size, dtype=rho_grid.dtype)
+        if hessian_probe is None
+        else jnp.asarray(hessian_probe, dtype=rho_grid.dtype)
+    )
+    if hessian_probe.shape != params.shape:
+        raise ValueError("hessian_probe must have the same shape as the fitted parameters")
+
+    def local_profile_loss(trial_params: Array) -> Array:
+        residual = local_profile_residual(trial_params)
+        return 0.5 * jnp.mean(residual**2)
+
+    _, hessian_vector_probe = jax.jvp(
+        jax.grad(local_profile_loss),
+        (params,),
+        (hessian_probe,),
+    )
+    gauss_newton_vector_probe = fisher_matrix @ hessian_probe
+    hessian_probe_relative_error = jnp.linalg.norm(
+        hessian_vector_probe - gauss_newton_vector_probe
+    ) / jnp.maximum(jnp.linalg.norm(gauss_newton_vector_probe), 1.0e-30)
     return NeopaxProfileUncertaintyResult(
         rho=rho_grid,
         fitted_er_profile=fit.fitted_er_profile,
@@ -212,5 +274,10 @@ def example_neopax_profile_uncertainty(
         monte_carlo_d33_std=monte_carlo_d33_std,
         monte_carlo_d33_quantile_low=monte_carlo_d33_quantile_low,
         monte_carlo_d33_quantile_high=monte_carlo_d33_quantile_high,
+        fisher_matrix=fisher_matrix,
+        fisher_eigenvalues=fisher_eigenvalues,
+        hessian_vector_probe=hessian_vector_probe,
+        gauss_newton_vector_probe=gauss_newton_vector_probe,
+        hessian_probe_relative_error=hessian_probe_relative_error,
         sample_count=jnp.asarray(monte_carlo_samples),
     )

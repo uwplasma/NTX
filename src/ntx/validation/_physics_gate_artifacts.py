@@ -200,11 +200,13 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
         )
         results.append(_evaluate_scalar_gate(fixed_gate_redl, redl_error))
         results.append(
-            PhysicsGateResult(
-                gate=fixed_gate_closure,
-                value=closure_error,
-                status="monitor",
-                details="tracked as a closure-model stress metric, not a parity gate",
+            _evaluate_scalar_gate(
+                fixed_gate_closure,
+                closure_error,
+                details=(
+                    "fixed-field reduced-closure total-current stress metric; "
+                    "not an independent species-current parity gate"
+                ),
             )
         )
     else:

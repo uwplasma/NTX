@@ -80,10 +80,16 @@ def main(argv: list[str] | None = None) -> int:
 
     png_path = output_prefix.with_suffix(".png")
     pdf_path = output_prefix.with_suffix(".pdf")
+    json_path = output_prefix.with_suffix(".json")
     fig.savefig(png_path)
     fig.savefig(pdf_path)
+    json_path.write_text(
+        json.dumps(_summary_payload(cpu, gpu), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     print(f"Wrote {png_path}")
     print(f"Wrote {pdf_path}")
+    print(f"Wrote {json_path}")
     return 0
 
 
@@ -124,6 +130,22 @@ def _plot_runtime_panel(ax, payload: dict, title: str) -> None:
     ax.set_ylabel("Wall time [s]")
     ax.legend(loc="upper left")
     _annotate_crossover(ax, cases, serial, multiprocess)
+    if "max_rss_mb" in payload:
+        ax.text(
+            0.97,
+            0.05,
+            f"max RSS {payload['max_rss_mb']:.0f} MB",
+            transform=ax.transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=8.8,
+            bbox={
+                "boxstyle": "round,pad=0.22",
+                "fc": "white",
+                "ec": "#d1d5db",
+                "alpha": 0.92,
+            },
+        )
 
 
 def _plot_speedup_panel(ax, payload: dict, title: str) -> None:
@@ -203,6 +225,70 @@ def _annotate_crossover(
         fontsize=9.2,
         bbox={"boxstyle": "round,pad=0.25", "fc": "white", "ec": "#d1d5db", "alpha": 0.96},
     )
+
+
+def _summary_payload(cpu: dict, gpu: dict) -> dict[str, object]:
+    return {
+        "artifact": "performance_scaling_summary",
+        "claim_scope": (
+            "Summarizes serial, single-process device-parallel, and "
+            "multiprocess throughput timing, resident-memory, and correctness "
+            "metadata from committed scaling benchmark JSON files."
+        ),
+        "cpu": _backend_summary(cpu),
+        "gpu": _backend_summary(gpu),
+    }
+
+
+def _backend_summary(payload: dict) -> dict[str, object]:
+    results = payload["results"]
+    return {
+        "backend": payload.get("backend"),
+        "surface": payload.get("surface"),
+        "grid": payload.get("grid", {}),
+        "sizes": [int(entry["num_cases"]) for entry in results],
+        "local_device_count": int(payload.get("local_device_count", 0)),
+        "healthy_parallel_device_count": int(payload.get("healthy_parallel_device_count", 0)),
+        "max_rss_mb": float(payload.get("max_rss_mb", 0.0)),
+        "multiprocess_crossover_cases": _first_crossover_case(
+            results,
+            "multiprocess_seconds",
+        ),
+        "device_parallel_crossover_cases": _first_crossover_case(
+            results,
+            "device_parallel_seconds",
+        ),
+        "best_multiprocess_speedup_vs_serial": _max_result_value(
+            results,
+            "multiprocess_speedup_vs_serial",
+        ),
+        "best_device_parallel_speedup_vs_serial": _max_result_value(
+            results,
+            "device_parallel_speedup_vs_serial",
+        ),
+        "max_abs_delta_serial_vs_multiprocess_d11": _max_result_value(
+            results,
+            "max_abs_delta_serial_vs_multiprocess_d11",
+        ),
+        "max_abs_delta_serial_vs_device_parallel_d11": _max_result_value(
+            results,
+            "max_abs_delta_serial_vs_device_parallel_d11",
+        ),
+    }
+
+
+def _first_crossover_case(results: list[dict], timing_key: str) -> int | None:
+    for entry in results:
+        if timing_key in entry and float(entry[timing_key]) < float(entry["serial_seconds"]):
+            return int(entry["num_cases"])
+    return None
+
+
+def _max_result_value(results: list[dict], key: str) -> float | None:
+    values = [float(entry[key]) for entry in results if key in entry]
+    if not values:
+        return None
+    return max(values)
 
 
 if __name__ == "__main__":

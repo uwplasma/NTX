@@ -8,15 +8,17 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
+from ._profiles_control_types import (
+    ProfileBasisControlSpec,
+    ProfileBasisOptimizationResult,
+)
 from ._profiles_eval import (
     bootstrap_current_objective,
     solve_ambipolar_er_profile,
 )
 from ._profiles_radial import _broadcast_profile_field
-from ._profiles_types import (
+from ._profiles_species_types import (
     MonoenergeticSpeciesProfile,
-    ProfileBasisControlSpec,
-    ProfileBasisOptimizationResult,
 )
 from .neopax import NeopaxScan
 

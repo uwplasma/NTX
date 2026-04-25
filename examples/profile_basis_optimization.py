@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -189,6 +190,9 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     best_objective = float(
         bootstrap_current_objective(rho, result.best_profile.bootstrap_current_proxy, weight=weight)
     )
+    baseline_objective = float(
+        bootstrap_current_objective(rho, baseline_profile.bootstrap_current_proxy, weight=weight)
+    )
 
     fig, axes = plt.subplots(2, 2, constrained_layout=True)
 
@@ -282,9 +286,44 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
 
     fig.savefig(output_prefix.with_suffix(".png"))
     fig.savefig(output_prefix.with_suffix(".pdf"))
+    payload = {
+        "artifact": "profile_basis_optimization",
+        "claim_scope": (
+            "Optimizes a three-function radial basis control on a profile "
+            "closure benchmark and records objective, residual, and control "
+            "regularity metrics."
+        ),
+        "grid": {
+            "n_theta": GRID.n_theta,
+            "n_zeta": GRID.n_zeta,
+            "n_xi": GRID.n_xi,
+        },
+        "rho": rho_np.tolist(),
+        "basis_count": int(basis_np.shape[0]),
+        "best_control": best_control.tolist(),
+        "baseline_objective": baseline_objective,
+        "best_objective": best_objective,
+        "objective_improvement": best_objective - baseline_objective,
+        "objective_gain": best_objective / max(abs(baseline_objective), 1.0e-30),
+        "baseline_residual_l2": float(np.linalg.norm(baseline_residual)),
+        "best_residual_l2": float(np.linalg.norm(best_residual)),
+        "residual_l2_ratio": float(
+            np.linalg.norm(best_residual) / max(np.linalg.norm(baseline_residual), 1.0e-30)
+        ),
+        "max_abs_control": float(np.max(np.abs(best_control))),
+        "baseline_current_profile": baseline_current.tolist(),
+        "best_current_profile": best_current.tolist(),
+        "baseline_residual": baseline_residual.tolist(),
+        "best_residual": best_residual.tolist(),
+    }
+    output_prefix.with_suffix(".json").write_text(
+        json.dumps(payload, indent=2),
+        encoding="utf-8",
+    )
     plt.close(fig)
     print(f"Wrote {output_prefix.with_suffix('.png')}")
     print(f"Wrote {output_prefix.with_suffix('.pdf')}")
+    print(f"Wrote {output_prefix.with_suffix('.json')}")
 
 
 if __name__ == "__main__":

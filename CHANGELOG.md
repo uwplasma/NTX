@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.2.1
+
+Validation, documentation, and performance-artifact hardening after the first
+PyPI release.
+
+Highlights:
+
+- fixed-field QA/QH bootstrap-current validation figure is now an overlay-only
+  SFINCS, Redl, and `NTX+NEOPAX` current comparison, with the `<1e-1`
+  interior-window gates retained in JSON and tests
+- `examples/bootstrap_current_with_neopax.py` keeps the corrected
+  no-momentum/default current assembly and records the selected `D33` branch in
+  the generated summary
+- fixed-field closure diagnostics, benchmark matrix, manuscript artifacts, and
+  physics-gate docs were refreshed from committed artifacts
+- solver, profile, and bootstrap-autodiff internals were split into smaller
+  ownership modules without changing public APIs
+- production and fixed-workload strong-scaling performance artifacts were added
+  for CPU/GPU and multiprocess/device-parallel lanes
+- README and example documentation were tightened around the promoted claims,
+  monitored stress gates, and remaining research lanes
+
 ## 0.2.0
 
 Release-candidate update for the first PyPI publication.

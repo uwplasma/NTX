@@ -198,7 +198,7 @@
         "lane": "bootstrap-current",
         "maturity": "stress-gate",
         "title": "Fixed-field current closure stress test",
-        "claim_scope": "The fixed-field NTX+NEOPAX comparison is retained as a monitored closure stress test, not as a promoted monoenergetic parity gate.",
+        "claim_scope": "The fixed-field NTX+NEOPAX total-current comparison passes the documented reduced-closure stress gate with the low-order Spitzer-conductivity branch; species-current parity and broader closure defaults remain separate claims.",
         "literature_anchors": [
           "Landreman and Paul 2022 precise-QS benchmark family",
           "momentum-restoring closure literature for parallel-flow models"
@@ -220,7 +220,10 @@
           "docs/_static/closure_validation_report.png",
           "docs/_static/closure_validation_report.pdf",
           "docs/_static/closure_validation_report.json",
-          "docs/_static/closure_validation_report.txt"
+          "docs/_static/closure_validation_report.txt",
+          "docs/_static/closure_pmax_convergence.png",
+          "docs/_static/closure_pmax_convergence.pdf",
+          "docs/_static/closure_pmax_convergence.json"
         ],
         "manuscript_figures": [
           "closure_validation_report"
@@ -230,8 +233,8 @@
           "docs/validation.md"
         ],
         "open_work": [
-          "derive and implement a transferable momentum-restoring closure",
-          "require no regression on the integrated W7-X workflow"
+          "derive any broader default from the same moment-equation closure",
+          "keep the integrated W7-X raw-branch transfer regression separate"
         ]
       },
       "status": "complete",
@@ -300,6 +303,21 @@
         {
           "kind": "artifact",
           "path": "docs/_static/closure_validation_report.txt",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_pmax_convergence.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_pmax_convergence.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_pmax_convergence.json",
           "exists": true
         },
         {
@@ -940,8 +958,8 @@
         "id": "autodiff_profile_uncertainty",
         "lane": "autodiff",
         "maturity": "stress-gate",
-        "title": "Linearized profile uncertainty against Monte Carlo",
-        "claim_scope": "Linearized covariance propagation is checked against a small Monte Carlo ensemble on the same differentiable profile map.",
+        "title": "Radial-basis profile uncertainty and Fisher/HVP audit",
+        "claim_scope": "Linearized covariance propagation, Monte Carlo sampling, and a Fisher/Gauss-Newton versus Hessian-vector-product probe are checked on the same differentiable radial-basis profile map.",
         "literature_anchors": [
           "differentiable programming uncertainty propagation",
           "profile-level neoclassical workflow sensitivity analysis"
@@ -965,7 +983,7 @@
           "docs/autodiff.md"
         ],
         "open_work": [
-          "add Fisher or Hessian-vector probes on a larger profile basis"
+          "broaden from the committed radial-basis audit to cross-geometry profile families"
         ]
       },
       "status": "complete",
@@ -1238,18 +1256,94 @@
     },
     {
       "entry": {
+        "id": "profile_basis_optimization",
+        "lane": "profile-workflow",
+        "maturity": "stress-gate",
+        "title": "Radial-basis profile-control optimization",
+        "claim_scope": "A three-function radial basis control is optimized through the profile closure, with objective, residual, and control metrics stored as a monitored workflow artifact.",
+        "literature_anchors": [
+          "profile-level neoclassical transport sensitivity workflows",
+          "differentiable programming verification by controlled objectives"
+        ],
+        "scripts": [
+          "examples/profile_basis_optimization.py"
+        ],
+        "tests": [
+          "tests/test_profile_basis_optimization_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/profile_basis_optimization.png",
+          "docs/_static/profile_basis_optimization.pdf",
+          "docs/_static/profile_basis_optimization.json"
+        ],
+        "manuscript_figures": [
+          "profile_basis_optimization"
+        ],
+        "docs": [
+          "docs/profiles.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "broaden the radial basis to reusable physics-motivated profile families",
+          "promote only after cross-geometry profile/current validation"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/profile_basis_optimization.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_profile_basis_optimization_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_basis_optimization.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_basis_optimization.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_basis_optimization.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/profiles.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
         "id": "performance_scaling",
         "lane": "performance",
         "maturity": "software-gate",
         "title": "CPU/GPU throughput characterization",
-        "claim_scope": "Serial, multiprocess, CPU, and GPU execution modes are characterized on committed smoke and heavier-grid cases.",
+        "claim_scope": "Serial, multiprocess, CPU, and GPU execution modes are characterized on committed smoke, heavier-grid, and production-grid cases, with a separate fixed-workload strong-scaling artifact.",
         "literature_anchors": [
           "JAX performance practice for compiled scientific workloads",
           "multi-process scan execution for independent monoenergetic cases"
         ],
         "scripts": [
           "examples/performance_scaling.py",
-          "scripts/benchmark_scaling.py"
+          "examples/performance_strong_scaling.py",
+          "scripts/benchmark_scaling.py",
+          "scripts/benchmark_strong_scaling.py"
         ],
         "tests": [
           "tests/test_performance_scaling_example.py",
@@ -1258,23 +1352,36 @@
         "artifacts": [
           "docs/_static/performance_scaling_smoke.png",
           "docs/_static/performance_scaling_smoke.pdf",
+          "docs/_static/performance_scaling_smoke.json",
           "docs/_static/performance_scaling_cpu_smoke.json",
           "docs/_static/performance_scaling_gpu_smoke.json",
           "docs/_static/performance_scaling_heavy.png",
           "docs/_static/performance_scaling_heavy.pdf",
+          "docs/_static/performance_scaling_heavy.json",
           "docs/_static/performance_scaling_cpu_heavy.json",
-          "docs/_static/performance_scaling_gpu_heavy.json"
+          "docs/_static/performance_scaling_gpu_heavy.json",
+          "docs/_static/performance_scaling_production.png",
+          "docs/_static/performance_scaling_production.pdf",
+          "docs/_static/performance_scaling_production.json",
+          "docs/_static/performance_scaling_cpu_production.json",
+          "docs/_static/performance_scaling_gpu_production.json",
+          "docs/_static/performance_strong_scaling_production.png",
+          "docs/_static/performance_strong_scaling_production.pdf",
+          "docs/_static/performance_strong_scaling_production.json",
+          "docs/_static/performance_strong_scaling_cpu_production.json",
+          "docs/_static/performance_strong_scaling_gpu_production.json"
         ],
         "manuscript_figures": [
-          "performance_scaling_heavy"
+          "performance_scaling_production",
+          "performance_strong_scaling_production"
         ],
         "docs": [
           "docs/performance.md",
           "docs/gpu.md"
         ],
         "open_work": [
-          "map production-grid crossover points more systematically",
-          "repeat the same matrix on dedicated production GPU nodes"
+          "repeat the production and strong-scaling matrices on additional GPU nodes",
+          "add device-memory timelines for larger VMEC-family workloads"
         ]
       },
       "status": "complete",
@@ -1287,7 +1394,17 @@
         },
         {
           "kind": "script",
+          "path": "examples/performance_strong_scaling.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
           "path": "scripts/benchmark_scaling.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "scripts/benchmark_strong_scaling.py",
           "exists": true
         },
         {
@@ -1312,6 +1429,11 @@
         },
         {
           "kind": "artifact",
+          "path": "docs/_static/performance_scaling_smoke.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
           "path": "docs/_static/performance_scaling_cpu_smoke.json",
           "exists": true
         },
@@ -1332,12 +1454,67 @@
         },
         {
           "kind": "artifact",
+          "path": "docs/_static/performance_scaling_heavy.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
           "path": "docs/_static/performance_scaling_cpu_heavy.json",
           "exists": true
         },
         {
           "kind": "artifact",
           "path": "docs/_static/performance_scaling_gpu_heavy.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_production.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_production.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_cpu_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_gpu_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_production.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_production.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_cpu_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_gpu_production.json",
           "exists": true
         },
         {
@@ -1736,7 +1913,7 @@
     }
   ],
   "summary": {
-    "complete": 19,
+    "complete": 20,
     "incomplete": 0,
     "planned": 3
   }

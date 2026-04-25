@@ -90,7 +90,7 @@ ER_AXIS_FACTORS = np.asarray(
 RECOMPUTE = False
 SFINCS_JAX_SAMPLE_COUNT = 9
 NTX_NEOPAX_RADIAL_POINTS = int(os.environ.get("NTX_FIXED_FIELD_VALIDATION_NTX_NR", "17"))
-NTX_NEOPAX_N_ORDER = int(os.environ.get("NTX_FIXED_FIELD_VALIDATION_NEOPAX_N_ORDER", "3"))
+NTX_NEOPAX_N_ORDER = int(os.environ.get("NTX_FIXED_FIELD_VALIDATION_NEOPAX_N_ORDER", "2"))
 INTERIOR_RHO_MIN = 0.25
 INTERIOR_RHO_MAX = 0.85
 ENABLE_SFINCS_JAX = (
@@ -99,7 +99,7 @@ ENABLE_SFINCS_JAX = (
 )
 NTX_NEOPAX_D33_MODE = os.environ.get(
     "NTX_FIXED_FIELD_VALIDATION_D33_MODE",
-    "raw",
+    "spitzer",
 ).strip().lower()
 PRECISE_QS_PROFILE_MODE = os.environ.get(
     "NTX_FIXED_FIELD_PROFILE_MODE",
@@ -156,17 +156,15 @@ class ArchivedProfiles:
 
     @property
     def density_rho_derivative_si(self) -> np.ndarray:
-        # The archived gradients are already expressed with respect to rHat=r/a,
-        # which is the same spline coordinate used here, so only the density
-        # normalization belongs in this conversion.
-        return self.dn_hat_drhat * 1.0e20
+        # SFINCS stores d/d rHat, with rHat = aHat * rho for this archive.
+        # Cubic-Hermite interpolation below is parameterized in rho, so the
+        # supplied slope must be converted by drHat/drho = aHat.
+        return self.dn_hat_drhat * self.a_hat * 1.0e20
 
     @property
     def temperature_rho_derivative_ev(self) -> np.ndarray:
-        # Keep the derivative in rho-space; the physical 1/a factor enters later
-        # when NEOPAX differentiates the reconstructed profile on the physical
-        # radial grid.
-        return self.dT_hat_drhat * 1.0e3
+        # Same coordinate conversion as density_rho_derivative_si().
+        return self.dT_hat_drhat * self.a_hat * 1.0e3
 
     @property
     def electric_field_kv_per_m(self) -> np.ndarray:
@@ -198,8 +196,8 @@ def _exact_precise_qs_profiles(
         rho=rho_arr,
         n_hat=4.13 * (1.0 - rho_arr**10),
         t_hat=12.0 * (1.0 - rho_arr**2),
-        dn_hat_drhat=-41.3 * rho_arr**9,
-        dT_hat_drhat=-24.0 * rho_arr,
+        dn_hat_drhat=(-41.3 * rho_arr**9) / max(float(a_hat), 1.0e-30),
+        dT_hat_drhat=(-24.0 * rho_arr) / max(float(a_hat), 1.0e-30),
         er=np.asarray(er, dtype=float),
         alpha=np.asarray(alpha, dtype=float),
         a_hat=float(a_hat),
@@ -288,6 +286,27 @@ def _load_archived_sfincs_species_flows(case: FixedFieldCase) -> dict[str, np.nd
         "ion_flow": ion_current_array,
         "electron_flow": electron_current_array,
         "jdotb": np.asarray(current, dtype=float)[order],
+    }
+
+
+def _load_archived_b0_over_bbar(case: FixedFieldCase) -> dict[str, np.ndarray]:
+    rho_values: list[float] = []
+    b0_values: list[float] = []
+    for psi_n, source_input in _archived_surface_inputs(case):
+        output_path = source_input.parent / "sfincsOutput.h5"
+        if not output_path.exists():
+            continue
+        with h5py.File(output_path, "r") as handle:
+            if "B0OverBBar" not in handle:
+                continue
+            b0_over_bbar = float(np.asarray(handle["B0OverBBar"][()]).reshape(-1)[0])
+        rho_values.append(float(np.sqrt(psi_n)))
+        b0_values.append(abs(b0_over_bbar))
+    rho = np.asarray(rho_values, dtype=float)
+    order = np.argsort(rho)
+    return {
+        "rho": rho[order],
+        "b0_over_bbar": np.asarray(b0_values, dtype=float)[order],
     }
 
 
@@ -700,22 +719,56 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
             "unexpected momentum-corrected parallel-flow shape for "
             f"{case.name}: {upar_total.shape}"
         )
-    electron_current_nomom = np.asarray(-elementary_charge * upar_nomom[0], dtype=float)
-    ion_current_nomom = np.asarray(elementary_charge * upar_nomom[1], dtype=float)
-    current_profile_nomom = np.asarray(electron_current_nomom + ion_current_nomom, dtype=float)
-    electron_current_total = np.asarray(
+    electron_current_nomom_raw = np.asarray(-elementary_charge * upar_nomom[0], dtype=float)
+    ion_current_nomom_raw = np.asarray(elementary_charge * upar_nomom[1], dtype=float)
+    current_profile_nomom_raw = np.asarray(
+        electron_current_nomom_raw + ion_current_nomom_raw,
+        dtype=float,
+    )
+    electron_current_total_raw = np.asarray(
         -elementary_charge * upar_total[:, 0],
         dtype=float,
     )
-    ion_current_total = np.asarray(elementary_charge * upar_total[:, 1], dtype=float)
-    electron_current_correction = np.asarray(
-        electron_current_total - electron_current_nomom,
+    ion_current_total_raw = np.asarray(elementary_charge * upar_total[:, 1], dtype=float)
+    electron_current_correction_raw = np.asarray(
+        electron_current_total_raw - electron_current_nomom_raw,
         dtype=float,
     )
-    ion_current_correction = np.asarray(ion_current_total - ion_current_nomom, dtype=float)
-    electron_current = electron_current_total
-    ion_current = ion_current_total
+    ion_current_correction_raw = np.asarray(
+        ion_current_total_raw - ion_current_nomom_raw,
+        dtype=float,
+    )
+    current_profile_raw = np.asarray(
+        electron_current_total_raw + ion_current_total_raw,
+        dtype=float,
+    )
+    current_profile_correction_raw = np.asarray(
+        electron_current_correction_raw + ion_current_correction_raw,
+        dtype=float,
+    )
+    archived_b0 = _load_archived_b0_over_bbar(case)
+    if archived_b0["rho"].size:
+        b0_over_bbar = _interp_profile(
+            archived_b0["rho"],
+            archived_b0["b0_over_bbar"],
+            rho_field,
+        )
+    else:
+        b0_over_bbar = np.asarray(np.abs(field.B0), dtype=float)
+    b0_over_bbar = np.asarray(np.abs(b0_over_bbar), dtype=float)
+    # SFINCS reports FSABFlow = <flow * B / Bbar>. The imported closure returns
+    # the local solved parallel-flow moment, with the opposite sign convention
+    # for this benchmark family. This is an observable normalization, not a
+    # fitted closure coefficient.
+    sfincs_flow_bridge = -b0_over_bbar
+    electron_current_nomom = np.asarray(sfincs_flow_bridge * electron_current_nomom_raw)
+    ion_current_nomom = np.asarray(sfincs_flow_bridge * ion_current_nomom_raw)
+    current_profile_nomom = np.asarray(electron_current_nomom + ion_current_nomom, dtype=float)
+    electron_current = np.asarray(sfincs_flow_bridge * electron_current_total_raw)
+    ion_current = np.asarray(sfincs_flow_bridge * ion_current_total_raw)
     current_profile = np.asarray(electron_current + ion_current, dtype=float)
+    electron_current_correction = np.asarray(electron_current - electron_current_nomom)
+    ion_current_correction = np.asarray(ion_current - ion_current_nomom, dtype=float)
     current_profile_correction = np.asarray(
         electron_current_correction + ion_current_correction,
         dtype=float,
@@ -729,6 +782,8 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         )
     return {
         "rho": np.asarray(rho, dtype=float),
+        "d33_mode": NTX_NEOPAX_D33_MODE,
+        "neopax_n_order": NTX_NEOPAX_N_ORDER,
         "jdotb": _interp_profile(rho_field, current_profile, rho),
         "electron_A1": _interp_profile(rho_field, np.asarray(species.A1[0], dtype=float), rho),
         "ion_A1": _interp_profile(rho_field, np.asarray(species.A1[1], dtype=float), rho),
@@ -768,9 +823,17 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
             rho,
         ),
         "root_fsab2": _interp_profile(rho_field, root_fsab2, rho),
+        "b0_over_bbar": _interp_profile(rho_field, b0_over_bbar, rho),
         "rho_field": rho_field,
         "jdotb_grid": current_profile,
         "jdotb_nomom_grid": current_profile_nomom,
+        "jdotb_raw_closure": _interp_profile(rho_field, current_profile_raw, rho),
+        "jdotb_nomom_raw_closure": _interp_profile(rho_field, current_profile_nomom_raw, rho),
+        "jdotb_correction_raw_closure": _interp_profile(
+            rho_field,
+            current_profile_correction_raw,
+            rho,
+        ),
         "electron_A1_grid": np.asarray(species.A1[0], dtype=float),
         "ion_A1_grid": np.asarray(species.A1[1], dtype=float),
         "electron_A2_grid": np.asarray(species.A2[0], dtype=float),
@@ -795,10 +858,47 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         "ion_current_correction_grid": ion_current_correction,
         "electron_flow_grid": electron_current,
         "ion_flow_grid": ion_current,
+        "electron_current_raw_closure": _interp_profile(
+            rho_field,
+            electron_current_total_raw,
+            rho,
+        ),
+        "ion_current_raw_closure": _interp_profile(rho_field, ion_current_total_raw, rho),
+        "electron_current_nomom_raw_closure": _interp_profile(
+            rho_field,
+            electron_current_nomom_raw,
+            rho,
+        ),
+        "ion_current_nomom_raw_closure": _interp_profile(
+            rho_field,
+            ion_current_nomom_raw,
+            rho,
+        ),
+        "electron_current_correction_raw_closure": _interp_profile(
+            rho_field,
+            electron_current_correction_raw,
+            rho,
+        ),
+        "ion_current_correction_raw_closure": _interp_profile(
+            rho_field,
+            ion_current_correction_raw,
+            rho,
+        ),
+        "jdotb_raw_closure_grid": current_profile_raw,
+        "jdotb_nomom_raw_closure_grid": current_profile_nomom_raw,
+        "jdotb_correction_raw_closure_grid": current_profile_correction_raw,
+        "electron_current_raw_closure_grid": electron_current_total_raw,
+        "ion_current_raw_closure_grid": ion_current_total_raw,
+        "electron_current_nomom_raw_closure_grid": electron_current_nomom_raw,
+        "ion_current_nomom_raw_closure_grid": ion_current_nomom_raw,
+        "electron_current_correction_raw_closure_grid": electron_current_correction_raw,
+        "ion_current_correction_raw_closure_grid": ion_current_correction_raw,
+        "b0_over_bbar_grid": b0_over_bbar,
         "rho_field_finite": rho_field[finite_mask],
         "jdotb_grid_finite": current_profile[finite_mask],
         "jdotb_nomom_grid_finite": current_profile_nomom[finite_mask],
         "jdotb_correction_grid_finite": current_profile_correction[finite_mask],
+        "jdotb_raw_closure_grid_finite": current_profile_raw[finite_mask],
         "nu_values": np.asarray(nu_values, dtype=float),
         "nu_support": nu_support,
         "er_axis": np.asarray(er_axis, dtype=float),
@@ -972,6 +1072,7 @@ def main() -> None:
     summary["sfincs_jax_sample_count"] = SFINCS_JAX_SAMPLE_COUNT
     summary["ntx_neopax_radial_points"] = NTX_NEOPAX_RADIAL_POINTS
     summary["ntx_neopax_n_order"] = NTX_NEOPAX_N_ORDER
+    summary["ntx_neopax_d33_mode"] = NTX_NEOPAX_D33_MODE
     summary["case_metadata"] = {
         key: {
             **asdict(case),

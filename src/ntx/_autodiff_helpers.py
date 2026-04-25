@@ -33,7 +33,9 @@ def inverse_problem_response(
 
 
 def er_profile(rho: Array, params: Array) -> Array:
-    return params[0] * rho + params[1] * rho**3
+    parameters = jnp.asarray(params)
+    powers = 2 * jnp.arange(parameters.size, dtype=jnp.asarray(rho).dtype) + 1
+    return jnp.sum(parameters[:, None] * jnp.asarray(rho)[None, :] ** powers[:, None], axis=0)
 
 
 def evaluate_d33_profile(

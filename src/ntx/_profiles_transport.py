@@ -5,11 +5,18 @@ from __future__ import annotations
 import jax.numpy as jnp
 from jax import Array
 
+from ._profiles_ambipolar_types import (
+    AmbipolarProfileResult,
+)
 from ._profiles_eval import (
     build_species_profiles_from_primitives,
     solve_ambipolar_er_profile,
 )
 from ._profiles_radial import _broadcast_profile_field
+from ._profiles_species_types import (
+    MonoenergeticSpeciesProfile,
+    PrimitiveSpeciesProfile,
+)
 from ._profiles_transport_closure import (
     advance_primitive_profile_transport,
     advance_profile_transport,
@@ -20,11 +27,8 @@ from ._profiles_transport_terms import (
     _broadcast_species_transport_field as _broadcast_species_transport_field,
 )
 from ._profiles_transport_terms import _scaled_transport_closure
-from ._profiles_types import (
-    AmbipolarProfileResult,
-    MonoenergeticSpeciesProfile,
+from ._profiles_transport_types import (
     PrimitiveProfileTransportIterationResult,
-    PrimitiveSpeciesProfile,
     ProfileTransportClosureSpec,
     ProfileTransportIterationResult,
 )
