@@ -37,8 +37,8 @@ research checkout.
 6. Create an annotated tag:
 
    ```bash
-   git tag -a v0.2.1 -m "NTX 0.2.1"
-   git push origin v0.2.1
+   git tag -a v0.2.2 -m "NTX 0.2.2"
+   git push origin v0.2.2
    ```
 
 7. Let the GitHub release workflow build the distributions, attach them to the
@@ -46,7 +46,7 @@ research checkout.
 
 ## Current Release
 
-The current release is `0.2.1`.
+The current release is `0.2.2`.
 
 Verified locally on 2026-04-25:
 
@@ -60,11 +60,12 @@ Verified locally on 2026-04-25:
   `python -c "import ntx; from ntx import GridSpec"`
 
 The previous `v0.2.0` tag workflows were green for `tests`, `package`, and
-`release`, and published successfully through Trusted Publishing. The `v0.2.1`
-release uses the same tag-gated workflow:
+`release`, and published successfully through Trusted Publishing. The `v0.2.2`
+release uses the same tag-gated workflow and supersedes `v0.2.1` with a robust
+bootstrap-current smoke-gate correction:
 
-- [GitHub release v0.2.1](https://github.com/uwplasma/NTX/releases/tag/v0.2.1)
-- [PyPI ntx 0.2.1](https://pypi.org/project/ntx/0.2.1/)
+- [GitHub release v0.2.2](https://github.com/uwplasma/NTX/releases/tag/v0.2.2)
+- [PyPI ntx 0.2.2](https://pypi.org/project/ntx/0.2.2/)
 
 ## CI/CD Release Path
 

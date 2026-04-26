@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.2
+
+CI and release hardening after the `0.2.1` validation release.
+
+Highlights:
+
+- robust bootstrap-current optimization artifacts now separate robust-objective
+  improvement from the signed weighted-current ratio
+- the robust example smoke test now checks artifact/schema and finite
+  uncertainty metrics instead of requiring improvement from a two-step toy run
+- refreshed the robust-design figure artifact and JSON metadata for the docs
+
 ## 0.2.1
 
 Validation, documentation, and performance-artifact hardening after the first

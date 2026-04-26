@@ -220,14 +220,32 @@ def main(
 
     baseline_weighted = float(np.trapezoid(baseline, rho_np))
     optimized_weighted = float(np.trapezoid(mean_profile, rho_np))
+    objective_initial = float(objective_history[0])
+    objective_final = float(objective_history[-1])
+    current_norm = max(abs(baseline_weighted), 1.0e-30)
+    objective_norm = max(abs(objective_initial), 1.0e-30)
     payload = {
         "baseline_scale": float(result.baseline_scale),
         "optimized_scale": float(result.optimized_scale),
         "uncertainty_sigma": float(result.uncertainty_sigma),
         "risk_aversion": float(result.risk_aversion),
+        "radial_points": int(rho_np.size),
+        "scale_grid_size": int(scale_grid.size),
+        "quadrature_order": int(quadrature_order),
         "baseline_weighted_current_proxy": baseline_weighted,
         "optimized_weighted_current_proxy": optimized_weighted,
-        "robust_gain": optimized_weighted / max(baseline_weighted, 1.0e-30),
+        "weighted_current_ratio": optimized_weighted / current_norm,
+        "weighted_current_relative_change": (optimized_weighted - baseline_weighted)
+        / current_norm,
+        "robust_objective_initial": objective_initial,
+        "robust_objective_final": objective_final,
+        "robust_objective_relative_change": (objective_final - objective_initial)
+        / objective_norm,
+        "robust_gain": optimized_weighted / current_norm,
+        "robust_gain_definition": (
+            "optimized_weighted_current_proxy / "
+            "max(abs(baseline_weighted_current_proxy), 1e-30)"
+        ),
         "max_current_std": float(std_profile.max()),
         "rho": rho_np.tolist(),
         "optimized_current_mean": mean_profile.tolist(),

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,5 +28,18 @@ def test_bootstrap_current_robust_optimization_writes_outputs(tmp_path):
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()
     payload = json.loads(output_prefix.with_suffix(".json").read_text(encoding="utf-8"))
-    assert payload["robust_gain"] > 0.0
+    for key in (
+        "baseline_weighted_current_proxy",
+        "optimized_weighted_current_proxy",
+        "weighted_current_ratio",
+        "weighted_current_relative_change",
+        "robust_objective_initial",
+        "robust_objective_final",
+        "robust_objective_relative_change",
+        "robust_gain",
+    ):
+        assert math.isfinite(payload[key])
+    assert payload["radial_points"] == 3
+    assert payload["scale_grid_size"] == 5
+    assert payload["quadrature_order"] == 3
     assert payload["max_current_std"] >= 0.0
