@@ -1,2 +1,10 @@
 *.npz
+*.nc
+*.h5
+*.hdf5
+*.pdf
+*.png
+*.json
+*.log
+*/
 !.gitignore

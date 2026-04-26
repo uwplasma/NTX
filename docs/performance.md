@@ -5,6 +5,23 @@ serial batched scans and the multiprocess throughput lane. It also now includes
 workflow profilers for the archive-backed fixed-field closure audit and the
 corrected integrated W7-X workflow.
 
+## File-Backed Run Path
+
+The TOML/CLI path prepares the geometry and derivative operators once, then
+reuses that prepared system for the solve and output writer. This avoids the
+old double geometry evaluation in file-backed single-case runs and lowers both
+runtime and peak transient array pressure. Verbose CLI runs print separate
+prepare, solve, write, plot, and total timings.
+
+NetCDF and HDF5 outputs are written uncompressed for fast inspection and
+cross-code exchange. Use `.npz` when smaller Python-only artifacts matter more
+than write speed:
+
+```bash
+ntx input.toml --output outputs/run.nc --plot
+ntx input.toml --output outputs/run.npz
+```
+
 ## Benchmark Scripts
 
 Collect scaling data:

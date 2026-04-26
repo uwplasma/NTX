@@ -13,7 +13,7 @@ nu_hat = 1e-2
 epsi_hat = 0.0
 
 [output]
-npz = "outputs/example_surface.npz"
+path = "outputs/example_surface.nc"
 include_modes = true
 
 [logging]

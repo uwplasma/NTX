@@ -137,6 +137,10 @@ from ntx import write_neopax_scan_hdf5
 write_neopax_scan_hdf5(scan, "monoenergetic_out.h5")
 ```
 
+The writer stores uncompressed numeric datasets with HDF5 object timestamps
+disabled. That keeps repeated database regeneration fast and avoids needless
+binary churn from file metadata.
+
 ## Conversion Layers
 
 ### JAX-friendly path

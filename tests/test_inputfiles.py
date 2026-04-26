@@ -41,6 +41,33 @@ def test_load_run_config_vmec_parses_surface_options(tmp_path):
     assert config.surface.vmec_mode_convention == "filtered_nyquist"
     assert config.surface.min_bmn_to_load == 1e-4
     assert config.case.epsi_hat == 2e-3
+    assert config.output.path == (tmp_path / "vmec.nc").resolve()
+
+
+def test_load_run_config_accepts_output_path_aliases(tmp_path):
+    input_path = tmp_path / "run.toml"
+    input_path.write_text(
+        "\n".join(
+            [
+                "[surface]",
+                'type = "example"',
+                "",
+                "[grid]",
+                "n_theta = 5",
+                "n_zeta = 5",
+                "n_xi = 4",
+                "",
+                "[case]",
+                "nu_hat = 1e-3",
+                "",
+                "[output]",
+                'path = "custom.nc"',
+            ]
+        ),
+        encoding="utf-8",
+    )
+    config = load_run_config(input_path)
+    assert config.output.path == (tmp_path / "custom.nc").resolve()
 
 
 def test_load_run_config_requires_vmec_psi_n(tmp_path):

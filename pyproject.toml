@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ntx"
-version = "0.2.2"
+version = "0.2.3"
 description = "JAX-native monoenergetic neoclassical transport solver"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -27,6 +27,7 @@ dependencies = [
   "jax",
   "jaxlib",
   "interpax",
+  "netCDF4",
   "numpy",
   "rich",
   "scipy",
@@ -60,7 +61,6 @@ docs = [
 io = [
   "f90nml",
   "h5py",
-  "netCDF4",
 ]
 
 [project.scripts]

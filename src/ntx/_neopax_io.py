@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import jax.numpy as jnp
+import numpy as np
 
 from ._neopax_types import NEOPAX_SCAN_FORMAT_VERSION, NeopaxScan
 
@@ -73,34 +74,8 @@ def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
     output_path = Path(path).expanduser().resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with h5py.File(output_path, "w") as handle:
-        _write_dataset(handle, "rho", scan.rho)
-        _write_dataset(handle, "nu_v", scan.nu_v)
-        _write_dataset(handle, "Er", scan.Er)
-        _write_dataset(handle, "Es", scan.Es)
-        _write_dataset(handle, "drds", scan.drds)
-        _write_dataset(handle, "D11", scan.D11)
-        _write_dataset(handle, "D13", scan.D13)
-        _write_dataset(handle, "D33", scan.D33)
-        _write_dataset(handle, "D33_spitzer", scan.D33_spitzer)
-        _write_dataset(handle, "D31", scan.D31)
-        _write_dataset(handle, "Er_tilde", scan.Er_tilde)
-        _write_dataset(handle, "Er_to_Ertilde", scan.Er_to_Ertilde)
-        _write_dataset(handle, "dr_tildedr", scan.dr_tildedr)
-        _write_dataset(handle, "dr_tildeds", scan.dr_tildeds)
-        _write_dataset(handle, "B00", scan.b00)
-        _write_dataset(handle, "R00", scan.r00)
-        _write_dataset(handle, "I", scan.boozer_i)
-        _write_dataset(handle, "G", scan.boozer_g)
-        _write_dataset(handle, "iota", scan.iota)
-        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_11", scan.fac_reference_to_sfincs_11)
-        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_31", scan.fac_reference_to_sfincs_31)
-        _write_dataset(handle, "Fac_REFERENCE_TO_SFINCS_33", scan.fac_reference_to_sfincs_33)
-        _write_dataset(handle, "Fac_SFINCS_TO_DKES_11", scan.fac_sfincs_to_dkes_11)
-        _write_dataset(handle, "Fac_SFINCS_TO_DKES_31", scan.fac_sfincs_to_dkes_31)
-        _write_dataset(handle, "Fac_SFINCS_TO_DKES_33", scan.fac_sfincs_to_dkes_33)
-        _write_dataset(handle, "Fac_DKES_TO_D11star", scan.fac_dkes_to_d11star)
-        _write_dataset(handle, "Fac_DKES_TO_D31star", scan.fac_dkes_to_d31star)
-        _write_dataset(handle, "Fac_DKES_TO_D33star", scan.fac_dkes_to_d33star)
+        for name, values in _scan_datasets(scan):
+            _write_dataset(handle, name, values)
         if scan.a_b is not None:
             handle.attrs["a_b"] = float(scan.a_b)
         if scan.psia is not None:
@@ -120,4 +95,37 @@ def _optional_dataset(handle, name: str):
 def _write_dataset(handle, name: str, values) -> None:
     if values is None:
         return
-    handle[name] = jnp.asarray(values)
+    handle.create_dataset(name, data=np.asarray(values), track_times=False)
+
+
+def _scan_datasets(scan: NeopaxScan):
+    return (
+        ("rho", scan.rho),
+        ("nu_v", scan.nu_v),
+        ("Er", scan.Er),
+        ("Es", scan.Es),
+        ("drds", scan.drds),
+        ("D11", scan.D11),
+        ("D13", scan.D13),
+        ("D33", scan.D33),
+        ("D33_spitzer", scan.D33_spitzer),
+        ("D31", scan.D31),
+        ("Er_tilde", scan.Er_tilde),
+        ("Er_to_Ertilde", scan.Er_to_Ertilde),
+        ("dr_tildedr", scan.dr_tildedr),
+        ("dr_tildeds", scan.dr_tildeds),
+        ("B00", scan.b00),
+        ("R00", scan.r00),
+        ("I", scan.boozer_i),
+        ("G", scan.boozer_g),
+        ("iota", scan.iota),
+        ("Fac_REFERENCE_TO_SFINCS_11", scan.fac_reference_to_sfincs_11),
+        ("Fac_REFERENCE_TO_SFINCS_31", scan.fac_reference_to_sfincs_31),
+        ("Fac_REFERENCE_TO_SFINCS_33", scan.fac_reference_to_sfincs_33),
+        ("Fac_SFINCS_TO_DKES_11", scan.fac_sfincs_to_dkes_11),
+        ("Fac_SFINCS_TO_DKES_31", scan.fac_sfincs_to_dkes_31),
+        ("Fac_SFINCS_TO_DKES_33", scan.fac_sfincs_to_dkes_33),
+        ("Fac_DKES_TO_D11star", scan.fac_dkes_to_d11star),
+        ("Fac_DKES_TO_D31star", scan.fac_dkes_to_d31star),
+        ("Fac_DKES_TO_D33star", scan.fac_dkes_to_d33star),
+    )

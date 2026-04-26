@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.3
+
+Highlights:
+
+- TOML/CLI runs now write NetCDF by default and can select NetCDF, NPZ, or
+  HDF5 by output filename
+- `ntx input.toml --plot` writes a PDF summary panel for the saved payload
+- file-backed runs reuse one prepared geometry/operator system for reporting,
+  solving, and output writing
+- NEOPAX HDF5 scan writing now uses direct uncompressed datasets with HDF5
+  timestamps disabled
+- docs now introduce the drift-kinetic equation before the Legendre block
+  system and document the new output/plotting workflow
+
 ## 0.2.2
 
 CI and release hardening after the `0.2.1` validation release.

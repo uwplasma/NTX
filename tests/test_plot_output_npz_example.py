@@ -8,8 +8,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_plot_output_npz_example(tmp_path):
-    npz_path = tmp_path / "sample_output.npz"
+def test_plot_output_file_example(tmp_path):
+    output_path = tmp_path / "sample_output.nc"
     input_path = tmp_path / "sample_input.toml"
     sample_surface = ROOT / "tests" / "fixtures" / "sample_surface.ddkes2.data"
     env = dict(os.environ)
@@ -35,7 +35,7 @@ def test_plot_output_npz_example(tmp_path):
                 "er_hat = 1e-3",
                 "",
                 "[output]",
-                f'npz = "{npz_path.as_posix()}"',
+                f'path = "{output_path.as_posix()}"',
                 "include_modes = true",
                 "",
                 "[logging]",
@@ -62,8 +62,8 @@ def test_plot_output_npz_example(tmp_path):
     subprocess.run(
         [
             sys.executable,
-            str(ROOT / "examples" / "plot_output_npz.py"),
-            str(npz_path),
+            str(ROOT / "examples" / "plot_output_file.py"),
+            str(output_path),
             "--output-prefix",
             str(output_prefix),
         ],

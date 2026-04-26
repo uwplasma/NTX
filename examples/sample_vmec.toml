@@ -13,7 +13,7 @@ nu_hat = 1e-3
 er_hat = 1e-3
 
 [output]
-npz = "outputs/sample_vmec.npz"
+path = "outputs/sample_vmec.nc"
 include_modes = true
 
 [logging]

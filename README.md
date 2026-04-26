@@ -44,13 +44,16 @@ pip install git+https://github.com/uwplasma/booz_xform_jax.git
 Run the smallest bundled case:
 
 ```bash
-ntx examples/example_surface.toml
+ntx examples/example_surface.toml --plot
 ```
 
-This writes `examples/example_surface.npz`. Plot it with:
+This writes `examples/outputs/example_surface.nc` plus a PDF summary panel.
+Choose the output format by filename:
 
 ```bash
-python examples/plot_output_npz.py examples/example_surface.npz
+ntx examples/example_surface.toml --output examples/outputs/example_surface.npz --plot
+ntx examples/example_surface.toml --output examples/outputs/example_surface.h5 --plot
+python examples/plot_output_file.py examples/outputs/example_surface.nc
 ```
 
 Use NTX from Python:
@@ -91,9 +94,21 @@ For each monoenergetic case, NTX computes:
 - `D11`, `D31`, `D13`, `D33`, and `D33_spitzer`,
 - residual and Onsager diagnostics,
 - resolved electric-field normalization,
-- geometry arrays and run metadata in compressed `.npz` outputs.
+- geometry arrays and run metadata in NetCDF, NPZ, or HDF5 outputs.
 
 The input schema is documented in [docs/input-file.md](docs/input-file.md).
+
+## Physics In One Paragraph
+
+NTX solves the local monoenergetic drift-kinetic equation on one flux surface,
+keeping parallel streaming, mirror force, radial-electric-field precession, and
+Lorentz pitch-angle scattering at fixed speed. The unknown non-adiabatic
+response is projected onto Legendre polynomials in pitch angle, giving the
+block-tridiagonal system solved by the code. The two right-hand sides are the
+radial-transport drive and the parallel-flow/bootstrap-current drive; NTX
+returns the monoenergetic coefficients consumed by profile and NEOPAX workflows.
+The full equation, ordering, normalizations, and coefficient definitions are in
+[docs/physics.md](docs/physics.md).
 
 ## Validation Snapshot
 
