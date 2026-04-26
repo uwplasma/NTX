@@ -18,7 +18,13 @@ from .solver import MonoenergeticCase, solve_monoenergetic
 def main(argv: list[str] | None = None) -> int:
     args_list = sys.argv[1:] if argv is None else argv
     if _looks_like_input_file(args_list):
-        payload = run_from_input_file(args_list[0])
+        input_args = _parse_input_file_args(args_list)
+        payload = run_from_input_file(
+            input_args.input,
+            output_path=input_args.output,
+            plot=input_args.plot,
+            plot_path=input_args.plot_output,
+        )
         print(json.dumps(payload["result"], indent=2, sort_keys=True))
         return 0
 
@@ -82,10 +88,33 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _looks_like_input_file(argv: list[str]) -> bool:
-    if len(argv) != 1:
+    if not argv:
         return False
     candidate = Path(argv[0]).expanduser()
     return candidate.suffix == ".toml" and candidate.exists()
+
+
+def _parse_input_file_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(prog="ntx input.toml")
+    parser.add_argument("input", type=Path, help="NTX TOML input file.")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Override [output].path. Suffix selects .nc, .npz, or .h5.",
+    )
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Write a PDF summary panel next to the output file.",
+    )
+    parser.add_argument(
+        "--plot-output",
+        type=Path,
+        default=None,
+        help="Optional PDF path/prefix for --plot.",
+    )
+    return parser.parse_args(argv)
 
 
 def _load_surface(args):

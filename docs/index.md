@@ -24,16 +24,16 @@ pip install ntx
 Run the bundled analytic sample:
 
 ```bash
-ntx examples/example_surface.toml
+ntx examples/example_surface.toml --plot
 ```
 
 That solves one monoenergetic case, prints a Rich summary, and writes a
-compressed `.npz` payload next to the input file.
+NetCDF payload plus a PDF summary panel.
 
 Inspect that output graphically:
 
 ```bash
-python examples/plot_output_npz.py examples/example_surface.npz
+python examples/plot_output_file.py examples/outputs/example_surface.nc
 ```
 
 ## Main User Entry Point
@@ -44,7 +44,22 @@ ntx input.toml
 
 ## What The Code Solves
 
-NTX solves the Legendre-space monoenergetic system
+NTX starts from the local monoenergetic drift-kinetic equation on a single flux
+surface,
+
+```{math}
+\left(
+v_\parallel \mathbf b\cdot\nabla
+\mathbf v_E\cdot\nabla
+\dot{\xi}\partial_\xi
+- C_L
+\right) f = s,
+```
+
+with fixed speed, Lorentz pitch-angle scattering, and two source terms: the
+radial-transport drive and the parallel-flow/bootstrap-current drive. Projecting
+that equation onto Legendre polynomials in pitch angle gives the system actually
+solved by the code,
 
 ```{math}
 L_k f^{(k-1)} + D_k f^{(k)} + U_k f^{(k+1)} = s^{(k)}
@@ -86,7 +101,7 @@ parallel-throughput workflows.
 - [Research Roadmap](research-roadmap.md): next research-grade development lanes
 - [Manuscript Figures](manuscript.md): publication-ready figure inventory
 - [Literature](literature.md): thesis and package links
-- [Release Notes 0.2.2](release-notes-0.2.2.md): current release notes
+- [Release Notes 0.2.3](release-notes-0.2.3.md): current release notes
 
 ## Contents
 
@@ -116,6 +131,7 @@ research-roadmap
 manuscript
 literature
 release
+release-notes-0.2.3
 release-notes-0.2.2
 release-notes-0.2.1
 release-notes-0.2.0

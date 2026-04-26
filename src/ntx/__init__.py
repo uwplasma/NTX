@@ -25,7 +25,13 @@ from .database import (
 )
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
-from .inputfiles import load_run_config, run_from_input_file
+from .inputfiles import (
+    infer_run_output_format,
+    load_run_config,
+    load_run_output,
+    run_from_input_file,
+    save_run_output,
+)
 from .io import (
     load_boozer_modes_csv,
     load_dkes_surface,
@@ -59,6 +65,7 @@ from .physics_gates import (
     evaluate_artifact_gates,
     physics_gate_registry,
 )
+from .plotting import plot_run_output
 from .profiles import (
     AmbipolarProfileFamilyResult,
     AmbipolarProfileResult,
@@ -124,7 +131,7 @@ from .vmec_jax_vmec import surface_from_vmec_jax_vmec_wout, surface_from_vmec_ja
 try:
     __version__ = version("ntx")
 except PackageNotFoundError:
-    __version__ = "0.2.2"
+    __version__ = "0.2.3"
 
 __all__ = [
     "__version__",
@@ -178,7 +185,9 @@ __all__ = [
     "example_surface",
     "example_bootstrap_current_optimization",
     "evaluate_artifact_gates",
+    "infer_run_output_format",
     "load_boozmn_surface",
+    "load_run_output",
     "load_run_config",
     "load_boozer_modes_csv",
     "load_dkes_surface",
@@ -199,7 +208,9 @@ __all__ = [
     "build_species_profiles_from_primitives",
     "bootstrap_current_objective",
     "prepare_monoenergetic_system",
+    "plot_run_output",
     "run_from_input_file",
+    "save_run_output",
     "scan_to_neopax_arrays",
     "solve_monoenergetic",
     "solve_monoenergetic_internal",

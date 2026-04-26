@@ -28,8 +28,13 @@ from ntx.inputfiles import (
     _surface_source_path,
     _surface_source_text,
     _surface_table,
+    infer_run_output_format,
+    load_run_output,
     run_from_input_file,
+    save_run_hdf5,
+    save_run_netcdf,
     save_run_npz,
+    save_run_output,
 )
 from ntx.solver import MonoenergeticCase, solve_monoenergetic
 
@@ -151,3 +156,56 @@ def test_save_run_npz_without_modes_and_run_from_input_file_verbose(tmp_path):
     output = console.export_text()
     assert "NTX" in output
     assert "Solving monoenergetic system" in output
+
+
+def test_save_run_netcdf_hdf5_and_loader(tmp_path):
+    config = _example_config(tmp_path, include_modes=False)
+    config.input_path.write_text("[surface]\ntype='example'\n", encoding="utf-8")
+    surface = example_surface()
+    geom = geometry_on_grid(surface, config.grid)
+    result = solve_monoenergetic(surface, config.grid, config.case)
+
+    nc_path = save_run_netcdf(tmp_path / "result.nc", config, surface, result, geometry=geom)
+    h5_path = save_run_hdf5(tmp_path / "result.h5", config, surface, result, geometry=geom)
+    npz_path = save_run_output(tmp_path / "result.npz", config, surface, result, geometry=geom)
+
+    assert infer_run_output_format(nc_path) == "netcdf"
+    assert infer_run_output_format(h5_path) == "hdf5"
+    assert infer_run_output_format(npz_path) == "npz"
+    for path in (nc_path, h5_path, npz_path):
+        loaded = load_run_output(path)
+        assert "D11" in loaded
+        assert "b" in loaded
+        assert "surface_metadata_json" in loaded
+        assert "f1_modes" not in loaded
+
+
+def test_run_from_input_file_output_override_and_plot(tmp_path):
+    input_path = tmp_path / "run.toml"
+    input_path.write_text(
+        "\n".join(
+            [
+                "[surface]",
+                'type = "example"',
+                "",
+                "[grid]",
+                "n_theta = 5",
+                "n_zeta = 5",
+                "n_xi = 4",
+                "",
+                "[case]",
+                "nu_hat = 1e-2",
+                "epsi_hat = 0.0",
+                "",
+                "[logging]",
+                "verbose = false",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    output_path = tmp_path / "override.nc"
+    payload = run_from_input_file(input_path, output_path=output_path, plot=True)
+    assert payload["output_path"] == str(output_path.resolve())
+    assert payload["output_format"] == "netcdf"
+    assert Path(payload["plot_pdf"]).exists()
+    assert load_run_output(output_path)["D33"].shape == ()

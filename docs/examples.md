@@ -6,11 +6,12 @@ publication-figure scripts.
 ## 1. Simplest CLI Run
 
 ```bash
-ntx examples/example_surface.toml
+ntx examples/example_surface.toml --plot
 ```
 
 This is the smallest end-to-end solve. It requires no external files and is the
-best first command to confirm that NTX is installed correctly.
+best first command to confirm that NTX is installed correctly. It writes a
+NetCDF payload and a PDF summary panel under `examples/outputs/`.
 
 ## 2. DKES-Style CLI Run
 
@@ -18,7 +19,9 @@ best first command to confirm that NTX is installed correctly.
 ntx examples/sample_dkes.toml
 ```
 
-This writes a compressed `.npz` result under `examples/outputs/`.
+This writes a NetCDF result under `examples/outputs/`. Use
+`--output examples/outputs/sample_dkes.npz` when a compact NumPy archive is
+preferred.
 
 ## 3. VMEC CLI Run
 
@@ -31,10 +34,10 @@ This exercises the VMEC normalization path on the bundled sample `wout` file.
 ## 4. Open And Plot An Output File
 
 ```bash
-python examples/plot_output_npz.py examples/outputs/sample_dkes.npz
+python examples/plot_output_file.py examples/outputs/sample_dkes.nc
 ```
 
-This reads an NTX `.npz` payload and writes:
+This reads an NTX `.nc`, `.npz`, or `.h5` payload and writes:
 
 - `docs/_static/output_file_summary.png`
 - `docs/_static/output_file_summary.pdf`

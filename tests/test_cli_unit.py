@@ -78,8 +78,19 @@ def test_cli_looks_like_input_file(tmp_path):
     )
     assert cli._looks_like_input_file([str(path)])
     assert not cli._looks_like_input_file([])
-    assert not cli._looks_like_input_file([str(path), "extra"])
+    assert cli._looks_like_input_file([str(path), "--plot"])
     assert not cli._looks_like_input_file([str(path.with_suffix(".txt"))])
+
+
+def test_cli_parse_input_file_args(tmp_path):
+    path = tmp_path / "run.toml"
+    output = tmp_path / "run.nc"
+    args = cli._parse_input_file_args(
+        [str(path), "--output", str(output), "--plot", "--plot-output", str(tmp_path / "plot.pdf")]
+    )
+    assert args.input == path
+    assert args.output == output
+    assert args.plot
 
 
 def test_cli_load_surface_errors_without_vmec_psi_n():

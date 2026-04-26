@@ -6,7 +6,10 @@ in Javier Escoto's PhD thesis,
 
 ## Core System
 
-For Legendre mode `k`, NTX solves
+The continuous local model is the monoenergetic drift-kinetic equation with
+parallel streaming, mirror force, radial-electric-field precession, and Lorentz
+pitch-angle scattering. NTX projects that equation onto Legendre polynomials in
+pitch angle. For Legendre mode `k`, the runtime system is
 
 ```{math}
 L_k f^{(k-1)} + D_k f^{(k)} + U_k f^{(k+1)} = s^{(k)}.

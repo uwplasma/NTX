@@ -183,3 +183,28 @@ def test_cli_input_file_runs_and_writes_npz(tmp_path):
         assert "f1_modes" in data
         assert "b" in data
         assert "epsi_hat_resolved" in data
+
+
+def test_cli_input_file_output_override_and_plot(tmp_path):
+    input_path = _write_input_toml(tmp_path, verbose=False)
+    output_path = tmp_path / "results.nc"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ntx.cli",
+            str(input_path),
+            "--output",
+            str(output_path),
+            "--plot",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+        env=_env(),
+    )
+
+    payload = json.loads(proc.stdout)
+    assert payload["D11"] > 0.0
+    assert output_path.exists()
+    assert output_path.with_suffix(".pdf").exists()

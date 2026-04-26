@@ -12,7 +12,7 @@ nu_hat = 1e-3
 er_hat = 1e-3
 
 [output]
-npz = "outputs/sample_dkes.npz"
+path = "outputs/sample_dkes.nc"
 include_modes = true
 
 [logging]

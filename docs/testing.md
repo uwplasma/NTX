@@ -247,7 +247,7 @@ Representative test groups:
   - `tests/test_solver.py`
   - `tests/test_parallel.py`
   - `tests/test_multiprocess_parallel.py`
-- CLI and `.npz` outputs:
+- CLI and file-backed outputs:
   - `tests/test_cli.py`
   - `tests/test_inputfiles.py`
 - NEOPAX mapping:
@@ -378,7 +378,7 @@ Before publishing a new equilibrium scan or optimization result:
 2. converge `N_theta` and `N_zeta` on `D31`
 3. check `onsager_residual`
 4. compare serial and parallel scan results on a subset
-5. inspect the output `.npz` graphically with `plot_output_npz.py`
+5. inspect the output file graphically with `plot_output_file.py`
 6. add or update the benchmark-matrix entry before promoting the result
 7. if the workflow feeds NEOPAX, regenerate the monoenergetic database and
    inspect the resulting radial profiles

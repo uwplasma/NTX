@@ -101,6 +101,39 @@ The magnetic-drift factor that enters the transport source is
 This quantity is assembled in [`src/ntx/geometry.py`](../src/ntx/geometry.py)
 inside `_boozer_geometry_on_grid(...)` and `_vmec_geometry_on_grid(...)`.
 
+## Drift-Kinetic Equation Treated By NTX
+
+NTX solves the local monoenergetic drift-kinetic equation for the
+non-adiabatic response on a fixed flux surface,
+
+```{math}
+\left[
+\xi \frac{1}{B}\left(B^\theta\partial_\theta+B^\zeta\partial_\zeta\right)
++ \frac{\hat E_\psi}{\mathcal J\langle B^2\rangle}
+\left(-B_\zeta\partial_\theta+B_\theta\partial_\zeta\right)
+- \frac{1-\xi^2}{2B^2}
+\left(B^\theta\partial_\theta B+B^\zeta\partial_\zeta B\right)\partial_\xi
+- C_L
+\right] f
+= s.
+```
+
+Here `\xi = v_\parallel / v` is pitch angle and `C_L` is the Lorentz
+pitch-angle-scattering operator,
+
+```{math}
+C_L f
+=
+\frac{\hat\nu}{2}
+\partial_\xi\left[(1-\xi^2)\partial_\xi f\right].
+```
+
+The model is monoenergetic: speed is fixed, energy scattering is not retained,
+and the full species/profile problem is outside this local solve. NTX treats
+two source systems, one for radial transport and one for parallel flow. Those
+monoenergetic responses are later integrated or mapped by profile and NEOPAX
+workflows when a species-resolved bootstrap-current calculation is needed.
+
 ## Monoenergetic Legendre System
 
 The unknown distribution is expanded in Legendre modes of pitch angle,
@@ -246,7 +279,7 @@ under the assumptions of the model. NTX tracks the scalar residual
 through `onsager_error(...)` in
 [`src/ntx/transport.py`](../src/ntx/transport.py).
 
-This quantity is written into the CLI `.npz` outputs and exposed in the
+This quantity is written into the CLI NetCDF/NPZ/HDF5 outputs and exposed in the
 high-level `TransportResult`.
 
 ## Electric-Field Normalization

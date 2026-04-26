@@ -45,7 +45,7 @@ The maintained suite covers:
 - scan helpers and prepared-solver reuse
 - autodiff inverse and profile-analysis workflows
 - DKES-style, VMEC, and Boozer file loaders
-- TOML input parsing and `.npz` output writing
+- TOML input parsing and NetCDF/NPZ/HDF5 output writing
 - imported NEOPAX-array and HDF5 mapping helpers
 - `vmec_jax` and `booz_xform_jax` integration points
 - serial versus parallel-scan equivalence

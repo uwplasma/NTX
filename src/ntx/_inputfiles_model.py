@@ -28,10 +28,39 @@ class SurfaceSpec:
     min_bmn_to_load: float = 0.0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, init=False)
 class OutputSpec:
-    npz: Path
-    include_modes: bool = True
+    path: Path
+    include_modes: bool
+
+    def __init__(
+        self,
+        path: str | Path | None = None,
+        *,
+        npz: str | Path | None = None,
+        include_modes: bool = True,
+    ) -> None:
+        """Output-file configuration.
+
+        `path` is the preferred spelling. The legacy `npz` keyword remains
+        accepted so existing TOML files and tests keep their public contract.
+        """
+
+        if path is not None and npz is not None:
+            msg = "set only one of output.path or output.npz"
+            raise ValueError(msg)
+        selected = path if path is not None else npz
+        if selected is None:
+            msg = "an output path is required"
+            raise ValueError(msg)
+        object.__setattr__(self, "path", Path(selected))
+        object.__setattr__(self, "include_modes", bool(include_modes))
+
+    @property
+    def npz(self) -> Path:
+        """Backward-compatible alias for the selected output path."""
+
+        return self.path
 
 
 @dataclass(frozen=True)
@@ -84,9 +113,9 @@ def load_run_config(path: str | Path) -> RunConfig:
         epsi_hat=_optional_float(case_data.get("epsi_hat")),
         er_hat=_optional_float(case_data.get("er_hat")),
     )
-    output_npz_value = output_data.get("npz", input_path.with_suffix(".npz").name)
+    output_path_value = _output_path_value(output_data, input_path)
     output = OutputSpec(
-        npz=_resolve_relative_path(input_path, Path(str(output_npz_value))),
+        path=_resolve_relative_path(input_path, Path(str(output_path_value))),
         include_modes=bool(output_data.get("include_modes", True)),
     )
     return RunConfig(
@@ -145,6 +174,17 @@ def _optional_float(value: Any) -> float | None:
     if value is None:
         return None
     return float(value)
+
+
+def _output_path_value(output_data: dict[str, Any], input_path: Path) -> Any:
+    path_keys = ("path", "file", "netcdf", "nc", "hdf5", "h5", "npz")
+    selected = [key for key in path_keys if key in output_data]
+    if len(selected) > 1:
+        msg = f"set only one output path key, got {', '.join(selected)}"
+        raise ValueError(msg)
+    if selected:
+        return output_data[selected[0]]
+    return input_path.with_suffix(".nc").name
 
 
 def _resolve_relative_path(input_path: Path, value: Path) -> Path:

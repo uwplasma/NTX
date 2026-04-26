@@ -5,7 +5,7 @@
 Install NTX from PyPI:
 
 ```bash
-python -m pip install ntx
+pip install ntx
 ```
 
 This is enough for:
@@ -19,7 +19,7 @@ This is enough for:
 For tests, linting, and docs:
 
 ```bash
-python -m pip install -e ".[dev,docs,io]"
+pip install -e ".[dev,docs,io]"
 ```
 
 ## Geometry Extras
@@ -28,8 +28,8 @@ To use VMEC `wout` files and Boozer `boozmn` files through the JAX geometry
 helpers, install the optional upstream geometry packages directly:
 
 ```bash
-python -m pip install git+https://github.com/uwplasma/vmec_jax.git
-python -m pip install git+https://github.com/uwplasma/booz_xform_jax.git
+pip install git+https://github.com/uwplasma/vmec_jax.git
+pip install git+https://github.com/uwplasma/booz_xform_jax.git
 ```
 
 Those packages provide the dependencies used by:
@@ -55,19 +55,20 @@ pin a GPU-specific JAX wheel.
 After installation:
 
 ```bash
-ntx examples/example_surface.toml
+ntx examples/example_surface.toml --plot
 ```
 
 That should:
 
 1. print a Rich run summary
 2. solve one sample monoenergetic problem
-3. write `examples/example_surface.npz`
+3. write `examples/outputs/example_surface.nc`
+4. write `examples/outputs/example_surface.pdf`
 
 Then inspect the result:
 
 ```bash
-python examples/plot_output_npz.py examples/example_surface.npz
+python examples/plot_output_file.py examples/outputs/example_surface.nc
 ```
 
 ## Local Quality Checks

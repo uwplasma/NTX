@@ -30,8 +30,15 @@ Running
 ntx input.toml
 ```
 
-prints a Rich summary and writes `input.npz` unless another output file is
-configured.
+prints a Rich summary and writes `input.nc` unless another output file is
+configured. Current examples default to NetCDF, so a typical file-backed run is:
+
+```bash
+ntx examples/example_surface.toml --plot
+```
+
+This writes `examples/outputs/example_surface.nc` and
+`examples/outputs/example_surface.pdf`.
 
 ## Top-Level Tables
 
@@ -153,8 +160,33 @@ If `er_hat` is given, NTX converts it internally:
 
 | Key | Required | Default | Meaning |
 | --- | --- | --- | --- |
-| `npz` | no | `input.npz` | output file path |
+| `path` | no | `input.nc` | output file path; suffix selects NetCDF, NPZ, or HDF5 |
+| `npz` | no | none | legacy alias for `path = "...npz"` |
+| `netcdf`, `nc` | no | none | alias for NetCDF output path |
+| `hdf5`, `h5` | no | none | alias for HDF5 output path |
 | `include_modes` | no | `true` | include `f1_modes` and `f3_modes` |
+
+Set only one output path key. Supported suffixes are:
+
+- `.nc` or `.netcdf`: uncompressed NetCDF4, the default file-backed format
+- `.npz`: compressed NumPy archive, useful for compact Python-only exchange
+- `.h5` or `.hdf5`: uncompressed HDF5, useful for fast array interchange
+
+The CLI can override the TOML path:
+
+```bash
+ntx input.toml --output outputs/run.npz
+ntx input.toml --output outputs/run.nc --plot
+```
+
+Python callers can use the same suffix selection:
+
+```python
+from ntx import run_from_input_file
+
+payload = run_from_input_file("input.toml", output_path="outputs/run.nc", plot=True)
+print(payload["output_path"], payload["plot_pdf"])
+```
 
 ## `[logging]`
 
@@ -173,11 +205,15 @@ Verbose runs print:
 - resolved electric-field normalization
 - algorithm summary
 - transport coefficients and diagnostics
+- prepare/solve/write/plot runtime timings
 - output-file summary
+- optional PDF plot path when `--plot` is used
 
-## Output `.npz` Payload
+## Output Payload
 
-The CLI writes four classes of data.
+The CLI writes the same data to NetCDF, NPZ, and HDF5. NetCDF and HDF5 store
+string metadata as file attributes and numeric arrays as variables/datasets.
+NPZ stores every entry as a NumPy array. The payload has four classes of data.
 
 ### 1. Input And Run Metadata
 
@@ -237,8 +273,9 @@ Metadata is also stored as JSON strings:
 - `geometry_metadata_json`
 - `algorithm_metadata_json`
 
-All of this is written in `save_run_npz(...)` in
-[`src/ntx/_inputfiles_run.py`](../src/ntx/_inputfiles_run.py).
+All of this is written in `save_run_output(...)` in
+[`src/ntx/_inputfiles_run.py`](../src/ntx/_inputfiles_run.py), with
+`save_run_output(...)` selecting the concrete writer from the filename suffix.
 
 ## Example Inputs
 
@@ -275,7 +312,7 @@ nu_hat = 1e-5
 er_hat = 1e-3
 
 [output]
-npz = "outputs/sample_dkes.npz"
+path = "outputs/sample_dkes.nc"
 include_modes = true
 ```
 
@@ -301,7 +338,7 @@ nu_hat = 1e-5
 er_hat = 1e-3
 
 [output]
-npz = "outputs/sample_vmec.npz"
+path = "outputs/sample_vmec.nc"
 include_modes = true
 ```
 
@@ -310,7 +347,9 @@ include_modes = true
 Inspect an output file graphically with:
 
 ```bash
-python examples/plot_output_npz.py path/to/output.npz
+python examples/plot_output_file.py path/to/output.nc
 ```
 
 That script turns the saved payload into a publication-style multi-panel figure.
+The legacy script name `examples/plot_output_npz.py` remains available and now
+accepts `.nc`, `.npz`, and `.h5` files.

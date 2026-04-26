@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 from typing import Any
 
@@ -26,20 +27,44 @@ from ._inputfiles_reporting import (
     _surface_source_path,
     _surface_source_text,
     _surface_table,
+    _timing_table,
 )
 from .config import enable_x64
 from .geometry import BoozerSurface, VmecSurface, geometry_on_grid
-from .solver import TransportResult, solve_monoenergetic
+from .solver import (
+    TransportResult,
+    prepare_monoenergetic_system,
+    solve_prepared,
+)
+
+_NETCDF_SUFFIXES = {".nc", ".netcdf"}
+_HDF5_SUFFIXES = {".h5", ".hdf5"}
+_NPZ_SUFFIXES = {".npz"}
 
 
 def run_from_input_file(
     path: str | Path,
     *,
     console: Console | None = None,
+    output_path: str | Path | None = None,
+    plot: bool = False,
+    plot_path: str | Path | None = None,
 ) -> dict[str, Any]:
-    """Execute an NTX run from a TOML input file and save a compressed `.npz`."""
+    """Execute an NTX run from a TOML input file and save a file-backed payload."""
 
     config = load_run_config(path)
+    if output_path is not None:
+        config = RunConfig(
+            input_path=config.input_path,
+            surface=config.surface,
+            grid=config.grid,
+            case=config.case,
+            output=type(config.output)(
+                path=Path(output_path).expanduser(),
+                include_modes=config.output.include_modes,
+            ),
+            verbose=config.verbose,
+        )
     console = Console() if console is None else console
 
     if config.verbose:
@@ -50,9 +75,12 @@ def run_from_input_file(
             )
         )
 
+    t0 = time.perf_counter()
     enable_x64(config.grid.x64)
     surface = _load_surface(config.surface)
-    geom = geometry_on_grid(surface, config.grid)
+    prepared = prepare_monoenergetic_system(surface, config.grid)
+    geom = prepared.geometry
+    t_prepared = time.perf_counter()
     if config.verbose:
         console.print(_surface_table(surface, config))
         console.print(_surface_metadata_table(surface))
@@ -61,19 +89,83 @@ def run_from_input_file(
         console.print(_algorithm_table(config, geom))
         console.print("[bold green]Solving monoenergetic system...[/bold green]")
 
-    result = solve_monoenergetic(surface, config.grid, config.case)
+    result = solve_prepared(prepared, config.case)
+    t_solved = time.perf_counter()
     result_dict = result.as_dict()
-    save_run_npz(config.output.npz, config, surface, result, geometry=geom)
+    written_path = save_run_output(config.output.path, config, surface, result, geometry=geom)
+    t_written = time.perf_counter()
+    plot_pdf = None
+    if plot:
+        from .plotting import plot_run_output
+
+        plot_outputs = plot_run_output(
+            written_path,
+            output_prefix=None if plot_path is None else Path(plot_path).with_suffix(""),
+            formats=("pdf",),
+        )
+        plot_pdf = str(plot_outputs[0])
+    t_done = time.perf_counter()
+    timings = {
+        "prepare": t_prepared - t0,
+        "solve": t_solved - t_prepared,
+        "write": t_written - t_solved,
+        "total": t_done - t0,
+    }
+    if plot:
+        timings["plot"] = t_done - t_written
 
     if config.verbose:
         console.print(_result_table(result_dict))
-        console.print(_output_table(config.output.npz, config))
-        console.print(f"[bold green]Wrote[/bold green] [cyan]{config.output.npz}[/cyan]")
+        console.print(_timing_table(timings))
+        console.print(_output_table(written_path, config))
+        console.print(f"[bold green]Wrote[/bold green] [cyan]{written_path}[/cyan]")
+        if plot_pdf is not None:
+            console.print(f"[bold green]Wrote plot[/bold green] [cyan]{plot_pdf}[/cyan]")
 
-    return {
+    payload = {
         "result": result_dict,
-        "output_npz": str(config.output.npz),
+        "output_path": str(written_path),
+        "output_format": infer_run_output_format(written_path),
+        "timing_seconds": timings,
     }
+    if plot_pdf is not None:
+        payload["plot_pdf"] = plot_pdf
+    if written_path.suffix.lower() == ".npz":
+        payload["output_npz"] = str(written_path)
+    return payload
+
+
+def infer_run_output_format(path: str | Path) -> str:
+    """Infer an NTX run-output writer from a filename suffix."""
+
+    suffix = Path(path).suffix.lower()
+    if suffix in _NETCDF_SUFFIXES:
+        return "netcdf"
+    if suffix in _NPZ_SUFFIXES:
+        return "npz"
+    if suffix in _HDF5_SUFFIXES:
+        return "hdf5"
+    msg = "output path must end in .nc, .netcdf, .npz, .h5, or .hdf5"
+    raise ValueError(msg)
+
+
+def save_run_output(
+    path: str | Path,
+    config: RunConfig,
+    surface: BoozerSurface | VmecSurface,
+    result: TransportResult,
+    *,
+    geometry=None,
+) -> Path:
+    """Save run inputs, outputs, and resolved geometry using the path suffix."""
+
+    output_path = Path(path).expanduser().resolve()
+    output_format = infer_run_output_format(output_path)
+    if output_format == "npz":
+        return save_run_npz(output_path, config, surface, result, geometry=geometry)
+    if output_format == "netcdf":
+        return save_run_netcdf(output_path, config, surface, result, geometry=geometry)
+    return save_run_hdf5(output_path, config, surface, result, geometry=geometry)
 
 
 def save_run_npz(
@@ -83,11 +175,120 @@ def save_run_npz(
     result: TransportResult,
     *,
     geometry=None,
-) -> None:
+) -> Path:
     """Save run inputs, outputs, and resolved geometry to `.npz`."""
 
-    output_path = Path(path)
+    output_path = Path(path).expanduser().resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    data = build_run_payload(config, surface, result, geometry=geometry)
+    np.savez_compressed(output_path, **data)  # type: ignore[arg-type]
+    return output_path
+
+
+def save_run_netcdf(
+    path: str | Path,
+    config: RunConfig,
+    surface: BoozerSurface | VmecSurface,
+    result: TransportResult,
+    *,
+    geometry=None,
+) -> Path:
+    """Save run inputs, outputs, and resolved geometry to an uncompressed NetCDF file."""
+
+    from netCDF4 import Dataset
+
+    output_path = Path(path).expanduser().resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    data = build_run_payload(config, surface, result, geometry=geometry)
+    with Dataset(output_path, "w", format="NETCDF4") as handle:
+        handle.setncattr("ntx_format", "run_output")
+        handle.setncattr("ntx_format_version", 1)
+        handle.setncattr("ntx_output_format", "netcdf")
+        for key, value in data.items():
+            array = np.asarray(value)
+            if _is_string_array(array):
+                handle.setncattr(key, _string_array_value(array))
+                continue
+            stored = _netcdf_numeric_array(array)
+            dims = _netcdf_dims_for(key, stored.shape, data)
+            for dim_name, dim_size in zip(dims, stored.shape, strict=True):
+                if dim_name not in handle.dimensions:
+                    handle.createDimension(dim_name, dim_size)
+            variable = handle.createVariable(key, stored.dtype, dims)
+            if stored.shape:
+                variable[:] = stored
+            else:
+                variable.assignValue(stored.item())
+    return output_path
+
+
+def save_run_hdf5(
+    path: str | Path,
+    config: RunConfig,
+    surface: BoozerSurface | VmecSurface,
+    result: TransportResult,
+    *,
+    geometry=None,
+) -> Path:
+    """Save run inputs, outputs, and resolved geometry to an uncompressed HDF5 file."""
+
+    import h5py
+
+    output_path = Path(path).expanduser().resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    data = build_run_payload(config, surface, result, geometry=geometry)
+    with h5py.File(output_path, "w") as handle:
+        handle.attrs["ntx_format"] = "run_output"
+        handle.attrs["ntx_format_version"] = 1
+        handle.attrs["ntx_output_format"] = "hdf5"
+        for key, value in data.items():
+            array = np.asarray(value)
+            if _is_string_array(array):
+                handle.attrs[key] = _string_array_value(array)
+                continue
+            handle.create_dataset(key, data=np.asarray(array), track_times=False)
+    return output_path
+
+
+def load_run_output(path: str | Path) -> dict[str, np.ndarray]:
+    """Load an NTX run-output file written as `.npz`, `.nc`, or `.h5`."""
+
+    output_path = Path(path).expanduser().resolve()
+    output_format = infer_run_output_format(output_path)
+    if output_format == "npz":
+        with np.load(output_path, allow_pickle=False) as handle:
+            return {key: np.asarray(handle[key]) for key in handle.files}
+    if output_format == "netcdf":
+        from netCDF4 import Dataset
+
+        with Dataset(output_path, "r") as handle:
+            data = {key: np.asarray(variable[()]) for key, variable in handle.variables.items()}
+            for key in handle.ncattrs():
+                if key.startswith("ntx_"):
+                    continue
+                data[key] = np.asarray(handle.getncattr(key))
+            return data
+
+    import h5py
+
+    with h5py.File(output_path, "r") as handle:
+        data = {key: np.asarray(handle[key][()]) for key in handle.keys()}
+        for key, value in handle.attrs.items():
+            if key.startswith("ntx_"):
+                continue
+            data[key] = np.asarray(value)
+        return data
+
+
+def build_run_payload(
+    config: RunConfig,
+    surface: BoozerSurface | VmecSurface,
+    result: TransportResult,
+    *,
+    geometry=None,
+) -> dict[str, np.ndarray]:
+    """Build the file-backed run payload shared by all output formats."""
+
     geom = geometry if geometry is not None else geometry_on_grid(surface, config.grid)
     resolved_epsi_hat = config.case.resolved_epsi_hat(geom.transport_psi_scale)
     surface_meta = _surface_metadata(surface)
@@ -186,6 +387,7 @@ def save_run_npz(
                         "er_hat": config.case.er_hat,
                     },
                     "output": {
+                        "path": str(config.output.path),
                         "npz": str(config.output.npz),
                         "include_modes": config.output.include_modes,
                     },
@@ -235,4 +437,46 @@ def save_run_npz(
     if config.output.include_modes:
         data["f1_modes"] = np.asarray(result.f1_modes)
         data["f3_modes"] = np.asarray(result.f3_modes)
-    np.savez_compressed(output_path, **data)
+    return {key: np.asarray(value) for key, value in data.items()}
+
+
+def _is_string_array(array: np.ndarray) -> bool:
+    return array.dtype.kind in {"U", "S", "O"}
+
+
+def _string_array_value(array: np.ndarray) -> str:
+    if array.shape == ():
+        return str(array.item())
+    return json.dumps(array.tolist())
+
+
+def _netcdf_numeric_array(array: np.ndarray) -> np.ndarray:
+    if array.dtype == np.dtype("bool"):
+        return array.astype(np.int8)
+    return np.asarray(array)
+
+
+def _netcdf_dims_for(
+    key: str,
+    shape: tuple[int, ...],
+    data: dict[str, np.ndarray],
+) -> tuple[str, ...]:
+    if not shape:
+        return ()
+    n_theta = int(np.asarray(data["n_theta"]))
+    n_zeta = int(np.asarray(data["n_zeta"]))
+    surface_mode_count = int(np.asarray(data["surface_mode_count"]))
+
+    if key == "theta_grid" and shape == (n_theta,):
+        return ("theta",)
+    if key == "zeta_grid" and shape == (n_zeta,):
+        return ("zeta",)
+    if shape == (n_theta, n_zeta):
+        return ("theta", "zeta")
+    if key in {"f1_modes", "f3_modes"} and len(shape) == 3:
+        return ("xi_mode", "theta", "zeta")
+    if key.startswith("surface_modes_") and shape == (surface_mode_count,):
+        return ("surface_mode",)
+    if key.startswith("vmec_") and len(shape) == 1:
+        return (f"{key}_dim0",)
+    return tuple(f"{key}_dim{idx}" for idx in range(len(shape)))

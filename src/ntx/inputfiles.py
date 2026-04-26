@@ -28,15 +28,30 @@ from ._inputfiles_reporting import (
     _surface_source_text,
     _surface_table,
 )
-from ._inputfiles_run import run_from_input_file, save_run_npz
+from ._inputfiles_run import (
+    build_run_payload,
+    infer_run_output_format,
+    load_run_output,
+    run_from_input_file,
+    save_run_hdf5,
+    save_run_netcdf,
+    save_run_npz,
+    save_run_output,
+)
 
 __all__ = [
     "OutputSpec",
     "RunConfig",
     "SurfaceSpec",
     "load_run_config",
+    "infer_run_output_format",
+    "load_run_output",
     "run_from_input_file",
+    "save_run_output",
     "save_run_npz",
+    "save_run_netcdf",
+    "save_run_hdf5",
+    "build_run_payload",
     "_algorithm_metadata",
     "_algorithm_table",
     "_case_table",

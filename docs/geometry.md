@@ -165,12 +165,12 @@ This matters for:
 
 - dense operator assembly
 - mode-vector interpretation
-- `.npz` output arrays
+- file-backed output arrays
 
 ## Geometry In The CLI Output
 
 The `ntx input.toml` workflow writes the evaluated geometry into the output
-`.npz` file:
+NetCDF, NPZ, or HDF5 file:
 
 - `theta_grid`
 - `zeta_grid`
@@ -186,7 +186,7 @@ The `ntx input.toml` workflow writes the evaluated geometry into the output
 - `volume_prime`
 - `b2_mean`
 
-These are written in `save_run_npz(...)` in
+These are written in `save_run_output(...)` in
 [`src/ntx/_inputfiles_run.py`](../src/ntx/_inputfiles_run.py).
 
 ## Recommended Input Strategy

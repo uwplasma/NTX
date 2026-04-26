@@ -87,7 +87,8 @@ def _case_table(config: RunConfig, surface: BoozerSurface | VmecSurface) -> Tabl
         table.add_row("dpsi_hat/dr_hat", f"{surface.dpsi_hat_dr_hat:.10g}")
         table.add_row("dr_hat/dpsi_hat", f"{surface.dr_hat_dpsi_hat:.10g}")
         table.add_row("coefficient_psi_scale", "1")
-    table.add_row("output_npz", str(config.output.npz))
+    table.add_row("output_path", str(config.output.path))
+    table.add_row("output_format", _output_format_label(config.output.path))
     table.add_row("include_modes", str(config.output.include_modes))
     return table
 
@@ -110,11 +111,22 @@ def _result_table(result: dict[str, float]) -> Table:
     return table
 
 
+def _timing_table(timings: dict[str, float]) -> Table:
+    table = Table(title="Runtime", show_header=True, header_style="bold green")
+    table.add_column("Stage")
+    table.add_column("Seconds", justify="right")
+    for key in ("prepare", "solve", "write", "plot", "total"):
+        if key in timings:
+            table.add_row(key, f"{timings[key]:.3f}")
+    return table
+
+
 def _output_table(path: Path, config: RunConfig) -> Table:
     table = Table(title="Output Payload", show_header=True, header_style="bold yellow")
     table.add_column("Field")
     table.add_column("Value", overflow="fold")
-    table.add_row("npz_path", str(path))
+    table.add_row("path", str(path))
+    table.add_row("format", _output_format_label(path))
     table.add_row(
         "stored_geometry",
         "B, derivatives, Jacobian, drifts, covariant and contravariant components",
@@ -249,3 +261,14 @@ def _surface_source_text(surface: BoozerSurface | VmecSurface, path: Path | None
         return path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
         return None
+
+
+def _output_format_label(path: Path) -> str:
+    suffix = Path(path).suffix.lower()
+    if suffix in {".nc", ".netcdf"}:
+        return "NetCDF"
+    if suffix == ".npz":
+        return "compressed NPZ"
+    if suffix in {".h5", ".hdf5"}:
+        return "HDF5"
+    return f"unknown ({suffix or 'no suffix'})"
