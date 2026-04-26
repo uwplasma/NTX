@@ -188,7 +188,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `c98ec8c28bfdcccce56e629d478ea7c1457c5b41` |
+| Commit | `9f6280ea08397d42749b66992af0dd31e6933e0f` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

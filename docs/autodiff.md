@@ -493,7 +493,10 @@ docs/_static/bootstrap_current_robust_optimization.json
 
 This is a synthetic robust-design benchmark anchored to the same differentiable
 current-proxy workflow as the main optimization example. It is currently a
-tracked open lane, not a literature-grade validation claim.
+tracked open lane, not a literature-grade validation claim. The JSON artifact
+separates `robust_objective_relative_change`, which gates the optimization
+workflow, from `weighted_current_ratio`, which is a signed current-profile
+diagnostic and should not be interpreted as a standalone parity claim.
 
 ## Parallel Execution
 
