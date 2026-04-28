@@ -144,6 +144,7 @@ python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
+python examples/owned_finite_beta_profile_current_observable_audit.py
 ```
 
 These optional provenance artifacts prioritize local finite-beta stellarator
@@ -176,6 +177,9 @@ shows that the inner-radius same-grid `L13/L31/L33` coefficient difference is
 about `2.1e-2`, while the profile-current difference at the same radius remains
 about `3.1e-1`; the open lane is therefore the reduced profile-current
 observable rather than the monoenergetic coefficient bridge.
+The profile-current observable audit decomposes the same stress radius into the
+no-momentum current, applied momentum correction, correction needed to match the
+Redl target, Pmax trend, and local profile/geometry drivers.
 
 It writes:
 
@@ -193,6 +197,9 @@ It writes:
 - `docs/_static/owned_finite_beta_closure_localization.png`
 - `docs/_static/owned_finite_beta_closure_localization.pdf`
 - `docs/_static/owned_finite_beta_closure_localization.json`
+- `docs/_static/owned_finite_beta_profile_current_observable_audit.png`
+- `docs/_static/owned_finite_beta_profile_current_observable_audit.pdf`
+- `docs/_static/owned_finite_beta_profile_current_observable_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -202,6 +209,8 @@ It writes:
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 
 ![Owned finite-beta closure localization](_static/owned_finite_beta_closure_localization.png)
+
+![Owned finite-beta profile-current observable audit](_static/owned_finite_beta_profile_current_observable_audit.png)
 
 ## 10. Bootstrap Current With NEOPAX
 

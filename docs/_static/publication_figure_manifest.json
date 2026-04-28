@@ -97,6 +97,11 @@
     "docs/_static/owned_finite_beta_closure_localization.pdf",
     "docs/_static/owned_finite_beta_closure_localization.json"
   ],
+  "owned_finite_beta_profile_current_observable": [
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.json"
+  ],
   "profile_uncertainty": [
     "docs/_static/autodiff_profile_uncertainty.png",
     "docs/_static/autodiff_profile_uncertainty.pdf",

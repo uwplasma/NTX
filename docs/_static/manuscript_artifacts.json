@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "9f11b02c43060f67c7b3bc30a6dd5736b310f5fb",
+    "commit": "27024867df3d37393c5ea980d26ba3e3f2d47a68",
     "branch": "main"
   },
   "environment": {
@@ -3984,6 +3984,102 @@
         "add a stable downstream interpolation-mode audit when the profile-coupling interface exposes that selector"
       ]
     },
+    "owned_finite_beta_profile_current_observable": {
+      "summary_metrics": {
+        "stress_rho": 0.14285714285714285,
+        "stress_relative_error_total_vs_redl": 0.3106405551146464,
+        "stress_relative_error_nomom_vs_redl": 1.5283426811042948,
+        "stress_applied_over_needed_correction": 0.7967467905233171,
+        "stress_residual_after_correction_over_needed": 0.20325320947668288,
+        "correction_sign_agreement_fraction": 1.0,
+        "min_applied_over_needed_correction": 0.7967467905233171,
+        "max_applied_over_needed_correction": 1.690407356295317,
+        "max_abs_residual_after_correction_over_needed": 0.6904073562953169,
+        "pmax_stress_error_monotone_nonincreasing": true,
+        "pmax_stress_error_reduction": 3.5475366166118976,
+        "profile_current_gate": 0.1,
+        "profile_current_gate_pass": false
+      },
+      "claim_scope": "Reads the finite-beta Redl and NTX+NEOPAX bootstrap-current stress sidecar and decomposes the remaining profile-current gap into the no-momentum current, applied momentum correction, correction needed to hit the Redl target, local Redl/profile drivers, and Pmax trend. It is a reduced-closure diagnostic, not a parity claim.",
+      "conclusion": "At the finite-beta stress radius the correction has the right sign but applies less momentum correction than the Redl target would require. Increasing Pmax reduces the stress error monotonically, but the P=12 reduced closure remains above the 1e-1 current gate.",
+      "stress_radius": {
+        "rho": 0.14285714285714285,
+        "redl_current_over_root_fsab2": -20549817.57810125,
+        "ntx_neopax_nomom_over_root_fsab2": -51956980.871620685,
+        "ntx_neopax_total_over_root_fsab2": -26933424.318067342,
+        "applied_momentum_correction_over_root_fsab2": 25023556.553553343,
+        "needed_momentum_correction_to_redl_over_root_fsab2": 31407163.293519434,
+        "applied_over_needed_correction": 0.7967467905233171,
+        "residual_after_correction_over_needed": 0.20325320947668288,
+        "relative_error_nomom_vs_redl": 1.5283426811042948,
+        "relative_error_total_vs_redl": 0.3106405551146464,
+        "correction_sign_matches_needed": true,
+        "profile_drivers": {
+          "epsilon": 0.015591627274414658,
+          "trapped_fraction": 0.18143885287524886,
+          "redl_L31": 0.1634199490192511,
+          "redl_L32": -0.0191513493139282,
+          "redl_alpha": -0.7809395841640946,
+          "nu_e_star": 0.3600113627358884,
+          "nu_i_star": 0.3057963529701699,
+          "density": 3.999999987255521e+20,
+          "temperature": 11765.30612244898,
+          "A1_electron": 2.4982246768470384,
+          "A2_electron": -1.665484004610449,
+          "L31_electron": -171025.51595439,
+          "L32_electron": -511440.04001362366
+        }
+      },
+      "momentum_order_at_stress_radius": [
+        {
+          "n_order": 2,
+          "stress_relative_error_total_vs_redl": 1.1020087438738544,
+          "stress_current_over_root_fsab2": -43195896.23418146,
+          "max_relative_error_total_vs_redl": 1.1020087438738544,
+          "rms_relative_error_total_vs_redl": 0.6398656313442398
+        },
+        {
+          "n_order": 4,
+          "stress_relative_error_total_vs_redl": 0.5033983808021949,
+          "stress_current_over_root_fsab2": -30894562.472697902,
+          "max_relative_error_total_vs_redl": 0.5033983808021949,
+          "rms_relative_error_total_vs_redl": 0.24262602744049028
+        },
+        {
+          "n_order": 6,
+          "stress_relative_error_total_vs_redl": 0.40082598210786263,
+          "stress_current_over_root_fsab2": -28786718.390981104,
+          "max_relative_error_total_vs_redl": 0.40082598210786263,
+          "rms_relative_error_total_vs_redl": 0.16816360640321615
+        },
+        {
+          "n_order": 8,
+          "stress_relative_error_total_vs_redl": 0.37304469114752803,
+          "stress_current_over_root_fsab2": -28215817.929662075,
+          "max_relative_error_total_vs_redl": 0.37304469114752803,
+          "rms_relative_error_total_vs_redl": 0.15172333174863578
+        },
+        {
+          "n_order": 10,
+          "stress_relative_error_total_vs_redl": 0.34615561848540405,
+          "stress_current_over_root_fsab2": -27663252.391611118,
+          "max_relative_error_total_vs_redl": 0.34615561848540405,
+          "rms_relative_error_total_vs_redl": 0.14156081380002028
+        },
+        {
+          "n_order": 12,
+          "stress_relative_error_total_vs_redl": 0.3106405551146464,
+          "stress_current_over_root_fsab2": -26933424.318067342,
+          "max_relative_error_total_vs_redl": 0.3106405551146464,
+          "rms_relative_error_total_vs_redl": 0.12965669248029935
+        }
+      ],
+      "open_work": [
+        "derive the missing reduced momentum/profile-current observable term that changes correction amplitude without fitting a radius or device-specific threshold",
+        "validate the correction-amplitude change against production same-grid SFINCS-JAX profile-current diagnostics",
+        "require no regression of the existing fixed-field total-current stress gate and integrated W7-X transfer"
+      ]
+    },
     "profile_uncertainty": {
       "basis_size": 3,
       "sample_count": 96,
@@ -4358,6 +4454,11 @@
     "owned_finite_beta_closure_inner_gap_error_ratio": 15.11791780051106,
     "owned_finite_beta_closure_coefficient_gate_pass": true,
     "owned_finite_beta_closure_profile_gate_pass": false,
+    "owned_finite_beta_observable_stress_rho": 0.14285714285714285,
+    "owned_finite_beta_observable_applied_over_needed": 0.7967467905233171,
+    "owned_finite_beta_observable_residual_over_needed": 0.20325320947668288,
+    "owned_finite_beta_observable_pmax_error_reduction": 3.5475366166118976,
+    "owned_finite_beta_observable_correction_sign_agreement": 1.0,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -4481,6 +4582,11 @@
       "docs/_static/owned_finite_beta_closure_localization.png",
       "docs/_static/owned_finite_beta_closure_localization.pdf",
       "docs/_static/owned_finite_beta_closure_localization.json"
+    ],
+    "owned_finite_beta_profile_current_observable": [
+      "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+      "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
+      "docs/_static/owned_finite_beta_profile_current_observable_audit.json"
     ],
     "profile_uncertainty": [
       "docs/_static/autodiff_profile_uncertainty.png",
@@ -6521,7 +6627,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
           "literature_anchors": [
             "Redl bootstrap-current formula and geometry-factor normalization",
             "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -6530,11 +6636,13 @@
           ],
           "scripts": [
             "examples/owned_finite_beta_bootstrap_comparison.py",
-            "examples/owned_finite_beta_closure_localization.py"
+            "examples/owned_finite_beta_closure_localization.py",
+            "examples/owned_finite_beta_profile_current_observable_audit.py"
           ],
           "tests": [
             "tests/test_owned_finite_beta_bootstrap_comparison.py",
-            "tests/test_owned_finite_beta_closure_localization.py"
+            "tests/test_owned_finite_beta_closure_localization.py",
+            "tests/test_owned_finite_beta_profile_current_observable_audit.py"
           ],
           "artifacts": [
             "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -6542,11 +6650,15 @@
             "docs/_static/owned_finite_beta_bootstrap_comparison.json",
             "docs/_static/owned_finite_beta_closure_localization.png",
             "docs/_static/owned_finite_beta_closure_localization.pdf",
-            "docs/_static/owned_finite_beta_closure_localization.json"
+            "docs/_static/owned_finite_beta_closure_localization.json",
+            "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+            "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
+            "docs/_static/owned_finite_beta_profile_current_observable_audit.json"
           ],
           "manuscript_figures": [
             "owned_finite_beta_bootstrap_comparison",
-            "owned_finite_beta_closure_localization"
+            "owned_finite_beta_closure_localization",
+            "owned_finite_beta_profile_current_observable_audit"
           ],
           "docs": [
             "README.md",
@@ -6576,6 +6688,11 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_profile_current_observable_audit.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "exists": true
@@ -6583,6 +6700,11 @@
           {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_closure_localization.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_profile_current_observable_audit.py",
             "exists": true
           },
           {
@@ -6613,6 +6735,21 @@
           {
             "kind": "artifact",
             "path": "docs/_static/owned_finite_beta_closure_localization.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
             "exists": true
           },
           {
@@ -6797,6 +6934,7 @@
       "owned_finite_beta_sfincs_jax_inputs",
       "owned_finite_beta_bootstrap_comparison",
       "owned_finite_beta_closure_localization",
+      "owned_finite_beta_profile_current_observable",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",
