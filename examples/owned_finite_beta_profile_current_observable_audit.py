@@ -120,6 +120,51 @@ def _rows(bootstrap_payload: dict[str, Any]) -> tuple[list[dict[str, Any]], dict
     total_error = _relative_error(redl_current, total_current)
     nomom_error = _relative_error(redl_current, nomom_current)
     drivers = _profile_drivers(bootstrap_payload, rho)
+    ntx = bootstrap_payload["ntx_neopax"]
+    ntx_rho = np.asarray(ntx["rho"], dtype=float)
+    root_fsab2 = np.asarray(ntx["root_fsab2"], dtype=float)
+    species_nomom = np.asarray(ntx["current_nomom_species"], dtype=float)
+    species_total = np.asarray(ntx["current_total_species"], dtype=float)
+    species_correction = species_total - species_nomom
+    species_correction_over_root = np.asarray(
+        [
+            _interp(
+                ntx_rho,
+                species_correction[index] / np.maximum(root_fsab2, EPS),
+                rho,
+            )
+            for index in range(species_correction.shape[0])
+        ],
+        dtype=float,
+    )
+    species_total_over_root = np.asarray(
+        [
+            _interp(
+                ntx_rho,
+                species_total[index] / np.maximum(root_fsab2, EPS),
+                rho,
+            )
+            for index in range(species_total.shape[0])
+        ],
+        dtype=float,
+    )
+    species_correction_l1 = np.sum(np.abs(species_correction_over_root), axis=0)
+    species_cancellation_amplification = species_correction_l1 / np.maximum(
+        np.abs(applied_correction),
+        EPS,
+    )
+    residual_over_species_l1 = np.abs(residual_after_correction) / np.maximum(
+        species_correction_l1,
+        EPS,
+    )
+    applied_over_species_l1 = np.abs(applied_correction) / np.maximum(
+        species_correction_l1,
+        EPS,
+    )
+    needed_over_species_l1 = np.abs(needed_correction) / np.maximum(
+        species_correction_l1,
+        EPS,
+    )
 
     rows: list[dict[str, Any]] = []
     for index, rho_value in enumerate(rho):
@@ -147,6 +192,27 @@ def _rows(bootstrap_payload: dict[str, Any]) -> tuple[list[dict[str, Any]], dict
                     np.sign(applied_correction[index])
                     == np.sign(needed_correction[index])
                 ),
+                "species_current_total_over_root_fsab2": [
+                    float(value) for value in species_total_over_root[:, index]
+                ],
+                "species_momentum_correction_over_root_fsab2": [
+                    float(value) for value in species_correction_over_root[:, index]
+                ],
+                "species_momentum_correction_l1_over_root_fsab2": float(
+                    species_correction_l1[index]
+                ),
+                "species_correction_cancellation_amplification": float(
+                    species_cancellation_amplification[index]
+                ),
+                "residual_after_correction_over_species_correction_l1": float(
+                    residual_over_species_l1[index]
+                ),
+                "applied_correction_over_species_correction_l1": float(
+                    applied_over_species_l1[index]
+                ),
+                "needed_correction_over_species_correction_l1": float(
+                    needed_over_species_l1[index]
+                ),
                 "profile_drivers": {
                     key: float(value[index]) for key, value in drivers.items()
                 },
@@ -163,6 +229,9 @@ def _rows(bootstrap_payload: dict[str, Any]) -> tuple[list[dict[str, Any]], dict
         "residual_fraction": residual_fraction,
         "total_error": total_error,
         "nomom_error": nomom_error,
+        "species_correction_l1": species_correction_l1,
+        "species_cancellation_amplification": species_cancellation_amplification,
+        "residual_over_species_l1": residual_over_species_l1,
         **drivers,
     }
     return rows, arrays
@@ -256,6 +325,21 @@ def build_payload(
             "stress_residual_after_correction_over_needed": stress_row[
                 "residual_after_correction_over_needed"
             ],
+            "stress_species_correction_l1_over_root_fsab2": stress_row[
+                "species_momentum_correction_l1_over_root_fsab2"
+            ],
+            "stress_species_correction_cancellation_amplification": stress_row[
+                "species_correction_cancellation_amplification"
+            ],
+            "stress_residual_after_correction_over_species_correction_l1": stress_row[
+                "residual_after_correction_over_species_correction_l1"
+            ],
+            "stress_applied_correction_over_species_correction_l1": stress_row[
+                "applied_correction_over_species_correction_l1"
+            ],
+            "stress_needed_correction_over_species_correction_l1": stress_row[
+                "needed_correction_over_species_correction_l1"
+            ],
             "correction_sign_agreement_fraction": float(np.mean(sign_matches)),
             "min_applied_over_needed_correction": float(
                 np.nanmin(correction_fraction)
@@ -265,6 +349,12 @@ def build_payload(
             ),
             "max_abs_residual_after_correction_over_needed": float(
                 np.nanmax(np.abs(residual_fraction))
+            ),
+            "max_species_correction_cancellation_amplification": float(
+                np.nanmax(arrays["species_cancellation_amplification"])
+            ),
+            "max_residual_after_correction_over_species_correction_l1": float(
+                np.nanmax(arrays["residual_over_species_l1"])
             ),
             "pmax_stress_error_monotone_nonincreasing": pmax_monotone,
             "pmax_stress_error_reduction": pmax_reduction,
@@ -277,7 +367,10 @@ def build_payload(
             "At the finite-beta stress radius the correction has the right sign "
             "but applies less momentum correction than the Redl target would "
             "require. Increasing Pmax reduces the stress error monotonically, "
-            "but the P=12 reduced closure remains above the 1e-1 current gate."
+            "but the P=12 reduced closure remains above the 1e-1 current gate. "
+            "The stress-radius current is also a cancellation-dominated "
+            "species-current observable, so small species-flow imbalances are "
+            "amplified in the net current."
         ),
         "open_work": [
             (
@@ -374,6 +467,18 @@ def build_figure(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) -
     ax_correction.set_title("(b) Momentum-correction amplitude")
     ax_correction.grid(alpha=0.25)
     ax_correction.legend(fontsize=8)
+    stress_residual_l1 = payload["summary_metrics"][
+        "stress_residual_after_correction_over_species_correction_l1"
+    ]
+    ax_correction.text(
+        0.03,
+        0.92,
+        rf"stress residual / species L1 = {stress_residual_l1:.2e}",
+        transform=ax_correction.transAxes,
+        fontsize=8,
+        va="top",
+        bbox={"facecolor": "white", "edgecolor": "0.7", "alpha": 0.85, "pad": 2.0},
+    )
 
     if order:
         pmax = np.asarray([entry["n_order"] for entry in order], dtype=float)

@@ -179,7 +179,8 @@ about `3.1e-1`; the open lane is therefore the reduced profile-current
 observable rather than the monoenergetic coefficient bridge.
 The profile-current observable audit decomposes the same stress radius into the
 no-momentum current, applied momentum correction, correction needed to match the
-Redl target, Pmax trend, and local profile/geometry drivers.
+Redl target, Pmax trend, species-current cancellation scale, and local
+profile/geometry drivers.
 
 It writes:
 

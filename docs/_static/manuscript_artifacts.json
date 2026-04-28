@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "27024867df3d37393c5ea980d26ba3e3f2d47a68",
+    "commit": "a4a9945ef6538e898b2e6f37b7e5ee454186a91c",
     "branch": "main"
   },
   "environment": {
@@ -3991,17 +3991,24 @@
         "stress_relative_error_nomom_vs_redl": 1.5283426811042948,
         "stress_applied_over_needed_correction": 0.7967467905233171,
         "stress_residual_after_correction_over_needed": 0.20325320947668288,
+        "stress_species_correction_l1_over_root_fsab2": 1579965072.4323175,
+        "stress_species_correction_cancellation_amplification": 63.13910930490665,
+        "stress_residual_after_correction_over_species_correction_l1": 0.0040403467464876835,
+        "stress_applied_correction_over_species_correction_l1": 0.015838044137918943,
+        "stress_needed_correction_over_species_correction_l1": 0.019878390884406624,
         "correction_sign_agreement_fraction": 1.0,
         "min_applied_over_needed_correction": 0.7967467905233171,
         "max_applied_over_needed_correction": 1.690407356295317,
         "max_abs_residual_after_correction_over_needed": 0.6904073562953169,
+        "max_species_correction_cancellation_amplification": 90.53077621222013,
+        "max_residual_after_correction_over_species_correction_l1": 0.014739849471754649,
         "pmax_stress_error_monotone_nonincreasing": true,
         "pmax_stress_error_reduction": 3.5475366166118976,
         "profile_current_gate": 0.1,
         "profile_current_gate_pass": false
       },
       "claim_scope": "Reads the finite-beta Redl and NTX+NEOPAX bootstrap-current stress sidecar and decomposes the remaining profile-current gap into the no-momentum current, applied momentum correction, correction needed to hit the Redl target, local Redl/profile drivers, and Pmax trend. It is a reduced-closure diagnostic, not a parity claim.",
-      "conclusion": "At the finite-beta stress radius the correction has the right sign but applies less momentum correction than the Redl target would require. Increasing Pmax reduces the stress error monotonically, but the P=12 reduced closure remains above the 1e-1 current gate.",
+      "conclusion": "At the finite-beta stress radius the correction has the right sign but applies less momentum correction than the Redl target would require. Increasing Pmax reduces the stress error monotonically, but the P=12 reduced closure remains above the 1e-1 current gate. The stress-radius current is also a cancellation-dominated species-current observable, so small species-flow imbalances are amplified in the net current.",
       "stress_radius": {
         "rho": 0.14285714285714285,
         "redl_current_over_root_fsab2": -20549817.57810125,
@@ -4014,6 +4021,19 @@
         "relative_error_nomom_vs_redl": 1.5283426811042948,
         "relative_error_total_vs_redl": 0.3106405551146464,
         "correction_sign_matches_needed": true,
+        "species_current_total_over_root_fsab2": [
+          775320839.5939755,
+          -802254263.9120429
+        ],
+        "species_momentum_correction_over_root_fsab2": [
+          802494314.4929354,
+          -777470757.9393821
+        ],
+        "species_momentum_correction_l1_over_root_fsab2": 1579965072.4323175,
+        "species_correction_cancellation_amplification": 63.13910930490665,
+        "residual_after_correction_over_species_correction_l1": 0.0040403467464876835,
+        "applied_correction_over_species_correction_l1": 0.015838044137918943,
+        "needed_correction_over_species_correction_l1": 0.019878390884406624,
         "profile_drivers": {
           "epsilon": 0.015591627274414658,
           "trapped_fraction": 0.18143885287524886,
@@ -4457,6 +4477,8 @@
     "owned_finite_beta_observable_stress_rho": 0.14285714285714285,
     "owned_finite_beta_observable_applied_over_needed": 0.7967467905233171,
     "owned_finite_beta_observable_residual_over_needed": 0.20325320947668288,
+    "owned_finite_beta_observable_cancellation_amplification": 63.13910930490665,
+    "owned_finite_beta_observable_residual_over_species_l1": 0.0040403467464876835,
     "owned_finite_beta_observable_pmax_error_reduction": 3.5475366166118976,
     "owned_finite_beta_observable_correction_sign_agreement": 1.0,
     "profile_uncertainty_basis_size": 3,

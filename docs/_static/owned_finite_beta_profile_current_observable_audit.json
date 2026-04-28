@@ -21,6 +21,19 @@
       "relative_error_nomom_vs_redl": 0.9731746425382647,
       "relative_error_total_vs_redl": 0.1206885774017068,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        654231459.9793018,
+        -673567689.7029495
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        673149131.8078336,
+        -658440436.8821597
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 1331589568.6899934,
+      "species_correction_cancellation_amplification": 90.53077621222013,
+      "residual_after_correction_over_species_correction_l1": 0.0015638051370018419,
+      "applied_correction_over_species_correction_l1": 0.011045967369768523,
+      "needed_correction_over_species_correction_l1": 0.012609772506770365,
       "profile_drivers": {
         "epsilon": 0.011415958569430456,
         "trapped_fraction": 0.15550616579105536,
@@ -49,6 +62,19 @@
       "relative_error_nomom_vs_redl": 1.5283426811042948,
       "relative_error_total_vs_redl": 0.3106405551146464,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        775320839.5939755,
+        -802254263.9120429
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        802494314.4929354,
+        -777470757.9393821
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 1579965072.4323175,
+      "species_correction_cancellation_amplification": 63.13910930490665,
+      "residual_after_correction_over_species_correction_l1": 0.0040403467464876835,
+      "applied_correction_over_species_correction_l1": 0.015838044137918943,
+      "needed_correction_over_species_correction_l1": 0.019878390884406624,
       "profile_drivers": {
         "epsilon": 0.015591627274414658,
         "trapped_fraction": 0.18143885287524886,
@@ -77,6 +103,19 @@
       "relative_error_nomom_vs_redl": 1.3301164952155922,
       "relative_error_total_vs_redl": 0.062497552395298465,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        561619538.0213898,
+        -588810480.7779257
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        590661545.4226478,
+        -558221231.5286318
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 1148882776.9512796,
+      "species_correction_cancellation_amplification": 35.41527929429821,
+      "residual_after_correction_over_species_correction_l1": 0.001392142261756861,
+      "applied_correction_over_species_correction_l1": 0.028236400218393815,
+      "needed_correction_over_species_correction_l1": 0.029628542480150677,
       "profile_drivers": {
         "epsilon": 0.0240681655983092,
         "trapped_fraction": 0.22470782366718478,
@@ -105,6 +144,19 @@
       "relative_error_nomom_vs_redl": 1.5923963221190898,
       "relative_error_total_vs_redl": 0.1496161739283653,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        525774167.87829393,
+        -559960263.958236
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        562814117.8739159,
+        -519910214.91320944
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 1082724332.7871253,
+      "species_correction_cancellation_amplification": 25.236033509089804,
+      "residual_after_correction_over_species_correction_l1": 0.00410920010998822,
+      "applied_correction_over_species_correction_l1": 0.039625878592997134,
+      "needed_correction_over_species_correction_l1": 0.043735078702985354,
       "profile_drivers": {
         "epsilon": 0.03215621567256126,
         "trapped_fraction": 0.25885866087607223,
@@ -133,6 +185,19 @@
       "relative_error_nomom_vs_redl": 1.597630249905618,
       "relative_error_total_vs_redl": 0.1367069875213818,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        417992486.02088606,
+        -456376376.8559997
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        460176688.30476344,
+        -410844785.15168303
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 871021473.4564464,
+      "species_correction_cancellation_amplification": 17.656352538307804,
+      "residual_after_correction_over_species_correction_l1": 0.005299834613115236,
+      "applied_correction_over_species_correction_l1": 0.056636839224316976,
+      "needed_correction_over_species_correction_l1": 0.06193667383743221,
       "profile_drivers": {
         "epsilon": 0.04017501587489108,
         "trapped_fraction": 0.28834351681317283,
@@ -161,6 +226,19 @@
       "relative_error_nomom_vs_redl": 1.4483643504322727,
       "relative_error_total_vs_redl": 0.06494581357239342,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        313857433.6817174,
+        -354320637.7086908
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        358800580.3783989,
+        -306236829.4361045
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 665037409.8145034,
+      "species_correction_cancellation_amplification": 12.652015845379747,
+      "residual_after_correction_over_species_correction_l1": 0.0037105462035028924,
+      "applied_correction_over_species_correction_l1": 0.07903878814419753,
+      "needed_correction_over_species_correction_l1": 0.08274933434770042,
       "profile_drivers": {
         "epsilon": 0.04811424074861143,
         "trapped_fraction": 0.3144463762983528,
@@ -189,6 +267,19 @@
       "relative_error_nomom_vs_redl": 1.3099179204639144,
       "relative_error_total_vs_redl": 0.012530073850508134,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        263276485.96994665,
+        -306686973.716646
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        311096198.37415624,
+        -255472922.90545812
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 566569121.2796143,
+      "species_correction_cancellation_amplification": 10.185828081959157,
+      "residual_after_correction_over_species_correction_l1": 0.0009481727364148686,
+      "applied_correction_over_species_correction_l1": 0.09817562126059942,
+      "needed_correction_over_species_correction_l1": 0.09912379399701429,
       "profile_drivers": {
         "epsilon": 0.056000629709018444,
         "trapped_fraction": 0.3380409133163701,
@@ -217,6 +308,19 @@
       "relative_error_nomom_vs_redl": 1.1247743590558101,
       "relative_error_total_vs_redl": 0.03544955720550685,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        240434955.30545586,
+        -287820254.87459624
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        290995565.8549682,
+        -233997450.04876652
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 524993015.9037347,
+      "species_correction_cancellation_amplification": 9.210708257247557,
+      "residual_after_correction_over_species_correction_l1": 0.003317232981997223,
+      "applied_correction_over_species_correction_l1": 0.10856928393244221,
+      "needed_correction_over_species_correction_l1": 0.10525205095044499,
       "profile_drivers": {
         "epsilon": 0.06381303497776346,
         "trapped_fraction": 0.3595706165908753,
@@ -245,6 +349,19 @@
       "relative_error_nomom_vs_redl": 0.9073144850945112,
       "relative_error_total_vs_redl": 0.07345328675406514,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        248031015.65691414,
+        -301549930.05133563
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        301507883.6499518,
+        -244857068.67000696
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 546364952.3199588,
+      "species_correction_cancellation_amplification": 9.64443234423687,
+      "residual_after_correction_over_species_correction_l1": 0.007765481265441526,
+      "applied_correction_over_species_correction_l1": 0.10368676603320882,
+      "needed_correction_over_species_correction_l1": 0.09592128476776729,
       "profile_drivers": {
         "epsilon": 0.07155330806147352,
         "trapped_fraction": 0.37939978201976754,
@@ -273,6 +390,19 @@
       "relative_error_nomom_vs_redl": 0.6759153582208133,
       "relative_error_total_vs_redl": 0.10158950343294541,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        281441934.2188949,
+        -343922093.7793039
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        337930009.93412185,
+        -283858259.8813944
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 621788269.8155162,
+      "species_correction_cancellation_amplification": 11.499318391011684,
+      "residual_after_correction_over_species_correction_l1": 0.011362492914203848,
+      "applied_correction_over_species_correction_l1": 0.08696167598782542,
+      "needed_correction_over_species_correction_l1": 0.07559918307362157,
       "profile_drivers": {
         "epsilon": 0.07920681305475358,
         "trapped_fraction": 0.39775523825521,
@@ -301,6 +431,19 @@
       "relative_error_nomom_vs_redl": 0.46368711585970324,
       "relative_error_total_vs_redl": 0.1152165356719459,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        325156839.050724,
+        -399011735.11445516
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        384238529.0005748,
+        -335916119.3505997
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 720154648.3511746,
+      "species_correction_cancellation_amplification": 14.903119558143674,
+      "residual_after_correction_over_species_correction_l1": 0.013354613953561306,
+      "applied_correction_over_species_correction_l1": 0.06710004547024916,
+      "needed_correction_over_species_correction_l1": 0.05374543151668785,
       "profile_drivers": {
         "epsilon": 0.08677066717553042,
         "trapped_fraction": 0.41483555706550823,
@@ -329,6 +472,19 @@
       "relative_error_nomom_vs_redl": 0.29237699781986054,
       "relative_error_total_vs_redl": 0.11849877375411014,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        348875940.26189834,
+        -431113406.357455
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        406838957.64406204,
+        -368507323.69024295
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 775346281.334305,
+      "species_correction_cancellation_amplification": 20.22732144078234,
+      "residual_after_correction_over_species_correction_l1": 0.01425820805091349,
+      "applied_correction_over_species_correction_l1": 0.04943808318504294,
+      "needed_correction_over_species_correction_l1": 0.03517987513412945,
       "profile_drivers": {
         "epsilon": 0.09423389411303673,
         "trapped_fraction": 0.4307788475968114,
@@ -357,6 +513,19 @@
       "relative_error_nomom_vs_redl": 0.17035951220004403,
       "relative_error_total_vs_redl": 0.11761746043779218,
       "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        291649257.25008893,
+        -363562698.204091
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        336898537.53518015,
+        -313428654.47496206
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 650327192.0101422,
+      "species_correction_cancellation_amplification": 27.709008619325374,
+      "residual_after_correction_over_species_correction_l1": 0.014739849471754649,
+      "applied_correction_over_species_correction_l1": 0.03608934602238205,
+      "needed_correction_over_species_correction_l1": 0.021349496550627397,
       "profile_drivers": {
         "epsilon": 0.10159203168594942,
         "trapped_fraction": 0.44570995218600096,
@@ -386,6 +555,19 @@
     "relative_error_nomom_vs_redl": 1.5283426811042948,
     "relative_error_total_vs_redl": 0.3106405551146464,
     "correction_sign_matches_needed": true,
+    "species_current_total_over_root_fsab2": [
+      775320839.5939755,
+      -802254263.9120429
+    ],
+    "species_momentum_correction_over_root_fsab2": [
+      802494314.4929354,
+      -777470757.9393821
+    ],
+    "species_momentum_correction_l1_over_root_fsab2": 1579965072.4323175,
+    "species_correction_cancellation_amplification": 63.13910930490665,
+    "residual_after_correction_over_species_correction_l1": 0.0040403467464876835,
+    "applied_correction_over_species_correction_l1": 0.015838044137918943,
+    "needed_correction_over_species_correction_l1": 0.019878390884406624,
     "profile_drivers": {
       "epsilon": 0.015591627274414658,
       "trapped_fraction": 0.18143885287524886,
@@ -467,16 +649,23 @@
     "stress_relative_error_nomom_vs_redl": 1.5283426811042948,
     "stress_applied_over_needed_correction": 0.7967467905233171,
     "stress_residual_after_correction_over_needed": 0.20325320947668288,
+    "stress_species_correction_l1_over_root_fsab2": 1579965072.4323175,
+    "stress_species_correction_cancellation_amplification": 63.13910930490665,
+    "stress_residual_after_correction_over_species_correction_l1": 0.0040403467464876835,
+    "stress_applied_correction_over_species_correction_l1": 0.015838044137918943,
+    "stress_needed_correction_over_species_correction_l1": 0.019878390884406624,
     "correction_sign_agreement_fraction": 1.0,
     "min_applied_over_needed_correction": 0.7967467905233171,
     "max_applied_over_needed_correction": 1.690407356295317,
     "max_abs_residual_after_correction_over_needed": 0.6904073562953169,
+    "max_species_correction_cancellation_amplification": 90.53077621222013,
+    "max_residual_after_correction_over_species_correction_l1": 0.014739849471754649,
     "pmax_stress_error_monotone_nonincreasing": true,
     "pmax_stress_error_reduction": 3.5475366166118976,
     "profile_current_gate": 0.1,
     "profile_current_gate_pass": false
   },
-  "conclusion": "At the finite-beta stress radius the correction has the right sign but applies less momentum correction than the Redl target would require. Increasing Pmax reduces the stress error monotonically, but the P=12 reduced closure remains above the 1e-1 current gate.",
+  "conclusion": "At the finite-beta stress radius the correction has the right sign but applies less momentum correction than the Redl target would require. Increasing Pmax reduces the stress error monotonically, but the P=12 reduced closure remains above the 1e-1 current gate. The stress-radius current is also a cancellation-dominated species-current observable, so small species-flow imbalances are amplified in the net current.",
   "open_work": [
     "derive the missing reduced momentum/profile-current observable term that changes correction amplitude without fitting a radius or device-specific threshold",
     "validate the correction-amplitude change against production same-grid SFINCS-JAX profile-current diagnostics",

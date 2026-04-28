@@ -503,6 +503,16 @@ def build_payload() -> dict:
                     "stress_residual_after_correction_over_needed"
                 ]
             ),
+            "owned_finite_beta_observable_cancellation_amplification": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "stress_species_correction_cancellation_amplification"
+                ]
+            ),
+            "owned_finite_beta_observable_residual_over_species_l1": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "stress_residual_after_correction_over_species_correction_l1"
+                ]
+            ),
             "owned_finite_beta_observable_pmax_error_reduction": (
                 owned_finite_beta_observable["summary_metrics"][
                     "pmax_stress_error_reduction"
@@ -713,6 +723,12 @@ def build_markdown(payload: dict) -> str:
     ]
     observable_residual_over_needed = owned_finite_beta_observable_metrics[
         "stress_residual_after_correction_over_needed"
+    ]
+    observable_cancellation_amplification = owned_finite_beta_observable_metrics[
+        "stress_species_correction_cancellation_amplification"
+    ]
+    observable_residual_over_species_l1 = owned_finite_beta_observable_metrics[
+        "stress_residual_after_correction_over_species_correction_l1"
     ]
     observable_pmax_error_reduction = owned_finite_beta_observable_metrics[
         "pmax_stress_error_reduction"
@@ -1068,6 +1084,14 @@ def build_markdown(payload: dict) -> str:
                 f"`{observable_residual_over_needed:.3f}` |"
             ),
             (
+                "| Stress-radius species-correction cancellation amplification | "
+                f"`{observable_cancellation_amplification:.3f}` |"
+            ),
+            (
+                "| Stress-radius residual/species-correction L1 | "
+                f"`{observable_residual_over_species_l1:.3e}` |"
+            ),
+            (
                 "| Stress-radius Pmax error reduction | "
                 f"`{observable_pmax_error_reduction:.3f}x` |"
             ),
@@ -1373,7 +1397,13 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_observable_applied_over_needed']:.3f}` "
                 "of the correction needed to match the Redl target, leaving "
                 f"`{claims['owned_finite_beta_observable_residual_over_needed']:.3f}` "
-                "of the needed correction as residual. The Pmax sidecar reduces "
+                "of the needed correction as residual. At the same radius the "
+                "oppositely signed species corrections amplify the net-current "
+                "observable by "
+                f"`{claims['owned_finite_beta_observable_cancellation_amplification']:.3f}x`, "
+                "and the remaining residual is only "
+                f"`{claims['owned_finite_beta_observable_residual_over_species_l1']:.3e}` "
+                "of the species-correction L1 scale. The Pmax sidecar reduces "
                 "the stress error by "
                 f"`{claims['owned_finite_beta_observable_pmax_error_reduction']:.3f}x`, "
                 "so the remaining gap is an amplitude/observable closure issue, "

@@ -154,6 +154,8 @@
 | Inner-gap current/coefficient error ratio | `1.512e+01` |
 | Stress-radius applied/needed correction | `0.797` |
 | Stress-radius residual/needed correction | `0.203` |
+| Stress-radius species-correction cancellation amplification | `63.139` |
+| Stress-radius residual/species-correction L1 | `4.040e-03` |
 | Stress-radius Pmax error reduction | `3.548x` |
 | Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
@@ -209,7 +211,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `27024867df3d37393c5ea980d26ba3e3f2d47a68` |
+| Commit | `a4a9945ef6538e898b2e6f37b7e5ee454186a91c` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
