@@ -108,7 +108,10 @@ The profile-current observable audit then shows that the stress-radius
 momentum correction has the correct sign and applies about `0.80` of the
 correction needed to match the Redl target, leaving about `0.20` of that
 correction as residual. The Pmax sidecar reduces the stress error by about
-`3.55x` but does not cross the `1e-1` gate at Pmax 12.
+`3.55x` but does not cross the `1e-1` gate at Pmax 12. The same diagnostic
+records that the stress-radius net current is a strong electron/ion
+cancellation: the remaining residual is only about `4e-3` of the species
+momentum-correction L1 scale.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`

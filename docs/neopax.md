@@ -63,7 +63,8 @@ For end-to-end examples, see:
   finite-beta profile-current closure gap
 - [`examples/owned_finite_beta_profile_current_observable_audit.py`](../examples/owned_finite_beta_profile_current_observable_audit.py)
   for the finite-beta stress-radius observable decomposition into no-momentum
-  current, momentum correction, correction needed to match Redl, and Pmax trend
+  current, momentum correction, correction needed to match Redl, species-current
+  cancellation scale, and Pmax trend
 - [`examples/bootstrap_current_with_neopax.py`](../examples/bootstrap_current_with_neopax.py)
   for a radial bootstrap-current profile built from an NTX scan and evaluated
   through NEOPAX

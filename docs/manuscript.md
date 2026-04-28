@@ -119,7 +119,8 @@ examples.
 17. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
    - stress-radius decomposition of the profile-current observable into
      no-momentum current, applied momentum correction, correction needed to match
-     Redl, local profile/geometry drivers, and Pmax trend
+     Redl, species-current cancellation scale, local profile/geometry drivers,
+     and Pmax trend
 18. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
 19. `bootstrap_current_optimization.{png,pdf}`
