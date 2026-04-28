@@ -172,6 +172,9 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
     "tests/test_geometry_family_breadth_summary.py",
     "tests/test_geometry_family_transport_convergence.py",
     "tests/test_momentum_correction_mapping_audit.py",
+    "tests/test_owned_finite_beta_bootstrap_comparison.py",
+    "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
+    "tests/test_owned_geometry_neopax_dataset.py",
     "tests/test_physics_gates.py",
     "tests/test_w7x_reference_benchmark.py",
 )

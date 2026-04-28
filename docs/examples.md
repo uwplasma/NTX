@@ -137,6 +137,61 @@ It writes:
 
 ![Geometry-family transport convergence](_static/geometry_family_transport_convergence.png)
 
+## Owned JAX-Native NTX+NEOPAX Dataset
+
+```bash
+python examples/owned_geometry_neopax_dataset.py
+python examples/owned_finite_beta_sfincs_jax_inputs.py
+python examples/owned_finite_beta_bootstrap_comparison.py
+```
+
+These optional provenance artifacts prioritize local finite-beta stellarator
+input/wout pairs. The NTX/NEOPAX script builds finite-beta QA surfaces through
+`vmec_jax -> booz_xform_jax` with the physical VMEC edge-flux scale passed
+explicitly as `psi_p`, writes NEOPAX-style HDF5 scan tables, stores compact
+profile flux/current proxies from those same tables, and compares that path
+with the direct VMEC-harmonic interpolation path on the same radial and
+collisionality grid. Optimized finite-beta QH/QI cases are retained as direct
+wout-harmonic stress cases until their current-profile representation is
+supported by the JAX geometry stack.
+
+The SFINCS-JAX script writes owned `RHSMode=3` input decks for the same
+finite-beta `wout`, `rho`, collisionality, electric-field, and resolution
+contract. Use `--run-sfincs-jax` for explicit local runs; completed HDF5
+outputs are ingested into the JSON sidecar with the SFINCS-reported
+`nuPrime -> nu_n` bridge and a coefficient-level NTX `L13/L31/L33`
+comparison. The committed artifact now contains a six-point same-grid
+finite-beta QA ladder; use it as a smoke-resolution transport-coefficient
+localization tool, not as a bootstrap-current parity claim.
+
+The finite-beta bootstrap-current script runs Redl and `NTX+NEOPAX` on the
+same QA pressure/current `wout`, Boozer transform, analytic profile contract,
+radial grid, adaptive physical `nu/v` support, and current normalization. It
+is a production-resolution reduced-closure stress audit for this QA case; the
+current JSON sidecar records the remaining inner-radius Redl/`NTX+NEOPAX` gap
+and a Sonine-order convergence scan instead of promoting the figure as parity.
+
+It writes:
+
+- `docs/_static/owned_geometry_neopax_dataset.png`
+- `docs/_static/owned_geometry_neopax_dataset.pdf`
+- `docs/_static/owned_geometry_neopax_dataset.json`
+- `examples/outputs/owned_geometry_neopax_dataset/*.h5`
+- `docs/_static/owned_finite_beta_sfincs_jax_inputs.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_inputs.json`
+- `examples/outputs/owned_finite_beta_sfincs_jax_inputs/**/input.namelist`
+- `docs/_static/owned_finite_beta_bootstrap_comparison.png`
+- `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
+- `docs/_static/owned_finite_beta_bootstrap_comparison.json`
+- `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
+
+![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
+
+![Owned finite-beta SFINCS-JAX generation contract](_static/owned_finite_beta_sfincs_jax_inputs.png)
+
+![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
+
 ## 10. Bootstrap Current With NEOPAX
 
 ```bash

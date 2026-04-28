@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "646a76a7bc4964c52d72a91dabf9773691d27eb1",
+    "commit": "9ec0c7c585da4775e94fd4ed160aabf788ae7aa7",
     "branch": "main"
   },
   "environment": {
@@ -2860,6 +2860,1086 @@
         "add radial and collisionality ladders before claiming broad bootstrap-current-profile validation"
       ]
     },
+    "owned_geometry_neopax": {
+      "cases": [
+        {
+          "id": "finite_beta_qa_pressure_current",
+          "label": "Finite-beta QA pressure/current",
+          "family": "QA finite beta",
+          "source": "single-stage finite-beta test case",
+          "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
+          "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+          "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmec_jax input reader",
+          "primary_geometry_path": "booz_xform_jax",
+          "wout_metadata": {
+            "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+            "exists": true,
+            "nfp": 2,
+            "ns": 50,
+            "mpol": 8,
+            "ntor": 8,
+            "beta_vol": 0.0002519202234664469,
+            "betatotal": 0.012648204949374074,
+            "Aminor_p": 0.16831206437162471,
+            "Rmajor_p": 1.0098736979848884,
+            "b0": 0.8705673153008565
+          },
+          "status": "complete",
+          "requested_primary_geometry_path": "booz_xform_jax",
+          "primary_scan_path": "booz_xform_jax",
+          "scan_paths": {
+            "booz_xform_jax": {
+              "geometry_path": "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+              "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
+              "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
+              "status": "complete",
+              "seconds": 2.5189392080064863,
+              "coefficients": {
+                "D11": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": 4.466290740420486,
+                  "max": 25.042954309100956,
+                  "first": 4.466290740420486,
+                  "values": [
+                    [
+                      [
+                        4.466290740420486
+                      ],
+                      [
+                        5.543005758418878
+                      ]
+                    ],
+                    [
+                      [
+                        6.638954043685088
+                      ],
+                      [
+                        14.126830433296844
+                      ]
+                    ],
+                    [
+                      [
+                        9.696387775258373
+                      ],
+                      [
+                        25.042954309100956
+                      ]
+                    ]
+                  ]
+                },
+                "D13": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": -46.477433742046784,
+                  "max": -3.284135395048557,
+                  "first": -25.58826214565633,
+                  "values": [
+                    [
+                      [
+                        -25.58826214565633
+                      ],
+                      [
+                        -3.284135395048557
+                      ]
+                    ],
+                    [
+                      [
+                        -35.821648096114345
+                      ],
+                      [
+                        -8.132630665824083
+                      ]
+                    ],
+                    [
+                      [
+                        -46.477433742046784
+                      ],
+                      [
+                        -13.810397381604695
+                      ]
+                    ]
+                  ]
+                },
+                "D33": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": 57.55079561826393,
+                  "max": 499.86329673962354,
+                  "first": 499.86329673962354,
+                  "values": [
+                    [
+                      [
+                        499.86329673962354
+                      ],
+                      [
+                        64.42340640450004
+                      ]
+                    ],
+                    [
+                      [
+                        438.9443188767691
+                      ],
+                      [
+                        61.20064689251623
+                      ]
+                    ],
+                    [
+                      [
+                        376.40537860943624
+                      ],
+                      [
+                        57.55079561826393
+                      ]
+                    ]
+                  ]
+                },
+                "iota": [
+                  -0.516008219827834,
+                  -0.506577336516036,
+                  -0.49270414404883395
+                ],
+                "B00": [
+                  0.9917148575686605,
+                  0.9965605712760106,
+                  1.0037494486157692
+                ]
+              },
+              "profile_responses": {
+                "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+                "density": [
+                  1.19993439,
+                  1.19609375,
+                  1.14235199
+                ],
+                "temperature": [
+                  1.11,
+                  0.95,
+                  0.71
+                ],
+                "A1": [
+                  -0.0014580797205087186,
+                  -0.05225342913128674,
+                  -0.5767350219261225
+                ],
+                "A3": [
+                  -0.5405405405405405,
+                  -1.0526315789473684,
+                  -1.971830985915493
+                ],
+                "electron_particle_flux_proxy": [
+                  -13.82498084375162,
+                  -37.36008988128227,
+                  -86.05339758223428
+                ],
+                "ion_particle_flux_proxy": [
+                  -6.91249042187581,
+                  -18.680044940641135,
+                  -43.02669879111714
+                ],
+                "ambipolar_residual_proxy": [
+                  6.91249042187581,
+                  18.680044940641135,
+                  43.02669879111714
+                ],
+                "electron_current_proxy": [
+                  -270.23368634213034,
+                  -463.9184553993868,
+                  -769.0129525756283
+                ],
+                "ion_current_proxy": [
+                  135.11684317106517,
+                  231.9592276996934,
+                  384.50647628781417
+                ],
+                "bootstrap_current_proxy": [
+                  -135.11684317106517,
+                  -231.9592276996934,
+                  -384.50647628781417
+                ],
+                "bootstrap_current_proxy_normalized": [
+                  -0.3514032961825234,
+                  -0.6032648134801902,
+                  -1.0
+                ],
+                "bootstrap_current_objective": 0.18513411469345195
+              },
+              "hdf5": {
+                "status": "written",
+                "path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_geometry_neopax_dataset/finite_beta_qa_pressure_current_booz_xform_jax.h5"
+              }
+            },
+            "vmec_jax_wout_cubic": {
+              "geometry_path": "vmec_jax read_wout -> NTX VmecSurface",
+              "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
+              "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
+              "status": "complete",
+              "seconds": 0.5914393339771777,
+              "coefficients": {
+                "D11": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": 4.199704576440841,
+                  "max": 23.66420218610703,
+                  "first": 4.199704576440841,
+                  "values": [
+                    [
+                      [
+                        4.199704576440841
+                      ],
+                      [
+                        5.1734503764392645
+                      ]
+                    ],
+                    [
+                      [
+                        5.987033391321631
+                      ],
+                      [
+                        13.264307140843444
+                      ]
+                    ],
+                    [
+                      [
+                        8.3119675187615
+                      ],
+                      [
+                        23.66420218610703
+                      ]
+                    ]
+                  ]
+                },
+                "D13": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": -44.90550464104208,
+                  "max": -3.0785603811859277,
+                  "first": -24.631821164268167,
+                  "values": [
+                    [
+                      [
+                        -24.631821164268167
+                      ],
+                      [
+                        -3.0785603811859277
+                      ]
+                    ],
+                    [
+                      [
+                        -34.18938860022609
+                      ],
+                      [
+                        -7.677297994275084
+                      ]
+                    ],
+                    [
+                      [
+                        -44.90550464104208
+                      ],
+                      [
+                        -13.149003014692717
+                      ]
+                    ]
+                  ]
+                },
+                "D33": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": 57.974374151725065,
+                  "max": 501.70497769800556,
+                  "first": 501.70497769800556,
+                  "values": [
+                    [
+                      [
+                        501.70497769800556
+                      ],
+                      [
+                        64.5428974276005
+                      ]
+                    ],
+                    [
+                      [
+                        443.6624931667936
+                      ],
+                      [
+                        61.48387849004368
+                      ]
+                    ],
+                    [
+                      [
+                        383.2709542764045
+                      ],
+                      [
+                        57.974374151725065
+                      ]
+                    ]
+                  ]
+                },
+                "iota": [
+                  -0.5161115018904153,
+                  -0.5068715457120138,
+                  -0.49326096867505764
+                ],
+                "B00": [
+                  0.9917582900651559,
+                  0.9965086510459154,
+                  1.0035666784254176
+                ]
+              },
+              "profile_responses": {
+                "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+                "density": [
+                  1.19993439,
+                  1.19609375,
+                  1.14235199
+                ],
+                "temperature": [
+                  1.11,
+                  0.95,
+                  0.71
+                ],
+                "A1": [
+                  -0.0014580797205087186,
+                  -0.05225342913128674,
+                  -0.5767350219261225
+                ],
+                "A3": [
+                  -0.5405405405405405,
+                  -1.0526315789473684,
+                  -1.971830985915493
+                ],
+                "electron_particle_flux_proxy": [
+                  -13.308374422556403,
+                  -35.67598708048107,
+                  -83.75226272019661
+                ],
+                "ion_particle_flux_proxy": [
+                  -6.6541872112782015,
+                  -17.837993540240536,
+                  -41.876131360098306
+                ],
+                "ambipolar_residual_proxy": [
+                  6.6541872112782015,
+                  17.837993540240536,
+                  41.876131360098306
+                ],
+                "electron_current_proxy": [
+                  -271.22779499567855,
+                  -468.79966349615194,
+                  -781.6441208473695
+                ],
+                "ion_current_proxy": [
+                  135.61389749783928,
+                  234.39983174807597,
+                  390.8220604236848
+                ],
+                "bootstrap_current_proxy": [
+                  -135.61389749783928,
+                  -234.39983174807597,
+                  -390.8220604236848
+                ],
+                "bootstrap_current_proxy_normalized": [
+                  -0.34699652663112757,
+                  -0.5997610050312062,
+                  -1.0
+                ],
+                "bootstrap_current_objective": 0.18398331158061515
+              },
+              "hdf5": {
+                "status": "written",
+                "path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_geometry_neopax_dataset/finite_beta_qa_pressure_current_vmec_jax_wout_cubic.h5"
+              }
+            }
+          },
+          "interpolation_audit": {
+            "reference_path": "booz_xform_jax",
+            "candidate_path": "vmec_jax_wout_cubic",
+            "claim_scope": "same input/wout, rho, collisionality, electric field, grid, and normalization; differences isolate geometry/interpolation-path effects and should not be mixed with external reference datasets",
+            "max_relative_difference": {
+              "D11": 0.1427769070900202,
+              "D13": 0.06259638813082183,
+              "D33": 0.018239844744865022
+            }
+          },
+          "geometry_path_blockers": [],
+          "drds": [
+            0.2805201072860412,
+            0.16831206437162471,
+            0.12022290312258908
+          ]
+        },
+        {
+          "id": "finite_beta_nfp3_qh_stage1",
+          "label": "Finite-beta optimized NFP3 QH",
+          "family": "QH finite beta",
+          "source": "single-stage finite-beta optimized case",
+          "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/input.final",
+          "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
+          "notes": "optimized finite-beta QH stellarator; direct wout-harmonic NTX path is usable, while the current vmec_jax Boozer path reports the unresolved cubic-spline current-profile support gap",
+          "primary_geometry_path": "vmec_jax_wout_cubic",
+          "wout_metadata": {
+            "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
+            "exists": true,
+            "nfp": 3,
+            "ns": 101,
+            "mpol": 5,
+            "ntor": 5,
+            "beta_vol": 2.6328145840101252e-05,
+            "betatotal": 0.02549438122038845,
+            "Aminor_p": 1.8868753168704075,
+            "Rmajor_p": 11.034936767634333,
+            "b0": 5.261240197954242
+          },
+          "status": "partial",
+          "requested_primary_geometry_path": "vmec_jax_wout_cubic",
+          "primary_scan_path": "vmec_jax_wout_cubic",
+          "scan_paths": {
+            "booz_xform_jax": {
+              "geometry_path": "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+              "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
+              "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
+              "status": "skipped",
+              "error": "NotImplementedError: pcurr_type='cubic_spline_ip' not implemented (only 'power_series' and 'two_power')"
+            },
+            "vmec_jax_wout_cubic": {
+              "geometry_path": "vmec_jax read_wout -> NTX VmecSurface",
+              "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
+              "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
+              "status": "complete",
+              "seconds": 0.5687012499547563,
+              "coefficients": {
+                "D11": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": 4.2724484809186536e-05,
+                  "max": 0.00022697884836742998,
+                  "first": 4.2724484809186536e-05,
+                  "values": [
+                    [
+                      [
+                        4.2724484809186536e-05
+                      ],
+                      [
+                        4.6626079047256795e-05
+                      ]
+                    ],
+                    [
+                      [
+                        8.174401507196743e-05
+                      ],
+                      [
+                        0.0001238013127318547
+                      ]
+                    ],
+                    [
+                      [
+                        0.00011840668677871077
+                      ],
+                      [
+                        0.00022697884836742998
+                      ]
+                    ]
+                  ]
+                },
+                "D13": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": -0.1341456127285427,
+                  "max": -0.0050800201795401225,
+                  "first": -0.054828047520569995,
+                  "values": [
+                    [
+                      [
+                        -0.054828047520569995
+                      ],
+                      [
+                        -0.0050800201795401225
+                      ]
+                    ],
+                    [
+                      [
+                        -0.09959734990132432
+                      ],
+                      [
+                        -0.013391701866282673
+                      ]
+                    ],
+                    [
+                      [
+                        -0.1341456127285427
+                      ],
+                      [
+                        -0.02426007200964247
+                      ]
+                    ]
+                  ]
+                },
+                "D33": {
+                  "shape": [
+                    3,
+                    2,
+                    1
+                  ],
+                  "min": 63.04285381238999,
+                  "max": 586.7808087927933,
+                  "first": 586.7808087927933,
+                  "values": [
+                    [
+                      [
+                        586.7808087927933
+                      ],
+                      [
+                        65.82372146747844
+                      ]
+                    ],
+                    [
+                      [
+                        525.1471578123592
+                      ],
+                      [
+                        64.61507533558114
+                      ]
+                    ],
+                    [
+                      [
+                        476.9711135406474
+                      ],
+                      [
+                        63.04285381238999
+                      ]
+                    ]
+                  ]
+                },
+                "iota": [
+                  0.9155366087356841,
+                  0.9091503730296133,
+                  0.9083556566532293
+                ],
+                "B00": [
+                  5.780245857967364,
+                  5.819917481002879,
+                  5.8769693795516815
+                ]
+              },
+              "profile_responses": {
+                "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+                "density": [
+                  1.19993439,
+                  1.19609375,
+                  1.14235199
+                ],
+                "temperature": [
+                  1.11,
+                  0.95,
+                  0.71
+                ],
+                "A1": [
+                  -0.0014580797205087186,
+                  -0.05225342913128674,
+                  -0.5767350219261225
+                ],
+                "A3": [
+                  -0.5405405405405405,
+                  -1.0526315789473684,
+                  -1.971830985915493
+                ],
+                "electron_particle_flux_proxy": [
+                  -0.029636720147846476,
+                  -0.10483504428050608,
+                  -0.2644441865196647
+                ],
+                "ion_particle_flux_proxy": [
+                  -0.014818360073923238,
+                  -0.05241752214025304,
+                  -0.13222209325983236
+                ],
+                "ambipolar_residual_proxy": [
+                  0.014818360073923238,
+                  0.05241752214025304,
+                  0.13222209325983236
+                ],
+                "electron_current_proxy": [
+                  -317.1788955073362,
+                  -552.7916862108112,
+                  -940.5837875389636
+                ],
+                "ion_current_proxy": [
+                  158.5894477536681,
+                  276.3958431054056,
+                  470.2918937694818
+                ],
+                "bootstrap_current_proxy": [
+                  -158.5894477536681,
+                  -276.3958431054056,
+                  -470.2918937694818
+                ],
+                "bootstrap_current_proxy_normalized": [
+                  -0.3372149293974484,
+                  -0.5877112635092191,
+                  -1.0
+                ],
+                "bootstrap_current_objective": 0.18045229671197313
+              },
+              "hdf5": {
+                "status": "written",
+                "path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_geometry_neopax_dataset/finite_beta_nfp3_qh_stage1_vmec_jax_wout_cubic.h5"
+              }
+            }
+          },
+          "interpolation_audit": {
+            "status": "blocked",
+            "reference_path": "booz_xform_jax",
+            "candidate_path": "vmec_jax_wout_cubic",
+            "claim_scope": "direct VMEC-harmonic NTX scan completed, but the JAX Boozer reference path did not; this is a geometry-backend support lane, not a transport-coefficient parity result"
+          },
+          "geometry_path_blockers": [
+            {
+              "path": "booz_xform_jax",
+              "error": "NotImplementedError: pcurr_type='cubic_spline_ip' not implemented (only 'power_series' and 'two_power')",
+              "reason": "geometry backend could not build this path for the same finite-beta input/wout pair"
+            }
+          ],
+          "drds": [
+            3.1447921947840127,
+            1.8868753168704075,
+            1.3477680834788626
+          ]
+        }
+      ],
+      "summary_metrics": {
+        "case_count": 2,
+        "complete_case_count": 1,
+        "usable_case_count": 2,
+        "skipped_case_count": 0,
+        "max_geometry_path_relative_difference": 0.1427769070900202
+      },
+      "claim_scope": "Generates self-contained NTX+NEOPAX scan artifacts from matching input/wout geometry pairs. This establishes owned normalization and interpolation provenance; it is not an external-code parity claim.",
+      "comparison_policy": "Do not compare W7-X, QA, QH, Redl, SFINCS, and NTX+NEOPAX curves unless they are generated from the same geometry, profile, collisionality, radial electric-field, interpolation, and normalization contract.",
+      "normalization_contract": {
+        "raw_scan": "D11, D13, and D33 are stored as NTX monoenergetic coefficients.",
+        "neopax_export": "D11*drds^2, D13*drds, and nu_v*D33.",
+        "booz_xform_psi_p": "The Boozer-coordinate NTX path passes abs(phi_edge)/(2*pi) from the matching VMEC wout as psi_p, so the Boozer transform and direct VMEC-harmonic audit use the same physical edge-flux scale."
+      },
+      "open_work": [
+        "run SFINCS and the analytic bootstrap-current formula on these same owned geometry/profile grids before promoting new parity figures",
+        "add the NEOPAX general and legacy interpolation modes to this audit once both are available through a stable public interface",
+        "extend vmec_jax input reconstruction to optimized finite-beta cubic-spline current profiles so those cases can use the same JAX Boozer path as the power-series finite-beta QA case",
+        "expand the default case set to paper-resolution QA, QH, QI, and W7-X inputs after owned SFINCS-generation scripts have completed runs"
+      ]
+    },
+    "owned_finite_beta_sfincs_jax_inputs": {
+      "summary_metrics": {
+        "case_count": 1,
+        "deck_count": 6,
+        "completed_run_count": 6,
+        "failed_run_count": 0,
+        "input_written_count": 0,
+        "output_found_count": 0,
+        "completed_transport_matrix_count": 6,
+        "sfincs_runtime_nu_n_over_input_nuPrime_min": 0.9317624402087772,
+        "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9380785282797137,
+        "completed_ntx_same_grid_comparison_count": 6,
+        "max_ntx_same_grid_transport_relative_difference": 0.014072815428719222,
+        "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.4193576660576946
+      },
+      "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. The current artifact is a smoke-resolution coefficient ladder, not a finite-beta bootstrap-current parity claim.",
+      "normalization_contract": {
+        "rho_to_s": "s=rho^2",
+        "ntx_nu_v_to_sfincs_nuPrime": "SFINCS-JAX reports runtime nu_n = nuPrime*B0OverBBar/(GHat+iota*IHat); owned parity comparisons must either solve NTX at that reported nu_n or generate nuPrime from the target NTX nu_v using the same bridge",
+        "radial_interpolation": "VMECRadialOption=0 is used so SFINCS-JAX evaluates the requested rN_wish directly instead of snapping to a nearest VMEC half-grid surface.",
+        "rhs3_flow_row_bridge": "NTX D33 maps to the RHSMode=3 SFINCS flow row with nuDHat*4*B0OverBBar/(3*(GHat+iota*IHat)); this is the row-2 flow normalization in the SFINCS transport-matrix diagnostic when collisionOperator=1.",
+        "pas_collision_frequency_bridge": "NTX uses nu_hat as the monoenergetic pitch-angle scattering frequency, while SFINCS-JAX RHSMode=3 uses nu_n*nuDHat(x=1). The same-grid NTX solve therefore uses nu_hat=nu_n*nuDHat.",
+        "ntx_es_to_sfincs_EStar": "identity for this monoenergetic generation audit; electric-field normalization must stay explicit in any promoted comparison"
+      },
+      "open_work": [
+        "expand the current completed smoke-resolution SFINCS-JAX transport-matrix ladder to production radial and collisionality resolution using the reported nu_n bridge",
+        "run Redl and NTX+NEOPAX current profiles on the same finite-beta profile contract",
+        "promote only after the same geometry, profile, normalization, and interpolation JSON sidecar is complete"
+      ]
+    },
+    "owned_finite_beta_bootstrap_comparison": {
+      "case": {
+        "id": "finite_beta_qa_pressure_current",
+        "label": "Finite-beta QA pressure/current",
+        "family": "QA finite beta",
+        "source": "single-stage finite-beta test case",
+        "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
+        "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+        "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmec_jax input reader",
+        "primary_geometry_path": "booz_xform_jax",
+        "wout_metadata": {
+          "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+          "exists": true,
+          "nfp": 2,
+          "ns": 50,
+          "mpol": 8,
+          "ntor": 8,
+          "beta_vol": 0.0002519202234664469,
+          "betatotal": 0.012648204949374074,
+          "Aminor_p": 0.16831206437162471,
+          "Rmajor_p": 1.0098736979848884,
+          "b0": 0.8705673153008565
+        }
+      },
+      "inputs": {
+        "scan_rho": [
+          0.08,
+          0.19,
+          0.3,
+          0.41000000000000003,
+          0.52,
+          0.63,
+          0.74,
+          0.85,
+          0.96
+        ],
+        "nu_v": [
+          1.2665301354871134e-07,
+          3.683556020140119e-07,
+          1.0713195504260129e-06,
+          3.115808671972731e-06,
+          9.061968183517196e-06,
+          2.635568354942842e-05,
+          7.665244914687049e-05,
+          0.00022293475899398508,
+          0.0006483798928913333,
+          0.0018857377261529674,
+          0.005484449488368908,
+          0.015950885307806594,
+          0.046391300100836315,
+          0.1349237163652955,
+          0.3924099820064005,
+          1.1412789250583606,
+          3.319277399934039
+        ],
+        "nu_v_policy": "adaptive physical nu/v support from the NEOPAX velocity convolution",
+        "nu_support": {
+          "electron": {
+            "min": 7.169451143076858e-07,
+            "max": 1.1064257999780127,
+            "q10": 1.8714414343625978e-06,
+            "median": 4.1617749808215576e-05,
+            "q90": 0.021680655478442806
+          },
+          "ion": {
+            "min": 3.799590406461337e-07,
+            "max": 0.24063021773492968,
+            "q10": 9.90732280834452e-07,
+            "median": 2.100659660953833e-05,
+            "q90": 0.0047697253628483545
+          },
+          "axis": {
+            "min": 1.2665301354871134e-07,
+            "max": 3.319277399934039,
+            "count": 17,
+            "policy": "logspace from min(nu/v)/3 to max(nu/v)*3 over the sampled convolution support"
+          }
+        },
+        "Es": [
+          0.0,
+          1e-05,
+          0.0001
+        ],
+        "drds": [
+          1.048011662707564,
+          0.44126806850844796,
+          0.27946977672201706,
+          0.20449008052830514,
+          0.16123256349347137,
+          0.13308084605810336,
+          0.11329855813054746,
+          0.09863639178424131,
+          0.08733430522563033
+        ],
+        "drds_definition": "dr/ds = a_b/(2*rho), with s=rho^2 and r=a_b*rho",
+        "ntx_grid": {
+          "n_theta": 25,
+          "n_zeta": 31,
+          "n_xi": 24
+        },
+        "field_radial_points": 15,
+        "neopax_x": 10,
+        "n_order": 12,
+        "d33_mode": "spitzer",
+        "momentum_orders": [
+          2,
+          4,
+          6,
+          8,
+          10,
+          12
+        ],
+        "mboz": 5,
+        "nboz": 5,
+        "redl_ntheta": 256,
+        "helicity_n": 0,
+        "min_bmn_to_load": 1e-05
+      },
+      "summary_metrics": {
+        "max_relative_error_total_vs_redl_interior": 0.3106405551146464,
+        "max_relative_error_nomom_vs_redl_interior": 1.597630249905618,
+        "rms_relative_error_total_vs_redl_interior": 0.12965669248029935,
+        "sign_agreement_fraction_total": 1.0
+      },
+      "comparison": {
+        "momentum_order_scan": {
+          "2": {
+            "n_order": 2,
+            "ntx_neopax_total_over_root_fsab2": [
+              -31710913.584129892,
+              -43195896.23418146,
+              -42752809.43780583,
+              -54510167.899778016,
+              -62106329.285319135,
+              -66131114.59031185,
+              -70653877.0310478,
+              -75619573.29369812,
+              -81901456.40332521,
+              -89668696.76784767,
+              -98277964.81491968,
+              -101751304.4009775,
+              -84049420.74670887
+            ],
+            "relative_error_total_vs_redl": [
+              0.8379001046540451,
+              1.1020087438738544,
+              0.6705840541248791,
+              0.8330777083933627,
+              0.8392272625823569,
+              0.7404962193028919,
+              0.6479698580099658,
+              0.5392725922929192,
+              0.4179197410713184,
+              0.289358077132211,
+              0.17737242634557338,
+              0.09066954345796245,
+              0.03129179112220198
+            ],
+            "max_relative_error_total_vs_redl": 1.1020087438738544,
+            "rms_relative_error_total_vs_redl": 0.6398656313442398,
+            "sign_agreement_fraction_total": 1.0
+          },
+          "4": {
+            "n_order": 4,
+            "ntx_neopax_total_over_root_fsab2": [
+              -21789683.514586397,
+              -30894562.472697902,
+              -32107035.013170484,
+              -40349745.48020952,
+              -45304861.69085221,
+              -47863631.89245414,
+              -51207851.70298581,
+              -55394478.487395436,
+              -61565318.159727946,
+              -70339008.0387536,
+              -81160831.09528807,
+              -88411182.88711423,
+              -76129422.80833974
+            ],
+            "relative_error_total_vs_redl": [
+              0.26288577292453,
+              0.5033983808021949,
+              0.25459593003496855,
+              0.35688848207380264,
+              0.3416657804156398,
+              0.25971671378915606,
+              0.1944000760620879,
+              0.1275811114252003,
+              0.0658501547778411,
+              0.011413920590778382,
+              0.02769125499456786,
+              0.052322866583900667,
+              0.06588709228925414
+            ],
+            "max_relative_error_total_vs_redl": 0.5033983808021949,
+            "rms_relative_error_total_vs_redl": 0.24262602744049028,
+            "sign_agreement_fraction_total": 1.0
+          },
+          "6": {
+            "n_order": 6,
+            "ntx_neopax_total_over_root_fsab2": [
+              -20638663.77489292,
+              -28786718.390981104,
+              -29131012.56250867,
+              -36508720.80481315,
+              -40858116.193846814,
+              -42976852.37928385,
+              -45985557.25996629,
+              -49994088.62470394,
+              -56103082.47698774,
+              -65038882.67200465,
+              -76353178.77155423,
+              -84476650.84494644,
+              -73594242.1333669
+            ],
+            "relative_error_total_vs_redl": [
+              0.19617500805081725,
+              0.40082598210786263,
+              0.13830659803151757,
+              0.2277218149888051,
+              0.20997911269639766,
+              0.13110219821760472,
+              0.07259241039121118,
+              0.01765359211677944,
+              0.028714852305806518,
+              0.06479728463197278,
+              0.08528704762295906,
+              0.09449701158788977,
+              0.09699392200781014
+            ],
+            "max_relative_error_total_vs_redl": 0.40082598210786263,
+            "rms_relative_error_total_vs_redl": 0.16816360640321615,
+            "sign_agreement_fraction_total": 1.0
+          },
+          "8": {
+            "n_order": 8,
+            "ntx_neopax_total_over_root_fsab2": [
+              -20383711.83604538,
+              -28215817.929662075,
+              -28194628.652680814,
+              -35250050.066399746,
+              -39361987.99343778,
+              -41324530.31919555,
+              -44232936.24399649,
+              -48184699.48664292,
+              -54314539.71348412,
+              -63316355.26171141,
+              -74760610.42761587,
+              -83158431.09814142,
+              -72683226.02180551
+            ],
+            "relative_error_total_vs_redl": [
+              0.18139851181880245,
+              0.37304469114752803,
+              0.10171700195893241,
+              0.18539500951950816,
+              0.16567252098222546,
+              0.08761494843403972,
+              0.03171331460480694,
+              0.019177389436007723,
+              0.059679015868825507,
+              0.0895657345994488,
+              0.10436605540211906,
+              0.1086269742246272,
+              0.1081721482119463
+            ],
+            "max_relative_error_total_vs_redl": 0.37304469114752803,
+            "rms_relative_error_total_vs_redl": 0.15172333174863578,
+            "sign_agreement_fraction_total": 1.0
+          },
+          "10": {
+            "n_order": 10,
+            "ntx_neopax_total_over_root_fsab2": [
+              -19946120.482661754,
+              -27663252.391611118,
+              -27724113.632448155,
+              -34719547.20352185,
+              -38827661.748037845,
+              -40811434.7294353,
+              -43716941.742344916,
+              -47669337.089145474,
+              -53812376.869917035,
+              -62810659.0009448,
+              -74236184.60517861,
+              -82657059.08460952,
+              -72272519.79016547
+            ],
+            "relative_error_total_vs_redl": [
+              0.15603660630177033,
+              0.34615561848540405,
+              0.08333142916586486,
+              0.1675551640439213,
+              0.14984889384209854,
+              0.07411085222076441,
+              0.019677975266712267,
+              0.029667837596633564,
+              0.06837271486264919,
+              0.09683720816712064,
+              0.11064868960363125,
+              0.11400116759070436,
+              0.11321154005415235
+            ],
+            "max_relative_error_total_vs_redl": 0.34615561848540405,
+            "rms_relative_error_total_vs_redl": 0.14156081380002028,
+            "sign_agreement_fraction_total": 1.0
+          },
+          "12": {
+            "n_order": 12,
+            "ntx_neopax_total_over_root_fsab2": [
+              -19336229.72364782,
+              -26933424.318067342,
+              -27190942.756535932,
+              -34186096.07994211,
+              -38383890.835113645,
+              -40463204.02697344,
+              -43410487.74669939,
+              -47385299.56914031,
+              -53518914.39442151,
+              -62480159.560408995,
+              -73854896.06373112,
+              -82237466.09555669,
+              -71913440.95400205
+            ],
+            "relative_error_total_vs_redl": [
+              0.1206885774017068,
+              0.3106405551146464,
+              0.062497552395298465,
+              0.1496161739283653,
+              0.1367069875213818,
+              0.06494581357239342,
+              0.012530073850508134,
+              0.03544955720550685,
+              0.07345328675406514,
+              0.10158950343294541,
+              0.1152165356719459,
+              0.11849877375411014,
+              0.11761746043779218
+            ],
+            "max_relative_error_total_vs_redl": 0.3106405551146464,
+            "rms_relative_error_total_vs_redl": 0.12965669248029935,
+            "sign_agreement_fraction_total": 1.0
+          }
+        }
+      },
+      "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profiles, radial grid, and current normalization. The Boozer path uses the physical VMEC edge-flux scale, the NTX scan covers the physical nu/v support sampled by the profile convolution, and the closure sidecar records Sonine-order convergence with an explicit D33_spitzer branch. This is a production-resolution reduced-closure stress audit and should not be promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+      "normalization_contract": {
+        "redl_observable": "<J dot B> / sqrt(<B^2>)",
+        "neopax_observable": "-(B0/Bbar) * elementary_charge * sum_s Z_s Upar_s / sqrt(<B^2>)",
+        "charge_conversion": "Upar is multiplied by one elementary-charge factor and the dimensionless species charge Z_s, matching the NEOPAX examples.",
+        "parallel_flow_bridge": "The raw NEOPAX parallel-flow current is multiplied by -B0/Bbar before comparison with the Redl current observable, matching the fixed-field SFINCS/Redl validation convention.",
+        "booz_xform_psi_p": "The Boozer-coordinate NTX path passes abs(phi_edge)/(2*pi) from the matching VMEC wout as psi_p instead of using the low-level unit-flux default."
+      },
+      "open_work": [
+        "connect completed same-grid SFINCS-JAX coefficient ladders to this finite-beta profile contract",
+        "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract before promoting parity",
+        "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
+        "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
+      ]
+    },
     "profile_uncertainty": {
       "basis_size": 3,
       "sample_count": 96,
@@ -3219,6 +4299,16 @@
     "geometry_family_transport_successful_case_count": 13,
     "geometry_family_transport_stress_pass_case_count": 5,
     "geometry_family_transport_max_last_step_relative_change": 1.9523463861536259,
+    "owned_finite_beta_bootstrap_max_relative_error": 0.3106405551146464,
+    "owned_finite_beta_bootstrap_n_order": 12,
+    "owned_finite_beta_bootstrap_d33_mode": "spitzer",
+    "owned_finite_beta_bootstrap_nu_v_count": 17,
+    "owned_finite_beta_bootstrap_psi_p": 0.013346299916410087,
+    "owned_finite_beta_sfincs_completed_transport_count": 6,
+    "owned_finite_beta_sfincs_ntx_same_grid_count": 6,
+    "owned_finite_beta_sfincs_max_transport_relative_difference": 0.014072815428719222,
+    "owned_finite_beta_bootstrap_rms_relative_error": 0.12965669248029935,
+    "owned_finite_beta_bootstrap_sign_agreement": 1.0,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -3322,6 +4412,21 @@
       "docs/_static/geometry_family_transport_convergence.png",
       "docs/_static/geometry_family_transport_convergence.pdf",
       "docs/_static/geometry_family_transport_convergence.json"
+    ],
+    "owned_geometry_neopax": [
+      "docs/_static/owned_geometry_neopax_dataset.png",
+      "docs/_static/owned_geometry_neopax_dataset.pdf",
+      "docs/_static/owned_geometry_neopax_dataset.json"
+    ],
+    "owned_finite_beta_sfincs_jax_inputs": [
+      "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
+      "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
+      "docs/_static/owned_finite_beta_sfincs_jax_inputs.json"
+    ],
+    "owned_finite_beta_bootstrap_comparison": [
+      "docs/_static/owned_finite_beta_bootstrap_comparison.png",
+      "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
+      "docs/_static/owned_finite_beta_bootstrap_comparison.json"
     ],
     "profile_uncertainty": [
       "docs/_static/autodiff_profile_uncertainty.png",
@@ -5180,6 +6285,286 @@
       },
       {
         "entry": {
+          "id": "owned_geometry_neopax_dataset",
+          "lane": "geometry-breadth",
+          "maturity": "stress-gate",
+          "title": "Owned finite-beta JAX-native NTX+NEOPAX dataset provenance",
+          "claim_scope": "Builds self-contained NTX+NEOPAX scan artifacts from matching finite-beta VMEC input/wout pairs. The power-series finite-beta QA case runs through the JAX-native Boozer path, optimized finite-beta QH/QI cases are retained as direct wout-harmonic stress cases until their current-profile representation is supported by the JAX geometry stack, and all outputs store compact profile flux/current proxies from the same tables. The Boozer-coordinate path passes the physical VMEC edge toroidal flux divided by 2*pi as psi_p, closing the previous unit-flux path-normalization ambiguity. This controls geometry, interpolation, and normalization provenance; it is not an independent-code parity claim.",
+          "literature_anchors": [
+            "VMEC equilibrium representation",
+            "Boozer-coordinate transport-database workflows",
+            "monoenergetic coefficient database normalization used by profile solvers",
+            "precise-QS and QI public VMEC example families"
+          ],
+          "scripts": [
+            "examples/owned_geometry_neopax_dataset.py"
+          ],
+          "tests": [
+            "tests/test_owned_geometry_neopax_dataset.py"
+          ],
+          "artifacts": [
+            "docs/_static/owned_geometry_neopax_dataset.png",
+            "docs/_static/owned_geometry_neopax_dataset.pdf",
+            "docs/_static/owned_geometry_neopax_dataset.json"
+          ],
+          "manuscript_figures": [
+            "owned_geometry_neopax_dataset"
+          ],
+          "docs": [
+            "README.md",
+            "docs/benchmark-matrix.md",
+            "docs/examples.md",
+            "docs/neopax.md",
+            "docs/validation.md"
+          ],
+          "open_work": [
+            "compare completed same-grid SFINCS-JAX outputs across radius and collisionality before promoting new parity figures",
+            "add stable downstream interpolation-mode audits when those modes are exposed through a public interface",
+            "extend JAX geometry input reconstruction to optimized finite-beta cubic-spline current profiles",
+            "expand to paper-resolution QA, QH, QI, and W7-X families after owned independent-code generation scripts have completed runs"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/owned_geometry_neopax_dataset.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_geometry_neopax_dataset.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_geometry_neopax_dataset.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_geometry_neopax_dataset.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_geometry_neopax_dataset.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "README.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/benchmark-matrix.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/examples.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/neopax.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/validation.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "owned_finite_beta_sfincs_jax_inputs",
+          "lane": "geometry-breadth",
+          "maturity": "stress-gate",
+          "title": "Owned finite-beta SFINCS-JAX generation contract",
+          "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. This is the owned independent-code generation contract and a smoke-resolution coefficient ladder with the exact radial interpolation, pitch-angle-scattering frequency, and RHSMode=3 flow-row normalizations recorded; it is not a bootstrap-current parity claim until production-resolution SFINCS-JAX outputs are compared against the same NTX and profile artifacts.",
+          "literature_anchors": [
+            "SFINCS monoenergetic RHSMode=3 transport-matrix convention",
+            "VMEC geometryScheme=5 finite-beta wout geometry loading",
+            "same-grid independent-code validation discipline"
+          ],
+          "scripts": [
+            "examples/owned_finite_beta_sfincs_jax_inputs.py"
+          ],
+          "tests": [
+            "tests/test_owned_finite_beta_sfincs_jax_inputs.py"
+          ],
+          "artifacts": [
+            "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
+            "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
+            "docs/_static/owned_finite_beta_sfincs_jax_inputs.json"
+          ],
+          "manuscript_figures": [
+            "owned_finite_beta_sfincs_jax_inputs"
+          ],
+          "docs": [
+            "docs/benchmark-matrix.md",
+            "docs/examples.md",
+            "docs/validation.md"
+          ],
+          "open_work": [
+            "expand the current completed SFINCS-JAX transport-matrix smoke ladder against same-grid NTX scan outputs to production radius and collisionality resolution",
+            "compare completed SFINCS-JAX outputs against the owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
+            "promote only after geometry, profile, normalization, and interpolation sidecars are complete"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_sfincs_jax_inputs.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/benchmark-matrix.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/examples.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/validation.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
+          "id": "owned_finite_beta_bootstrap_comparison",
+          "lane": "geometry-breadth",
+          "maturity": "stress-gate",
+          "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "literature_anchors": [
+            "Redl bootstrap-current formula and geometry-factor normalization",
+            "finite-beta VMEC and Boozer-coordinate profile workflows",
+            "monoenergetic database coupling to multi-species profile closures",
+            "same-grid independent-code validation discipline"
+          ],
+          "scripts": [
+            "examples/owned_finite_beta_bootstrap_comparison.py"
+          ],
+          "tests": [
+            "tests/test_owned_finite_beta_bootstrap_comparison.py"
+          ],
+          "artifacts": [
+            "docs/_static/owned_finite_beta_bootstrap_comparison.png",
+            "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
+            "docs/_static/owned_finite_beta_bootstrap_comparison.json"
+          ],
+          "manuscript_figures": [
+            "owned_finite_beta_bootstrap_comparison"
+          ],
+          "docs": [
+            "README.md",
+            "docs/benchmark-matrix.md",
+            "docs/examples.md",
+            "docs/neopax.md",
+            "docs/validation.md",
+            "docs/manuscript.md"
+          ],
+          "open_work": [
+            "connect completed same-grid SFINCS-JAX coefficient ladders to this finite-beta profile contract",
+            "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract",
+            "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
+            "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
+          ]
+        },
+        "status": "complete",
+        "missing_required_paths": [],
+        "path_status": [
+          {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_bootstrap_comparison.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_bootstrap_comparison.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_bootstrap_comparison.json",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "README.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/benchmark-matrix.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/examples.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/neopax.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/validation.md",
+            "exists": true
+          },
+          {
+            "kind": "doc",
+            "path": "docs/manuscript.md",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "entry": {
           "id": "geometry_breadth_hidden_symmetry",
           "lane": "geometry-breadth",
           "maturity": "planned-lane",
@@ -5298,7 +6683,7 @@
       }
     ],
     "summary": {
-      "complete": 20,
+      "complete": 23,
       "incomplete": 0,
       "planned": 3
     }
@@ -5324,6 +6709,9 @@
       "boundary_explicit_relaxed",
       "geometry_family_breadth",
       "geometry_family_transport",
+      "owned_geometry_neopax",
+      "owned_finite_beta_sfincs_jax_inputs",
+      "owned_finite_beta_bootstrap_comparison",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",

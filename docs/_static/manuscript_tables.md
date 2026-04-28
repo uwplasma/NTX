@@ -49,6 +49,9 @@
 | `prepared_geometry_reuse_profile` | `performance` | `software-gate` | `complete` |
 | `geometry_family_breadth_summary` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_family_transport_convergence` | `geometry-breadth` | `stress-gate` | `complete` |
+| `owned_geometry_neopax_dataset` | `geometry-breadth` | `stress-gate` | `complete` |
+| `owned_finite_beta_sfincs_jax_inputs` | `geometry-breadth` | `stress-gate` | `complete` |
+| `owned_finite_beta_bootstrap_comparison` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_breadth_hidden_symmetry` | `geometry-breadth` | `planned-lane` | `planned` |
 | `full_monoenergetic_geometry_family` | `monoenergetic` | `planned-lane` | `planned` |
 | `large_geometry_control_autodiff` | `autodiff` | `planned-lane` | `planned` |
@@ -136,6 +139,18 @@
 | Max relative change to finest grid | `1.022e+01` |
 | Solved case ids | `circular_tokamak, shaped_tokamak, precise_qs_qa_reactor, precise_qs_qh_reactor, nfp3_qi, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, li383_low_res, n3are_lowres, lhd, hsx_qhs, ncsx` |
 
+## Owned Finite-Beta Bootstrap-Current Stress
+
+| Quantity | Value |
+| --- | ---: |
+| Case | `finite_beta_qa_pressure_current` |
+| Closure configuration | `P=12`, `D33=spitzer`, `nu/v points=17` |
+| Boozer psi_p | `1.334630e-02` |
+| Max total-current relative difference vs Redl | `3.106e-01` |
+| RMS total-current relative difference vs Redl | `1.297e-01` |
+| Sign-agreement fraction | `1.000` |
+| Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
+
 ## Profile Uncertainty
 
 | Quantity | Value |
@@ -188,7 +203,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `646a76a7bc4964c52d72a91dabf9773691d27eb1` |
+| Commit | `9ec0c7c585da4775e94fd4ed160aabf788ae7aa7` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

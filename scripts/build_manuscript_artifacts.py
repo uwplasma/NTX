@@ -69,6 +69,13 @@ def build_payload() -> dict:
     geometry_family_transport = _load_json(
         STATIC / "geometry_family_transport_convergence.json"
     )
+    owned_geometry_neopax = _load_json(STATIC / "owned_geometry_neopax_dataset.json")
+    owned_finite_beta_sfincs = _load_json(
+        STATIC / "owned_finite_beta_sfincs_jax_inputs.json"
+    )
+    owned_finite_beta_bootstrap = _load_json(
+        STATIC / "owned_finite_beta_bootstrap_comparison.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -99,6 +106,9 @@ def build_payload() -> dict:
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "owned_geometry_neopax",
+        "owned_finite_beta_sfincs_jax_inputs",
+        "owned_finite_beta_bootstrap_comparison",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -227,6 +237,38 @@ def build_payload() -> dict:
                 "claim_scope": geometry_family_transport["claim_scope"],
                 "inputs": geometry_family_transport["inputs"],
                 "open_work": geometry_family_transport["open_work"],
+            },
+            "owned_geometry_neopax": {
+                "cases": owned_geometry_neopax["cases"],
+                "summary_metrics": owned_geometry_neopax["summary_metrics"],
+                "claim_scope": owned_geometry_neopax["claim_scope"],
+                "comparison_policy": owned_geometry_neopax["comparison_policy"],
+                "normalization_contract": owned_geometry_neopax["normalization_contract"],
+                "open_work": owned_geometry_neopax["open_work"],
+            },
+            "owned_finite_beta_sfincs_jax_inputs": {
+                "summary_metrics": owned_finite_beta_sfincs["summary_metrics"],
+                "claim_scope": owned_finite_beta_sfincs["claim_scope"],
+                "normalization_contract": owned_finite_beta_sfincs[
+                    "normalization_contract"
+                ],
+                "open_work": owned_finite_beta_sfincs["open_work"],
+            },
+            "owned_finite_beta_bootstrap_comparison": {
+                "case": owned_finite_beta_bootstrap["case"],
+                "inputs": owned_finite_beta_bootstrap["inputs"],
+                "summary_metrics": owned_finite_beta_bootstrap["summary_metrics"],
+                "comparison": {
+                    "momentum_order_scan": owned_finite_beta_bootstrap.get(
+                        "comparison",
+                        {},
+                    ).get("momentum_order_scan", {}),
+                },
+                "claim_scope": owned_finite_beta_bootstrap["claim_scope"],
+                "normalization_contract": owned_finite_beta_bootstrap[
+                    "normalization_contract"
+                ],
+                "open_work": owned_finite_beta_bootstrap["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -358,6 +400,48 @@ def build_payload() -> dict:
             "geometry_family_transport_max_last_step_relative_change": (
                 geometry_family_transport["summary_metrics"][
                     "max_successful_last_step_relative_change"
+                ]
+            ),
+            "owned_finite_beta_bootstrap_max_relative_error": (
+                owned_finite_beta_bootstrap["summary_metrics"][
+                    "max_relative_error_total_vs_redl_interior"
+                ]
+            ),
+            "owned_finite_beta_bootstrap_n_order": (
+                owned_finite_beta_bootstrap["inputs"]["n_order"]
+            ),
+            "owned_finite_beta_bootstrap_d33_mode": (
+                owned_finite_beta_bootstrap["inputs"]["d33_mode"]
+            ),
+            "owned_finite_beta_bootstrap_nu_v_count": (
+                len(owned_finite_beta_bootstrap["inputs"]["nu_v"])
+            ),
+            "owned_finite_beta_bootstrap_psi_p": (
+                owned_finite_beta_bootstrap["ntx_neopax"]["booz_xform_psi_p"]
+            ),
+            "owned_finite_beta_sfincs_completed_transport_count": (
+                owned_finite_beta_sfincs["summary_metrics"][
+                    "completed_transport_matrix_count"
+                ]
+            ),
+            "owned_finite_beta_sfincs_ntx_same_grid_count": (
+                owned_finite_beta_sfincs["summary_metrics"][
+                    "completed_ntx_same_grid_comparison_count"
+                ]
+            ),
+            "owned_finite_beta_sfincs_max_transport_relative_difference": (
+                owned_finite_beta_sfincs["summary_metrics"][
+                    "max_ntx_same_grid_transport_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_bootstrap_rms_relative_error": (
+                owned_finite_beta_bootstrap["summary_metrics"][
+                    "rms_relative_error_total_vs_redl_interior"
+                ]
+            ),
+            "owned_finite_beta_bootstrap_sign_agreement": (
+                owned_finite_beta_bootstrap["summary_metrics"][
+                    "sign_agreement_fraction_total"
                 ]
             ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
@@ -528,6 +612,36 @@ def build_markdown(payload: dict) -> str:
     geometry_family_open = geometry_family_breadth["open_cases"]
     geometry_family_retired = geometry_family_breadth.get("retired_cases", [])
     geometry_family_metrics = geometry_family_breadth["summary_metrics"]
+    owned_finite_beta_bootstrap = payload["tables"][
+        "owned_finite_beta_bootstrap_comparison"
+    ]
+    owned_finite_beta_bootstrap_inputs = owned_finite_beta_bootstrap["inputs"]
+    owned_finite_beta_bootstrap_order_scan = owned_finite_beta_bootstrap[
+        "comparison"
+    ].get("momentum_order_scan", {})
+    owned_finite_beta_bootstrap_metrics = owned_finite_beta_bootstrap["summary_metrics"]
+    finite_beta_bootstrap_max_error = owned_finite_beta_bootstrap_metrics[
+        "max_relative_error_total_vs_redl_interior"
+    ]
+    finite_beta_bootstrap_rms_error = owned_finite_beta_bootstrap_metrics[
+        "rms_relative_error_total_vs_redl_interior"
+    ]
+    finite_beta_bootstrap_sign_fraction = owned_finite_beta_bootstrap_metrics[
+        "sign_agreement_fraction_total"
+    ]
+    finite_beta_bootstrap_order_summary = ", ".join(
+        (
+            f"P={entry['n_order']}: "
+            f"{entry['max_relative_error_total_vs_redl']:.2e}/"
+            f"{entry['rms_relative_error_total_vs_redl']:.2e}"
+        )
+        for _, entry in sorted(
+            owned_finite_beta_bootstrap_order_scan.items(),
+            key=lambda item: int(item[0]),
+        )
+    )
+    if not finite_beta_bootstrap_order_summary:
+        finite_beta_bootstrap_order_summary = "not recorded"
     geometry_transport_cases = [
         case for case in geometry_family_transport["cases"] if case["status"] != "skipped"
     ]
@@ -809,6 +923,38 @@ def build_markdown(payload: dict) -> str:
                 + "` |"
             ),
             "",
+            "## Owned Finite-Beta Bootstrap-Current Stress",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            f"| Case | `{owned_finite_beta_bootstrap['case']['id']}` |",
+            (
+                "| Closure configuration | "
+                f"`P={owned_finite_beta_bootstrap_inputs['n_order']}`, "
+                f"`D33={owned_finite_beta_bootstrap_inputs['d33_mode']}`, "
+                f"`nu/v points={len(owned_finite_beta_bootstrap_inputs['nu_v'])}` |"
+            ),
+            (
+                "| Boozer psi_p | "
+                f"`{payload['claims']['owned_finite_beta_bootstrap_psi_p']:.6e}` |"
+            ),
+            (
+                "| Max total-current relative difference vs Redl | "
+                f"`{finite_beta_bootstrap_max_error:.3e}` |"
+            ),
+            (
+                "| RMS total-current relative difference vs Redl | "
+                f"`{finite_beta_bootstrap_rms_error:.3e}` |"
+            ),
+            (
+                "| Sign-agreement fraction | "
+                f"`{finite_beta_bootstrap_sign_fraction:.3f}` |"
+            ),
+            (
+                "| Sonine-order max/RMS relative differences | "
+                f"`{finite_beta_bootstrap_order_summary}` |"
+            ),
+            "",
             "## Profile Uncertainty",
             "",
             "| Quantity | Value |",
@@ -1053,6 +1199,37 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['geometry_family_transport_max_last_step_relative_change']:.3e}`. "
                 "It is a reduced NTX convergence diagnostic, not an "
                 "independent-code parity claim."
+            ),
+            (
+                "- The owned finite-beta SFINCS-JAX generation lane now has "
+                f"`{claims['owned_finite_beta_sfincs_completed_transport_count']}` "
+                "completed same-grid transport-matrix output(s) and "
+                f"`{claims['owned_finite_beta_sfincs_ntx_same_grid_count']}` "
+                "coefficient-level NTX comparison(s). The current maximum "
+                "same-grid `L13/L31/L33` relative difference is "
+                f"`{claims['owned_finite_beta_sfincs_max_transport_relative_difference']:.3e}`; "
+                "this is a transport-coefficient stress diagnostic, not yet a "
+                "profile-current parity claim."
+            ),
+            (
+                "- The owned finite-beta bootstrap-current stress audit now runs "
+                "Redl and `NTX+NEOPAX` on the same VMEC wout, Boozer transform, "
+                "analytic profile contract, radial grid, and current normalization. "
+                "The Boozer-coordinate path passes physical "
+                f"`psi_p={claims['owned_finite_beta_bootstrap_psi_p']:.3e}`, "
+                "the profile convolution uses "
+                f"`{claims['owned_finite_beta_bootstrap_nu_v_count']}` adaptive "
+                "`nu/v` support points, and the reported closure uses "
+                f"`P={claims['owned_finite_beta_bootstrap_n_order']}` with "
+                f"`D33={claims['owned_finite_beta_bootstrap_d33_mode']}`. "
+                "The production-resolution reduced-closure total-current gap "
+                "remains open at max/RMS "
+                f"`{claims['owned_finite_beta_bootstrap_max_relative_error']:.3e}`/"
+                f"`{claims['owned_finite_beta_bootstrap_rms_relative_error']:.3e}` "
+                "with sign-agreement fraction "
+                f"`{claims['owned_finite_beta_bootstrap_sign_agreement']:.3f}`, "
+                "so this artifact is a stress diagnostic rather than a promoted "
+                "finite-beta parity claim."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "

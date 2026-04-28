@@ -121,9 +121,13 @@ highest-signal artifacts:
 | --- | --- |
 | ![Monoenergetic validation summary](docs/_static/validation_summary.png) | ![Fixed-field SFINCS, Redl, and NTX + NEOPAX bootstrap-current comparison](docs/_static/bootstrap_current_fixed_field_validation.png) |
 
-| Bootstrap-current workflow | Differentiable geometry/current path |
+| Owned finite-beta bootstrap stress | Differentiable geometry/current path |
 | --- | --- |
-| ![NTX + NEOPAX bootstrap-current profile](docs/_static/bootstrap_current_with_neopax.png) | ![Explicit-relaxed boundary current derivative benchmark](docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png) |
+| ![Owned finite-beta Redl and NTX + NEOPAX bootstrap-current stress audit](docs/_static/owned_finite_beta_bootstrap_comparison.png) | ![Explicit-relaxed boundary current derivative benchmark](docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png) |
+
+| Owned finite-beta geometry | Same-grid SFINCS-JAX input generation |
+| --- | --- |
+| ![Owned finite-beta NTX and NEOPAX geometry dataset provenance](docs/_static/owned_geometry_neopax_dataset.png) | ![Owned finite-beta SFINCS-JAX generation contract](docs/_static/owned_finite_beta_sfincs_jax_inputs.png) |
 
 Current promoted validation includes monoenergetic convergence and identities,
 the fixed-field Redl comparison on the precise-QS benchmark family, the
@@ -131,6 +135,20 @@ fixed-field `NTX+NEOPAX` total-current stress gate, the integrated W7-X
 workflow transfer, and prepared derivative agreement against direct
 reverse-mode differentiation. The fixed-field current result uses documented
 normalization and moment-closure conventions, not fitted bridge constants.
+External W7-X transfer checks are not labeled as SFINCS parity; promoted
+SFINCS/Redl/NTX+NEOPAX figures must use one owned geometry, profile,
+collisionality, electric-field, interpolation, and normalization contract.
+The owned finite-beta lane now uses local stellarator input/wout pairs,
+passes the physical VMEC edge-flux scale into the Boozer NTX path, generates
+same-grid SFINCS-JAX input decks, and records completed transport-matrix
+output with the `nuPrime -> nu_n` bridge when the local checkout is available.
+The finite-beta bootstrap-current stress audit runs Redl and `NTX+NEOPAX` on
+the same VMEC wout, Boozer transform, profiles, radial grid, adaptive `nu/v`
+support, and current normalization. The kept artifact uses the production QA
+radial/collisionality ladder and Pmax 12; its JSON sidecar tracks the remaining
+inner-radius reduced-closure gap and the Sonine-order convergence trend rather
+than promoting a hidden parity curve. Optimized finite-beta QH/QI Boozer
+reconstruction remains an explicit geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,
 and large-optimization studies remain tracked as stress diagnostics or planned
 research lanes in the docs.
@@ -154,6 +172,9 @@ NEOPAX database and bootstrap-current examples:
 
 ```bash
 python examples/neopax_with_ntx.py
+python examples/owned_geometry_neopax_dataset.py
+python examples/owned_finite_beta_sfincs_jax_inputs.py
+python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```

@@ -77,6 +77,21 @@
     "docs/_static/geometry_family_transport_convergence.pdf",
     "docs/_static/geometry_family_transport_convergence.json"
   ],
+  "owned_geometry_neopax": [
+    "docs/_static/owned_geometry_neopax_dataset.png",
+    "docs/_static/owned_geometry_neopax_dataset.pdf",
+    "docs/_static/owned_geometry_neopax_dataset.json"
+  ],
+  "owned_finite_beta_sfincs_jax_inputs": [
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.json"
+  ],
+  "owned_finite_beta_bootstrap_comparison": [
+    "docs/_static/owned_finite_beta_bootstrap_comparison.png",
+    "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
+    "docs/_static/owned_finite_beta_bootstrap_comparison.json"
+  ],
   "profile_uncertainty": [
     "docs/_static/autodiff_profile_uncertainty.png",
     "docs/_static/autodiff_profile_uncertainty.pdf",

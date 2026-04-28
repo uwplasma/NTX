@@ -35,6 +35,88 @@ NTX is validated as a standalone solver. The repository therefore emphasizes:
 Independent comparisons are useful, but they are treated as trust-building
 studies rather than as the definition of NTX itself.
 
+## Owned Dataset Discipline
+
+External reference datasets remain useful transfer checks, but they are not
+interchangeable. In particular, the W7-X imported-workflow comparison exercises
+the NTX-to-NEOPAX handoff against an existing external workflow; it is not a
+SFINCS parity statement. Promoted SFINCS/Redl/`NTX+NEOPAX` bootstrap-current
+figures must be generated from the same geometry, profile family,
+collisionality grid, radial-electric-field grid, interpolation convention, and
+normalization map.
+
+The owned provenance lane is:
+
+```bash
+python examples/owned_geometry_neopax_dataset.py
+python examples/owned_finite_beta_sfincs_jax_inputs.py
+python examples/owned_finite_beta_bootstrap_comparison.py
+```
+
+The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
+pairs from the single-stage finite-beta checkout. The finite-beta QA
+pressure/current case runs through the `vmec_jax -> booz_xform_jax -> NTX`
+path, passes the physical VMEC edge toroidal flux divided by `2*pi` as the
+Boozer-surface `psi_p`, writes NEOPAX-style scan tables, stores compact profile
+flux/current proxies from those same scan tables, and audits the direct
+VMEC-harmonic interpolation path on the same radial and collisionality grid.
+This removed the earlier order-of-magnitude Boozer-path normalization error:
+the current artifact has a maximum Boozer-vs-direct path coefficient
+difference of about `1.4e-1` instead of an order-unity hidden path mismatch.
+Optimized finite-beta QH/QI cases are retained as direct wout-harmonic stress
+cases until the JAX geometry stack supports their cubic-spline current-profile
+input representation. That blocker is recorded in the JSON sidecar rather than
+hidden behind a parity plot.
+
+The SFINCS-JAX generation script writes `RHSMode=3`, `geometryScheme=5`
+namelists for the same finite-beta `wout`, `rho`, collisionality,
+electric-field, and resolution grids. Add `--run-sfincs-jax` only when the
+local SFINCS-JAX checkout should execute those inputs. The committed artifact
+now ingests a six-point same-grid coefficient ladder on the finite-beta QA
+case, using the reported `nu_n` normalization and a coefficient-level NTX
+bridge comparison. The current max `L13/L31/L33` relative difference is about
+`1.4e-2` after enforcing exact radial interpolation, the pitch-angle-scattering
+`nuD` frequency bridge, and the `RHSMode=3` flow-row normalization. This
+localizes the remaining finite-beta bootstrap-current mismatch downstream of
+the monoenergetic coefficient solve. These artifacts are deliberately scoped
+as smoke-resolution same-grid generation control, not independent-code
+bootstrap-current parity.
+
+The finite-beta bootstrap-current script now runs Redl and `NTX+NEOPAX` on the
+same finite-beta QA pressure/current `wout`, Boozer transform, analytic profile
+contract, radial grid, adaptive physical `nu/v` support, and current
+normalization. It also fixes the user-facing NEOPAX current conversion to use
+exactly one elementary-charge factor. The current artifact uses the explicit
+`D33_spitzer` audit branch and records a Sonine-order convergence sidecar. The
+production-resolution QA ladder uses a `25 x 31 x 24` NTX grid, 15 NEOPAX field
+radii, 17 adaptive physical `nu/v` support points, and Pmax 12; its total-current
+max/RMS relative differences against Redl are now about `3.1e-1`/`1.3e-1` with
+unit sign agreement. The largest mismatch is still an inner-radius
+reduced-closure gap, so this figure remains a mismatch-localization diagnostic
+rather than a README/manuscript parity claim.
+These scripts write:
+
+- `docs/_static/owned_geometry_neopax_dataset.png`
+- `docs/_static/owned_geometry_neopax_dataset.pdf`
+- `docs/_static/owned_geometry_neopax_dataset.json`
+- `examples/outputs/owned_geometry_neopax_dataset/*.h5`
+- `docs/_static/owned_finite_beta_sfincs_jax_inputs.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_inputs.json`
+- `examples/outputs/owned_finite_beta_sfincs_jax_inputs/**/input.namelist`
+- `docs/_static/owned_finite_beta_bootstrap_comparison.png`
+- `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
+- `docs/_static/owned_finite_beta_bootstrap_comparison.json`
+- `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
+
+The next parity-promotion step is to expand the completed same-grid
+SFINCS-JAX coefficient ladder across radius/collisionality, connect those
+outputs to the same finite-beta profile-current contract, resolve the
+inner-radius reduced-closure observable, and then audit downstream interpolation
+modes once NEOPAX exposes a stable selector.
+
+![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
+
 ## What Is Covered
 
 The maintained suite covers:
