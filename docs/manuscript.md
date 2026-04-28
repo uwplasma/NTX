@@ -30,14 +30,15 @@ examples.
 11. `owned_geometry_neopax_dataset.{png,pdf,json}`
 12. `owned_finite_beta_sfincs_jax_inputs.{png,pdf,json}`
 13. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
-14. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-15. `bootstrap_current_robust_optimization.{png,pdf,json}`
-16. `performance_scaling_smoke.{png,pdf,json}`
-17. `performance_scaling_heavy.{png,pdf,json}`
-18. `performance_strong_scaling_production.{png,pdf,json}`
-19. `prepared_geometry_reuse_profile.{png,pdf,json}`
-20. `ambipolar_profile.{png,pdf}`
-21. `ambipolar_profile_family.{png,pdf}`
+14. `owned_finite_beta_closure_localization.{png,pdf,json}`
+15. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+16. `bootstrap_current_robust_optimization.{png,pdf,json}`
+17. `performance_scaling_smoke.{png,pdf,json}`
+18. `performance_scaling_heavy.{png,pdf,json}`
+19. `performance_strong_scaling_production.{png,pdf,json}`
+20. `prepared_geometry_reuse_profile.{png,pdf,json}`
+21. `ambipolar_profile.{png,pdf}`
+22. `ambipolar_profile_family.{png,pdf}`
 22. `profile_force_reconstruction_audit.{png,pdf,json}`
 23. `profile_control_optimization.{png,pdf}`
 24. `profile_basis_optimization.{png,pdf,json}`
@@ -109,7 +110,12 @@ examples.
      and `NTX+NEOPAX`; retained as a reduced-closure stress audit because the
      outer-radius current is near the `1e-1` target while the inner-radius gap
      remains open
-16. `derivative_path_benchmark.{png,pdf}`
+16. `owned_finite_beta_closure_localization.{png,pdf,json}`
+   - sidecar figure and JSON that compare the same-grid coefficient ladder with
+     the finite-beta profile-current stress artifact; at the inner gap the
+     coefficient-level error is about `2.1e-2`, while the current-profile error
+     remains about `3.1e-1`
+17. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
 17. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
@@ -204,7 +210,8 @@ These artifacts collect the current NTX commit, software environment, the
 validated W7-X convergence numbers, derivative benchmark summaries,
 production-grid CPU/GPU performance and strong-scaling tables,
 geometry-control derivative stress metrics,
-finite-beta bootstrap-current stress metrics, bootstrap-current optimization
+finite-beta bootstrap-current stress and closure-localization metrics,
+bootstrap-current optimization
 summaries, and the exact commands needed to
 regenerate the figures and validation subset used in the manuscript.
 

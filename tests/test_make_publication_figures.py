@@ -288,6 +288,15 @@ def test_geometry_family_transport_uses_paper_preset(
             ),
         ),
         (
+            "owned_finite_beta_closure_localization",
+            {"owned_finite_beta_closure_localization"},
+            (
+                "owned_finite_beta_closure_localization.png",
+                "owned_finite_beta_closure_localization.pdf",
+                "owned_finite_beta_closure_localization.json",
+            ),
+        ),
+        (
             "prepared_geometry_reuse",
             {"prepared_geometry_reuse"},
             (

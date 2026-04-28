@@ -58,6 +58,9 @@ For end-to-end examples, see:
   for an owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress
   audit on the same VMEC wout, Boozer transform, profiles, radial grid, and
   current normalization
+- [`examples/owned_finite_beta_closure_localization.py`](../examples/owned_finite_beta_closure_localization.py)
+  for the sidecar that separates same-grid coefficient error from the remaining
+  finite-beta profile-current closure gap
 - [`examples/bootstrap_current_with_neopax.py`](../examples/bootstrap_current_with_neopax.py)
   for a radial bootstrap-current profile built from an NTX scan and evaluated
   through NEOPAX

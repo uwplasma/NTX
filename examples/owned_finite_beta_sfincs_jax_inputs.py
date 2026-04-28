@@ -34,7 +34,6 @@ import numpy as np  # noqa: E402
 from examples.owned_geometry_neopax_dataset import (  # noqa: E402
     DEFAULT_ES,
     DEFAULT_NU_V,
-    DEFAULT_RHO,
     OwnedJaxGeometryCase,
     discover_owned_case_specs,
 )
@@ -49,6 +48,7 @@ OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_inputs
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_sfincs_jax_inputs"
 SFINCS_JAX_ROOT = Path("/Users/rogeriojorge/local/tests/sfincs_jax")
 DEFAULT_GRID = GridSpec(25, 31, 32)
+DEFAULT_SFINCS_RHO = (1.0 / 7.0, 0.30, 0.50)
 
 
 @dataclass(frozen=True)
@@ -398,7 +398,7 @@ def build_payload(
     case_specs: tuple[OwnedJaxGeometryCase, ...] | None = None,
     case_ids: tuple[str, ...] = (),
     case_limit: int | None = 2,
-    rho: tuple[float, ...] = DEFAULT_RHO,
+    rho: tuple[float, ...] = DEFAULT_SFINCS_RHO,
     nu_v: tuple[float, ...] = DEFAULT_NU_V,
     es_values: tuple[float, ...] = DEFAULT_ES,
     grid: GridSpec = DEFAULT_GRID,
@@ -530,8 +530,9 @@ def build_payload(
             "VMEC wout, rho, collisionality, electric-field, and resolution grids "
             "used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested "
             "with the reported nu_n normalization and compared against NTX on the "
-            "same geometry and grid. The current artifact is a smoke-resolution "
-            "coefficient ladder, not a finite-beta bootstrap-current parity claim."
+            "same geometry and grid. The committed artifact includes the inner "
+            "bootstrap-current stress radius and is a smoke-resolution coefficient "
+            "ladder, not a finite-beta bootstrap-current parity claim."
         ),
         "normalization_contract": {
             "rho_to_s": "s=rho^2",
@@ -609,11 +610,14 @@ def build_payload(
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
         "open_work": [
             (
-                "expand the current completed smoke-resolution SFINCS-JAX "
-                "transport-matrix ladder to production radial and collisionality "
-                "resolution using the reported nu_n bridge"
+                "expand the current completed inner-radius smoke-resolution "
+                "SFINCS-JAX transport-matrix ladder to production radial and "
+                "collisionality resolution using the reported nu_n bridge"
             ),
-            "run Redl and NTX+NEOPAX current profiles on the same finite-beta profile contract",
+            (
+                "connect production SFINCS-JAX profile-current closure diagnostics "
+                "to the same finite-beta profile contract"
+            ),
             (
                 "promote only after the same geometry, profile, normalization, "
                 "and interpolation JSON sidecar is complete"
@@ -723,7 +727,7 @@ def main() -> None:
         default=2,
         help="limit discovered finite-beta cases",
     )
-    parser.add_argument("--rho", nargs="+", type=float, default=list(DEFAULT_RHO))
+    parser.add_argument("--rho", nargs="+", type=float, default=list(DEFAULT_SFINCS_RHO))
     parser.add_argument("--nu-v", nargs="+", type=float, default=list(DEFAULT_NU_V))
     parser.add_argument("--es", nargs="+", type=float, default=list(DEFAULT_ES))
     parser.add_argument("--n-theta", type=int, default=DEFAULT_GRID.n_theta)

@@ -147,7 +147,10 @@ the same VMEC wout, Boozer transform, profiles, radial grid, adaptive `nu/v`
 support, and current normalization. The kept artifact uses the production QA
 radial/collisionality ladder and Pmax 12; its JSON sidecar tracks the remaining
 inner-radius reduced-closure gap and the Sonine-order convergence trend rather
-than promoting a hidden parity curve. Optimized finite-beta QH/QI Boozer
+than promoting a hidden parity curve. The same-grid finite-beta coefficient
+sidecar now includes that inner stress radius and separates a `2.1e-2`
+coefficient-level difference from the `3.1e-1` profile-current stress gap.
+Optimized finite-beta QH/QI Boozer
 reconstruction remains an explicit geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,
 and large-optimization studies remain tracked as stress diagnostics or planned
