@@ -47,6 +47,17 @@ For end-to-end examples, see:
 
 - [`examples/neopax_with_ntx.py`](../examples/neopax_with_ntx.py) for the
   smallest scan-to-array workflow
+- [`examples/owned_geometry_neopax_dataset.py`](../examples/owned_geometry_neopax_dataset.py)
+  for an owned finite-beta `vmec_jax -> booz_xform_jax -> NTX -> NEOPAX`
+  dataset, direct wout-harmonic stress cases, and interpolation-path audit
+- [`examples/owned_finite_beta_sfincs_jax_inputs.py`](../examples/owned_finite_beta_sfincs_jax_inputs.py)
+  for same-grid SFINCS-JAX input generation, completed-output ingestion, and
+  coefficient-level NTX comparison before any finite-beta `SFINCS`/Redl/
+  `NTX+NEOPAX` parity promotion
+- [`examples/owned_finite_beta_bootstrap_comparison.py`](../examples/owned_finite_beta_bootstrap_comparison.py)
+  for an owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress
+  audit on the same VMEC wout, Boozer transform, profiles, radial grid, and
+  current normalization
 - [`examples/bootstrap_current_with_neopax.py`](../examples/bootstrap_current_with_neopax.py)
   for a radial bootstrap-current profile built from an NTX scan and evaluated
   through NEOPAX
@@ -98,6 +109,67 @@ The `d33_mode="spitzer"` and `d33_mode="conductivity_difference"` branches are
 explicit audit choices. They are useful for fixed-field closure stress tests,
 but they are not the public default because they do not satisfy the integrated
 W7-X transfer gate.
+
+When converting NEOPAX parallel-flow output into current, use one charge
+conversion only. If the workflow uses `species.charge`, that array already
+contains the signed physical charge in Coulombs. If the workflow uses
+`species.charge_qp`, multiply by one elementary-charge factor:
+
+```python
+current = elementary_charge * np.sum(species.charge_qp[:, None] * upar, axis=0)
+```
+
+## JAX-Native Geometry Workflows
+
+Use the matching VMEC input and `wout` when the geometry should stay inside the
+JAX geometry stack and the Boozer transform should be owned by the same run:
+
+```python
+import jax.numpy as jnp
+from ntx import GridSpec, build_ntx_neopax_scan_from_surfaces, surface_from_vmec_jax_wout
+
+rho = jnp.asarray([0.35, 0.65])
+psi_p = 0.013346299916410087  # abs(phi_edge)/(2*pi) from the matching wout
+surfaces = tuple(
+    surface_from_vmec_jax_wout(
+        input_path="input.LandremanPaul2021_QA_lowres_pressure_current",
+        wout_path="wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+        s=float(rho_value**2),
+        mboz=4,
+        nboz=4,
+        psi_p=psi_p,
+    )
+    for rho_value in rho
+)
+
+scan = build_ntx_neopax_scan_from_surfaces(
+    surfaces,
+    rho=rho,
+    nu_v=jnp.asarray([1.0e-3, 1.0e-2]),
+    Es=jnp.zeros((rho.size, 1)),
+    drds=jnp.ones_like(rho),
+    grid=GridSpec(7, 7, 6),
+    source_name="owned-finite-beta-qa",
+)
+```
+
+`surface_from_vmec_jax_vmec_wout_file(...)` is still useful when only a `wout`
+file is available. It reads the VMEC harmonic tables through `vmec_jax` and
+uses NTX's radial interpolation of those tables. That path is not identical to
+the Boozer-transform path above, so the two should be compared only as an
+interpolation/geometry-loader audit on the same owned input family.
+
+For physical-current or NEOPAX database workflows, do not rely on the
+low-level Boozer helper's default `psi_p=1`. Pass the VMEC edge toroidal flux
+divided by `2*pi` explicitly. The owned finite-beta diagnostic records this
+value in its JSON sidecar and uses it to keep the Boozer-coordinate and direct
+VMEC-harmonic transport paths on the same flux normalization.
+
+For in-memory differentiable studies, avoid file-backed geometry loops and use
+`build_ntx_neopax_scan_from_vmec_jax_state(...)` or
+`build_ntx_neopax_scan_from_vmec_jax_boundary_params(...)`. Those helpers keep
+the VMEC state, Boozer transform, NTX scan, and NEOPAX-style arrays on the
+JAX-facing path used by the derivative examples.
 
 ## Explicit-Surface Workflow
 

@@ -32,6 +32,9 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "owned_geometry_neopax",
+        "owned_finite_beta_sfincs_jax_inputs",
+        "owned_finite_beta_bootstrap_comparison",
         "science",
         "robust_science",
         "validation",
@@ -67,6 +70,9 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "owned_geometry_neopax",
+        "owned_finite_beta_sfincs_jax_inputs",
+        "owned_finite_beta_bootstrap_comparison",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -356,6 +362,27 @@ def main() -> None:
             _manifest_path(output_dir / "geometry_family_transport_convergence.pdf"),
             _manifest_path(output_dir / "geometry_family_transport_convergence.json"),
         ]
+
+    if "owned_geometry_neopax" in selected:
+        manifest["owned_geometry_neopax"] = _copy_existing_static(
+            "owned_geometry_neopax_dataset",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_sfincs_jax_inputs" in selected:
+        manifest["owned_finite_beta_sfincs_jax_inputs"] = _copy_existing_static(
+            "owned_finite_beta_sfincs_jax_inputs",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_bootstrap_comparison" in selected:
+        manifest["owned_finite_beta_bootstrap_comparison"] = _copy_existing_static(
+            "owned_finite_beta_bootstrap_comparison",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
 
     if "profile_uncertainty" in selected:
         _run(

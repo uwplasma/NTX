@@ -270,6 +270,24 @@ def test_geometry_family_transport_uses_paper_preset(
             ),
         ),
         (
+            "owned_finite_beta_sfincs_jax_inputs",
+            {"owned_finite_beta_sfincs_jax_inputs"},
+            (
+                "owned_finite_beta_sfincs_jax_inputs.png",
+                "owned_finite_beta_sfincs_jax_inputs.pdf",
+                "owned_finite_beta_sfincs_jax_inputs.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_bootstrap_comparison",
+            {"owned_finite_beta_bootstrap_comparison"},
+            (
+                "owned_finite_beta_bootstrap_comparison.png",
+                "owned_finite_beta_bootstrap_comparison.pdf",
+                "owned_finite_beta_bootstrap_comparison.json",
+            ),
+        ),
+        (
             "prepared_geometry_reuse",
             {"prepared_geometry_reuse"},
             (
