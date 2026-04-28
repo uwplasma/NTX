@@ -66,8 +66,8 @@ Current stress gates are:
 | Robust bootstrap-current optimization | useful robust-design stress test, but not yet broad enough for a promoted physics claim |
 | Primitive-profile force reconstruction | literature-profile audit, currently monitored rather than promoted |
 | Owned finite-beta JAX-native NTX+NEOPAX dataset provenance | finite-beta input/wout scan generation, physical VMEC edge-flux normalization in the Boozer path, and interpolation-path control are now artifact-backed; optimized finite-beta QH/QI Boozer reconstruction remains an explicit geometry-backend blocker |
-| Owned finite-beta SFINCS-JAX generation contract | same-grid finite-beta SFINCS-JAX input generation, six-point completed HDF5 ladder ingestion, exact radial interpolation, PAS `nuD` bridge, and coefficient-level NTX comparison are artifact-backed; production SFINCS-JAX profile-current closure remains open before promotion |
-| Owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress | same finite-beta VMEC wout, Boozer transform, analytic profile contract, production radial/collisionality ladder, adaptive physical `nu/v` support, `D33_spitzer` audit branch, and Sonine-order convergence sidecar are artifact-backed; inner-radius reduced-closure gap remains open before any finite-beta parity claim |
+| Owned finite-beta SFINCS-JAX generation contract | same-grid finite-beta SFINCS-JAX input generation, six-point completed HDF5 ladder ingestion including the inner stress radius, exact radial interpolation, PAS `nuD` bridge, and coefficient-level NTX comparison are artifact-backed; production SFINCS-JAX profile-current closure remains open before promotion |
+| Owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress | same finite-beta VMEC wout, Boozer transform, analytic profile contract, production radial/collisionality ladder, adaptive physical `nu/v` support, `D33_spitzer` audit branch, Sonine-order convergence sidecar, and coefficient/profile localization sidecar are artifact-backed; inner-radius reduced-closure gap remains open before any finite-beta parity claim |
 
 Planned lanes that must stay visible are:
 

@@ -149,6 +149,9 @@
 | Max total-current relative difference vs Redl | `3.106e-01` |
 | RMS total-current relative difference vs Redl | `1.297e-01` |
 | Sign-agreement fraction | `1.000` |
+| Inner-gap same-grid coefficient relative difference | `2.055e-02` |
+| Inner-gap profile-current relative difference | `3.106e-01` |
+| Inner-gap current/coefficient error ratio | `1.512e+01` |
 | Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
 ## Profile Uncertainty
@@ -203,7 +206,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `9ec0c7c585da4775e94fd4ed160aabf788ae7aa7` |
+| Commit | `9f11b02c43060f67c7b3bc30a6dd5736b310f5fb` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

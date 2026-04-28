@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "9ec0c7c585da4775e94fd4ed160aabf788ae7aa7",
+    "commit": "9f11b02c43060f67c7b3bc30a6dd5736b310f5fb",
     "branch": "main"
   },
   "environment": {
@@ -3555,18 +3555,18 @@
       "summary_metrics": {
         "case_count": 1,
         "deck_count": 6,
-        "completed_run_count": 6,
+        "completed_run_count": 0,
         "failed_run_count": 0,
         "input_written_count": 0,
-        "output_found_count": 0,
+        "output_found_count": 6,
         "completed_transport_matrix_count": 6,
-        "sfincs_runtime_nu_n_over_input_nuPrime_min": 0.9317624402087772,
-        "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9380785282797137,
+        "sfincs_runtime_nu_n_over_input_nuPrime_min": 0.9306328811156771,
+        "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9343189044961101,
         "completed_ntx_same_grid_comparison_count": 6,
-        "max_ntx_same_grid_transport_relative_difference": 0.014072815428719222,
-        "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.4193576660576946
+        "max_ntx_same_grid_transport_relative_difference": 0.02054783993495091,
+        "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.30271458425786035
       },
-      "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. The current artifact is a smoke-resolution coefficient ladder, not a finite-beta bootstrap-current parity claim.",
+      "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. The committed artifact includes the inner bootstrap-current stress radius and is a smoke-resolution coefficient ladder, not a finite-beta bootstrap-current parity claim.",
       "normalization_contract": {
         "rho_to_s": "s=rho^2",
         "ntx_nu_v_to_sfincs_nuPrime": "SFINCS-JAX reports runtime nu_n = nuPrime*B0OverBBar/(GHat+iota*IHat); owned parity comparisons must either solve NTX at that reported nu_n or generate nuPrime from the target NTX nu_v using the same bridge",
@@ -3576,8 +3576,8 @@
         "ntx_es_to_sfincs_EStar": "identity for this monoenergetic generation audit; electric-field normalization must stay explicit in any promoted comparison"
       },
       "open_work": [
-        "expand the current completed smoke-resolution SFINCS-JAX transport-matrix ladder to production radial and collisionality resolution using the reported nu_n bridge",
-        "run Redl and NTX+NEOPAX current profiles on the same finite-beta profile contract",
+        "expand the current completed inner-radius smoke-resolution SFINCS-JAX transport-matrix ladder to production radial and collisionality resolution using the reported nu_n bridge",
+        "connect production SFINCS-JAX profile-current closure diagnostics to the same finite-beta profile contract",
         "promote only after the same geometry, profile, normalization, and interpolation JSON sidecar is complete"
       ]
     },
@@ -3938,6 +3938,50 @@
         "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract before promoting parity",
         "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
         "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
+      ]
+    },
+    "owned_finite_beta_closure_localization": {
+      "summary_metrics": {
+        "max_same_grid_coefficient_relative_difference": 0.02054783993495091,
+        "max_bootstrap_total_relative_difference": 0.3106405551146464,
+        "rms_bootstrap_total_relative_difference": 0.12965669248029935,
+        "inner_gap_rho": 0.14285714285714285,
+        "inner_gap_bootstrap_relative_difference": 0.3106405551146464,
+        "inner_gap_nearest_coefficient_rho": 0.14285714285714285,
+        "inner_gap_nearest_coefficient_distance": 0.0,
+        "inner_gap_coefficient_relative_difference": 0.02054783993495091,
+        "inner_gap_current_to_coefficient_error_ratio": 15.11791780051106,
+        "coefficient_gate": 0.1,
+        "coefficient_gate_pass": true,
+        "profile_current_gate": 0.1,
+        "profile_current_gate_pass": false
+      },
+      "claim_scope": "Compares the completed same-grid finite-beta SFINCS-JAX transport-matrix coefficient ladder with the finite-beta Redl and NTX+NEOPAX profile-current stress artifact. It is a localization diagnostic: coefficient errors below the 1e-1 gate at the inner stress radius do not by themselves promote bootstrap-current parity.",
+      "conclusion": "The same-grid finite-beta coefficient ladder passes below 1e-1 at the inner stress radius; the remaining current-profile gap is therefore tracked as a reduced momentum/profile-closure observable lane rather than a monoenergetic coefficient normalization failure.",
+      "matched_radii": [
+        {
+          "rho": 0.14285714285714285,
+          "max_raw_coefficient_relative_difference": 0.02054783993495091,
+          "interpolated_profile_current_relative_difference": 0.3106405551146464,
+          "current_to_coefficient_error_ratio": 15.11791780051106
+        },
+        {
+          "rho": 0.3,
+          "max_raw_coefficient_relative_difference": 0.014072815428719222,
+          "interpolated_profile_current_relative_difference": 0.1470343366469686,
+          "current_to_coefficient_error_ratio": 10.448110926467988
+        },
+        {
+          "rho": 0.5,
+          "max_raw_coefficient_relative_difference": 0.012535349439094555,
+          "interpolated_profile_current_relative_difference": 0.012530073850508134,
+          "current_to_coefficient_error_ratio": 0.999579143077578
+        }
+      ],
+      "open_work": [
+        "derive and test the remaining reduced momentum/profile-current observable term at the inner finite-beta radius",
+        "rerun the profile-current closure with production SFINCS-JAX radial and collisionality ladders before any parity promotion",
+        "add a stable downstream interpolation-mode audit when the profile-coupling interface exposes that selector"
       ]
     },
     "profile_uncertainty": {
@@ -4306,9 +4350,14 @@
     "owned_finite_beta_bootstrap_psi_p": 0.013346299916410087,
     "owned_finite_beta_sfincs_completed_transport_count": 6,
     "owned_finite_beta_sfincs_ntx_same_grid_count": 6,
-    "owned_finite_beta_sfincs_max_transport_relative_difference": 0.014072815428719222,
+    "owned_finite_beta_sfincs_max_transport_relative_difference": 0.02054783993495091,
     "owned_finite_beta_bootstrap_rms_relative_error": 0.12965669248029935,
     "owned_finite_beta_bootstrap_sign_agreement": 1.0,
+    "owned_finite_beta_closure_inner_gap_coefficient_error": 0.02054783993495091,
+    "owned_finite_beta_closure_inner_gap_current_error": 0.3106405551146464,
+    "owned_finite_beta_closure_inner_gap_error_ratio": 15.11791780051106,
+    "owned_finite_beta_closure_coefficient_gate_pass": true,
+    "owned_finite_beta_closure_profile_gate_pass": false,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -4427,6 +4476,11 @@
       "docs/_static/owned_finite_beta_bootstrap_comparison.png",
       "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
       "docs/_static/owned_finite_beta_bootstrap_comparison.json"
+    ],
+    "owned_finite_beta_closure_localization": [
+      "docs/_static/owned_finite_beta_closure_localization.png",
+      "docs/_static/owned_finite_beta_closure_localization.pdf",
+      "docs/_static/owned_finite_beta_closure_localization.json"
     ],
     "profile_uncertainty": [
       "docs/_static/autodiff_profile_uncertainty.png",
@@ -6385,7 +6439,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta SFINCS-JAX generation contract",
-          "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. This is the owned independent-code generation contract and a smoke-resolution coefficient ladder with the exact radial interpolation, pitch-angle-scattering frequency, and RHSMode=3 flow-row normalizations recorded; it is not a bootstrap-current parity claim until production-resolution SFINCS-JAX outputs are compared against the same NTX and profile artifacts.",
+          "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. This is the owned independent-code generation contract and an inner-radius smoke-resolution coefficient ladder with the exact radial interpolation, pitch-angle-scattering frequency, and RHSMode=3 flow-row normalizations recorded; it is not a bootstrap-current parity claim until production-resolution SFINCS-JAX outputs are compared against the same NTX and profile artifacts.",
           "literature_anchors": [
             "SFINCS monoenergetic RHSMode=3 transport-matrix convention",
             "VMEC geometryScheme=5 finite-beta wout geometry loading",
@@ -6411,8 +6465,8 @@
             "docs/validation.md"
           ],
           "open_work": [
-            "expand the current completed SFINCS-JAX transport-matrix smoke ladder against same-grid NTX scan outputs to production radius and collisionality resolution",
-            "compare completed SFINCS-JAX outputs against the owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
+            "expand the current completed SFINCS-JAX transport-matrix inner-radius smoke ladder against same-grid NTX scan outputs to production radius and collisionality resolution",
+            "run production SFINCS-JAX profile-current closure diagnostics against the owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
             "promote only after geometry, profile, normalization, and interpolation sidecars are complete"
           ]
         },
@@ -6467,7 +6521,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
           "literature_anchors": [
             "Redl bootstrap-current formula and geometry-factor normalization",
             "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -6475,18 +6529,24 @@
             "same-grid independent-code validation discipline"
           ],
           "scripts": [
-            "examples/owned_finite_beta_bootstrap_comparison.py"
+            "examples/owned_finite_beta_bootstrap_comparison.py",
+            "examples/owned_finite_beta_closure_localization.py"
           ],
           "tests": [
-            "tests/test_owned_finite_beta_bootstrap_comparison.py"
+            "tests/test_owned_finite_beta_bootstrap_comparison.py",
+            "tests/test_owned_finite_beta_closure_localization.py"
           ],
           "artifacts": [
             "docs/_static/owned_finite_beta_bootstrap_comparison.png",
             "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
-            "docs/_static/owned_finite_beta_bootstrap_comparison.json"
+            "docs/_static/owned_finite_beta_bootstrap_comparison.json",
+            "docs/_static/owned_finite_beta_closure_localization.png",
+            "docs/_static/owned_finite_beta_closure_localization.pdf",
+            "docs/_static/owned_finite_beta_closure_localization.json"
           ],
           "manuscript_figures": [
-            "owned_finite_beta_bootstrap_comparison"
+            "owned_finite_beta_bootstrap_comparison",
+            "owned_finite_beta_closure_localization"
           ],
           "docs": [
             "README.md",
@@ -6497,7 +6557,6 @@
             "docs/manuscript.md"
           ],
           "open_work": [
-            "connect completed same-grid SFINCS-JAX coefficient ladders to this finite-beta profile contract",
             "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract",
             "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
             "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
@@ -6512,8 +6571,18 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_closure_localization.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_closure_localization.py",
             "exists": true
           },
           {
@@ -6529,6 +6598,21 @@
           {
             "kind": "artifact",
             "path": "docs/_static/owned_finite_beta_bootstrap_comparison.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_closure_localization.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_closure_localization.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_closure_localization.json",
             "exists": true
           },
           {
@@ -6712,6 +6796,7 @@
       "owned_geometry_neopax",
       "owned_finite_beta_sfincs_jax_inputs",
       "owned_finite_beta_bootstrap_comparison",
+      "owned_finite_beta_closure_localization",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",

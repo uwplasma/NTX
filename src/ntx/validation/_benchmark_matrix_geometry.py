@@ -167,12 +167,12 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "Completed outputs are ingested with the reported nu_n "
                 "normalization and compared against NTX on the same geometry "
                 "and grid. This is the owned independent-code generation "
-                "contract and a smoke-resolution coefficient ladder with the "
-                "exact radial interpolation, pitch-angle-scattering frequency, "
-                "and RHSMode=3 flow-row normalizations recorded; it is not "
-                "a bootstrap-current parity claim until production-resolution "
-                "SFINCS-JAX outputs are compared against the same NTX and "
-                "profile artifacts."
+                "contract and an inner-radius smoke-resolution coefficient "
+                "ladder with the exact radial interpolation, "
+                "pitch-angle-scattering frequency, and RHSMode=3 flow-row "
+                "normalizations recorded; it is not a bootstrap-current parity "
+                "claim until production-resolution SFINCS-JAX outputs are "
+                "compared against the same NTX and profile artifacts."
             ),
             literature_anchors=(
                 "SFINCS monoenergetic RHSMode=3 transport-matrix convention",
@@ -195,12 +195,13 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             open_work=(
                 (
                     "expand the current completed SFINCS-JAX transport-matrix "
-                    "smoke ladder against same-grid NTX scan outputs to "
-                    "production radius and collisionality resolution"
+                    "inner-radius smoke ladder against same-grid NTX scan "
+                    "outputs to production radius and collisionality resolution"
                 ),
                 (
-                    "compare completed SFINCS-JAX outputs against the owned "
-                    "finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit"
+                    "run production SFINCS-JAX profile-current closure "
+                    "diagnostics against the owned finite-beta Redl and "
+                    "NTX+NEOPAX bootstrap-current stress audit"
                 ),
                 (
                     "promote only after geometry, profile, normalization, and "
@@ -218,10 +219,10 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "Boozer transform, analytic profile contract, radial grid, "
                 "production radial/collisionality ladder, adaptive physical "
                 "nu/v support, explicit D33_spitzer audit branch, Sonine-order "
-                "convergence sidecar, and current normalization. The current "
-                "reduced-closure result has the correct sign and outer-radius "
-                "errors near the 1e-1 target, but explicitly records the "
-                "remaining inner-radius gap; "
+                "convergence sidecar, coefficient/profile localization sidecar, "
+                "and current normalization. The current reduced-closure result "
+                "has the correct sign and outer-radius errors near the 1e-1 "
+                "target, but explicitly records the remaining inner-radius gap; "
                 "it is not promoted as SFINCS parity until same-grid SFINCS-JAX "
                 "profile-current closure diagnostics are complete."
             ),
@@ -231,14 +232,26 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "monoenergetic database coupling to multi-species profile closures",
                 "same-grid independent-code validation discipline",
             ),
-            scripts=("examples/owned_finite_beta_bootstrap_comparison.py",),
-            tests=("tests/test_owned_finite_beta_bootstrap_comparison.py",),
+            scripts=(
+                "examples/owned_finite_beta_bootstrap_comparison.py",
+                "examples/owned_finite_beta_closure_localization.py",
+            ),
+            tests=(
+                "tests/test_owned_finite_beta_bootstrap_comparison.py",
+                "tests/test_owned_finite_beta_closure_localization.py",
+            ),
             artifacts=(
                 "docs/_static/owned_finite_beta_bootstrap_comparison.png",
                 "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
                 "docs/_static/owned_finite_beta_bootstrap_comparison.json",
+                "docs/_static/owned_finite_beta_closure_localization.png",
+                "docs/_static/owned_finite_beta_closure_localization.pdf",
+                "docs/_static/owned_finite_beta_closure_localization.json",
             ),
-            manuscript_figures=("owned_finite_beta_bootstrap_comparison",),
+            manuscript_figures=(
+                "owned_finite_beta_bootstrap_comparison",
+                "owned_finite_beta_closure_localization",
+            ),
             docs=(
                 "README.md",
                 "docs/benchmark-matrix.md",
@@ -248,10 +261,6 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/manuscript.md",
             ),
             open_work=(
-                (
-                    "connect completed same-grid SFINCS-JAX coefficient ladders "
-                    "to this finite-beta profile contract"
-                ),
                 (
                     "close the inner-radius reduced-closure gap using the same "
                     "physical profile, normalization, and interpolation contract"

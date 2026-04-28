@@ -47,12 +47,17 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "geometry_family_breadth" in payload["tables"]
     assert "geometry_family_transport" in payload["tables"]
     assert "owned_finite_beta_bootstrap_comparison" in payload["tables"]
+    assert "owned_finite_beta_closure_localization" in payload["tables"]
     finite_beta_bootstrap = payload["tables"]["owned_finite_beta_bootstrap_comparison"]
     assert finite_beta_bootstrap["inputs"]["n_order"] >= 2
     assert finite_beta_bootstrap["inputs"]["d33_mode"]
     assert finite_beta_bootstrap["comparison"]["momentum_order_scan"]
     assert payload["claims"]["owned_finite_beta_bootstrap_nu_v_count"] >= 1
     assert payload["claims"]["owned_finite_beta_bootstrap_psi_p"] > 0.0
+    assert (
+        payload["claims"]["owned_finite_beta_closure_inner_gap_current_error"]
+        > payload["claims"]["owned_finite_beta_closure_inner_gap_coefficient_error"]
+    )
     assert "performance" in payload["tables"]
     assert "prepared_geometry_reuse" in payload["tables"]["performance"]
     assert "production" in payload["tables"]["performance"]
@@ -77,6 +82,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "Owned Finite-Beta Bootstrap-Current Stress" in markdown
     assert "Sonine-order max/RMS relative differences" in markdown
     assert "Boozer psi_p" in markdown
+    assert "Inner-gap current/coefficient error ratio" in markdown
     assert "Bootstrap-Current Optimization" in markdown
     assert "Prepared-geometry reuse" in markdown
     assert "| Commit |" in markdown
@@ -91,6 +97,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "artifact-backed geometry-family breadth summary" in claims
     assert "geometry-family transport convergence stress diagnostic" in claims
     assert "owned finite-beta bootstrap-current stress audit" in claims
+    assert "owned finite-beta closure-localization sidecar" in claims
     assert "adaptive `nu/v` support points" in claims
     assert "production-grid CPU performance" in claims
     assert "fixed-workload CPU strong-scaling" in claims

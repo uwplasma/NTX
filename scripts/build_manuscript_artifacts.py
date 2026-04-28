@@ -76,6 +76,9 @@ def build_payload() -> dict:
     owned_finite_beta_bootstrap = _load_json(
         STATIC / "owned_finite_beta_bootstrap_comparison.json"
     )
+    owned_finite_beta_closure = _load_json(
+        STATIC / "owned_finite_beta_closure_localization.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -109,6 +112,7 @@ def build_payload() -> dict:
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_bootstrap_comparison",
+        "owned_finite_beta_closure_localization",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -269,6 +273,13 @@ def build_payload() -> dict:
                     "normalization_contract"
                 ],
                 "open_work": owned_finite_beta_bootstrap["open_work"],
+            },
+            "owned_finite_beta_closure_localization": {
+                "summary_metrics": owned_finite_beta_closure["summary_metrics"],
+                "claim_scope": owned_finite_beta_closure["claim_scope"],
+                "conclusion": owned_finite_beta_closure["conclusion"],
+                "matched_radii": owned_finite_beta_closure["matched_radii"],
+                "open_work": owned_finite_beta_closure["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -443,6 +454,27 @@ def build_payload() -> dict:
                 owned_finite_beta_bootstrap["summary_metrics"][
                     "sign_agreement_fraction_total"
                 ]
+            ),
+            "owned_finite_beta_closure_inner_gap_coefficient_error": (
+                owned_finite_beta_closure["summary_metrics"][
+                    "inner_gap_coefficient_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_closure_inner_gap_current_error": (
+                owned_finite_beta_closure["summary_metrics"][
+                    "inner_gap_bootstrap_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_closure_inner_gap_error_ratio": (
+                owned_finite_beta_closure["summary_metrics"][
+                    "inner_gap_current_to_coefficient_error_ratio"
+                ]
+            ),
+            "owned_finite_beta_closure_coefficient_gate_pass": (
+                owned_finite_beta_closure["summary_metrics"]["coefficient_gate_pass"]
+            ),
+            "owned_finite_beta_closure_profile_gate_pass": (
+                owned_finite_beta_closure["summary_metrics"]["profile_current_gate_pass"]
             ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
@@ -620,6 +652,19 @@ def build_markdown(payload: dict) -> str:
         "comparison"
     ].get("momentum_order_scan", {})
     owned_finite_beta_bootstrap_metrics = owned_finite_beta_bootstrap["summary_metrics"]
+    owned_finite_beta_closure = payload["tables"][
+        "owned_finite_beta_closure_localization"
+    ]
+    owned_finite_beta_closure_metrics = owned_finite_beta_closure["summary_metrics"]
+    closure_inner_coefficient_error = owned_finite_beta_closure_metrics[
+        "inner_gap_coefficient_relative_difference"
+    ]
+    closure_inner_current_error = owned_finite_beta_closure_metrics[
+        "inner_gap_bootstrap_relative_difference"
+    ]
+    closure_inner_error_ratio = owned_finite_beta_closure_metrics[
+        "inner_gap_current_to_coefficient_error_ratio"
+    ]
     finite_beta_bootstrap_max_error = owned_finite_beta_bootstrap_metrics[
         "max_relative_error_total_vs_redl_interior"
     ]
@@ -951,6 +996,18 @@ def build_markdown(payload: dict) -> str:
                 f"`{finite_beta_bootstrap_sign_fraction:.3f}` |"
             ),
             (
+                "| Inner-gap same-grid coefficient relative difference | "
+                f"`{closure_inner_coefficient_error:.3e}` |"
+            ),
+            (
+                "| Inner-gap profile-current relative difference | "
+                f"`{closure_inner_current_error:.3e}` |"
+            ),
+            (
+                "| Inner-gap current/coefficient error ratio | "
+                f"`{closure_inner_error_ratio:.3e}` |"
+            ),
+            (
                 "| Sonine-order max/RMS relative differences | "
                 f"`{finite_beta_bootstrap_order_summary}` |"
             ),
@@ -1230,6 +1287,20 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_bootstrap_sign_agreement']:.3f}`, "
                 "so this artifact is a stress diagnostic rather than a promoted "
                 "finite-beta parity claim."
+            ),
+            (
+                "- The owned finite-beta closure-localization sidecar compares "
+                "the same-grid coefficient ladder with the profile-current "
+                "stress artifact at the inner gap. The coefficient-side "
+                "relative difference is "
+                f"`{claims['owned_finite_beta_closure_inner_gap_coefficient_error']:.3e}` "
+                "while the profile-current relative difference is "
+                f"`{claims['owned_finite_beta_closure_inner_gap_current_error']:.3e}`, "
+                "a ratio of "
+                f"`{claims['owned_finite_beta_closure_inner_gap_error_ratio']:.3e}`. "
+                "This keeps the remaining work in the reduced "
+                "momentum/profile-current observable rather than relabeling it "
+                "as a coefficient-normalization failure."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "

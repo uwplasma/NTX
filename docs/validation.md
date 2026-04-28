@@ -51,6 +51,7 @@ The owned provenance lane is:
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_bootstrap_comparison.py
+python examples/owned_finite_beta_closure_localization.py
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -73,10 +74,11 @@ namelists for the same finite-beta `wout`, `rho`, collisionality,
 electric-field, and resolution grids. Add `--run-sfincs-jax` only when the
 local SFINCS-JAX checkout should execute those inputs. The committed artifact
 now ingests a six-point same-grid coefficient ladder on the finite-beta QA
-case, using the reported `nu_n` normalization and a coefficient-level NTX
-bridge comparison. The current max `L13/L31/L33` relative difference is about
-`1.4e-2` after enforcing exact radial interpolation, the pitch-angle-scattering
-`nuD` frequency bridge, and the `RHSMode=3` flow-row normalization. This
+case, including the inner profile-current stress radius, using the reported
+`nu_n` normalization and a coefficient-level NTX bridge comparison. The current
+max `L13/L31/L33` relative difference is about `2.1e-2` after enforcing exact
+radial interpolation, the pitch-angle-scattering `nuD` frequency bridge, and the
+`RHSMode=3` flow-row normalization. This
 localizes the remaining finite-beta bootstrap-current mismatch downstream of
 the monoenergetic coefficient solve. These artifacts are deliberately scoped
 as smoke-resolution same-grid generation control, not independent-code
@@ -94,6 +96,13 @@ max/RMS relative differences against Redl are now about `3.1e-1`/`1.3e-1` with
 unit sign agreement. The largest mismatch is still an inner-radius
 reduced-closure gap, so this figure remains a mismatch-localization diagnostic
 rather than a README/manuscript parity claim.
+The closure-localization sidecar makes this split explicit: at the inner gap,
+the same-grid coefficient difference is about `2.1e-2`, the profile-current
+difference is about `3.1e-1`, and the current/coefficient error ratio is about
+`15`. That result closes the coefficient-normalization suspicion for this
+smoke-resolution ladder and keeps the open work focused on the reduced
+momentum/profile-current observable and production SFINCS-JAX profile-current
+closure.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -107,15 +116,20 @@ These scripts write:
 - `docs/_static/owned_finite_beta_bootstrap_comparison.png`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.json`
+- `docs/_static/owned_finite_beta_closure_localization.png`
+- `docs/_static/owned_finite_beta_closure_localization.pdf`
+- `docs/_static/owned_finite_beta_closure_localization.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 The next parity-promotion step is to expand the completed same-grid
-SFINCS-JAX coefficient ladder across radius/collisionality, connect those
-outputs to the same finite-beta profile-current contract, resolve the
-inner-radius reduced-closure observable, and then audit downstream interpolation
-modes once NEOPAX exposes a stable selector.
+SFINCS-JAX coefficient ladder to production radial/collisionality resolution,
+run profile-current closure diagnostics on the same finite-beta contract,
+resolve the inner-radius reduced-closure observable, and then audit downstream
+interpolation modes once NEOPAX exposes a stable selector.
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
+
+![Owned finite-beta closure localization](_static/owned_finite_beta_closure_localization.png)
 
 ## What Is Covered
 

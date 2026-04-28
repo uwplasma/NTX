@@ -35,6 +35,7 @@ FIGURE_PRESETS = {
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_bootstrap_comparison",
+        "owned_finite_beta_closure_localization",
         "science",
         "robust_science",
         "validation",
@@ -73,6 +74,7 @@ FIGURE_PRESETS = {
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_bootstrap_comparison",
+        "owned_finite_beta_closure_localization",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -380,6 +382,13 @@ def main() -> None:
     if "owned_finite_beta_bootstrap_comparison" in selected:
         manifest["owned_finite_beta_bootstrap_comparison"] = _copy_existing_static(
             "owned_finite_beta_bootstrap_comparison",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_closure_localization" in selected:
+        manifest["owned_finite_beta_closure_localization"] = _copy_existing_static(
+            "owned_finite_beta_closure_localization",
             output_dir,
             (".png", ".pdf", ".json"),
         )
