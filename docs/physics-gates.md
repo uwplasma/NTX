@@ -173,6 +173,16 @@ These are trust-building comparisons against independent workflows:
 - **Fixed-field transport-matrix audits:** the archive-backed `RHSMode=3` and
   `RHSMode=2` comparisons against SFINCS-JAX are used to localize
   normalization and closure differences.
+- **Owned finite-beta same-grid coefficients:** the finite-beta QA ladder now
+  has a passing coefficient-side gate. The maximum same-grid
+  `L13/L31/L33` relative difference is required to stay below `1e-1` before
+  any finite-beta profile-current result is interpreted.
+- **Owned finite-beta profile-current observable:** the finite-beta
+  bootstrap-current profile remains a monitored stress diagnostic, not a
+  parity gate. The current artifacts keep the net-current residual, the
+  applied-versus-needed momentum correction, and the species-correction
+  cancellation scale visible because the stress radius is dominated by
+  electron/ion cancellation.
 
 These comparisons are useful because they check the physical bridge to
 well-established neoclassical calculations without redefining NTX as “whatever
@@ -238,6 +248,23 @@ transfer to the imported W7-X database convention, so the W7-X release gate
 remains the validated raw branch. A broader closure default is promotable only
 if it preserves both the precise-QS total-current gate and the integrated W7-X
 raw-branch transfer gate.
+
+The owned finite-beta closure lane is tracked by three additional artifact
+gates:
+
+- same-grid finite-beta coefficient normalization: passing, with current
+  maximum relative difference about `2.1e-2`;
+- finite-beta profile-current observable: monitored, with current stress-radius
+  total-current relative difference about `3.1e-1`;
+- finite-beta species-cancellation scale: monitored, with current stress-radius
+  residual about `4e-3` of the species momentum-correction L1 scale.
+
+This is the current physics interpretation: the coefficient-side bridge is no
+longer the leading suspect for the finite-beta QA stress case, and the remaining
+gap lives in the reduced profile-current observable under strong species-current
+cancellation. Future closure work must improve that observable without changing
+device-specific scale factors and without regressing the fixed-field
+precise-QS or integrated W7-X gates.
 
 ## Current Policy
 

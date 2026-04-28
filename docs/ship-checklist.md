@@ -142,6 +142,10 @@ or explicitly moved to documented future work with a clear reason.
   convergence gate, the fixed-field Redl/SFINCS gate, and the scoped
   fixed-field `NTX+NEOPAX` total-current stress gate, so paper-facing claims
   match the active physics gates.
+- The finite-beta QA closure lane now has explicit physics-gate separation:
+  same-grid coefficient normalization is a passing gate, while the
+  profile-current observable and species-cancellation scale remain monitored
+  stress diagnostics until same-grid profile-current closure comparisons pass.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the
