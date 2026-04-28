@@ -52,6 +52,7 @@ python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
+python examples/owned_finite_beta_profile_current_observable_audit.py
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -103,6 +104,11 @@ difference is about `3.1e-1`, and the current/coefficient error ratio is about
 smoke-resolution ladder and keeps the open work focused on the reduced
 momentum/profile-current observable and production SFINCS-JAX profile-current
 closure.
+The profile-current observable audit then shows that the stress-radius
+momentum correction has the correct sign and applies about `0.80` of the
+correction needed to match the Redl target, leaving about `0.20` of that
+correction as residual. The Pmax sidecar reduces the stress error by about
+`3.55x` but does not cross the `1e-1` gate at Pmax 12.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -119,6 +125,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_closure_localization.png`
 - `docs/_static/owned_finite_beta_closure_localization.pdf`
 - `docs/_static/owned_finite_beta_closure_localization.json`
+- `docs/_static/owned_finite_beta_profile_current_observable_audit.png`
+- `docs/_static/owned_finite_beta_profile_current_observable_audit.pdf`
+- `docs/_static/owned_finite_beta_profile_current_observable_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 The next parity-promotion step is to expand the completed same-grid
@@ -130,6 +139,8 @@ interpolation modes once NEOPAX exposes a stable selector.
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 
 ![Owned finite-beta closure localization](_static/owned_finite_beta_closure_localization.png)
+
+![Owned finite-beta profile-current observable audit](_static/owned_finite_beta_profile_current_observable_audit.png)
 
 ## What Is Covered
 

@@ -150,6 +150,9 @@ inner-radius reduced-closure gap and the Sonine-order convergence trend rather
 than promoting a hidden parity curve. The same-grid finite-beta coefficient
 sidecar now includes that inner stress radius and separates a `2.1e-2`
 coefficient-level difference from the `3.1e-1` profile-current stress gap.
+The profile-current observable sidecar shows the remaining stress is not a
+correction-sign failure: the correction has the right sign but applies about
+`0.80` of the correction needed at the stress radius.
 Optimized finite-beta QH/QI Boozer
 reconstruction remains an explicit geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,

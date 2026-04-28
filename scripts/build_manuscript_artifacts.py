@@ -79,6 +79,9 @@ def build_payload() -> dict:
     owned_finite_beta_closure = _load_json(
         STATIC / "owned_finite_beta_closure_localization.json"
     )
+    owned_finite_beta_observable = _load_json(
+        STATIC / "owned_finite_beta_profile_current_observable_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -113,6 +116,7 @@ def build_payload() -> dict:
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
+        "owned_finite_beta_profile_current_observable",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -280,6 +284,16 @@ def build_payload() -> dict:
                 "conclusion": owned_finite_beta_closure["conclusion"],
                 "matched_radii": owned_finite_beta_closure["matched_radii"],
                 "open_work": owned_finite_beta_closure["open_work"],
+            },
+            "owned_finite_beta_profile_current_observable": {
+                "summary_metrics": owned_finite_beta_observable["summary_metrics"],
+                "claim_scope": owned_finite_beta_observable["claim_scope"],
+                "conclusion": owned_finite_beta_observable["conclusion"],
+                "stress_radius": owned_finite_beta_observable["stress_radius"],
+                "momentum_order_at_stress_radius": owned_finite_beta_observable[
+                    "momentum_order_at_stress_radius"
+                ],
+                "open_work": owned_finite_beta_observable["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -476,6 +490,29 @@ def build_payload() -> dict:
             "owned_finite_beta_closure_profile_gate_pass": (
                 owned_finite_beta_closure["summary_metrics"]["profile_current_gate_pass"]
             ),
+            "owned_finite_beta_observable_stress_rho": (
+                owned_finite_beta_observable["summary_metrics"]["stress_rho"]
+            ),
+            "owned_finite_beta_observable_applied_over_needed": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "stress_applied_over_needed_correction"
+                ]
+            ),
+            "owned_finite_beta_observable_residual_over_needed": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "stress_residual_after_correction_over_needed"
+                ]
+            ),
+            "owned_finite_beta_observable_pmax_error_reduction": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "pmax_stress_error_reduction"
+                ]
+            ),
+            "owned_finite_beta_observable_correction_sign_agreement": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "correction_sign_agreement_fraction"
+                ]
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -664,6 +701,21 @@ def build_markdown(payload: dict) -> str:
     ]
     closure_inner_error_ratio = owned_finite_beta_closure_metrics[
         "inner_gap_current_to_coefficient_error_ratio"
+    ]
+    owned_finite_beta_observable = payload["tables"][
+        "owned_finite_beta_profile_current_observable"
+    ]
+    owned_finite_beta_observable_metrics = owned_finite_beta_observable[
+        "summary_metrics"
+    ]
+    observable_applied_over_needed = owned_finite_beta_observable_metrics[
+        "stress_applied_over_needed_correction"
+    ]
+    observable_residual_over_needed = owned_finite_beta_observable_metrics[
+        "stress_residual_after_correction_over_needed"
+    ]
+    observable_pmax_error_reduction = owned_finite_beta_observable_metrics[
+        "pmax_stress_error_reduction"
     ]
     finite_beta_bootstrap_max_error = owned_finite_beta_bootstrap_metrics[
         "max_relative_error_total_vs_redl_interior"
@@ -1008,6 +1060,18 @@ def build_markdown(payload: dict) -> str:
                 f"`{closure_inner_error_ratio:.3e}` |"
             ),
             (
+                "| Stress-radius applied/needed correction | "
+                f"`{observable_applied_over_needed:.3f}` |"
+            ),
+            (
+                "| Stress-radius residual/needed correction | "
+                f"`{observable_residual_over_needed:.3f}` |"
+            ),
+            (
+                "| Stress-radius Pmax error reduction | "
+                f"`{observable_pmax_error_reduction:.3f}x` |"
+            ),
+            (
                 "| Sonine-order max/RMS relative differences | "
                 f"`{finite_beta_bootstrap_order_summary}` |"
             ),
@@ -1301,6 +1365,19 @@ def build_claims_markdown(payload: dict) -> str:
                 "This keeps the remaining work in the reduced "
                 "momentum/profile-current observable rather than relabeling it "
                 "as a coefficient-normalization failure."
+            ),
+            (
+                "- The owned finite-beta profile-current observable audit shows "
+                "that the stress-radius momentum correction has unit sign "
+                "agreement and applies "
+                f"`{claims['owned_finite_beta_observable_applied_over_needed']:.3f}` "
+                "of the correction needed to match the Redl target, leaving "
+                f"`{claims['owned_finite_beta_observable_residual_over_needed']:.3f}` "
+                "of the needed correction as residual. The Pmax sidecar reduces "
+                "the stress error by "
+                f"`{claims['owned_finite_beta_observable_pmax_error_reduction']:.3f}x`, "
+                "so the remaining gap is an amplitude/observable closure issue, "
+                "not a correction-sign failure."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "
