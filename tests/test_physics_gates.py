@@ -80,6 +80,9 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "precise_qs_ntx_neopax_closure_stress" in names
     assert "pmax_convergence_precise_qs" in names
     assert "w7x_pmax_transfer_regression" in names
+    assert "owned_finite_beta_same_grid_coefficient_stress" in names
+    assert "owned_finite_beta_profile_current_observable_stress" in names
+    assert "owned_finite_beta_species_cancellation_stress" in names
 
 
 def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
@@ -169,6 +172,27 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (static_root / "owned_finite_beta_closure_localization.json").write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "max_same_grid_coefficient_relative_difference": 0.02,
+                }
+            }
+        )
+    )
+    (
+        static_root / "owned_finite_beta_profile_current_observable_audit.json"
+    ).write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "stress_relative_error_total_vs_redl": 0.31,
+                    "stress_residual_after_correction_over_species_correction_l1": 0.004,
+                }
+            }
+        )
+    )
 
     results = {result.gate.name: result for result in evaluate_artifact_gates(tmp_path)}
 
@@ -210,6 +234,14 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["precise_qs_ntx_neopax_closure_stress"].value == 1.1
     assert results["pmax_convergence_precise_qs"].status == "missing"
     assert results["w7x_pmax_transfer_regression"].status == "missing"
+    assert results["owned_finite_beta_same_grid_coefficient_stress"].status == "pass"
+    assert results["owned_finite_beta_same_grid_coefficient_stress"].value == 0.02
+    assert results["owned_finite_beta_profile_current_observable_stress"].status == (
+        "monitor"
+    )
+    assert results["owned_finite_beta_profile_current_observable_stress"].value == 0.31
+    assert results["owned_finite_beta_species_cancellation_stress"].status == "monitor"
+    assert results["owned_finite_beta_species_cancellation_stress"].value == 0.004
 
 
 def test_gate_and_result_as_dict_include_optional_details():
@@ -280,6 +312,12 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
     assert results["pmax_convergence_precise_qs"].value == pytest.approx(0.125)
     assert results["w7x_pmax_transfer_regression"].status == "monitor"
     assert results["w7x_pmax_transfer_regression"].value == pytest.approx(0.02)
+    assert results["owned_finite_beta_same_grid_coefficient_stress"].status == "missing"
+    assert (
+        results["owned_finite_beta_profile_current_observable_stress"].status
+        == "missing"
+    )
+    assert results["owned_finite_beta_species_cancellation_stress"].status == "missing"
 
 
 def test_repository_artifact_gates_match_current_claim_statuses():
@@ -316,6 +354,15 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["precise_qs_ntx_neopax_closure_stress"].value <= 1.0e-1
     assert results["pmax_convergence_precise_qs"].status == "monitor"
     assert results["w7x_pmax_transfer_regression"].status == "monitor"
+    assert results["owned_finite_beta_same_grid_coefficient_stress"].status == "pass"
+    assert results["owned_finite_beta_same_grid_coefficient_stress"].value <= 1.0e-1
+    assert (
+        results["owned_finite_beta_profile_current_observable_stress"].status
+        == "monitor"
+    )
+    assert results["owned_finite_beta_profile_current_observable_stress"].value > 1.0e-1
+    assert results["owned_finite_beta_species_cancellation_stress"].status == "monitor"
+    assert results["owned_finite_beta_species_cancellation_stress"].value < 2.0e-2
 
 
 def test_owned_surface_coefficient_convergence_and_onsager_gate():

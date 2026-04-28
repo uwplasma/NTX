@@ -250,6 +250,37 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
                 )
             )
 
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_same_grid_coefficient_stress",
+        path=static_root / "owned_finite_beta_closure_localization.json",
+        metric_key="max_same_grid_coefficient_relative_difference",
+        details=(
+            "same-grid finite-beta transport-matrix coefficient comparison; "
+            "this isolates normalization/interpolation before profile closure"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_profile_current_observable_stress",
+        path=static_root / "owned_finite_beta_profile_current_observable_audit.json",
+        metric_key="stress_relative_error_total_vs_redl",
+        details=(
+            "monitored finite-beta profile-current stress metric; not a parity "
+            "claim while the same-grid profile-current closure comparison is open"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_species_cancellation_stress",
+        path=static_root / "owned_finite_beta_profile_current_observable_audit.json",
+        metric_key="stress_residual_after_correction_over_species_correction_l1",
+        details=(
+            "monitored species-current cancellation scale at the finite-beta "
+            "stress radius"
+        ),
+    )
+
     return results
 
 

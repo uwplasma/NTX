@@ -188,6 +188,48 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "integrated W7-X workflow without regressing the imported path."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_same_grid_coefficient_stress",
+        category="independent",
+        metric="max same-grid finite-beta SFINCS-JAX vs NTX coefficient difference",
+        relation="<=",
+        threshold=1.0e-1,
+        source="docs/_static/owned_finite_beta_closure_localization.json",
+        rationale=(
+            "The finite-beta bootstrap-current stress audit should not be "
+            "interpreted until the same-radius, same-collisionality "
+            "transport-matrix coefficients are normalized consistently against "
+            "the independently generated finite-beta runs."
+        ),
+    ),
+    PhysicsGate(
+        name="owned_finite_beta_profile_current_observable_stress",
+        category="stress",
+        metric="stress-radius finite-beta profile-current relative difference",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+        rationale=(
+            "The finite-beta profile-current observable is deliberately kept as "
+            "a monitored reduced-closure stress diagnostic until production "
+            "same-grid profile-current diagnostics pass; it is not a parity "
+            "gate."
+        ),
+    ),
+    PhysicsGate(
+        name="owned_finite_beta_species_cancellation_stress",
+        category="stress",
+        metric="stress-radius residual divided by species-correction L1 scale",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+        rationale=(
+            "The finite-beta net current is cancellation-dominated at the "
+            "stress radius, so species-current imbalance must be tracked "
+            "separately from the net-current relative error before any broader "
+            "closure change is promoted."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]
