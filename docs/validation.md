@@ -257,7 +257,11 @@ The next parity-promotion step is to build or import a quadrature-converged
 reduced closure that improves the inner-radius observable without fitted
 constants, then rerun profile-current diagnostics on the same finite-beta
 production contract and audit downstream interpolation modes once NEOPAX exposes
-a stable selector.
+a stable selector. The closure-target artifact now cross-links the
+field-radius-matched source-channel and quadrature sidecars: the matched source
+solve reconstructs the corrected current, uses the same stress radius, and still
+rejects the only apparent current-gate pass because it does not transfer to
+quadrature-stable `X >= Pmax`.
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 

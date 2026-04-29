@@ -392,6 +392,9 @@ def build_payload() -> dict:
                 "linear_diagnostics": owned_finite_beta_closure_target[
                     "linear_diagnostics"
                 ],
+                "field_radius_matched_response_audit": owned_finite_beta_closure_target.get(
+                    "field_radius_matched_response_audit"
+                ),
                 "closure_requirements": owned_finite_beta_closure_target[
                     "closure_requirements"
                 ],
@@ -876,6 +879,31 @@ def build_payload() -> dict:
                     "runtime_correction_applied"
                 ]
             ),
+            "owned_finite_beta_closure_target_matched_same_radius": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_same_stress_radius_between_artifacts"
+                )
+            ),
+            "owned_finite_beta_closure_target_matched_best_pass_rejected": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_best_pass_rejected_as_underintegrated"
+                )
+            ),
+            "owned_finite_beta_closure_target_matched_stable_gate": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_quadrature_stable_current_gate_pass"
+                )
+            ),
+            "owned_finite_beta_closure_target_matched_source_reconstruction_gate": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_source_channel_superposition_gate_pass"
+                )
+            ),
+            "owned_finite_beta_closure_target_matched_high_stable_multiplier": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_high_stable_effective_temperature_response_multiplier_to_redl"
+                )
+            ),
             "owned_finite_beta_radial_interpolation_baseline_max_error": (
                 owned_finite_beta_radial_interpolation["summary_metrics"][
                     "baseline_max_relative_error_total_vs_redl"
@@ -1355,6 +1383,21 @@ def build_markdown(payload: dict) -> str:
     closure_target_runtime_correction_applied = closure_target_metrics[
         "runtime_correction_applied"
     ]
+    closure_target_matched_same_radius = closure_target_metrics.get(
+        "field_radius_matched_same_stress_radius_between_artifacts"
+    )
+    closure_target_matched_best_pass_rejected = closure_target_metrics.get(
+        "field_radius_matched_best_pass_rejected_as_underintegrated"
+    )
+    closure_target_matched_stable_gate = closure_target_metrics.get(
+        "field_radius_matched_quadrature_stable_current_gate_pass"
+    )
+    closure_target_matched_source_reconstruction_gate = closure_target_metrics.get(
+        "field_radius_matched_source_channel_superposition_gate_pass"
+    )
+    closure_target_matched_high_stable_multiplier = closure_target_metrics.get(
+        "field_radius_matched_high_stable_effective_temperature_response_multiplier_to_redl"
+    )
     owned_finite_beta_resolution = payload["tables"][
         "owned_finite_beta_sfincs_jax_resolution_audit"
     ]
@@ -1937,6 +1980,19 @@ def build_markdown(payload: dict) -> str:
                 f"`{closure_target_runtime_correction_applied}` |"
             ),
             (
+                "| Closure-target matched-radius stress consistency | "
+                f"`same rho={closure_target_matched_same_radius}`, "
+                f"`source gate={closure_target_matched_source_reconstruction_gate}`, "
+                f"`stable gate={closure_target_matched_stable_gate}` |"
+            ),
+            (
+                "| Closure-target matched-radius apparent pass status | "
+                f"`under-integrated rejected={closure_target_matched_best_pass_rejected}`, "
+                f"`stable multiplier={closure_target_matched_high_stable_multiplier:.3e}` |"
+            )
+            if closure_target_matched_high_stable_multiplier is not None
+            else "",
+            (
                 "| Stress-radius Pmax error reduction | "
                 f"`{observable_pmax_error_reduction:.3f}x` |"
             ),
@@ -2061,6 +2117,9 @@ def build_claims_markdown(payload: dict) -> str:
     claims = payload["claims"]
     finite_beta_resolution_tight_change = claims[
         "owned_finite_beta_resolution_tight_harmonics_change_vs_production"
+    ]
+    closure_target_matched_source_gate = claims[
+        "owned_finite_beta_closure_target_matched_source_reconstruction_gate"
     ]
     explicit_relaxed_max_mismatch = claims[
         "explicit_relaxed_boundary_current_derivative_max_relative_mismatch"
@@ -2428,6 +2487,15 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_closure_target_best_model_loo_rmse']:.3e}` "
                 "and improvement over a constant response of "
                 f"`{claims['owned_finite_beta_closure_target_improvement_over_constant']:.3e}`. "
+                "The cross-linked field-radius-matched artifacts use the same "
+                "stress radius "
+                f"`{claims['owned_finite_beta_closure_target_matched_same_radius']}`, "
+                "keep source reconstruction gated "
+                f"`{closure_target_matched_source_gate}`, "
+                "and reject the best apparent pass as under-integrated "
+                f"`{claims['owned_finite_beta_closure_target_matched_best_pass_rejected']}` "
+                "with quadrature-stable current-gate status "
+                f"`{claims['owned_finite_beta_closure_target_matched_stable_gate']}`. "
                 "No runtime correction is applied by this artifact."
             )
             if (

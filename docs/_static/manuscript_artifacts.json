@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "4b5f822cf4382b889c0e3b28d2f0eeb9306cd557",
+    "commit": "901cdcf2acb6ad17c20dd33132e43764e7b3f5e0",
     "branch": "main"
   },
   "environment": {
@@ -6997,7 +6997,16 @@
         "max_profile_current_relative_error": 0.3951895275200511,
         "median_profile_current_relative_error": 0.11149311908328208,
         "max_source_channel_superposition_relative_residual": 1.8941553187554398e-14,
-        "runtime_correction_applied": false
+        "runtime_correction_applied": false,
+        "field_radius_matched_same_stress_radius_between_artifacts": true,
+        "field_radius_matched_best_public_relative_error_vs_redl": 0.0968385984035428,
+        "field_radius_matched_high_stable_public_relative_error_vs_redl": 0.3081911117634043,
+        "field_radius_matched_best_effective_temperature_response_multiplier_to_redl": 1.1072218108983805,
+        "field_radius_matched_high_stable_effective_temperature_response_multiplier_to_redl": 0.76441430938359,
+        "field_radius_matched_source_channel_superposition_gate_pass": true,
+        "field_radius_matched_quadrature_stable_current_gate_pass": false,
+        "field_radius_matched_best_pass_rejected_as_underintegrated": true,
+        "field_radius_matched_quadrature_aliasing_detected": true
       },
       "claim_scope": "Reads the finite-beta profile source-response artifact and quantifies which local neoclassical drivers explain the effective-temperature response multiplier. This is a closure design diagnostic: it applies no runtime correction and does not promote finite-beta bootstrap-current parity.",
       "rows": [
@@ -7348,11 +7357,83 @@
           ]
         }
       ],
+      "field_radius_matched_response_audit": {
+        "source_artifact": "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json",
+        "quadrature_artifact": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json",
+        "claim_scope": "Cross-links the field-radius-matched source-channel and quadrature artifacts. It checks whether the apparent current-gate pass is quadrature stable and whether the same physical source channel remains the reduced-closure stress after radial interpolation is removed.",
+        "source_stress_rho": 0.07142857142857142,
+        "quadrature_stress_rho": 0.07142857142857142,
+        "same_stress_radius_between_artifacts": true,
+        "matched_setting_count": 3,
+        "rows": [
+          {
+            "neopax_x": 10,
+            "n_order": 12,
+            "x_to_order_ratio": 0.8333333333333334,
+            "source_channel_current_relative_error": 0.21423688503114668,
+            "quadrature_current_relative_error": 0.21423688503114668,
+            "effective_temperature_response_multiplier_to_redl": 0.8235625331663667,
+            "effective_temperature_channel_relative_error_vs_redl": 0.2142368790810343,
+            "source_channel_superposition_relative_residual": 6.579177031424775e-15,
+            "dominant_effective_channel": "effective_temperature_force",
+            "species_cancellation_factor": 68.17319110969218
+          },
+          {
+            "neopax_x": 10,
+            "n_order": 18,
+            "x_to_order_ratio": 0.5555555555555556,
+            "source_channel_current_relative_error": 0.0968385984035428,
+            "quadrature_current_relative_error": 0.0968385984035428,
+            "effective_temperature_response_multiplier_to_redl": 1.1072218108983805,
+            "effective_temperature_channel_relative_error_vs_redl": 0.09683860076002533,
+            "source_channel_superposition_relative_residual": 7.530407091926326e-15,
+            "dominant_effective_channel": "effective_temperature_force",
+            "species_cancellation_factor": 42.672707283515805
+          },
+          {
+            "neopax_x": 18,
+            "n_order": 18,
+            "x_to_order_ratio": 1.0,
+            "source_channel_current_relative_error": 0.3081911117634043,
+            "quadrature_current_relative_error": 0.3081911117634043,
+            "effective_temperature_response_multiplier_to_redl": 0.76441430938359,
+            "effective_temperature_channel_relative_error_vs_redl": 0.30819110490799434,
+            "source_channel_superposition_relative_residual": 1.452395009006375e-14,
+            "dominant_effective_channel": "effective_temperature_force",
+            "species_cancellation_factor": 103.02286330521449
+          }
+        ],
+        "best_public_setting": {
+          "neopax_x": 10,
+          "n_order": 18
+        },
+        "high_stable_setting": {
+          "neopax_x": 18,
+          "n_order": 18
+        },
+        "best_public_relative_error_vs_redl": 0.0968385984035428,
+        "high_stable_public_relative_error_vs_redl": 0.3081911117634043,
+        "best_effective_temperature_response_multiplier_to_redl": 1.1072218108983805,
+        "high_stable_effective_temperature_response_multiplier_to_redl": 0.76441430938359,
+        "response_unit_distance_reduction_in_best_vs_stable": 0.12836387971802954,
+        "source_channel_superposition_gate_pass": true,
+        "max_source_channel_superposition_relative_residual": 1.452395009006375e-14,
+        "high_stable_dominant_effective_channel": "effective_temperature_force",
+        "high_stable_effective_temperature_fraction_of_total": 0.9999999955338167,
+        "quadrature_stable_gate_pass_count": 0,
+        "quadrature_stable_current_gate_pass": false,
+        "underintegrated_gate_pass_count": 1,
+        "best_stress_pass_rejected_as_underintegrated": true,
+        "quadrature_aliasing_detected": true,
+        "conclusion": "The field-radius-matched source solve reconstructs the full corrected current, but the only current-gate pass is rejected when it does not transfer to quadrature-stable X >= Pmax settings. The remaining closure target is therefore a physical reduced-source response, not a scalar normalization or radial-interpolation artifact.",
+        "runtime_correction_applied": false
+      },
       "closure_requirements": [
         "any promoted finite-beta profile-current closure must use physical local drivers already present in the profile equations, such as trapped fraction, inverse-aspect-ratio proxy, collisionality, and thermodynamic-force coefficients",
         "a scalar response multiplier is not sufficient because the measured response varies over the committed radial profile",
         "a runtime closure change must preserve the fixed-field QA/QH total-current stress gate, the W7-X transfer gate, the source-channel reconstruction gate, and the same-grid finite-beta coefficient gate",
-        "the diagnostic regressions in this artifact are model-identification tools only, not production fits"
+        "the diagnostic regressions in this artifact are model-identification tools only, not production fits",
+        "a finite-beta current-gate pass at the stress radius must survive the field-radius-matched quadrature rule X >= Pmax before it can be interpreted as a physical closure improvement"
       ]
     },
     "owned_finite_beta_radial_interpolation": {
@@ -8491,6 +8572,11 @@
     "owned_finite_beta_closure_target_best_model_loo_rmse": 0.052667435393105026,
     "owned_finite_beta_closure_target_improvement_over_constant": 3.922465146180446,
     "owned_finite_beta_closure_target_runtime_correction_applied": false,
+    "owned_finite_beta_closure_target_matched_same_radius": true,
+    "owned_finite_beta_closure_target_matched_best_pass_rejected": true,
+    "owned_finite_beta_closure_target_matched_stable_gate": false,
+    "owned_finite_beta_closure_target_matched_source_reconstruction_gate": true,
+    "owned_finite_beta_closure_target_matched_high_stable_multiplier": 0.76441430938359,
     "owned_finite_beta_radial_interpolation_baseline_max_error": 0.3106405551146464,
     "owned_finite_beta_radial_interpolation_matched_max_error": 0.21423688503114668,
     "owned_finite_beta_radial_interpolation_baseline_stress_rho": 0.14285714285714285,

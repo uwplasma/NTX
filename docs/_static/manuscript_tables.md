@@ -197,6 +197,8 @@
 | Closure-target best diagnostic model | `epsilon` (`LOO RMSE=5.267e-02`) |
 | Closure-target improvement over constant response | `3.922e+00` |
 | Closure-target runtime correction applied | `False` |
+| Closure-target matched-radius stress consistency | `same rho=True`, `source gate=True`, `stable gate=False` |
+| Closure-target matched-radius apparent pass status | `under-integrated rejected=True`, `stable multiplier=7.644e-01` |
 | Stress-radius Pmax error reduction | `3.548x` |
 | Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
@@ -252,7 +254,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `4b5f822cf4382b889c0e3b28d2f0eeb9306cd557` |
+| Commit | `901cdcf2acb6ad17c20dd33132e43764e7b3f5e0` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
