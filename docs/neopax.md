@@ -93,6 +93,9 @@ For end-to-end examples, see:
 - [`examples/bootstrap_current_fixed_field_validation.py`](../examples/bootstrap_current_fixed_field_validation.py)
   for the local precise-QS fixed-field comparison against SFINCS, SFINCS-JAX,
   and Redl
+- [`examples/build_neopax_scan_from_ertilde.py`](../examples/build_neopax_scan_from_ertilde.py)
+  for generating a NEOPAX-style HDF5 coefficient database directly from
+  VMEC/Boozer files and a user-provided `rho`, `nu_v`, and `Er_tilde` grid
 
 ## Typical Imported Workflow
 
@@ -138,6 +141,29 @@ The `d33_mode="spitzer"` and `d33_mode="conductivity_difference"` branches are
 explicit audit choices. They are useful for fixed-field closure stress tests,
 but they are not the public default because they do not satisfy the integrated
 W7-X transfer gate.
+
+## DKES-Like `Er_tilde` Database Export
+
+When the downstream workflow expects a file-backed coefficient database, use
+the `Er_tilde` export example instead of hand-editing HDF5 payloads:
+
+```bash
+python examples/build_neopax_scan_from_ertilde.py \
+  --wout path/to/wout.nc \
+  --booz path/to/boozmn.nc \
+  --rho 0.25,0.5,0.75 \
+  --nu-v 1e-5,3e-5,1e-4,3e-4,1e-3 \
+  --er-tilde 0.0,1e-5,3e-5 \
+  --surface-backend auto \
+  --device-backend cpu \
+  --output examples/outputs/neopax_scan_from_ertilde/scan.h5 \
+  --plot
+```
+
+The script validates the input files and grids, computes `Er`, `Es`, and
+normalization metadata from the supplied VMEC/Boozer files, solves the NTX
+monoenergetic coefficient tables, writes `write_neopax_scan_hdf5(...)` output,
+and can emit per-radius coefficient panels for quick sanity checks.
 
 When converting NEOPAX parallel-flow output into current, use one charge
 conversion only. If the workflow uses `species.charge`, that array already
