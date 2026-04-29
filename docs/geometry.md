@@ -187,7 +187,7 @@ NetCDF, NPZ, or HDF5 file:
 - `b2_mean`
 
 These are written in `save_run_output(...)` in
-[`src/ntx/_inputfiles_run.py`](../src/ntx/_inputfiles_run.py).
+[`src/ntx/_inputfiles_output.py`](../src/ntx/_inputfiles_output.py).
 
 ## Recommended Input Strategy
 
