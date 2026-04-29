@@ -40,6 +40,7 @@ __all__ = [
     "bootstrap_current_objective",
     "build_species_profile_from_primitives",
     "build_species_profiles_from_primitives",
+    "current_response_objective",
     "evaluate_scan_channel",
     "evaluate_species_current_response",
     "evaluate_species_particle_flux",
@@ -150,7 +151,7 @@ def solve_ambipolar_er_profile(
         rho=rho,
         er_profile=solved_profile,
         ambipolar_residual=residual,
-        bootstrap_current_proxy=bootstrap_current,
+        bootstrap_current_response=bootstrap_current,
         species_particle_flux=species_flux,
         species_current_response=species_current,
         loss_history=loss_history,
@@ -188,8 +189,8 @@ def solve_ambipolar_profile_family(
         control=control_array,
         er_profile=jnp.stack([result.er_profile for result in family_results]),
         ambipolar_residual=jnp.stack([result.ambipolar_residual for result in family_results]),
-        bootstrap_current_proxy=jnp.stack(
-            [result.bootstrap_current_proxy for result in family_results]
+        bootstrap_current_response=jnp.stack(
+            [result.bootstrap_current_response for result in family_results]
         ),
         loss_history=jnp.stack([result.loss_history for result in family_results]),
     )
@@ -197,18 +198,29 @@ def solve_ambipolar_profile_family(
 
 def bootstrap_current_objective(
     rho: Array,
-    bootstrap_current_proxy: Array,
+    current_response: Array,
     *,
     weight: Array | None = None,
 ) -> Array:
-    """Return a weighted quadratic radial objective for a bootstrap-current profile."""
+    """Return a weighted quadratic objective for a reduced current response."""
 
     rho_arr = jnp.asarray(rho)
-    profile = jnp.asarray(bootstrap_current_proxy)
+    profile = jnp.asarray(current_response)
     if profile.shape != rho_arr.shape:
-        raise ValueError("bootstrap_current_proxy must match rho shape")
+        raise ValueError("current_response must match rho shape")
     if weight is None:
         weight_arr = jnp.ones_like(rho_arr)
     else:
         weight_arr = _broadcast_profile_field(weight, rho_arr)
     return jnp.trapezoid(weight_arr * profile**2, rho_arr)
+
+
+def current_response_objective(
+    rho: Array,
+    current_response: Array,
+    *,
+    weight: Array | None = None,
+) -> Array:
+    """Return a weighted quadratic objective for a reduced current response."""
+
+    return bootstrap_current_objective(rho, current_response, weight=weight)

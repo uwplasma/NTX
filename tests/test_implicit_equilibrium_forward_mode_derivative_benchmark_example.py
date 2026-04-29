@@ -59,15 +59,15 @@ def test_implicit_equilibrium_forward_mode_derivative_benchmark_writes_outputs(t
     assert objective_ids == {
         "equilibrium_volume",
         "booz_xform_scalar",
-        "ntx_transport_proxy",
+        "ntx_transport_response",
     }
     objectives = {objective["id"]: objective for objective in payload["objectives"]}
     assert objectives["equilibrium_volume"]["status"] == "validated"
     assert objectives["equilibrium_volume"]["relative_mismatch"][0] < 1.0e-3
     assert objectives["booz_xform_scalar"]["status"] == "closed-not-shipped"
     assert objectives["booz_xform_scalar"]["relative_mismatch"][0] > 1.0e-1
-    assert objectives["ntx_transport_proxy"]["status"] == "closed-not-shipped"
-    assert objectives["ntx_transport_proxy"]["relative_mismatch"][0] > 1.0
+    assert objectives["ntx_transport_response"]["status"] == "closed-not-shipped"
+    assert objectives["ntx_transport_response"]["relative_mismatch"][0] > 1.0
     assert payload["summary_metrics"]["residual_contracts"] is False
     assert payload["residual_history"]
     assert payload["reverse_mode_diagnostic"]["objective_id"] == "booz_xform_scalar"

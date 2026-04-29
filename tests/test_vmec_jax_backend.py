@@ -168,6 +168,51 @@ def test_surface_from_vmec_jax_wout_keeps_matching_static(monkeypatch, tmp_path)
     assert captured["kwargs"]["signgs"] == -1
 
 
+def test_surface_from_vmec_jax_wout_keeps_flux_scale_explicit(monkeypatch, tmp_path):
+    @dataclasses.dataclass(frozen=True)
+    class FakeCfg:
+        ns: int
+        mpol: int
+        ntor: int
+
+    cfg = FakeCfg(ns=5, mpol=3, ntor=2)
+    wout = SimpleNamespace(
+        ns=5,
+        mpol=3,
+        ntor=2,
+        signgs=1,
+        phi=jnp.asarray([0.0, 0.25 * jnp.pi, 0.5 * jnp.pi]),
+    )
+    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg.load_config = lambda path: (cfg, "indata")
+    vmec_pkg.build_static = lambda cfg_obj: cfg_obj
+    vmec_api = ModuleType("vmec_jax.api")
+    vmec_api.read_wout = lambda path: wout
+    vmec_api.state_from_wout = lambda w: "state"
+    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmec_jax.api", vmec_api)
+
+    captured = {}
+
+    def fake_surface_from_state(**kwargs):
+        captured["kwargs"] = kwargs
+        return "surface"
+
+    monkeypatch.setattr(
+        "ntx._vmec_jax_surfaces.surface_from_vmec_jax_state",
+        fake_surface_from_state,
+    )
+
+    result = surface_from_vmec_jax_wout(
+        input_path=tmp_path / "input.vmec",
+        wout_path=tmp_path / "wout.nc",
+        s=0.25,
+    )
+
+    assert result == "surface"
+    assert float(captured["kwargs"]["psi_p"]) == 1.0
+
+
 def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
     calls = {}
     vmec_pkg = ModuleType("vmec_jax")

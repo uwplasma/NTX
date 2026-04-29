@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NTX-only bootstrap-current proxy profile from VMEC or Boozer geometry.
+"""NTX-only reduced bootstrap-current response from VMEC or Boozer geometry.
 
 Edit the configuration block below, run the script, and inspect the figure and
 JSON summary written next to ``OUTPUT_PREFIX``.
@@ -106,8 +106,8 @@ def solve_profiles() -> dict[str, np.ndarray | str | float]:
         iota[idx] = float(surface.iota)
 
     density, temperature, dlnn_drho, dlnT_drho = radial_profiles(RHO_GRID)
-    current_proxy = density * (-dlnn_drho * d13 - 0.75 * dlnT_drho * d33_hat)
-    current_proxy /= np.max(np.abs(current_proxy))
+    current_response = density * (-dlnn_drho * d13 - 0.75 * dlnT_drho * d33_hat)
+    current_response /= np.max(np.abs(current_response))
 
     return {
         "mode": mode,
@@ -119,7 +119,7 @@ def solve_profiles() -> dict[str, np.ndarray | str | float]:
         "d33_hat": d33_hat,
         "b0": b0,
         "iota": iota,
-        "current_proxy": current_proxy,
+        "current_response": current_response,
     }
 
 
@@ -176,18 +176,18 @@ def plot_profiles(data: dict[str, np.ndarray | str | float]) -> None:
 
     axes[1, 1].plot(
         rho,
-        np.asarray(data["current_proxy"]),
+        np.asarray(data["current_response"]),
         color="#111111",
         lw=2.6,
     )
     axes[1, 1].fill_between(
         rho,
         0.0,
-        np.asarray(data["current_proxy"]),
+        np.asarray(data["current_response"]),
         color="#111111",
         alpha=0.12,
     )
-    axes[1, 1].set_title("Bootstrap-Current Proxy")
+    axes[1, 1].set_title("Reduced Current Response")
     axes[1, 1].set_xlabel(r"$\rho$")
     axes[1, 1].set_ylabel("Normalized profile")
 
@@ -196,7 +196,7 @@ def plot_profiles(data: dict[str, np.ndarray | str | float]) -> None:
         ax.grid(alpha=0.22, lw=0.6)
 
     fig.suptitle(
-        f"NTX bootstrap-current proxy from {data['mode']} geometry",
+        f"NTX reduced current response from {data['mode']} geometry",
         fontsize=14,
         y=1.02,
     )
@@ -222,7 +222,7 @@ def write_summary(data: dict[str, np.ndarray | str | float]) -> None:
         "D11": np.asarray(data["d11"]).tolist(),
         "D13": np.asarray(data["d13"]).tolist(),
         "nuD33": np.asarray(data["d33_hat"]).tolist(),
-        "bootstrap_current_proxy": np.asarray(data["current_proxy"]).tolist(),
+        "bootstrap_current_response": np.asarray(data["current_response"]).tolist(),
         "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
     }
@@ -233,8 +233,8 @@ def main() -> None:
     data = solve_profiles()
     plot_profiles(data)
     write_summary(data)
-    print(f"bootstrap-current proxy figure: {OUTPUT_PREFIX.with_suffix('.png')}")
-    print(f"bootstrap-current proxy summary: {OUTPUT_PREFIX.with_suffix('.json')}")
+    print(f"reduced current-response figure: {OUTPUT_PREFIX.with_suffix('.png')}")
+    print(f"reduced current-response summary: {OUTPUT_PREFIX.with_suffix('.json')}")
 
 
 if __name__ == "__main__":

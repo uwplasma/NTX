@@ -16,6 +16,7 @@ from ntx import (
     bootstrap_current_objective,
     build_species_profile_from_primitives,
     build_species_profiles_from_primitives,
+    current_response_objective,
     evaluate_scan_channel,
     evaluate_species_current_response,
     evaluate_species_particle_flux,
@@ -103,7 +104,7 @@ def test_profile_helpers_cover_error_branches_and_d31_fallback():
             replace(species, A1=jnp.asarray([1.0, 2.0])),
             er_profile=er_profile,
         )
-    with pytest.raises(ValueError, match="bootstrap_current_proxy must match rho shape"):
+    with pytest.raises(ValueError, match="current_response must match rho shape"):
         bootstrap_current_objective(
             scan.rho,
             jnp.asarray([1.0, 2.0]),
@@ -302,8 +303,10 @@ def test_bootstrap_objective_accepts_explicit_weight():
     current = jnp.asarray([1.0, -0.5, 0.25])
     weight = jnp.asarray([1.0, 2.0, 3.0])
     value = bootstrap_current_objective(rho, current, weight=weight)
+    alias_value = current_response_objective(rho, current, weight=weight)
     expected = jnp.trapezoid(weight * current**2, rho)
     assert jnp.isclose(value, expected)
+    assert jnp.isclose(alias_value, expected)
 
 
 def test_profile_eval_internal_helpers_cover_remaining_branches():

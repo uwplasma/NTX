@@ -96,7 +96,7 @@ These are hard structural checks:
 - **Primitive profile force reconstruction:** the profile workflow must recover
   `A3 = d ln T / dr` and
   `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are
-  used in particle-flux or bootstrap-current proxy calculations.
+  used in particle-flux or reduced bootstrap-current response calculations.
 - **Charge-symmetric ambipolar cancellation:** the profile workflow must return
   zero charge-weighted particle-flux residual for equal particle-flux responses
   with opposite charges. This is the local implementation gate for the
@@ -119,6 +119,10 @@ These are hard structural checks:
   sign convention differing from the canonical notation.
 - **Fixed observable map:** for the present Sonine basis, the corrected
   parallel-flow observable remains `U_parallel = n c_0`.
+- **Source-channel superposition:** for a frozen finite-beta stress-radius
+  momentum-restoring matrix, the density/electric, effective temperature, and
+  parallel-electric one-channel solves must reconstruct the full corrected
+  current to roundoff before the dominant channel is interpreted physically.
 - **Intrinsic ambipolarity in symmetric limits:** finite-order closure work
   must preserve the symmetric-limit ambipolar structure emphasized by the
   Sugama–Nishimura formulation.
@@ -160,7 +164,7 @@ geometry breadth:
   not a passing gate. The current artifact validates the equilibrium-volume
   derivative but leaves the Boozer-space and NTX transport observables open.
 - **Bootstrap-current optimization gain:** the committed science/application
-  artifact must keep the optimized weighted-current proxy at least equal to the
+  artifact must keep the optimized weighted-current response at least equal to the
   baseline before the manuscript cites the gain. This is a stress gate, not a
   broad optimization-design claim.
 
@@ -173,6 +177,58 @@ These are trust-building comparisons against independent workflows:
 - **Fixed-field transport-matrix audits:** the archive-backed `RHSMode=3` and
   `RHSMode=2` comparisons against SFINCS-JAX are used to localize
   normalization and closure differences.
+- **Owned finite-beta same-grid coefficients:** the finite-beta QA ladder now
+  has a passing normalization-side gate. The maximum same-grid
+  `L13/L31/L33` relative difference is required to stay below `1e-1` before
+  any finite-beta profile-current result is interpreted. This is not by itself
+  a current-parity gate when the net current is cancellation-conditioned.
+- **Owned finite-beta source-channel reconstruction:** the finite-beta source
+  decomposition is a stress gate on the linear momentum-restoring system:
+  one-channel solves must reconstruct the full corrected current below `1e-8`.
+  The resulting dominant-channel statement is diagnostic, not a fitted current
+  correction.
+- **Owned finite-beta temperature-source response:** the source-channel sidecar
+  also stores the Redl density and temperature target terms on the same current
+  observable. The high-order Redl/NTX effective-temperature response ratio is a
+  monitored stress metric, not an acceptance gate and not a runtime fit.
+- **Owned finite-beta profile source-response:** the source-response sidecar
+  extends the effective-temperature channel measurement over the finite-beta
+  profile. Its radial response span and correlations with Redl collisionality,
+  trapped fraction, epsilon, and `L32` are monitored diagnostics for a future
+  physics-derived closure, not fitted correction factors.
+- **Owned finite-beta closure-target driver audit:** the closure-target sidecar
+  ranks local neoclassical drivers for the measured temperature-source response
+  before any runtime model is proposed. The current artifact selects the Redl
+  geometry factor `epsilon` as the strongest single driver and records that
+  diagnostic regressions are not applied as production corrections.
+- **Owned finite-beta profile-current observable:** the finite-beta
+  bootstrap-current profile remains a monitored stress diagnostic, not a
+  parity gate. The current artifacts keep the net-current residual, the
+  applied-versus-needed momentum correction, and the species-correction
+  cancellation scale visible because the stress radius is dominated by
+  electron/ion cancellation.
+- **Owned finite-beta current conditioning:** the coefficient ladder is also
+  compared with the species-current L1 scale. The current artifact reports that
+  the stress-radius net current needs about `1.3e-3` coefficient precision for
+  a `1e-1` current gate, while the completed smoke ladder is about `2.1e-2`.
+- **Owned finite-beta resolution floor:** the stress-radius point has also
+  been rerun at `35 x 43 x 48` and with a tighter VMEC harmonic cutoff. The
+  coefficient floor stays near `2.05e-2`, so angular resolution and harmonic
+  truncation are not treated as the closure fix.
+- **Owned finite-beta production ladder:** the six production same-grid
+  radius/collisionality points all stay below `2.07e-2` coefficient difference.
+  The largest current-conditioned precision gap remains the inner stress point,
+  so the coefficient-resolution lane is localized rather than a broad
+  whole-profile failure.
+- **Owned finite-beta closure quadrature:** higher Sonine order is now
+  monitored together with velocity quadrature. The only stress-radius
+  current-gate pass occurs at `P=14, X=10`, where `X < Pmax`, and does not
+  transfer to `X=14` or `X=18`. The accepted quadrature-stable current-gate
+  pass count is zero, so this is treated as quadrature aliasing, not a valid
+  physics closure.
+  This keeps the next physics step honest: profile-current diagnostics must
+  tighten the conditioned uncertainty before a new reduced-closure term is
+  promoted.
 
 These comparisons are useful because they check the physical bridge to
 well-established neoclassical calculations without redefining NTX as “whatever
@@ -239,6 +295,37 @@ remains the validated raw branch. A broader closure default is promotable only
 if it preserves both the precise-QS total-current gate and the integrated W7-X
 raw-branch transfer gate.
 
+The owned finite-beta closure lane is tracked by additional artifact
+gates:
+
+- same-grid finite-beta coefficient normalization: passing, with current
+  maximum relative difference about `2.1e-2`;
+- finite-beta profile-current observable: monitored, with current stress-radius
+  total-current relative difference about `3.1e-1`;
+- finite-beta species-cancellation scale: monitored, with current stress-radius
+  residual about `4e-3` of the species momentum-correction L1 scale.
+- finite-beta production coefficient floor: monitored, with the current
+  production stress probe still about `15.9x` looser than the
+  cancellation-conditioned coefficient target.
+- finite-beta production radial/collisionality ladder: monitored, with all
+  production coefficient differences below `2.07e-2` but the maximum
+  current-conditioned precision gap still about `15.9x`.
+- finite-beta closure quadrature: monitored, with one under-integrated
+  current-gate pass and a highest-quadrature largest-order stress difference
+  near `4e-1`.
+- finite-beta profile source response: monitored, with the current high-order
+  temperature response multiplier spanning `0.717` to `1.317` over the profile.
+- finite-beta closure-target driver ranking: monitored, with the current best
+  single driver `epsilon`, absolute Pearson correlation `0.975`, and no runtime
+  correction applied.
+
+This is the current physics interpretation: the coefficient-side bridge is no
+longer the leading suspect for the finite-beta QA stress case, and the remaining
+gap lives in a quadrature-converged reduced profile-current/source-response
+observable under strong species-current cancellation. Future closure work must
+improve that observable without changing device-specific scale factors and
+without regressing the fixed-field precise-QS or integrated W7-X gates.
+
 ## Current Policy
 
 The gate registry is exposed in the public API:
@@ -288,9 +375,9 @@ Any higher-order closure change must satisfy all of the following:
 
 That is the standard for physically defensible closure work in this repository.
 
-## Current Higher-Order Scaffold
+## Current Higher-Order Closure Status
 
-The first higher-order implementation stage is now in place in the imported
+The first higher-order validation stage is now in place in the imported
 closure stack:
 
 - configurable Sonine truncation order in the closure grid

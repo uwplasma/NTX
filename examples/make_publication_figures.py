@@ -32,11 +32,26 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "owned_geometry_neopax",
+        "owned_finite_beta_sfincs_jax_inputs",
+        "owned_finite_beta_sfincs_jax_resolution_audit",
+        "owned_finite_beta_sfincs_jax_production_ladder",
+        "owned_finite_beta_bootstrap_comparison",
+        "owned_finite_beta_closure_localization",
+        "owned_finite_beta_profile_current_observable",
+        "owned_finite_beta_current_conditioning",
+        "owned_finite_beta_closure_quadrature",
+        "owned_finite_beta_source_channel",
+        "owned_finite_beta_source_response_profile",
+        "owned_finite_beta_closure_target",
+        "owned_finite_beta_radial_interpolation",
+        "owned_finite_beta_field_radius_matched_closure_quadrature",
+        "owned_finite_beta_field_radius_matched_source_channel",
         "science",
         "robust_science",
         "validation",
         "closure_validation",
-        "bootstrap_proxy",
+        "bootstrap_response",
         "w7x_audit",
         "performance_smoke",
         "performance_heavy",
@@ -67,10 +82,25 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "owned_geometry_neopax",
+        "owned_finite_beta_sfincs_jax_inputs",
+        "owned_finite_beta_sfincs_jax_resolution_audit",
+        "owned_finite_beta_sfincs_jax_production_ladder",
+        "owned_finite_beta_bootstrap_comparison",
+        "owned_finite_beta_closure_localization",
+        "owned_finite_beta_profile_current_observable",
+        "owned_finite_beta_current_conditioning",
+        "owned_finite_beta_closure_quadrature",
+        "owned_finite_beta_source_channel",
+        "owned_finite_beta_source_response_profile",
+        "owned_finite_beta_closure_target",
+        "owned_finite_beta_radial_interpolation",
+        "owned_finite_beta_field_radius_matched_closure_quadrature",
+        "owned_finite_beta_field_radius_matched_source_channel",
         "profile_control",
         "profile_basis",
         "profile_transport",
-        "bootstrap_proxy",
+        "bootstrap_response",
         "robust_science",
         "performance_smoke",
         "performance_heavy",
@@ -357,6 +387,115 @@ def main() -> None:
             _manifest_path(output_dir / "geometry_family_transport_convergence.json"),
         ]
 
+    if "owned_geometry_neopax" in selected:
+        manifest["owned_geometry_neopax"] = _copy_existing_static(
+            "owned_geometry_neopax_dataset",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_sfincs_jax_inputs" in selected:
+        manifest["owned_finite_beta_sfincs_jax_inputs"] = _copy_existing_static(
+            "owned_finite_beta_sfincs_jax_inputs",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_sfincs_jax_resolution_audit" in selected:
+        manifest["owned_finite_beta_sfincs_jax_resolution_audit"] = _copy_existing_static(
+            "owned_finite_beta_sfincs_jax_resolution_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_sfincs_jax_production_ladder" in selected:
+        manifest["owned_finite_beta_sfincs_jax_production_ladder"] = _copy_existing_static(
+            "owned_finite_beta_sfincs_jax_production_ladder_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_bootstrap_comparison" in selected:
+        manifest["owned_finite_beta_bootstrap_comparison"] = _copy_existing_static(
+            "owned_finite_beta_bootstrap_comparison",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_closure_localization" in selected:
+        manifest["owned_finite_beta_closure_localization"] = _copy_existing_static(
+            "owned_finite_beta_closure_localization",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_profile_current_observable" in selected:
+        manifest["owned_finite_beta_profile_current_observable"] = _copy_existing_static(
+            "owned_finite_beta_profile_current_observable_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_current_conditioning" in selected:
+        manifest["owned_finite_beta_current_conditioning"] = _copy_existing_static(
+            "owned_finite_beta_current_conditioning_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_closure_quadrature" in selected:
+        manifest["owned_finite_beta_closure_quadrature"] = _copy_existing_static(
+            "owned_finite_beta_closure_quadrature_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_source_channel" in selected:
+        manifest["owned_finite_beta_source_channel"] = _copy_existing_static(
+            "owned_finite_beta_source_channel_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_source_response_profile" in selected:
+        manifest["owned_finite_beta_source_response_profile"] = _copy_existing_static(
+            "owned_finite_beta_source_response_profile_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_closure_target" in selected:
+        manifest["owned_finite_beta_closure_target"] = _copy_existing_static(
+            "owned_finite_beta_closure_target_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_radial_interpolation" in selected:
+        manifest["owned_finite_beta_radial_interpolation"] = _copy_existing_static(
+            "owned_finite_beta_radial_interpolation_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_field_radius_matched_closure_quadrature" in selected:
+        manifest["owned_finite_beta_field_radius_matched_closure_quadrature"] = (
+            _copy_existing_static(
+                "owned_finite_beta_field_radius_matched_closure_quadrature_audit",
+                output_dir,
+                (".png", ".pdf", ".json"),
+            )
+        )
+
+    if "owned_finite_beta_field_radius_matched_source_channel" in selected:
+        manifest["owned_finite_beta_field_radius_matched_source_channel"] = (
+            _copy_existing_static(
+                "owned_finite_beta_field_radius_matched_source_channel_audit",
+                output_dir,
+                (".png", ".pdf", ".json"),
+            )
+        )
+
     if "profile_uncertainty" in selected:
         _run(
             [
@@ -430,7 +569,7 @@ def main() -> None:
             (".png", ".pdf", ".json", ".txt"),
         )
 
-    if "bootstrap_proxy" in selected:
+    if "bootstrap_response" in selected:
         _run(
             [
                 sys.executable,
@@ -441,7 +580,7 @@ def main() -> None:
             source = ROOT / "docs" / "_static" / f"bootstrap_current_from_vmec_or_boozmn{suffix}"
             target = output_dir / source.name
             target.write_bytes(source.read_bytes())
-        manifest["bootstrap_proxy"] = [
+        manifest["bootstrap_response"] = [
             _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.png"),
             _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.pdf"),
             _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.json"),

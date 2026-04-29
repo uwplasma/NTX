@@ -88,7 +88,7 @@ parallel-throughput workflows.
   JAX/parallel execution
 - [Source-Code Map](source-map.md): where each model component lives in `src/`
 - [Autodiff](autodiff.md): inverse problems, derivative audits, and prepared derivatives
-- [Profiles](profiles.md): ambipolar electric-field and bootstrap-current proxy workflows
+- [Profiles](profiles.md): ambipolar electric-field and reduced current-response workflows
 - [Examples](examples.md): runnable workflows and figure generators
 - [Validation](validation.md): current status and benchmark philosophy
 - [Testing And QA](testing.md): test structure and quality gates

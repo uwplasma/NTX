@@ -59,7 +59,7 @@ def example_bootstrap_current_robust_optimization(
     scale_grid_size: int = 29,
     quadrature_order: int = 5,
 ) -> RobustBootstrapOptimizationResult:
-    """Optimize a bootstrap-current proxy under prescribed control uncertainty."""
+    """Optimize a reduced bootstrap-current response under control uncertainty."""
 
     del Es, Er, drds
     if scale_grid_size < 2:

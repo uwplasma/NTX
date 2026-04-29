@@ -118,7 +118,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     rho_np = np.asarray(result.rho)
     er_profile = np.asarray(result.er_profile)
     residual = np.asarray(result.ambipolar_residual)
-    jbs = np.asarray(result.bootstrap_current_proxy)
+    jbs = np.asarray(result.bootstrap_current_response)
     electron_flux = np.asarray(result.species_particle_flux[0])
     ion_flux = np.asarray(result.species_particle_flux[1])
     electron_current = np.asarray(result.species_current_response[0])
@@ -155,7 +155,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     axes[0, 1].plot(rho_np, electron_current, color="#0072B2", lw=1.7, ls="--", label="electron")
     axes[0, 1].plot(rho_np, ion_current, color="#009E73", lw=1.7, ls="--", label="ion")
     axes[0, 1].set_xlabel(r"$\rho$")
-    axes[0, 1].set_ylabel("Bootstrap-current proxy")
+    axes[0, 1].set_ylabel("Reduced current response")
     axes[0, 1].set_title("Current-response closure")
     axes[0, 1].legend(loc="best")
 
@@ -186,7 +186,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         label="charge-weighted sum",
     )
     axes[1, 0].set_xlabel(r"$\rho$")
-    axes[1, 0].set_ylabel("Particle-flux proxy")
+    axes[1, 0].set_ylabel("Particle-flux response")
     axes[1, 0].set_title("Ambipolar residual closure")
     axes[1, 0].legend(loc="best")
 

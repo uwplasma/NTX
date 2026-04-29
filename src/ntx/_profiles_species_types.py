@@ -9,7 +9,7 @@ from jax import Array, tree_util
 
 @dataclass(frozen=True)
 class MonoenergeticSpeciesProfile:
-    """One-species radial profile inputs for ambipolar and current proxies."""
+    """One-species radial inputs for reduced ambipolar/current responses."""
 
     charge: float | Array
     nu_v: Array

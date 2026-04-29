@@ -121,19 +121,29 @@ highest-signal artifacts:
 | --- | --- |
 | ![Monoenergetic validation summary](docs/_static/validation_summary.png) | ![Fixed-field SFINCS, Redl, and NTX + NEOPAX bootstrap-current comparison](docs/_static/bootstrap_current_fixed_field_validation.png) |
 
-| Bootstrap-current workflow | Differentiable geometry/current path |
+| Owned finite-beta bootstrap stress | Differentiable geometry/current path |
 | --- | --- |
-| ![NTX + NEOPAX bootstrap-current profile](docs/_static/bootstrap_current_with_neopax.png) | ![Explicit-relaxed boundary current derivative benchmark](docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png) |
+| ![Owned finite-beta Redl and NTX + NEOPAX bootstrap-current stress audit](docs/_static/owned_finite_beta_bootstrap_comparison.png) | ![Explicit-relaxed boundary current derivative benchmark](docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png) |
+
+| Owned finite-beta source response | Same-grid SFINCS-JAX input generation |
+| --- | --- |
+| ![Owned finite-beta profile source-response audit](docs/_static/owned_finite_beta_source_response_profile_audit.png) | ![Owned finite-beta SFINCS-JAX generation contract](docs/_static/owned_finite_beta_sfincs_jax_inputs.png) |
 
 Current promoted validation includes monoenergetic convergence and identities,
-the fixed-field Redl comparison on the precise-QS benchmark family, the
-fixed-field `NTX+NEOPAX` total-current stress gate, the integrated W7-X
+the fixed-field Redl/SFINCS comparison on the precise-QS benchmark family, the
+scoped fixed-field `NTX+NEOPAX` total-current stress gate, the integrated W7-X
 workflow transfer, and prepared derivative agreement against direct
-reverse-mode differentiation. The fixed-field current result uses documented
-normalization and moment-closure conventions, not fitted bridge constants.
-Species-resolved fixed-field closure parity, broader geometry-family studies,
-and large-optimization studies remain tracked as stress diagnostics or planned
-research lanes in the docs.
+reverse-mode differentiation. Current comparisons use documented
+normalizations and moment-closure conventions; fitted bridge constants are not
+used in the runtime.
+
+The owned finite-beta stellarator lane now has same-grid SFINCS-JAX input
+generation, completed coefficient ladders, Redl and `NTX+NEOPAX` current
+audits, source-channel decompositions, and radial-interpolation diagnostics.
+That lane is intentionally reported as a reduced-closure stress benchmark: the
+monoenergetic coefficient differences are below `2.1e-2`, while the
+quadrature-stable profile-current stress remains about `3.1e-1`. The detailed
+interpretation and open promotion gates are in [docs/validation.md](docs/validation.md).
 
 Run the local gate summary with:
 
@@ -154,9 +164,16 @@ NEOPAX database and bootstrap-current examples:
 
 ```bash
 python examples/neopax_with_ntx.py
+python examples/owned_geometry_neopax_dataset.py
+python examples/owned_finite_beta_bootstrap_comparison.py
+python examples/owned_finite_beta_source_response_profile_audit.py
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
+
+The full finite-beta validation sequence, including same-grid SFINCS-JAX input
+generation and matched-radius closure audits, is documented in
+[docs/validation.md](docs/validation.md).
 
 Autodiff and optimization examples:
 
@@ -184,8 +201,9 @@ The major open lanes are:
 - reusable hidden-symmetry and omnigenous benchmark families,
 - broader geometry-control autodiff with direct AD, prepared adjoints, and
   finite-difference agreement on reusable geometry families,
-- restoration of implicit-equilibrium sensitivities only after residual
-  contraction and Boozer/NTX transport finite-difference agreement pass,
+- promotion of the implicit-equilibrium derivative path only after residual
+  contraction and Boozer/NTX transport finite-difference agreement pass; the
+  current implicit artifact is a closed non-shipping diagnostic,
 - additional dedicated GPU nodes with healthy multi-GPU execution and
   device-memory timelines,
 - broader fixed-field NTX+NEOPAX closure transfer, including species-resolved

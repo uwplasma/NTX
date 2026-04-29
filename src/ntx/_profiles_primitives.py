@@ -1,4 +1,4 @@
-"""Primitive density/temperature profiles mapped to NTX force proxies."""
+"""Primitive density/temperature profiles mapped to NTX force channels."""
 
 from __future__ import annotations
 

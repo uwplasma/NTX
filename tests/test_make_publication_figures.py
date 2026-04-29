@@ -122,9 +122,9 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
     monkeypatch.setattr(module, "_run", _fake_run)
 
     output_dir = tmp_path / "figures"
-    payload = _invoke_main(module, monkeypatch, output_dir, "bootstrap_proxy")
+    payload = _invoke_main(module, monkeypatch, output_dir, "bootstrap_response")
 
-    assert set(payload) == {"bootstrap_proxy"}
+    assert set(payload) == {"bootstrap_response"}
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.png").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.pdf").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.json").exists()
@@ -267,6 +267,132 @@ def test_geometry_family_transport_uses_paper_preset(
                 "geometry_family_transport_convergence.png",
                 "geometry_family_transport_convergence.pdf",
                 "geometry_family_transport_convergence.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_sfincs_jax_inputs",
+            {"owned_finite_beta_sfincs_jax_inputs"},
+            (
+                "owned_finite_beta_sfincs_jax_inputs.png",
+                "owned_finite_beta_sfincs_jax_inputs.pdf",
+                "owned_finite_beta_sfincs_jax_inputs.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_sfincs_jax_resolution_audit",
+            {"owned_finite_beta_sfincs_jax_resolution_audit"},
+            (
+                "owned_finite_beta_sfincs_jax_resolution_audit.png",
+                "owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+                "owned_finite_beta_sfincs_jax_resolution_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_sfincs_jax_production_ladder",
+            {"owned_finite_beta_sfincs_jax_production_ladder"},
+            (
+                "owned_finite_beta_sfincs_jax_production_ladder_audit.png",
+                "owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
+                "owned_finite_beta_sfincs_jax_production_ladder_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_bootstrap_comparison",
+            {"owned_finite_beta_bootstrap_comparison"},
+            (
+                "owned_finite_beta_bootstrap_comparison.png",
+                "owned_finite_beta_bootstrap_comparison.pdf",
+                "owned_finite_beta_bootstrap_comparison.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_closure_localization",
+            {"owned_finite_beta_closure_localization"},
+            (
+                "owned_finite_beta_closure_localization.png",
+                "owned_finite_beta_closure_localization.pdf",
+                "owned_finite_beta_closure_localization.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_profile_current_observable",
+            {"owned_finite_beta_profile_current_observable"},
+            (
+                "owned_finite_beta_profile_current_observable_audit.png",
+                "owned_finite_beta_profile_current_observable_audit.pdf",
+                "owned_finite_beta_profile_current_observable_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_current_conditioning",
+            {"owned_finite_beta_current_conditioning"},
+            (
+                "owned_finite_beta_current_conditioning_audit.png",
+                "owned_finite_beta_current_conditioning_audit.pdf",
+                "owned_finite_beta_current_conditioning_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_closure_quadrature",
+            {"owned_finite_beta_closure_quadrature"},
+            (
+                "owned_finite_beta_closure_quadrature_audit.png",
+                "owned_finite_beta_closure_quadrature_audit.pdf",
+                "owned_finite_beta_closure_quadrature_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_source_channel",
+            {"owned_finite_beta_source_channel"},
+            (
+                "owned_finite_beta_source_channel_audit.png",
+                "owned_finite_beta_source_channel_audit.pdf",
+                "owned_finite_beta_source_channel_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_source_response_profile",
+            {"owned_finite_beta_source_response_profile"},
+            (
+                "owned_finite_beta_source_response_profile_audit.png",
+                "owned_finite_beta_source_response_profile_audit.pdf",
+                "owned_finite_beta_source_response_profile_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_closure_target",
+            {"owned_finite_beta_closure_target"},
+            (
+                "owned_finite_beta_closure_target_audit.png",
+                "owned_finite_beta_closure_target_audit.pdf",
+                "owned_finite_beta_closure_target_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_radial_interpolation",
+            {"owned_finite_beta_radial_interpolation"},
+            (
+                "owned_finite_beta_radial_interpolation_audit.png",
+                "owned_finite_beta_radial_interpolation_audit.pdf",
+                "owned_finite_beta_radial_interpolation_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_field_radius_matched_closure_quadrature",
+            {"owned_finite_beta_field_radius_matched_closure_quadrature"},
+            (
+                "owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+                "owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+                "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_field_radius_matched_source_channel",
+            {"owned_finite_beta_field_radius_matched_source_channel"},
+            (
+                "owned_finite_beta_field_radius_matched_source_channel_audit.png",
+                "owned_finite_beta_field_radius_matched_source_channel_audit.pdf",
+                "owned_finite_beta_field_radius_matched_source_channel_audit.json",
             ),
         ),
         (

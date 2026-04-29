@@ -19,7 +19,6 @@ if str(SRC) not in sys.path:
 
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
-from scipy.constants import elementary_charge  # noqa: E402
 
 from ntx import (  # noqa: E402
     GridSpec,
@@ -114,7 +113,7 @@ def _bootstrap_current_profile(database, grid, field, species):
     lij, gamma, heat, upar_nomom = NEOPAX.get_Neoclassical_Fluxes(species, grid, field, database)
     charges = np.asarray(species.charge, dtype=float)[:, None]
     upar_nomom = np.asarray(upar_nomom, dtype=float)
-    current_nomom = np.sum(charges * elementary_charge * upar_nomom, axis=0)
+    current_nomom = np.sum(charges * upar_nomom, axis=0)
 
     current_total = current_nomom
     correction_current = np.zeros_like(current_nomom)
@@ -126,7 +125,7 @@ def _bootstrap_current_profile(database, grid, field, species):
             database,
         )
         upar_total = np.asarray(upar_total, dtype=float).T
-        current_total = np.sum(charges * elementary_charge * upar_total, axis=0)
+        current_total = np.sum(charges * upar_total, axis=0)
         correction_current = current_total - current_nomom
 
     return {

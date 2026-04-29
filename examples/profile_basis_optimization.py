@@ -21,8 +21,8 @@ from ntx import (  # noqa: E402
     GridSpec,
     MonoenergeticSpeciesProfile,
     ProfileBasisControlSpec,
-    bootstrap_current_objective,
     build_ntx_neopax_scan_from_surfaces,
+    current_response_objective,
     example_surface,
     optimize_profile_basis_control,
     solve_ambipolar_er_profile,
@@ -178,8 +178,8 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         damping=0.7,
         smoothing_strength=0.45,
     )
-    best_current = np.asarray(result.best_profile.bootstrap_current_proxy)
-    baseline_current = np.asarray(baseline_profile.bootstrap_current_proxy)
+    best_current = np.asarray(result.best_profile.bootstrap_current_response)
+    baseline_current = np.asarray(baseline_profile.bootstrap_current_response)
     best_residual = np.asarray(result.best_profile.ambipolar_residual)
     baseline_residual = np.asarray(baseline_profile.ambipolar_residual)
     control_history = np.asarray(result.control_history)
@@ -188,10 +188,14 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     best_control = np.asarray(result.best_control)
     modifier = np.tensordot(best_control, basis_np, axes=1)
     best_objective = float(
-        bootstrap_current_objective(rho, result.best_profile.bootstrap_current_proxy, weight=weight)
+        current_response_objective(
+            rho,
+            result.best_profile.bootstrap_current_response,
+            weight=weight,
+        )
     )
     baseline_objective = float(
-        bootstrap_current_objective(rho, baseline_profile.bootstrap_current_proxy, weight=weight)
+        current_response_objective(rho, baseline_profile.bootstrap_current_response, weight=weight)
     )
 
     fig, axes = plt.subplots(2, 2, constrained_layout=True)
@@ -266,7 +270,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         label="optimized",
     )
     axes[1, 1].set_xlabel(r"$\rho$")
-    axes[1, 1].set_ylabel("Bootstrap-current proxy")
+    axes[1, 1].set_ylabel("Reduced current response")
     axes[1, 1].set_title("Optimized current profile")
     axes[1, 1].legend(loc="best")
     axes[1, 1].text(

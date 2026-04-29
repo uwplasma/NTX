@@ -35,6 +35,10 @@ This is the primary reference for:
 - Landreman, Buller, and Drevlak 2022, quasisymmetric-stellarator use of the
   Redl bootstrap-current formula and comparison to a 4D drift-kinetic solver:
   [arXiv:2205.02914](https://arxiv.org/abs/2205.02914)
+- Ferraro et al. 2025, implementation of Redl-style bootstrap-current modeling
+  in an extended-MHD workflow using trapped fraction, collisionality, effective
+  charge, and geometry factors:
+  [JPP](https://www.cambridge.org/core/journals/journal-of-plasma-physics/article/bootstrap-current-modeling-in-m3dc1/07AEC30A1077F0D427FF2EA7BF42AC4B)
 - Beidler et al. 2011, international monoenergetic coefficient benchmark:
   [Nuclear Fusion](https://doi.org/10.1088/0029-5515/51/7/076001)
 
@@ -50,6 +54,9 @@ These are the main references for:
   broader drift-kinetic solvers
 - why the Redl precise-QS comparison is a separate analytic bootstrap-current
   validation from the reduced NTX+NEOPAX closure stress metric
+- why the finite-beta closure-target audit ranks local drivers such as
+  `epsilon`, trapped fraction, and collisionality instead of introducing a
+  scalar fitted current correction
 - the required benchmark surface for `D11`, `D31`, and `D33`
 
 ## Differentiable And Optimization Workflows
@@ -72,7 +79,7 @@ These references anchor NTX's autodiff tests:
 - inverse-design recovery from generated targets
 - uncertainty propagation from Jacobians
 - profile and geometry optimization with explicit physical metrics rather
-  than proxy-only validation
+  than reduced-response-only validation
 
 ## Geometry-Breadth And Future Benchmark Families
 
