@@ -69,6 +69,7 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/validation/_benchmark_matrix_performance.py",
     "src/ntx/validation/_benchmark_matrix_profiles.py",
     "src/ntx/validation/_benchmark_matrix_types.py",
+    "src/ntx/validation/_finite_beta_closure_target.py",
     "src/ntx/validation/_physics_gate_analytical.py",
     "src/ntx/validation/_physics_gate_artifact_eval.py",
     "src/ntx/validation/_physics_gate_artifact_registry.py",
