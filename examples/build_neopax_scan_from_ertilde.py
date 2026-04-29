@@ -134,6 +134,23 @@ def _parse_args() -> argparse.Namespace:
         default=GRID.n_xi,
         help="Pitch-angle / Legendre resolution.",
     )
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        help="Plot D11, D13, D31, and D33 vs nu_v after the scan.",
+    )
+    parser.add_argument(
+        "--plot-output",
+        type=Path,
+        default=None,
+        help="Plot output path or prefix. If omitted, uses the HDF5 output path stem.",
+    )
+    parser.add_argument(
+        "--plot-rho-index",
+        type=int,
+        default=None,
+        help="Optional rho index to plot. If omitted, plots all rho surfaces.",
+    )
     return parser.parse_args()
 
 
@@ -336,6 +353,71 @@ def _report_scan_warnings(scan: NeopaxScan) -> None:
         print("scan sanity checks: no negative D11, no non-finite values, Onsager mismatch within threshold")
 
 
+def _plot_scan_coefficients(
+    scan: NeopaxScan,
+    plot_output: Path | None,
+    *,
+    rho_index: int | None,
+) -> list[Path]:
+    import matplotlib.pyplot as plt
+
+    base = plot_output if plot_output is not None else OUTPUT_PATH.with_suffix(".png")
+    base = base.expanduser().resolve()
+    suffix = base.suffix if base.suffix else ".png"
+    stem = base.stem if base.suffix else base.name
+    parent = base.parent if base.suffix else base
+    parent.mkdir(parents=True, exist_ok=True)
+
+    rho = np.asarray(scan.rho, dtype=float)
+    nu_v = np.asarray(scan.nu_v, dtype=float)
+    er_tilde = np.asarray(scan.Er_tilde, dtype=float)
+    d11 = np.asarray(scan.D11, dtype=float)
+    d13 = np.asarray(scan.D13, dtype=float)
+    d31 = np.asarray(scan.D31, dtype=float) if scan.D31 is not None else None
+    d33 = np.asarray(scan.D33, dtype=float)
+
+    written: list[Path] = []
+    rho_indices = list(range(rho.shape[0])) if rho_index is None else [rho_index]
+    for ir in rho_indices:
+        if ir < 0 or ir >= rho.shape[0]:
+            raise IndexError(f"plot_rho_index {ir} is outside [0, {rho.shape[0] - 1}]")
+        rho_value = rho[ir]
+        fig, axes = plt.subplots(2, 2, figsize=(11.5, 8.0), constrained_layout=True)
+        panels = (
+            ("D11", d11[ir], axes[0, 0]),
+            ("D13", d13[ir], axes[0, 1]),
+            ("D31", None if d31 is None else d31[ir], axes[1, 0]),
+            ("D33", d33[ir], axes[1, 1]),
+        )
+
+        for label, values, ax in panels:
+            if values is None:
+                ax.set_visible(False)
+                continue
+            for ier, er_tilde_value in enumerate(er_tilde):
+                ax.semilogx(
+                    nu_v,
+                    values[:, ier],
+                    lw=1.8,
+                    label=rf"$\tilde E_r={er_tilde_value:.1e}$",
+                )
+            ax.set_title(f"{label} vs nu_v")
+            ax.set_xlabel("nu_v")
+            ax.set_ylabel(label)
+            ax.grid(alpha=0.24, lw=0.6, which="both")
+
+        handles, labels = axes[0, 0].get_legend_handles_labels()
+        if handles:
+            fig.legend(handles, labels, loc="center right", frameon=False)
+        fig.suptitle(f"NTX monoenergetic scan coefficients at rho={rho_value:.5f}", fontsize=14)
+
+        out_path = parent / f"{stem}_rho_{rho_value:.5f}{suffix}"
+        fig.savefig(out_path, dpi=220, bbox_inches="tight")
+        plt.close(fig)
+        written.append(out_path)
+    return written
+
+
 def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec, backend: str) -> NeopaxScan:
     channels = _load_vmec_boozer_channels(wout_path, boozmn_path, RHO)
     load_surface, backend_name = _select_surface_loader(
@@ -437,6 +519,15 @@ def main() -> None:
     print(f"Er_tilde points: {scan.Er_tilde.shape[0] if scan.Er_tilde is not None else 0}")
     print(f"D11 shape: {scan.D11.shape}")
     print(f"D31 shape: {scan.D31.shape if scan.D31 is not None else None}")
+    if args.plot:
+        plot_paths = _plot_scan_coefficients(
+            scan,
+            args.plot_output,
+            rho_index=args.plot_rho_index,
+        )
+        print("plots:")
+        for path in plot_paths:
+            print(f"  {path}")
 
 
 if __name__ == "__main__":
