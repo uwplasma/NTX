@@ -201,8 +201,9 @@ The major open lanes are:
 - reusable hidden-symmetry and omnigenous benchmark families,
 - broader geometry-control autodiff with direct AD, prepared adjoints, and
   finite-difference agreement on reusable geometry families,
-- restoration of implicit-equilibrium sensitivities only after residual
-  contraction and Boozer/NTX transport finite-difference agreement pass,
+- promotion of the implicit-equilibrium derivative path only after residual
+  contraction and Boozer/NTX transport finite-difference agreement pass; the
+  current implicit artifact is a closed non-shipping diagnostic,
 - additional dedicated GPU nodes with healthy multi-GPU execution and
   device-memory timelines,
 - broader fixed-field NTX+NEOPAX closure transfer, including species-resolved
