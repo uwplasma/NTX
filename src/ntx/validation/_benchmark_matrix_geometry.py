@@ -249,6 +249,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "source-channel closure sidecar, "
                 "profile source-response sidecar, "
                 "radial interpolation sensitivity sidecar, "
+                "field-radius-matched closure quadrature sidecar, "
                 "and current normalization. "
                 "The current reduced-closure result has the correct sign and "
                 "outer-radius errors near the 1e-1 target, but explicitly records "
@@ -313,6 +314,9 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
                 "docs/_static/owned_finite_beta_radial_interpolation_audit.json",
                 "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json",
+                "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+                "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+                "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json",
             ),
             manuscript_figures=(
                 "owned_finite_beta_bootstrap_comparison",
@@ -324,6 +328,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "owned_finite_beta_source_response_profile_audit",
                 "owned_finite_beta_closure_target_audit",
                 "owned_finite_beta_radial_interpolation_audit",
+                "owned_finite_beta_field_radius_matched_closure_quadrature_audit",
             ),
             docs=(
                 "README.md",
@@ -353,6 +358,11 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                     "repeat the field-radius-matched interpolation audit with "
                     "a dense production radial scan before changing any runtime "
                     "interpolation policy"
+                ),
+                (
+                    "derive a quadrature-stable finite-beta reduced-closure "
+                    "improvement; the current field-radius-matched apparent "
+                    "pass remains under-integrated"
                 ),
                 (
                     "run the production same-grid coefficient ladder to the "

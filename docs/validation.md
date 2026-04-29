@@ -60,6 +60,11 @@ python examples/owned_finite_beta_source_channel_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
 python examples/owned_finite_beta_closure_target_audit.py
 python examples/owned_finite_beta_radial_interpolation_audit.py --rebuild-matched
+python examples/owned_finite_beta_closure_quadrature_audit.py \
+  --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
+  --x-values 10 18 --n-orders 10 12 14 18 \
+  --output-prefix docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit \
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_closure_quadrature_audit
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -176,6 +181,15 @@ runtime correction is applied and that any future closure change must preserve
 the fixed-field QA/QH total-current stress gate, the W7-X transfer gate, the
 source-channel reconstruction gate, and the same-grid finite-beta coefficient
 gate.
+The radial-interpolation audit then removes one sparse-radius interpolation
+layer by rebuilding the database on the field radii. It lowers the previous
+`rho=1/7` stress to about `3.0e-2`, but the matched profile maximum remains
+about `2.1e-1`. The matched-radius quadrature audit keeps the same rebuilt
+database and repeats the Sonine/quadrature sweep: the best apparent stress
+value is `9.68e-2` at `P=18, X=10`, but the quadrature-stable pass count is
+still zero and the `X=18, P=18` stress is about `3.1e-1`. This closes the
+interpolation-only and Pmax-only explanations without promoting a runtime
+closure change.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -213,6 +227,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_radial_interpolation_audit.png`
 - `docs/_static/owned_finite_beta_radial_interpolation_audit.pdf`
 - `docs/_static/owned_finite_beta_radial_interpolation_audit.json`
+- `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png`
+- `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf`
+- `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
@@ -247,6 +264,8 @@ a stable selector.
 ![Owned finite-beta closure-target driver audit](_static/owned_finite_beta_closure_target_audit.png)
 
 ![Owned finite-beta radial interpolation audit](_static/owned_finite_beta_radial_interpolation_audit.png)
+
+![Owned finite-beta field-radius-matched closure quadrature audit](_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 

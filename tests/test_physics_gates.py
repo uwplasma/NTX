@@ -91,6 +91,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "owned_finite_beta_temperature_source_response_stress" in names
     assert "owned_finite_beta_profile_source_response_stress" in names
     assert "owned_finite_beta_closure_target_driver_stress" in names
+    assert "owned_finite_beta_field_radius_matched_quadrature_stress" in names
 
 
 def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):

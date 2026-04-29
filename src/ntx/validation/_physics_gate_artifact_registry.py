@@ -358,6 +358,24 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "a promoted runtime interpolation policy."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_field_radius_matched_quadrature_stress",
+        category="stress",
+        metric="field-radius-matched quadrature-stable closure gate-pass count",
+        relation="monitor",
+        threshold=None,
+        source=(
+            "docs/_static/"
+            "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
+        ),
+        rationale=(
+            "After removing the sparse-radius interpolation layer, finite-beta "
+            "closure improvements must still transfer to velocity quadrature "
+            "at least as large as the Sonine truncation. This monitor separates "
+            "field-radius interpolation sensitivity from under-integrated "
+            "closure aliasing."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

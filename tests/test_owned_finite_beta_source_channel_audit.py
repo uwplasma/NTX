@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from examples import owned_finite_beta_source_channel_audit as audit
 
@@ -97,6 +99,44 @@ def test_redl_effective_channel_targets_extract_density_and_temperature_terms() 
     assert targets["density_electric_force"] == 2.0
     assert targets["effective_temperature_force"] == 13.0
     assert targets["parallel_electric_force"] == 0.0
+
+
+def test_load_or_build_scan_reuses_fallback_cache(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "scan_cache"
+    output_dir.mkdir()
+    fallback = output_dir / "finite_beta_case_source_channel_scan.h5"
+    fallback.write_bytes(b"cached")
+    sentinel = object()
+
+    monkeypatch.setattr(audit, "neopax_scan_requires_rebuild", lambda _path: False)
+    monkeypatch.setattr(audit, "load_neopax_reference_scan", lambda _path: sentinel)
+
+    def fail_build(*_args, **_kwargs):
+        raise AssertionError("fallback cache should avoid rebuilding the NTX scan")
+
+    monkeypatch.setattr(audit, "_build_scan_for_path", fail_build)
+
+    scan, metadata = audit._load_or_build_scan(  # noqa: SLF001
+        bootstrap_payload={
+            "inputs": {
+                "scan_rho": [0.2],
+                "nu_v": [1.0e-4],
+                "Es": [0.0],
+            },
+            "ntx_neopax": {"hdf5": {"path": str(tmp_path / "missing.h5")}},
+        },
+        case=SimpleNamespace(id="finite_beta_case"),
+        field=SimpleNamespace(a_b=1.0),
+        scan_grid=object(),
+        output_dir=output_dir,
+    )
+
+    assert scan is sentinel
+    assert metadata["scan_source"] == "cached_fallback_hdf5"
+    assert metadata["scan_path"] == str(fallback)
 
 
 def test_source_channel_audit_writes_payload_and_figure(tmp_path: Path) -> None:

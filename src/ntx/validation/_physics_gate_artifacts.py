@@ -389,6 +389,21 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "changing the runtime default"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_field_radius_matched_quadrature_stress",
+        path=(
+            static_root
+            / "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
+        ),
+        metric_key="quadrature_stable_gate_pass_count",
+        details=(
+            "monitored matched-radius finite-beta closure quadrature pass count; "
+            "zero means the current-gate pass remains confined to an "
+            "under-integrated X < Pmax setting even after the sparse radial "
+            "interpolation layer is removed"
+        ),
+    )
 
     return results
 

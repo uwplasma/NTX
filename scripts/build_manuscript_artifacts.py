@@ -106,6 +106,10 @@ def build_payload() -> dict:
     owned_finite_beta_radial_interpolation = _load_json(
         STATIC / "owned_finite_beta_radial_interpolation_audit.json"
     )
+    owned_finite_beta_matched_quadrature = _load_json(
+        STATIC
+        / "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -149,6 +153,7 @@ def build_payload() -> dict:
         "owned_finite_beta_source_response_profile",
         "owned_finite_beta_closure_target",
         "owned_finite_beta_radial_interpolation",
+        "owned_finite_beta_field_radius_matched_closure_quadrature",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -397,6 +402,15 @@ def build_payload() -> dict:
                     "radial_contract"
                 ],
                 "open_work": owned_finite_beta_radial_interpolation["open_work"],
+            },
+            "owned_finite_beta_field_radius_matched_closure_quadrature": {
+                "summary_metrics": owned_finite_beta_matched_quadrature[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_matched_quadrature["claim_scope"],
+                "conclusion": owned_finite_beta_matched_quadrature["conclusion"],
+                "rows": owned_finite_beta_matched_quadrature["rows"],
+                "open_work": owned_finite_beta_matched_quadrature["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -877,6 +891,36 @@ def build_payload() -> dict:
                     "field_radius_matched_current_gate_pass"
                 ]
             ),
+            "owned_finite_beta_matched_quadrature_reference_error": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "reference_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_min_stress_error": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "min_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_min_stress_x": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "min_stress_neopax_x"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_min_stress_pmax": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "min_stress_n_order"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_stable_pass_count": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "quadrature_stable_gate_pass_count"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_high_x_largest_order_error": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "high_x_largest_order_stress_relative_error"
+                ]
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -1135,6 +1179,34 @@ def build_markdown(payload: dict) -> str:
     quadrature_max_same_order_spread = owned_finite_beta_quadrature_metrics[
         "max_same_order_stress_spread_over_x"
     ]
+    owned_finite_beta_matched_quadrature = payload["tables"][
+        "owned_finite_beta_field_radius_matched_closure_quadrature"
+    ]
+    owned_finite_beta_matched_quadrature_metrics = (
+        owned_finite_beta_matched_quadrature["summary_metrics"]
+    )
+    matched_quadrature_reference_error = (
+        owned_finite_beta_matched_quadrature_metrics["reference_stress_relative_error"]
+    )
+    matched_quadrature_min_stress_error = (
+        owned_finite_beta_matched_quadrature_metrics["min_stress_relative_error"]
+    )
+    matched_quadrature_min_stress_x = owned_finite_beta_matched_quadrature_metrics[
+        "min_stress_neopax_x"
+    ]
+    matched_quadrature_min_stress_pmax = (
+        owned_finite_beta_matched_quadrature_metrics["min_stress_n_order"]
+    )
+    matched_quadrature_stable_passes = (
+        owned_finite_beta_matched_quadrature_metrics[
+            "quadrature_stable_gate_pass_count"
+        ]
+    )
+    matched_quadrature_high_x_error = (
+        owned_finite_beta_matched_quadrature_metrics[
+            "high_x_largest_order_stress_relative_error"
+        ]
+    )
     owned_finite_beta_source_channel = payload["tables"][
         "owned_finite_beta_source_channel"
     ]
@@ -1675,6 +1747,24 @@ def build_markdown(payload: dict) -> str:
             (
                 "| Max same-order stress spread over X | "
                 f"`{quadrature_max_same_order_spread:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched reference stress error | "
+                f"`{matched_quadrature_reference_error:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched best apparent setting | "
+                f"`P={matched_quadrature_min_stress_pmax}, "
+                f"X={matched_quadrature_min_stress_x}, "
+                f"error={matched_quadrature_min_stress_error:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched quadrature-stable pass count | "
+                f"`{matched_quadrature_stable_passes}` |"
+            ),
+            (
+                "| Field-radius-matched highest-X largest-order error | "
+                f"`{matched_quadrature_high_x_error:.3e}` |"
             ),
             (
                 "| Source-channel reconstruction residual | "
@@ -2265,6 +2355,26 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_radial_interpolation_gate_pass']}`. "
                 "This keeps the result as an interpolation sensitivity "
                 "diagnostic, not a promoted runtime policy."
+            ),
+            (
+                "- The field-radius-matched closure-quadrature audit then "
+                "repeats the Sonine/quadrature sweep after removing that "
+                "sparse-radius interpolation layer. The reference stress is "
+                f"`{claims['owned_finite_beta_matched_quadrature_reference_error']:.3e}`; "
+                "the best apparent setting is "
+                f"`P={claims['owned_finite_beta_matched_quadrature_min_stress_pmax']}`, "
+                f"`X={claims['owned_finite_beta_matched_quadrature_min_stress_x']}` "
+                "with stress "
+                f"`{claims['owned_finite_beta_matched_quadrature_min_stress_error']:.3e}`, "
+                "but the quadrature-stable pass count remains "
+                f"`{claims['owned_finite_beta_matched_quadrature_stable_pass_count']}` "
+                "and the highest-X largest-order stress is "
+                "`"
+                f"{claims['owned_finite_beta_matched_quadrature_high_x_largest_order_error']:.3e}"
+                "`. "
+                "This closes the easy interpolation-only/Pmax-only explanation "
+                "and keeps the remaining work on a quadrature-stable reduced "
+                "profile-current closure."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "
