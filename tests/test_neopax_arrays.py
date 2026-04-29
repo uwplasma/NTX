@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,6 +13,7 @@ import ntx._neopax_scan as neopax_scan_module
 import ntx.neopax as neopax_module
 from ntx import (
     GridSpec,
+    NeopaxScan,
     build_ntx_neopax_scan,
     build_ntx_neopax_scan_from_surfaces,
     example_surface,
@@ -25,6 +27,21 @@ from ntx._neopax_scan_fields import normalize_neopax_scan_field_channels
 from ntx.neopax import _surface_reference_bridge
 
 from .fixture_data import SAMPLE_WOUT
+
+ROOT = Path(__file__).resolve().parents[1]
+ERTILDE_EXAMPLE = ROOT / "examples" / "build_neopax_scan_from_ertilde.py"
+
+
+def _load_ertilde_example():
+    spec = importlib.util.spec_from_file_location(
+        "ntx_build_neopax_scan_from_ertilde",
+        ERTILDE_EXAMPLE,
+    )
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def test_build_ntx_neopax_scan_from_surfaces_matches_callback_builder():
@@ -707,3 +724,88 @@ def test_neopax_scan_roundtrip_preserves_optional_attrs_and_missing_path_require
         assert handle.attrs["psia"] == pytest.approx(2.3)
 
     assert neopax_scan_requires_rebuild(tmp_path / "missing_scan.h5")
+
+
+def test_neopax_scan_roundtrip_preserves_reference_compatibility_factors(
+    tmp_path: Path,
+):
+    scan = NeopaxScan(
+        rho=jnp.asarray([0.5]),
+        nu_v=jnp.asarray([1.0e-2]),
+        Er=jnp.asarray([[0.0]]),
+        Es=jnp.asarray([[0.0]]),
+        drds=jnp.asarray([1.0]),
+        D11=jnp.asarray([[[1.0]]]),
+        D13=jnp.asarray([[[2.0]]]),
+        D31=jnp.asarray([[[-2.0]]]),
+        D33=jnp.asarray([[[3.0]]]),
+        D33_spitzer=jnp.asarray([[[4.0]]]),
+        Er_tilde=jnp.asarray([0.0]),
+        fac_reference_to_sfincs_11=jnp.asarray([5.0]),
+        fac_reference_to_sfincs_31=jnp.asarray([6.0]),
+        fac_reference_to_sfincs_33=jnp.asarray([7.0]),
+        fac_monkes_to_sfincs_11=jnp.asarray([5.0]),
+        fac_monkes_to_sfincs_31=jnp.asarray([6.0]),
+        fac_monkes_to_sfincs_33=jnp.asarray([7.0]),
+        source_name="compatibility-factor-roundtrip",
+    )
+    path = tmp_path / "scan_factors.h5"
+    write_neopax_scan_hdf5(scan, path)
+
+    restored = load_neopax_reference_scan(path)
+    assert restored.fac_reference_to_sfincs_11 is not None
+    assert restored.fac_monkes_to_sfincs_11 is not None
+    assert jnp.allclose(restored.fac_reference_to_sfincs_11, jnp.asarray([5.0]))
+    assert jnp.allclose(restored.fac_monkes_to_sfincs_31, jnp.asarray([6.0]))
+    assert jnp.allclose(restored.fac_monkes_to_sfincs_33, jnp.asarray([7.0]))
+
+
+def test_build_neopax_scan_from_ertilde_helpers_are_validated_and_plot(tmp_path: Path):
+    module = _load_ertilde_example()
+    rho = module._parse_float_grid("0.25,0.5", default=(), name="rho")
+    nu_v = module._parse_float_grid("1e-3,1e-2", default=(), name="nu_v", positive=True)
+    er_tilde = module._parse_float_grid("0.0,1e-4", default=(), name="er_tilde")
+    module._validate_scan_axes(rho, nu_v, er_tilde)
+
+    er, es, er_to_ertilde = module._build_field_channels(
+        rho,
+        er_tilde,
+        jnp.asarray([2.0, 3.0]),
+        jnp.asarray([4.0, 5.0]),
+        jnp.asarray([6.0, 7.0]),
+    )
+    assert er.shape == (2, 2)
+    assert es.shape == (2, 2)
+    assert er_to_ertilde.shape == (2, 2)
+    assert jnp.allclose(er[:, 1], jnp.asarray([8.0e-4, 1.5e-3]))
+    assert jnp.allclose(es[:, 1], jnp.asarray([1.2e-3, 2.1e-3]))
+
+    scan = NeopaxScan(
+        rho=rho,
+        nu_v=nu_v,
+        Er=er,
+        Es=es,
+        drds=jnp.ones_like(rho),
+        D11=jnp.ones((2, 2, 2)),
+        D13=jnp.ones((2, 2, 2)) * 0.1,
+        D31=-jnp.ones((2, 2, 2)) * 0.1,
+        D33=jnp.ones((2, 2, 2)) * 0.2,
+        D33_spitzer=jnp.ones((2, 2, 2)) * 0.3,
+        Er_tilde=er_tilde,
+    )
+    plot_paths = module._plot_scan_coefficients(
+        scan,
+        tmp_path / "coefficients.png",
+        rho_index=1,
+    )
+    assert len(plot_paths) == 1
+    assert plot_paths[0].exists()
+
+    with pytest.raises(ValueError, match="positive"):
+        module._parse_float_grid("0.0", default=(), name="nu_v", positive=True)
+    with pytest.raises(FileNotFoundError, match="Boozer"):
+        module._select_surface_loader(
+            backend="boozmn",
+            wout_path=tmp_path / "missing_wout.nc",
+            boozmn_path=tmp_path / "missing_booz.nc",
+        )

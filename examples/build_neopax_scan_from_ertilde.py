@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Build a NEOPAX-style monoenergetic scan from an Er_tilde grid.
 
-This mirrors the legacy MONKES DKES-like database workflow more closely than
-the NTX rebuild/audit examples: the user chooses rho, nu_v, and Er_tilde,
-provides VMEC + Boozer files, and NTX computes the coefficient tables and
+This mirrors a DKES-like database workflow: the user chooses rho, nu_v, and
+Er_tilde, provides VMEC + Boozer files, and NTX computes coefficient tables and
 conversion metadata from scratch before writing a NEOPAX-style HDF5 file.
 """
 
@@ -11,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 import interpax
@@ -19,15 +19,22 @@ import jax.numpy as jnp
 import numpy as np
 from netCDF4 import Dataset
 
+jax.config.update("jax_enable_x64", True)
+
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from ntx import GridSpec, NeopaxScan, load_boozmn_surface, solve_monoenergetic_scan, write_neopax_scan_hdf5  # noqa: E402
+from ntx import (  # noqa: E402
+    GridSpec,
+    NeopaxScan,
+    load_boozmn_surface,
+    solve_monoenergetic_scan,
+    surface_from_vmec_jax_vmec_wout_file,
+    write_neopax_scan_hdf5,
+)
 from ntx._checkout_paths import find_neopax_root  # noqa: E402
-from ntx.vmec_jax_vmec import surface_from_vmec_jax_vmec_wout_file  # noqa: E402
-
 
 NEOPAX_ROOT = find_neopax_root()
 
@@ -44,33 +51,46 @@ BOOZMN_PATH = (
     if NEOPAX_ROOT is not None
     else Path("/missing/boozmn_wout_W7-X_standard_configuration.nc")
 )
-OUTPUT_PATH = ROOT / "examples" / "outputs" / "neopax_scan_from_ertilde" / "ntx_scan_from_ertilde.h5"
-
-RHO = jnp.array([0.12247, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875], dtype=jnp.float64)
-NU_V = jnp.array(
-    [
-        3.0e-7,
-        1.0e-6,
-        3.0e-6,
-        1.0e-5,
-        3.0e-5,
-        1.0e-4,
-        3.0e-4,
-        1.0e-3,
-        3.0e-3,
-        1.0e-2,
-        3.0e-2,
-        1.0e-1,
-        3.0e-1,
-        1.0e0,
-        3.0e0,
-        1.0e1,
-    ],
-    dtype=jnp.float64,
+OUTPUT_PATH = (
+    ROOT
+    / "examples"
+    / "outputs"
+    / "neopax_scan_from_ertilde"
+    / "ntx_scan_from_ertilde.h5"
 )
-ER_TILDE = jnp.array(
-    [0.0, 1.0e-6, 3.0e-6, 1.0e-5, 3.0e-5, 1.0e-4, 3.0e-4, 1.0e-3, 3.0e-3, 1.0e-2, 3.0e-2, 1.0e-1],
-    dtype=jnp.float64,
+
+DEFAULT_RHO = (0.12247, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875)
+DEFAULT_NU_V = (
+    3.0e-7,
+    1.0e-6,
+    3.0e-6,
+    1.0e-5,
+    3.0e-5,
+    1.0e-4,
+    3.0e-4,
+    1.0e-3,
+    3.0e-3,
+    1.0e-2,
+    3.0e-2,
+    1.0e-1,
+    3.0e-1,
+    1.0e0,
+    3.0e0,
+    1.0e1,
+)
+DEFAULT_ER_TILDE = (
+    0.0,
+    1.0e-6,
+    3.0e-6,
+    1.0e-5,
+    3.0e-5,
+    1.0e-4,
+    3.0e-4,
+    1.0e-3,
+    3.0e-3,
+    1.0e-2,
+    3.0e-2,
+    1.0e-1,
 )
 GRID = GridSpec(n_theta=25, n_zeta=25, n_xi=64)
 ONSAGER_WARN_THRESHOLD = 1.0e-6
@@ -135,6 +155,36 @@ def _parse_args() -> argparse.Namespace:
         help="Pitch-angle / Legendre resolution.",
     )
     parser.add_argument(
+        "--rho",
+        type=str,
+        default=None,
+        help="Comma-separated rho grid. Default is the W7-X reference grid.",
+    )
+    parser.add_argument(
+        "--nu-v",
+        type=str,
+        default=None,
+        help="Comma-separated collisionality grid. Values must be positive.",
+    )
+    parser.add_argument(
+        "--er-tilde",
+        type=str,
+        default=None,
+        help="Comma-separated Er_tilde grid.",
+    )
+    parser.add_argument(
+        "--onsager-warn-threshold",
+        type=float,
+        default=ONSAGER_WARN_THRESHOLD,
+        help="Warn when max |D13 + D31| exceeds this threshold.",
+    )
+    parser.add_argument(
+        "--source-name",
+        type=str,
+        default=None,
+        help="Optional source_name attribute written to the HDF5 file.",
+    )
+    parser.add_argument(
         "--plot",
         action="store_true",
         help="Plot D11, D13, D31, and D33 vs nu_v after the scan.",
@@ -154,6 +204,49 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _parse_float_grid(
+    text: str | None,
+    *,
+    default: Sequence[float],
+    name: str,
+    positive: bool = False,
+) -> jnp.ndarray:
+    if text is None:
+        values = tuple(default)
+    else:
+        try:
+            values = tuple(float(item.strip()) for item in text.split(",") if item.strip())
+        except ValueError as exc:
+            raise ValueError(f"{name} must be a comma-separated list of floats") from exc
+    if not values:
+        raise ValueError(f"{name} must contain at least one value")
+    array = jnp.asarray(values, dtype=jnp.float64)
+    if not bool(jnp.all(jnp.isfinite(array))):
+        raise ValueError(f"{name} contains non-finite values")
+    if positive and not bool(jnp.all(array > 0.0)):
+        raise ValueError(f"{name} values must be positive")
+    return array
+
+
+def _validate_scan_axes(rho: jnp.ndarray, nu_v: jnp.ndarray, er_tilde: jnp.ndarray) -> None:
+    if rho.ndim != 1 or nu_v.ndim != 1 or er_tilde.ndim != 1:
+        raise ValueError("rho, nu_v, and er_tilde must be one-dimensional arrays")
+    if not bool(jnp.all((rho > 0.0) & (rho <= 1.0))):
+        raise ValueError("rho values must satisfy 0 < rho <= 1")
+    if not bool(jnp.all(nu_v > 0.0)):
+        raise ValueError("nu_v values must be positive")
+    for name, values in (("rho", rho), ("nu_v", nu_v), ("er_tilde", er_tilde)):
+        if not bool(jnp.all(jnp.isfinite(values))):
+            raise ValueError(f"{name} contains non-finite values")
+
+
+def _require_file(path: Path, label: str) -> None:
+    if not path.exists():
+        raise FileNotFoundError(f"{label} file does not exist: {path}")
+    if not path.is_file():
+        raise FileNotFoundError(f"{label} path is not a regular file: {path}")
+
+
 def _filled(variable) -> np.ndarray:
     values = variable[:]
     if hasattr(values, "filled"):
@@ -162,10 +255,22 @@ def _filled(variable) -> np.ndarray:
 
 
 def _interpolator(x, y):
-    return interpax.Interpolator1D(jnp.asarray(x, dtype=jnp.float64), jnp.asarray(y, dtype=jnp.float64), extrap=True)
+    return interpax.Interpolator1D(
+        jnp.asarray(x, dtype=jnp.float64),
+        jnp.asarray(y, dtype=jnp.float64),
+        extrap=True,
+    )
 
 
-def _load_vmec_boozer_channels(wout_path: Path, boozmn_path: Path, rho: jnp.ndarray) -> dict[str, jnp.ndarray | float]:
+def _load_vmec_boozer_channels(
+    wout_path: Path,
+    boozmn_path: Path,
+    rho: jnp.ndarray,
+) -> dict[str, jnp.ndarray | float]:
+    _validate_scan_axes(rho, jnp.asarray([1.0], dtype=jnp.float64), jnp.asarray([0.0]))
+    _require_file(wout_path, "VMEC wout")
+    _require_file(boozmn_path, "Boozer")
+
     with Dataset(wout_path, mode="r") as vfile:
         ns = int(np.asarray(vfile.variables["ns"][:]).reshape(-1)[0])
         s_full = jnp.linspace(0.0, 1.0, ns)
@@ -174,7 +279,6 @@ def _load_vmec_boozer_channels(wout_path: Path, boozmn_path: Path, rho: jnp.ndar
         rho_full = jnp.sqrt(s_full)
 
         volume_p = float(np.asarray(vfile.variables["volume_p"][:]).reshape(-1)[-1])
-        vp = _filled(vfile.variables["vp"])
         phi = _filled(vfile.variables["phi"])
         iotaf = _filled(vfile.variables["iotaf"])
         psia = float(jnp.abs(phi[-1]) / (2.0 * jnp.pi))
@@ -212,15 +316,19 @@ def _load_vmec_boozer_channels(wout_path: Path, boozmn_path: Path, rho: jnp.ndar
     dr_tildedr = 2.0 * psia / (a_b**2 * b00_rho)
     dr_tildeds = dr_tildedr * drds
 
-    fac_monkes_to_sfincs_11 = 8.0 * (g_rho + iota_rho * i_rho) * b00_rho * psia**2 / (jnp.sqrt(jnp.pi) * g_rho**2)
-    fac_monkes_to_sfincs_31 = 4.0 * b00_rho * psia / (jnp.sqrt(jnp.pi) * g_rho)
-    fac_monkes_to_sfincs_33 = -2.0 * b00_rho / ((g_rho + iota_rho * i_rho) * jnp.sqrt(jnp.pi))
+    boozer_jacobian = g_rho + iota_rho * i_rho
+    sqrt_pi = jnp.sqrt(jnp.pi)
+    fac_reference_to_sfincs_11 = (
+        8.0 * boozer_jacobian * b00_rho * psia**2 / (sqrt_pi * g_rho**2)
+    )
+    fac_reference_to_sfincs_31 = 4.0 * b00_rho * psia / (sqrt_pi * g_rho)
+    fac_reference_to_sfincs_33 = -2.0 * b00_rho / (boozer_jacobian * sqrt_pi)
 
     fac_sfincs_to_dkes_11 = 1.0 / (
-        8.0 * (g_rho + iota_rho * i_rho) * dpsidrtilde**2 / (g_rho**2 * b00_rho * jnp.sqrt(jnp.pi))
+        8.0 * boozer_jacobian * dpsidrtilde**2 / (g_rho**2 * b00_rho * sqrt_pi)
     )
-    fac_sfincs_to_dkes_31 = 1.0 / (4.0 * dpsidrtilde / (g_rho * jnp.sqrt(jnp.pi)))
-    fac_sfincs_to_dkes_33 = 1.0 / (-2.0 * b00_rho / ((g_rho + iota_rho * i_rho) * jnp.sqrt(jnp.pi)))
+    fac_sfincs_to_dkes_31 = 1.0 / (4.0 * dpsidrtilde / (g_rho * sqrt_pi))
+    fac_sfincs_to_dkes_33 = 1.0 / (-2.0 * b00_rho / (boozer_jacobian * sqrt_pi))
 
     epsilon_t = rho * a_b / r00_rho
     fac_dkes_to_d11star = -(8.0 / jnp.pi) * iota_rho * r00_rho
@@ -238,9 +346,9 @@ def _load_vmec_boozer_channels(wout_path: Path, boozmn_path: Path, rho: jnp.ndar
         "drds": drds,
         "dr_tildedr": dr_tildedr,
         "dr_tildeds": dr_tildeds,
-        "fac_monkes_to_sfincs_11": fac_monkes_to_sfincs_11,
-        "fac_monkes_to_sfincs_31": fac_monkes_to_sfincs_31,
-        "fac_monkes_to_sfincs_33": fac_monkes_to_sfincs_33,
+        "fac_reference_to_sfincs_11": fac_reference_to_sfincs_11,
+        "fac_reference_to_sfincs_31": fac_reference_to_sfincs_31,
+        "fac_reference_to_sfincs_33": fac_reference_to_sfincs_33,
         "fac_sfincs_to_dkes_11": fac_sfincs_to_dkes_11,
         "fac_sfincs_to_dkes_31": fac_sfincs_to_dkes_31,
         "fac_sfincs_to_dkes_33": fac_sfincs_to_dkes_33,
@@ -270,7 +378,19 @@ def _surface_loader(wout_path: Path, rho_value: float):
 def _select_surface_loader(*, backend: str, wout_path: Path, boozmn_path: Path):
     if backend not in {"auto", "vmec", "boozmn"}:
         raise ValueError(f"unsupported backend {backend!r}")
-    if backend in {"auto", "boozmn"} and boozmn_path.exists():
+    if backend == "boozmn":
+        _require_file(boozmn_path, "Boozer")
+        return (
+            lambda rho_value: load_boozmn_surface(boozmn_path, rho=float(rho_value)).surface,
+            "boozmn",
+        )
+    if backend == "vmec":
+        _require_file(wout_path, "VMEC wout")
+        return (
+            lambda rho_value: _surface_loader(wout_path, float(rho_value)),
+            "vmec_jax",
+        )
+    if boozmn_path.exists():
         return (
             lambda rho_value: load_boozmn_surface(boozmn_path, rho=float(rho_value)).surface,
             "boozmn",
@@ -292,16 +412,26 @@ def _select_jax_device(*, backend: str, device_index: int):
         raise RuntimeError(f"no JAX devices available for backend {backend!r}")
     if device_index < 0 or device_index >= len(devices):
         raise IndexError(
-            f"device_index {device_index} is outside [0, {len(devices) - 1}] for backend {backend!r}"
+            f"device_index {device_index} is outside [0, {len(devices) - 1}] "
+            f"for backend {backend!r}"
         )
     return devices[device_index]
 
 
-def _report_scan_warnings(scan: NeopaxScan) -> None:
+def _report_scan_warnings(
+    scan: NeopaxScan,
+    *,
+    onsager_warn_threshold: float = ONSAGER_WARN_THRESHOLD,
+) -> None:
     d11 = np.asarray(scan.D11, dtype=float)
     d13 = np.asarray(scan.D13, dtype=float)
     d31 = np.asarray(scan.D31, dtype=float) if scan.D31 is not None else None
     d33 = np.asarray(scan.D33, dtype=float)
+    er_tilde = (
+        np.asarray(scan.Er_tilde, dtype=float)
+        if scan.Er_tilde is not None
+        else np.arange(d11.shape[2], dtype=float)
+    )
 
     any_issue = False
 
@@ -322,7 +452,7 @@ def _report_scan_warnings(scan: NeopaxScan) -> None:
                 "  "
                 f"rho={float(scan.rho[ir]):.5f}, "
                 f"nu_v={float(scan.nu_v[inu]):.6e}, "
-                f"Er_tilde={float(scan.Er_tilde[ier]):.6e}, "
+                f"Er_tilde={float(er_tilde[ier]):.6e}, "
                 f"D11={d11[ir, inu, ier]:.6e}"
             )
         if negative_d11.shape[0] > 10:
@@ -332,25 +462,28 @@ def _report_scan_warnings(scan: NeopaxScan) -> None:
     if d31 is not None:
         onsager = np.abs(d13 + d31)
         max_onsager = float(np.max(onsager))
-        if max_onsager > ONSAGER_WARN_THRESHOLD:
+        if max_onsager > onsager_warn_threshold:
             worst = np.unravel_index(int(np.argmax(onsager)), onsager.shape)
             ir, inu, ier = (int(v) for v in worst)
             print(
                 "warning: Onsager mismatch exceeded threshold "
-                f"({ONSAGER_WARN_THRESHOLD:.1e}); max |D13 + D31| = {max_onsager:.6e}"
+                f"({onsager_warn_threshold:.1e}); max |D13 + D31| = {max_onsager:.6e}"
             )
             print(
                 "  "
                 f"rho={float(scan.rho[ir]):.5f}, "
                 f"nu_v={float(scan.nu_v[inu]):.6e}, "
-                f"Er_tilde={float(scan.Er_tilde[ier]):.6e}, "
+                f"Er_tilde={float(er_tilde[ier]):.6e}, "
                 f"D13={d13[ir, inu, ier]:.6e}, "
                 f"D31={d31[ir, inu, ier]:.6e}"
             )
             any_issue = True
 
     if not any_issue:
-        print("scan sanity checks: no negative D11, no non-finite values, Onsager mismatch within threshold")
+        print(
+            "scan sanity checks: no negative D11, no non-finite values, "
+            "Onsager mismatch within threshold"
+        )
 
 
 def _plot_scan_coefficients(
@@ -370,7 +503,13 @@ def _plot_scan_coefficients(
 
     rho = np.asarray(scan.rho, dtype=float)
     nu_v = np.asarray(scan.nu_v, dtype=float)
-    er_tilde = np.asarray(scan.Er_tilde, dtype=float)
+    if np.any(nu_v <= 0.0):
+        raise ValueError("nu_v values must be positive for coefficient plots")
+    er_tilde = (
+        np.asarray(scan.Er_tilde, dtype=float)
+        if scan.Er_tilde is not None
+        else np.arange(scan.D11.shape[2], dtype=float)
+    )
     d11 = np.asarray(scan.D11, dtype=float)
     d13 = np.asarray(scan.D13, dtype=float)
     d31 = np.asarray(scan.D31, dtype=float) if scan.D31 is not None else None
@@ -432,33 +571,44 @@ def _plot_scan_coefficients(
     return written
 
 
-def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec, backend: str) -> NeopaxScan:
-    channels = _load_vmec_boozer_channels(wout_path, boozmn_path, RHO)
+def build_scan(
+    *,
+    wout_path: Path,
+    boozmn_path: Path,
+    grid: GridSpec,
+    backend: str,
+    rho: jnp.ndarray,
+    nu_v: jnp.ndarray,
+    er_tilde: jnp.ndarray,
+    source_name: str | None = None,
+) -> NeopaxScan:
+    _validate_scan_axes(rho, nu_v, er_tilde)
+    channels = _load_vmec_boozer_channels(wout_path, boozmn_path, rho)
     load_surface, backend_name = _select_surface_loader(
         backend=backend,
         wout_path=wout_path,
         boozmn_path=boozmn_path,
     )
     er, es, er_to_ertilde = _build_field_channels(
-        RHO,
-        ER_TILDE,
+        rho,
+        er_tilde,
         channels["b00"],
         channels["dr_tildedr"],
         channels["dr_tildeds"],
     )
 
-    n_r = int(RHO.shape[0])
-    n_nu = int(NU_V.shape[0])
-    n_er = int(ER_TILDE.shape[0])
+    n_r = int(rho.shape[0])
+    n_nu = int(nu_v.shape[0])
+    n_er = int(er_tilde.shape[0])
     d11 = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     d13 = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     d31 = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     d33 = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     d33_spitzer = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
 
-    for idx, rho_value in enumerate(np.asarray(RHO)):
+    for idx, rho_value in enumerate(np.asarray(rho)):
         surface = load_surface(float(rho_value))
-        nu_grid, es_grid = jnp.meshgrid(NU_V, es[idx], indexing="ij")
+        nu_grid, es_grid = jnp.meshgrid(nu_v, es[idx], indexing="ij")
         coeffs = solve_monoenergetic_scan(surface, grid, nu_grid, epsi_hat=es_grid)
         d11 = d11.at[idx].set(coeffs["D11"])
         d13 = d13.at[idx].set(coeffs["D13"])
@@ -467,8 +617,8 @@ def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec, backend: s
         d33_spitzer = d33_spitzer.at[idx].set(coeffs["D33_spitzer"])
 
     return NeopaxScan(
-        rho=RHO,
-        nu_v=NU_V,
+        rho=rho,
+        nu_v=nu_v,
         Er=er,
         Es=es,
         drds=channels["drds"],
@@ -477,7 +627,7 @@ def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec, backend: s
         D33=d33,
         D33_spitzer=d33_spitzer,
         D31=d31,
-        Er_tilde=ER_TILDE,
+        Er_tilde=er_tilde,
         Er_to_Ertilde=er_to_ertilde,
         dr_tildedr=channels["dr_tildedr"],
         dr_tildeds=channels["dr_tildeds"],
@@ -488,19 +638,19 @@ def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec, backend: s
         boozer_i=channels["boozer_i"],
         boozer_g=channels["boozer_g"],
         iota=channels["iota"],
-        fac_reference_to_sfincs_11=channels["fac_monkes_to_sfincs_11"],
-        fac_reference_to_sfincs_31=channels["fac_monkes_to_sfincs_31"],
-        fac_reference_to_sfincs_33=channels["fac_monkes_to_sfincs_33"],
-        fac_monkes_to_sfincs_11=channels["fac_monkes_to_sfincs_11"],
-        fac_monkes_to_sfincs_31=channels["fac_monkes_to_sfincs_31"],
-        fac_monkes_to_sfincs_33=channels["fac_monkes_to_sfincs_33"],
+        fac_reference_to_sfincs_11=channels["fac_reference_to_sfincs_11"],
+        fac_reference_to_sfincs_31=channels["fac_reference_to_sfincs_31"],
+        fac_reference_to_sfincs_33=channels["fac_reference_to_sfincs_33"],
+        fac_monkes_to_sfincs_11=channels["fac_reference_to_sfincs_11"],
+        fac_monkes_to_sfincs_31=channels["fac_reference_to_sfincs_31"],
+        fac_monkes_to_sfincs_33=channels["fac_reference_to_sfincs_33"],
         fac_sfincs_to_dkes_11=channels["fac_sfincs_to_dkes_11"],
         fac_sfincs_to_dkes_31=channels["fac_sfincs_to_dkes_31"],
         fac_sfincs_to_dkes_33=channels["fac_sfincs_to_dkes_33"],
         fac_dkes_to_d11star=channels["fac_dkes_to_d11star"],
         fac_dkes_to_d31star=channels["fac_dkes_to_d31star"],
         fac_dkes_to_d33star=channels["fac_dkes_to_d33star"],
-        source_name=f"ntx_scan_from_ertilde_{backend_name}",
+        source_name=source_name or f"ntx_scan_from_ertilde_{backend_name}",
     )
 
 
@@ -509,6 +659,12 @@ def main() -> None:
     wout_path = args.wout.expanduser().resolve()
     boozmn_path = args.booz.expanduser().resolve()
     output_path = args.output.expanduser().resolve()
+    rho = _parse_float_grid(args.rho, default=DEFAULT_RHO, name="rho")
+    nu_v = _parse_float_grid(args.nu_v, default=DEFAULT_NU_V, name="nu_v", positive=True)
+    er_tilde = _parse_float_grid(args.er_tilde, default=DEFAULT_ER_TILDE, name="er_tilde")
+    _validate_scan_axes(rho, nu_v, er_tilde)
+    _require_file(wout_path, "VMEC wout")
+    _require_file(boozmn_path, "Boozer")
     grid = GridSpec(n_theta=args.n_theta, n_zeta=args.n_zeta, n_xi=args.n_xi)
     device = _select_jax_device(backend=args.device_backend, device_index=args.device_index)
 
@@ -518,11 +674,16 @@ def main() -> None:
             boozmn_path=boozmn_path,
             grid=grid,
             backend=args.surface_backend,
+            rho=rho,
+            nu_v=nu_v,
+            er_tilde=er_tilde,
+            source_name=args.source_name,
         )
-    _report_scan_warnings(scan)
+    _report_scan_warnings(scan, onsager_warn_threshold=args.onsager_warn_threshold)
     output = write_neopax_scan_hdf5(scan, output_path)
     print(f"wrote NEOPAX-style scan to: {output}")
-    print(f"surface backend: {args.surface_backend}")
+    print(f"source name: {scan.source_name}")
+    print(f"requested surface backend: {args.surface_backend}")
     print(f"device backend: {args.device_backend}")
     print(f"device: {device}")
     print(f"wout: {wout_path}")
