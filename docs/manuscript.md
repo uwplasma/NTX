@@ -36,18 +36,19 @@ examples.
 17. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
 18. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
 19. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
-20. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-21. `bootstrap_current_robust_optimization.{png,pdf,json}`
-22. `performance_scaling_smoke.{png,pdf,json}`
-23. `performance_scaling_heavy.{png,pdf,json}`
-24. `performance_strong_scaling_production.{png,pdf,json}`
-25. `prepared_geometry_reuse_profile.{png,pdf,json}`
-26. `ambipolar_profile.{png,pdf}`
-27. `ambipolar_profile_family.{png,pdf}`
-27. `profile_force_reconstruction_audit.{png,pdf,json}`
-28. `profile_control_optimization.{png,pdf}`
-29. `profile_basis_optimization.{png,pdf,json}`
-30. `profile_transport_loop.{png,pdf}`
+20. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
+21. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+22. `bootstrap_current_robust_optimization.{png,pdf,json}`
+23. `performance_scaling_smoke.{png,pdf,json}`
+24. `performance_scaling_heavy.{png,pdf,json}`
+25. `performance_strong_scaling_production.{png,pdf,json}`
+26. `prepared_geometry_reuse_profile.{png,pdf,json}`
+27. `ambipolar_profile.{png,pdf}`
+28. `ambipolar_profile_family.{png,pdf}`
+29. `profile_force_reconstruction_audit.{png,pdf,json}`
+30. `profile_control_optimization.{png,pdf}`
+31. `profile_basis_optimization.{png,pdf,json}`
+32. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -153,45 +154,51 @@ examples.
      density and temperature target terms are stored on the same observable,
      giving a high-order temperature-channel response multiplier of about
      `0.717` rather than a fitted runtime correction
-23. `derivative_path_benchmark.{png,pdf}`
+23. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
+   - profile-wide source-response map at `X=18, P=18`; the temperature-channel
+     response multiplier spans `0.717` to `1.317` with median `1.010`, preserves
+     source sign agreement, and keeps the maximum current stress at the inner
+     radius while storing correlations with Redl collisionality and geometry
+     factors
+24. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-24. `bootstrap_current_optimization.{png,pdf}`
+25. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-25. `bootstrap_current_robust_optimization.{png,pdf,json}`
+26. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
-26. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+27. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-27. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+28. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-28. `performance_scaling_smoke.{png,pdf,json}`
+29. `performance_scaling_smoke.{png,pdf,json}`
    - CPU/GPU scaling on the repository smoke grid
-29. `performance_scaling_heavy.{png,pdf,json}`
+30. `performance_scaling_heavy.{png,pdf,json}`
    - heavier-grid scaling where throughput effects are visible
-30. `performance_scaling_production.{png,pdf,json}`
+31. `performance_scaling_production.{png,pdf,json}`
    - production-grid CPU/GPU scaling with serial, device-parallel,
      multiprocess, memory, and coefficient-agreement metadata
-31. `performance_strong_scaling_production.{png,pdf,json}`
+32. `performance_strong_scaling_production.{png,pdf,json}`
    - fixed-workload CPU/GPU strong scaling with worker/device sweeps, memory,
      and coefficient-agreement metadata
-32. `prepared_geometry_reuse_profile.{png,pdf,json}`
+33. `prepared_geometry_reuse_profile.{png,pdf,json}`
    - fixed-geometry repeated-solve profile showing the direct, prepared, and
      compiled prepared solver paths with coefficient agreement recorded in the
      JSON artifact
-33. `ambipolar_profile.{png,pdf}`
+34. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-34. `ambipolar_profile_family.{png,pdf}`
+35. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-35. `profile_force_reconstruction_audit.{png,pdf,json}`
+36. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-36. `profile_control_optimization.{png,pdf}`
+37. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-37. `profile_basis_optimization.{png,pdf,json}`
+38. `profile_basis_optimization.{png,pdf,json}`
    - low-dimensional radial-basis optimization of the same profile closure
-38. `profile_transport_loop.{png,pdf}`
+39. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-39. `primitive_profile_transport.{png,pdf}`
+40. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
@@ -215,6 +222,9 @@ Together these figures cover:
   diagnostics with the physical Boozer flux scale, production radial/
   collisionality ladder, adaptive `nu/v` support, and Sonine-order convergence
   sidecar recorded while the inner-radius gap remains open work
+- finite-beta source-response diagnostics that map the dominant
+  effective-temperature channel over the full profile before any reduced
+  closure change is promoted
 - production same-grid finite-beta SFINCS-JAX coefficient ladders that close
   radius/collisionality resolution as the leading explanation for that gap
 - a deterministic robust-design stress benchmark for differentiable current optimization

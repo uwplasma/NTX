@@ -314,6 +314,20 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "runtime fit or acceptance gate."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_profile_source_response_stress",
+        category="stress",
+        metric="high-order profile span of Redl/NTX temperature-source response",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_source_response_profile_audit.json",
+        rationale=(
+            "The finite-beta source-response mismatch should be mapped across "
+            "the profile and compared with physical drivers before any "
+            "reduced-closure change is promoted. The radial response span is a "
+            "diagnostic, not a fitted correction."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

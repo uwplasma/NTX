@@ -127,6 +127,11 @@
     "docs/_static/owned_finite_beta_source_channel_audit.pdf",
     "docs/_static/owned_finite_beta_source_channel_audit.json"
   ],
+  "owned_finite_beta_source_response_profile": [
+    "docs/_static/owned_finite_beta_source_response_profile_audit.png",
+    "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
+    "docs/_static/owned_finite_beta_source_response_profile_audit.json"
+  ],
   "profile_uncertainty": [
     "docs/_static/autodiff_profile_uncertainty.png",
     "docs/_static/autodiff_profile_uncertainty.pdf",

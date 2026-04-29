@@ -89,6 +89,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "owned_finite_beta_closure_quadrature_stress" in names
     assert "owned_finite_beta_source_channel_reconstruction" in names
     assert "owned_finite_beta_temperature_source_response_stress" in names
+    assert "owned_finite_beta_profile_source_response_stress" in names
 
 
 def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
@@ -247,6 +248,17 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (
+        static_root / "owned_finite_beta_source_response_profile_audit.json"
+    ).write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "high_order_temperature_response_multiplier_span": 0.25,
+                }
+            }
+        )
+    )
 
     results = {result.gate.name: result for result in evaluate_artifact_gates(tmp_path)}
 
@@ -313,6 +325,12 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     )
     assert results["owned_finite_beta_temperature_source_response_stress"].value == (
         pytest.approx(0.72)
+    )
+    assert results["owned_finite_beta_profile_source_response_stress"].status == (
+        "monitor"
+    )
+    assert results["owned_finite_beta_profile_source_response_stress"].value == (
+        pytest.approx(0.25)
     )
 
 

@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "af4b76cb3baf5407e90e37695d3f1726d7586f6f",
+    "commit": "d0afaaf8bee9ea0b796e90ceb00e9a615316e4e6",
     "branch": "main"
   },
   "environment": {
@@ -4831,6 +4831,2150 @@
         "keep interpolation-mode comparisons planned until the downstream interface exposes stable general and legacy selectors"
       ]
     },
+    "owned_finite_beta_source_response_profile": {
+      "summary_metrics": {
+        "row_count": 13,
+        "radius_count": 13,
+        "setting_count": 1,
+        "high_order_neopax_x": 18,
+        "high_order_n_order": 18,
+        "source_reconstruction_gate": 1e-08,
+        "source_channel_superposition_gate_pass": true,
+        "max_source_channel_superposition_relative_residual": 1.8941553187554398e-14,
+        "max_full_vs_public_relative_difference": 2.0013716575528775e-14,
+        "profile_current_gate": 0.1,
+        "high_order_max_public_relative_error_vs_redl": 0.3951895275200511,
+        "high_order_median_public_relative_error_vs_redl": 0.11149311908328208,
+        "high_order_temperature_response_multiplier_min": 0.7167483610385275,
+        "high_order_temperature_response_multiplier_median": 1.0097687148785024,
+        "high_order_temperature_response_multiplier_max": 1.3167274201314922,
+        "high_order_temperature_response_multiplier_span": 0.5999790590929648,
+        "high_order_temperature_response_multiplier_abs_deviation_from_one_max": 0.31672742013149224,
+        "high_order_temperature_channel_relative_error_max": 0.39518979652922687,
+        "high_order_temperature_channel_sign_agreement_fraction": 1.0,
+        "high_order_stress_rho": 0.14285714285714285,
+        "high_order_stress_temperature_response_multiplier": 0.7167483610385275,
+        "temperature_response_correlation_with_log10_nu_e_star": -0.1397975660447738,
+        "temperature_response_correlation_with_trapped_fraction": 0.9474049314980239,
+        "temperature_response_correlation_with_epsilon": 0.9747035237764139,
+        "temperature_response_correlation_with_redl_L32": 0.017244814507516058
+      },
+      "claim_scope": "Reuses the owned finite-beta VMEC/Boozer geometry, analytic profiles, NTX monoenergetic scan, D33 branch, velocity quadrature, Sonine order, and current normalization, then solves the same momentum-restoring source-channel system at multiple profile radii.  This is a profile-wide source-response stress diagnostic, not a finite-beta parity claim and not a fitted correction.",
+      "conclusion": "The profile source-response audit extends the stress-radius decomposition over the finite-beta profile.  It keeps the Redl density and temperature source targets as observables and records the effective-temperature response multiplier against collisionality and geometry factors.  The result is a source-response map for the reduced closure, not a runtime correction or fitted parity bridge.",
+      "rows": [
+        {
+          "radial_index": 1,
+          "rho": 0.07142857142857142,
+          "moment_order": 18,
+          "matrix_condition_number": 123402.10018997653,
+          "full_rhs_norm": 1115089.8568995607,
+          "full_solution_residual_norm": 3.651255108121516e-14,
+          "redl_current_over_root_fsab2": -17253883.115752343,
+          "full_solve_current_over_root_fsab2": -20847327.97394991,
+          "full_solve_species_current_over_root_fsab2": [
+            1072924334.3258371,
+            -1093771662.299787
+          ],
+          "full_solve_relative_error_vs_redl": 0.20826876095601024,
+          "species_cancellation_factor": 103.93159254428441,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  1.2307005254832915,
+                  -0.8204670187207211,
+                  0.0
+                ],
+                [
+                  1.2307005254832915,
+                  -0.8204670187207211,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 43681503.05222988,
+                "A2_temperature": -64528831.02617931,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -4958273618.624344,
+                  5001955121.676574
+                ],
+                "A2_temperature": [
+                  6031197952.950194,
+                  -6095726783.976374
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -20847327.973949432,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 1.4626386327815083e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -2.5977902051721458e-09,
+                  -0.8204670187207211,
+                  0.0
+                ],
+                [
+                  -2.5977902051721458e-09,
+                  -0.8204670187207211,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -0.09220389398283402,
+                "effective_temperature_force": -20847327.88174641,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  10.46603489176835,
+                  -10.558238785751184
+                ],
+                "effective_temperature_force": [
+                  1072924323.8598052,
+                  -1093771651.7415516
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -20847327.973950304,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 2.5429053757483746e-13
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": 0.01335776390449226,
+            "effective_temperature_force": -17253883.12911011,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": -0.14487201491706123,
+            "effective_temperature_force": 0.8276304391133664,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 7.902644382854044,
+            "effective_temperature_force": 0.20826875467665457,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 0.8276304391133664,
+          "effective_temperature_channel_relative_error_vs_redl": 0.20826875467665457,
+          "redl_effective_temperature_fraction_of_total": 1.000000000774189,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 40055679.17516694,
+            "A2_temperature": -74235742.41255435,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -0.08455042381809666,
+            "effective_temperature_force": -34180063.15283699,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.8941553187554398e-14,
+          "effective_temperature_fraction_of_total": 0.9999999955772031,
+          "density_electric_fraction_of_total": 4.422815916651226e-09,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.07142857142857142,
+          "public_neopax_current_over_root_fsab2": -20847327.973950326,
+          "public_neopax_nomom_over_root_fsab2": -34180063.23738743,
+          "public_neopax_correction_over_root_fsab2": 13332735.263437107,
+          "public_neopax_relative_error_vs_redl": 0.20826876095603444,
+          "full_vs_public_relative_difference": 2.0013716575528775e-14,
+          "redl_profile_drivers": {
+            "epsilon": 0.011415958569430456,
+            "trapped_fraction": 0.15550616579105536,
+            "L31": 0.1244070687133513,
+            "L32": -0.0028875521067182747,
+            "alpha": -0.7603495979539846,
+            "nu_e_star": 0.557699355366503,
+            "nu_i_star": 0.47381776991965147,
+            "density_gradient_term_over_root_fsab2": 0.01335776390449226,
+            "temperature_gradient_term_over_root_fsab2": -17253883.12911011,
+            "electron_temperature_gradient_term_over_root_fsab2": -13854701.573144473,
+            "ion_temperature_gradient_term_over_root_fsab2": -3399181.555965637,
+            "log10_nu_e_star": -0.25359985750042824
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.3458192080142908,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 2,
+          "rho": 0.14285714285714285,
+          "moment_order": 18,
+          "matrix_condition_number": 104528.51102670282,
+          "full_rhs_norm": 1396688.310777898,
+          "full_solution_residual_norm": 5.13241182500385e-14,
+          "redl_current_over_root_fsab2": -20549817.57810125,
+          "full_solve_current_over_root_fsab2": -28670890.277414083,
+          "full_solve_species_current_over_root_fsab2": [
+            1169806069.718593,
+            -1198476959.996007
+          ],
+          "full_solve_relative_error_vs_redl": 0.39518952752003933,
+          "species_cancellation_factor": 82.60235405317181,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  2.4982246768470384,
+                  -1.665484004610449,
+                  0.0
+                ],
+                [
+                  2.4982246768470384,
+                  -1.665484004610449,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 67505089.87615871,
+                "A2_temperature": -96175980.15357304,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -6402447939.279249,
+                  6469953029.155408
+                ],
+                "A2_temperature": [
+                  7572254008.997829,
+                  -7668429989.151402
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -28670890.277414322,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 2.7338591899182616e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -1.3300686352302193e-06,
+                  -1.665484004610449,
+                  0.0
+                ],
+                [
+                  -1.3300686352302193e-06,
+                  -1.665484004610449,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -35.9400832098072,
+                "effective_temperature_force": -28670854.33733082,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  3408.6986937768834,
+                  -3444.6387769866906
+                ],
+                "effective_temperature_force": [
+                  1169802661.0199,
+                  -1198473515.357231
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -28670890.277414028,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 2.0961846473822633e-13
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -29.72224503001643,
+            "effective_temperature_force": -20549787.85585622,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.8269943298825178,
+            "effective_temperature_force": 0.7167483610385275,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.20919813336816873,
+            "effective_temperature_force": 0.39518979652922687,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 0.7167483610385275,
+          "effective_temperature_channel_relative_error_vs_redl": 0.39518979652922687,
+          "redl_effective_temperature_fraction_of_total": 0.9999985536492031,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 59701943.17342155,
+            "A2_temperature": -111769549.81664269,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -31.785644747326664,
+            "effective_temperature_force": -52067574.85757639,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.9489926519982707e-15,
+          "effective_temperature_fraction_of_total": 0.9999987464608556,
+          "density_electric_fraction_of_total": 1.2535391423865037e-06,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.14285714285714285,
+          "public_neopax_current_over_root_fsab2": -28670890.277414326,
+          "public_neopax_nomom_over_root_fsab2": -52067606.64322111,
+          "public_neopax_correction_over_root_fsab2": 23396716.365806784,
+          "public_neopax_relative_error_vs_redl": 0.3951895275200511,
+          "full_vs_public_relative_difference": 8.445634825325769e-15,
+          "redl_profile_drivers": {
+            "epsilon": 0.015591627274414658,
+            "trapped_fraction": 0.18143885287524886,
+            "L31": 0.1634199490192511,
+            "L32": -0.0191513493139282,
+            "alpha": -0.7809395841640946,
+            "nu_e_star": 0.3600113627358884,
+            "nu_i_star": 0.3057963529701699,
+            "density_gradient_term_over_root_fsab2": -29.72224503001643,
+            "temperature_gradient_term_over_root_fsab2": -20549787.85585622,
+            "electron_temperature_gradient_term_over_root_fsab2": -16464326.31199596,
+            "ion_temperature_gradient_term_over_root_fsab2": -4085461.5438602613,
+            "log10_nu_e_star": -0.44368379174488276
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.3500068740104325,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 3,
+          "rho": 0.21428571428571427,
+          "moment_order": 18,
+          "matrix_condition_number": 76894.61153098974,
+          "full_rhs_norm": 1709024.689238046,
+          "full_solution_residual_norm": 1.3115500754600786e-14,
+          "redl_current_over_root_fsab2": -25591534.488937475,
+          "full_solve_current_over_root_fsab2": -28174502.708794355,
+          "full_solve_species_current_over_root_fsab2": [
+            727176186.6226376,
+            -755350689.331432
+          ],
+          "full_solve_relative_error_vs_redl": 0.10093057221611418,
+          "species_cancellation_factor": 52.61945139820748,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  3.8431170944671136,
+                  -2.562112151188589,
+                  0.0
+                ],
+                [
+                  3.8431170944671136,
+                  -2.562112151188589,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 80419090.46990871,
+                "A2_temperature": -108593593.17870331,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -5492402204.428,
+                  5572821294.897909
+                ],
+                "A2_temperature": [
+                  6219578391.0506315,
+                  -6328171984.229335
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -28174502.708794594,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 1.6967667816453035e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -5.11323157699195e-05,
+                  -2.562112151188589,
+                  0.0
+                ],
+                [
+                  -5.11323157699195e-05,
+                  -2.562112151188589,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -1069.968524705415,
+                "effective_temperature_force": -28173432.740269303,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  73075.9008765398,
+                  -74145.86940124522
+                ],
+                "effective_temperature_force": [
+                  727103110.7217599,
+                  -755276543.4620292
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -28174502.70879401,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 3.0154716779381344e-13
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -1035.3460670730822,
+            "effective_temperature_force": -25590499.142870404,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.9676416111007892,
+            "effective_temperature_force": 0.908320238388735,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.03344046858671152,
+            "effective_temperature_force": 0.10093330274562125,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 0.908320238388735,
+          "effective_temperature_channel_relative_error_vs_redl": 0.10093330274562125,
+          "redl_effective_temperature_fraction_of_total": 0.999959543415909,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 67364666.9062829,
+            "A2_temperature": -127006393.6275112,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -896.2806324445648,
+            "effective_temperature_force": -59640830.44059587,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.2296649965318354e-14,
+          "effective_temperature_fraction_of_total": 0.9999620235169326,
+          "density_electric_fraction_of_total": 3.797648305506511e-05,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.21428571428571427,
+          "public_neopax_current_over_root_fsab2": -28174502.708793934,
+          "public_neopax_nomom_over_root_fsab2": -59641726.721228324,
+          "public_neopax_correction_over_root_fsab2": 31467224.01243439,
+          "public_neopax_relative_error_vs_redl": 0.10093057221609773,
+          "full_vs_public_relative_difference": 1.4941090818075214e-14,
+          "redl_profile_drivers": {
+            "epsilon": 0.0240681655983092,
+            "trapped_fraction": 0.22470782366718478,
+            "L31": 0.2267888655812035,
+            "L32": -0.0498756693326559,
+            "alpha": -0.7937763570005314,
+            "nu_e_star": 0.19768760641915403,
+            "nu_i_star": 0.16785465242215777,
+            "density_gradient_term_over_root_fsab2": -1035.3460670730822,
+            "temperature_gradient_term_over_root_fsab2": -25590499.142870404,
+            "electron_temperature_gradient_term_over_root_fsab2": -20239842.498130962,
+            "ion_temperature_gradient_term_over_root_fsab2": -5350656.644739443,
+            "log10_nu_e_star": -0.7040205569508176
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.3537275409908034,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 4,
+          "rho": 0.2857142857142857,
+          "moment_order": 18,
+          "matrix_condition_number": 53390.92397026484,
+          "full_rhs_norm": 2244334.6944377664,
+          "full_solution_residual_norm": 3.118884983435216e-14,
+          "redl_current_over_root_fsab2": -29736965.13256633,
+          "full_solve_current_over_root_fsab2": -34713435.69994128,
+          "full_solve_species_current_over_root_fsab2": [
+            590045239.1313647,
+            -624758674.831306
+          ],
+          "full_solve_relative_error_vs_redl": 0.16734964530475857,
+          "species_cancellation_factor": 34.995208324041684,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  5.313810858679271,
+                  -3.542994570693446,
+                  0.0
+                ],
+                [
+                  5.313810858679271,
+                  -3.542994570693446,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 106134922.08565044,
+                "A2_temperature": -140848357.78559208,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -4948469278.1096115,
+                  5054604200.195262
+                ],
+                "A2_temperature": [
+                  5538514517.240994,
+                  -5679362875.026587
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -34713435.699941635,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 2.346209928119484e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -0.0006809973608978837,
+                  -3.542994570693446,
+                  0.0
+                ],
+                [
+                  -0.0006809973608978837,
+                  -3.542994570693446,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -13601.839388275752,
+                "effective_temperature_force": -34699833.86055267,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  634176.6029125241,
+                  -647778.4423007999
+                ],
+                "effective_temperature_force": [
+                  589411062.5284488,
+                  -624110896.3890015
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -34713435.69994094,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 1.4193262109083682e-13
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -12057.250060990751,
+            "effective_temperature_force": -29724907.88250534,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.8864426138852679,
+            "effective_temperature_force": 0.856629688832519,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.12810461087493452,
+            "effective_temperature_force": 0.1673655641831386,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 0.856629688832519,
+          "effective_temperature_channel_relative_error_vs_redl": 0.1673655641831386,
+          "redl_effective_temperature_fraction_of_total": 0.9995945366311848,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 86747421.76525247,
+            "A2_temperature": -163874121.97609577,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -11117.212647932938,
+            "effective_temperature_force": -77115582.99819535,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 9.658396528642639e-15,
+          "effective_temperature_fraction_of_total": 0.9996081678717664,
+          "density_electric_fraction_of_total": 0.00039183212822402254,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.2857142857142857,
+          "public_neopax_current_over_root_fsab2": -34713435.699941084,
+          "public_neopax_nomom_over_root_fsab2": -77126700.2108433,
+          "public_neopax_correction_over_root_fsab2": 42413264.51090221,
+          "public_neopax_relative_error_vs_redl": 0.16734964530475208,
+          "full_vs_public_relative_difference": 5.580406883215777e-15,
+          "redl_profile_drivers": {
+            "epsilon": 0.03215621567256126,
+            "trapped_fraction": 0.25885866087607223,
+            "L31": 0.2731928844646863,
+            "L32": -0.07176152968276472,
+            "alpha": -0.7896421556961618,
+            "nu_e_star": 0.1379417723627748,
+            "nu_i_star": 0.11706165277441032,
+            "density_gradient_term_over_root_fsab2": -12057.250060990751,
+            "temperature_gradient_term_over_root_fsab2": -29724907.88250534,
+            "electron_temperature_gradient_term_over_root_fsab2": -23126833.641381726,
+            "ion_temperature_gradient_term_over_root_fsab2": -6598074.241123617,
+            "log10_nu_e_star": -0.8603041982221822
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.35749266599304974,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 5,
+          "rho": 0.3571428571428571,
+          "moment_order": 18,
+          "matrix_condition_number": 38157.85042068594,
+          "full_rhs_norm": 2549428.1229181993,
+          "full_solution_residual_norm": 1.5223651673318363e-14,
+          "redl_current_over_root_fsab2": -33767621.081322536,
+          "full_solve_current_over_root_fsab2": -38372722.63160896,
+          "full_solve_species_current_over_root_fsab2": [
+            421692224.77931917,
+            -460064947.41092813
+          ],
+          "full_solve_relative_error_vs_redl": 0.13637625046774735,
+          "species_cancellation_factor": 22.97874927081439,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  6.971081488276405,
+                  -4.650770301079795,
+                  0.0
+                ],
+                [
+                  6.971081488276405,
+                  -4.650770301079795,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 125394127.27287817,
+                "A2_temperature": -163766849.90448856,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -4129721626.495176,
+                  4255115753.768054
+                ],
+                "A2_temperature": [
+                  4551413851.274482,
+                  -4715180701.17897
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -38372722.63161039,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 2.034843082713027e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -0.005073963343288135,
+                  -4.650770301079795,
+                  0.0
+                ],
+                [
+                  -0.005073963343288135,
+                  -4.650770301079795,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -91269.22505728761,
+                "effective_temperature_force": -38281453.4065516,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  3005854.426757196,
+                  -3097123.6518144836
+                ],
+                "effective_temperature_force": [
+                  418686370.35256207,
+                  -456967823.75911367
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -38372722.63160889,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 1.158723806603044e-13
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -78094.7277766009,
+            "effective_temperature_force": -33689526.353545934,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.8556523595722724,
+            "effective_temperature_force": 0.8800482572007104,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.16869893340782094,
+            "effective_temperature_force": 0.13630132418060398,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 0.8800482572007104,
+          "effective_temperature_channel_relative_error_vs_redl": 0.13630132418060398,
+          "redl_effective_temperature_fraction_of_total": 0.99768728962018,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 100256248.7707803,
+            "A2_temperature": -188029571.18630245,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -72972.39776267341,
+            "effective_temperature_force": -87700350.01775947,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.9416346002997773e-15,
+          "effective_temperature_fraction_of_total": 0.997621507706566,
+          "density_electric_fraction_of_total": 0.002378492293432052,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.3571428571428571,
+          "public_neopax_current_over_root_fsab2": -38372722.63160891,
+          "public_neopax_nomom_over_root_fsab2": -87773322.41552216,
+          "public_neopax_correction_over_root_fsab2": 49400599.78391325,
+          "public_neopax_relative_error_vs_redl": 0.1363762504677458,
+          "full_vs_public_relative_difference": 1.359144220209846e-15,
+          "redl_profile_drivers": {
+            "epsilon": 0.04017501587489108,
+            "trapped_fraction": 0.28834351681317283,
+            "L31": 0.31028441454100797,
+            "L32": -0.08692305067035891,
+            "alpha": -0.7785646677428111,
+            "nu_e_star": 0.10917715306078934,
+            "nu_i_star": 0.09258344543399373,
+            "density_gradient_term_over_root_fsab2": -78094.7277766009,
+            "temperature_gradient_term_over_root_fsab2": -33689526.353545934,
+            "electron_temperature_gradient_term_over_root_fsab2": -25764223.25059036,
+            "ion_temperature_gradient_term_over_root_fsab2": -7925303.1029555695,
+            "log10_nu_e_star": -0.9618682346875944
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.36130795802455395,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 6,
+          "rho": 0.42857142857142855,
+          "moment_order": 18,
+          "matrix_condition_number": 28211.00970086076,
+          "full_rhs_norm": 2692334.2985549844,
+          "full_solution_residual_norm": 4.923467678343239e-15,
+          "redl_current_over_root_fsab2": -37995551.99079884,
+          "full_solve_current_over_root_fsab2": -39979273.60049689,
+          "full_solve_species_current_over_root_fsab2": [
+            288763063.03636575,
+            -328742336.63686264
+          ],
+          "full_solve_relative_error_vs_redl": 0.05220931150515818,
+          "species_cancellation_factor": 15.445638303582225,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  8.891631388472156,
+                  -5.945210703764233,
+                  0.0
+                ],
+                [
+                  8.891631388472156,
+                  -5.945210703764233,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 137713639.64297533,
+                "A2_temperature": -177692913.2434721,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -3322843757.320156,
+                  3460557396.9631314
+                ],
+                "A2_temperature": [
+                  3611606820.3565173,
+                  -3789299733.5999894
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -39979273.60049677,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 1.8923827003690638e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -0.026184667174193876,
+                  -5.945210703764233,
+                  0.0
+                ],
+                [
+                  -0.026184667174193876,
+                  -5.945210703764233,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -405548.2803834211,
+                "effective_temperature_force": -39573725.32011348,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  9785331.178942004,
+                  -10190879.459325425
+                ],
+                "effective_temperature_force": [
+                  278977731.85742325,
+                  -318551457.1775367
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -39979273.6004969,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 8.746452513516277e-14
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -347952.9625186627,
+            "effective_temperature_force": -37647599.02828017,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.8579816000938147,
+            "effective_temperature_force": 0.9513281533074585,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.16552616034033413,
+            "effective_temperature_force": 0.051161995493695135,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 0.9513281533074585,
+          "effective_temperature_channel_relative_error_vs_redl": 0.051161995493695135,
+          "redl_effective_temperature_fraction_of_total": 0.9908422711531357,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 108164393.77800167,
+            "A2_temperature": -201247525.78049338,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -318529.6969066196,
+            "effective_temperature_force": -92764602.30558509,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 3.727221595557568e-16,
+          "effective_temperature_fraction_of_total": 0.9898560367945662,
+          "density_electric_fraction_of_total": 0.010143963205434045,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.42857142857142855,
+          "public_neopax_current_over_root_fsab2": -39979273.600496754,
+          "public_neopax_nomom_over_root_fsab2": -93083132.00249167,
+          "public_neopax_correction_over_root_fsab2": 53103858.401994914,
+          "public_neopax_relative_error_vs_redl": 0.052209311505154656,
+          "full_vs_public_relative_difference": 3.3544994360018223e-15,
+          "redl_profile_drivers": {
+            "epsilon": 0.04811424074861143,
+            "trapped_fraction": 0.3144463762983528,
+            "L31": 0.3405217113178895,
+            "L32": -0.0965298466843493,
+            "alpha": -0.7634463184477605,
+            "nu_e_star": 0.09476951584465232,
+            "nu_i_star": 0.08028913262764759,
+            "density_gradient_term_over_root_fsab2": -347952.9625186627,
+            "temperature_gradient_term_over_root_fsab2": -37647599.02828017,
+            "electron_temperature_gradient_term_over_root_fsab2": -28303469.526943386,
+            "ion_temperature_gradient_term_over_root_fsab2": -9344129.501336783,
+            "log10_nu_e_star": -1.0233313380787128
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.3649666660348885,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 7,
+          "rho": 0.5,
+          "moment_order": 18,
+          "matrix_condition_number": 21540.77897824183,
+          "full_rhs_norm": 2860042.290613356,
+          "full_solution_residual_norm": 2.836038647187886e-15,
+          "redl_current_over_root_fsab2": -42873282.35260753,
+          "full_solve_current_over_root_fsab2": -42659360.54170075,
+          "full_solve_species_current_over_root_fsab2": [
+            230898891.4958515,
+            -273558252.03755224
+          ],
+          "full_solve_relative_error_vs_redl": 0.004989629885283838,
+          "species_cancellation_factor": 11.825239223646646,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  11.168872431432954,
+                  -7.515863238026801,
+                  0.0
+                ],
+                [
+                  11.168872431432954,
+                  -7.515863238026801,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 146904268.01918745,
+                "A2_temperature": -189563628.56088686,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -2686833441.1701217,
+                  2833737709.189309
+                ],
+                "A2_temperature": [
+                  2917732332.665971,
+                  -3107295961.2268577
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -42659360.54169941,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 5.275042510378483e-14
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -0.1049224256072474,
+                  -7.515863238026801,
+                  0.0
+                ],
+                [
+                  -0.1049224256072474,
+                  -7.515863238026801,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -1380045.4994231313,
+                "effective_temperature_force": -41279315.042277575,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  25240603.613382675,
+                  -26620649.112805806
+                ],
+                "effective_temperature_force": [
+                  205658287.88246813,
+                  -246937602.9247457
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -42659360.541700706,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 1.2119638476901208e-13
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -1190721.451302075,
+            "effective_temperature_force": -41682560.90130546,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.8628131839129978,
+            "effective_temperature_force": 1.0097687148785024,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.15899944350043166,
+            "effective_temperature_force": 0.009674210276635273,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 1.0097687148785024,
+          "effective_temperature_channel_relative_error_vs_redl": 0.009674210276635273,
+          "redl_effective_temperature_fraction_of_total": 0.9722269584701005,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 114383027.07765919,
+            "A2_temperature": -213484535.24215066,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -1074535.027861152,
+            "effective_temperature_force": -98026973.1366303,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.0479173389822388e-15,
+          "effective_temperature_fraction_of_total": 0.9676496440195314,
+          "density_electric_fraction_of_total": 0.03235035598046757,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.5,
+          "public_neopax_current_over_root_fsab2": -42659360.541700594,
+          "public_neopax_nomom_over_root_fsab2": -99101508.16449152,
+          "public_neopax_correction_over_root_fsab2": 56442147.622790925,
+          "public_neopax_relative_error_vs_redl": 0.004989629885287488,
+          "full_vs_public_relative_difference": 3.667710686437849e-15,
+          "redl_profile_drivers": {
+            "epsilon": 0.056000629709018444,
+            "trapped_fraction": 0.3380409133163701,
+            "L31": 0.3653574074061055,
+            "L32": -0.10136114102207561,
+            "alpha": -0.7451894360251438,
+            "nu_e_star": 0.08881030784270079,
+            "nu_i_star": 0.07514851678327328,
+            "density_gradient_term_over_root_fsab2": -1190721.451302075,
+            "temperature_gradient_term_over_root_fsab2": -41682560.90130546,
+            "electron_temperature_gradient_term_over_root_fsab2": -30815598.43231704,
+            "ion_temperature_gradient_term_over_root_fsab2": -10866962.468988419,
+            "log10_nu_e_star": -1.0515366245434397
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.36866399901919067,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 8,
+          "rho": 0.5714285714285714,
+          "moment_order": 18,
+          "matrix_condition_number": 16879.432723186022,
+          "full_rhs_norm": 2970078.444275916,
+          "full_solution_residual_norm": 3.529112241872683e-15,
+          "redl_current_over_root_fsab2": -49126823.71681437,
+          "full_solve_current_over_root_fsab2": -46491780.560787916,
+          "full_solve_species_current_over_root_fsab2": [
+            211571948.112133,
+            -258063728.6729209
+          ],
+          "full_solve_relative_error_vs_redl": 0.053637564097688065,
+          "species_cancellation_factor": 10.101477532593233,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  13.909837886172156,
+                  -9.506450778791324,
+                  0.0
+                ],
+                [
+                  13.909837886172156,
+                  -9.506450778791324,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 151596408.9230752,
+                "A2_temperature": -198088189.48386192,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -2161302306.6788564,
+                  2312898715.6019316
+                ],
+                "A2_temperature": [
+                  2372874254.790991,
+                  -2570962444.2748528
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -46491780.560786724,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 1.1124957993738726e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -0.34983828201482936,
+                  -9.506450778791324,
+                  0.0
+                ],
+                [
+                  -0.34983828201482936,
+                  -9.506450778791324,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -3812713.5406795293,
+                "effective_temperature_force": -42679067.02010831,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  54357663.40849078,
+                  -58170376.94917031
+                ],
+                "effective_temperature_force": [
+                  157214284.70364162,
+                  -199893351.72374994
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -46491780.56078784,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 5.468934249728446e-14
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -3328680.2379269004,
+            "effective_temperature_force": -45798143.47888746,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.8730475558710973,
+            "effective_temperature_force": 1.0730821144077398,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.14541297696233044,
+            "effective_temperature_force": 0.06810486674458792,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 1.0730821144077398,
+          "effective_temperature_channel_relative_error_vs_redl": 0.06810486674458792,
+          "redl_effective_temperature_fraction_of_total": 0.9322431212505273,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 117509936.76168343,
+            "A2_temperature": -221928849.42149264,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -2955424.407731288,
+            "effective_temperature_force": -101463488.25207792,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.602558668877439e-15,
+          "effective_temperature_fraction_of_total": 0.9179916644471277,
+          "density_electric_fraction_of_total": 0.08200833555287076,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.5714285714285714,
+          "public_neopax_current_over_root_fsab2": -46491780.56078793,
+          "public_neopax_nomom_over_root_fsab2": -104418912.65980928,
+          "public_neopax_correction_over_root_fsab2": 57927132.099021345,
+          "public_neopax_relative_error_vs_redl": 0.05363756409768776,
+          "full_vs_public_relative_difference": 3.205117337754877e-16,
+          "redl_profile_drivers": {
+            "epsilon": 0.06381303497776346,
+            "trapped_fraction": 0.3595706165908753,
+            "L31": 0.3853106824515493,
+            "L32": -0.10155902672633768,
+            "alpha": -0.7237844547670981,
+            "nu_e_star": 0.08945975234000522,
+            "nu_i_star": 0.07557917612492274,
+            "density_gradient_term_over_root_fsab2": -3328680.2379269004,
+            "temperature_gradient_term_over_root_fsab2": -45798143.47888746,
+            "electron_temperature_gradient_term_over_root_fsab2": -33305868.71455149,
+            "ion_temperature_gradient_term_over_root_fsab2": -12492274.764335975,
+            "log10_nu_e_star": -1.048372308460679
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.37263649905798957,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 9,
+          "rho": 0.6428571428571428,
+          "moment_order": 18,
+          "matrix_condition_number": 13573.560765007602,
+          "full_rhs_norm": 3063496.3475561207,
+          "full_solution_residual_norm": 3.806678357048576e-15,
+          "redl_current_over_root_fsab2": -57761701.195756,
+          "full_solve_current_over_root_fsab2": -52688873.669670105,
+          "full_solve_species_current_over_root_fsab2": [
+            225703883.9241898,
+            -278392757.5938599
+          ],
+          "full_solve_relative_error_vs_redl": 0.0878233746768286,
+          "species_cancellation_factor": 9.567421096880054,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  17.232500539610747,
+                  -12.166650838326383,
+                  0.0
+                ],
+                [
+                  17.232500539610747,
+                  -12.166650838326383,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 150102883.1687801,
+                "A2_temperature": -202791756.83845186,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -1709367242.0953643,
+                  1859470125.2641444
+                ],
+                "A2_temperature": [
+                  1935071126.0195553,
+                  -2137862882.8580072
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -52688873.669671774,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 4.804716384858173e-14
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -1.0174757178788276,
+                  -12.166650838326383,
+                  0.0
+                ],
+                [
+                  -1.0174757178788276,
+                  -12.166650838326383,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -8862674.250714809,
+                "effective_temperature_force": -43826199.4189554,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  100927875.07951644,
+                  -109790549.33023125
+                ],
+                "effective_temperature_force": [
+                  124776008.84467472,
+                  -168602208.26363012
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -52688873.66967021,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 4.756855737135434e-14
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -7872519.749688026,
+            "effective_temperature_force": -49889181.44606798,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.8882781344528234,
+            "effective_temperature_force": 1.138341496810017,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.12577351756609073,
+            "effective_temperature_force": 0.12152899388952462,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 1.138341496810017,
+          "effective_temperature_channel_relative_error_vs_redl": 0.12152899388952462,
+          "redl_effective_temperature_fraction_of_total": 0.8637069271383155,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 116325354.32476535,
+            "A2_temperature": -226541990.0016198,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -6868313.923858035,
+            "effective_temperature_force": -103348321.75299641,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.9796993386286347e-15,
+          "effective_temperature_fraction_of_total": 0.83179230009207,
+          "density_electric_fraction_of_total": 0.168207699907932,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.6428571428571428,
+          "public_neopax_current_over_root_fsab2": -52688873.669670075,
+          "public_neopax_nomom_over_root_fsab2": -110216635.67685449,
+          "public_neopax_correction_over_root_fsab2": 57527762.007184416,
+          "public_neopax_relative_error_vs_redl": 0.08782337467682912,
+          "full_vs_public_relative_difference": 5.656283824653245e-16,
+          "redl_profile_drivers": {
+            "epsilon": 0.07155330806147352,
+            "trapped_fraction": 0.37939978201976754,
+            "L31": 0.4003968464040697,
+            "L32": -0.09673719476831799,
+            "alpha": -0.6984702592716978,
+            "nu_e_star": 0.0970065480286841,
+            "nu_i_star": 0.08178709709115375,
+            "density_gradient_term_over_root_fsab2": -7872519.749688026,
+            "temperature_gradient_term_over_root_fsab2": -49889181.44606798,
+            "electron_temperature_gradient_term_over_root_fsab2": -35696619.39238529,
+            "ion_temperature_gradient_term_over_root_fsab2": -14192562.053682694,
+            "log10_nu_e_star": -1.0131989494786615
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.37625533202663064,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 10,
+          "rho": 0.7142857142857142,
+          "moment_order": 18,
+          "matrix_condition_number": 11114.743156942028,
+          "full_rhs_norm": 3165264.510990073,
+          "full_solution_residual_norm": 3.1364118489849625e-15,
+          "redl_current_over_root_fsab2": -69545224.37032287,
+          "full_solve_current_over_root_fsab2": -62047735.04609704,
+          "full_solve_species_current_over_root_fsab2": [
+            266964000.64867395,
+            -329011735.694771
+          ],
+          "full_solve_relative_error_vs_redl": 0.10780739284558613,
+          "species_cancellation_factor": 9.605116704109788,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  21.282633644804356,
+                  -15.975898979333174,
+                  0.0
+                ],
+                [
+                  21.282633644804356,
+                  -15.975898979333174,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 139552466.10144162,
+                "A2_temperature": -201600201.1475389,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -1296370231.4747453,
+                  1435922697.576187
+                ],
+                "A2_temperature": [
+                  1563334232.1234193,
+                  -1764934433.2709582
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -62047735.04609728,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 4.0639850852866914e-14
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -2.681214824195404,
+                  -15.975898979333174,
+                  0.0
+                ],
+                [
+                  -2.681214824195404,
+                  -15.975898979333174,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -17581007.45936373,
+                "effective_temperature_force": -44466727.58673312,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  163318466.13937557,
+                  -180899473.5987393
+                ],
+                "effective_temperature_force": [
+                  103645534.50929822,
+                  -148112262.09603134
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -62047735.04609685,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 2.804055649365109e-14
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -16001873.711662032,
+            "effective_temperature_force": -53543350.658660844,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.9101795644332861,
+            "effective_temperature_force": 1.2041216784892392,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.09868430261081473,
+            "effective_temperature_force": 0.16951914589341352,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 1.2041216784892392,
+          "effective_temperature_channel_relative_error_vs_redl": 0.16951914589341352,
+          "redl_effective_temperature_fraction_of_total": 0.7699069367228827,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 108725627.94080743,
+            "A2_temperature": -225347435.15406996,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -13697400.907712081,
+            "effective_temperature_force": -102924406.30555043,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 3.12203330832468e-15,
+          "effective_temperature_fraction_of_total": 0.7166535177101552,
+          "density_electric_fraction_of_total": 0.2833464822898418,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.7142857142857142,
+          "public_neopax_current_over_root_fsab2": -62047735.0460971,
+          "public_neopax_nomom_over_root_fsab2": -116621807.21326251,
+          "public_neopax_correction_over_root_fsab2": 54574072.16716541,
+          "public_neopax_relative_error_vs_redl": 0.10780739284558527,
+          "full_vs_public_relative_difference": 9.6062563333067e-16,
+          "redl_profile_drivers": {
+            "epsilon": 0.07920681305475358,
+            "trapped_fraction": 0.39775523825521,
+            "L31": 0.4098527334478395,
+            "L32": -0.08577005199176274,
+            "alpha": -0.6675971255465601,
+            "nu_e_star": 0.11411594372712389,
+            "nu_i_star": 0.09594675247271404,
+            "density_gradient_term_over_root_fsab2": -16001873.711662032,
+            "temperature_gradient_term_over_root_fsab2": -53543350.658660844,
+            "electron_temperature_gradient_term_over_root_fsab2": -37696632.37403514,
+            "ion_temperature_gradient_term_over_root_fsab2": -15846718.284625705,
+            "log10_nu_e_star": -0.9426536738203882
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.38003079005284235,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 11,
+          "rho": 0.7857142857142857,
+          "moment_order": 18,
+          "matrix_condition_number": 9217.07408389672,
+          "full_rhs_norm": 3283001.2612394923,
+          "full_solution_residual_norm": 3.141110719092634e-15,
+          "redl_current_over_root_fsab2": -83472283.37932375,
+          "full_solve_current_over_root_fsab2": -73889321.30708426,
+          "full_solve_species_current_over_root_fsab2": [
+            317750911.09119976,
+            -391640232.398284
+          ],
+          "full_solve_relative_error_vs_redl": 0.11480412041313832,
+          "species_cancellation_factor": 9.600726206988043,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  26.32483512429608,
+                  -21.992018355517256,
+                  0.0
+                ],
+                [
+                  26.32483512429608,
+                  -21.992018355517256,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 118078005.65808916,
+                "A2_temperature": -191967326.96517348,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -909078152.5935471,
+                  1027156158.2516363
+                ],
+                "A2_temperature": [
+                  1226829063.6847467,
+                  -1418796390.6499202
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -73889321.30708432,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 2.2415326273334904e-14
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -6.663192408979803,
+                  -21.992018355517256,
+                  0.0
+                ],
+                [
+                  -6.663192408979803,
+                  -21.992018355517256,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -29887232.617168874,
+                "effective_temperature_force": -44002088.689915344,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  230100686.93422318,
+                  -259987919.55139205
+                ],
+                "effective_temperature_force": [
+                  87650224.15697521,
+                  -131652312.84689055
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -73889321.30708422,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 4.5608162320781765e-14
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -27843933.58261798,
+            "effective_temperature_force": -55628349.79670576,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.9316330467687025,
+            "effective_temperature_force": 1.2642206643580305,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.07338399326690163,
+            "effective_temperature_force": 0.20899884949452352,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 1.2642206643580305,
+          "effective_temperature_channel_relative_error_vs_redl": 0.20899884949452352,
+          "redl_effective_temperature_fraction_of_total": 0.6664289934889335,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 92929196.96467829,
+            "A2_temperature": -215194014.54984248,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -23521709.3236853,
+            "effective_temperature_force": -98743108.2614789,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 6.050060115690486e-16,
+          "effective_temperature_fraction_of_total": 0.5955135046787413,
+          "density_electric_fraction_of_total": 0.4044864953212581,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.7857142857142857,
+          "public_neopax_current_over_root_fsab2": -73889321.30708407,
+          "public_neopax_nomom_over_root_fsab2": -122264817.58516423,
+          "public_neopax_correction_over_root_fsab2": 48375496.278080165,
+          "public_neopax_relative_error_vs_redl": 0.11480412041314064,
+          "full_vs_public_relative_difference": 2.6216927167992175e-15,
+          "redl_profile_drivers": {
+            "epsilon": 0.08677066717553042,
+            "trapped_fraction": 0.41483555706550823,
+            "L31": 0.4117204537764934,
+            "L32": -0.06647502846181874,
+            "alpha": -0.6279093639709783,
+            "nu_e_star": 0.14788289720906203,
+            "nu_i_star": 0.123850295253624,
+            "density_gradient_term_over_root_fsab2": -27843933.58261798,
+            "temperature_gradient_term_over_root_fsab2": -55628349.79670576,
+            "electron_temperature_gradient_term_over_root_fsab2": -38530870.90397112,
+            "ion_temperature_gradient_term_over_root_fsab2": -17097478.892734643,
+            "log10_nu_e_star": -0.8300820496489496
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.383719623030629,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 12,
+          "rho": 0.8571428571428571,
+          "moment_order": 18,
+          "matrix_condition_number": 7746.423267996589,
+          "full_rhs_norm": 3420111.4316048995,
+          "full_solution_residual_norm": 9.323804019479779e-15,
+          "redl_current_over_root_fsab2": -93292514.68632331,
+          "full_solve_current_over_root_fsab2": -82597589.50191057,
+          "full_solve_species_current_over_root_fsab2": [
+            347456854.1594665,
+            -430054443.6613771
+          ],
+          "full_solve_relative_error_vs_redl": 0.11463862047638237,
+          "species_cancellation_factor": 9.413244411967481,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  33.06046032406813,
+                  -33.108673401997365,
+                  0.0
+                ],
+                [
+                  33.06046032406813,
+                  -33.108673401997365,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 83421617.78967857,
+                "A2_temperature": -166019207.29158938,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -538743880.0080168,
+                  622165497.7976954
+                ],
+                "A2_temperature": [
+                  886200734.167486,
+                  -1052219941.4590753
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -82597589.5019108,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 2.4007463176497062e-14
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -16.602549778927916,
+                  -33.108673401997365,
+                  0.0
+                ],
+                [
+                  -16.602549778927916,
+                  -33.108673401997365,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -41893293.33032745,
+                "effective_temperature_force": -40704296.171583235,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  270550439.9590657,
+                  -312443733.2893931
+                ],
+                "effective_temperature_force": [
+                  76906414.20040134,
+                  -117610710.37198457
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -82597589.50191069,
+              "dominant_channel": "density_electric_force",
+              "max_channel_residual_norm": 1.4031511700877389e-14
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -39920180.6290843,
+            "effective_temperature_force": -53372334.05723902,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.9529014659772576,
+            "effective_temperature_force": 1.3112211505207079,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.04942644722918967,
+            "effective_temperature_force": 0.237352143379564,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 1.3112211505207079,
+          "effective_temperature_channel_relative_error_vs_redl": 0.237352143379564,
+          "redl_effective_temperature_fraction_of_total": 0.5720966385855543,
+          "redl_dominant_effective_channel": "effective_temperature_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 66947271.11725825,
+            "A2_temperature": -187570500.85714197,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -33620082.430567086,
+            "effective_temperature_force": -87003147.3093166,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.4432538560707491e-15,
+          "effective_temperature_fraction_of_total": 0.4928024705931848,
+          "density_electric_fraction_of_total": 0.5071975294068166,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "density_electric_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.8571428571428571,
+          "public_neopax_current_over_root_fsab2": -82597589.50191069,
+          "public_neopax_nomom_over_root_fsab2": -120623229.73988368,
+          "public_neopax_correction_over_root_fsab2": 38025640.23797299,
+          "public_neopax_relative_error_vs_redl": 0.1146386204763811,
+          "full_vs_public_relative_difference": 1.443253856070747e-15,
+          "redl_profile_drivers": {
+            "epsilon": 0.09423389411303673,
+            "trapped_fraction": 0.4307788475968114,
+            "L31": 0.4011814355622342,
+            "L32": -0.03478812119501418,
+            "alpha": -0.5724156781839613,
+            "nu_e_star": 0.21793649294142767,
+            "nu_i_star": 0.1814104331986575,
+            "density_gradient_term_over_root_fsab2": -39920180.6290843,
+            "temperature_gradient_term_over_root_fsab2": -53372334.05723902,
+            "electron_temperature_gradient_term_over_root_fsab2": -36352659.56836375,
+            "ion_temperature_gradient_term_over_root_fsab2": -17019674.488875266,
+            "log10_nu_e_star": -0.6616700420983774
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.38744487304938957,
+            "public_closure_seconds": 11.892045416985638
+          }
+        },
+        {
+          "radial_index": 13,
+          "rho": 0.9285714285714285,
+          "moment_order": 18,
+          "matrix_condition_number": 6604.204346655477,
+          "full_rhs_norm": 3548797.141984536,
+          "full_solution_residual_norm": 6.171709986679449e-15,
+          "redl_current_over_root_fsab2": -81499165.87162043,
+          "full_solve_current_over_root_fsab2": -72412569.66590786,
+          "full_solve_species_current_over_root_fsab2": [
+            293128929.0749328,
+            -365541498.7408407
+          ],
+          "full_solve_relative_error_vs_redl": 0.11149311908328007,
+          "species_cancellation_factor": 9.096078634616916,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  43.42634624660454,
+                  -61.111235606134656,
+                  0.0
+                ],
+                [
+                  43.42634624660454,
+                  -61.111235606134656,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 37454844.50534871,
+                "A2_temperature": -109867414.17125666,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -206619875.0933183,
+                  244074719.59866703
+                ],
+                "A2_temperature": [
+                  499748804.1682522,
+                  -609616218.3395089
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -72412569.66590795,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 1.590916062974417e-14
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -48.24050716259745,
+                  -61.111235606134656,
+                  0.0
+                ],
+                [
+                  -48.24050716259745,
+                  -61.111235606134656,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -41607016.26551226,
+                "effective_temperature_force": -30805553.400395505,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  229525355.59340456,
+                  -271132371.8589168
+                ],
+                "effective_temperature_force": [
+                  63603573.48152866,
+                  -94409126.88192417
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -72412569.66590777,
+              "dominant_channel": "density_electric_force",
+              "max_channel_residual_norm": 2.932417703219096e-14
+            }
+          },
+          "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -40936649.016994745,
+            "effective_temperature_force": -40562516.854625694,
+            "parallel_electric_force": 0.0
+          },
+          "effective_channel_response_multiplier_to_redl": {
+            "density_electric_force": 0.9838881201132134,
+            "effective_temperature_force": 1.3167274201314922,
+            "parallel_electric_force": null
+          },
+          "effective_channel_relative_error_vs_redl": {
+            "density_electric_force": 0.016375723578136842,
+            "effective_temperature_force": 0.24054137195674333,
+            "parallel_electric_force": 0.0
+          },
+          "effective_temperature_response_multiplier_to_redl": 1.3167274201314922,
+          "effective_temperature_channel_relative_error_vs_redl": 0.24054137195674333,
+          "redl_effective_temperature_fraction_of_total": 0.4977046871684651,
+          "redl_dominant_effective_channel": "density_electric_force",
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 31465290.818894148,
+            "A2_temperature": -126873518.22859645,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -34953472.219430804,
+            "effective_temperature_force": -60454755.190271534,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.2346885019491183e-15,
+          "effective_temperature_fraction_of_total": 0.42541721061031323,
+          "density_electric_fraction_of_total": 0.5745827893896854,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "density_electric_force",
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "target_rho": 0.9285714285714285,
+          "public_neopax_current_over_root_fsab2": -72412569.6659077,
+          "public_neopax_nomom_over_root_fsab2": -95408227.40970232,
+          "public_neopax_correction_over_root_fsab2": 22995657.74379462,
+          "public_neopax_relative_error_vs_redl": 0.11149311908328208,
+          "full_vs_public_relative_difference": 2.2635955869067217e-15,
+          "redl_profile_drivers": {
+            "epsilon": 0.10159203168594942,
+            "trapped_fraction": 0.44570995218600096,
+            "L31": 0.36460937727988785,
+            "L32": 0.01686356596265487,
+            "alpha": -0.4819029568595647,
+            "nu_e_star": 0.3963515285000487,
+            "nu_i_star": 0.3262449226501963,
+            "density_gradient_term_over_root_fsab2": -40936649.016994745,
+            "temperature_gradient_term_over_root_fsab2": -40562516.854625694,
+            "electron_temperature_gradient_term_over_root_fsab2": -27128601.373727795,
+            "ion_temperature_gradient_term_over_root_fsab2": -13433915.4808979,
+            "log10_nu_e_star": -0.4019194626431395
+          },
+          "timings": {
+            "momentum_blocks_seconds": 6.5455794999725185,
+            "source_solve_cumulative_seconds": 0.3912197480094619,
+            "public_closure_seconds": 11.892045416985638
+          }
+        }
+      ],
+      "open_work": [
+        "use the profile-wide source-response map to derive a physics-based reduced closure change, then require no regression on fixed-field QA/QH and integrated W7-X",
+        "extend the same profile-response map to QH/QI and W7-X owned geometries before making broad finite-beta closure claims",
+        "keep downstream interpolation-mode comparisons planned until stable general and legacy selectors are exposed"
+      ]
+    },
     "profile_uncertainty": {
       "basis_size": 3,
       "sample_count": 96,
@@ -5243,6 +7387,14 @@
     "owned_finite_beta_source_channel_temperature_response_multiplier": 0.7167483610385275,
     "owned_finite_beta_source_channel_temperature_response_error": 0.39518979652922687,
     "owned_finite_beta_source_channel_redl_temperature_fraction": 0.9999985536492031,
+    "owned_finite_beta_source_response_profile_radius_count": 13,
+    "owned_finite_beta_source_response_profile_max_error": 0.3951895275200511,
+    "owned_finite_beta_source_response_profile_multiplier_min": 0.7167483610385275,
+    "owned_finite_beta_source_response_profile_multiplier_median": 1.0097687148785024,
+    "owned_finite_beta_source_response_profile_multiplier_max": 1.3167274201314922,
+    "owned_finite_beta_source_response_profile_multiplier_span": 0.5999790590929648,
+    "owned_finite_beta_source_response_profile_stress_rho": 0.14285714285714285,
+    "owned_finite_beta_source_response_profile_nu_correlation": -0.1397975660447738,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -5396,6 +7548,11 @@
       "docs/_static/owned_finite_beta_source_channel_audit.png",
       "docs/_static/owned_finite_beta_source_channel_audit.pdf",
       "docs/_static/owned_finite_beta_source_channel_audit.json"
+    ],
+    "owned_finite_beta_source_response_profile": [
+      "docs/_static/owned_finite_beta_source_response_profile_audit.png",
+      "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
+      "docs/_static/owned_finite_beta_source_response_profile_audit.json"
     ],
     "profile_uncertainty": [
       "docs/_static/autodiff_profile_uncertainty.png",
@@ -7551,7 +9708,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, source-channel closure sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, source-channel closure sidecar, profile source-response sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
           "literature_anchors": [
             "Redl bootstrap-current formula and geometry-factor normalization",
             "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -7564,7 +9721,8 @@
             "examples/owned_finite_beta_profile_current_observable_audit.py",
             "examples/owned_finite_beta_current_conditioning_audit.py",
             "examples/owned_finite_beta_closure_quadrature_audit.py",
-            "examples/owned_finite_beta_source_channel_audit.py"
+            "examples/owned_finite_beta_source_channel_audit.py",
+            "examples/owned_finite_beta_source_response_profile_audit.py"
           ],
           "tests": [
             "tests/test_owned_finite_beta_bootstrap_comparison.py",
@@ -7572,7 +9730,8 @@
             "tests/test_owned_finite_beta_profile_current_observable_audit.py",
             "tests/test_owned_finite_beta_current_conditioning_audit.py",
             "tests/test_owned_finite_beta_closure_quadrature_audit.py",
-            "tests/test_owned_finite_beta_source_channel_audit.py"
+            "tests/test_owned_finite_beta_source_channel_audit.py",
+            "tests/test_owned_finite_beta_source_response_profile_audit.py"
           ],
           "artifacts": [
             "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -7592,7 +9751,10 @@
             "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
             "docs/_static/owned_finite_beta_source_channel_audit.png",
             "docs/_static/owned_finite_beta_source_channel_audit.pdf",
-            "docs/_static/owned_finite_beta_source_channel_audit.json"
+            "docs/_static/owned_finite_beta_source_channel_audit.json",
+            "docs/_static/owned_finite_beta_source_response_profile_audit.png",
+            "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
+            "docs/_static/owned_finite_beta_source_response_profile_audit.json"
           ],
           "manuscript_figures": [
             "owned_finite_beta_bootstrap_comparison",
@@ -7600,7 +9762,8 @@
             "owned_finite_beta_profile_current_observable_audit",
             "owned_finite_beta_current_conditioning_audit",
             "owned_finite_beta_closure_quadrature_audit",
-            "owned_finite_beta_source_channel_audit"
+            "owned_finite_beta_source_channel_audit",
+            "owned_finite_beta_source_response_profile_audit"
           ],
           "docs": [
             "README.md",
@@ -7613,6 +9776,7 @@
           "open_work": [
             "derive or import a quadrature-converged higher-order closure before accepting any apparent finite-beta current gate pass at X < Pmax",
             "close the inner-radius reduced-closure gap using the same physical profile, source-channel decomposition, normalization, and interpolation contract",
+            "use the radial source-response map to distinguish a physics-derived closure term from a profile-local fitted multiplier",
             "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
             "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
             "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
@@ -7652,6 +9816,11 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_source_response_profile_audit.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "exists": true
@@ -7679,6 +9848,11 @@
           {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_source_channel_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_source_response_profile_audit.py",
             "exists": true
           },
           {
@@ -7769,6 +9943,21 @@
           {
             "kind": "artifact",
             "path": "docs/_static/owned_finite_beta_source_channel_audit.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_source_response_profile_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_source_response_profile_audit.json",
             "exists": true
           },
           {
@@ -7959,6 +10148,7 @@
       "owned_finite_beta_current_conditioning",
       "owned_finite_beta_closure_quadrature",
       "owned_finite_beta_source_channel",
+      "owned_finite_beta_source_response_profile",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",

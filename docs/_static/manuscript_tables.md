@@ -180,6 +180,11 @@
 | Redl temperature response multiplier at high order | `7.167e-01` |
 | Redl temperature-channel relative difference at high order | `3.952e-01` |
 | Redl temperature-channel fraction of target current | `1.000e+00` |
+| Profile source-response radii | `13` |
+| Profile source-response max current stress | `3.952e-01` at `rho=0.143` |
+| Profile temperature response multiplier min/median/max | `7.167e-01` / `1.010e+00` / `1.317e+00` |
+| Profile temperature response multiplier span | `6.000e-01` |
+| Temperature response correlation with log10(nu_e*) | `-1.398e-01` |
 | Stress-radius Pmax error reduction | `3.548x` |
 | Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
@@ -235,7 +240,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `af4b76cb3baf5407e90e37695d3f1726d7586f6f` |
+| Commit | `d0afaaf8bee9ea0b796e90ceb00e9a615316e4e6` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

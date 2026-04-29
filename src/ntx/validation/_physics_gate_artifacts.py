@@ -354,6 +354,18 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "runtime correction"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_profile_source_response_stress",
+        path=static_root / "owned_finite_beta_source_response_profile_audit.json",
+        metric_key="high_order_temperature_response_multiplier_span",
+        details=(
+            "monitored radial span of the high-order Redl/NTX effective-"
+            "temperature source-response multiplier; this maps the finite-beta "
+            "closure gap across the profile without applying a fitted runtime "
+            "correction"
+        ),
+    )
 
     return results
 
