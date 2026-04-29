@@ -177,6 +177,9 @@
 | Dominant high-order source channel | `effective_temperature_force` |
 | High-order temperature/density/parallel fractions | `1.000e+00` / `1.254e-06` / `0.000e+00` |
 | Source-channel species-cancellation factor | `8.260e+01` |
+| Redl temperature response multiplier at high order | `7.167e-01` |
+| Redl temperature-channel relative difference at high order | `3.952e-01` |
+| Redl temperature-channel fraction of target current | `1.000e+00` |
 | Stress-radius Pmax error reduction | `3.548x` |
 | Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
@@ -232,7 +235,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `2884610e8d50815aa1b388ee1d72ecaf71421460` |
+| Commit | `af4b76cb3baf5407e90e37695d3f1726d7586f6f` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

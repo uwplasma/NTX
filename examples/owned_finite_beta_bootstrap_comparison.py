@@ -217,11 +217,27 @@ def _redl_geometry_and_current(
     )
     current_arr = np.asarray(current, dtype=float)
     root_fsa_b2 = np.sqrt(np.maximum(np.asarray(fsa_b2, dtype=float), EPS))
+    density_term = np.asarray(details.dnds_term, dtype=float)
+    electron_temperature_term = np.asarray(details.dTeds_term, dtype=float)
+    ion_temperature_term = np.asarray(details.dTids_term, dtype=float)
+    temperature_term = electron_temperature_term + ion_temperature_term
     return {
         "rho": np.asarray(rho, dtype=float),
         "s": s_values,
         "jdotb": current_arr,
         "current_over_root_fsab2": current_arr / root_fsa_b2,
+        "density_gradient_term": density_term,
+        "electron_temperature_gradient_term": electron_temperature_term,
+        "ion_temperature_gradient_term": ion_temperature_term,
+        "temperature_gradient_term": temperature_term,
+        "density_gradient_term_over_root_fsab2": density_term / root_fsa_b2,
+        "electron_temperature_gradient_term_over_root_fsab2": (
+            electron_temperature_term / root_fsa_b2
+        ),
+        "ion_temperature_gradient_term_over_root_fsab2": (
+            ion_temperature_term / root_fsa_b2
+        ),
+        "temperature_gradient_term_over_root_fsab2": temperature_term / root_fsa_b2,
         "epsilon": np.asarray(epsilon, dtype=float),
         "trapped_fraction": np.asarray(trapped_fraction, dtype=float),
         "L31": np.asarray(details.L31, dtype=float),

@@ -187,6 +187,10 @@ These are trust-building comparisons against independent workflows:
   one-channel solves must reconstruct the full corrected current below `1e-8`.
   The resulting dominant-channel statement is diagnostic, not a fitted current
   correction.
+- **Owned finite-beta temperature-source response:** the source-channel sidecar
+  also stores the Redl density and temperature target terms on the same current
+  observable. The high-order Redl/NTX effective-temperature response ratio is a
+  monitored stress metric, not an acceptance gate and not a runtime fit.
 - **Owned finite-beta profile-current observable:** the finite-beta
   bootstrap-current profile remains a monitored stress diagnostic, not a
   parity gate. The current artifacts keep the net-current residual, the

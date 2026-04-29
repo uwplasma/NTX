@@ -176,9 +176,12 @@ The source-channel sidecar then freezes the same stress-radius linear system and
 solves one physical drive at a time. It reconstructs the full corrected current
 to roundoff, and the quadrature-stable high-order response is dominated by the
 effective temperature-gradient drive while the parallel-electric channel is
-inactive for this profile contract. The remaining finite-beta closure work is
-therefore a physics-model/source-response lane, not a hidden normalization or
-fitted-threshold lane.
+inactive for this profile contract. The same artifact now stores the Redl
+density and temperature source terms on the identical observable; at high order
+the Redl temperature-channel target is `0.717` of the frozen corrected
+temperature response. The remaining finite-beta closure work is therefore a
+physics-model/source-response lane, not a hidden normalization or fitted
+threshold lane.
 Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
 geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,

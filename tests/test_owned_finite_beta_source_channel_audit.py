@@ -45,6 +45,9 @@ def test_source_channel_summary_tracks_high_stable_dominant_channel() -> None:
             "density_electric_fraction_of_total": 0.1,
             "parallel_electric_fraction_of_total": 0.0,
             "species_cancellation_factor": 10.0,
+            "effective_temperature_response_multiplier_to_redl": 0.75,
+            "effective_temperature_channel_relative_error_vs_redl": 0.33,
+            "redl_effective_temperature_fraction_of_total": 1.1,
         },
         {
             "neopax_x": 18,
@@ -58,6 +61,9 @@ def test_source_channel_summary_tracks_high_stable_dominant_channel() -> None:
             "density_electric_fraction_of_total": 1.0e-6,
             "parallel_electric_fraction_of_total": 0.0,
             "species_cancellation_factor": 82.0,
+            "effective_temperature_response_multiplier_to_redl": 0.72,
+            "effective_temperature_channel_relative_error_vs_redl": 0.39,
+            "redl_effective_temperature_fraction_of_total": 1.0,
         },
     ]
 
@@ -72,6 +78,25 @@ def test_source_channel_summary_tracks_high_stable_dominant_channel() -> None:
         == "effective_temperature_force"
     )
     assert metrics["high_stable_species_cancellation_factor"] == 82.0
+    assert metrics["high_stable_effective_temperature_response_multiplier_to_redl"] == 0.72
+    assert metrics["best_effective_temperature_response_multiplier_to_redl"] == 0.75
+
+
+def test_redl_effective_channel_targets_extract_density_and_temperature_terms() -> None:
+    payload = {
+        "redl": {
+            "rho": [0.1, 0.2, 0.3],
+            "density_gradient_term_over_root_fsab2": [1.0, 2.0, 3.0],
+            "electron_temperature_gradient_term_over_root_fsab2": [4.0, 5.0, 6.0],
+            "ion_temperature_gradient_term_over_root_fsab2": [7.0, 8.0, 9.0],
+        }
+    }
+
+    targets = audit._redl_effective_channel_targets(payload, 0.2)  # noqa: SLF001
+
+    assert targets["density_electric_force"] == 2.0
+    assert targets["effective_temperature_force"] == 13.0
+    assert targets["parallel_electric_force"] == 0.0
 
 
 def test_source_channel_audit_writes_payload_and_figure(tmp_path: Path) -> None:
@@ -103,6 +128,11 @@ def test_source_channel_audit_writes_payload_and_figure(tmp_path: Path) -> None:
                             "parallel_electric_force": 0.0,
                         }
                     }
+                },
+                "redl_effective_channel_current_by_channel_over_root_fsab2": {
+                    "density_electric_force": -20.0,
+                    "effective_temperature_force": -2.0e7,
+                    "parallel_electric_force": 0.0,
                 },
             }
         )

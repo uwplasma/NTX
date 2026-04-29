@@ -114,6 +114,13 @@ def _stress_rho_from_reference(payload: dict[str, Any]) -> float:
     return float(rho[int(np.nanargmax(error))])
 
 
+def _finite_or_none(value: float | None) -> float | None:
+    if value is None:
+        return None
+    value = float(value)
+    return value if np.isfinite(value) else None
+
+
 def _dominant_channel(values: dict[str, float]) -> str:
     if not values:
         return "none"
@@ -130,6 +137,78 @@ def _assemble_dense_species_matrix(blocks: np.ndarray) -> np.ndarray:
 
 def _relative_scalar_error(candidate: float, reference: float) -> float:
     return float(abs(float(candidate) - float(reference)) / max(abs(float(reference)), EPS))
+
+
+def _relative_scalar_error_or_none(
+    candidate: float | None,
+    reference: float | None,
+) -> float | None:
+    if candidate is None or reference is None:
+        return None
+    if not np.isfinite(float(candidate)) or not np.isfinite(float(reference)):
+        return None
+    return _relative_scalar_error(float(candidate), float(reference))
+
+
+def _redl_effective_channel_targets(
+    payload: dict[str, Any],
+    rho: float,
+) -> dict[str, float]:
+    """Return Redl density/effective-temperature/parallel target channels."""
+
+    redl = payload.get("redl", {})
+    redl_rho = np.asarray(redl.get("rho", []), dtype=float)
+    if redl_rho.size == 0:
+        return {}
+
+    def interp_key(key: str) -> float | None:
+        values = redl.get(key)
+        if values is None:
+            return None
+        array = np.asarray(values, dtype=float)
+        if array.size != redl_rho.size:
+            return None
+        return float(_interp(redl_rho, array, np.asarray([rho], dtype=float))[0])
+
+    density = interp_key("density_gradient_term_over_root_fsab2")
+    electron_temperature = interp_key("electron_temperature_gradient_term_over_root_fsab2")
+    ion_temperature = interp_key("ion_temperature_gradient_term_over_root_fsab2")
+    temperature = interp_key("temperature_gradient_term_over_root_fsab2")
+    if temperature is None and electron_temperature is not None and ion_temperature is not None:
+        temperature = electron_temperature + ion_temperature
+    channels = {
+        "density_electric_force": density,
+        "effective_temperature_force": temperature,
+        "parallel_electric_force": 0.0,
+    }
+    return {
+        label: float(value)
+        for label, value in channels.items()
+        if value is not None and np.isfinite(float(value))
+    }
+
+
+def _channel_response_ratios(
+    candidate_by_channel: dict[str, float],
+    target_by_channel: dict[str, float],
+) -> tuple[dict[str, float | None], dict[str, float | None]]:
+    multipliers: dict[str, float | None] = {}
+    relative_errors: dict[str, float | None] = {}
+    for label in EFFECTIVE_LABELS:
+        candidate = candidate_by_channel.get(label)
+        target = target_by_channel.get(label)
+        if (
+            candidate is None
+            or target is None
+            or not np.isfinite(float(candidate))
+            or not np.isfinite(float(target))
+            or abs(float(candidate)) <= EPS
+        ):
+            multipliers[label] = None
+        else:
+            multipliers[label] = float(target) / float(candidate)
+        relative_errors[label] = _relative_scalar_error_or_none(candidate, target)
+    return multipliers, relative_errors
 
 
 def _effective_projection_and_drives(
@@ -281,6 +360,7 @@ def _solve_channels(
     eij_full: np.ndarray,
     nu_weighted_average: np.ndarray,
     redl_current: float,
+    redl_effective_targets: dict[str, float],
 ) -> dict[str, Any]:
     import jax
     import jax.numpy as jnp
@@ -404,6 +484,10 @@ def _solve_channels(
     effective_currents = source_payloads["effective"][
         "current_by_channel_over_root_fsab2"
     ]
+    response_multipliers, response_relative_errors = _channel_response_ratios(
+        effective_currents,
+        redl_effective_targets,
+    )
     no_momentum_effective: dict[str, float] = dict.fromkeys(EFFECTIVE_LABELS, 0.0)
     no_momentum_transport: dict[str, float] = dict.fromkeys(TRANSPORT_LABELS, 0.0)
     for index in range(species_count):
@@ -456,6 +540,26 @@ def _solve_channels(
         ),
         "species_cancellation_factor": float(species_l1 / max(abs(net_current), EPS)),
         "source_decomposition": source_payloads,
+        "redl_effective_channel_current_by_channel_over_root_fsab2": {
+            label: float(redl_effective_targets[label])
+            for label in EFFECTIVE_LABELS
+            if label in redl_effective_targets
+        },
+        "effective_channel_response_multiplier_to_redl": response_multipliers,
+        "effective_channel_relative_error_vs_redl": response_relative_errors,
+        "effective_temperature_response_multiplier_to_redl": _finite_or_none(
+            response_multipliers.get("effective_temperature_force")
+        ),
+        "effective_temperature_channel_relative_error_vs_redl": _finite_or_none(
+            response_relative_errors.get("effective_temperature_force")
+        ),
+        "redl_effective_temperature_fraction_of_total": (
+            abs(float(redl_effective_targets["effective_temperature_force"]))
+            / max(abs(float(redl_current)), EPS)
+            if "effective_temperature_force" in redl_effective_targets
+            else None
+        ),
+        "redl_dominant_effective_channel": _dominant_channel(redl_effective_targets),
         "no_momentum_transport_current_by_channel_over_root_fsab2": no_momentum_transport,
         "no_momentum_effective_current_by_channel_over_root_fsab2": no_momentum_effective,
         "source_channel_superposition_relative_residual": _relative_scalar_error(
@@ -488,6 +592,7 @@ def _evaluate_setting(
     n_order: int,
     radial_index: int,
     redl_current: float,
+    redl_effective_targets: dict[str, float],
 ) -> dict[str, Any]:
     start = time.perf_counter()
     neopax_grid = NEOPAX.Grid.create_standard(
@@ -514,6 +619,7 @@ def _evaluate_setting(
         eij_full=eij_full,
         nu_weighted_average=nu_weighted_average,
         redl_current=redl_current,
+        redl_effective_targets=redl_effective_targets,
     )
     solve_seconds = float(time.perf_counter() - solve_start)
 
@@ -619,6 +725,22 @@ def _summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "high_stable_species_cancellation_factor": float(
             high_stable["species_cancellation_factor"]
         ),
+        "high_stable_effective_temperature_response_multiplier_to_redl": (
+            _finite_or_none(
+                high_stable.get("effective_temperature_response_multiplier_to_redl")
+            )
+        ),
+        "high_stable_effective_temperature_channel_relative_error_vs_redl": (
+            _finite_or_none(
+                high_stable.get("effective_temperature_channel_relative_error_vs_redl")
+            )
+        ),
+        "high_stable_redl_effective_temperature_fraction_of_total": (
+            _finite_or_none(high_stable.get("redl_effective_temperature_fraction_of_total"))
+        ),
+        "best_effective_temperature_response_multiplier_to_redl": _finite_or_none(
+            best_row.get("effective_temperature_response_multiplier_to_redl")
+        ),
     }
 
 
@@ -665,6 +787,10 @@ def build_payload(
         dtype=float,
     )
     redl_current = float(_interp(comparison_rho, comparison_redl, np.asarray([stress_rho]))[0])
+    redl_effective_targets = _redl_effective_channel_targets(
+        bootstrap_payload,
+        stress_rho,
+    )
 
     rows = [
         _evaluate_setting(
@@ -676,6 +802,7 @@ def build_payload(
             n_order=int(n_order),
             radial_index=radial_index,
             redl_current=redl_current,
+            redl_effective_targets=redl_effective_targets,
         )
         for neopax_x, n_order in settings
     ]
@@ -688,7 +815,9 @@ def build_payload(
         f"{metrics['high_stable_dominant_effective_channel']}; the parallel-"
         "electric channel is zero for this profile contract.  The remaining "
         "current gap is therefore localized to the reduced source-channel "
-        "response inside the profile-current closure, not to a hidden additive "
+        "response inside the profile-current closure; the Redl density and "
+        "temperature source terms are stored as target channels rather than "
+        "used as a fitted runtime correction.  The gap is not a hidden additive "
         "normalization or under-integrated apparent pass."
     )
     return _to_jsonable(
@@ -719,6 +848,7 @@ def build_payload(
                 "nboz": nboz,
                 "redl_ntheta": int(inputs.get("redl_ntheta", DEFAULT_REDL_NTHETA)),
                 "d33_mode": str(inputs.get("d33_mode", "spitzer")),
+                "redl_effective_channel_targets_over_root_fsab2": redl_effective_targets,
                 "ntx_grid": {
                     "n_theta": int(scan_grid.n_theta),
                     "n_zeta": int(scan_grid.n_zeta),
@@ -733,7 +863,9 @@ def build_payload(
                 (
                     "derive or import a quadrature-converged profile-current "
                     "closure that improves the dominant source-channel response "
-                    "without regressing fixed-field QA/QH or integrated W7-X"
+                    "without converting the Redl channel response ratio into a "
+                    "runtime fit and without regressing fixed-field QA/QH or "
+                    "integrated W7-X"
                 ),
                 (
                     "connect this source-channel localization to same-grid "
@@ -767,6 +899,20 @@ def build_figure(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) -
                 row["source_decomposition"]["effective"][
                     "current_by_channel_over_root_fsab2"
                 ][label]
+                / 1.0e6
+                for label in EFFECTIVE_LABELS
+            ]
+            for row in rows
+        ],
+        dtype=float,
+    )
+    redl_channel_targets = np.asarray(
+        [
+            [
+                row.get(
+                    "redl_effective_channel_current_by_channel_over_root_fsab2",
+                    {},
+                ).get(label, np.nan)
                 / 1.0e6
                 for label in EFFECTIVE_LABELS
             ]
@@ -817,13 +963,26 @@ def build_figure(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) -
         "parallel electric",
     )
     for index, (label, color) in enumerate(zip(display_labels, colors, strict=True)):
+        offset = x + (index - 1) * width
         ax_channel.bar(
-            x + (index - 1) * width,
+            offset,
             channel_values[:, index],
             width=width,
             color=color,
             label=label,
         )
+        finite_target = np.isfinite(redl_channel_targets[:, index])
+        if np.any(finite_target):
+            ax_channel.scatter(
+                offset[finite_target],
+                redl_channel_targets[finite_target, index],
+                marker="x",
+                s=54,
+                linewidths=1.8,
+                color="0.05",
+                label="Redl channel target" if index == 0 else None,
+                zorder=4,
+            )
     ax_channel.axhline(0.0, color="0.35", lw=0.8)
     ax_channel.set_xticks(x, setting_labels)
     ax_channel.set_ylabel(r"current contribution [MA m$^{-2}$]")
@@ -889,9 +1048,12 @@ def build_figure(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) -
     ax_fraction_t.set_ylabel("matrix condition number")
     ax_fraction.set_title("(d) Channel leverage and conditioning")
 
+    dominant_display = str(
+        metrics["high_stable_dominant_effective_channel"]
+    ).replace("_", " ")
     fig.suptitle(
         "Owned finite-beta source-channel closure audit "
-        f"(dominant high-order channel: {metrics['high_stable_dominant_effective_channel']})",
+        f"(dominant high-order channel: {dominant_display})",
         fontsize=13,
     )
     output_prefix.parent.mkdir(parents=True, exist_ok=True)

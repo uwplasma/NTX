@@ -53,6 +53,11 @@
     "nboz": 5,
     "redl_ntheta": 256,
     "d33_mode": "spitzer",
+    "redl_effective_channel_targets_over_root_fsab2": {
+      "density_electric_force": -29.72224503001643,
+      "effective_temperature_force": -20549787.85585622,
+      "parallel_electric_force": 0.0
+    },
     "ntx_grid": {
       "n_theta": 25,
       "n_zeta": 31,
@@ -60,7 +65,7 @@
     },
     "scan_source": "cached_hdf5",
     "scan_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_bootstrap_comparison/finite_beta_qa_pressure_current_bootstrap_scan.h5",
-    "scan_load_seconds": 0.0017672919784672558
+    "scan_load_seconds": 0.002071916009299457
   },
   "rows": [
     {
@@ -165,6 +170,25 @@
           "max_channel_residual_norm": 1.5777466513981784e-13
         }
       },
+      "redl_effective_channel_current_by_channel_over_root_fsab2": {
+        "density_electric_force": -29.72224503001643,
+        "effective_temperature_force": -20549787.85585622,
+        "parallel_electric_force": 0.0
+      },
+      "effective_channel_response_multiplier_to_redl": {
+        "density_electric_force": 0.9502965123657281,
+        "effective_temperature_force": 0.7629854814199803,
+        "parallel_electric_force": null
+      },
+      "effective_channel_relative_error_vs_redl": {
+        "density_electric_force": 0.05230313590285301,
+        "effective_temperature_force": 0.3106409287617316,
+        "parallel_electric_force": 0.0
+      },
+      "effective_temperature_response_multiplier_to_redl": 0.7629854814199803,
+      "effective_temperature_channel_relative_error_vs_redl": 0.3106409287617316,
+      "redl_effective_temperature_fraction_of_total": 0.9999985536492031,
+      "redl_dominant_effective_channel": "effective_temperature_force",
       "no_momentum_transport_current_by_channel_over_root_fsab2": {
         "A1_density_electric": 59699479.083131135,
         "A2_temperature": -111656459.95475182,
@@ -186,9 +210,9 @@
       "public_neopax_relative_error_vs_redl": 0.3106405551146464,
       "full_vs_public_relative_difference": 1.1065181328503955e-15,
       "timings": {
-        "momentum_blocks_seconds": 7.010825624980498,
-        "source_solve_seconds": 0.37204370799008757,
-        "public_closure_seconds": 12.807598250044975
+        "momentum_blocks_seconds": 7.017128916981164,
+        "source_solve_seconds": 0.39724137500161305,
+        "public_closure_seconds": 12.399737209023442
       }
     },
     {
@@ -293,6 +317,25 @@
           "max_channel_residual_norm": 2.0961846473822633e-13
         }
       },
+      "redl_effective_channel_current_by_channel_over_root_fsab2": {
+        "density_electric_force": -29.72224503001643,
+        "effective_temperature_force": -20549787.85585622,
+        "parallel_electric_force": 0.0
+      },
+      "effective_channel_response_multiplier_to_redl": {
+        "density_electric_force": 0.8269943298825178,
+        "effective_temperature_force": 0.7167483610385275,
+        "parallel_electric_force": null
+      },
+      "effective_channel_relative_error_vs_redl": {
+        "density_electric_force": 0.20919813336816873,
+        "effective_temperature_force": 0.39518979652922687,
+        "parallel_electric_force": 0.0
+      },
+      "effective_temperature_response_multiplier_to_redl": 0.7167483610385275,
+      "effective_temperature_channel_relative_error_vs_redl": 0.39518979652922687,
+      "redl_effective_temperature_fraction_of_total": 0.9999985536492031,
+      "redl_dominant_effective_channel": "effective_temperature_force",
       "no_momentum_transport_current_by_channel_over_root_fsab2": {
         "A1_density_electric": 59701943.17342155,
         "A2_temperature": -111769549.81664269,
@@ -314,9 +357,9 @@
       "public_neopax_relative_error_vs_redl": 0.3951895275200511,
       "full_vs_public_relative_difference": 8.445634825325769e-15,
       "timings": {
-        "momentum_blocks_seconds": 7.347123458981514,
-        "source_solve_seconds": 0.27599116595229134,
-        "public_closure_seconds": 13.633205084013753
+        "momentum_blocks_seconds": 6.875077957985923,
+        "source_solve_seconds": 0.2712912909919396,
+        "public_closure_seconds": 13.206790666969027
       }
     }
   ],
@@ -338,11 +381,15 @@
     "high_stable_effective_temperature_fraction_of_total": 0.9999987464608556,
     "high_stable_density_electric_fraction_of_total": 1.2535391423865037e-06,
     "high_stable_parallel_electric_fraction_of_total": 0.0,
-    "high_stable_species_cancellation_factor": 82.60235405317181
+    "high_stable_species_cancellation_factor": 82.60235405317181,
+    "high_stable_effective_temperature_response_multiplier_to_redl": 0.7167483610385275,
+    "high_stable_effective_temperature_channel_relative_error_vs_redl": 0.39518979652922687,
+    "high_stable_redl_effective_temperature_fraction_of_total": 0.9999985536492031,
+    "best_effective_temperature_response_multiplier_to_redl": 0.7629854814199803
   },
-  "conclusion": "The finite-beta stress current is linear in the frozen source channels to numerical precision, so the channel audit checks the actual momentum-restoring system rather than fitting a residual.  At the quadrature-stable high-order setting the dominant physical drive is effective_temperature_force; the parallel-electric channel is zero for this profile contract.  The remaining current gap is therefore localized to the reduced source-channel response inside the profile-current closure, not to a hidden additive normalization or under-integrated apparent pass.",
+  "conclusion": "The finite-beta stress current is linear in the frozen source channels to numerical precision, so the channel audit checks the actual momentum-restoring system rather than fitting a residual.  At the quadrature-stable high-order setting the dominant physical drive is effective_temperature_force; the parallel-electric channel is zero for this profile contract.  The remaining current gap is therefore localized to the reduced source-channel response inside the profile-current closure; the Redl density and temperature source terms are stored as target channels rather than used as a fitted runtime correction.  The gap is not a hidden additive normalization or under-integrated apparent pass.",
   "open_work": [
-    "derive or import a quadrature-converged profile-current closure that improves the dominant source-channel response without regressing fixed-field QA/QH or integrated W7-X",
+    "derive or import a quadrature-converged profile-current closure that improves the dominant source-channel response without converting the Redl channel response ratio into a runtime fit and without regressing fixed-field QA/QH or integrated W7-X",
     "connect this source-channel localization to same-grid finite-beta profile-current diagnostics before promoting a finite-beta bootstrap-current parity claim",
     "keep interpolation-mode comparisons planned until the downstream interface exposes stable general and legacy selectors"
   ],

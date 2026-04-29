@@ -69,6 +69,18 @@ def test_write_and_plot_synthetic_payload(tmp_path):
             "trapped_fraction": np.linspace(0.20, 0.42, rho.size).tolist(),
             "L31": np.linspace(0.1, 0.4, rho.size).tolist(),
             "L32": np.linspace(0.05, 0.2, rho.size).tolist(),
+            "density_gradient_term_over_root_fsab2": (
+                -0.2e6 * np.arange(1, rho.size + 1)
+            ).tolist(),
+            "electron_temperature_gradient_term_over_root_fsab2": (
+                -0.3e6 * np.arange(1, rho.size + 1)
+            ).tolist(),
+            "ion_temperature_gradient_term_over_root_fsab2": (
+                -0.5e6 * np.arange(1, rho.size + 1)
+            ).tolist(),
+            "temperature_gradient_term_over_root_fsab2": (
+                -0.8e6 * np.arange(1, rho.size + 1)
+            ).tolist(),
         },
         "comparison": {
             "rho": rho.tolist(),

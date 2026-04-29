@@ -342,6 +342,18 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "drive channel is interpreted"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_temperature_source_response_stress",
+        path=static_root / "owned_finite_beta_source_channel_audit.json",
+        metric_key="high_stable_effective_temperature_response_multiplier_to_redl",
+        details=(
+            "monitored ratio between the Redl effective-temperature target "
+            "channel and the frozen high-order NTX+NEOPAX corrected source "
+            "channel; this localizes the closure gap without adding a fitted "
+            "runtime correction"
+        ),
+    )
 
     return results
 
