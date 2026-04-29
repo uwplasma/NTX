@@ -130,86 +130,20 @@ highest-signal artifacts:
 | ![Owned finite-beta profile source-response audit](docs/_static/owned_finite_beta_source_response_profile_audit.png) | ![Owned finite-beta SFINCS-JAX generation contract](docs/_static/owned_finite_beta_sfincs_jax_inputs.png) |
 
 Current promoted validation includes monoenergetic convergence and identities,
-the fixed-field Redl comparison on the precise-QS benchmark family, the
-fixed-field `NTX+NEOPAX` total-current stress gate, the integrated W7-X
+the fixed-field Redl/SFINCS comparison on the precise-QS benchmark family, the
+scoped fixed-field `NTX+NEOPAX` total-current stress gate, the integrated W7-X
 workflow transfer, and prepared derivative agreement against direct
-reverse-mode differentiation. The fixed-field current result uses documented
-normalization and moment-closure conventions, not fitted bridge constants.
-External W7-X transfer checks are not labeled as SFINCS parity; promoted
-SFINCS/Redl/NTX+NEOPAX figures must use one owned geometry, profile,
-collisionality, electric-field, interpolation, and normalization contract.
-The owned finite-beta lane now uses local stellarator input/wout pairs,
-passes the physical VMEC edge-flux scale into the Boozer NTX path, generates
-same-grid SFINCS-JAX input decks, and records completed transport-matrix
-output with the `nuPrime -> nu_n` bridge when the local checkout is available.
-The finite-beta bootstrap-current stress audit runs Redl and `NTX+NEOPAX` on
-the same VMEC wout, Boozer transform, profiles, radial grid, adaptive `nu/v`
-support, and current normalization. The kept artifact uses the production QA
-radial/collisionality ladder and Pmax 12; its JSON sidecar tracks the remaining
-inner-radius reduced-closure gap and the Sonine-order convergence trend rather
-than promoting a hidden parity curve. The same-grid finite-beta coefficient
-sidecar now includes that inner stress radius and separates a `2.1e-2`
-coefficient-level difference from the `3.1e-1` profile-current stress gap.
-The profile-current observable sidecar shows the remaining stress is not a
-correction-sign failure: the correction has the right sign but applies about
-`0.80` of the correction needed at the stress radius. The same sidecar records
-that the net current is cancellation-dominated there, so the remaining residual
-is a sub-percent species-correction imbalance rather than an order-unity
-coefficient failure.
-The current-conditioning sidecar makes the next gate explicit: this
-cancellation requires about `1.3e-3` coefficient precision for a `1e-1`
-net-current claim at the stress radius, tighter than the current `2.1e-2`
-smoke ladder, so finite-beta parity is not promoted yet.
-The production stress probe reruns that same point at `35 x 43 x 48` and with
-a tighter VMEC harmonic cutoff; the coefficient floor remains near `2.05e-2`,
-and the six-point production radius/collisionality ladder keeps all
-coefficient differences below `2.07e-2`. That closes the finite-beta
-coefficient-resolution lane; the remaining gap is a profile-current observable
-issue rather than an angular-resolution, harmonic-truncation, or broad
-transport-coefficient failure.
-The closure-quadrature sidecar also rejects the only apparent stress-radius
-current-gate pass as under-integrated: `P=14, X=10` falls below `1e-1`, but the
-result does not transfer to `X=14` or `X=18`, and the current accepted
-quadrature-stable pass count is zero. Future finite-beta closure claims
-therefore require simultaneous current-gate and velocity-quadrature stability.
-The source-channel sidecar then freezes the same stress-radius linear system and
-solves one physical drive at a time. It reconstructs the full corrected current
-to roundoff, and the quadrature-stable high-order response is dominated by the
-effective temperature-gradient drive while the parallel-electric channel is
-inactive for this profile contract. The same artifact now stores the Redl
-density and temperature source terms on the identical observable; at high order
-the Redl temperature-channel target is `0.717` of the frozen corrected
-temperature response. The profile source-response sidecar extends that
-measurement across all 13 finite-beta profile radii at `X=18, P=18`: the
-temperature response multiplier ranges from `0.717` to `1.317` with median
-`1.010`, the maximum current stress remains the inner `rho=0.143` point, and
-the response trend is recorded against Redl collisionality, trapped fraction,
-and geometry factors. The remaining finite-beta closure work is therefore a
-physics-model/source-response lane, not a hidden normalization or fitted
-threshold lane. The closure-target sidecar now ranks those drivers without
-changing the runtime: the best single profile driver is the local Redl
-geometry factor `epsilon` with `|r|=0.975`, the best leave-one-out diagnostic
-model is epsilon-only with RMSE `5.27e-2`, and no runtime correction is applied.
-The radial-interpolation sidecar removes one downstream interpolation layer by
-rebuilding the database on the exact field radii. It reduces the previous
-`rho=0.143` stress point from `3.11e-1` to `3.00e-2`, but the profile maximum
-remains `2.14e-1`; this is treated as an interpolation/closure diagnostic, not
-a runtime policy change.
-A matched-radius Sonine/quadrature rerun confirms that the remaining apparent
-`1e-1` pass is still under-integrated: the best matched stress value is
-`9.68e-2` at `P=18, X=10`, but the quadrature-stable pass count remains zero
-and the `X=18, P=18` stress is `3.08e-1`.
-The matched-radius source-channel rerun reconstructs the corrected current to
-`1.45e-14`; its best current-gate pass is the same under-integrated `X=10`,
-`P=18` setting, while the quadrature-stable `X=18`, `P=18` source-channel
-stress remains `3.08e-1`. This keeps the finite-beta work on a
-quadrature-stable reduced source-response closure rather than an interpolation
-or hidden-normalization explanation.
-Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
-geometry-backend blocker.
-Species-resolved fixed-field closure parity, broader geometry-family studies,
-and large-optimization studies remain tracked as stress diagnostics or planned
-research lanes in the docs.
+reverse-mode differentiation. Current comparisons use documented
+normalizations and moment-closure conventions; fitted bridge constants are not
+used in the runtime.
+
+The owned finite-beta stellarator lane now has same-grid SFINCS-JAX input
+generation, completed coefficient ladders, Redl and `NTX+NEOPAX` current
+audits, source-channel decompositions, and radial-interpolation diagnostics.
+That lane is intentionally reported as a reduced-closure stress benchmark: the
+monoenergetic coefficient differences are below `2.1e-2`, while the
+quadrature-stable profile-current stress remains about `3.1e-1`. The detailed
+interpretation and open promotion gates are in [docs/validation.md](docs/validation.md).
 
 Run the local gate summary with:
 
@@ -231,24 +165,15 @@ NEOPAX database and bootstrap-current examples:
 ```bash
 python examples/neopax_with_ntx.py
 python examples/owned_geometry_neopax_dataset.py
-python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_bootstrap_comparison.py
-python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
-python examples/owned_finite_beta_radial_interpolation_audit.py --rebuild-matched
-python examples/owned_finite_beta_closure_quadrature_audit.py \
-  --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
-  --x-values 10 18 --n-orders 10 12 14 18 \
-  --output-prefix docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit \
-  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe
-python examples/owned_finite_beta_source_channel_audit.py \
-  --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
-  --settings 10:12 10:18 18:18 \
-  --output-prefix docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit \
-  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
+
+The full finite-beta validation sequence, including same-grid SFINCS-JAX input
+generation and matched-radius closure audits, is documented in
+[docs/validation.md](docs/validation.md).
 
 Autodiff and optimization examples:
 
