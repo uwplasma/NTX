@@ -49,6 +49,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "owned_finite_beta_bootstrap_comparison" in payload["tables"]
     assert "owned_finite_beta_closure_localization" in payload["tables"]
     assert "owned_finite_beta_profile_current_observable" in payload["tables"]
+    assert "owned_finite_beta_current_conditioning" in payload["tables"]
     finite_beta_bootstrap = payload["tables"]["owned_finite_beta_bootstrap_comparison"]
     assert finite_beta_bootstrap["inputs"]["n_order"] >= 2
     assert finite_beta_bootstrap["inputs"]["d33_mode"]
@@ -61,6 +62,12 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     )
     assert 0.0 < payload["claims"]["owned_finite_beta_observable_applied_over_needed"]
     assert payload["claims"]["owned_finite_beta_observable_pmax_error_reduction"] > 1.0
+    assert (
+        payload["claims"][
+            "owned_finite_beta_conditioning_coefficient_precision_gap"
+        ]
+        > 1.0
+    )
     assert "performance" in payload["tables"]
     assert "prepared_geometry_reuse" in payload["tables"]["performance"]
     assert "production" in payload["tables"]["performance"]
@@ -87,6 +94,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "Boozer psi_p" in markdown
     assert "Inner-gap current/coefficient error ratio" in markdown
     assert "Stress-radius applied/needed correction" in markdown
+    assert "Required coefficient error for `1e-1` current gate" in markdown
     assert "Bootstrap-Current Optimization" in markdown
     assert "Prepared-geometry reuse" in markdown
     assert "| Commit |" in markdown
@@ -103,6 +111,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "owned finite-beta bootstrap-current stress audit" in claims
     assert "owned finite-beta closure-localization sidecar" in claims
     assert "owned finite-beta profile-current observable audit" in claims
+    assert "owned finite-beta current-conditioning audit" in claims
     assert "adaptive `nu/v` support points" in claims
     assert "production-grid CPU performance" in claims
     assert "fixed-workload CPU strong-scaling" in claims

@@ -156,6 +156,10 @@ correction-sign failure: the correction has the right sign but applies about
 that the net current is cancellation-dominated there, so the remaining residual
 is a sub-percent species-correction imbalance rather than an order-unity
 coefficient failure.
+The current-conditioning sidecar makes the next gate explicit: this
+cancellation requires about `1.3e-3` coefficient precision for a `1e-1`
+net-current claim at the stress radius, tighter than the current `2.1e-2`
+smoke ladder, so finite-beta parity is not promoted yet.
 Optimized finite-beta QH/QI Boozer
 reconstruction remains an explicit geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,

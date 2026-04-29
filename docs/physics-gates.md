@@ -174,15 +174,23 @@ These are trust-building comparisons against independent workflows:
   `RHSMode=2` comparisons against SFINCS-JAX are used to localize
   normalization and closure differences.
 - **Owned finite-beta same-grid coefficients:** the finite-beta QA ladder now
-  has a passing coefficient-side gate. The maximum same-grid
+  has a passing normalization-side gate. The maximum same-grid
   `L13/L31/L33` relative difference is required to stay below `1e-1` before
-  any finite-beta profile-current result is interpreted.
+  any finite-beta profile-current result is interpreted. This is not by itself
+  a current-parity gate when the net current is cancellation-conditioned.
 - **Owned finite-beta profile-current observable:** the finite-beta
   bootstrap-current profile remains a monitored stress diagnostic, not a
   parity gate. The current artifacts keep the net-current residual, the
   applied-versus-needed momentum correction, and the species-correction
   cancellation scale visible because the stress radius is dominated by
   electron/ion cancellation.
+- **Owned finite-beta current conditioning:** the coefficient ladder is also
+  compared with the species-current L1 scale. The current artifact reports that
+  the stress-radius net current needs about `1.3e-3` coefficient precision for
+  a `1e-1` current gate, while the completed smoke ladder is about `2.1e-2`.
+  This keeps the next physics step honest: production same-grid coefficient
+  and profile-current diagnostics must tighten that conditioned uncertainty
+  before a new reduced-closure term is promoted.
 
 These comparisons are useful because they check the physical bridge to
 well-established neoclassical calculations without redefining NTX as “whatever

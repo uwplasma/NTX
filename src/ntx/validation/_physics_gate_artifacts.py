@@ -280,6 +280,18 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "stress radius"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_current_conditioning_stress",
+        path=static_root / "owned_finite_beta_current_conditioning_audit.json",
+        metric_key="stress_coefficient_precision_gap_to_current_gate",
+        details=(
+            "monitored coefficient precision gap after species-current "
+            "cancellation conditioning; values above one mean the current "
+            "observable needs a tighter same-grid coefficient ladder before "
+            "coefficient uncertainty can be ruled out"
+        ),
+    )
 
     return results
 

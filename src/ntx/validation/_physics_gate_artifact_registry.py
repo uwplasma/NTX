@@ -230,6 +230,21 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "closure change is promoted."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_current_conditioning_stress",
+        category="stress",
+        metric="stress-radius coefficient precision gap for the 1e-1 current gate",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_current_conditioning_audit.json",
+        rationale=(
+            "The finite-beta net-current observable can amplify small species-flow "
+            "or coefficient errors.  This monitor reports how much tighter the "
+            "same-grid coefficient ladder must be before the remaining current "
+            "gap can be assigned to the reduced profile-current closure rather "
+            "than coefficient uncertainty."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

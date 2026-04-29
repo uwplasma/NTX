@@ -121,12 +121,17 @@ examples.
      no-momentum current, applied momentum correction, correction needed to match
      Redl, species-current cancellation scale, local profile/geometry drivers,
      and Pmax trend
-18. `derivative_path_benchmark.{png,pdf}`
+18. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
+   - cancellation-conditioned coefficient-precision requirement for the
+     finite-beta net-current observable; this explains why the smoke
+     coefficient ladder is not yet sufficient for a `1e-1` bootstrap-current
+     parity claim
+19. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-19. `bootstrap_current_optimization.{png,pdf}`
+20. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-20. `bootstrap_current_robust_optimization.{png,pdf,json}`
+21. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
 21. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`

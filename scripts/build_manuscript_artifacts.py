@@ -82,6 +82,9 @@ def build_payload() -> dict:
     owned_finite_beta_observable = _load_json(
         STATIC / "owned_finite_beta_profile_current_observable_audit.json"
     )
+    owned_finite_beta_conditioning = _load_json(
+        STATIC / "owned_finite_beta_current_conditioning_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -117,6 +120,7 @@ def build_payload() -> dict:
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
+        "owned_finite_beta_current_conditioning",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -294,6 +298,13 @@ def build_payload() -> dict:
                     "momentum_order_at_stress_radius"
                 ],
                 "open_work": owned_finite_beta_observable["open_work"],
+            },
+            "owned_finite_beta_current_conditioning": {
+                "summary_metrics": owned_finite_beta_conditioning["summary_metrics"],
+                "claim_scope": owned_finite_beta_conditioning["claim_scope"],
+                "conclusion": owned_finite_beta_conditioning["conclusion"],
+                "stress_radius": owned_finite_beta_conditioning["stress_radius"],
+                "open_work": owned_finite_beta_conditioning["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -523,6 +534,26 @@ def build_payload() -> dict:
                     "correction_sign_agreement_fraction"
                 ]
             ),
+            "owned_finite_beta_conditioning_stress_condition_number": (
+                owned_finite_beta_conditioning["summary_metrics"][
+                    "stress_current_condition_number"
+                ]
+            ),
+            "owned_finite_beta_conditioning_required_coefficient_error": (
+                owned_finite_beta_conditioning["summary_metrics"][
+                    "stress_required_coefficient_relative_difference_for_current_gate"
+                ]
+            ),
+            "owned_finite_beta_conditioning_coefficient_precision_gap": (
+                owned_finite_beta_conditioning["summary_metrics"][
+                    "stress_coefficient_precision_gap_to_current_gate"
+                ]
+            ),
+            "owned_finite_beta_conditioning_coefficient_bound": (
+                owned_finite_beta_conditioning["summary_metrics"][
+                    "stress_coefficient_limited_current_relative_error_bound"
+                ]
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -732,6 +763,24 @@ def build_markdown(payload: dict) -> str:
     ]
     observable_pmax_error_reduction = owned_finite_beta_observable_metrics[
         "pmax_stress_error_reduction"
+    ]
+    owned_finite_beta_conditioning = payload["tables"][
+        "owned_finite_beta_current_conditioning"
+    ]
+    owned_finite_beta_conditioning_metrics = owned_finite_beta_conditioning[
+        "summary_metrics"
+    ]
+    conditioning_current_condition = owned_finite_beta_conditioning_metrics[
+        "stress_current_condition_number"
+    ]
+    conditioning_required_coefficient_error = owned_finite_beta_conditioning_metrics[
+        "stress_required_coefficient_relative_difference_for_current_gate"
+    ]
+    conditioning_precision_gap = owned_finite_beta_conditioning_metrics[
+        "stress_coefficient_precision_gap_to_current_gate"
+    ]
+    conditioning_coefficient_bound = owned_finite_beta_conditioning_metrics[
+        "stress_coefficient_limited_current_relative_error_bound"
     ]
     finite_beta_bootstrap_max_error = owned_finite_beta_bootstrap_metrics[
         "max_relative_error_total_vs_redl_interior"
@@ -1092,6 +1141,22 @@ def build_markdown(payload: dict) -> str:
                 f"`{observable_residual_over_species_l1:.3e}` |"
             ),
             (
+                "| Stress-radius current condition number | "
+                f"`{conditioning_current_condition:.3e}` |"
+            ),
+            (
+                "| Required coefficient error for `1e-1` current gate | "
+                f"`{conditioning_required_coefficient_error:.3e}` |"
+            ),
+            (
+                "| Coefficient precision gap to current gate | "
+                f"`{conditioning_precision_gap:.3f}x` |"
+            ),
+            (
+                "| Coefficient-conditioned current-error bound | "
+                f"`{conditioning_coefficient_bound:.3e}` |"
+            ),
+            (
                 "| Stress-radius Pmax error reduction | "
                 f"`{observable_pmax_error_reduction:.3f}x` |"
             ),
@@ -1408,6 +1473,20 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_observable_pmax_error_reduction']:.3f}x`, "
                 "so the remaining gap is an amplitude/observable closure issue, "
                 "not a correction-sign failure."
+            ),
+            (
+                "- The owned finite-beta current-conditioning audit shows that "
+                "the same stress radius has species-flow L1 divided by Redl net "
+                "current "
+                f"`{claims['owned_finite_beta_conditioning_stress_condition_number']:.3e}`. "
+                "A `1e-1` net-current gate therefore requires coefficient "
+                "precision "
+                f"`{claims['owned_finite_beta_conditioning_required_coefficient_error']:.3e}`, "
+                "while the current same-grid smoke ladder is looser by "
+                f"`{claims['owned_finite_beta_conditioning_coefficient_precision_gap']:.3f}x`. "
+                "This keeps the next finite-beta step on production same-grid "
+                "coefficient/profile-current diagnostics before changing the "
+                "reduced closure."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "
