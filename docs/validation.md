@@ -58,6 +58,7 @@ python examples/owned_finite_beta_current_conditioning_audit.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_channel_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
+python examples/owned_finite_beta_closure_target_audit.py
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -164,6 +165,16 @@ source sign agreement over the profile, and keeps the maximum current stress at
 the inner `rho=0.143` radius. The JSON sidecar records correlations with Redl
 collisionality, trapped fraction, epsilon, and `L32`; these are diagnostics for
 a future physics-derived closure term, not runtime corrections.
+The closure-target audit then reads that source-response sidecar and ranks
+local neoclassical drivers before any closure implementation is attempted. The
+current artifact selects the Redl geometry factor `epsilon` as the strongest
+single driver with absolute Pearson correlation `0.975`; an epsilon-only
+leave-one-out diagnostic model has RMSE `5.27e-2`, about `3.92x` smaller than a
+constant-response model. This is still a design diagnostic: it records that no
+runtime correction is applied and that any future closure change must preserve
+the fixed-field QA/QH total-current stress gate, the W7-X transfer gate, the
+source-channel reconstruction gate, and the same-grid finite-beta coefficient
+gate.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -195,6 +206,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_source_response_profile_audit.png`
 - `docs/_static/owned_finite_beta_source_response_profile_audit.pdf`
 - `docs/_static/owned_finite_beta_source_response_profile_audit.json`
+- `docs/_static/owned_finite_beta_closure_target_audit.png`
+- `docs/_static/owned_finite_beta_closure_target_audit.pdf`
+- `docs/_static/owned_finite_beta_closure_target_audit.json`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
@@ -225,6 +239,8 @@ a stable selector.
 ![Owned finite-beta source-channel audit](_static/owned_finite_beta_source_channel_audit.png)
 
 ![Owned finite-beta profile source-response audit](_static/owned_finite_beta_source_response_profile_audit.png)
+
+![Owned finite-beta closure-target driver audit](_static/owned_finite_beta_closure_target_audit.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 

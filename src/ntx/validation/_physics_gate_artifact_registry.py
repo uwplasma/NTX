@@ -328,6 +328,21 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "diagnostic, not a fitted correction."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_closure_target_driver_stress",
+        category="stress",
+        metric="best single-driver correlation with finite-beta temperature-source response",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_closure_target_audit.json",
+        rationale=(
+            "Before any finite-beta profile-current closure change is promoted, "
+            "the measured source-response target should be compared with local "
+            "neoclassical drivers such as trapped fraction, geometry factor, "
+            "and collisionality. This gate tracks model identifiability only; "
+            "it is not a runtime fit."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

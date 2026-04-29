@@ -366,6 +366,17 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "correction"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_closure_target_driver_stress",
+        path=static_root / "owned_finite_beta_closure_target_audit.json",
+        metric_key="best_single_physics_driver_abs_pearson",
+        details=(
+            "monitored finite-beta closure-target driver ranking; this checks "
+            "whether the source-response target follows local neoclassical "
+            "drivers before any runtime closure change is proposed"
+        ),
+    )
 
     return results
 

@@ -84,6 +84,9 @@ For end-to-end examples, see:
 - [`examples/owned_finite_beta_source_response_profile_audit.py`](../examples/owned_finite_beta_source_response_profile_audit.py)
   for the profile-wide effective-temperature source-response map against Redl
   collisionality and geometry drivers
+- [`examples/owned_finite_beta_closure_target_audit.py`](../examples/owned_finite_beta_closure_target_audit.py)
+  for the closure-target driver ranking that turns the profile source-response
+  map into a runtime-neutral design diagnostic
 - [`examples/bootstrap_current_with_neopax.py`](../examples/bootstrap_current_with_neopax.py)
   for a radial bootstrap-current profile built from an NTX scan and evaluated
   through NEOPAX

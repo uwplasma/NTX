@@ -213,6 +213,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `owned_finite_beta_closure_quadrature_audit.py`
 - `owned_finite_beta_source_channel_audit.py`
 - `owned_finite_beta_source_response_profile_audit.py`
+- `owned_finite_beta_closure_target_audit.py`
 - `performance_scaling.py`
 - `performance_strong_scaling.py`
 - `prepared_geometry_reuse_profile.py`
