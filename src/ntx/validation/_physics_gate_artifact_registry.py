@@ -245,6 +245,20 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "than coefficient uncertainty."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_resolution_floor_stress",
+        category="stress",
+        metric="production same-grid coefficient precision gap for the 1e-1 current gate",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json",
+        rationale=(
+            "The finite-beta stress-radius coefficient floor must be separated "
+            "from angular/pitch resolution and VMEC harmonic truncation before "
+            "the remaining net-current gap is assigned to the profile-current "
+            "closure."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

@@ -188,9 +188,13 @@ These are trust-building comparisons against independent workflows:
   compared with the species-current L1 scale. The current artifact reports that
   the stress-radius net current needs about `1.3e-3` coefficient precision for
   a `1e-1` current gate, while the completed smoke ladder is about `2.1e-2`.
-  This keeps the next physics step honest: production same-grid coefficient
-  and profile-current diagnostics must tighten that conditioned uncertainty
-  before a new reduced-closure term is promoted.
+- **Owned finite-beta resolution floor:** the stress-radius point has also
+  been rerun at `35 x 43 x 48` and with a tighter VMEC harmonic cutoff. The
+  coefficient floor stays near `2.05e-2`, so angular resolution and harmonic
+  truncation are not treated as the closure fix.
+  This keeps the next physics step honest: profile-current diagnostics must
+  tighten the conditioned uncertainty before a new reduced-closure term is
+  promoted.
 
 These comparisons are useful because they check the physical bridge to
 well-established neoclassical calculations without redefining NTX as “whatever
@@ -257,7 +261,7 @@ remains the validated raw branch. A broader closure default is promotable only
 if it preserves both the precise-QS total-current gate and the integrated W7-X
 raw-branch transfer gate.
 
-The owned finite-beta closure lane is tracked by three additional artifact
+The owned finite-beta closure lane is tracked by four additional artifact
 gates:
 
 - same-grid finite-beta coefficient normalization: passing, with current
@@ -266,6 +270,9 @@ gates:
   total-current relative difference about `3.1e-1`;
 - finite-beta species-cancellation scale: monitored, with current stress-radius
   residual about `4e-3` of the species momentum-correction L1 scale.
+- finite-beta production coefficient floor: monitored, with the current
+  production stress probe still about `15.9x` looser than the
+  cancellation-conditioned coefficient target.
 
 This is the current physics interpretation: the coefficient-side bridge is no
 longer the leading suspect for the finite-beta QA stress case, and the remaining

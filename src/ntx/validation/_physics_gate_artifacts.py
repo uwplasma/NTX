@@ -292,6 +292,18 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "coefficient uncertainty can be ruled out"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_resolution_floor_stress",
+        path=static_root / "owned_finite_beta_sfincs_jax_resolution_audit.json",
+        metric_key="production_precision_gap_to_current_gate",
+        details=(
+            "monitored finite-beta production-grid coefficient floor compared "
+            "with the current-conditioned precision target; values above one "
+            "mean resolution and harmonic-cutoff probes still do not clear the "
+            "net-current gate"
+        ),
+    )
 
     return results
 

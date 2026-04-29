@@ -50,6 +50,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "owned_finite_beta_closure_localization" in payload["tables"]
     assert "owned_finite_beta_profile_current_observable" in payload["tables"]
     assert "owned_finite_beta_current_conditioning" in payload["tables"]
+    assert "owned_finite_beta_sfincs_jax_resolution_audit" in payload["tables"]
     finite_beta_bootstrap = payload["tables"]["owned_finite_beta_bootstrap_comparison"]
     assert finite_beta_bootstrap["inputs"]["n_order"] >= 2
     assert finite_beta_bootstrap["inputs"]["d33_mode"]
@@ -65,6 +66,12 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert (
         payload["claims"][
             "owned_finite_beta_conditioning_coefficient_precision_gap"
+        ]
+        > 1.0
+    )
+    assert (
+        payload["claims"][
+            "owned_finite_beta_resolution_production_precision_gap"
         ]
         > 1.0
     )
@@ -95,6 +102,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "Inner-gap current/coefficient error ratio" in markdown
     assert "Stress-radius applied/needed correction" in markdown
     assert "Required coefficient error for `1e-1` current gate" in markdown
+    assert "Production-grid coefficient precision gap" in markdown
     assert "Bootstrap-Current Optimization" in markdown
     assert "Prepared-geometry reuse" in markdown
     assert "| Commit |" in markdown
@@ -112,6 +120,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "owned finite-beta closure-localization sidecar" in claims
     assert "owned finite-beta profile-current observable audit" in claims
     assert "owned finite-beta current-conditioning audit" in claims
+    assert "owned finite-beta production-resolution coefficient probe" in claims
     assert "adaptive `nu/v` support points" in claims
     assert "production-grid CPU performance" in claims
     assert "fixed-workload CPU strong-scaling" in claims

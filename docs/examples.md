@@ -142,6 +142,7 @@ It writes:
 ```bash
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
+python examples/owned_finite_beta_sfincs_jax_resolution_audit.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
@@ -189,6 +190,10 @@ For the current finite-beta QA artifact, the stress radius needs about
 `1.3e-3` coefficient precision, while the completed smoke ladder is about
 `2.1e-2`. That keeps the next step focused on production-resolution same-grid
 coefficient/profile-current diagnostics before any closure change is promoted.
+The resolution audit adds the first production stress probe: increasing the
+same point to `35 x 43 x 48` and tightening the VMEC harmonic cutoff leaves the
+coefficient floor near `2.05e-2`, so the remaining finite-beta current gap is
+not explained by those numerical knobs.
 
 It writes:
 
@@ -199,6 +204,9 @@ It writes:
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
 - `examples/outputs/owned_finite_beta_sfincs_jax_inputs/**/input.namelist`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.png`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
@@ -217,6 +225,8 @@ It writes:
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
 
 ![Owned finite-beta SFINCS-JAX generation contract](_static/owned_finite_beta_sfincs_jax_inputs.png)
+
+![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 

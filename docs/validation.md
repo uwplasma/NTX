@@ -119,6 +119,11 @@ coefficient precision near `1.3e-3`, while the completed smoke ladder is still
 about `2.1e-2`, a factor `15.8` looser. This is why the finite-beta lane now
 prioritizes production same-grid coefficient/profile-current diagnostics before
 assigning the residual to a new reduced-closure term.
+The production stress probe then reruns the inner finite-beta QA point at
+`35 x 43 x 48` and with a tighter VMEC harmonic cutoff. The coefficient floor
+stays at about `2.05e-2`, roughly `15.8x` above the cancellation-conditioned
+target, so the current mismatch is not closed by angular resolution or harmonic
+truncation.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -141,13 +146,16 @@ These scripts write:
 - `docs/_static/owned_finite_beta_current_conditioning_audit.png`
 - `docs/_static/owned_finite_beta_current_conditioning_audit.pdf`
 - `docs/_static/owned_finite_beta_current_conditioning_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
-The next parity-promotion step is to expand the completed same-grid
-SFINCS-JAX coefficient ladder to production radial/collisionality resolution,
-run profile-current closure diagnostics on the same finite-beta contract,
-resolve the inner-radius reduced-closure observable, and then audit downstream
-interpolation modes once NEOPAX exposes a stable selector.
+The next parity-promotion step is to extend the production same-grid probe to
+neighboring finite-beta radii/collisionalities, run profile-current closure
+diagnostics on the same finite-beta contract, resolve the inner-radius
+reduced-closure observable, and then audit downstream interpolation modes once
+NEOPAX exposes a stable selector.
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 
@@ -156,6 +164,8 @@ interpolation modes once NEOPAX exposes a stable selector.
 ![Owned finite-beta profile-current observable audit](_static/owned_finite_beta_profile_current_observable_audit.png)
 
 ![Owned finite-beta current-conditioning audit](_static/owned_finite_beta_current_conditioning_audit.png)
+
+![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 
 ## What Is Covered
 

@@ -160,6 +160,10 @@ The current-conditioning sidecar makes the next gate explicit: this
 cancellation requires about `1.3e-3` coefficient precision for a `1e-1`
 net-current claim at the stress radius, tighter than the current `2.1e-2`
 smoke ladder, so finite-beta parity is not promoted yet.
+The production stress probe reruns that same point at `35 x 43 x 48` and with
+a tighter VMEC harmonic cutoff; the coefficient floor remains near `2.05e-2`,
+so the next closure work is a profile-current observable issue rather than an
+angular-resolution or harmonic-truncation fix.
 Optimized finite-beta QH/QI Boozer
 reconstruction remains an explicit geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,

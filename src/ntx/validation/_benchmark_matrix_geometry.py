@@ -167,26 +167,45 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "Completed outputs are ingested with the reported nu_n "
                 "normalization and compared against NTX on the same geometry "
                 "and grid. This is the owned independent-code generation "
-                "contract and an inner-radius smoke-resolution coefficient "
-                "ladder with the exact radial interpolation, "
+                "contract, an inner-radius smoke-resolution coefficient "
+                "ladder, and an isolated production-grid stress-radius "
+                "resolution/harmonic-cutoff probe with the exact radial interpolation, "
                 "pitch-angle-scattering frequency, and RHSMode=3 flow-row "
                 "normalizations recorded; it is not a bootstrap-current parity "
-                "claim until production-resolution SFINCS-JAX outputs are "
-                "compared against the same NTX and profile artifacts."
+                "claim until production-resolution profile-current outputs are "
+                "compared against the same NTX, Redl, and profile artifacts."
             ),
             literature_anchors=(
                 "SFINCS monoenergetic RHSMode=3 transport-matrix convention",
                 "VMEC geometryScheme=5 finite-beta wout geometry loading",
                 "same-grid independent-code validation discipline",
             ),
-            scripts=("examples/owned_finite_beta_sfincs_jax_inputs.py",),
-            tests=("tests/test_owned_finite_beta_sfincs_jax_inputs.py",),
+            scripts=(
+                "examples/owned_finite_beta_sfincs_jax_inputs.py",
+                "examples/owned_finite_beta_sfincs_jax_resolution_audit.py",
+            ),
+            tests=(
+                "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
+                "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py",
+            ),
             artifacts=(
                 "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
                 "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
                 "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+                "docs/_static/owned_finite_beta_sfincs_jax_production_probe.png",
+                "docs/_static/owned_finite_beta_sfincs_jax_production_probe.pdf",
+                "docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+                "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.png",
+                "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.pdf",
+                "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+                "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+                "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+                "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json",
             ),
-            manuscript_figures=("owned_finite_beta_sfincs_jax_inputs",),
+            manuscript_figures=(
+                "owned_finite_beta_sfincs_jax_inputs",
+                "owned_finite_beta_sfincs_jax_resolution_audit",
+            ),
             docs=(
                 "docs/benchmark-matrix.md",
                 "docs/examples.md",
@@ -194,9 +213,9 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             ),
             open_work=(
                 (
-                    "expand the current completed SFINCS-JAX transport-matrix "
-                    "inner-radius smoke ladder against same-grid NTX scan "
-                    "outputs to production radius and collisionality resolution"
+                    "expand the completed stress-radius production probe to "
+                    "neighboring finite-beta radii and collisionalities against "
+                    "same-grid NTX scan outputs"
                 ),
                 (
                     "run production SFINCS-JAX profile-current closure "
