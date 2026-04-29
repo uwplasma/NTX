@@ -333,6 +333,15 @@ def test_geometry_family_transport_uses_paper_preset(
             ),
         ),
         (
+            "owned_finite_beta_closure_quadrature",
+            {"owned_finite_beta_closure_quadrature"},
+            (
+                "owned_finite_beta_closure_quadrature_audit.png",
+                "owned_finite_beta_closure_quadrature_audit.pdf",
+                "owned_finite_beta_closure_quadrature_audit.json",
+            ),
+        ),
+        (
             "prepared_geometry_reuse",
             {"prepared_geometry_reuse"},
             (

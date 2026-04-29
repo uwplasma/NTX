@@ -75,6 +75,9 @@ For end-to-end examples, see:
   for the cancellation-conditioned coefficient-precision requirement that must
   be met before the finite-beta net-current residual is assigned to a reduced
   closure change
+- [`examples/owned_finite_beta_closure_quadrature_audit.py`](../examples/owned_finite_beta_closure_quadrature_audit.py)
+  for the Sonine-order versus velocity-quadrature audit that rejects
+  under-integrated apparent finite-beta current-gate passes
 - [`examples/bootstrap_current_with_neopax.py`](../examples/bootstrap_current_with_neopax.py)
   for a radial bootstrap-current profile built from an NTX scan and evaluated
   through NEOPAX

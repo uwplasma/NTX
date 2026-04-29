@@ -54,6 +54,8 @@ python examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
+python examples/owned_finite_beta_current_conditioning_audit.py
+python examples/owned_finite_beta_closure_quadrature_audit.py
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -131,6 +133,15 @@ below `2.07e-2` coefficient difference; the maximum precision gap is still the
 inner `rho=1/7`, `nuPrime=1e-2` point. That closes the production coefficient
 ladder as a broad numerical failure and leaves the remaining parity work at the
 profile-current closure layer.
+The closure-quadrature audit then varies only the momentum-closure Sonine order
+and velocity quadrature while holding the finite-beta scan, profiles, Redl
+observable, and normalization fixed. It finds one apparent stress-radius
+current-gate pass at `P=14, X=10`, but that setting has velocity quadrature lower
+than the Sonine truncation and does not transfer to `X=14` or `X=18`. The
+highest-quadrature largest-order stress error remains about `4e-1`, so the
+apparent pass is treated as quadrature aliasing rather than a physics closure.
+Any future finite-beta profile-current claim must pass the current gate and the
+velocity-quadrature stability gate simultaneously.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -153,6 +164,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_current_conditioning_audit.png`
 - `docs/_static/owned_finite_beta_current_conditioning_audit.pdf`
 - `docs/_static/owned_finite_beta_current_conditioning_audit.json`
+- `docs/_static/owned_finite_beta_closure_quadrature_audit.png`
+- `docs/_static/owned_finite_beta_closure_quadrature_audit.pdf`
+- `docs/_static/owned_finite_beta_closure_quadrature_audit.json`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
@@ -164,10 +178,11 @@ These scripts write:
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
-The next parity-promotion step is to run profile-current closure diagnostics
-on the same finite-beta production contract, resolve the inner-radius
-reduced-closure observable, and then audit downstream interpolation modes once
-NEOPAX exposes a stable selector.
+The next parity-promotion step is to build or import a quadrature-converged
+reduced closure that improves the inner-radius observable without fitted
+constants, then rerun profile-current diagnostics on the same finite-beta
+production contract and audit downstream interpolation modes once NEOPAX exposes
+a stable selector.
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 
@@ -176,6 +191,8 @@ NEOPAX exposes a stable selector.
 ![Owned finite-beta profile-current observable audit](_static/owned_finite_beta_profile_current_observable_audit.png)
 
 ![Owned finite-beta current-conditioning audit](_static/owned_finite_beta_current_conditioning_audit.png)
+
+![Owned finite-beta closure quadrature audit](_static/owned_finite_beta_closure_quadrature_audit.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 

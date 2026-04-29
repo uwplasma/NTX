@@ -273,6 +273,19 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "to the profile-current closure."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_closure_quadrature_stress",
+        category="stress",
+        metric="under-integrated finite-beta closure gate-pass count",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_closure_quadrature_audit.json",
+        rationale=(
+            "Higher Sonine order in the finite-beta profile-current closure "
+            "must transfer to higher velocity quadrature before any apparent "
+            "current-gate pass is interpreted as physical convergence."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]
