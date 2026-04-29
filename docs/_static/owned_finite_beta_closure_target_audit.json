@@ -1,0 +1,385 @@
+{
+  "benchmark": "owned_finite_beta_closure_target_audit",
+  "classification": "owned finite-beta closure target physics-driver audit",
+  "claim_scope": "Reads the finite-beta profile source-response artifact and quantifies which local neoclassical drivers explain the effective-temperature response multiplier. This is a closure design diagnostic: it applies no runtime correction and does not promote finite-beta bootstrap-current parity.",
+  "source_artifact": "docs/_static/owned_finite_beta_source_response_profile_audit.json",
+  "rows": [
+    {
+      "rho": 0.07142857142857142,
+      "temperature_response_multiplier": 0.8276304391133664,
+      "profile_current_relative_error": 0.20826876095603444,
+      "drivers": {
+        "epsilon": 0.011415958569430456,
+        "trapped_fraction": 0.15550616579105536,
+        "L31": 0.1244070687133513,
+        "L32": -0.0028875521067182747,
+        "alpha": -0.7603495979539846,
+        "nu_e_star": 0.557699355366503,
+        "nu_i_star": 0.47381776991965147,
+        "density_gradient_term_over_root_fsab2": 0.01335776390449226,
+        "temperature_gradient_term_over_root_fsab2": -17253883.12911011,
+        "electron_temperature_gradient_term_over_root_fsab2": -13854701.573144473,
+        "ion_temperature_gradient_term_over_root_fsab2": -3399181.555965637,
+        "log10_nu_e_star": -0.25359985750042824
+      }
+    },
+    {
+      "rho": 0.14285714285714285,
+      "temperature_response_multiplier": 0.7167483610385275,
+      "profile_current_relative_error": 0.3951895275200511,
+      "drivers": {
+        "epsilon": 0.015591627274414658,
+        "trapped_fraction": 0.18143885287524886,
+        "L31": 0.1634199490192511,
+        "L32": -0.0191513493139282,
+        "alpha": -0.7809395841640946,
+        "nu_e_star": 0.3600113627358884,
+        "nu_i_star": 0.3057963529701699,
+        "density_gradient_term_over_root_fsab2": -29.72224503001643,
+        "temperature_gradient_term_over_root_fsab2": -20549787.85585622,
+        "electron_temperature_gradient_term_over_root_fsab2": -16464326.31199596,
+        "ion_temperature_gradient_term_over_root_fsab2": -4085461.5438602613,
+        "log10_nu_e_star": -0.44368379174488276
+      }
+    },
+    {
+      "rho": 0.21428571428571427,
+      "temperature_response_multiplier": 0.908320238388735,
+      "profile_current_relative_error": 0.10093057221609773,
+      "drivers": {
+        "epsilon": 0.0240681655983092,
+        "trapped_fraction": 0.22470782366718478,
+        "L31": 0.2267888655812035,
+        "L32": -0.0498756693326559,
+        "alpha": -0.7937763570005314,
+        "nu_e_star": 0.19768760641915403,
+        "nu_i_star": 0.16785465242215777,
+        "density_gradient_term_over_root_fsab2": -1035.3460670730822,
+        "temperature_gradient_term_over_root_fsab2": -25590499.142870404,
+        "electron_temperature_gradient_term_over_root_fsab2": -20239842.498130962,
+        "ion_temperature_gradient_term_over_root_fsab2": -5350656.644739443,
+        "log10_nu_e_star": -0.7040205569508176
+      }
+    },
+    {
+      "rho": 0.2857142857142857,
+      "temperature_response_multiplier": 0.856629688832519,
+      "profile_current_relative_error": 0.16734964530475208,
+      "drivers": {
+        "epsilon": 0.03215621567256126,
+        "trapped_fraction": 0.25885866087607223,
+        "L31": 0.2731928844646863,
+        "L32": -0.07176152968276472,
+        "alpha": -0.7896421556961618,
+        "nu_e_star": 0.1379417723627748,
+        "nu_i_star": 0.11706165277441032,
+        "density_gradient_term_over_root_fsab2": -12057.250060990751,
+        "temperature_gradient_term_over_root_fsab2": -29724907.88250534,
+        "electron_temperature_gradient_term_over_root_fsab2": -23126833.641381726,
+        "ion_temperature_gradient_term_over_root_fsab2": -6598074.241123617,
+        "log10_nu_e_star": -0.8603041982221822
+      }
+    },
+    {
+      "rho": 0.3571428571428571,
+      "temperature_response_multiplier": 0.8800482572007104,
+      "profile_current_relative_error": 0.1363762504677458,
+      "drivers": {
+        "epsilon": 0.04017501587489108,
+        "trapped_fraction": 0.28834351681317283,
+        "L31": 0.31028441454100797,
+        "L32": -0.08692305067035891,
+        "alpha": -0.7785646677428111,
+        "nu_e_star": 0.10917715306078934,
+        "nu_i_star": 0.09258344543399373,
+        "density_gradient_term_over_root_fsab2": -78094.7277766009,
+        "temperature_gradient_term_over_root_fsab2": -33689526.353545934,
+        "electron_temperature_gradient_term_over_root_fsab2": -25764223.25059036,
+        "ion_temperature_gradient_term_over_root_fsab2": -7925303.1029555695,
+        "log10_nu_e_star": -0.9618682346875944
+      }
+    },
+    {
+      "rho": 0.42857142857142855,
+      "temperature_response_multiplier": 0.9513281533074585,
+      "profile_current_relative_error": 0.052209311505154656,
+      "drivers": {
+        "epsilon": 0.04811424074861143,
+        "trapped_fraction": 0.3144463762983528,
+        "L31": 0.3405217113178895,
+        "L32": -0.0965298466843493,
+        "alpha": -0.7634463184477605,
+        "nu_e_star": 0.09476951584465232,
+        "nu_i_star": 0.08028913262764759,
+        "density_gradient_term_over_root_fsab2": -347952.9625186627,
+        "temperature_gradient_term_over_root_fsab2": -37647599.02828017,
+        "electron_temperature_gradient_term_over_root_fsab2": -28303469.526943386,
+        "ion_temperature_gradient_term_over_root_fsab2": -9344129.501336783,
+        "log10_nu_e_star": -1.0233313380787128
+      }
+    },
+    {
+      "rho": 0.5,
+      "temperature_response_multiplier": 1.0097687148785024,
+      "profile_current_relative_error": 0.004989629885287488,
+      "drivers": {
+        "epsilon": 0.056000629709018444,
+        "trapped_fraction": 0.3380409133163701,
+        "L31": 0.3653574074061055,
+        "L32": -0.10136114102207561,
+        "alpha": -0.7451894360251438,
+        "nu_e_star": 0.08881030784270079,
+        "nu_i_star": 0.07514851678327328,
+        "density_gradient_term_over_root_fsab2": -1190721.451302075,
+        "temperature_gradient_term_over_root_fsab2": -41682560.90130546,
+        "electron_temperature_gradient_term_over_root_fsab2": -30815598.43231704,
+        "ion_temperature_gradient_term_over_root_fsab2": -10866962.468988419,
+        "log10_nu_e_star": -1.0515366245434397
+      }
+    },
+    {
+      "rho": 0.5714285714285714,
+      "temperature_response_multiplier": 1.0730821144077398,
+      "profile_current_relative_error": 0.05363756409768776,
+      "drivers": {
+        "epsilon": 0.06381303497776346,
+        "trapped_fraction": 0.3595706165908753,
+        "L31": 0.3853106824515493,
+        "L32": -0.10155902672633768,
+        "alpha": -0.7237844547670981,
+        "nu_e_star": 0.08945975234000522,
+        "nu_i_star": 0.07557917612492274,
+        "density_gradient_term_over_root_fsab2": -3328680.2379269004,
+        "temperature_gradient_term_over_root_fsab2": -45798143.47888746,
+        "electron_temperature_gradient_term_over_root_fsab2": -33305868.71455149,
+        "ion_temperature_gradient_term_over_root_fsab2": -12492274.764335975,
+        "log10_nu_e_star": -1.048372308460679
+      }
+    },
+    {
+      "rho": 0.6428571428571428,
+      "temperature_response_multiplier": 1.138341496810017,
+      "profile_current_relative_error": 0.08782337467682912,
+      "drivers": {
+        "epsilon": 0.07155330806147352,
+        "trapped_fraction": 0.37939978201976754,
+        "L31": 0.4003968464040697,
+        "L32": -0.09673719476831799,
+        "alpha": -0.6984702592716978,
+        "nu_e_star": 0.0970065480286841,
+        "nu_i_star": 0.08178709709115375,
+        "density_gradient_term_over_root_fsab2": -7872519.749688026,
+        "temperature_gradient_term_over_root_fsab2": -49889181.44606798,
+        "electron_temperature_gradient_term_over_root_fsab2": -35696619.39238529,
+        "ion_temperature_gradient_term_over_root_fsab2": -14192562.053682694,
+        "log10_nu_e_star": -1.0131989494786615
+      }
+    },
+    {
+      "rho": 0.7142857142857142,
+      "temperature_response_multiplier": 1.2041216784892392,
+      "profile_current_relative_error": 0.10780739284558527,
+      "drivers": {
+        "epsilon": 0.07920681305475358,
+        "trapped_fraction": 0.39775523825521,
+        "L31": 0.4098527334478395,
+        "L32": -0.08577005199176274,
+        "alpha": -0.6675971255465601,
+        "nu_e_star": 0.11411594372712389,
+        "nu_i_star": 0.09594675247271404,
+        "density_gradient_term_over_root_fsab2": -16001873.711662032,
+        "temperature_gradient_term_over_root_fsab2": -53543350.658660844,
+        "electron_temperature_gradient_term_over_root_fsab2": -37696632.37403514,
+        "ion_temperature_gradient_term_over_root_fsab2": -15846718.284625705,
+        "log10_nu_e_star": -0.9426536738203882
+      }
+    },
+    {
+      "rho": 0.7857142857142857,
+      "temperature_response_multiplier": 1.2642206643580305,
+      "profile_current_relative_error": 0.11480412041314064,
+      "drivers": {
+        "epsilon": 0.08677066717553042,
+        "trapped_fraction": 0.41483555706550823,
+        "L31": 0.4117204537764934,
+        "L32": -0.06647502846181874,
+        "alpha": -0.6279093639709783,
+        "nu_e_star": 0.14788289720906203,
+        "nu_i_star": 0.123850295253624,
+        "density_gradient_term_over_root_fsab2": -27843933.58261798,
+        "temperature_gradient_term_over_root_fsab2": -55628349.79670576,
+        "electron_temperature_gradient_term_over_root_fsab2": -38530870.90397112,
+        "ion_temperature_gradient_term_over_root_fsab2": -17097478.892734643,
+        "log10_nu_e_star": -0.8300820496489496
+      }
+    },
+    {
+      "rho": 0.8571428571428571,
+      "temperature_response_multiplier": 1.3112211505207079,
+      "profile_current_relative_error": 0.1146386204763811,
+      "drivers": {
+        "epsilon": 0.09423389411303673,
+        "trapped_fraction": 0.4307788475968114,
+        "L31": 0.4011814355622342,
+        "L32": -0.03478812119501418,
+        "alpha": -0.5724156781839613,
+        "nu_e_star": 0.21793649294142767,
+        "nu_i_star": 0.1814104331986575,
+        "density_gradient_term_over_root_fsab2": -39920180.6290843,
+        "temperature_gradient_term_over_root_fsab2": -53372334.05723902,
+        "electron_temperature_gradient_term_over_root_fsab2": -36352659.56836375,
+        "ion_temperature_gradient_term_over_root_fsab2": -17019674.488875266,
+        "log10_nu_e_star": -0.6616700420983774
+      }
+    },
+    {
+      "rho": 0.9285714285714285,
+      "temperature_response_multiplier": 1.3167274201314922,
+      "profile_current_relative_error": 0.11149311908328208,
+      "drivers": {
+        "epsilon": 0.10159203168594942,
+        "trapped_fraction": 0.44570995218600096,
+        "L31": 0.36460937727988785,
+        "L32": 0.01686356596265487,
+        "alpha": -0.4819029568595647,
+        "nu_e_star": 0.3963515285000487,
+        "nu_i_star": 0.3262449226501963,
+        "density_gradient_term_over_root_fsab2": -40936649.016994745,
+        "temperature_gradient_term_over_root_fsab2": -40562516.854625694,
+        "electron_temperature_gradient_term_over_root_fsab2": -27128601.373727795,
+        "ion_temperature_gradient_term_over_root_fsab2": -13433915.4808979,
+        "log10_nu_e_star": -0.4019194626431395
+      }
+    }
+  ],
+  "correlations": {
+    "epsilon": {
+      "pearson": 0.9747035237764139,
+      "spearman": 0.9780219780219779
+    },
+    "trapped_fraction": {
+      "pearson": 0.9474049314980239,
+      "spearman": 0.9780219780219779
+    },
+    "log10_nu_e_star": {
+      "pearson": -0.1397975660447738,
+      "spearman": -0.07142857142857142
+    },
+    "redl_L32": {
+      "pearson": 0.017244814507516058,
+      "spearman": -0.03296703296703297
+    }
+  },
+  "linear_diagnostics": [
+    {
+      "name": "constant",
+      "features": [],
+      "rmse": 0.19069493507830598,
+      "leave_one_out_rmse": 0.2065861796681649,
+      "condition_number": 1.0,
+      "coefficients": [
+        1.035245259805927
+      ]
+    },
+    {
+      "name": "epsilon",
+      "features": [
+        "epsilon"
+      ],
+      "rmse": 0.04262065532580599,
+      "leave_one_out_rmse": 0.052667435393105026,
+      "condition_number": 34.615488099667495,
+      "coefficients": [
+        1.035245259805927,
+        6.434016260438416
+      ]
+    },
+    {
+      "name": "trapped_fraction",
+      "features": [
+        "trapped_fraction"
+      ],
+      "rmse": 0.06102949881429872,
+      "leave_one_out_rmse": 0.07746739680286584,
+      "condition_number": 10.942150136239645,
+      "coefficients": [
+        1.035245259805927,
+        1.9768670766952883
+      ]
+    },
+    {
+      "name": "log10_nu_e_star",
+      "features": [
+        "log10_nu_e_star"
+      ],
+      "rmse": 0.18882233085711495,
+      "leave_one_out_rmse": 0.22992212118545816,
+      "condition_number": 3.842397430311631,
+      "coefficients": [
+        1.035245259805927,
+        -0.10243327342524516
+      ]
+    },
+    {
+      "name": "epsilon_plus_log10_nu_e_star",
+      "features": [
+        "epsilon",
+        "log10_nu_e_star"
+      ],
+      "rmse": 0.03961984164467536,
+      "leave_one_out_rmse": 0.059005771120837575,
+      "condition_number": 35.544145417606224,
+      "coefficients": [
+        1.035245259805927,
+        6.5600373694218215,
+        0.061961844875504324
+      ]
+    },
+    {
+      "name": "trapped_fraction_plus_log10_nu_e_star",
+      "features": [
+        "trapped_fraction",
+        "log10_nu_e_star"
+      ],
+      "rmse": 0.04304356251592148,
+      "leave_one_out_rmse": 0.06671380811476477,
+      "condition_number": 11.888706762330484,
+      "coefficients": [
+        1.035245259805927,
+        2.1654305256296027,
+        0.17894269971942725
+      ]
+    }
+  ],
+  "summary_metrics": {
+    "radius_count": 13,
+    "response_multiplier_min": 0.7167483610385275,
+    "response_multiplier_median": 1.0097687148785024,
+    "response_multiplier_max": 1.3167274201314922,
+    "response_multiplier_span": 0.5999790590929648,
+    "response_multiplier_max_abs_deviation_from_one": 0.31672742013149224,
+    "unit_response_rmse": 0.19392469312417798,
+    "constant_leave_one_out_rmse": 0.2065861796681649,
+    "best_leave_one_out_model": "epsilon",
+    "best_leave_one_out_rmse": 0.052667435393105026,
+    "best_leave_one_out_improvement_over_constant": 3.922465146180446,
+    "best_single_physics_driver": "epsilon",
+    "best_single_physics_driver_abs_pearson": 0.9747035237764139,
+    "epsilon_abs_pearson": 0.9747035237764139,
+    "trapped_fraction_abs_pearson": 0.9474049314980239,
+    "log10_nu_e_star_abs_pearson": 0.1397975660447738,
+    "redl_L32_abs_pearson": 0.017244814507516058,
+    "max_profile_current_relative_error": 0.3951895275200511,
+    "median_profile_current_relative_error": 0.11149311908328208,
+    "max_source_channel_superposition_relative_residual": 1.8941553187554398e-14,
+    "runtime_correction_applied": false
+  },
+  "closure_requirements": [
+    "any promoted finite-beta profile-current closure must use physical local drivers already present in the profile equations, such as trapped fraction, inverse-aspect-ratio proxy, collisionality, and thermodynamic-force coefficients",
+    "a scalar response multiplier is not sufficient because the measured response varies over the committed radial profile",
+    "a runtime closure change must preserve the fixed-field QA/QH total-current stress gate, the W7-X transfer gate, the source-channel reconstruction gate, and the same-grid finite-beta coefficient gate",
+    "the diagnostic regressions in this artifact are model-identification tools only, not production fits"
+  ],
+  "figure_png": "docs/_static/owned_finite_beta_closure_target_audit.png",
+  "figure_pdf": "docs/_static/owned_finite_beta_closure_target_audit.pdf"
+}

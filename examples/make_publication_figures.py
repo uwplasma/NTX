@@ -43,6 +43,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_closure_quadrature",
         "owned_finite_beta_source_channel",
         "owned_finite_beta_source_response_profile",
+        "owned_finite_beta_closure_target",
         "science",
         "robust_science",
         "validation",
@@ -89,6 +90,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_closure_quadrature",
         "owned_finite_beta_source_channel",
         "owned_finite_beta_source_response_profile",
+        "owned_finite_beta_closure_target",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -452,6 +454,13 @@ def main() -> None:
     if "owned_finite_beta_source_response_profile" in selected:
         manifest["owned_finite_beta_source_response_profile"] = _copy_existing_static(
             "owned_finite_beta_source_response_profile_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_closure_target" in selected:
+        manifest["owned_finite_beta_closure_target"] = _copy_existing_static(
+            "owned_finite_beta_closure_target_audit",
             output_dir,
             (".png", ".pdf", ".json"),
         )

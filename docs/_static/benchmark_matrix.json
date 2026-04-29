@@ -2106,7 +2106,8 @@
           "examples/owned_finite_beta_current_conditioning_audit.py",
           "examples/owned_finite_beta_closure_quadrature_audit.py",
           "examples/owned_finite_beta_source_channel_audit.py",
-          "examples/owned_finite_beta_source_response_profile_audit.py"
+          "examples/owned_finite_beta_source_response_profile_audit.py",
+          "examples/owned_finite_beta_closure_target_audit.py"
         ],
         "tests": [
           "tests/test_owned_finite_beta_bootstrap_comparison.py",
@@ -2115,7 +2116,8 @@
           "tests/test_owned_finite_beta_current_conditioning_audit.py",
           "tests/test_owned_finite_beta_closure_quadrature_audit.py",
           "tests/test_owned_finite_beta_source_channel_audit.py",
-          "tests/test_owned_finite_beta_source_response_profile_audit.py"
+          "tests/test_owned_finite_beta_source_response_profile_audit.py",
+          "tests/test_owned_finite_beta_closure_target_audit.py"
         ],
         "artifacts": [
           "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -2138,7 +2140,10 @@
           "docs/_static/owned_finite_beta_source_channel_audit.json",
           "docs/_static/owned_finite_beta_source_response_profile_audit.png",
           "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
-          "docs/_static/owned_finite_beta_source_response_profile_audit.json"
+          "docs/_static/owned_finite_beta_source_response_profile_audit.json",
+          "docs/_static/owned_finite_beta_closure_target_audit.png",
+          "docs/_static/owned_finite_beta_closure_target_audit.pdf",
+          "docs/_static/owned_finite_beta_closure_target_audit.json"
         ],
         "manuscript_figures": [
           "owned_finite_beta_bootstrap_comparison",
@@ -2147,7 +2152,8 @@
           "owned_finite_beta_current_conditioning_audit",
           "owned_finite_beta_closure_quadrature_audit",
           "owned_finite_beta_source_channel_audit",
-          "owned_finite_beta_source_response_profile_audit"
+          "owned_finite_beta_source_response_profile_audit",
+          "owned_finite_beta_closure_target_audit"
         ],
         "docs": [
           "README.md",
@@ -2205,6 +2211,11 @@
           "exists": true
         },
         {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_closure_target_audit.py",
+          "exists": true
+        },
+        {
           "kind": "test",
           "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
           "exists": true
@@ -2237,6 +2248,11 @@
         {
           "kind": "test",
           "path": "tests/test_owned_finite_beta_source_response_profile_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_closure_target_audit.py",
           "exists": true
         },
         {
@@ -2342,6 +2358,21 @@
         {
           "kind": "artifact",
           "path": "docs/_static/owned_finite_beta_source_response_profile_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_target_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_target_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_target_audit.json",
           "exists": true
         },
         {

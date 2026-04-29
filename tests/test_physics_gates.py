@@ -90,6 +90,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "owned_finite_beta_source_channel_reconstruction" in names
     assert "owned_finite_beta_temperature_source_response_stress" in names
     assert "owned_finite_beta_profile_source_response_stress" in names
+    assert "owned_finite_beta_closure_target_driver_stress" in names
 
 
 def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
@@ -259,6 +260,15 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (static_root / "owned_finite_beta_closure_target_audit.json").write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "best_single_physics_driver_abs_pearson": 0.95,
+                }
+            }
+        )
+    )
 
     results = {result.gate.name: result for result in evaluate_artifact_gates(tmp_path)}
 
@@ -331,6 +341,12 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     )
     assert results["owned_finite_beta_profile_source_response_stress"].value == (
         pytest.approx(0.25)
+    )
+    assert results["owned_finite_beta_closure_target_driver_stress"].status == (
+        "monitor"
+    )
+    assert results["owned_finite_beta_closure_target_driver_stress"].value == (
+        pytest.approx(0.95)
     )
 
 
@@ -412,6 +428,7 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
     assert results["owned_finite_beta_resolution_floor_stress"].status == "missing"
     assert results["owned_finite_beta_production_ladder_stress"].status == "missing"
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "missing"
+    assert results["owned_finite_beta_closure_target_driver_stress"].status == "missing"
 
 
 def test_repository_artifact_gates_match_current_claim_statuses():
@@ -465,6 +482,8 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["owned_finite_beta_production_ladder_stress"].value > 1.0
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "monitor"
     assert results["owned_finite_beta_closure_quadrature_stress"].value >= 1.0
+    assert results["owned_finite_beta_closure_target_driver_stress"].status == "monitor"
+    assert results["owned_finite_beta_closure_target_driver_stress"].value > 0.0
 
 
 def test_owned_surface_coefficient_convergence_and_onsager_gate():

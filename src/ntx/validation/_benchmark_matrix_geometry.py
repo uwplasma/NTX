@@ -269,6 +269,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "examples/owned_finite_beta_closure_quadrature_audit.py",
                 "examples/owned_finite_beta_source_channel_audit.py",
                 "examples/owned_finite_beta_source_response_profile_audit.py",
+                "examples/owned_finite_beta_closure_target_audit.py",
             ),
             tests=(
                 "tests/test_owned_finite_beta_bootstrap_comparison.py",
@@ -278,6 +279,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "tests/test_owned_finite_beta_closure_quadrature_audit.py",
                 "tests/test_owned_finite_beta_source_channel_audit.py",
                 "tests/test_owned_finite_beta_source_response_profile_audit.py",
+                "tests/test_owned_finite_beta_closure_target_audit.py",
             ),
             artifacts=(
                 "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -301,6 +303,9 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/owned_finite_beta_source_response_profile_audit.png",
                 "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
                 "docs/_static/owned_finite_beta_source_response_profile_audit.json",
+                "docs/_static/owned_finite_beta_closure_target_audit.png",
+                "docs/_static/owned_finite_beta_closure_target_audit.pdf",
+                "docs/_static/owned_finite_beta_closure_target_audit.json",
             ),
             manuscript_figures=(
                 "owned_finite_beta_bootstrap_comparison",
@@ -310,6 +315,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "owned_finite_beta_closure_quadrature_audit",
                 "owned_finite_beta_source_channel_audit",
                 "owned_finite_beta_source_response_profile_audit",
+                "owned_finite_beta_closure_target_audit",
             ),
             docs=(
                 "README.md",

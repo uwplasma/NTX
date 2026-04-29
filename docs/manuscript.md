@@ -37,18 +37,19 @@ examples.
 18. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
 19. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
 20. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
-21. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-22. `bootstrap_current_robust_optimization.{png,pdf,json}`
-23. `performance_scaling_smoke.{png,pdf,json}`
-24. `performance_scaling_heavy.{png,pdf,json}`
-25. `performance_strong_scaling_production.{png,pdf,json}`
-26. `prepared_geometry_reuse_profile.{png,pdf,json}`
-27. `ambipolar_profile.{png,pdf}`
-28. `ambipolar_profile_family.{png,pdf}`
-29. `profile_force_reconstruction_audit.{png,pdf,json}`
-30. `profile_control_optimization.{png,pdf}`
-31. `profile_basis_optimization.{png,pdf,json}`
-32. `profile_transport_loop.{png,pdf}`
+21. `owned_finite_beta_closure_target_audit.{png,pdf,json}`
+22. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+23. `bootstrap_current_robust_optimization.{png,pdf,json}`
+24. `performance_scaling_smoke.{png,pdf,json}`
+25. `performance_scaling_heavy.{png,pdf,json}`
+26. `performance_strong_scaling_production.{png,pdf,json}`
+27. `prepared_geometry_reuse_profile.{png,pdf,json}`
+28. `ambipolar_profile.{png,pdf}`
+29. `ambipolar_profile_family.{png,pdf}`
+30. `profile_force_reconstruction_audit.{png,pdf,json}`
+31. `profile_control_optimization.{png,pdf}`
+32. `profile_basis_optimization.{png,pdf,json}`
+33. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -160,45 +161,50 @@ examples.
      source sign agreement, and keeps the maximum current stress at the inner
      radius while storing correlations with Redl collisionality and geometry
      factors
-24. `derivative_path_benchmark.{png,pdf}`
+24. `owned_finite_beta_closure_target_audit.{png,pdf,json}`
+   - driver-identification artifact for the profile source-response target; the
+     strongest single local driver is the Redl geometry factor `epsilon`
+     (`|r|=0.975`), the best leave-one-out diagnostic model is epsilon-only
+     with RMSE `5.27e-2`, and no runtime correction is applied
+25. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-25. `bootstrap_current_optimization.{png,pdf}`
+26. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-26. `bootstrap_current_robust_optimization.{png,pdf,json}`
+27. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
-27. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+28. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-28. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+29. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-29. `performance_scaling_smoke.{png,pdf,json}`
+30. `performance_scaling_smoke.{png,pdf,json}`
    - CPU/GPU scaling on the repository smoke grid
-30. `performance_scaling_heavy.{png,pdf,json}`
+31. `performance_scaling_heavy.{png,pdf,json}`
    - heavier-grid scaling where throughput effects are visible
-31. `performance_scaling_production.{png,pdf,json}`
+32. `performance_scaling_production.{png,pdf,json}`
    - production-grid CPU/GPU scaling with serial, device-parallel,
      multiprocess, memory, and coefficient-agreement metadata
-32. `performance_strong_scaling_production.{png,pdf,json}`
+33. `performance_strong_scaling_production.{png,pdf,json}`
    - fixed-workload CPU/GPU strong scaling with worker/device sweeps, memory,
      and coefficient-agreement metadata
-33. `prepared_geometry_reuse_profile.{png,pdf,json}`
+34. `prepared_geometry_reuse_profile.{png,pdf,json}`
    - fixed-geometry repeated-solve profile showing the direct, prepared, and
      compiled prepared solver paths with coefficient agreement recorded in the
      JSON artifact
-34. `ambipolar_profile.{png,pdf}`
+35. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-35. `ambipolar_profile_family.{png,pdf}`
+36. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-36. `profile_force_reconstruction_audit.{png,pdf,json}`
+37. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-37. `profile_control_optimization.{png,pdf}`
+38. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-38. `profile_basis_optimization.{png,pdf,json}`
+39. `profile_basis_optimization.{png,pdf,json}`
    - low-dimensional radial-basis optimization of the same profile closure
-39. `profile_transport_loop.{png,pdf}`
+40. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-40. `primitive_profile_transport.{png,pdf}`
+41. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
@@ -222,9 +228,10 @@ Together these figures cover:
   diagnostics with the physical Boozer flux scale, production radial/
   collisionality ladder, adaptive `nu/v` support, and Sonine-order convergence
   sidecar recorded while the inner-radius gap remains open work
-- finite-beta source-response diagnostics that map the dominant
-  effective-temperature channel over the full profile before any reduced
-  closure change is promoted
+- finite-beta source-response and closure-target diagnostics that map the
+  dominant effective-temperature channel over the full profile, rank physical
+  geometry/trapped-particle/collisionality drivers, and keep fitted diagnostic
+  models out of the runtime before any reduced closure change is promoted
 - production same-grid finite-beta SFINCS-JAX coefficient ladders that close
   radius/collisionality resolution as the leading explanation for that gap
 - a deterministic robust-design stress benchmark for differentiable current optimization

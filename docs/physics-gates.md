@@ -196,6 +196,11 @@ These are trust-building comparisons against independent workflows:
   profile. Its radial response span and correlations with Redl collisionality,
   trapped fraction, epsilon, and `L32` are monitored diagnostics for a future
   physics-derived closure, not fitted correction factors.
+- **Owned finite-beta closure-target driver audit:** the closure-target sidecar
+  ranks local neoclassical drivers for the measured temperature-source response
+  before any runtime model is proposed. The current artifact selects the Redl
+  geometry factor `epsilon` as the strongest single driver and records that
+  diagnostic regressions are not applied as production corrections.
 - **Owned finite-beta profile-current observable:** the finite-beta
   bootstrap-current profile remains a monitored stress diagnostic, not a
   parity gate. The current artifacts keep the net-current residual, the
@@ -290,7 +295,7 @@ remains the validated raw branch. A broader closure default is promotable only
 if it preserves both the precise-QS total-current gate and the integrated W7-X
 raw-branch transfer gate.
 
-The owned finite-beta closure lane is tracked by six additional artifact
+The owned finite-beta closure lane is tracked by additional artifact
 gates:
 
 - same-grid finite-beta coefficient normalization: passing, with current
@@ -310,6 +315,9 @@ gates:
   near `4e-1`.
 - finite-beta profile source response: monitored, with the current high-order
   temperature response multiplier spanning `0.717` to `1.317` over the profile.
+- finite-beta closure-target driver ranking: monitored, with the current best
+  single driver `epsilon`, absolute Pearson correlation `0.975`, and no runtime
+  correction applied.
 
 This is the current physics interpretation: the coefficient-side bridge is no
 longer the leading suspect for the finite-beta QA stress case, and the remaining

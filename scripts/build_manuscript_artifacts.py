@@ -100,6 +100,9 @@ def build_payload() -> dict:
     owned_finite_beta_source_response_profile = _load_json(
         STATIC / "owned_finite_beta_source_response_profile_audit.json"
     )
+    owned_finite_beta_closure_target = _load_json(
+        STATIC / "owned_finite_beta_closure_target_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -141,6 +144,7 @@ def build_payload() -> dict:
         "owned_finite_beta_closure_quadrature",
         "owned_finite_beta_source_channel",
         "owned_finite_beta_source_response_profile",
+        "owned_finite_beta_closure_target",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -366,6 +370,18 @@ def build_payload() -> dict:
                 "conclusion": owned_finite_beta_source_response_profile["conclusion"],
                 "rows": owned_finite_beta_source_response_profile["rows"],
                 "open_work": owned_finite_beta_source_response_profile["open_work"],
+            },
+            "owned_finite_beta_closure_target": {
+                "summary_metrics": owned_finite_beta_closure_target["summary_metrics"],
+                "claim_scope": owned_finite_beta_closure_target["claim_scope"],
+                "rows": owned_finite_beta_closure_target["rows"],
+                "correlations": owned_finite_beta_closure_target["correlations"],
+                "linear_diagnostics": owned_finite_beta_closure_target[
+                    "linear_diagnostics"
+                ],
+                "closure_requirements": owned_finite_beta_closure_target[
+                    "closure_requirements"
+                ],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -786,6 +802,36 @@ def build_payload() -> dict:
                     "temperature_response_correlation_with_log10_nu_e_star"
                 )
             ),
+            "owned_finite_beta_closure_target_best_driver": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_single_physics_driver"
+                ]
+            ),
+            "owned_finite_beta_closure_target_best_driver_abs_pearson": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_single_physics_driver_abs_pearson"
+                ]
+            ),
+            "owned_finite_beta_closure_target_best_model": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_leave_one_out_model"
+                ]
+            ),
+            "owned_finite_beta_closure_target_best_model_loo_rmse": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_leave_one_out_rmse"
+                ]
+            ),
+            "owned_finite_beta_closure_target_improvement_over_constant": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_leave_one_out_improvement_over_constant"
+                ]
+            ),
+            "owned_finite_beta_closure_target_runtime_correction_applied": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "runtime_correction_applied"
+                ]
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -1119,6 +1165,26 @@ def build_markdown(payload: dict) -> str:
     source_response_profile_nu_correlation = source_response_profile_metrics.get(
         "temperature_response_correlation_with_log10_nu_e_star"
     )
+    owned_finite_beta_closure_target = payload["tables"][
+        "owned_finite_beta_closure_target"
+    ]
+    closure_target_metrics = owned_finite_beta_closure_target["summary_metrics"]
+    closure_target_best_driver = closure_target_metrics[
+        "best_single_physics_driver"
+    ]
+    closure_target_best_driver_abs_pearson = closure_target_metrics[
+        "best_single_physics_driver_abs_pearson"
+    ]
+    closure_target_best_model = closure_target_metrics["best_leave_one_out_model"]
+    closure_target_best_model_loo_rmse = closure_target_metrics[
+        "best_leave_one_out_rmse"
+    ]
+    closure_target_improvement_over_constant = closure_target_metrics[
+        "best_leave_one_out_improvement_over_constant"
+    ]
+    closure_target_runtime_correction_applied = closure_target_metrics[
+        "runtime_correction_applied"
+    ]
     owned_finite_beta_resolution = payload["tables"][
         "owned_finite_beta_sfincs_jax_resolution_audit"
     ]
@@ -1643,6 +1709,28 @@ def build_markdown(payload: dict) -> str:
             if source_response_profile_nu_correlation is not None
             else "",
             (
+                "| Closure-target best physics driver | "
+                f"`{closure_target_best_driver}` "
+                f"(`|r|={closure_target_best_driver_abs_pearson:.3e}`) |"
+            ),
+            (
+                "| Closure-target best diagnostic model | "
+                f"`{closure_target_best_model}` "
+                f"(`LOO RMSE={closure_target_best_model_loo_rmse:.3e}`) |"
+            )
+            if closure_target_best_model_loo_rmse is not None
+            else "",
+            (
+                "| Closure-target improvement over constant response | "
+                f"`{closure_target_improvement_over_constant:.3e}` |"
+            )
+            if closure_target_improvement_over_constant is not None
+            else "",
+            (
+                "| Closure-target runtime correction applied | "
+                f"`{closure_target_runtime_correction_applied}` |"
+            ),
+            (
                 "| Stress-radius Pmax error reduction | "
                 f"`{observable_pmax_error_reduction:.3f}x` |"
             ),
@@ -2090,6 +2178,30 @@ def build_claims_markdown(payload: dict) -> str:
                 )
                 is not None
                 and claims.get("owned_finite_beta_source_response_profile_multiplier_max")
+                is not None
+            )
+            else "",
+            (
+                "- The finite-beta closure-target audit converts that "
+                "profile-response map into a driver-identification artifact. "
+                "Its strongest single local driver is "
+                f"`{claims['owned_finite_beta_closure_target_best_driver']}` "
+                "with absolute Pearson correlation "
+                f"`{claims['owned_finite_beta_closure_target_best_driver_abs_pearson']:.3e}`; "
+                "the best leave-one-out diagnostic model is "
+                f"`{claims['owned_finite_beta_closure_target_best_model']}` "
+                "with RMSE "
+                f"`{claims['owned_finite_beta_closure_target_best_model_loo_rmse']:.3e}` "
+                "and improvement over a constant response of "
+                f"`{claims['owned_finite_beta_closure_target_improvement_over_constant']:.3e}`. "
+                "No runtime correction is applied by this artifact."
+            )
+            if (
+                claims.get("owned_finite_beta_closure_target_best_model_loo_rmse")
+                is not None
+                and claims.get(
+                    "owned_finite_beta_closure_target_improvement_over_constant"
+                )
                 is not None
             )
             else "",

@@ -220,6 +220,10 @@ Redl and corrected current profiles, the Redl/NTX effective source-response
 multiplier, the reconstruction gate, and the response trend against Redl
 collisionality and trapped-particle fraction. This is a diagnostic for the next
 physics closure, not a fitted runtime correction.
+The closure-target audit reads that profile-response artifact and ranks local
+drivers before a runtime model is proposed. The current sidecar selects the
+Redl geometry factor `epsilon` as the strongest single driver and records that
+the best diagnostic model is not applied to the code.
 
 It writes:
 
@@ -261,6 +265,9 @@ It writes:
 - `docs/_static/owned_finite_beta_source_response_profile_audit.png`
 - `docs/_static/owned_finite_beta_source_response_profile_audit.pdf`
 - `docs/_static/owned_finite_beta_source_response_profile_audit.json`
+- `docs/_static/owned_finite_beta_closure_target_audit.png`
+- `docs/_static/owned_finite_beta_closure_target_audit.pdf`
+- `docs/_static/owned_finite_beta_closure_target_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -293,6 +300,14 @@ target is `0.717` of the frozen corrected temperature-channel response.
 The profile source-response panel shows that the temperature response multiplier
 is not a single hidden constant: it spans the profile while preserving source
 sign agreement and keeping the largest current stress at the inner radius.
+
+![Owned finite-beta closure-target driver audit](_static/owned_finite_beta_closure_target_audit.png)
+
+The closure-target panel ranks geometry, trapped-particle, and collisionality
+drivers for the measured response. It is a model-identification artifact only:
+the runtime closure remains unchanged until a physics-derived term passes the
+fixed-field, W7-X transfer, source reconstruction, and same-grid finite-beta
+coefficient gates.
 
 ## 10. Bootstrap Current With NEOPAX
 

@@ -186,7 +186,10 @@ temperature response multiplier ranges from `0.717` to `1.317` with median
 the response trend is recorded against Redl collisionality, trapped fraction,
 and geometry factors. The remaining finite-beta closure work is therefore a
 physics-model/source-response lane, not a hidden normalization or fitted
-threshold lane.
+threshold lane. The closure-target sidecar now ranks those drivers without
+changing the runtime: the best single profile driver is the local Redl
+geometry factor `epsilon` with `|r|=0.975`, the best leave-one-out diagnostic
+model is epsilon-only with RMSE `5.27e-2`, and no runtime correction is applied.
 Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
 geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,

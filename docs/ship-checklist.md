@@ -161,7 +161,9 @@ or explicitly moved to documented future work with a clear reason.
   temperature-gradient drive under the current profile contract. The
   profile-response sidecar extends that measurement over all committed profile
   radii and records the response multiplier against Redl collisionality and
-  geometry drivers. The next required step is a quadrature-converged
+  geometry drivers. The closure-target sidecar now ranks those drivers and
+  records `epsilon` as the strongest single profile response driver without
+  applying any runtime correction. The next required step is a quadrature-converged
   profile-current/source-response closure on the same finite-beta contract
   before any finite-beta parity promotion.
 - The differentiable bootstrap-current optimization figure is now represented

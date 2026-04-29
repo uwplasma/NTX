@@ -132,6 +132,11 @@
     "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
     "docs/_static/owned_finite_beta_source_response_profile_audit.json"
   ],
+  "owned_finite_beta_closure_target": [
+    "docs/_static/owned_finite_beta_closure_target_audit.png",
+    "docs/_static/owned_finite_beta_closure_target_audit.pdf",
+    "docs/_static/owned_finite_beta_closure_target_audit.json"
+  ],
   "profile_uncertainty": [
     "docs/_static/autodiff_profile_uncertainty.png",
     "docs/_static/autodiff_profile_uncertainty.pdf",
