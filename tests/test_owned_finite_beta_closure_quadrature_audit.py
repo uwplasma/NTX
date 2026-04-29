@@ -76,6 +76,9 @@ def test_closure_quadrature_summary_flags_underintegrated_pass() -> None:
     assert metrics["min_stress_neopax_x"] == 10
     assert metrics["min_stress_n_order"] == 14
     assert metrics["underintegrated_gate_pass_count"] == 1
+    assert metrics["quadrature_stable_gate_pass_count"] == 0
+    assert metrics["quadrature_stable_current_gate_pass"] is False
+    assert metrics["best_stress_pass_rejected_as_underintegrated"] is True
     assert metrics["quadrature_aliasing_detected"] is True
     assert metrics["high_x_stress_error_monotone_nonincreasing_with_pmax"] is True
     assert metrics["reference_stress_relative_error"] == 0.31

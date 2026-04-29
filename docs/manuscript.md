@@ -142,8 +142,9 @@ examples.
      parity claim
 21. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
    - Sonine-order versus velocity-quadrature stress audit; the only apparent
-     current-gate pass occurs at `P=14, X=10` and is not promoted because it
-     does not transfer to higher velocity quadrature
+     current-gate pass occurs at `P=14, X=10`, the accepted
+     quadrature-stable pass count is zero, and the apparent pass is not
+     promoted because it does not transfer to higher velocity quadrature
 22. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
 23. `bootstrap_current_optimization.{png,pdf}`

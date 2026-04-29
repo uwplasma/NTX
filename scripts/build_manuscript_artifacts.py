@@ -634,6 +634,16 @@ def build_payload() -> dict:
                     "underintegrated_gate_pass_count"
                 ]
             ),
+            "owned_finite_beta_quadrature_stable_gate_pass_count": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "quadrature_stable_gate_pass_count"
+                ]
+            ),
+            "owned_finite_beta_quadrature_stable_current_gate_pass": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "quadrature_stable_current_gate_pass"
+                ]
+            ),
             "owned_finite_beta_quadrature_min_stress_error": (
                 owned_finite_beta_quadrature["summary_metrics"][
                     "min_stress_relative_error"
@@ -891,6 +901,12 @@ def build_markdown(payload: dict) -> str:
     ]
     quadrature_underintegrated_passes = owned_finite_beta_quadrature_metrics[
         "underintegrated_gate_pass_count"
+    ]
+    quadrature_stable_passes = owned_finite_beta_quadrature_metrics[
+        "quadrature_stable_gate_pass_count"
+    ]
+    quadrature_stable_gate_pass = owned_finite_beta_quadrature_metrics[
+        "quadrature_stable_current_gate_pass"
     ]
     quadrature_min_stress_error = owned_finite_beta_quadrature_metrics[
         "min_stress_relative_error"
@@ -1333,6 +1349,14 @@ def build_markdown(payload: dict) -> str:
                 f"`{quadrature_underintegrated_passes}` |"
             ),
             (
+                "| Quadrature-stable closure current-gate passes | "
+                f"`{quadrature_stable_passes}` |"
+            ),
+            (
+                "| Quadrature-stable current gate | "
+                f"`{quadrature_stable_gate_pass}` |"
+            ),
+            (
                 "| Best stress-radius closure setting | "
                 f"`P={quadrature_min_stress_pmax}, X={quadrature_min_stress_x}, "
                 f"error={quadrature_min_stress_error:.3e}` |"
@@ -1714,7 +1738,9 @@ def build_claims_markdown(payload: dict) -> str:
                 "- The owned finite-beta closure-quadrature audit shows that "
                 f"`{claims['owned_finite_beta_quadrature_underintegrated_gate_pass_count']}` "
                 "stress-radius current-gate pass occurs only when the velocity "
-                "quadrature is lower than the Sonine truncation. The best apparent "
+                "quadrature is lower than the Sonine truncation, while "
+                f"`{claims['owned_finite_beta_quadrature_stable_gate_pass_count']}` "
+                "quadrature-stable pass is found. The best apparent "
                 "stress-radius setting is "
                 f"`P={claims['owned_finite_beta_quadrature_min_stress_pmax']}`, "
                 f"`X={claims['owned_finite_beta_quadrature_min_stress_x']}` with "

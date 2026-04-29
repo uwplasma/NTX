@@ -280,6 +280,12 @@ def _summary_metrics(
         if row["stress_relative_error_total_vs_redl"] <= PROFILE_CURRENT_GATE
         and row["x_to_order_ratio"] < 1.0
     ]
+    quadrature_stable_pass_rows = [
+        row
+        for row in rows
+        if row["stress_relative_error_total_vs_redl"] <= PROFILE_CURRENT_GATE
+        and row["x_to_order_ratio"] >= 1.0
+    ]
     return {
         "row_count": int(len(rows)),
         "x_values": x_values,
@@ -307,6 +313,12 @@ def _summary_metrics(
             float(np.nanmax(same_order_spreads)) if same_order_spreads else 0.0
         ),
         "underintegrated_gate_pass_count": int(len(low_quadrature_pass_rows)),
+        "quadrature_stable_gate_pass_count": int(len(quadrature_stable_pass_rows)),
+        "quadrature_stable_current_gate_pass": bool(quadrature_stable_pass_rows),
+        "best_stress_pass_rejected_as_underintegrated": bool(
+            best_stress["stress_relative_error_total_vs_redl"] <= PROFILE_CURRENT_GATE
+            and best_stress["x_to_order_ratio"] < 1.0
+        ),
         "quadrature_aliasing_detected": bool(len(low_quadrature_pass_rows) > 0),
         "mean_closure_seconds": float(
             np.nanmean([row["closure_seconds"] for row in rows])

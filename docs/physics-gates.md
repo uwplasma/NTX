@@ -200,8 +200,9 @@ These are trust-building comparisons against independent workflows:
 - **Owned finite-beta closure quadrature:** higher Sonine order is now
   monitored together with velocity quadrature. The only stress-radius
   current-gate pass occurs at `P=14, X=10`, where `X < Pmax`, and does not
-  transfer to `X=14` or `X=18`; this is treated as quadrature aliasing, not a
-  valid physics closure.
+  transfer to `X=14` or `X=18`. The accepted quadrature-stable current-gate
+  pass count is zero, so this is treated as quadrature aliasing, not a valid
+  physics closure.
   This keeps the next physics step honest: profile-current diagnostics must
   tighten the conditioned uncertainty before a new reduced-closure term is
   promoted.
