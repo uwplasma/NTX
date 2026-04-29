@@ -73,6 +73,9 @@ def build_payload() -> dict:
     owned_finite_beta_sfincs = _load_json(
         STATIC / "owned_finite_beta_sfincs_jax_inputs.json"
     )
+    owned_finite_beta_resolution = _load_json(
+        STATIC / "owned_finite_beta_sfincs_jax_resolution_audit.json"
+    )
     owned_finite_beta_bootstrap = _load_json(
         STATIC / "owned_finite_beta_bootstrap_comparison.json"
     )
@@ -117,6 +120,7 @@ def build_payload() -> dict:
         "geometry_family_transport",
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
+        "owned_finite_beta_sfincs_jax_resolution_audit",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
@@ -265,6 +269,13 @@ def build_payload() -> dict:
                     "normalization_contract"
                 ],
                 "open_work": owned_finite_beta_sfincs["open_work"],
+            },
+            "owned_finite_beta_sfincs_jax_resolution_audit": {
+                "summary_metrics": owned_finite_beta_resolution["summary_metrics"],
+                "claim_scope": owned_finite_beta_resolution["claim_scope"],
+                "conclusion": owned_finite_beta_resolution["conclusion"],
+                "rows": owned_finite_beta_resolution["rows"],
+                "open_work": owned_finite_beta_resolution["open_work"],
             },
             "owned_finite_beta_bootstrap_comparison": {
                 "case": owned_finite_beta_bootstrap["case"],
@@ -468,6 +479,26 @@ def build_payload() -> dict:
             "owned_finite_beta_sfincs_max_transport_relative_difference": (
                 owned_finite_beta_sfincs["summary_metrics"][
                     "max_ntx_same_grid_transport_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_resolution_production_precision_gap": (
+                owned_finite_beta_resolution["summary_metrics"][
+                    "production_precision_gap_to_current_gate"
+                ]
+            ),
+            "owned_finite_beta_resolution_tight_harmonics_precision_gap": (
+                owned_finite_beta_resolution["summary_metrics"][
+                    "tight_harmonics_precision_gap_to_current_gate"
+                ]
+            ),
+            "owned_finite_beta_resolution_production_change_vs_smoke": (
+                owned_finite_beta_resolution["summary_metrics"][
+                    "production_change_vs_smoke"
+                ]
+            ),
+            "owned_finite_beta_resolution_tight_harmonics_change_vs_production": (
+                owned_finite_beta_resolution["summary_metrics"][
+                    "tight_harmonics_change_vs_production"
                 ]
             ),
             "owned_finite_beta_bootstrap_rms_relative_error": (
@@ -781,6 +812,18 @@ def build_markdown(payload: dict) -> str:
     ]
     conditioning_coefficient_bound = owned_finite_beta_conditioning_metrics[
         "stress_coefficient_limited_current_relative_error_bound"
+    ]
+    owned_finite_beta_resolution = payload["tables"][
+        "owned_finite_beta_sfincs_jax_resolution_audit"
+    ]
+    owned_finite_beta_resolution_metrics = owned_finite_beta_resolution[
+        "summary_metrics"
+    ]
+    resolution_production_gap = owned_finite_beta_resolution_metrics[
+        "production_precision_gap_to_current_gate"
+    ]
+    resolution_tight_harmonics_gap = owned_finite_beta_resolution_metrics[
+        "tight_harmonics_precision_gap_to_current_gate"
     ]
     finite_beta_bootstrap_max_error = owned_finite_beta_bootstrap_metrics[
         "max_relative_error_total_vs_redl_interior"
@@ -1153,6 +1196,14 @@ def build_markdown(payload: dict) -> str:
                 f"`{conditioning_precision_gap:.3f}x` |"
             ),
             (
+                "| Production-grid coefficient precision gap | "
+                f"`{resolution_production_gap:.3f}x` |"
+            ),
+            (
+                "| Tight-harmonic coefficient precision gap | "
+                f"`{resolution_tight_harmonics_gap:.3f}x` |"
+            ),
+            (
                 "| Coefficient-conditioned current-error bound | "
                 f"`{conditioning_coefficient_bound:.3e}` |"
             ),
@@ -1279,6 +1330,9 @@ def build_markdown(payload: dict) -> str:
 
 def build_claims_markdown(payload: dict) -> str:
     claims = payload["claims"]
+    finite_beta_resolution_tight_change = claims[
+        "owned_finite_beta_resolution_tight_harmonics_change_vs_production"
+    ]
     explicit_relaxed_max_mismatch = claims[
         "explicit_relaxed_boundary_current_derivative_max_relative_mismatch"
     ]
@@ -1487,6 +1541,22 @@ def build_claims_markdown(payload: dict) -> str:
                 "This keeps the next finite-beta step on production same-grid "
                 "coefficient/profile-current diagnostics before changing the "
                 "reduced closure."
+            ),
+            (
+                "- The owned finite-beta production-resolution coefficient "
+                "probe raises the stress-radius SFINCS-JAX/NTX grid from "
+                "`25 x 31 x 32` to `35 x 43 x 48` and also tightens the VMEC "
+                "harmonic cutoff. The production coefficient floor changes by "
+                f"`{claims['owned_finite_beta_resolution_production_change_vs_smoke']:.3e}` "
+                "relative to the smoke ladder, while the tight-harmonic probe "
+                "changes by "
+                f"`{finite_beta_resolution_tight_change:.3e}` "
+                "relative to the production probe. The resulting precision "
+                "gaps remain "
+                f"`{claims['owned_finite_beta_resolution_production_precision_gap']:.3f}x`/"
+                f"`{claims['owned_finite_beta_resolution_tight_harmonics_precision_gap']:.3f}x` "
+                "above the current-conditioned target, so the remaining work is "
+                "not closed by angular resolution or harmonic truncation."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "

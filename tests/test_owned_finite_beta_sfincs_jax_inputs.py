@@ -62,6 +62,42 @@ def test_owned_finite_beta_sfincs_jax_inputs_write_same_grid_decks(tmp_path: Pat
     assert output_prefix.with_suffix(".pdf").exists()
 
 
+def test_owned_finite_beta_sfincs_jax_inputs_resolves_relative_output_dir(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    input_path = tmp_path / "input.finite_beta"
+    wout_path = tmp_path / "wout_finite_beta.nc"
+    input_path.write_text("&INDATA\n/\n")
+    wout_path.write_text("placeholder")
+    case = OwnedJaxGeometryCase(
+        id="finite_beta_fake",
+        label="Finite-beta fake",
+        family="QA finite beta",
+        source="unit test",
+        input_path=input_path,
+        wout_path=wout_path,
+    )
+    monkeypatch.chdir(tmp_path)
+
+    payload = sfincs_inputs.build_payload(
+        case_specs=(case,),
+        case_limit=None,
+        rho=(0.25,),
+        nu_v=(1.0e-3,),
+        es_values=(0.0,),
+        grid=GridSpec(5, 7, 9),
+        output_dir=Path("relative_sfincs_decks"),
+        run_sfincs_jax=False,
+    )
+
+    deck = payload["decks"][0]
+    assert Path(deck["input_path"]).is_absolute()
+    assert Path(deck["output_path"]).is_absolute()
+    assert Path(deck["input_path"]).is_file()
+    assert str(Path(deck["input_path"])).startswith(str(tmp_path))
+
+
 def test_owned_finite_beta_sfincs_jax_inputs_summarizes_completed_h5(tmp_path: Path):
     output_path = tmp_path / "sfincs_jax_output.h5"
     with h5py.File(output_path, "w") as handle:

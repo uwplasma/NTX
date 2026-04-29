@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "b81b7fbc7de3e9603eb82af382482853c7fefa99",
+    "commit": "3581fdd75b30bd799dd4e49888816c2b39ccd642",
     "branch": "main"
   },
   "environment": {
@@ -3581,6 +3581,99 @@
         "promote only after the same geometry, profile, normalization, and interpolation JSON sidecar is complete"
       ]
     },
+    "owned_finite_beta_sfincs_jax_resolution_audit": {
+      "summary_metrics": {
+        "smoke_max_transport_relative_difference": 0.02054783993495091,
+        "production_max_transport_relative_difference": 0.02064719610273697,
+        "production_tight_harmonics_max_transport_relative_difference": 0.020546717035894013,
+        "production_change_vs_smoke": 0.004835358271263395,
+        "tight_harmonics_change_vs_production": -0.004866475154446728,
+        "required_coefficient_relative_difference_for_current_gate": 0.0013006501179462983,
+        "production_precision_gap_to_current_gate": 15.874519840384513,
+        "tight_harmonics_precision_gap_to_current_gate": 15.797266883992512
+      },
+      "claim_scope": "Compares the finite-beta QA stress-radius same-grid transport coefficients after increasing angular/pitch resolution and after tightening the VMEC harmonic cutoff. This is a diagnostic for coefficient normalization and numerical convergence; it is not a bootstrap-current parity claim.",
+      "conclusion": "The stress-radius coefficient floor is insensitive to the tested angular/pitch-resolution increase and to the tighter VMEC harmonic cutoff. The remaining finite-beta current gap should therefore stay classified as a monitored profile-current/reduced-closure stress until a profile-current closure diagnostic, not a scalar fit, closes it.",
+      "rows": [
+        {
+          "label": "smoke grid",
+          "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+          "rho": 0.14285714285714285,
+          "nu_prime": 0.01,
+          "e_star": 0.0,
+          "grid": {
+            "Ntheta": 25,
+            "Nzeta": 31,
+            "Nxi": 32,
+            "Nx": 1
+          },
+          "solverTolerance": 1e-06,
+          "min_Bmn_to_load": 1e-05,
+          "seconds": null,
+          "status": "output_found",
+          "relative_difference": {
+            "L13_bridge_vs_sfincs": 0.020293376803271736,
+            "L31_bridge_vs_sfincs": 0.02054783993495091,
+            "L33_bridge_vs_sfincs": 0.012517276278425539,
+            "L33_spitzer_bridge_vs_sfincs": 0.0036278025605098792
+          },
+          "max_transport_relative_difference": 0.02054783993495091
+        },
+        {
+          "label": "production grid",
+          "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+          "rho": 0.14285714285714285,
+          "nu_prime": 0.01,
+          "e_star": 0.0,
+          "grid": {
+            "Ntheta": 35,
+            "Nzeta": 43,
+            "Nxi": 48,
+            "Nx": 1
+          },
+          "solverTolerance": 1e-07,
+          "min_Bmn_to_load": 1e-05,
+          "seconds": 2.70819420798216,
+          "status": "complete",
+          "relative_difference": {
+            "L13_bridge_vs_sfincs": 0.020391309255673024,
+            "L31_bridge_vs_sfincs": 0.02064719610273697,
+            "L33_bridge_vs_sfincs": 0.01251805742967253,
+            "L33_spitzer_bridge_vs_sfincs": 0.003628590757026083
+          },
+          "max_transport_relative_difference": 0.02064719610273697
+        },
+        {
+          "label": "production grid, tight harmonics",
+          "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+          "rho": 0.14285714285714285,
+          "nu_prime": 0.01,
+          "e_star": 0.0,
+          "grid": {
+            "Ntheta": 35,
+            "Nzeta": 43,
+            "Nxi": 48,
+            "Nx": 1
+          },
+          "solverTolerance": 1e-07,
+          "min_Bmn_to_load": 1e-08,
+          "seconds": 2.7280696670059115,
+          "status": "complete",
+          "relative_difference": {
+            "L13_bridge_vs_sfincs": 0.020494277507319067,
+            "L31_bridge_vs_sfincs": 0.020546717035894013,
+            "L33_bridge_vs_sfincs": 0.012518077861174657,
+            "L33_spitzer_bridge_vs_sfincs": 0.0036291778437901106
+          },
+          "max_transport_relative_difference": 0.020546717035894013
+        }
+      ],
+      "open_work": [
+        "run the same production-grid stress probe at the neighboring finite-beta radii used by the profile-current observable audit",
+        "isolate the profile-current closure by applying the same profile drivers directly to the completed same-grid transport coefficients",
+        "promote finite-beta current parity only after the coefficient floor and profile-current observable both clear the current conditioning threshold"
+      ]
+    },
     "owned_finite_beta_bootstrap_comparison": {
       "case": {
         "id": "finite_beta_qa_pressure_current",
@@ -4507,6 +4600,10 @@
     "owned_finite_beta_sfincs_completed_transport_count": 6,
     "owned_finite_beta_sfincs_ntx_same_grid_count": 6,
     "owned_finite_beta_sfincs_max_transport_relative_difference": 0.02054783993495091,
+    "owned_finite_beta_resolution_production_precision_gap": 15.874519840384513,
+    "owned_finite_beta_resolution_tight_harmonics_precision_gap": 15.797266883992512,
+    "owned_finite_beta_resolution_production_change_vs_smoke": 0.004835358271263395,
+    "owned_finite_beta_resolution_tight_harmonics_change_vs_production": -0.004866475154446728,
     "owned_finite_beta_bootstrap_rms_relative_error": 0.12965669248029935,
     "owned_finite_beta_bootstrap_sign_agreement": 1.0,
     "owned_finite_beta_closure_inner_gap_coefficient_error": 0.02054783993495091,
@@ -4638,6 +4735,11 @@
       "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
       "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
       "docs/_static/owned_finite_beta_sfincs_jax_inputs.json"
+    ],
+    "owned_finite_beta_sfincs_jax_resolution_audit": [
+      "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+      "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+      "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json"
     ],
     "owned_finite_beta_bootstrap_comparison": [
       "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -6616,25 +6718,37 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta SFINCS-JAX generation contract",
-          "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. This is the owned independent-code generation contract and an inner-radius smoke-resolution coefficient ladder with the exact radial interpolation, pitch-angle-scattering frequency, and RHSMode=3 flow-row normalizations recorded; it is not a bootstrap-current parity claim until production-resolution SFINCS-JAX outputs are compared against the same NTX and profile artifacts.",
+          "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. This is the owned independent-code generation contract, an inner-radius smoke-resolution coefficient ladder, and an isolated production-grid stress-radius resolution/harmonic-cutoff probe with the exact radial interpolation, pitch-angle-scattering frequency, and RHSMode=3 flow-row normalizations recorded; it is not a bootstrap-current parity claim until production-resolution profile-current outputs are compared against the same NTX, Redl, and profile artifacts.",
           "literature_anchors": [
             "SFINCS monoenergetic RHSMode=3 transport-matrix convention",
             "VMEC geometryScheme=5 finite-beta wout geometry loading",
             "same-grid independent-code validation discipline"
           ],
           "scripts": [
-            "examples/owned_finite_beta_sfincs_jax_inputs.py"
+            "examples/owned_finite_beta_sfincs_jax_inputs.py",
+            "examples/owned_finite_beta_sfincs_jax_resolution_audit.py"
           ],
           "tests": [
-            "tests/test_owned_finite_beta_sfincs_jax_inputs.py"
+            "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
+            "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py"
           ],
           "artifacts": [
             "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
             "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
-            "docs/_static/owned_finite_beta_sfincs_jax_inputs.json"
+            "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+            "docs/_static/owned_finite_beta_sfincs_jax_production_probe.png",
+            "docs/_static/owned_finite_beta_sfincs_jax_production_probe.pdf",
+            "docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+            "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.png",
+            "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.pdf",
+            "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+            "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+            "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+            "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json"
           ],
           "manuscript_figures": [
-            "owned_finite_beta_sfincs_jax_inputs"
+            "owned_finite_beta_sfincs_jax_inputs",
+            "owned_finite_beta_sfincs_jax_resolution_audit"
           ],
           "docs": [
             "docs/benchmark-matrix.md",
@@ -6642,7 +6756,7 @@
             "docs/validation.md"
           ],
           "open_work": [
-            "expand the current completed SFINCS-JAX transport-matrix inner-radius smoke ladder against same-grid NTX scan outputs to production radius and collisionality resolution",
+            "expand the completed stress-radius production probe to neighboring finite-beta radii and collisionalities against same-grid NTX scan outputs",
             "run production SFINCS-JAX profile-current closure diagnostics against the owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
             "promote only after geometry, profile, normalization, and interpolation sidecars are complete"
           ]
@@ -6656,8 +6770,18 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_sfincs_jax_resolution_audit.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py",
             "exists": true
           },
           {
@@ -6673,6 +6797,51 @@
           {
             "kind": "artifact",
             "path": "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json",
             "exists": true
           },
           {
@@ -7035,6 +7204,7 @@
       "geometry_family_transport",
       "owned_geometry_neopax",
       "owned_finite_beta_sfincs_jax_inputs",
+      "owned_finite_beta_sfincs_jax_resolution_audit",
       "owned_finite_beta_bootstrap_comparison",
       "owned_finite_beta_closure_localization",
       "owned_finite_beta_profile_current_observable",

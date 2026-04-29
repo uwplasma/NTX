@@ -411,6 +411,7 @@ def build_payload(
     """Write SFINCS-JAX input decks and optionally execute them."""
 
     cases = _select_cases(case_specs, case_ids, case_limit)
+    output_dir = Path(output_dir).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     decks: list[SfincsDeck] = []
     for case in cases:
@@ -522,6 +523,7 @@ def build_payload(
         if str(key).startswith("L33_spitzer")
         if np.isfinite(float(value))
     ]
+    grid_label = f"{int(grid.n_theta)} x {int(grid.n_zeta)} x {int(grid.n_xi)}"
     return {
         "benchmark": "owned_finite_beta_sfincs_jax_inputs",
         "classification": "owned finite-beta SFINCS-JAX generation contract",
@@ -530,9 +532,12 @@ def build_payload(
             "VMEC wout, rho, collisionality, electric-field, and resolution grids "
             "used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested "
             "with the reported nu_n normalization and compared against NTX on the "
-            "same geometry and grid. The committed artifact includes the inner "
-            "bootstrap-current stress radius and is a smoke-resolution coefficient "
-            "ladder, not a finite-beta bootstrap-current parity claim."
+            "same geometry and grid. This payload uses a "
+            f"{grid_label} coefficient grid. The default committed artifact is a "
+            "smoke-resolution ladder, while separately named output prefixes can "
+            "record production stress probes. Neither form is a finite-beta "
+            "bootstrap-current parity claim until profile-current closure "
+            "diagnostics are complete on the same contract."
         ),
         "normalization_contract": {
             "rho_to_s": "s=rho^2",

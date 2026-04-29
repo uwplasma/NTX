@@ -149,8 +149,10 @@ or explicitly moved to documented future work with a clear reason.
 - The finite-beta current-conditioning sidecar now records the stricter
   coefficient precision needed by the cancellation-dominated net-current
   observable. The current smoke ladder is still looser than the `1e-1`
-  current-conditioned target, so production same-grid diagnostics are the next
-  required step before any finite-beta closure/parity promotion.
+  current-conditioned target. The first production stress-radius rerun and
+  tight-harmonic probe leave the coefficient floor near `2.05e-2`, so the next
+  required step is profile-current closure diagnostics on the same finite-beta
+  contract before any finite-beta parity promotion.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the

@@ -29,21 +29,23 @@ examples.
 10. `geometry_family_transport_convergence.{png,pdf,json}`
 11. `owned_geometry_neopax_dataset.{png,pdf,json}`
 12. `owned_finite_beta_sfincs_jax_inputs.{png,pdf,json}`
-13. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
-14. `owned_finite_beta_closure_localization.{png,pdf,json}`
-15. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
-16. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-17. `bootstrap_current_robust_optimization.{png,pdf,json}`
-18. `performance_scaling_smoke.{png,pdf,json}`
-19. `performance_scaling_heavy.{png,pdf,json}`
-20. `performance_strong_scaling_production.{png,pdf,json}`
-21. `prepared_geometry_reuse_profile.{png,pdf,json}`
-22. `ambipolar_profile.{png,pdf}`
-23. `ambipolar_profile_family.{png,pdf}`
-24. `profile_force_reconstruction_audit.{png,pdf,json}`
-25. `profile_control_optimization.{png,pdf}`
-26. `profile_basis_optimization.{png,pdf,json}`
-27. `profile_transport_loop.{png,pdf}`
+13. `owned_finite_beta_sfincs_jax_resolution_audit.{png,pdf,json}`
+14. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
+15. `owned_finite_beta_closure_localization.{png,pdf,json}`
+16. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
+17. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
+18. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+19. `bootstrap_current_robust_optimization.{png,pdf,json}`
+20. `performance_scaling_smoke.{png,pdf,json}`
+21. `performance_scaling_heavy.{png,pdf,json}`
+22. `performance_strong_scaling_production.{png,pdf,json}`
+23. `prepared_geometry_reuse_profile.{png,pdf,json}`
+24. `ambipolar_profile.{png,pdf}`
+25. `ambipolar_profile_family.{png,pdf}`
+26. `profile_force_reconstruction_audit.{png,pdf,json}`
+27. `profile_control_optimization.{png,pdf}`
+28. `profile_basis_optimization.{png,pdf,json}`
+29. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -104,67 +106,72 @@ examples.
      completed HDF5 ingestion, the SFINCS-reported `nuPrime -> nu_n` bridge,
      and a coefficient-level NTX `L13/L31/L33` comparison before
      profile-current parity promotion
-15. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
+15. `owned_finite_beta_sfincs_jax_resolution_audit.{png,pdf,json}`
+   - production stress-radius rerun of the same finite-beta coefficient point
+     at `35 x 43 x 48`, plus a tighter VMEC harmonic-cutoff probe; the
+     coefficient floor remains near `2.05e-2`, about `15.8x` above the
+     cancellation-conditioned current target
+16. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
    - same finite-beta QA pressure/current `wout`, Boozer transform, analytic
      profiles, production radial/collisionality ladder, physical `nu/v`
      support, `D33_spitzer` branch, and current normalization used for Redl
      and `NTX+NEOPAX`; retained as a reduced-closure stress audit because the
      outer-radius current is near the `1e-1` target while the inner-radius gap
      remains open
-16. `owned_finite_beta_closure_localization.{png,pdf,json}`
+17. `owned_finite_beta_closure_localization.{png,pdf,json}`
    - sidecar figure and JSON that compare the same-grid coefficient ladder with
      the finite-beta profile-current stress artifact; at the inner gap the
      coefficient-level error is about `2.1e-2`, while the current-profile error
      remains about `3.1e-1`
-17. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
+18. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
    - stress-radius decomposition of the profile-current observable into
      no-momentum current, applied momentum correction, correction needed to match
      Redl, species-current cancellation scale, local profile/geometry drivers,
      and Pmax trend
-18. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
+19. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
    - cancellation-conditioned coefficient-precision requirement for the
      finite-beta net-current observable; this explains why the smoke
      coefficient ladder is not yet sufficient for a `1e-1` bootstrap-current
      parity claim
-19. `derivative_path_benchmark.{png,pdf}`
+20. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-20. `bootstrap_current_optimization.{png,pdf}`
+21. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-21. `bootstrap_current_robust_optimization.{png,pdf,json}`
+22. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
-21. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+23. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-22. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+24. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-23. `performance_scaling_smoke.{png,pdf,json}`
+25. `performance_scaling_smoke.{png,pdf,json}`
    - CPU/GPU scaling on the repository smoke grid
-24. `performance_scaling_heavy.{png,pdf,json}`
+26. `performance_scaling_heavy.{png,pdf,json}`
    - heavier-grid scaling where throughput effects are visible
-25. `performance_scaling_production.{png,pdf,json}`
+27. `performance_scaling_production.{png,pdf,json}`
    - production-grid CPU/GPU scaling with serial, device-parallel,
      multiprocess, memory, and coefficient-agreement metadata
-26. `performance_strong_scaling_production.{png,pdf,json}`
+28. `performance_strong_scaling_production.{png,pdf,json}`
    - fixed-workload CPU/GPU strong scaling with worker/device sweeps, memory,
      and coefficient-agreement metadata
-27. `prepared_geometry_reuse_profile.{png,pdf,json}`
+29. `prepared_geometry_reuse_profile.{png,pdf,json}`
    - fixed-geometry repeated-solve profile showing the direct, prepared, and
      compiled prepared solver paths with coefficient agreement recorded in the
      JSON artifact
-28. `ambipolar_profile.{png,pdf}`
+30. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-29. `ambipolar_profile_family.{png,pdf}`
+31. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-30. `profile_force_reconstruction_audit.{png,pdf,json}`
+32. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-31. `profile_control_optimization.{png,pdf}`
+33. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-32. `profile_basis_optimization.{png,pdf,json}`
+34. `profile_basis_optimization.{png,pdf,json}`
    - low-dimensional radial-basis optimization of the same profile closure
-33. `profile_transport_loop.{png,pdf}`
+35. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-34. `primitive_profile_transport.{png,pdf}`
+36. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:

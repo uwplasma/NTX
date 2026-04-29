@@ -87,6 +87,11 @@
     "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
     "docs/_static/owned_finite_beta_sfincs_jax_inputs.json"
   ],
+  "owned_finite_beta_sfincs_jax_resolution_audit": [
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json"
+  ],
   "owned_finite_beta_bootstrap_comparison": [
     "docs/_static/owned_finite_beta_bootstrap_comparison.png",
     "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
