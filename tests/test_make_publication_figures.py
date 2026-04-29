@@ -351,6 +351,15 @@ def test_geometry_family_transport_uses_paper_preset(
             ),
         ),
         (
+            "owned_finite_beta_source_response_profile",
+            {"owned_finite_beta_source_response_profile"},
+            (
+                "owned_finite_beta_source_response_profile_audit.png",
+                "owned_finite_beta_source_response_profile_audit.pdf",
+                "owned_finite_beta_source_response_profile_audit.json",
+            ),
+        ),
+        (
             "prepared_geometry_reuse",
             {"prepared_geometry_reuse"},
             (

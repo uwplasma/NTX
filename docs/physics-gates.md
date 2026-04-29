@@ -191,6 +191,11 @@ These are trust-building comparisons against independent workflows:
   also stores the Redl density and temperature target terms on the same current
   observable. The high-order Redl/NTX effective-temperature response ratio is a
   monitored stress metric, not an acceptance gate and not a runtime fit.
+- **Owned finite-beta profile source-response:** the source-response sidecar
+  extends the effective-temperature channel measurement over the finite-beta
+  profile. Its radial response span and correlations with Redl collisionality,
+  trapped fraction, epsilon, and `L32` are monitored diagnostics for a future
+  physics-derived closure, not fitted correction factors.
 - **Owned finite-beta profile-current observable:** the finite-beta
   bootstrap-current profile remains a monitored stress diagnostic, not a
   parity gate. The current artifacts keep the net-current residual, the
@@ -303,13 +308,15 @@ gates:
 - finite-beta closure quadrature: monitored, with one under-integrated
   current-gate pass and a highest-quadrature largest-order stress difference
   near `4e-1`.
+- finite-beta profile source response: monitored, with the current high-order
+  temperature response multiplier spanning `0.717` to `1.317` over the profile.
 
 This is the current physics interpretation: the coefficient-side bridge is no
 longer the leading suspect for the finite-beta QA stress case, and the remaining
-gap lives in a quadrature-converged reduced profile-current observable under
-strong species-current cancellation. Future closure work must improve that
-observable without changing device-specific scale factors and without regressing
-the fixed-field precise-QS or integrated W7-X gates.
+gap lives in a quadrature-converged reduced profile-current/source-response
+observable under strong species-current cancellation. Future closure work must
+improve that observable without changing device-specific scale factors and
+without regressing the fixed-field precise-QS or integrated W7-X gates.
 
 ## Current Policy
 

@@ -57,6 +57,7 @@ python examples/owned_finite_beta_profile_current_observable_audit.py
 python examples/owned_finite_beta_current_conditioning_audit.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_channel_audit.py
+python examples/owned_finite_beta_source_response_profile_audit.py
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -156,6 +157,13 @@ profile-dependent bridge: at `X=18, P=18`, the Redl temperature target is
 `0.717` of the frozen corrected temperature response. That keeps the open lane
 on a physics-derived profile-current closure response rather than on hidden
 normalization constants or fitted thresholds.
+The profile source-response audit extends that same one-channel solve over all
+13 finite-beta profile radii at `X=18, P=18`. The temperature response
+multiplier spans `0.717` to `1.317`, has median `1.010`, preserves temperature
+source sign agreement over the profile, and keeps the maximum current stress at
+the inner `rho=0.143` radius. The JSON sidecar records correlations with Redl
+collisionality, trapped fraction, epsilon, and `L32`; these are diagnostics for
+a future physics-derived closure term, not runtime corrections.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -184,6 +192,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_source_channel_audit.png`
 - `docs/_static/owned_finite_beta_source_channel_audit.pdf`
 - `docs/_static/owned_finite_beta_source_channel_audit.json`
+- `docs/_static/owned_finite_beta_source_response_profile_audit.png`
+- `docs/_static/owned_finite_beta_source_response_profile_audit.pdf`
+- `docs/_static/owned_finite_beta_source_response_profile_audit.json`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
@@ -212,6 +223,8 @@ a stable selector.
 ![Owned finite-beta closure quadrature audit](_static/owned_finite_beta_closure_quadrature_audit.png)
 
 ![Owned finite-beta source-channel audit](_static/owned_finite_beta_source_channel_audit.png)
+
+![Owned finite-beta profile source-response audit](_static/owned_finite_beta_source_response_profile_audit.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 

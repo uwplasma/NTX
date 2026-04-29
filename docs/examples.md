@@ -150,6 +150,7 @@ python examples/owned_finite_beta_profile_current_observable_audit.py
 python examples/owned_finite_beta_current_conditioning_audit.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_channel_audit.py
+python examples/owned_finite_beta_source_response_profile_audit.py
 ```
 
 These optional provenance artifacts prioritize local finite-beta stellarator
@@ -213,6 +214,12 @@ solves one physical source channel at a time. The one-channel solves reconstruct
 the corrected current to roundoff, and the quadrature-stable high-order result
 is dominated by the effective temperature-gradient drive with no parallel-
 electric drive for this profile contract.
+The profile source-response audit extends that decomposition from the single
+stress radius to the full finite-beta profile at `X=18, P=18`. It plots the
+Redl and corrected current profiles, the Redl/NTX effective source-response
+multiplier, the reconstruction gate, and the response trend against Redl
+collisionality and trapped-particle fraction. This is a diagnostic for the next
+physics closure, not a fitted runtime correction.
 
 It writes:
 
@@ -251,6 +258,9 @@ It writes:
 - `docs/_static/owned_finite_beta_source_channel_audit.png`
 - `docs/_static/owned_finite_beta_source_channel_audit.pdf`
 - `docs/_static/owned_finite_beta_source_channel_audit.json`
+- `docs/_static/owned_finite_beta_source_response_profile_audit.png`
+- `docs/_static/owned_finite_beta_source_response_profile_audit.pdf`
+- `docs/_static/owned_finite_beta_source_response_profile_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -277,6 +287,12 @@ The source-channel panel overlays the Redl density and temperature target terms
 on the same current observable. The current artifact reconstructs the corrected
 NTX+NEOPAX current to roundoff and records that the high-order Redl temperature
 target is `0.717` of the frozen corrected temperature-channel response.
+
+![Owned finite-beta profile source-response audit](_static/owned_finite_beta_source_response_profile_audit.png)
+
+The profile source-response panel shows that the temperature response multiplier
+is not a single hidden constant: it spans the profile while preserving source
+sign agreement and keeping the largest current stress at the inner radius.
 
 ## 10. Bootstrap Current With NEOPAX
 

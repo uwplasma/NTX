@@ -202,6 +202,17 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `bootstrap_current_with_neopax.py`
 - `bootstrap_current_fixed_field_validation.py`
 - `bootstrap_current_reference_audit_w7x.py`
+- `owned_geometry_neopax_dataset.py`
+- `owned_finite_beta_sfincs_jax_inputs.py`
+- `owned_finite_beta_sfincs_jax_resolution_audit.py`
+- `owned_finite_beta_sfincs_jax_production_ladder_audit.py`
+- `owned_finite_beta_bootstrap_comparison.py`
+- `owned_finite_beta_closure_localization.py`
+- `owned_finite_beta_profile_current_observable_audit.py`
+- `owned_finite_beta_current_conditioning_audit.py`
+- `owned_finite_beta_closure_quadrature_audit.py`
+- `owned_finite_beta_source_channel_audit.py`
+- `owned_finite_beta_source_response_profile_audit.py`
 - `performance_scaling.py`
 - `performance_strong_scaling.py`
 - `prepared_geometry_reuse_profile.py`

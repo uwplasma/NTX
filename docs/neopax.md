@@ -78,6 +78,12 @@ For end-to-end examples, see:
 - [`examples/owned_finite_beta_closure_quadrature_audit.py`](../examples/owned_finite_beta_closure_quadrature_audit.py)
   for the Sonine-order versus velocity-quadrature audit that rejects
   under-integrated apparent finite-beta current-gate passes
+- [`examples/owned_finite_beta_source_channel_audit.py`](../examples/owned_finite_beta_source_channel_audit.py)
+  for the stress-radius physical source-channel decomposition of the same
+  momentum-restoring linear system
+- [`examples/owned_finite_beta_source_response_profile_audit.py`](../examples/owned_finite_beta_source_response_profile_audit.py)
+  for the profile-wide effective-temperature source-response map against Redl
+  collisionality and geometry drivers
 - [`examples/bootstrap_current_with_neopax.py`](../examples/bootstrap_current_with_neopax.py)
   for a radial bootstrap-current profile built from an NTX scan and evaluated
   through NEOPAX

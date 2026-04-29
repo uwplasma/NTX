@@ -125,9 +125,9 @@ highest-signal artifacts:
 | --- | --- |
 | ![Owned finite-beta Redl and NTX + NEOPAX bootstrap-current stress audit](docs/_static/owned_finite_beta_bootstrap_comparison.png) | ![Explicit-relaxed boundary current derivative benchmark](docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png) |
 
-| Owned finite-beta geometry | Same-grid SFINCS-JAX input generation |
+| Owned finite-beta source response | Same-grid SFINCS-JAX input generation |
 | --- | --- |
-| ![Owned finite-beta NTX and NEOPAX geometry dataset provenance](docs/_static/owned_geometry_neopax_dataset.png) | ![Owned finite-beta SFINCS-JAX generation contract](docs/_static/owned_finite_beta_sfincs_jax_inputs.png) |
+| ![Owned finite-beta profile source-response audit](docs/_static/owned_finite_beta_source_response_profile_audit.png) | ![Owned finite-beta SFINCS-JAX generation contract](docs/_static/owned_finite_beta_sfincs_jax_inputs.png) |
 
 Current promoted validation includes monoenergetic convergence and identities,
 the fixed-field Redl comparison on the precise-QS benchmark family, the
@@ -179,7 +179,12 @@ effective temperature-gradient drive while the parallel-electric channel is
 inactive for this profile contract. The same artifact now stores the Redl
 density and temperature source terms on the identical observable; at high order
 the Redl temperature-channel target is `0.717` of the frozen corrected
-temperature response. The remaining finite-beta closure work is therefore a
+temperature response. The profile source-response sidecar extends that
+measurement across all 13 finite-beta profile radii at `X=18, P=18`: the
+temperature response multiplier ranges from `0.717` to `1.317` with median
+`1.010`, the maximum current stress remains the inner `rho=0.143` point, and
+the response trend is recorded against Redl collisionality, trapped fraction,
+and geometry factors. The remaining finite-beta closure work is therefore a
 physics-model/source-response lane, not a hidden normalization or fitted
 threshold lane.
 Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
@@ -211,6 +216,7 @@ python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
+python examples/owned_finite_beta_source_response_profile_audit.py
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```

@@ -97,6 +97,9 @@ def build_payload() -> dict:
     owned_finite_beta_source_channel = _load_json(
         STATIC / "owned_finite_beta_source_channel_audit.json"
     )
+    owned_finite_beta_source_response_profile = _load_json(
+        STATIC / "owned_finite_beta_source_response_profile_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -137,6 +140,7 @@ def build_payload() -> dict:
         "owned_finite_beta_current_conditioning",
         "owned_finite_beta_closure_quadrature",
         "owned_finite_beta_source_channel",
+        "owned_finite_beta_source_response_profile",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -351,6 +355,17 @@ def build_payload() -> dict:
                 "conclusion": owned_finite_beta_source_channel["conclusion"],
                 "rows": owned_finite_beta_source_channel["rows"],
                 "open_work": owned_finite_beta_source_channel["open_work"],
+            },
+            "owned_finite_beta_source_response_profile": {
+                "summary_metrics": owned_finite_beta_source_response_profile[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_source_response_profile[
+                    "claim_scope"
+                ],
+                "conclusion": owned_finite_beta_source_response_profile["conclusion"],
+                "rows": owned_finite_beta_source_response_profile["rows"],
+                "open_work": owned_finite_beta_source_response_profile["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -731,6 +746,46 @@ def build_payload() -> dict:
                     "high_stable_redl_effective_temperature_fraction_of_total"
                 )
             ),
+            "owned_finite_beta_source_response_profile_radius_count": (
+                owned_finite_beta_source_response_profile["summary_metrics"][
+                    "radius_count"
+                ]
+            ),
+            "owned_finite_beta_source_response_profile_max_error": (
+                owned_finite_beta_source_response_profile["summary_metrics"][
+                    "high_order_max_public_relative_error_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_source_response_profile_multiplier_min": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "high_order_temperature_response_multiplier_min"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_multiplier_median": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "high_order_temperature_response_multiplier_median"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_multiplier_max": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "high_order_temperature_response_multiplier_max"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_multiplier_span": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "high_order_temperature_response_multiplier_span"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_stress_rho": (
+                owned_finite_beta_source_response_profile["summary_metrics"][
+                    "high_order_stress_rho"
+                ]
+            ),
+            "owned_finite_beta_source_response_profile_nu_correlation": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "temperature_response_correlation_with_log10_nu_e_star"
+                )
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -1033,6 +1088,36 @@ def build_markdown(payload: dict) -> str:
         owned_finite_beta_source_channel_metrics.get(
             "high_stable_redl_effective_temperature_fraction_of_total"
         )
+    )
+    owned_finite_beta_source_response_profile = payload["tables"][
+        "owned_finite_beta_source_response_profile"
+    ]
+    source_response_profile_metrics = owned_finite_beta_source_response_profile[
+        "summary_metrics"
+    ]
+    source_response_profile_radius_count = source_response_profile_metrics[
+        "radius_count"
+    ]
+    source_response_profile_max_error = source_response_profile_metrics[
+        "high_order_max_public_relative_error_vs_redl"
+    ]
+    source_response_profile_multiplier_min = source_response_profile_metrics.get(
+        "high_order_temperature_response_multiplier_min"
+    )
+    source_response_profile_multiplier_median = source_response_profile_metrics.get(
+        "high_order_temperature_response_multiplier_median"
+    )
+    source_response_profile_multiplier_max = source_response_profile_metrics.get(
+        "high_order_temperature_response_multiplier_max"
+    )
+    source_response_profile_multiplier_span = source_response_profile_metrics.get(
+        "high_order_temperature_response_multiplier_span"
+    )
+    source_response_profile_stress_rho = source_response_profile_metrics[
+        "high_order_stress_rho"
+    ]
+    source_response_profile_nu_correlation = source_response_profile_metrics.get(
+        "temperature_response_correlation_with_log10_nu_e_star"
     )
     owned_finite_beta_resolution = payload["tables"][
         "owned_finite_beta_sfincs_jax_resolution_audit"
@@ -1525,6 +1610,39 @@ def build_markdown(payload: dict) -> str:
             if source_channel_redl_temperature_fraction is not None
             else "",
             (
+                "| Profile source-response radii | "
+                f"`{source_response_profile_radius_count}` |"
+            ),
+            (
+                "| Profile source-response max current stress | "
+                f"`{source_response_profile_max_error:.3e}` at "
+                f"`rho={source_response_profile_stress_rho:.3f}` |"
+            ),
+            (
+                "| Profile temperature response multiplier min/median/max | "
+                f"`{source_response_profile_multiplier_min:.3e}` / "
+                f"`{source_response_profile_multiplier_median:.3e}` / "
+                f"`{source_response_profile_multiplier_max:.3e}` |"
+            )
+            if (
+                source_response_profile_multiplier_min is not None
+                and source_response_profile_multiplier_median is not None
+                and source_response_profile_multiplier_max is not None
+            )
+            else "",
+            (
+                "| Profile temperature response multiplier span | "
+                f"`{source_response_profile_multiplier_span:.3e}` |"
+            )
+            if source_response_profile_multiplier_span is not None
+            else "",
+            (
+                "| Temperature response correlation with log10(nu_e*) | "
+                f"`{source_response_profile_nu_correlation:.3e}` |"
+            )
+            if source_response_profile_nu_correlation is not None
+            else "",
+            (
                 "| Stress-radius Pmax error reduction | "
                 f"`{observable_pmax_error_reduction:.3f}x` |"
             ),
@@ -1947,6 +2065,34 @@ def build_claims_markdown(payload: dict) -> str:
                 "physics-derived source-channel response, not on fitted "
                 "thresholds or hidden normalization constants."
             ),
+            (
+                "- The owned finite-beta profile source-response audit extends "
+                "that source-channel measurement over "
+                f"`{claims['owned_finite_beta_source_response_profile_radius_count']}` "
+                "profile radii. The high-order current stress reaches "
+                f"`{claims['owned_finite_beta_source_response_profile_max_error']:.3e}` "
+                "at "
+                f"`rho={claims['owned_finite_beta_source_response_profile_stress_rho']:.3f}`, "
+                "and the Redl/NTX effective-temperature response multiplier "
+                "spans "
+                f"`{claims['owned_finite_beta_source_response_profile_multiplier_min']:.3e}`/"
+                f"`{claims['owned_finite_beta_source_response_profile_multiplier_median']:.3e}`/"
+                f"`{claims['owned_finite_beta_source_response_profile_multiplier_max']:.3e}` "
+                "over min/median/max. This is kept as a profile-wide "
+                "physics-localization map before any reduced-closure change is "
+                "accepted."
+            )
+            if (
+                claims.get("owned_finite_beta_source_response_profile_multiplier_min")
+                is not None
+                and claims.get(
+                    "owned_finite_beta_source_response_profile_multiplier_median"
+                )
+                is not None
+                and claims.get("owned_finite_beta_source_response_profile_multiplier_max")
+                is not None
+            )
+            else "",
             (
                 "- The profile uncertainty stress benchmark now uses a "
                 f"`{claims['profile_uncertainty_basis_size']}`-term radial "

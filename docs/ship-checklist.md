@@ -158,9 +158,12 @@ or explicitly moved to documented future work with a clear reason.
   quadrature-stable current-gate pass count is zero. The source-channel
   sidecar reconstructs the same corrected current to roundoff from one-channel
   solves and localizes the high-order response to the effective
-  temperature-gradient drive under the current profile contract. The next
-  required step is a quadrature-converged profile-current closure on the same
-  finite-beta contract before any finite-beta parity promotion.
+  temperature-gradient drive under the current profile contract. The
+  profile-response sidecar extends that measurement over all committed profile
+  radii and records the response multiplier against Redl collisionality and
+  geometry drivers. The next required step is a quadrature-converged
+  profile-current/source-response closure on the same finite-beta contract
+  before any finite-beta parity promotion.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the
