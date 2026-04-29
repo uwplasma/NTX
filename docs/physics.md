@@ -376,6 +376,20 @@ for validation: the fixed-field bootstrap current is not determined by a single
 monoenergetic coefficient, but by how the density and temperature drives enter
 the row-3 response and the momentum-restoring Sonine solve.
 
+For the finite-beta Redl stress audit, the analytic target is also stored as
+source terms on the same current observable,
+
+```{math}
+\langle J\cdot B\rangle_\mathrm{Redl}
+=
+J_n + J_{T_e} + J_{T_i},
+```
+
+where `J_n` is the Redl density-gradient contribution and `J_Te + J_Ti` is the
+effective temperature-gradient target. The source-channel audit compares these
+terms to the frozen NTX+NEOPAX density/electric and effective-temperature
+responses without inserting any fitted multiplier into the runtime closure.
+
 The no-momentum parallel-flow branch is therefore
 
 ```{math}

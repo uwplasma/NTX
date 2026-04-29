@@ -100,6 +100,12 @@ def test_build_manuscript_artifacts_script_writes_outputs():
         payload["claims"]["owned_finite_beta_source_channel_high_stable_dominant"]
         == "effective_temperature_force"
     )
+    assert (
+        payload["claims"][
+            "owned_finite_beta_source_channel_temperature_response_multiplier"
+        ]
+        < 1.0
+    )
     assert "performance" in payload["tables"]
     assert "prepared_geometry_reuse" in payload["tables"]["performance"]
     assert "production" in payload["tables"]["performance"]

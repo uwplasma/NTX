@@ -273,6 +273,11 @@ It writes:
 
 ![Owned finite-beta source-channel audit](_static/owned_finite_beta_source_channel_audit.png)
 
+The source-channel panel overlays the Redl density and temperature target terms
+on the same current observable. The current artifact reconstructs the corrected
+NTX+NEOPAX current to roundoff and records that the high-order Redl temperature
+target is `0.717` of the frozen corrected temperature-channel response.
+
 ## 10. Bootstrap Current With NEOPAX
 
 ```bash

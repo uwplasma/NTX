@@ -716,6 +716,21 @@ def build_payload() -> dict:
                     "high_stable_species_cancellation_factor"
                 ]
             ),
+            "owned_finite_beta_source_channel_temperature_response_multiplier": (
+                owned_finite_beta_source_channel["summary_metrics"].get(
+                    "high_stable_effective_temperature_response_multiplier_to_redl"
+                )
+            ),
+            "owned_finite_beta_source_channel_temperature_response_error": (
+                owned_finite_beta_source_channel["summary_metrics"].get(
+                    "high_stable_effective_temperature_channel_relative_error_vs_redl"
+                )
+            ),
+            "owned_finite_beta_source_channel_redl_temperature_fraction": (
+                owned_finite_beta_source_channel["summary_metrics"].get(
+                    "high_stable_redl_effective_temperature_fraction_of_total"
+                )
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -1004,6 +1019,21 @@ def build_markdown(payload: dict) -> str:
     source_channel_cancellation_factor = owned_finite_beta_source_channel_metrics[
         "high_stable_species_cancellation_factor"
     ]
+    source_channel_temperature_response_multiplier = (
+        owned_finite_beta_source_channel_metrics.get(
+            "high_stable_effective_temperature_response_multiplier_to_redl"
+        )
+    )
+    source_channel_temperature_response_error = (
+        owned_finite_beta_source_channel_metrics.get(
+            "high_stable_effective_temperature_channel_relative_error_vs_redl"
+        )
+    )
+    source_channel_redl_temperature_fraction = (
+        owned_finite_beta_source_channel_metrics.get(
+            "high_stable_redl_effective_temperature_fraction_of_total"
+        )
+    )
     owned_finite_beta_resolution = payload["tables"][
         "owned_finite_beta_sfincs_jax_resolution_audit"
     ]
@@ -1477,6 +1507,24 @@ def build_markdown(payload: dict) -> str:
                 f"`{source_channel_cancellation_factor:.3e}` |"
             ),
             (
+                "| Redl temperature response multiplier at high order | "
+                f"`{source_channel_temperature_response_multiplier:.3e}` |"
+            )
+            if source_channel_temperature_response_multiplier is not None
+            else "",
+            (
+                "| Redl temperature-channel relative difference at high order | "
+                f"`{source_channel_temperature_response_error:.3e}` |"
+            )
+            if source_channel_temperature_response_error is not None
+            else "",
+            (
+                "| Redl temperature-channel fraction of target current | "
+                f"`{source_channel_redl_temperature_fraction:.3e}` |"
+            )
+            if source_channel_redl_temperature_fraction is not None
+            else "",
+            (
                 "| Stress-radius Pmax error reduction | "
                 f"`{observable_pmax_error_reduction:.3f}x` |"
             ),
@@ -1878,7 +1926,24 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_source_channel_temperature_fraction']:.3e}`/"
                 f"`{claims['owned_finite_beta_source_channel_density_fraction']:.3e}`/"
                 f"`{claims['owned_finite_beta_source_channel_parallel_fraction']:.3e}`. "
-                "This keeps the remaining finite-beta closure work on a "
+                + (
+                    "The Redl temperature-channel target would require a "
+                    "high-order response multiplier of "
+                    "`"
+                    f"{claims['owned_finite_beta_source_channel_temperature_response_multiplier']:.3e}"
+                    "` "
+                    "relative to the frozen corrected source solve, with "
+                    "channel relative difference "
+                    "`"
+                    f"{claims['owned_finite_beta_source_channel_temperature_response_error']:.3e}"
+                    "`. "
+                    if claims.get(
+                        "owned_finite_beta_source_channel_temperature_response_multiplier"
+                    )
+                    is not None
+                    else ""
+                )
+                + "This keeps the remaining finite-beta closure work on a "
                 "physics-derived source-channel response, not on fitted "
                 "thresholds or hidden normalization constants."
             ),

@@ -149,7 +149,10 @@ examples.
    - frozen stress-radius source-channel decomposition of the same
      momentum-restoring system; one-channel solves reconstruct the full current
      to roundoff and localize the high-order response to the effective
-     temperature-gradient drive under the current profile contract
+     temperature-gradient drive under the current profile contract; Redl
+     density and temperature target terms are stored on the same observable,
+     giving a high-order temperature-channel response multiplier of about
+     `0.717` rather than a fitted runtime correction
 23. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
 24. `bootstrap_current_optimization.{png,pdf}`

@@ -150,8 +150,12 @@ source columns separately. Those one-channel solves reconstruct the full
 corrected current to roundoff. At the quadrature-stable high-order setting the
 effective temperature-gradient channel supplies essentially all of the net
 response, while the parallel-electric channel is zero for this profile
-contract. That keeps the open lane on a physics-derived profile-current closure
-response rather than on hidden normalization constants or fitted thresholds.
+contract. The Redl density and temperature terms are also stored on the same
+observable, so the audit measures a source-response ratio rather than fitting a
+profile-dependent bridge: at `X=18, P=18`, the Redl temperature target is
+`0.717` of the frozen corrected temperature response. That keeps the open lane
+on a physics-derived profile-current closure response rather than on hidden
+normalization constants or fitted thresholds.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`

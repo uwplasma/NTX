@@ -300,6 +300,20 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "parallel-electric decomposition is interpreted physically."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_temperature_source_response_stress",
+        category="stress",
+        metric="high-order Redl/NTX effective-temperature source response multiplier",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_source_channel_audit.json",
+        rationale=(
+            "The finite-beta profile-current closure gap is localized to the "
+            "effective temperature-gradient source channel. The Redl target "
+            "response ratio is tracked as a physics diagnostic, not as a "
+            "runtime fit or acceptance gate."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]
