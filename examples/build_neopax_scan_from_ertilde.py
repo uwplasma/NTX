@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 import interpax
+import jax
 import jax.numpy as jnp
 import numpy as np
 from netCDF4 import Dataset
@@ -23,7 +24,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from ntx import GridSpec, NeopaxScan, solve_monoenergetic_scan, write_neopax_scan_hdf5  # noqa: E402
+from ntx import GridSpec, NeopaxScan, load_boozmn_surface, solve_monoenergetic_scan, write_neopax_scan_hdf5  # noqa: E402
 from ntx._checkout_paths import find_neopax_root  # noqa: E402
 from ntx.vmec_jax_vmec import surface_from_vmec_jax_vmec_wout_file  # noqa: E402
 
@@ -96,6 +97,24 @@ def _parse_args() -> argparse.Namespace:
         type=Path,
         default=OUTPUT_PATH,
         help="Path to the output NEOPAX-style HDF5 file.",
+    )
+    parser.add_argument(
+        "--surface-backend",
+        choices=("auto", "vmec", "boozmn"),
+        default="auto",
+        help="Geometry source used for the NTX surface solve.",
+    )
+    parser.add_argument(
+        "--device-backend",
+        choices=("auto", "cpu", "gpu"),
+        default="auto",
+        help="JAX execution backend used for the solve.",
+    )
+    parser.add_argument(
+        "--device-index",
+        type=int,
+        default=0,
+        help="Device index within the selected JAX backend.",
     )
     parser.add_argument(
         "--n-theta",
@@ -231,6 +250,36 @@ def _surface_loader(wout_path: Path, rho_value: float):
     return surface_from_vmec_jax_vmec_wout_file(wout_path, s=float(rho_value**2))
 
 
+def _select_surface_loader(*, backend: str, wout_path: Path, boozmn_path: Path):
+    if backend not in {"auto", "vmec", "boozmn"}:
+        raise ValueError(f"unsupported backend {backend!r}")
+    if backend in {"auto", "boozmn"} and boozmn_path.exists():
+        return (
+            lambda rho_value: load_boozmn_surface(boozmn_path, rho=float(rho_value)).surface,
+            "boozmn",
+        )
+    if wout_path.exists():
+        return (
+            lambda rho_value: _surface_loader(wout_path, float(rho_value)),
+            "vmec_jax",
+        )
+    raise FileNotFoundError("no usable backend input file was found")
+
+
+def _select_jax_device(*, backend: str, device_index: int):
+    if backend == "auto":
+        devices = list(jax.devices())
+    else:
+        devices = list(jax.devices(backend))
+    if not devices:
+        raise RuntimeError(f"no JAX devices available for backend {backend!r}")
+    if device_index < 0 or device_index >= len(devices):
+        raise IndexError(
+            f"device_index {device_index} is outside [0, {len(devices) - 1}] for backend {backend!r}"
+        )
+    return devices[device_index]
+
+
 def _report_scan_warnings(scan: NeopaxScan) -> None:
     d11 = np.asarray(scan.D11, dtype=float)
     d13 = np.asarray(scan.D13, dtype=float)
@@ -287,8 +336,13 @@ def _report_scan_warnings(scan: NeopaxScan) -> None:
         print("scan sanity checks: no negative D11, no non-finite values, Onsager mismatch within threshold")
 
 
-def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec) -> NeopaxScan:
+def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec, backend: str) -> NeopaxScan:
     channels = _load_vmec_boozer_channels(wout_path, boozmn_path, RHO)
+    load_surface, backend_name = _select_surface_loader(
+        backend=backend,
+        wout_path=wout_path,
+        boozmn_path=boozmn_path,
+    )
     er, es, er_to_ertilde = _build_field_channels(
         RHO,
         ER_TILDE,
@@ -307,7 +361,7 @@ def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec) -> NeopaxS
     d33_spitzer = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
 
     for idx, rho_value in enumerate(np.asarray(RHO)):
-        surface = _surface_loader(wout_path, float(rho_value))
+        surface = load_surface(float(rho_value))
         nu_grid, es_grid = jnp.meshgrid(NU_V, es[idx], indexing="ij")
         coeffs = solve_monoenergetic_scan(surface, grid, nu_grid, epsi_hat=es_grid)
         d11 = d11.at[idx].set(coeffs["D11"])
@@ -350,7 +404,7 @@ def build_scan(*, wout_path: Path, boozmn_path: Path, grid: GridSpec) -> NeopaxS
         fac_dkes_to_d11star=channels["fac_dkes_to_d11star"],
         fac_dkes_to_d31star=channels["fac_dkes_to_d31star"],
         fac_dkes_to_d33star=channels["fac_dkes_to_d33star"],
-        source_name="ntx_scan_from_ertilde",
+        source_name=f"ntx_scan_from_ertilde_{backend_name}",
     )
 
 
@@ -360,11 +414,21 @@ def main() -> None:
     boozmn_path = args.booz.expanduser().resolve()
     output_path = args.output.expanduser().resolve()
     grid = GridSpec(n_theta=args.n_theta, n_zeta=args.n_zeta, n_xi=args.n_xi)
+    device = _select_jax_device(backend=args.device_backend, device_index=args.device_index)
 
-    scan = build_scan(wout_path=wout_path, boozmn_path=boozmn_path, grid=grid)
+    with jax.default_device(device):
+        scan = build_scan(
+            wout_path=wout_path,
+            boozmn_path=boozmn_path,
+            grid=grid,
+            backend=args.surface_backend,
+        )
     _report_scan_warnings(scan)
     output = write_neopax_scan_hdf5(scan, output_path)
     print(f"wrote NEOPAX-style scan to: {output}")
+    print(f"surface backend: {args.surface_backend}")
+    print(f"device backend: {args.device_backend}")
+    print(f"device: {device}")
     print(f"wout: {wout_path}")
     print(f"booz: {boozmn_path}")
     print(f"grid: n_theta={grid.n_theta}, n_zeta={grid.n_zeta}, n_xi={grid.n_xi}")
