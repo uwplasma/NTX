@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from ._physics_gate_artifact_registry_finite_beta import FINITE_BETA_ARTIFACT_GATES
 from ._physics_gate_types import PhysicsGate
 
-ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
+_GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
     PhysicsGate(
         name="monoenergetic_validation_summary",
         category="analytical",
@@ -188,6 +189,10 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "integrated W7-X workflow without regressing the imported path."
         ),
     ),
+)
+
+ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
+    _GENERAL_ARTIFACT_GATES + FINITE_BETA_ARTIFACT_GATES
 )
 
 __all__ = ["ARTIFACT_GATES"]

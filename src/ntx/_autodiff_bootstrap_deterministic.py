@@ -38,7 +38,7 @@ def example_bootstrap_current_optimization(
     serial_seconds: float = 0.0,
     parallel_seconds: float = 0.0,
 ) -> BootstrapOptimizationResult:
-    """Optimize a reduced bootstrap-current proxy through one geometry control."""
+    """Optimize a reduced bootstrap-current response through one geometry control."""
 
     del Es, Er, drds
     context = _build_bootstrap_profile_context(

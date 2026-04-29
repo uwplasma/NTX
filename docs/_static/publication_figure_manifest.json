@@ -77,6 +77,66 @@
     "docs/_static/geometry_family_transport_convergence.pdf",
     "docs/_static/geometry_family_transport_convergence.json"
   ],
+  "owned_geometry_neopax": [
+    "docs/_static/owned_geometry_neopax_dataset.png",
+    "docs/_static/owned_geometry_neopax_dataset.pdf",
+    "docs/_static/owned_geometry_neopax_dataset.json"
+  ],
+  "owned_finite_beta_sfincs_jax_inputs": [
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.json"
+  ],
+  "owned_finite_beta_sfincs_jax_resolution_audit": [
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json"
+  ],
+  "owned_finite_beta_sfincs_jax_production_ladder": [
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json"
+  ],
+  "owned_finite_beta_bootstrap_comparison": [
+    "docs/_static/owned_finite_beta_bootstrap_comparison.png",
+    "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
+    "docs/_static/owned_finite_beta_bootstrap_comparison.json"
+  ],
+  "owned_finite_beta_closure_localization": [
+    "docs/_static/owned_finite_beta_closure_localization.png",
+    "docs/_static/owned_finite_beta_closure_localization.pdf",
+    "docs/_static/owned_finite_beta_closure_localization.json"
+  ],
+  "owned_finite_beta_profile_current_observable": [
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.json"
+  ],
+  "owned_finite_beta_current_conditioning": [
+    "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+    "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+    "docs/_static/owned_finite_beta_current_conditioning_audit.json"
+  ],
+  "owned_finite_beta_closure_quadrature": [
+    "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+    "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+    "docs/_static/owned_finite_beta_closure_quadrature_audit.json"
+  ],
+  "owned_finite_beta_source_channel": [
+    "docs/_static/owned_finite_beta_source_channel_audit.png",
+    "docs/_static/owned_finite_beta_source_channel_audit.pdf",
+    "docs/_static/owned_finite_beta_source_channel_audit.json"
+  ],
+  "owned_finite_beta_source_response_profile": [
+    "docs/_static/owned_finite_beta_source_response_profile_audit.png",
+    "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
+    "docs/_static/owned_finite_beta_source_response_profile_audit.json"
+  ],
+  "owned_finite_beta_closure_target": [
+    "docs/_static/owned_finite_beta_closure_target_audit.png",
+    "docs/_static/owned_finite_beta_closure_target_audit.pdf",
+    "docs/_static/owned_finite_beta_closure_target_audit.json"
+  ],
   "profile_uncertainty": [
     "docs/_static/autodiff_profile_uncertainty.png",
     "docs/_static/autodiff_profile_uncertainty.pdf",
@@ -103,7 +163,7 @@
     "docs/_static/closure_validation_report.json",
     "docs/_static/closure_validation_report.txt"
   ],
-  "bootstrap_proxy": [
+  "bootstrap_response": [
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf",
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.json"
@@ -131,9 +191,24 @@
     "docs/_static/performance_strong_scaling_production.pdf",
     "docs/_static/performance_strong_scaling_production.json"
   ],
+  "owned_finite_beta_radial_interpolation": [
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.json"
+  ],
   "prepared_geometry_reuse": [
     "docs/_static/prepared_geometry_reuse_profile.png",
     "docs/_static/prepared_geometry_reuse_profile.pdf",
     "docs/_static/prepared_geometry_reuse_profile.json"
+  ],
+  "owned_finite_beta_field_radius_matched_closure_quadrature": [
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
+  ],
+  "owned_finite_beta_field_radius_matched_source_channel": [
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.png",
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.pdf",
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json"
   ]
 }

@@ -1,0 +1,216 @@
+{
+  "benchmark": "owned_finite_beta_radial_interpolation_audit",
+  "classification": "finite-beta radial interpolation sensitivity diagnostic",
+  "claim_scope": "Compares the committed sparse-radius finite-beta NTX+NEOPAX bootstrap-current artifact with a rebuild whose monoenergetic database radii are exactly the profile-current field radii.  This isolates downstream radial interpolation sensitivity while keeping the same VMEC/Boozer geometry, profiles, nu/v support policy, D33_spitzer branch, Sonine order, and Redl observable.  It is a diagnostic only: no runtime interpolation policy or closure correction is promoted by this artifact.",
+  "source_artifacts": {
+    "baseline": "docs/_static/owned_finite_beta_bootstrap_comparison.json",
+    "field_radius_matched": "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json"
+  },
+  "radial_contract": {
+    "baseline_scan_rho": [
+      0.08,
+      0.19,
+      0.3,
+      0.41000000000000003,
+      0.52,
+      0.63,
+      0.74,
+      0.85,
+      0.96
+    ],
+    "field_radius_matched_scan_rho": [
+      0.07142857142857142,
+      0.14285714285714285,
+      0.21428571428571427,
+      0.2857142857142857,
+      0.3571428571428571,
+      0.42857142857142855,
+      0.5,
+      0.5714285714285714,
+      0.6428571428571428,
+      0.7142857142857142,
+      0.7857142857142857,
+      0.8571428571428571,
+      0.9285714285714285
+    ],
+    "comparison_rho": [
+      0.07142857142857142,
+      0.14285714285714285,
+      0.21428571428571427,
+      0.2857142857142857,
+      0.3571428571428571,
+      0.42857142857142855,
+      0.5,
+      0.5714285714285714,
+      0.6428571428571428,
+      0.7142857142857142,
+      0.7857142857142857,
+      0.8571428571428571,
+      0.9285714285714285
+    ],
+    "interpretation": "A field-radius-matched database removes one interpolation layer from the profile-current observable.  Improvement at a single stress point is not sufficient for a runtime change; the global current gate must also pass and the fixed-field/W7-X transfer gates must remain unchanged."
+  },
+  "rows": [
+    {
+      "rho": 0.07142857142857142,
+      "redl_current_over_root_fsab2": -17253883.115752343,
+      "baseline_total_over_root_fsab2": -19336229.72364782,
+      "field_radius_matched_total_over_root_fsab2": -20950301.28916262,
+      "baseline_relative_error": 0.1206885774017068,
+      "field_radius_matched_relative_error": 0.21423688503114668,
+      "relative_error_improvement": -0.09354830762943989,
+      "current_change_over_redl": 0.0935483076294399
+    },
+    {
+      "rho": 0.14285714285714285,
+      "redl_current_over_root_fsab2": -20549817.57810125,
+      "baseline_total_over_root_fsab2": -26933424.318067342,
+      "field_radius_matched_total_over_root_fsab2": -21166177.4230122,
+      "baseline_relative_error": 0.3106405551146464,
+      "field_radius_matched_relative_error": 0.029993446052181426,
+      "relative_error_improvement": 0.280647109062465,
+      "current_change_over_redl": 0.28064710906246493
+    },
+    {
+      "rho": 0.21428571428571427,
+      "redl_current_over_root_fsab2": -25591534.488937475,
+      "baseline_total_over_root_fsab2": -27190942.756535932,
+      "field_radius_matched_total_over_root_fsab2": -30708750.200079437,
+      "baseline_relative_error": 0.062497552395298465,
+      "field_radius_matched_relative_error": 0.19995736142176218,
+      "relative_error_improvement": -0.1374598090264637,
+      "current_change_over_redl": 0.1374598090264637
+    },
+    {
+      "rho": 0.2857142857142857,
+      "redl_current_over_root_fsab2": -29736965.13256633,
+      "baseline_total_over_root_fsab2": -34186096.07994211,
+      "field_radius_matched_total_over_root_fsab2": -33997639.44456812,
+      "baseline_relative_error": 0.1496161739283653,
+      "field_radius_matched_relative_error": 0.14327872037404815,
+      "relative_error_improvement": 0.006337453554317141,
+      "current_change_over_redl": 0.006337453554317137
+    },
+    {
+      "rho": 0.3571428571428571,
+      "redl_current_over_root_fsab2": -33767621.081322536,
+      "baseline_total_over_root_fsab2": -38383890.835113645,
+      "field_radius_matched_total_over_root_fsab2": -38125592.0035778,
+      "baseline_relative_error": 0.1367069875213818,
+      "field_radius_matched_relative_error": 0.1290576825580921,
+      "relative_error_improvement": 0.007649304963289694,
+      "current_change_over_redl": 0.0076493049632896885
+    },
+    {
+      "rho": 0.42857142857142855,
+      "redl_current_over_root_fsab2": -37995551.99079884,
+      "baseline_total_over_root_fsab2": -40463204.02697344,
+      "field_radius_matched_total_over_root_fsab2": -39905507.34587278,
+      "baseline_relative_error": 0.06494581357239342,
+      "field_radius_matched_relative_error": 0.05026786702655265,
+      "relative_error_improvement": 0.014677946545840766,
+      "current_change_over_redl": 0.014677946545840767
+    },
+    {
+      "rho": 0.5,
+      "redl_current_over_root_fsab2": -42873282.35260753,
+      "baseline_total_over_root_fsab2": -43410487.74669939,
+      "field_radius_matched_total_over_root_fsab2": -43380639.64352958,
+      "baseline_relative_error": 0.012530073850508134,
+      "field_radius_matched_relative_error": 0.011833880288178786,
+      "relative_error_improvement": 0.0006961935623293475,
+      "current_change_over_redl": 0.0006961935623293467
+    },
+    {
+      "rho": 0.5714285714285714,
+      "redl_current_over_root_fsab2": -49126823.71681437,
+      "baseline_total_over_root_fsab2": -47385299.56914031,
+      "field_radius_matched_total_over_root_fsab2": -47161357.54064093,
+      "baseline_relative_error": 0.03544955720550685,
+      "field_radius_matched_relative_error": 0.04000800433390795,
+      "relative_error_improvement": -0.0045584471284011024,
+      "current_change_over_redl": 0.004558447128401105
+    },
+    {
+      "rho": 0.6428571428571428,
+      "redl_current_over_root_fsab2": -57761701.195756,
+      "baseline_total_over_root_fsab2": -53518914.39442151,
+      "field_radius_matched_total_over_root_fsab2": -53632240.71286671,
+      "baseline_relative_error": 0.07345328675406514,
+      "field_radius_matched_relative_error": 0.07149132379073184,
+      "relative_error_improvement": 0.0019619629633332997,
+      "current_change_over_redl": 0.001961962963333303
+    },
+    {
+      "rho": 0.7142857142857142,
+      "redl_current_over_root_fsab2": -69545224.37032287,
+      "baseline_total_over_root_fsab2": -62480159.560408995,
+      "field_radius_matched_total_over_root_fsab2": -62364393.16041197,
+      "baseline_relative_error": 0.10158950343294541,
+      "field_radius_matched_relative_error": 0.10325412384427055,
+      "relative_error_improvement": -0.0016646204113251323,
+      "current_change_over_redl": 0.001664620411325136
+    },
+    {
+      "rho": 0.7857142857142857,
+      "redl_current_over_root_fsab2": -83472283.37932375,
+      "baseline_total_over_root_fsab2": -73854896.06373112,
+      "field_radius_matched_total_over_root_fsab2": -74163467.55730441,
+      "baseline_relative_error": 0.1152165356719459,
+      "field_radius_matched_relative_error": 0.11151984161877079,
+      "relative_error_improvement": 0.0036966940531751036,
+      "current_change_over_redl": 0.0036966940531751027
+    },
+    {
+      "rho": 0.8571428571428571,
+      "redl_current_over_root_fsab2": -93292514.68632331,
+      "baseline_total_over_root_fsab2": -82237466.09555669,
+      "field_radius_matched_total_over_root_fsab2": -81802774.91193755,
+      "baseline_relative_error": 0.11849877375411014,
+      "field_radius_matched_relative_error": 0.12315821706615612,
+      "relative_error_improvement": -0.0046594433120459855,
+      "current_change_over_redl": 0.004659443312045992
+    },
+    {
+      "rho": 0.9285714285714285,
+      "redl_current_over_root_fsab2": -81499165.87162043,
+      "baseline_total_over_root_fsab2": -71913440.95400205,
+      "field_radius_matched_total_over_root_fsab2": -71871965.33121312,
+      "baseline_relative_error": 0.11761746043779218,
+      "field_radius_matched_relative_error": 0.11812636899342414,
+      "relative_error_improvement": -0.0005089085556319595,
+      "current_change_over_redl": 0.0005089085556319602
+    }
+  ],
+  "summary_metrics": {
+    "radius_count": 13,
+    "baseline_scan_rho_count": 9,
+    "field_radius_matched_scan_rho_count": 13,
+    "baseline_max_relative_error_total_vs_redl": 0.3106405551146464,
+    "field_radius_matched_max_relative_error_total_vs_redl": 0.21423688503114668,
+    "max_relative_error_improvement_factor": 1.4499863320430753,
+    "baseline_rms_relative_error_total_vs_redl": 0.12965669248029935,
+    "field_radius_matched_rms_relative_error_total_vs_redl": 0.11947419961397303,
+    "rms_relative_error_improvement_factor": 1.0852275461917842,
+    "baseline_stress_rho": 0.14285714285714285,
+    "baseline_stress_relative_error": 0.3106405551146464,
+    "field_radius_matched_error_at_baseline_stress_rho": 0.029993446052181426,
+    "baseline_stress_error_reduction_factor": 10.356947800336316,
+    "field_radius_matched_stress_rho": 0.07142857142857142,
+    "field_radius_matched_stress_relative_error": 0.21423688503114668,
+    "max_current_change_over_redl": 0.28064710906246493,
+    "median_current_change_over_redl": 0.004659443312045992,
+    "profile_current_gate": 0.1,
+    "field_radius_matched_current_gate_pass": false,
+    "runtime_interpolation_policy_changed": false,
+    "runtime_correction_applied": false
+  },
+  "conclusion": "Building the finite-beta database directly on the field radii strongly reduces the previous inner stress point, but the profile maximum remains above the 1e-1 current gate.  Radial interpolation therefore explains part, not all, of the remaining reduced-closure stress.",
+  "open_work": [
+    "repeat this audit with a production dense radial scan and the downstream general-vs-legacy interpolation selector when that interface is stable",
+    "require the field-radius-matched and sparse-grid contracts to clear the finite-beta current gate before promoting a new finite-beta bootstrap-current parity figure",
+    "preserve the fixed-field QA/QH and integrated W7-X transfer gates for any future runtime interpolation policy change"
+  ],
+  "figure_png": "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+  "figure_pdf": "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf"
+}

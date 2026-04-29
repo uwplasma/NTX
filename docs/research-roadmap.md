@@ -63,14 +63,17 @@ Relevant references:
 Current state:
 
 - the imported NTX solve is differentiable end to end,
+- the prepared dense solve now has an implicit-adjoint VJP contract,
 - autodiff examples already exist for inverse problems and bootstrap-current
   optimization,
-- but the dense solve still relies on generic reverse-mode differentiation.
+- but broader geometry pullbacks, factorization reuse, and implicit-equilibrium
+  promotion remain constrained by artifact-backed derivative gates.
 
-That is sufficient for small examples, but not for large optimization loops
-with many geometry parameters.
+That is sufficient for small examples and fixed-geometry profile studies, but
+large optimization loops with many geometry parameters still need tighter
+memory and derivative-path control.
 
-The next target is an implicit or adjoint derivative path for the dense solve:
+The maintained implicit-adjoint dense-solve path follows:
 
 ```{math}
 A(x) u(x) = b(x), \qquad
@@ -92,14 +95,14 @@ This belongs primarily in:
 - [`src/ntx/operators.py`](../src/ntx/operators.py)
 - [`src/ntx/autodiff.py`](../src/ntx/autodiff.py)
 
-First deliverables:
+Completed anchors:
 
 1. derivative audit against finite differences,
 2. custom VJP or equivalent implicit derivative for the prepared solve,
 3. tests comparing direct autodiff and implicit gradients on small systems,
 4. runtime and memory comparisons for direct versus implicit differentiation.
 
-The first step is already started in NTX with:
+These are represented in NTX by:
 
 - the derivative-audit workflow in
   [`examples/derivative_audit.py`](../examples/derivative_audit.py),

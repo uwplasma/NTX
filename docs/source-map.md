@@ -12,7 +12,7 @@ tree.
 | Legendre-space operator coefficients | `src/ntx/operators.py` | `OperatorContext`, `coefficients_for_k(...)`, `operator_blocks(...)`, `source_modes(...)` |
 | Dense block solve and scans | `src/ntx/solver.py`, `src/ntx/_solver_types.py`, `src/ntx/_solver_context.py`, `src/ntx/_solver_core.py`, `src/ntx/_solver_prepared.py`, `src/ntx/_solver_adjoint.py`, `src/ntx/_solver_factorization.py`, `src/ntx/_solver_scan.py` | `MonoenergeticCase`, `TransportResult`, shared operator-context construction, solve orchestration, prepared solve wrappers, `_solve_modes(...)`, and prepared custom-VJP adjoint algebra |
 | Transport post-processing | `src/ntx/transport.py` | `coefficients_from_modes(...)`, `onsager_error(...)` |
-| CLI/TOML workflow | `src/ntx/inputfiles.py`, `src/ntx/_inputfiles_model.py`, `src/ntx/_inputfiles_reporting.py`, `src/ntx/_inputfiles_run.py`, `src/ntx/plotting.py`, `src/ntx/cli.py` | `load_run_config(...)`, `run_from_input_file(...)`, `save_run_output(...)`, `plot_run_output(...)` |
+| CLI/TOML workflow | `src/ntx/inputfiles.py`, `src/ntx/_inputfiles_model.py`, `src/ntx/_inputfiles_output.py`, `src/ntx/_inputfiles_reporting.py`, `src/ntx/_inputfiles_run.py`, `src/ntx/plotting.py`, `src/ntx/cli.py` | `load_run_config(...)`, `run_from_input_file(...)`, `save_run_output(...)`, `plot_run_output(...)` |
 | VMEC loading | `src/ntx/vmec.py` | `load_vmec_surface(...)` |
 | In-memory `vmec_jax -> booz_xform_jax` boundary workflows | `src/ntx/vmec_jax_backend.py`, `src/ntx/_vmec_jax_boundary.py`, `src/ntx/_vmec_jax_surfaces.py`, `src/ntx/_vmec_jax_boozer.py`, `src/ntx/_neopax_vmec_jax_boozer.py`, `src/ntx/_neopax_vmec_jax_profiles.py`, `src/ntx/_neopax_vmec_jax_field.py`, `src/ntx/_neopax_field.py` | `build_vmec_jax_boundary_context(...)`, `initial_guess_vmec_jax_boundary_state(...)`, `solve_vmec_jax_boundary_state(...)`, VMEC-JAX state to Boozer-surface builders, VMEC scalar/profile transfer, imported Boozer and NEOPAX field builders |
 | Boozer file loading | `src/ntx/booz.py` | Boozer harmonic file loaders |
@@ -20,7 +20,7 @@ tree.
 | Profile-grade imported workflows | `src/ntx/profiles.py`, `src/ntx/_profiles_types.py`, `src/ntx/_profiles_species_types.py`, `src/ntx/_profiles_ambipolar_types.py`, `src/ntx/_profiles_control_types.py`, `src/ntx/_profiles_transport_types.py`, `src/ntx/_profiles_radial.py`, `src/ntx/_profiles_channels.py`, `src/ntx/_profiles_primitives.py`, `src/ntx/_profiles_eval.py`, `src/ntx/_profiles_control_scalar.py`, `src/ntx/_profiles_control_basis.py`, `src/ntx/_profiles_controls.py`, `src/ntx/_profiles_transport_terms.py`, `src/ntx/_profiles_transport_closure.py`, `src/ntx/_profiles_transport.py` | radial profile dataclasses, scan-channel interpolation, primitive-force reconstruction, ambipolar `E_r(r)` solve, scalar controls, basis controls, normalized transport terms, closures, and transport loops |
 | Throughput-oriented multi-device execution | `src/ntx/parallel.py` | `solve_monoenergetic_multiprocess_scan(...)` |
 | Autodiff examples and optimization helpers | `src/ntx/autodiff.py`, `src/ntx/_autodiff_types.py`, `src/ntx/_autodiff_helpers.py`, `src/ntx/_autodiff_workflows.py`, `src/ntx/_autodiff_inverse.py`, `src/ntx/_autodiff_derivatives.py`, `src/ntx/_autodiff_profile.py`, `src/ntx/_autodiff_bootstrap.py`, `src/ntx/_autodiff_bootstrap_common.py`, `src/ntx/_autodiff_bootstrap_deterministic.py`, `src/ntx/_autodiff_bootstrap_robust.py` | inverse, sensitivity, uncertainty, and deterministic/robust bootstrap-current optimization helpers |
-| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/validation/_benchmark_matrix_types.py`, `src/ntx/validation/_benchmark_matrix_entries.py`, `src/ntx/validation/_benchmark_matrix_monoenergetic.py`, `src/ntx/validation/_benchmark_matrix_bootstrap.py`, `src/ntx/validation/_benchmark_matrix_integrated.py`, `src/ntx/validation/_benchmark_matrix_autodiff.py`, `src/ntx/validation/_benchmark_matrix_autodiff_derivatives.py`, `src/ntx/validation/_benchmark_matrix_autodiff_design.py`, `src/ntx/validation/_benchmark_matrix_profiles.py`, `src/ntx/validation/_benchmark_matrix_performance.py`, `src/ntx/validation/_benchmark_matrix_geometry.py`, `src/ntx/validation/physics_gates.py`, `src/ntx/validation/_physics_gate_types.py`, `src/ntx/validation/_physics_gate_analytical.py`, `src/ntx/validation/_physics_gate_artifact_registry.py`, `src/ntx/validation/_physics_gate_registry.py`, `src/ntx/validation/_physics_gate_artifacts.py` | benchmark-matrix evaluator, benchmark claim types, lane-owned benchmark metadata, analytical physics-gate definitions, artifact-backed gate definitions, registry facade, and artifact-gate evaluation |
+| Validation registries | `src/ntx/validation/benchmark_matrix.py`, `src/ntx/validation/_benchmark_matrix_types.py`, `src/ntx/validation/_benchmark_matrix_entries.py`, `src/ntx/validation/_benchmark_matrix_monoenergetic.py`, `src/ntx/validation/_benchmark_matrix_bootstrap.py`, `src/ntx/validation/_benchmark_matrix_integrated.py`, `src/ntx/validation/_benchmark_matrix_autodiff.py`, `src/ntx/validation/_benchmark_matrix_autodiff_derivatives.py`, `src/ntx/validation/_benchmark_matrix_autodiff_design.py`, `src/ntx/validation/_benchmark_matrix_profiles.py`, `src/ntx/validation/_benchmark_matrix_performance.py`, `src/ntx/validation/_benchmark_matrix_geometry.py`, `src/ntx/validation/_benchmark_matrix_geometry_finite_beta.py`, `src/ntx/validation/physics_gates.py`, `src/ntx/validation/_physics_gate_types.py`, `src/ntx/validation/_physics_gate_analytical.py`, `src/ntx/validation/_physics_gate_artifact_registry.py`, `src/ntx/validation/_physics_gate_artifact_registry_finite_beta.py`, `src/ntx/validation/_physics_gate_registry.py`, `src/ntx/validation/_physics_gate_artifact_eval.py`, `src/ntx/validation/_physics_gate_artifacts.py`, `src/ntx/validation/_physics_gate_artifacts_finite_beta.py`, `src/ntx/validation/_finite_beta_closure_target.py`, `src/ntx/validation/_finite_beta_source_channels.py` | benchmark-matrix evaluator, benchmark claim types, lane-owned benchmark metadata, finite-beta geometry-breadth metadata, analytical physics-gate definitions, artifact-backed gate definitions, finite-beta artifact-gate registry definitions, registry facade, shared artifact-gate evaluators, finite-beta artifact-gate ownership, finite-beta closure-target artifact parsing, and finite-beta source-channel artifact summaries |
 
 The compatibility modules remain the primary public import locations. New
 implementation ownership can sit behind those facades when the split improves
@@ -166,7 +166,7 @@ Implemented in:
 
 ## Profile Forces And Ambipolarity
 
-The profile workflow reconstructs the force proxies
+The profile workflow reconstructs the thermodynamic-force channels
 
 ```{math}
 A_3 = d\ln T/dr,
@@ -202,6 +202,18 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `bootstrap_current_with_neopax.py`
 - `bootstrap_current_fixed_field_validation.py`
 - `bootstrap_current_reference_audit_w7x.py`
+- `owned_geometry_neopax_dataset.py`
+- `owned_finite_beta_sfincs_jax_inputs.py`
+- `owned_finite_beta_sfincs_jax_resolution_audit.py`
+- `owned_finite_beta_sfincs_jax_production_ladder_audit.py`
+- `owned_finite_beta_bootstrap_comparison.py`
+- `owned_finite_beta_closure_localization.py`
+- `owned_finite_beta_profile_current_observable_audit.py`
+- `owned_finite_beta_current_conditioning_audit.py`
+- `owned_finite_beta_closure_quadrature_audit.py`
+- `owned_finite_beta_source_channel_audit.py`
+- `owned_finite_beta_source_response_profile_audit.py`
+- `owned_finite_beta_closure_target_audit.py`
 - `performance_scaling.py`
 - `performance_strong_scaling.py`
 - `prepared_geometry_reuse_profile.py`

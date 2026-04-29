@@ -11,7 +11,7 @@ from ._profiles_ambipolar_types import AmbipolarProfileResult
 
 @dataclass(frozen=True)
 class ProfileTransportClosureSpec:
-    """Relaxation closure for iterating profile proxies toward transport targets."""
+    """Relaxation closure for iterating reduced responses toward transport targets."""
 
     particle_relaxation: Array
     current_relaxation: Array
@@ -64,11 +64,17 @@ class ProfileTransportIterationResult:
 
     er_profile_history: Array
     ambipolar_residual_history: Array
-    bootstrap_current_proxy_history: Array
+    bootstrap_current_response_history: Array
     transport_loss_history: Array
     species_a1_history: Array
     species_a3_history: Array
     best_profile: AmbipolarProfileResult
+
+    @property
+    def bootstrap_current_proxy_history(self) -> Array:
+        """Compatibility alias for the reduced bootstrap-current response history."""
+
+        return self.bootstrap_current_response_history
 
 
 tree_util.register_dataclass(
@@ -76,7 +82,7 @@ tree_util.register_dataclass(
     data_fields=(
         "er_profile_history",
         "ambipolar_residual_history",
-        "bootstrap_current_proxy_history",
+        "bootstrap_current_response_history",
         "transport_loss_history",
         "species_a1_history",
         "species_a3_history",
@@ -92,11 +98,17 @@ class PrimitiveProfileTransportIterationResult:
 
     er_profile_history: Array
     ambipolar_residual_history: Array
-    bootstrap_current_proxy_history: Array
+    bootstrap_current_response_history: Array
     transport_loss_history: Array
     species_density_history: Array
     species_temperature_history: Array
     best_profile: AmbipolarProfileResult
+
+    @property
+    def bootstrap_current_proxy_history(self) -> Array:
+        """Compatibility alias for the reduced bootstrap-current response history."""
+
+        return self.bootstrap_current_response_history
 
 
 tree_util.register_dataclass(
@@ -104,7 +116,7 @@ tree_util.register_dataclass(
     data_fields=(
         "er_profile_history",
         "ambipolar_residual_history",
-        "bootstrap_current_proxy_history",
+        "bootstrap_current_response_history",
         "transport_loss_history",
         "species_density_history",
         "species_temperature_history",

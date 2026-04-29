@@ -155,7 +155,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
     def _state_from_params(params):
         return initial_guess_vmec_jax_boundary_state(context, params, vmec_project=False)
 
-    def ntx_transport_proxy(params):
+    def ntx_transport_response(params):
         state = _state_from_params(params)
         surface = surface_from_vmec_jax_state(
             state=state,
@@ -208,7 +208,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
         return jnp.sum(species.charge[:, None] * upar * field.Vprime[None, :] * field.dr)
 
     objectives = {
-        "ntx_transport_proxy": ntx_transport_proxy,
+        "ntx_transport_response": ntx_transport_response,
         "ntx_neopax_integrated_current": integrated_current,
     }
 

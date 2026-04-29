@@ -185,9 +185,9 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         source="tests/test_profiles_unit.py",
         rationale=(
             "Profile-level workflows must reconstruct the thermodynamic-force "
-            "proxies from primitive density, temperature, charge, and radial "
+            "channels from primitive density, temperature, charge, and radial "
             "electric-field inputs before those forces are used in particle "
-            "flux or bootstrap-current proxy calculations."
+            "flux or reduced current-response calculations."
         ),
     ),
     PhysicsGate(

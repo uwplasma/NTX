@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from ._benchmark_matrix_geometry_finite_beta import FINITE_BETA_GEOMETRY_BREADTH_ENTRIES
 from ._benchmark_matrix_types import BenchmarkEntry
 
 
@@ -95,6 +96,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 ),
             ),
         ),
+        *FINITE_BETA_GEOMETRY_BREADTH_ENTRIES,
         BenchmarkEntry(
             id="geometry_breadth_hidden_symmetry",
             lane="geometry-breadth",

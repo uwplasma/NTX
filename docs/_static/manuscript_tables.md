@@ -49,6 +49,9 @@
 | `prepared_geometry_reuse_profile` | `performance` | `software-gate` | `complete` |
 | `geometry_family_breadth_summary` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_family_transport_convergence` | `geometry-breadth` | `stress-gate` | `complete` |
+| `owned_geometry_neopax_dataset` | `geometry-breadth` | `stress-gate` | `complete` |
+| `owned_finite_beta_sfincs_jax_inputs` | `geometry-breadth` | `stress-gate` | `complete` |
+| `owned_finite_beta_bootstrap_comparison` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_breadth_hidden_symmetry` | `geometry-breadth` | `planned-lane` | `planned` |
 | `full_monoenergetic_geometry_family` | `monoenergetic` | `planned-lane` | `planned` |
 | `large_geometry_control_autodiff` | `autodiff` | `planned-lane` | `planned` |
@@ -122,7 +125,7 @@
 | Retired implicit diagnostics | `2` |
 | Active case ids | `analytic_geometry_control, file_backed_boozmn_sample, file_backed_vmec_sample, boundary_projected_current, explicit_relaxed_qa_lowres, explicit_relaxed_qh_warm_start, implicit_equilibrium_volume` |
 | Open case ids | `` |
-| Retired implicit ids | `implicit_booz_xform_scalar, implicit_ntx_transport_proxy` |
+| Retired implicit ids | `implicit_booz_xform_scalar, implicit_ntx_transport_response` |
 | Max active AD/centered-FD mismatch | `3.088e-04` |
 | Max retired implicit mismatch | `6.454e+00` |
 
@@ -135,6 +138,69 @@
 | Max last-step relative change | `1.952e+00` |
 | Max relative change to finest grid | `1.022e+01` |
 | Solved case ids | `circular_tokamak, shaped_tokamak, precise_qs_qa_reactor, precise_qs_qh_reactor, nfp3_qi, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, li383_low_res, n3are_lowres, lhd, hsx_qhs, ncsx` |
+
+## Owned Finite-Beta Bootstrap-Current Stress
+
+| Quantity | Value |
+| --- | ---: |
+| Case | `finite_beta_qa_pressure_current` |
+| Closure configuration | `P=12`, `D33=spitzer`, `nu/v points=17` |
+| Boozer psi_p | `1.334630e-02` |
+| Max total-current relative difference vs Redl | `3.106e-01` |
+| RMS total-current relative difference vs Redl | `1.297e-01` |
+| Sign-agreement fraction | `1.000` |
+| Inner-gap same-grid coefficient relative difference | `2.055e-02` |
+| Inner-gap profile-current relative difference | `3.106e-01` |
+| Inner-gap current/coefficient error ratio | `1.512e+01` |
+| Stress-radius applied/needed correction | `0.797` |
+| Stress-radius residual/needed correction | `0.203` |
+| Stress-radius species-correction cancellation amplification | `63.139` |
+| Stress-radius residual/species-correction L1 | `4.040e-03` |
+| Stress-radius current condition number | `7.688e+01` |
+| Required coefficient error for `1e-1` current gate | `1.301e-03` |
+| Coefficient precision gap to current gate | `15.798x` |
+| Production-grid coefficient precision gap | `15.875x` |
+| Tight-harmonic coefficient precision gap | `15.797x` |
+| Production radial/collisionality ladder count | `6` |
+| Production ladder max coefficient difference | `2.065e-02` |
+| Production ladder precision gap | `15.875x` |
+| Coefficient-conditioned current-error bound | `1.580e+00` |
+| Under-integrated closure current-gate passes | `1` |
+| Quadrature-stable closure current-gate passes | `0` |
+| Quadrature-stable current gate | `False` |
+| Best stress-radius closure setting | `P=14, X=10, error=3.811e-02` |
+| Highest-X largest-order stress error | `3.952e-01` |
+| Max same-order stress spread over X | `9.495e+00` |
+| Field-radius-matched reference stress error | `2.142e-01` |
+| Field-radius-matched best apparent setting | `P=18, X=10, error=9.684e-02` |
+| Field-radius-matched quadrature-stable pass count | `0` |
+| Field-radius-matched highest-X largest-order error | `3.082e-01` |
+| Field-radius-matched source-channel reconstruction residual | `1.452e-14` |
+| Field-radius-matched source-channel reconstruction gate | `True` |
+| Field-radius-matched high-order source-channel stress error | `3.082e-01` |
+| Field-radius-matched Redl temperature response multiplier | `7.644e-01` |
+| Source-channel reconstruction residual | `1.079e-14` |
+| Source-channel reconstruction gate | `True` |
+| High-order source-channel stress error | `3.952e-01` |
+| Dominant high-order source channel | `effective_temperature_force` |
+| High-order temperature/density/parallel fractions | `1.000e+00` / `1.254e-06` / `0.000e+00` |
+| Source-channel species-cancellation factor | `8.260e+01` |
+| Redl temperature response multiplier at high order | `7.167e-01` |
+| Redl temperature-channel relative difference at high order | `3.952e-01` |
+| Redl temperature-channel fraction of target current | `1.000e+00` |
+| Profile source-response radii | `13` |
+| Profile source-response max current stress | `3.952e-01` at `rho=0.143` |
+| Profile temperature response multiplier min/median/max | `7.167e-01` / `1.010e+00` / `1.317e+00` |
+| Profile temperature response multiplier span | `6.000e-01` |
+| Temperature response correlation with log10(nu_e*) | `-1.398e-01` |
+| Closure-target best physics driver | `epsilon` (`|r|=9.747e-01`) |
+| Closure-target best diagnostic model | `epsilon` (`LOO RMSE=5.267e-02`) |
+| Closure-target improvement over constant response | `3.922e+00` |
+| Closure-target runtime correction applied | `False` |
+| Closure-target matched-radius stress consistency | `same rho=True`, `source gate=True`, `stable gate=False` |
+| Closure-target matched-radius apparent pass status | `under-integrated rejected=True`, `stable multiplier=7.644e-01` |
+| Stress-radius Pmax error reduction | `3.548x` |
+| Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
 ## Profile Uncertainty
 
@@ -153,10 +219,10 @@
 | --- | ---: |
 | Harmonic `(m, n)` | `(0, -1)` |
 | Baseline scale | `1.000` |
-| Optimized scale | `1.297` |
-| Weighted current gain | `1.085x` |
-| Serial scan time | `0.423 s` |
-| Parallel scan time | `1.750 s` |
+| Optimized scale | `1.255` |
+| Weighted current gain | `1.114x` |
+| Serial scan time | `0.981 s` |
+| Parallel scan time | `2.570 s` |
 
 ## Performance
 
@@ -188,7 +254,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `646a76a7bc4964c52d72a91dabf9773691d27eb1` |
+| Commit | `c4bef899c2236f9bbfa9c032d9cf0fcc8fa8969d` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

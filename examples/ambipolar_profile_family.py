@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Solve a small family of ambipolar profiles and compare their current proxies."""
+"""Solve a small family of ambipolar profiles and compare current responses."""
 
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ from ntx import (  # noqa: E402
     GridSpec,
     MonoenergeticSpeciesProfile,
     ambipolar_residual_profile,
-    bootstrap_current_objective,
     build_ntx_neopax_scan_from_surfaces,
+    current_response_objective,
     example_surface,
     solve_ambipolar_profile_family,
 )
@@ -129,14 +129,14 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     )
     objectives = jnp.asarray(
         [
-            bootstrap_current_objective(rho, family.bootstrap_current_proxy[index])
+            current_response_objective(rho, family.bootstrap_current_response[index])
             for index in range(CONTROL.size)
         ]
     )
     best = int(jnp.argmin(objectives))
     control_np = np.asarray(family.control)
     rho_np = np.asarray(rho)
-    current_profiles = np.asarray(family.bootstrap_current_proxy)
+    current_profiles = np.asarray(family.bootstrap_current_response)
     residual_norm = np.linalg.norm(np.asarray(family.ambipolar_residual), axis=1)
     objectives_np = np.asarray(objectives)
     residual_landscape = []
@@ -193,7 +193,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
             label=fr"$c={control_value:+.2f}$",
         )
     axes[0, 1].set_xlabel(r"$\rho$")
-    axes[0, 1].set_ylabel("Bootstrap-current proxy")
+    axes[0, 1].set_ylabel("Reduced current response")
     axes[0, 1].set_title("Current-profile response")
 
     axes[1, 0].plot(control_np, objectives_np, color="#D55E00", lw=2.3, marker="D", ms=5)
@@ -206,7 +206,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         label="minimum",
     )
     axes[1, 0].set_xlabel("Profile control")
-    axes[1, 0].set_ylabel(r"$\int J_{\mathrm{bs,proxy}}^2\,d\rho$")
+    axes[1, 0].set_ylabel(r"$\int J_{\mathrm{red}}^2\,d\rho$")
     axes[1, 0].set_title("Profile objective landscape")
     axes[1, 0].legend(loc="best")
 

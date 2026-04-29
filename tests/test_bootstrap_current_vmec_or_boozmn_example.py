@@ -18,7 +18,7 @@ def _example_env() -> dict[str, str]:
 
 
 def test_bootstrap_current_example_runs(tmp_path):
-    output_prefix = tmp_path / "bootstrap_proxy"
+    output_prefix = tmp_path / "bootstrap_response"
     script = (ROOT / "examples" / "bootstrap_current_from_vmec_or_boozmn.py").read_text()
     script = script.replace(
         'OUTPUT_PREFIX = ROOT / "docs" / "_static" / "bootstrap_current_from_vmec_or_boozmn"',
@@ -38,7 +38,7 @@ def test_bootstrap_current_example_runs(tmp_path):
     assert output_prefix.with_suffix(".pdf").exists()
     assert output_prefix.with_suffix(".json").exists()
     payload = json.loads(output_prefix.with_suffix(".json").read_text())
-    profile = payload["bootstrap_current_proxy"]
+    profile = payload["bootstrap_current_response"]
     assert len(profile) == 10
     assert max(abs(value) for value in profile) <= 1.0 + 1.0e-12
     assert max(abs(profile[index + 1] - profile[index]) for index in range(len(profile) - 1)) < 0.5

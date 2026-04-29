@@ -235,7 +235,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
         )
         return surface.b0 + surface.iota + 1.0e-3 * (surface.b_theta + surface.b_zeta)
 
-    def ntx_transport_proxy(params):
+    def ntx_transport_response(params):
         state = _state_from_params(params)
         surface = surface_from_vmec_jax_state(
             state=state,
@@ -258,7 +258,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
     objectives = {
         "equilibrium_volume": equilibrium_volume,
         "booz_xform_scalar": booz_xform_scalar,
-        "ntx_transport_proxy": ntx_transport_proxy,
+        "ntx_transport_response": ntx_transport_response,
     }
     objective_payloads: list[dict[str, object]] = []
     summary_max = 0.0
@@ -452,14 +452,14 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
             "Objective status:\n"
             f"  equilibrium_volume={payload['objectives'][0]['status']}\n"
             f"  booz_xform_scalar={payload['objectives'][1]['status']}\n"
-            f"  ntx_transport_proxy={payload['objectives'][2]['status']}\n\n"
+            f"  ntx_transport_response={payload['objectives'][2]['status']}\n\n"
             "Residual contraction:\n"
             f"  contracts={payload['summary_metrics']['residual_contracts']}\n\n"
             f"{reverse_text}\n\n"
             "Objectives:\n"
             "  equilibrium_volume\n"
             "  booz_xform_scalar\n"
-            "  ntx_transport_proxy"
+            "  ntx_transport_response"
         ),
         transform=axes[1, 1].transAxes,
         ha="left",

@@ -100,7 +100,7 @@ def _transport_closure(rho):
         normalization_floor=0.05,
         max_normalized_update=0.25,
         radial_smoothing_strength=0.35,
-        closure_name="radial proxy transport",
+        closure_name="radial reduced-response transport",
     )
 
 
@@ -163,7 +163,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         )
         axes[0, 1].plot(
             rho,
-            result.bootstrap_current_proxy_history[idx],
+            result.bootstrap_current_response_history[idx],
             color=colors[idx],
             lw=2.0,
         )
@@ -200,9 +200,9 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     axes[0, 0].set_ylabel(r"$R(\rho)$")
     axes[0, 0].legend(frameon=False, fontsize=8, ncol=2)
 
-    axes[0, 1].set_title("Bootstrap-Current Proxy Evolution")
+    axes[0, 1].set_title("Reduced Current-Response Evolution")
     axes[0, 1].set_xlabel(r"$\rho$")
-    axes[0, 1].set_ylabel(r"$J_{\mathrm{bs,proxy}}$")
+    axes[0, 1].set_ylabel(r"$J_{\mathrm{red}}$")
 
     axes[1, 0].set_title("Transport Iteration Metrics")
     axes[1, 0].set_xlabel("iteration")

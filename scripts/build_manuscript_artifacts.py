@@ -69,6 +69,50 @@ def build_payload() -> dict:
     geometry_family_transport = _load_json(
         STATIC / "geometry_family_transport_convergence.json"
     )
+    owned_geometry_neopax = _load_json(STATIC / "owned_geometry_neopax_dataset.json")
+    owned_finite_beta_sfincs = _load_json(
+        STATIC / "owned_finite_beta_sfincs_jax_inputs.json"
+    )
+    owned_finite_beta_resolution = _load_json(
+        STATIC / "owned_finite_beta_sfincs_jax_resolution_audit.json"
+    )
+    owned_finite_beta_production_ladder = _load_json(
+        STATIC / "owned_finite_beta_sfincs_jax_production_ladder_audit.json"
+    )
+    owned_finite_beta_bootstrap = _load_json(
+        STATIC / "owned_finite_beta_bootstrap_comparison.json"
+    )
+    owned_finite_beta_closure = _load_json(
+        STATIC / "owned_finite_beta_closure_localization.json"
+    )
+    owned_finite_beta_observable = _load_json(
+        STATIC / "owned_finite_beta_profile_current_observable_audit.json"
+    )
+    owned_finite_beta_conditioning = _load_json(
+        STATIC / "owned_finite_beta_current_conditioning_audit.json"
+    )
+    owned_finite_beta_quadrature = _load_json(
+        STATIC / "owned_finite_beta_closure_quadrature_audit.json"
+    )
+    owned_finite_beta_source_channel = _load_json(
+        STATIC / "owned_finite_beta_source_channel_audit.json"
+    )
+    owned_finite_beta_source_response_profile = _load_json(
+        STATIC / "owned_finite_beta_source_response_profile_audit.json"
+    )
+    owned_finite_beta_closure_target = _load_json(
+        STATIC / "owned_finite_beta_closure_target_audit.json"
+    )
+    owned_finite_beta_radial_interpolation = _load_json(
+        STATIC / "owned_finite_beta_radial_interpolation_audit.json"
+    )
+    owned_finite_beta_matched_quadrature = _load_json(
+        STATIC
+        / "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
+    )
+    owned_finite_beta_matched_source_channel = _load_json(
+        STATIC / "owned_finite_beta_field_radius_matched_source_channel_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -99,13 +143,28 @@ def build_payload() -> dict:
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "owned_geometry_neopax",
+        "owned_finite_beta_sfincs_jax_inputs",
+        "owned_finite_beta_sfincs_jax_resolution_audit",
+        "owned_finite_beta_sfincs_jax_production_ladder",
+        "owned_finite_beta_bootstrap_comparison",
+        "owned_finite_beta_closure_localization",
+        "owned_finite_beta_profile_current_observable",
+        "owned_finite_beta_current_conditioning",
+        "owned_finite_beta_closure_quadrature",
+        "owned_finite_beta_source_channel",
+        "owned_finite_beta_source_response_profile",
+        "owned_finite_beta_closure_target",
+        "owned_finite_beta_radial_interpolation",
+        "owned_finite_beta_field_radius_matched_closure_quadrature",
+        "owned_finite_beta_field_radius_matched_source_channel",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
         "profile_control",
         "profile_basis",
         "profile_transport",
-        "bootstrap_proxy",
+        "bootstrap_response",
         "robust_science",
         "performance_smoke",
         "performance_heavy",
@@ -228,6 +287,149 @@ def build_payload() -> dict:
                 "inputs": geometry_family_transport["inputs"],
                 "open_work": geometry_family_transport["open_work"],
             },
+            "owned_geometry_neopax": {
+                "cases": owned_geometry_neopax["cases"],
+                "summary_metrics": owned_geometry_neopax["summary_metrics"],
+                "claim_scope": owned_geometry_neopax["claim_scope"],
+                "comparison_policy": owned_geometry_neopax["comparison_policy"],
+                "normalization_contract": owned_geometry_neopax["normalization_contract"],
+                "open_work": owned_geometry_neopax["open_work"],
+            },
+            "owned_finite_beta_sfincs_jax_inputs": {
+                "summary_metrics": owned_finite_beta_sfincs["summary_metrics"],
+                "claim_scope": owned_finite_beta_sfincs["claim_scope"],
+                "normalization_contract": owned_finite_beta_sfincs[
+                    "normalization_contract"
+                ],
+                "open_work": owned_finite_beta_sfincs["open_work"],
+            },
+            "owned_finite_beta_sfincs_jax_resolution_audit": {
+                "summary_metrics": owned_finite_beta_resolution["summary_metrics"],
+                "claim_scope": owned_finite_beta_resolution["claim_scope"],
+                "conclusion": owned_finite_beta_resolution["conclusion"],
+                "rows": owned_finite_beta_resolution["rows"],
+                "open_work": owned_finite_beta_resolution["open_work"],
+            },
+            "owned_finite_beta_sfincs_jax_production_ladder": {
+                "summary_metrics": owned_finite_beta_production_ladder[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_production_ladder["claim_scope"],
+                "conclusion": owned_finite_beta_production_ladder["conclusion"],
+                "stress_row": owned_finite_beta_production_ladder["stress_row"],
+                "open_work": owned_finite_beta_production_ladder["open_work"],
+            },
+            "owned_finite_beta_bootstrap_comparison": {
+                "case": owned_finite_beta_bootstrap["case"],
+                "inputs": owned_finite_beta_bootstrap["inputs"],
+                "summary_metrics": owned_finite_beta_bootstrap["summary_metrics"],
+                "comparison": {
+                    "momentum_order_scan": owned_finite_beta_bootstrap.get(
+                        "comparison",
+                        {},
+                    ).get("momentum_order_scan", {}),
+                },
+                "claim_scope": owned_finite_beta_bootstrap["claim_scope"],
+                "normalization_contract": owned_finite_beta_bootstrap[
+                    "normalization_contract"
+                ],
+                "open_work": owned_finite_beta_bootstrap["open_work"],
+            },
+            "owned_finite_beta_closure_localization": {
+                "summary_metrics": owned_finite_beta_closure["summary_metrics"],
+                "claim_scope": owned_finite_beta_closure["claim_scope"],
+                "conclusion": owned_finite_beta_closure["conclusion"],
+                "matched_radii": owned_finite_beta_closure["matched_radii"],
+                "open_work": owned_finite_beta_closure["open_work"],
+            },
+            "owned_finite_beta_profile_current_observable": {
+                "summary_metrics": owned_finite_beta_observable["summary_metrics"],
+                "claim_scope": owned_finite_beta_observable["claim_scope"],
+                "conclusion": owned_finite_beta_observable["conclusion"],
+                "stress_radius": owned_finite_beta_observable["stress_radius"],
+                "momentum_order_at_stress_radius": owned_finite_beta_observable[
+                    "momentum_order_at_stress_radius"
+                ],
+                "open_work": owned_finite_beta_observable["open_work"],
+            },
+            "owned_finite_beta_current_conditioning": {
+                "summary_metrics": owned_finite_beta_conditioning["summary_metrics"],
+                "claim_scope": owned_finite_beta_conditioning["claim_scope"],
+                "conclusion": owned_finite_beta_conditioning["conclusion"],
+                "stress_radius": owned_finite_beta_conditioning["stress_radius"],
+                "open_work": owned_finite_beta_conditioning["open_work"],
+            },
+            "owned_finite_beta_closure_quadrature": {
+                "summary_metrics": owned_finite_beta_quadrature["summary_metrics"],
+                "claim_scope": owned_finite_beta_quadrature["claim_scope"],
+                "conclusion": owned_finite_beta_quadrature["conclusion"],
+                "rows": owned_finite_beta_quadrature["rows"],
+                "open_work": owned_finite_beta_quadrature["open_work"],
+            },
+            "owned_finite_beta_source_channel": {
+                "summary_metrics": owned_finite_beta_source_channel["summary_metrics"],
+                "claim_scope": owned_finite_beta_source_channel["claim_scope"],
+                "conclusion": owned_finite_beta_source_channel["conclusion"],
+                "rows": owned_finite_beta_source_channel["rows"],
+                "open_work": owned_finite_beta_source_channel["open_work"],
+            },
+            "owned_finite_beta_source_response_profile": {
+                "summary_metrics": owned_finite_beta_source_response_profile[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_source_response_profile[
+                    "claim_scope"
+                ],
+                "conclusion": owned_finite_beta_source_response_profile["conclusion"],
+                "rows": owned_finite_beta_source_response_profile["rows"],
+                "open_work": owned_finite_beta_source_response_profile["open_work"],
+            },
+            "owned_finite_beta_closure_target": {
+                "summary_metrics": owned_finite_beta_closure_target["summary_metrics"],
+                "claim_scope": owned_finite_beta_closure_target["claim_scope"],
+                "rows": owned_finite_beta_closure_target["rows"],
+                "correlations": owned_finite_beta_closure_target["correlations"],
+                "linear_diagnostics": owned_finite_beta_closure_target[
+                    "linear_diagnostics"
+                ],
+                "field_radius_matched_response_audit": owned_finite_beta_closure_target.get(
+                    "field_radius_matched_response_audit"
+                ),
+                "closure_requirements": owned_finite_beta_closure_target[
+                    "closure_requirements"
+                ],
+            },
+            "owned_finite_beta_radial_interpolation": {
+                "summary_metrics": owned_finite_beta_radial_interpolation[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_radial_interpolation["claim_scope"],
+                "conclusion": owned_finite_beta_radial_interpolation["conclusion"],
+                "radial_contract": owned_finite_beta_radial_interpolation[
+                    "radial_contract"
+                ],
+                "open_work": owned_finite_beta_radial_interpolation["open_work"],
+            },
+            "owned_finite_beta_field_radius_matched_closure_quadrature": {
+                "summary_metrics": owned_finite_beta_matched_quadrature[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_matched_quadrature["claim_scope"],
+                "conclusion": owned_finite_beta_matched_quadrature["conclusion"],
+                "rows": owned_finite_beta_matched_quadrature["rows"],
+                "open_work": owned_finite_beta_matched_quadrature["open_work"],
+            },
+            "owned_finite_beta_field_radius_matched_source_channel": {
+                "summary_metrics": owned_finite_beta_matched_source_channel[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_matched_source_channel[
+                    "claim_scope"
+                ],
+                "conclusion": owned_finite_beta_matched_source_channel["conclusion"],
+                "rows": owned_finite_beta_matched_source_channel["rows"],
+                "open_work": owned_finite_beta_matched_source_channel["open_work"],
+            },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
                 "sample_count": profile_uncertainty["sample_count"],
@@ -314,7 +516,7 @@ def build_payload() -> dict:
                 implicit_objective_map["booz_xform_scalar"]["relative_mismatch"][0]
             ),
             "implicit_equilibrium_transport_relative_mismatch": (
-                implicit_objective_map["ntx_transport_proxy"]["relative_mismatch"][0]
+                implicit_objective_map["ntx_transport_response"]["relative_mismatch"][0]
             ),
             "implicit_equilibrium_reverse_mode_booz_max_relative_mismatch": (
                 implicit_equilibrium_forward_mode["reverse_mode_diagnostic"][
@@ -359,6 +561,428 @@ def build_payload() -> dict:
                 geometry_family_transport["summary_metrics"][
                     "max_successful_last_step_relative_change"
                 ]
+            ),
+            "owned_finite_beta_bootstrap_max_relative_error": (
+                owned_finite_beta_bootstrap["summary_metrics"][
+                    "max_relative_error_total_vs_redl_interior"
+                ]
+            ),
+            "owned_finite_beta_bootstrap_n_order": (
+                owned_finite_beta_bootstrap["inputs"]["n_order"]
+            ),
+            "owned_finite_beta_bootstrap_d33_mode": (
+                owned_finite_beta_bootstrap["inputs"]["d33_mode"]
+            ),
+            "owned_finite_beta_bootstrap_nu_v_count": (
+                len(owned_finite_beta_bootstrap["inputs"]["nu_v"])
+            ),
+            "owned_finite_beta_bootstrap_psi_p": (
+                owned_finite_beta_bootstrap["ntx_neopax"]["booz_xform_psi_p"]
+            ),
+            "owned_finite_beta_sfincs_completed_transport_count": (
+                owned_finite_beta_sfincs["summary_metrics"][
+                    "completed_transport_matrix_count"
+                ]
+            ),
+            "owned_finite_beta_sfincs_ntx_same_grid_count": (
+                owned_finite_beta_sfincs["summary_metrics"][
+                    "completed_ntx_same_grid_comparison_count"
+                ]
+            ),
+            "owned_finite_beta_sfincs_max_transport_relative_difference": (
+                owned_finite_beta_sfincs["summary_metrics"][
+                    "max_ntx_same_grid_transport_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_resolution_production_precision_gap": (
+                owned_finite_beta_resolution["summary_metrics"][
+                    "production_precision_gap_to_current_gate"
+                ]
+            ),
+            "owned_finite_beta_resolution_tight_harmonics_precision_gap": (
+                owned_finite_beta_resolution["summary_metrics"][
+                    "tight_harmonics_precision_gap_to_current_gate"
+                ]
+            ),
+            "owned_finite_beta_resolution_production_change_vs_smoke": (
+                owned_finite_beta_resolution["summary_metrics"][
+                    "production_change_vs_smoke"
+                ]
+            ),
+            "owned_finite_beta_resolution_tight_harmonics_change_vs_production": (
+                owned_finite_beta_resolution["summary_metrics"][
+                    "tight_harmonics_change_vs_production"
+                ]
+            ),
+            "owned_finite_beta_production_ladder_count": (
+                owned_finite_beta_production_ladder["summary_metrics"][
+                    "completed_production_ladder_count"
+                ]
+            ),
+            "owned_finite_beta_production_ladder_max_transport_error": (
+                owned_finite_beta_production_ladder["summary_metrics"][
+                    "max_production_transport_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_production_ladder_precision_gap": (
+                owned_finite_beta_production_ladder["summary_metrics"][
+                    "max_production_precision_gap_to_current_gate"
+                ]
+            ),
+            "owned_finite_beta_production_ladder_profile_current_error": (
+                owned_finite_beta_production_ladder["summary_metrics"][
+                    "max_profile_current_relative_difference_on_ladder"
+                ]
+            ),
+            "owned_finite_beta_bootstrap_rms_relative_error": (
+                owned_finite_beta_bootstrap["summary_metrics"][
+                    "rms_relative_error_total_vs_redl_interior"
+                ]
+            ),
+            "owned_finite_beta_bootstrap_sign_agreement": (
+                owned_finite_beta_bootstrap["summary_metrics"][
+                    "sign_agreement_fraction_total"
+                ]
+            ),
+            "owned_finite_beta_closure_inner_gap_coefficient_error": (
+                owned_finite_beta_closure["summary_metrics"][
+                    "inner_gap_coefficient_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_closure_inner_gap_current_error": (
+                owned_finite_beta_closure["summary_metrics"][
+                    "inner_gap_bootstrap_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_closure_inner_gap_error_ratio": (
+                owned_finite_beta_closure["summary_metrics"][
+                    "inner_gap_current_to_coefficient_error_ratio"
+                ]
+            ),
+            "owned_finite_beta_closure_coefficient_gate_pass": (
+                owned_finite_beta_closure["summary_metrics"]["coefficient_gate_pass"]
+            ),
+            "owned_finite_beta_closure_profile_gate_pass": (
+                owned_finite_beta_closure["summary_metrics"]["profile_current_gate_pass"]
+            ),
+            "owned_finite_beta_observable_stress_rho": (
+                owned_finite_beta_observable["summary_metrics"]["stress_rho"]
+            ),
+            "owned_finite_beta_observable_applied_over_needed": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "stress_applied_over_needed_correction"
+                ]
+            ),
+            "owned_finite_beta_observable_residual_over_needed": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "stress_residual_after_correction_over_needed"
+                ]
+            ),
+            "owned_finite_beta_observable_cancellation_amplification": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "stress_species_correction_cancellation_amplification"
+                ]
+            ),
+            "owned_finite_beta_observable_residual_over_species_l1": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "stress_residual_after_correction_over_species_correction_l1"
+                ]
+            ),
+            "owned_finite_beta_observable_pmax_error_reduction": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "pmax_stress_error_reduction"
+                ]
+            ),
+            "owned_finite_beta_observable_correction_sign_agreement": (
+                owned_finite_beta_observable["summary_metrics"][
+                    "correction_sign_agreement_fraction"
+                ]
+            ),
+            "owned_finite_beta_conditioning_stress_condition_number": (
+                owned_finite_beta_conditioning["summary_metrics"][
+                    "stress_current_condition_number"
+                ]
+            ),
+            "owned_finite_beta_conditioning_required_coefficient_error": (
+                owned_finite_beta_conditioning["summary_metrics"][
+                    "stress_required_coefficient_relative_difference_for_current_gate"
+                ]
+            ),
+            "owned_finite_beta_conditioning_coefficient_precision_gap": (
+                owned_finite_beta_conditioning["summary_metrics"][
+                    "stress_coefficient_precision_gap_to_current_gate"
+                ]
+            ),
+            "owned_finite_beta_conditioning_coefficient_bound": (
+                owned_finite_beta_conditioning["summary_metrics"][
+                    "stress_coefficient_limited_current_relative_error_bound"
+                ]
+            ),
+            "owned_finite_beta_quadrature_underintegrated_gate_pass_count": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "underintegrated_gate_pass_count"
+                ]
+            ),
+            "owned_finite_beta_quadrature_stable_gate_pass_count": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "quadrature_stable_gate_pass_count"
+                ]
+            ),
+            "owned_finite_beta_quadrature_stable_current_gate_pass": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "quadrature_stable_current_gate_pass"
+                ]
+            ),
+            "owned_finite_beta_quadrature_min_stress_error": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "min_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_quadrature_min_stress_x": (
+                owned_finite_beta_quadrature["summary_metrics"]["min_stress_neopax_x"]
+            ),
+            "owned_finite_beta_quadrature_min_stress_pmax": (
+                owned_finite_beta_quadrature["summary_metrics"]["min_stress_n_order"]
+            ),
+            "owned_finite_beta_quadrature_high_x_largest_order_stress_error": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "high_x_largest_order_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_quadrature_max_same_order_spread": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "max_same_order_stress_spread_over_x"
+                ]
+            ),
+            "owned_finite_beta_source_channel_reconstruction_residual": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "max_source_channel_superposition_relative_residual"
+                ]
+            ),
+            "owned_finite_beta_source_channel_gate_pass": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "source_channel_superposition_gate_pass"
+                ]
+            ),
+            "owned_finite_beta_source_channel_high_stable_error": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_public_relative_error_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_source_channel_high_stable_dominant": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_dominant_effective_channel"
+                ]
+            ),
+            "owned_finite_beta_source_channel_temperature_fraction": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_effective_temperature_fraction_of_total"
+                ]
+            ),
+            "owned_finite_beta_source_channel_density_fraction": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_density_electric_fraction_of_total"
+                ]
+            ),
+            "owned_finite_beta_source_channel_parallel_fraction": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_parallel_electric_fraction_of_total"
+                ]
+            ),
+            "owned_finite_beta_source_channel_cancellation_factor": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_species_cancellation_factor"
+                ]
+            ),
+            "owned_finite_beta_source_channel_temperature_response_multiplier": (
+                owned_finite_beta_source_channel["summary_metrics"].get(
+                    "high_stable_effective_temperature_response_multiplier_to_redl"
+                )
+            ),
+            "owned_finite_beta_source_channel_temperature_response_error": (
+                owned_finite_beta_source_channel["summary_metrics"].get(
+                    "high_stable_effective_temperature_channel_relative_error_vs_redl"
+                )
+            ),
+            "owned_finite_beta_source_channel_redl_temperature_fraction": (
+                owned_finite_beta_source_channel["summary_metrics"].get(
+                    "high_stable_redl_effective_temperature_fraction_of_total"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_radius_count": (
+                owned_finite_beta_source_response_profile["summary_metrics"][
+                    "radius_count"
+                ]
+            ),
+            "owned_finite_beta_source_response_profile_max_error": (
+                owned_finite_beta_source_response_profile["summary_metrics"][
+                    "high_order_max_public_relative_error_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_source_response_profile_multiplier_min": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "high_order_temperature_response_multiplier_min"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_multiplier_median": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "high_order_temperature_response_multiplier_median"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_multiplier_max": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "high_order_temperature_response_multiplier_max"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_multiplier_span": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "high_order_temperature_response_multiplier_span"
+                )
+            ),
+            "owned_finite_beta_source_response_profile_stress_rho": (
+                owned_finite_beta_source_response_profile["summary_metrics"][
+                    "high_order_stress_rho"
+                ]
+            ),
+            "owned_finite_beta_source_response_profile_nu_correlation": (
+                owned_finite_beta_source_response_profile["summary_metrics"].get(
+                    "temperature_response_correlation_with_log10_nu_e_star"
+                )
+            ),
+            "owned_finite_beta_closure_target_best_driver": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_single_physics_driver"
+                ]
+            ),
+            "owned_finite_beta_closure_target_best_driver_abs_pearson": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_single_physics_driver_abs_pearson"
+                ]
+            ),
+            "owned_finite_beta_closure_target_best_model": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_leave_one_out_model"
+                ]
+            ),
+            "owned_finite_beta_closure_target_best_model_loo_rmse": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_leave_one_out_rmse"
+                ]
+            ),
+            "owned_finite_beta_closure_target_improvement_over_constant": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "best_leave_one_out_improvement_over_constant"
+                ]
+            ),
+            "owned_finite_beta_closure_target_runtime_correction_applied": (
+                owned_finite_beta_closure_target["summary_metrics"][
+                    "runtime_correction_applied"
+                ]
+            ),
+            "owned_finite_beta_closure_target_matched_same_radius": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_same_stress_radius_between_artifacts"
+                )
+            ),
+            "owned_finite_beta_closure_target_matched_best_pass_rejected": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_best_pass_rejected_as_underintegrated"
+                )
+            ),
+            "owned_finite_beta_closure_target_matched_stable_gate": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_quadrature_stable_current_gate_pass"
+                )
+            ),
+            "owned_finite_beta_closure_target_matched_source_reconstruction_gate": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_source_channel_superposition_gate_pass"
+                )
+            ),
+            "owned_finite_beta_closure_target_matched_high_stable_multiplier": (
+                owned_finite_beta_closure_target["summary_metrics"].get(
+                    "field_radius_matched_high_stable_effective_temperature_response_multiplier_to_redl"
+                )
+            ),
+            "owned_finite_beta_radial_interpolation_baseline_max_error": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "baseline_max_relative_error_total_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_matched_max_error": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "field_radius_matched_max_relative_error_total_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_baseline_stress_rho": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "baseline_stress_rho"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_baseline_stress_error": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "baseline_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_matched_stress_error": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "field_radius_matched_error_at_baseline_stress_rho"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_gate_pass": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "field_radius_matched_current_gate_pass"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_reference_error": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "reference_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_min_stress_error": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "min_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_min_stress_x": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "min_stress_neopax_x"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_min_stress_pmax": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "min_stress_n_order"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_stable_pass_count": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "quadrature_stable_gate_pass_count"
+                ]
+            ),
+            "owned_finite_beta_matched_quadrature_high_x_largest_order_error": (
+                owned_finite_beta_matched_quadrature["summary_metrics"][
+                    "high_x_largest_order_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_matched_source_channel_reconstruction_residual": (
+                owned_finite_beta_matched_source_channel["summary_metrics"][
+                    "max_source_channel_superposition_relative_residual"
+                ]
+            ),
+            "owned_finite_beta_matched_source_channel_gate_pass": (
+                owned_finite_beta_matched_source_channel["summary_metrics"][
+                    "source_channel_superposition_gate_pass"
+                ]
+            ),
+            "owned_finite_beta_matched_source_channel_high_stable_error": (
+                owned_finite_beta_matched_source_channel["summary_metrics"][
+                    "high_stable_public_relative_error_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_matched_source_channel_temperature_response_multiplier": (
+                owned_finite_beta_matched_source_channel["summary_metrics"].get(
+                    "high_stable_effective_temperature_response_multiplier_to_redl"
+                )
             ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
@@ -528,6 +1152,301 @@ def build_markdown(payload: dict) -> str:
     geometry_family_open = geometry_family_breadth["open_cases"]
     geometry_family_retired = geometry_family_breadth.get("retired_cases", [])
     geometry_family_metrics = geometry_family_breadth["summary_metrics"]
+    owned_finite_beta_bootstrap = payload["tables"][
+        "owned_finite_beta_bootstrap_comparison"
+    ]
+    owned_finite_beta_bootstrap_inputs = owned_finite_beta_bootstrap["inputs"]
+    owned_finite_beta_bootstrap_order_scan = owned_finite_beta_bootstrap[
+        "comparison"
+    ].get("momentum_order_scan", {})
+    owned_finite_beta_bootstrap_metrics = owned_finite_beta_bootstrap["summary_metrics"]
+    owned_finite_beta_closure = payload["tables"][
+        "owned_finite_beta_closure_localization"
+    ]
+    owned_finite_beta_closure_metrics = owned_finite_beta_closure["summary_metrics"]
+    closure_inner_coefficient_error = owned_finite_beta_closure_metrics[
+        "inner_gap_coefficient_relative_difference"
+    ]
+    closure_inner_current_error = owned_finite_beta_closure_metrics[
+        "inner_gap_bootstrap_relative_difference"
+    ]
+    closure_inner_error_ratio = owned_finite_beta_closure_metrics[
+        "inner_gap_current_to_coefficient_error_ratio"
+    ]
+    owned_finite_beta_observable = payload["tables"][
+        "owned_finite_beta_profile_current_observable"
+    ]
+    owned_finite_beta_observable_metrics = owned_finite_beta_observable[
+        "summary_metrics"
+    ]
+    observable_applied_over_needed = owned_finite_beta_observable_metrics[
+        "stress_applied_over_needed_correction"
+    ]
+    observable_residual_over_needed = owned_finite_beta_observable_metrics[
+        "stress_residual_after_correction_over_needed"
+    ]
+    observable_cancellation_amplification = owned_finite_beta_observable_metrics[
+        "stress_species_correction_cancellation_amplification"
+    ]
+    observable_residual_over_species_l1 = owned_finite_beta_observable_metrics[
+        "stress_residual_after_correction_over_species_correction_l1"
+    ]
+    observable_pmax_error_reduction = owned_finite_beta_observable_metrics[
+        "pmax_stress_error_reduction"
+    ]
+    owned_finite_beta_conditioning = payload["tables"][
+        "owned_finite_beta_current_conditioning"
+    ]
+    owned_finite_beta_conditioning_metrics = owned_finite_beta_conditioning[
+        "summary_metrics"
+    ]
+    conditioning_current_condition = owned_finite_beta_conditioning_metrics[
+        "stress_current_condition_number"
+    ]
+    conditioning_required_coefficient_error = owned_finite_beta_conditioning_metrics[
+        "stress_required_coefficient_relative_difference_for_current_gate"
+    ]
+    conditioning_precision_gap = owned_finite_beta_conditioning_metrics[
+        "stress_coefficient_precision_gap_to_current_gate"
+    ]
+    conditioning_coefficient_bound = owned_finite_beta_conditioning_metrics[
+        "stress_coefficient_limited_current_relative_error_bound"
+    ]
+    owned_finite_beta_quadrature = payload["tables"][
+        "owned_finite_beta_closure_quadrature"
+    ]
+    owned_finite_beta_quadrature_metrics = owned_finite_beta_quadrature[
+        "summary_metrics"
+    ]
+    quadrature_underintegrated_passes = owned_finite_beta_quadrature_metrics[
+        "underintegrated_gate_pass_count"
+    ]
+    quadrature_stable_passes = owned_finite_beta_quadrature_metrics[
+        "quadrature_stable_gate_pass_count"
+    ]
+    quadrature_stable_gate_pass = owned_finite_beta_quadrature_metrics[
+        "quadrature_stable_current_gate_pass"
+    ]
+    quadrature_min_stress_error = owned_finite_beta_quadrature_metrics[
+        "min_stress_relative_error"
+    ]
+    quadrature_min_stress_x = owned_finite_beta_quadrature_metrics[
+        "min_stress_neopax_x"
+    ]
+    quadrature_min_stress_pmax = owned_finite_beta_quadrature_metrics[
+        "min_stress_n_order"
+    ]
+    quadrature_high_x_error = owned_finite_beta_quadrature_metrics[
+        "high_x_largest_order_stress_relative_error"
+    ]
+    quadrature_max_same_order_spread = owned_finite_beta_quadrature_metrics[
+        "max_same_order_stress_spread_over_x"
+    ]
+    owned_finite_beta_matched_quadrature = payload["tables"][
+        "owned_finite_beta_field_radius_matched_closure_quadrature"
+    ]
+    owned_finite_beta_matched_quadrature_metrics = (
+        owned_finite_beta_matched_quadrature["summary_metrics"]
+    )
+    matched_quadrature_reference_error = (
+        owned_finite_beta_matched_quadrature_metrics["reference_stress_relative_error"]
+    )
+    matched_quadrature_min_stress_error = (
+        owned_finite_beta_matched_quadrature_metrics["min_stress_relative_error"]
+    )
+    matched_quadrature_min_stress_x = owned_finite_beta_matched_quadrature_metrics[
+        "min_stress_neopax_x"
+    ]
+    matched_quadrature_min_stress_pmax = (
+        owned_finite_beta_matched_quadrature_metrics["min_stress_n_order"]
+    )
+    matched_quadrature_stable_passes = (
+        owned_finite_beta_matched_quadrature_metrics[
+            "quadrature_stable_gate_pass_count"
+        ]
+    )
+    matched_quadrature_high_x_error = (
+        owned_finite_beta_matched_quadrature_metrics[
+            "high_x_largest_order_stress_relative_error"
+        ]
+    )
+    owned_finite_beta_matched_source_channel = payload["tables"][
+        "owned_finite_beta_field_radius_matched_source_channel"
+    ]
+    matched_source_metrics = owned_finite_beta_matched_source_channel[
+        "summary_metrics"
+    ]
+    matched_source_reconstruction_residual = matched_source_metrics[
+        "max_source_channel_superposition_relative_residual"
+    ]
+    matched_source_gate_pass = matched_source_metrics[
+        "source_channel_superposition_gate_pass"
+    ]
+    matched_source_high_stable_error = matched_source_metrics[
+        "high_stable_public_relative_error_vs_redl"
+    ]
+    matched_source_temperature_response_multiplier = matched_source_metrics.get(
+        "high_stable_effective_temperature_response_multiplier_to_redl"
+    )
+    owned_finite_beta_source_channel = payload["tables"][
+        "owned_finite_beta_source_channel"
+    ]
+    owned_finite_beta_source_channel_metrics = owned_finite_beta_source_channel[
+        "summary_metrics"
+    ]
+    source_channel_reconstruction_residual = owned_finite_beta_source_channel_metrics[
+        "max_source_channel_superposition_relative_residual"
+    ]
+    source_channel_gate_pass = owned_finite_beta_source_channel_metrics[
+        "source_channel_superposition_gate_pass"
+    ]
+    source_channel_high_stable_error = owned_finite_beta_source_channel_metrics[
+        "high_stable_public_relative_error_vs_redl"
+    ]
+    source_channel_high_stable_dominant = owned_finite_beta_source_channel_metrics[
+        "high_stable_dominant_effective_channel"
+    ]
+    source_channel_temperature_fraction = owned_finite_beta_source_channel_metrics[
+        "high_stable_effective_temperature_fraction_of_total"
+    ]
+    source_channel_density_fraction = owned_finite_beta_source_channel_metrics[
+        "high_stable_density_electric_fraction_of_total"
+    ]
+    source_channel_parallel_fraction = owned_finite_beta_source_channel_metrics[
+        "high_stable_parallel_electric_fraction_of_total"
+    ]
+    source_channel_cancellation_factor = owned_finite_beta_source_channel_metrics[
+        "high_stable_species_cancellation_factor"
+    ]
+    source_channel_temperature_response_multiplier = (
+        owned_finite_beta_source_channel_metrics.get(
+            "high_stable_effective_temperature_response_multiplier_to_redl"
+        )
+    )
+    source_channel_temperature_response_error = (
+        owned_finite_beta_source_channel_metrics.get(
+            "high_stable_effective_temperature_channel_relative_error_vs_redl"
+        )
+    )
+    source_channel_redl_temperature_fraction = (
+        owned_finite_beta_source_channel_metrics.get(
+            "high_stable_redl_effective_temperature_fraction_of_total"
+        )
+    )
+    owned_finite_beta_source_response_profile = payload["tables"][
+        "owned_finite_beta_source_response_profile"
+    ]
+    source_response_profile_metrics = owned_finite_beta_source_response_profile[
+        "summary_metrics"
+    ]
+    source_response_profile_radius_count = source_response_profile_metrics[
+        "radius_count"
+    ]
+    source_response_profile_max_error = source_response_profile_metrics[
+        "high_order_max_public_relative_error_vs_redl"
+    ]
+    source_response_profile_multiplier_min = source_response_profile_metrics.get(
+        "high_order_temperature_response_multiplier_min"
+    )
+    source_response_profile_multiplier_median = source_response_profile_metrics.get(
+        "high_order_temperature_response_multiplier_median"
+    )
+    source_response_profile_multiplier_max = source_response_profile_metrics.get(
+        "high_order_temperature_response_multiplier_max"
+    )
+    source_response_profile_multiplier_span = source_response_profile_metrics.get(
+        "high_order_temperature_response_multiplier_span"
+    )
+    source_response_profile_stress_rho = source_response_profile_metrics[
+        "high_order_stress_rho"
+    ]
+    source_response_profile_nu_correlation = source_response_profile_metrics.get(
+        "temperature_response_correlation_with_log10_nu_e_star"
+    )
+    owned_finite_beta_closure_target = payload["tables"][
+        "owned_finite_beta_closure_target"
+    ]
+    closure_target_metrics = owned_finite_beta_closure_target["summary_metrics"]
+    closure_target_best_driver = closure_target_metrics[
+        "best_single_physics_driver"
+    ]
+    closure_target_best_driver_abs_pearson = closure_target_metrics[
+        "best_single_physics_driver_abs_pearson"
+    ]
+    closure_target_best_model = closure_target_metrics["best_leave_one_out_model"]
+    closure_target_best_model_loo_rmse = closure_target_metrics[
+        "best_leave_one_out_rmse"
+    ]
+    closure_target_improvement_over_constant = closure_target_metrics[
+        "best_leave_one_out_improvement_over_constant"
+    ]
+    closure_target_runtime_correction_applied = closure_target_metrics[
+        "runtime_correction_applied"
+    ]
+    closure_target_matched_same_radius = closure_target_metrics.get(
+        "field_radius_matched_same_stress_radius_between_artifacts"
+    )
+    closure_target_matched_best_pass_rejected = closure_target_metrics.get(
+        "field_radius_matched_best_pass_rejected_as_underintegrated"
+    )
+    closure_target_matched_stable_gate = closure_target_metrics.get(
+        "field_radius_matched_quadrature_stable_current_gate_pass"
+    )
+    closure_target_matched_source_reconstruction_gate = closure_target_metrics.get(
+        "field_radius_matched_source_channel_superposition_gate_pass"
+    )
+    closure_target_matched_high_stable_multiplier = closure_target_metrics.get(
+        "field_radius_matched_high_stable_effective_temperature_response_multiplier_to_redl"
+    )
+    owned_finite_beta_resolution = payload["tables"][
+        "owned_finite_beta_sfincs_jax_resolution_audit"
+    ]
+    owned_finite_beta_resolution_metrics = owned_finite_beta_resolution[
+        "summary_metrics"
+    ]
+    resolution_production_gap = owned_finite_beta_resolution_metrics[
+        "production_precision_gap_to_current_gate"
+    ]
+    resolution_tight_harmonics_gap = owned_finite_beta_resolution_metrics[
+        "tight_harmonics_precision_gap_to_current_gate"
+    ]
+    owned_finite_beta_production_ladder = payload["tables"][
+        "owned_finite_beta_sfincs_jax_production_ladder"
+    ]
+    owned_finite_beta_production_ladder_metrics = (
+        owned_finite_beta_production_ladder["summary_metrics"]
+    )
+    production_ladder_count = owned_finite_beta_production_ladder_metrics[
+        "completed_production_ladder_count"
+    ]
+    production_ladder_max_error = owned_finite_beta_production_ladder_metrics[
+        "max_production_transport_relative_difference"
+    ]
+    production_ladder_precision_gap = owned_finite_beta_production_ladder_metrics[
+        "max_production_precision_gap_to_current_gate"
+    ]
+    finite_beta_bootstrap_max_error = owned_finite_beta_bootstrap_metrics[
+        "max_relative_error_total_vs_redl_interior"
+    ]
+    finite_beta_bootstrap_rms_error = owned_finite_beta_bootstrap_metrics[
+        "rms_relative_error_total_vs_redl_interior"
+    ]
+    finite_beta_bootstrap_sign_fraction = owned_finite_beta_bootstrap_metrics[
+        "sign_agreement_fraction_total"
+    ]
+    finite_beta_bootstrap_order_summary = ", ".join(
+        (
+            f"P={entry['n_order']}: "
+            f"{entry['max_relative_error_total_vs_redl']:.2e}/"
+            f"{entry['rms_relative_error_total_vs_redl']:.2e}"
+        )
+        for _, entry in sorted(
+            owned_finite_beta_bootstrap_order_scan.items(),
+            key=lambda item: int(item[0]),
+        )
+    )
+    if not finite_beta_bootstrap_order_summary:
+        finite_beta_bootstrap_order_summary = "not recorded"
     geometry_transport_cases = [
         case for case in geometry_family_transport["cases"] if case["status"] != "skipped"
     ]
@@ -697,7 +1616,8 @@ def build_markdown(payload: dict) -> str:
             ),
             (
                 "| NTX transport mismatch | "
-                f"`{implicit_objective_map['ntx_transport_proxy']['relative_mismatch'][0]:.3e}` |"
+                f"`{implicit_objective_map['ntx_transport_response']['relative_mismatch'][0]:.3e}` "
+                "|"
             ),
             "",
             "## Explicit-Relaxed Boundary Current Derivatives",
@@ -807,6 +1727,279 @@ def build_markdown(payload: dict) -> str:
                 "| Solved case ids | `"
                 + ", ".join(case["id"] for case in geometry_transport_cases)
                 + "` |"
+            ),
+            "",
+            "## Owned Finite-Beta Bootstrap-Current Stress",
+            "",
+            "| Quantity | Value |",
+            "| --- | ---: |",
+            f"| Case | `{owned_finite_beta_bootstrap['case']['id']}` |",
+            (
+                "| Closure configuration | "
+                f"`P={owned_finite_beta_bootstrap_inputs['n_order']}`, "
+                f"`D33={owned_finite_beta_bootstrap_inputs['d33_mode']}`, "
+                f"`nu/v points={len(owned_finite_beta_bootstrap_inputs['nu_v'])}` |"
+            ),
+            (
+                "| Boozer psi_p | "
+                f"`{payload['claims']['owned_finite_beta_bootstrap_psi_p']:.6e}` |"
+            ),
+            (
+                "| Max total-current relative difference vs Redl | "
+                f"`{finite_beta_bootstrap_max_error:.3e}` |"
+            ),
+            (
+                "| RMS total-current relative difference vs Redl | "
+                f"`{finite_beta_bootstrap_rms_error:.3e}` |"
+            ),
+            (
+                "| Sign-agreement fraction | "
+                f"`{finite_beta_bootstrap_sign_fraction:.3f}` |"
+            ),
+            (
+                "| Inner-gap same-grid coefficient relative difference | "
+                f"`{closure_inner_coefficient_error:.3e}` |"
+            ),
+            (
+                "| Inner-gap profile-current relative difference | "
+                f"`{closure_inner_current_error:.3e}` |"
+            ),
+            (
+                "| Inner-gap current/coefficient error ratio | "
+                f"`{closure_inner_error_ratio:.3e}` |"
+            ),
+            (
+                "| Stress-radius applied/needed correction | "
+                f"`{observable_applied_over_needed:.3f}` |"
+            ),
+            (
+                "| Stress-radius residual/needed correction | "
+                f"`{observable_residual_over_needed:.3f}` |"
+            ),
+            (
+                "| Stress-radius species-correction cancellation amplification | "
+                f"`{observable_cancellation_amplification:.3f}` |"
+            ),
+            (
+                "| Stress-radius residual/species-correction L1 | "
+                f"`{observable_residual_over_species_l1:.3e}` |"
+            ),
+            (
+                "| Stress-radius current condition number | "
+                f"`{conditioning_current_condition:.3e}` |"
+            ),
+            (
+                "| Required coefficient error for `1e-1` current gate | "
+                f"`{conditioning_required_coefficient_error:.3e}` |"
+            ),
+            (
+                "| Coefficient precision gap to current gate | "
+                f"`{conditioning_precision_gap:.3f}x` |"
+            ),
+            (
+                "| Production-grid coefficient precision gap | "
+                f"`{resolution_production_gap:.3f}x` |"
+            ),
+            (
+                "| Tight-harmonic coefficient precision gap | "
+                f"`{resolution_tight_harmonics_gap:.3f}x` |"
+            ),
+            (
+                "| Production radial/collisionality ladder count | "
+                f"`{production_ladder_count}` |"
+            ),
+            (
+                "| Production ladder max coefficient difference | "
+                f"`{production_ladder_max_error:.3e}` |"
+            ),
+            (
+                "| Production ladder precision gap | "
+                f"`{production_ladder_precision_gap:.3f}x` |"
+            ),
+            (
+                "| Coefficient-conditioned current-error bound | "
+                f"`{conditioning_coefficient_bound:.3e}` |"
+            ),
+            (
+                "| Under-integrated closure current-gate passes | "
+                f"`{quadrature_underintegrated_passes}` |"
+            ),
+            (
+                "| Quadrature-stable closure current-gate passes | "
+                f"`{quadrature_stable_passes}` |"
+            ),
+            (
+                "| Quadrature-stable current gate | "
+                f"`{quadrature_stable_gate_pass}` |"
+            ),
+            (
+                "| Best stress-radius closure setting | "
+                f"`P={quadrature_min_stress_pmax}, X={quadrature_min_stress_x}, "
+                f"error={quadrature_min_stress_error:.3e}` |"
+            ),
+            (
+                "| Highest-X largest-order stress error | "
+                f"`{quadrature_high_x_error:.3e}` |"
+            ),
+            (
+                "| Max same-order stress spread over X | "
+                f"`{quadrature_max_same_order_spread:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched reference stress error | "
+                f"`{matched_quadrature_reference_error:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched best apparent setting | "
+                f"`P={matched_quadrature_min_stress_pmax}, "
+                f"X={matched_quadrature_min_stress_x}, "
+                f"error={matched_quadrature_min_stress_error:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched quadrature-stable pass count | "
+                f"`{matched_quadrature_stable_passes}` |"
+            ),
+            (
+                "| Field-radius-matched highest-X largest-order error | "
+                f"`{matched_quadrature_high_x_error:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched source-channel reconstruction residual | "
+                f"`{matched_source_reconstruction_residual:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched source-channel reconstruction gate | "
+                f"`{matched_source_gate_pass}` |"
+            ),
+            (
+                "| Field-radius-matched high-order source-channel stress error | "
+                f"`{matched_source_high_stable_error:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched Redl temperature response multiplier | "
+                f"`{matched_source_temperature_response_multiplier:.3e}` |"
+            )
+            if matched_source_temperature_response_multiplier is not None
+            else "",
+            (
+                "| Source-channel reconstruction residual | "
+                f"`{source_channel_reconstruction_residual:.3e}` |"
+            ),
+            (
+                "| Source-channel reconstruction gate | "
+                f"`{source_channel_gate_pass}` |"
+            ),
+            (
+                "| High-order source-channel stress error | "
+                f"`{source_channel_high_stable_error:.3e}` |"
+            ),
+            (
+                "| Dominant high-order source channel | "
+                f"`{source_channel_high_stable_dominant}` |"
+            ),
+            (
+                "| High-order temperature/density/parallel fractions | "
+                f"`{source_channel_temperature_fraction:.3e}` / "
+                f"`{source_channel_density_fraction:.3e}` / "
+                f"`{source_channel_parallel_fraction:.3e}` |"
+            ),
+            (
+                "| Source-channel species-cancellation factor | "
+                f"`{source_channel_cancellation_factor:.3e}` |"
+            ),
+            (
+                "| Redl temperature response multiplier at high order | "
+                f"`{source_channel_temperature_response_multiplier:.3e}` |"
+            )
+            if source_channel_temperature_response_multiplier is not None
+            else "",
+            (
+                "| Redl temperature-channel relative difference at high order | "
+                f"`{source_channel_temperature_response_error:.3e}` |"
+            )
+            if source_channel_temperature_response_error is not None
+            else "",
+            (
+                "| Redl temperature-channel fraction of target current | "
+                f"`{source_channel_redl_temperature_fraction:.3e}` |"
+            )
+            if source_channel_redl_temperature_fraction is not None
+            else "",
+            (
+                "| Profile source-response radii | "
+                f"`{source_response_profile_radius_count}` |"
+            ),
+            (
+                "| Profile source-response max current stress | "
+                f"`{source_response_profile_max_error:.3e}` at "
+                f"`rho={source_response_profile_stress_rho:.3f}` |"
+            ),
+            (
+                "| Profile temperature response multiplier min/median/max | "
+                f"`{source_response_profile_multiplier_min:.3e}` / "
+                f"`{source_response_profile_multiplier_median:.3e}` / "
+                f"`{source_response_profile_multiplier_max:.3e}` |"
+            )
+            if (
+                source_response_profile_multiplier_min is not None
+                and source_response_profile_multiplier_median is not None
+                and source_response_profile_multiplier_max is not None
+            )
+            else "",
+            (
+                "| Profile temperature response multiplier span | "
+                f"`{source_response_profile_multiplier_span:.3e}` |"
+            )
+            if source_response_profile_multiplier_span is not None
+            else "",
+            (
+                "| Temperature response correlation with log10(nu_e*) | "
+                f"`{source_response_profile_nu_correlation:.3e}` |"
+            )
+            if source_response_profile_nu_correlation is not None
+            else "",
+            (
+                "| Closure-target best physics driver | "
+                f"`{closure_target_best_driver}` "
+                f"(`|r|={closure_target_best_driver_abs_pearson:.3e}`) |"
+            ),
+            (
+                "| Closure-target best diagnostic model | "
+                f"`{closure_target_best_model}` "
+                f"(`LOO RMSE={closure_target_best_model_loo_rmse:.3e}`) |"
+            )
+            if closure_target_best_model_loo_rmse is not None
+            else "",
+            (
+                "| Closure-target improvement over constant response | "
+                f"`{closure_target_improvement_over_constant:.3e}` |"
+            )
+            if closure_target_improvement_over_constant is not None
+            else "",
+            (
+                "| Closure-target runtime correction applied | "
+                f"`{closure_target_runtime_correction_applied}` |"
+            ),
+            (
+                "| Closure-target matched-radius stress consistency | "
+                f"`same rho={closure_target_matched_same_radius}`, "
+                f"`source gate={closure_target_matched_source_reconstruction_gate}`, "
+                f"`stable gate={closure_target_matched_stable_gate}` |"
+            ),
+            (
+                "| Closure-target matched-radius apparent pass status | "
+                f"`under-integrated rejected={closure_target_matched_best_pass_rejected}`, "
+                f"`stable multiplier={closure_target_matched_high_stable_multiplier:.3e}` |"
+            )
+            if closure_target_matched_high_stable_multiplier is not None
+            else "",
+            (
+                "| Stress-radius Pmax error reduction | "
+                f"`{observable_pmax_error_reduction:.3f}x` |"
+            ),
+            (
+                "| Sonine-order max/RMS relative differences | "
+                f"`{finite_beta_bootstrap_order_summary}` |"
             ),
             "",
             "## Profile Uncertainty",
@@ -923,6 +2116,12 @@ def build_markdown(payload: dict) -> str:
 
 def build_claims_markdown(payload: dict) -> str:
     claims = payload["claims"]
+    finite_beta_resolution_tight_change = claims[
+        "owned_finite_beta_resolution_tight_harmonics_change_vs_production"
+    ]
+    closure_target_matched_source_gate = claims[
+        "owned_finite_beta_closure_target_matched_source_reconstruction_gate"
+    ]
     explicit_relaxed_max_mismatch = claims[
         "explicit_relaxed_boundary_current_derivative_max_relative_mismatch"
     ]
@@ -1055,6 +2254,297 @@ def build_claims_markdown(payload: dict) -> str:
                 "independent-code parity claim."
             ),
             (
+                "- The owned finite-beta SFINCS-JAX generation lane now has "
+                f"`{claims['owned_finite_beta_sfincs_completed_transport_count']}` "
+                "completed same-grid transport-matrix output(s) and "
+                f"`{claims['owned_finite_beta_sfincs_ntx_same_grid_count']}` "
+                "coefficient-level NTX comparison(s). The current maximum "
+                "same-grid `L13/L31/L33` relative difference is "
+                f"`{claims['owned_finite_beta_sfincs_max_transport_relative_difference']:.3e}`; "
+                "this is a transport-coefficient stress diagnostic, not yet a "
+                "profile-current parity claim."
+            ),
+            (
+                "- The owned finite-beta bootstrap-current stress audit now runs "
+                "Redl and `NTX+NEOPAX` on the same VMEC wout, Boozer transform, "
+                "analytic profile contract, radial grid, and current normalization. "
+                "The Boozer-coordinate path passes physical "
+                f"`psi_p={claims['owned_finite_beta_bootstrap_psi_p']:.3e}`, "
+                "the profile convolution uses "
+                f"`{claims['owned_finite_beta_bootstrap_nu_v_count']}` adaptive "
+                "`nu/v` support points, and the reported closure uses "
+                f"`P={claims['owned_finite_beta_bootstrap_n_order']}` with "
+                f"`D33={claims['owned_finite_beta_bootstrap_d33_mode']}`. "
+                "The production-resolution reduced-closure total-current gap "
+                "remains open at max/RMS "
+                f"`{claims['owned_finite_beta_bootstrap_max_relative_error']:.3e}`/"
+                f"`{claims['owned_finite_beta_bootstrap_rms_relative_error']:.3e}` "
+                "with sign-agreement fraction "
+                f"`{claims['owned_finite_beta_bootstrap_sign_agreement']:.3f}`, "
+                "so this artifact is a stress diagnostic rather than a promoted "
+                "finite-beta parity claim."
+            ),
+            (
+                "- The owned finite-beta closure-localization sidecar compares "
+                "the same-grid coefficient ladder with the profile-current "
+                "stress artifact at the inner gap. The coefficient-side "
+                "relative difference is "
+                f"`{claims['owned_finite_beta_closure_inner_gap_coefficient_error']:.3e}` "
+                "while the profile-current relative difference is "
+                f"`{claims['owned_finite_beta_closure_inner_gap_current_error']:.3e}`, "
+                "a ratio of "
+                f"`{claims['owned_finite_beta_closure_inner_gap_error_ratio']:.3e}`. "
+                "This keeps the remaining work in the reduced "
+                "momentum/profile-current observable rather than relabeling it "
+                "as a coefficient-normalization failure."
+            ),
+            (
+                "- The owned finite-beta profile-current observable audit shows "
+                "that the stress-radius momentum correction has unit sign "
+                "agreement and applies "
+                f"`{claims['owned_finite_beta_observable_applied_over_needed']:.3f}` "
+                "of the correction needed to match the Redl target, leaving "
+                f"`{claims['owned_finite_beta_observable_residual_over_needed']:.3f}` "
+                "of the needed correction as residual. At the same radius the "
+                "oppositely signed species corrections amplify the net-current "
+                "observable by "
+                f"`{claims['owned_finite_beta_observable_cancellation_amplification']:.3f}x`, "
+                "and the remaining residual is only "
+                f"`{claims['owned_finite_beta_observable_residual_over_species_l1']:.3e}` "
+                "of the species-correction L1 scale. The Pmax sidecar reduces "
+                "the stress error by "
+                f"`{claims['owned_finite_beta_observable_pmax_error_reduction']:.3f}x`, "
+                "so the remaining gap is an amplitude/observable closure issue, "
+                "not a correction-sign failure."
+            ),
+            (
+                "- The owned finite-beta current-conditioning audit shows that "
+                "the same stress radius has species-flow L1 divided by Redl net "
+                "current "
+                f"`{claims['owned_finite_beta_conditioning_stress_condition_number']:.3e}`. "
+                "A `1e-1` net-current gate therefore requires coefficient "
+                "precision "
+                f"`{claims['owned_finite_beta_conditioning_required_coefficient_error']:.3e}`, "
+                "while the current same-grid smoke ladder is looser by "
+                f"`{claims['owned_finite_beta_conditioning_coefficient_precision_gap']:.3f}x`. "
+                "This keeps the next finite-beta step on production same-grid "
+                "coefficient/profile-current diagnostics before changing the "
+                "reduced closure."
+            ),
+            (
+                "- The owned finite-beta production-resolution coefficient "
+                "probe raises the stress-radius SFINCS-JAX/NTX grid from "
+                "`25 x 31 x 32` to `35 x 43 x 48` and also tightens the VMEC "
+                "harmonic cutoff. The production coefficient floor changes by "
+                f"`{claims['owned_finite_beta_resolution_production_change_vs_smoke']:.3e}` "
+                "relative to the smoke ladder, while the tight-harmonic probe "
+                "changes by "
+                f"`{finite_beta_resolution_tight_change:.3e}` "
+                "relative to the production probe. The resulting precision "
+                "gaps remain "
+                f"`{claims['owned_finite_beta_resolution_production_precision_gap']:.3f}x`/"
+                f"`{claims['owned_finite_beta_resolution_tight_harmonics_precision_gap']:.3f}x` "
+                "above the current-conditioned target, so the remaining work is "
+                "not closed by angular resolution or harmonic truncation."
+            ),
+            (
+                "- The owned finite-beta production radial/collisionality "
+                "ladder completes "
+                f"`{claims['owned_finite_beta_production_ladder_count']}` "
+                "same-grid SFINCS-JAX/NTX points. Its maximum coefficient "
+                "difference is "
+                f"`{claims['owned_finite_beta_production_ladder_max_transport_error']:.3e}`, "
+                "still below the order-`1e-1` coefficient gate, but the "
+                "current-conditioned precision gap remains "
+                f"`{claims['owned_finite_beta_production_ladder_precision_gap']:.3f}x` "
+                "at the inner stress radius. This closes the finite-beta "
+                "production coefficient-ladder lane and keeps the open mismatch "
+                "at the profile-current closure layer."
+            ),
+            (
+                "- The owned finite-beta closure-quadrature audit shows that "
+                f"`{claims['owned_finite_beta_quadrature_underintegrated_gate_pass_count']}` "
+                "stress-radius current-gate pass occurs only when the velocity "
+                "quadrature is lower than the Sonine truncation, while "
+                f"`{claims['owned_finite_beta_quadrature_stable_gate_pass_count']}` "
+                "quadrature-stable pass is found. The best apparent "
+                "stress-radius setting is "
+                f"`P={claims['owned_finite_beta_quadrature_min_stress_pmax']}`, "
+                f"`X={claims['owned_finite_beta_quadrature_min_stress_x']}` with "
+                "relative difference "
+                f"`{claims['owned_finite_beta_quadrature_min_stress_error']:.3e}`, "
+                "but the highest-X largest-order stress difference remains "
+                f"`{claims['owned_finite_beta_quadrature_high_x_largest_order_stress_error']:.3e}` "
+                "and same-order stress values vary over X by "
+                f"`{claims['owned_finite_beta_quadrature_max_same_order_spread']:.3e}`. "
+                "This closes the under-integrated apparent-pass route and keeps "
+                "the finite-beta bootstrap-current gap assigned to a "
+                "quadrature-converged reduced-closure lane."
+            ),
+            (
+                "- The field-radius-matched source-channel audit repeats the "
+                "same RHS decomposition after removing the sparse radial "
+                "interpolation layer. The channel sum reconstructs the corrected "
+                "current with residual "
+                "`"
+                f"{claims['owned_finite_beta_matched_source_channel_reconstruction_residual']:.3e}"
+                "` "
+                "and gate status "
+                f"`{claims['owned_finite_beta_matched_source_channel_gate_pass']}`. "
+                "At the quadrature-stable high-order setting the matched-radius "
+                "source-channel stress is "
+                f"`{claims['owned_finite_beta_matched_source_channel_high_stable_error']:.3e}`"
+                + (
+                    " and the Redl temperature-channel response multiplier is "
+                    "`"
+                    f"{claims['owned_finite_beta_matched_source_channel_temperature_response_multiplier']:.3e}"
+                    "`"
+                    if claims.get(
+                        "owned_finite_beta_matched_source_channel_temperature_response_multiplier"
+                    )
+                    is not None
+                    else ""
+                )
+                + ". This keeps interpolation and source-response diagnostics on "
+                "the same finite-beta contract without applying a fitted runtime "
+                "correction."
+            ),
+            (
+                "- The owned finite-beta source-channel audit freezes the same "
+                "stress-radius matrix and solves one physical RHS channel at a "
+                "time. The summed channels reconstruct the full corrected "
+                "current with relative residual "
+                f"`{claims['owned_finite_beta_source_channel_reconstruction_residual']:.3e}` "
+                "and gate status "
+                f"`{claims['owned_finite_beta_source_channel_gate_pass']}`. "
+                "At the quadrature-stable high-order setting the current "
+                "relative difference is "
+                f"`{claims['owned_finite_beta_source_channel_high_stable_error']:.3e}`, "
+                "the dominant source is "
+                f"`{claims['owned_finite_beta_source_channel_high_stable_dominant']}`, "
+                "and the temperature/density/parallel source fractions are "
+                f"`{claims['owned_finite_beta_source_channel_temperature_fraction']:.3e}`/"
+                f"`{claims['owned_finite_beta_source_channel_density_fraction']:.3e}`/"
+                f"`{claims['owned_finite_beta_source_channel_parallel_fraction']:.3e}`. "
+                + (
+                    "The Redl temperature-channel target would require a "
+                    "high-order response multiplier of "
+                    "`"
+                    f"{claims['owned_finite_beta_source_channel_temperature_response_multiplier']:.3e}"
+                    "` "
+                    "relative to the frozen corrected source solve, with "
+                    "channel relative difference "
+                    "`"
+                    f"{claims['owned_finite_beta_source_channel_temperature_response_error']:.3e}"
+                    "`. "
+                    if claims.get(
+                        "owned_finite_beta_source_channel_temperature_response_multiplier"
+                    )
+                    is not None
+                    else ""
+                )
+                + "This keeps the remaining finite-beta closure work on a "
+                "physics-derived source-channel response, not on fitted "
+                "thresholds or hidden normalization constants."
+            ),
+            (
+                "- The owned finite-beta profile source-response audit extends "
+                "that source-channel measurement over "
+                f"`{claims['owned_finite_beta_source_response_profile_radius_count']}` "
+                "profile radii. The high-order current stress reaches "
+                f"`{claims['owned_finite_beta_source_response_profile_max_error']:.3e}` "
+                "at "
+                f"`rho={claims['owned_finite_beta_source_response_profile_stress_rho']:.3f}`, "
+                "and the Redl/NTX effective-temperature response multiplier "
+                "spans "
+                f"`{claims['owned_finite_beta_source_response_profile_multiplier_min']:.3e}`/"
+                f"`{claims['owned_finite_beta_source_response_profile_multiplier_median']:.3e}`/"
+                f"`{claims['owned_finite_beta_source_response_profile_multiplier_max']:.3e}` "
+                "over min/median/max. This is kept as a profile-wide "
+                "physics-localization map before any reduced-closure change is "
+                "accepted."
+            )
+            if (
+                claims.get("owned_finite_beta_source_response_profile_multiplier_min")
+                is not None
+                and claims.get(
+                    "owned_finite_beta_source_response_profile_multiplier_median"
+                )
+                is not None
+                and claims.get("owned_finite_beta_source_response_profile_multiplier_max")
+                is not None
+            )
+            else "",
+            (
+                "- The finite-beta closure-target audit converts that "
+                "profile-response map into a driver-identification artifact. "
+                "Its strongest single local driver is "
+                f"`{claims['owned_finite_beta_closure_target_best_driver']}` "
+                "with absolute Pearson correlation "
+                f"`{claims['owned_finite_beta_closure_target_best_driver_abs_pearson']:.3e}`; "
+                "the best leave-one-out diagnostic model is "
+                f"`{claims['owned_finite_beta_closure_target_best_model']}` "
+                "with RMSE "
+                f"`{claims['owned_finite_beta_closure_target_best_model_loo_rmse']:.3e}` "
+                "and improvement over a constant response of "
+                f"`{claims['owned_finite_beta_closure_target_improvement_over_constant']:.3e}`. "
+                "The cross-linked field-radius-matched artifacts use the same "
+                "stress radius "
+                f"`{claims['owned_finite_beta_closure_target_matched_same_radius']}`, "
+                "keep source reconstruction gated "
+                f"`{closure_target_matched_source_gate}`, "
+                "and reject the best apparent pass as under-integrated "
+                f"`{claims['owned_finite_beta_closure_target_matched_best_pass_rejected']}` "
+                "with quadrature-stable current-gate status "
+                f"`{claims['owned_finite_beta_closure_target_matched_stable_gate']}`. "
+                "No runtime correction is applied by this artifact."
+            )
+            if (
+                claims.get("owned_finite_beta_closure_target_best_model_loo_rmse")
+                is not None
+                and claims.get(
+                    "owned_finite_beta_closure_target_improvement_over_constant"
+                )
+                is not None
+            )
+            else "",
+            (
+                "- The radial-interpolation audit rebuilds the same finite-beta "
+                "database on the exact field radii used by the profile-current "
+                "observable. The previous stress point at "
+                f"`rho={claims['owned_finite_beta_radial_interpolation_baseline_stress_rho']:.3f}` "
+                "changes from "
+                f"`{claims['owned_finite_beta_radial_interpolation_baseline_stress_error']:.3e}` "
+                "to "
+                f"`{claims['owned_finite_beta_radial_interpolation_matched_stress_error']:.3e}`, "
+                "but the field-radius-matched profile maximum remains "
+                f"`{claims['owned_finite_beta_radial_interpolation_matched_max_error']:.3e}` "
+                "and gate status is "
+                f"`{claims['owned_finite_beta_radial_interpolation_gate_pass']}`. "
+                "This keeps the result as an interpolation sensitivity "
+                "diagnostic, not a promoted runtime policy."
+            ),
+            (
+                "- The field-radius-matched closure-quadrature audit then "
+                "repeats the Sonine/quadrature sweep after removing that "
+                "sparse-radius interpolation layer. The reference stress is "
+                f"`{claims['owned_finite_beta_matched_quadrature_reference_error']:.3e}`; "
+                "the best apparent setting is "
+                f"`P={claims['owned_finite_beta_matched_quadrature_min_stress_pmax']}`, "
+                f"`X={claims['owned_finite_beta_matched_quadrature_min_stress_x']}` "
+                "with stress "
+                f"`{claims['owned_finite_beta_matched_quadrature_min_stress_error']:.3e}`, "
+                "but the quadrature-stable pass count remains "
+                f"`{claims['owned_finite_beta_matched_quadrature_stable_pass_count']}` "
+                "and the highest-X largest-order stress is "
+                "`"
+                f"{claims['owned_finite_beta_matched_quadrature_high_x_largest_order_error']:.3e}"
+                "`. "
+                "This closes the easy interpolation-only/Pmax-only explanation "
+                "and keeps the remaining work on a quadrature-stable reduced "
+                "profile-current closure."
+            ),
+            (
                 "- The profile uncertainty stress benchmark now uses a "
                 f"`{claims['profile_uncertainty_basis_size']}`-term radial "
                 "electric-field basis and "
@@ -1069,7 +2559,7 @@ def build_claims_markdown(payload: dict) -> str:
             ),
             (
                 "- The differentiable bootstrap-current optimization example "
-                "improves the weighted current proxy by "
+                "improves the weighted reduced current response by "
                 f"`{claims['bootstrap_current_weighted_gain']:.3f}x` on the "
                 "committed W7-X study."
             ),

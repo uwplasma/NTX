@@ -7,7 +7,7 @@ or explicitly moved to documented future work with a clear reason.
 
 | Lane | Current Status | Required Before Merge |
 | --- | --- | --- |
-| Code refactoring | Partly closed; continue | Public facades remain stable while solver, bootstrap-autodiff, and profile dataclass ownership have been split into smaller internal modules; keep shrinking only with tests and docs. |
+| Code refactoring | Partly closed; continue | Public facades remain stable while solver, bootstrap-autodiff, profile dataclass, validation artifact-gate, and input/output ownership have been split into smaller internal modules; keep shrinking only with tests and docs. |
 | Repository hygiene | Current worktree audited | Split the dirty worktree into reviewable commit batches; all current untracked source/artifact files are tied to scripts/tests/docs, and local caches should stay removed. |
 | CI runtime and coverage | Closed; monitor | Maintain `>=95%` repository-owned coverage, module floors, and a normal CI wall time near `5-10` minutes. |
 | Literature-anchored physics gates | In progress | Add or preserve fast gates for convergence, Onsager residuals, exact low-order recovery, coefficient sign/normalization, and artifact-backed literature comparisons. |
@@ -142,6 +142,38 @@ or explicitly moved to documented future work with a clear reason.
   convergence gate, the fixed-field Redl/SFINCS gate, and the scoped
   fixed-field `NTX+NEOPAX` total-current stress gate, so paper-facing claims
   match the active physics gates.
+- The finite-beta QA closure lane now has explicit physics-gate separation:
+  same-grid coefficient normalization is a passing gate, while the
+  profile-current observable and species-cancellation scale remain monitored
+  stress diagnostics until same-grid profile-current closure comparisons pass.
+- The finite-beta current-conditioning sidecar now records the stricter
+  coefficient precision needed by the cancellation-dominated net-current
+  observable. The current smoke ladder is still looser than the `1e-1`
+  current-conditioned target. The first production stress-radius rerun and
+  tight-harmonic probe leave the coefficient floor near `2.05e-2`; the
+  production six-point radius/collisionality ladder keeps all coefficient
+  differences below `2.07e-2`. The closure-quadrature sidecar rejects the only
+  apparent stress-radius current-gate pass as under-integrated because it occurs
+  at `P=14, X=10` and does not transfer to higher `X`; the accepted
+  quadrature-stable current-gate pass count is zero. The source-channel
+  sidecar reconstructs the same corrected current to roundoff from one-channel
+  solves and localizes the high-order response to the effective
+  temperature-gradient drive under the current profile contract. The
+  profile-response sidecar extends that measurement over all committed profile
+  radii and records the response multiplier against Redl collisionality and
+  geometry drivers. The closure-target sidecar now ranks those drivers and
+  records `epsilon` as the strongest single profile response driver without
+  applying any runtime correction. The radial-interpolation sidecar rebuilds
+  the same database on the exact field radii and removes the previous
+  `rho=0.143` stress point, but the full-profile maximum remains above the
+  `1e-1` current gate. The next required step is a quadrature-converged
+  profile-current/source-response closure on the same finite-beta contract
+  before any finite-beta parity promotion.
+- The field-radius-matched source-channel sidecar now repeats the physical RHS
+  decomposition after removing the sparse radial interpolation layer. It
+  reconstructs the corrected current to `1.45e-14`, shows the only current-gate
+  pass is still under-integrated at `X=10, P=18`, and keeps the
+  quadrature-stable `X=18, P=18` result as a reduced-closure stress diagnostic.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the
@@ -163,6 +195,12 @@ or explicitly moved to documented future work with a clear reason.
   common, deterministic, and robust modules, and split profile dataclasses into
   species, ambipolar-result, control, and transport-result ownership modules
   while preserving the flat public API and compatibility facades.
+- The current source-ownership pass also split artifact-gate scalar evaluation
+  from finite-beta artifact-gate ownership, finite-beta artifact-gate
+  definitions from the general artifact registry, finite-beta geometry-breadth
+  metadata from the general geometry benchmark matrix, and TOML-run
+  orchestration from suffix-selected NetCDF/NPZ/HDF5 output writing while
+  preserving the public `ntx.inputfiles` and top-level exports.
 - The current repo-hygiene pass verified every untracked source/artifact file
   against docs, tests, or benchmark metadata and removed local cache
   directories.
