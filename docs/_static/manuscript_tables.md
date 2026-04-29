@@ -171,6 +171,12 @@
 | Best stress-radius closure setting | `P=14, X=10, error=3.811e-02` |
 | Highest-X largest-order stress error | `3.952e-01` |
 | Max same-order stress spread over X | `9.495e+00` |
+| Source-channel reconstruction residual | `1.079e-14` |
+| Source-channel reconstruction gate | `True` |
+| High-order source-channel stress error | `3.952e-01` |
+| Dominant high-order source channel | `effective_temperature_force` |
+| High-order temperature/density/parallel fractions | `1.000e+00` / `1.254e-06` / `0.000e+00` |
+| Source-channel species-cancellation factor | `8.260e+01` |
 | Stress-radius Pmax error reduction | `3.548x` |
 | Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
@@ -226,7 +232,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `95223dd9c39945951428ca44aa6fc0ab8eb70b92` |
+| Commit | `2884610e8d50815aa1b388ee1d72ecaf71421460` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

@@ -286,6 +286,20 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "current-gate pass is interpreted as physical convergence."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_source_channel_reconstruction",
+        category="stress",
+        metric="max source-channel superposition relative residual",
+        relation="<=",
+        threshold=1.0e-8,
+        source="docs/_static/owned_finite_beta_source_channel_audit.json",
+        rationale=(
+            "The finite-beta source-channel diagnostic must reconstruct the "
+            "same momentum-restoring linear solve from one-channel RHS solves "
+            "before its density/electric, temperature-gradient, and "
+            "parallel-electric decomposition is interpreted physically."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

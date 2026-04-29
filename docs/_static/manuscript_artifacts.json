@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "95223dd9c39945951428ca44aa6fc0ab8eb70b92",
+    "commit": "2884610e8d50815aa1b388ee1d72ecaf71421460",
     "branch": "main"
   },
   "environment": {
@@ -4502,6 +4502,293 @@
         "transfer the accepted closure setting to the existing fixed-field and integrated W7-X validation artifacts before making a broad profile-current claim"
       ]
     },
+    "owned_finite_beta_source_channel": {
+      "summary_metrics": {
+        "row_count": 2,
+        "source_reconstruction_gate": 1e-08,
+        "source_channel_superposition_gate_pass": true,
+        "max_source_channel_superposition_relative_residual": 1.0788551795291368e-14,
+        "max_full_vs_public_relative_difference": 8.445634825325769e-15,
+        "best_public_relative_error_vs_redl": 0.3106405551146464,
+        "best_public_neopax_x": 10,
+        "best_public_n_order": 12,
+        "profile_current_gate": 0.1,
+        "best_public_current_gate_pass": false,
+        "high_stable_neopax_x": 18,
+        "high_stable_n_order": 18,
+        "high_stable_public_relative_error_vs_redl": 0.3951895275200511,
+        "high_stable_dominant_effective_channel": "effective_temperature_force",
+        "high_stable_effective_temperature_fraction_of_total": 0.9999987464608556,
+        "high_stable_density_electric_fraction_of_total": 1.2535391423865037e-06,
+        "high_stable_parallel_electric_fraction_of_total": 0.0,
+        "high_stable_species_cancellation_factor": 82.60235405317181
+      },
+      "claim_scope": "Freezes the owned finite-beta VMEC/Boozer geometry, analytic profiles, NTX monoenergetic scan, D33 branch, velocity quadrature, and Sonine order, then solves the same momentum-restoring linear system with one physical source channel at a time.  This is a source-localization stress diagnostic, not a fitted correction and not a finite-beta bootstrap-current parity claim.",
+      "conclusion": "The finite-beta stress current is linear in the frozen source channels to numerical precision, so the channel audit checks the actual momentum-restoring system rather than fitting a residual.  At the quadrature-stable high-order setting the dominant physical drive is effective_temperature_force; the parallel-electric channel is zero for this profile contract.  The remaining current gap is therefore localized to the reduced source-channel response inside the profile-current closure, not to a hidden additive normalization or under-integrated apparent pass.",
+      "rows": [
+        {
+          "neopax_x": 10,
+          "n_order": 12,
+          "x_to_order_ratio": 0.8333333333333334,
+          "radial_index": 2,
+          "rho": 0.14285714285714285,
+          "moment_order": 12,
+          "matrix_condition_number": 44315.9041126353,
+          "full_rhs_norm": 1396373.5081555017,
+          "full_solution_residual_norm": 3.914613016678223e-14,
+          "redl_current_over_root_fsab2": -20549817.57810125,
+          "full_solve_current_over_root_fsab2": -26933424.318067312,
+          "full_solve_species_current_over_root_fsab2": [
+            775320839.5940068,
+            -802254263.9120741
+          ],
+          "full_solve_relative_error_vs_redl": 0.31064055511464495,
+          "species_cancellation_factor": 58.5731351823623,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  2.4982246768470384,
+                  -1.665484004610449,
+                  0.0
+                ],
+                [
+                  2.4982246768470384,
+                  -1.665484004610449,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 58746218.51111984,
+                "A2_temperature": -85679642.82918835,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -4237913305.462782,
+                  4296659523.973902
+                ],
+                "A2_temperature": [
+                  5013234145.056758,
+                  -5098913787.885946
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -26933424.318068504,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 3.8787117197251125e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -1.3300686352302193e-06,
+                  -1.665484004610449,
+                  0.0
+                ],
+                [
+                  -1.3300686352302193e-06,
+                  -1.665484004610449,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -31.276811651159278,
+                "effective_temperature_force": -26933393.04125595,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  2256.2884830418225,
+                  -2287.5652946929818
+                ],
+                "effective_temperature_force": [
+                  775318583.3055131,
+                  -802251976.3467691
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -26933424.318067603,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 1.5777466513981784e-13
+            }
+          },
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 59699479.083131135,
+            "A2_temperature": -111656459.95475182,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -31.784332852027553,
+            "effective_temperature_force": -51956949.08728784,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.0788551795291368e-14,
+          "effective_temperature_fraction_of_total": 0.9999988387361743,
+          "density_electric_fraction_of_total": 1.161263836406363e-06,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "public_neopax_current_over_root_fsab2": -26933424.318067342,
+          "public_neopax_nomom_over_root_fsab2": -51956980.871620685,
+          "public_neopax_correction_over_root_fsab2": 25023556.553553343,
+          "public_neopax_relative_error_vs_redl": 0.3106405551146464,
+          "full_vs_public_relative_difference": 1.1065181328503955e-15,
+          "timings": {
+            "momentum_blocks_seconds": 7.010825624980498,
+            "source_solve_seconds": 0.37204370799008757,
+            "public_closure_seconds": 12.807598250044975
+          }
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "radial_index": 2,
+          "rho": 0.14285714285714285,
+          "moment_order": 18,
+          "matrix_condition_number": 104528.51102670282,
+          "full_rhs_norm": 1396688.310777898,
+          "full_solution_residual_norm": 5.13241182500385e-14,
+          "redl_current_over_root_fsab2": -20549817.57810125,
+          "full_solve_current_over_root_fsab2": -28670890.277414083,
+          "full_solve_species_current_over_root_fsab2": [
+            1169806069.718593,
+            -1198476959.996007
+          ],
+          "full_solve_relative_error_vs_redl": 0.39518952752003933,
+          "species_cancellation_factor": 82.60235405317181,
+          "source_decomposition": {
+            "transport": {
+              "labels": [
+                "A1_density_electric",
+                "A2_temperature",
+                "A3_parallel_electric"
+              ],
+              "drives_by_species": [
+                [
+                  2.4982246768470384,
+                  -1.665484004610449,
+                  0.0
+                ],
+                [
+                  2.4982246768470384,
+                  -1.665484004610449,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "A1_density_electric": 67505089.87615871,
+                "A2_temperature": -96175980.15357304,
+                "A3_parallel_electric": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "A1_density_electric": [
+                  -6402447939.279249,
+                  6469953029.155408
+                ],
+                "A2_temperature": [
+                  7572254008.997829,
+                  -7668429989.151402
+                ],
+                "A3_parallel_electric": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -28670890.277414322,
+              "dominant_channel": "A2_temperature",
+              "max_channel_residual_norm": 2.7338591899182616e-13
+            },
+            "effective": {
+              "labels": [
+                "density_electric_force",
+                "effective_temperature_force",
+                "parallel_electric_force"
+              ],
+              "drives_by_species": [
+                [
+                  -1.3300686352302193e-06,
+                  -1.665484004610449,
+                  0.0
+                ],
+                [
+                  -1.3300686352302193e-06,
+                  -1.665484004610449,
+                  0.0
+                ]
+              ],
+              "current_by_channel_over_root_fsab2": {
+                "density_electric_force": -35.9400832098072,
+                "effective_temperature_force": -28670854.33733082,
+                "parallel_electric_force": 0.0
+              },
+              "species_current_by_channel_over_root_fsab2": {
+                "density_electric_force": [
+                  3408.6986937768834,
+                  -3444.6387769866906
+                ],
+                "effective_temperature_force": [
+                  1169802661.0199,
+                  -1198473515.357231
+                ],
+                "parallel_electric_force": [
+                  -0.0,
+                  -0.0
+                ]
+              },
+              "channel_sum_over_root_fsab2": -28670890.277414028,
+              "dominant_channel": "effective_temperature_force",
+              "max_channel_residual_norm": 2.0961846473822633e-13
+            }
+          },
+          "no_momentum_transport_current_by_channel_over_root_fsab2": {
+            "A1_density_electric": 59701943.17342155,
+            "A2_temperature": -111769549.81664269,
+            "A3_parallel_electric": 0.0
+          },
+          "no_momentum_effective_current_by_channel_over_root_fsab2": {
+            "density_electric_force": -31.785644747326664,
+            "effective_temperature_force": -52067574.85757639,
+            "parallel_electric_force": 0.0
+          },
+          "source_channel_superposition_relative_residual": 1.9489926519982707e-15,
+          "effective_temperature_fraction_of_total": 0.9999987464608556,
+          "density_electric_fraction_of_total": 1.2535391423865037e-06,
+          "parallel_electric_fraction_of_total": 0.0,
+          "dominant_effective_channel": "effective_temperature_force",
+          "public_neopax_current_over_root_fsab2": -28670890.277414326,
+          "public_neopax_nomom_over_root_fsab2": -52067606.64322111,
+          "public_neopax_correction_over_root_fsab2": 23396716.365806784,
+          "public_neopax_relative_error_vs_redl": 0.3951895275200511,
+          "full_vs_public_relative_difference": 8.445634825325769e-15,
+          "timings": {
+            "momentum_blocks_seconds": 7.347123458981514,
+            "source_solve_seconds": 0.27599116595229134,
+            "public_closure_seconds": 13.633205084013753
+          }
+        }
+      ],
+      "open_work": [
+        "derive or import a quadrature-converged profile-current closure that improves the dominant source-channel response without regressing fixed-field QA/QH or integrated W7-X",
+        "connect this source-channel localization to same-grid finite-beta profile-current diagnostics before promoting a finite-beta bootstrap-current parity claim",
+        "keep interpolation-mode comparisons planned until the downstream interface exposes stable general and legacy selectors"
+      ]
+    },
     "profile_uncertainty": {
       "basis_size": 3,
       "sample_count": 96,
@@ -4903,6 +5190,14 @@
     "owned_finite_beta_quadrature_min_stress_pmax": 14,
     "owned_finite_beta_quadrature_high_x_largest_order_stress_error": 0.3951895275200511,
     "owned_finite_beta_quadrature_max_same_order_spread": 9.495420179206551,
+    "owned_finite_beta_source_channel_reconstruction_residual": 1.0788551795291368e-14,
+    "owned_finite_beta_source_channel_gate_pass": true,
+    "owned_finite_beta_source_channel_high_stable_error": 0.3951895275200511,
+    "owned_finite_beta_source_channel_high_stable_dominant": "effective_temperature_force",
+    "owned_finite_beta_source_channel_temperature_fraction": 0.9999987464608556,
+    "owned_finite_beta_source_channel_density_fraction": 1.2535391423865037e-06,
+    "owned_finite_beta_source_channel_parallel_fraction": 0.0,
+    "owned_finite_beta_source_channel_cancellation_factor": 82.60235405317181,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -5051,6 +5346,11 @@
       "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
       "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
       "docs/_static/owned_finite_beta_closure_quadrature_audit.json"
+    ],
+    "owned_finite_beta_source_channel": [
+      "docs/_static/owned_finite_beta_source_channel_audit.png",
+      "docs/_static/owned_finite_beta_source_channel_audit.pdf",
+      "docs/_static/owned_finite_beta_source_channel_audit.json"
     ],
     "profile_uncertainty": [
       "docs/_static/autodiff_profile_uncertainty.png",
@@ -7206,7 +7506,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, source-channel closure sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
           "literature_anchors": [
             "Redl bootstrap-current formula and geometry-factor normalization",
             "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -7218,14 +7518,16 @@
             "examples/owned_finite_beta_closure_localization.py",
             "examples/owned_finite_beta_profile_current_observable_audit.py",
             "examples/owned_finite_beta_current_conditioning_audit.py",
-            "examples/owned_finite_beta_closure_quadrature_audit.py"
+            "examples/owned_finite_beta_closure_quadrature_audit.py",
+            "examples/owned_finite_beta_source_channel_audit.py"
           ],
           "tests": [
             "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "tests/test_owned_finite_beta_closure_localization.py",
             "tests/test_owned_finite_beta_profile_current_observable_audit.py",
             "tests/test_owned_finite_beta_current_conditioning_audit.py",
-            "tests/test_owned_finite_beta_closure_quadrature_audit.py"
+            "tests/test_owned_finite_beta_closure_quadrature_audit.py",
+            "tests/test_owned_finite_beta_source_channel_audit.py"
           ],
           "artifacts": [
             "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -7242,14 +7544,18 @@
             "docs/_static/owned_finite_beta_current_conditioning_audit.json",
             "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
             "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
-            "docs/_static/owned_finite_beta_closure_quadrature_audit.json"
+            "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
+            "docs/_static/owned_finite_beta_source_channel_audit.png",
+            "docs/_static/owned_finite_beta_source_channel_audit.pdf",
+            "docs/_static/owned_finite_beta_source_channel_audit.json"
           ],
           "manuscript_figures": [
             "owned_finite_beta_bootstrap_comparison",
             "owned_finite_beta_closure_localization",
             "owned_finite_beta_profile_current_observable_audit",
             "owned_finite_beta_current_conditioning_audit",
-            "owned_finite_beta_closure_quadrature_audit"
+            "owned_finite_beta_closure_quadrature_audit",
+            "owned_finite_beta_source_channel_audit"
           ],
           "docs": [
             "README.md",
@@ -7261,7 +7567,7 @@
           ],
           "open_work": [
             "derive or import a quadrature-converged higher-order closure before accepting any apparent finite-beta current gate pass at X < Pmax",
-            "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract",
+            "close the inner-radius reduced-closure gap using the same physical profile, source-channel decomposition, normalization, and interpolation contract",
             "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
             "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
             "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
@@ -7296,6 +7602,11 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_source_channel_audit.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "exists": true
@@ -7318,6 +7629,11 @@
           {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_closure_quadrature_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_source_channel_audit.py",
             "exists": true
           },
           {
@@ -7393,6 +7709,21 @@
           {
             "kind": "artifact",
             "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_source_channel_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_source_channel_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_source_channel_audit.json",
             "exists": true
           },
           {
@@ -7582,6 +7913,7 @@
       "owned_finite_beta_profile_current_observable",
       "owned_finite_beta_current_conditioning",
       "owned_finite_beta_closure_quadrature",
+      "owned_finite_beta_source_channel",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",

@@ -330,6 +330,18 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "quadrature was lower than the Sonine truncation"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_source_channel_reconstruction",
+        path=static_root / "owned_finite_beta_source_channel_audit.json",
+        metric_key="max_source_channel_superposition_relative_residual",
+        details=(
+            "finite-beta stress-radius source-channel decomposition of the "
+            "same momentum-restoring linear system; the one-channel solves "
+            "must reconstruct the full corrected current before the dominant "
+            "drive channel is interpreted"
+        ),
+    )
 
     return results
 

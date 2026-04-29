@@ -51,6 +51,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "owned_finite_beta_profile_current_observable" in payload["tables"]
     assert "owned_finite_beta_current_conditioning" in payload["tables"]
     assert "owned_finite_beta_closure_quadrature" in payload["tables"]
+    assert "owned_finite_beta_source_channel" in payload["tables"]
     assert "owned_finite_beta_sfincs_jax_resolution_audit" in payload["tables"]
     assert "owned_finite_beta_sfincs_jax_production_ladder" in payload["tables"]
     finite_beta_bootstrap = payload["tables"]["owned_finite_beta_bootstrap_comparison"]
@@ -91,6 +92,14 @@ def test_build_manuscript_artifacts_script_writes_outputs():
         payload["claims"]["owned_finite_beta_quadrature_high_x_largest_order_stress_error"]
         > 1.0e-1
     )
+    assert (
+        payload["claims"]["owned_finite_beta_source_channel_reconstruction_residual"]
+        < 1.0e-8
+    )
+    assert (
+        payload["claims"]["owned_finite_beta_source_channel_high_stable_dominant"]
+        == "effective_temperature_force"
+    )
     assert "performance" in payload["tables"]
     assert "prepared_geometry_reuse" in payload["tables"]["performance"]
     assert "production" in payload["tables"]["performance"]
@@ -121,6 +130,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "Production-grid coefficient precision gap" in markdown
     assert "Production radial/collisionality ladder count" in markdown
     assert "Under-integrated closure current-gate passes" in markdown
+    assert "Source-channel reconstruction residual" in markdown
     assert "Bootstrap-Current Optimization" in markdown
     assert "Prepared-geometry reuse" in markdown
     assert "| Commit |" in markdown
@@ -138,6 +148,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "owned finite-beta closure-localization sidecar" in claims
     assert "owned finite-beta profile-current observable audit" in claims
     assert "owned finite-beta current-conditioning audit" in claims
+    assert "owned finite-beta source-channel audit" in claims
     assert "owned finite-beta production-resolution coefficient probe" in claims
     assert "owned finite-beta production radial/collisionality" in claims
     assert "owned finite-beta closure-quadrature audit" in claims

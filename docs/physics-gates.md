@@ -119,6 +119,10 @@ These are hard structural checks:
   sign convention differing from the canonical notation.
 - **Fixed observable map:** for the present Sonine basis, the corrected
   parallel-flow observable remains `U_parallel = n c_0`.
+- **Source-channel superposition:** for a frozen finite-beta stress-radius
+  momentum-restoring matrix, the density/electric, effective temperature, and
+  parallel-electric one-channel solves must reconstruct the full corrected
+  current to roundoff before the dominant channel is interpreted physically.
 - **Intrinsic ambipolarity in symmetric limits:** finite-order closure work
   must preserve the symmetric-limit ambipolar structure emphasized by the
   Sugama–Nishimura formulation.
@@ -178,6 +182,11 @@ These are trust-building comparisons against independent workflows:
   `L13/L31/L33` relative difference is required to stay below `1e-1` before
   any finite-beta profile-current result is interpreted. This is not by itself
   a current-parity gate when the net current is cancellation-conditioned.
+- **Owned finite-beta source-channel reconstruction:** the finite-beta source
+  decomposition is a stress gate on the linear momentum-restoring system:
+  one-channel solves must reconstruct the full corrected current below `1e-8`.
+  The resulting dominant-channel statement is diagnostic, not a fitted current
+  correction.
 - **Owned finite-beta profile-current observable:** the finite-beta
   bootstrap-current profile remains a monitored stress diagnostic, not a
   parity gate. The current artifacts keep the net-current residual, the

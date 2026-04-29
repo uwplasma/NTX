@@ -246,6 +246,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "convergence sidecar, coefficient/profile localization sidecar, "
                 "profile-current observable sidecar, current-conditioning sidecar, "
                 "closure quadrature sidecar, "
+                "source-channel closure sidecar, "
                 "and current normalization. "
                 "The current reduced-closure result has the correct sign and "
                 "outer-radius errors near the 1e-1 target, but explicitly records "
@@ -265,6 +266,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "examples/owned_finite_beta_profile_current_observable_audit.py",
                 "examples/owned_finite_beta_current_conditioning_audit.py",
                 "examples/owned_finite_beta_closure_quadrature_audit.py",
+                "examples/owned_finite_beta_source_channel_audit.py",
             ),
             tests=(
                 "tests/test_owned_finite_beta_bootstrap_comparison.py",
@@ -272,6 +274,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "tests/test_owned_finite_beta_profile_current_observable_audit.py",
                 "tests/test_owned_finite_beta_current_conditioning_audit.py",
                 "tests/test_owned_finite_beta_closure_quadrature_audit.py",
+                "tests/test_owned_finite_beta_source_channel_audit.py",
             ),
             artifacts=(
                 "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -289,6 +292,9 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
                 "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
                 "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
+                "docs/_static/owned_finite_beta_source_channel_audit.png",
+                "docs/_static/owned_finite_beta_source_channel_audit.pdf",
+                "docs/_static/owned_finite_beta_source_channel_audit.json",
             ),
             manuscript_figures=(
                 "owned_finite_beta_bootstrap_comparison",
@@ -296,6 +302,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "owned_finite_beta_profile_current_observable_audit",
                 "owned_finite_beta_current_conditioning_audit",
                 "owned_finite_beta_closure_quadrature_audit",
+                "owned_finite_beta_source_channel_audit",
             ),
             docs=(
                 "README.md",
@@ -313,7 +320,8 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 ),
                 (
                     "close the inner-radius reduced-closure gap using the same "
-                    "physical profile, normalization, and interpolation contract"
+                    "physical profile, source-channel decomposition, normalization, "
+                    "and interpolation contract"
                 ),
                 (
                     "run the production same-grid coefficient ladder to the "

@@ -155,9 +155,12 @@ or explicitly moved to documented future work with a clear reason.
   differences below `2.07e-2`. The closure-quadrature sidecar rejects the only
   apparent stress-radius current-gate pass as under-integrated because it occurs
   at `P=14, X=10` and does not transfer to higher `X`; the accepted
-  quadrature-stable current-gate pass count is zero. The next required step is a
-  quadrature-converged profile-current closure on the same finite-beta contract
-  before any finite-beta parity promotion.
+  quadrature-stable current-gate pass count is zero. The source-channel
+  sidecar reconstructs the same corrected current to roundoff from one-channel
+  solves and localizes the high-order response to the effective
+  temperature-gradient drive under the current profile contract. The next
+  required step is a quadrature-converged profile-current closure on the same
+  finite-beta contract before any finite-beta parity promotion.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the
