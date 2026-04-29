@@ -34,10 +34,8 @@ from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
     DEFAULT_REDL_NTHETA,
     EPS,
     ProfileContract,
-    _build_scan_for_path,
     _build_species,
     _case_by_id,
-    _drds_from_minor_radius,
     _evaluate_neopax_currents,
     _interp,
     _redl_geometry_and_current,
@@ -45,6 +43,9 @@ from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
     _require_external_stacks,
     _to_jsonable,
     _write_boozmn,
+)
+from examples.owned_finite_beta_source_channel_audit import (  # noqa: E402
+    _load_or_build_scan,
 )
 from ntx import GridSpec, to_neopax_monoenergetic  # noqa: E402
 
@@ -116,24 +117,21 @@ def _evaluate_rows(
     )
     species = _build_species(NEOPAX, field, contract)
     scan_rho = np.asarray(inputs["scan_rho"], dtype=float)
-    nu_v = np.asarray(inputs["nu_v"], dtype=float)
     es_values = np.asarray(inputs["Es"], dtype=float)
     grid = _grid_from_payload(bootstrap_payload)
-    drds = _drds_from_minor_radius(scan_rho, float(field.a_b))
-    scan_start = time.perf_counter()
-    scan = _build_scan_for_path(
-        case,
-        rho=scan_rho,
-        nu_v=nu_v,
-        es_values=es_values,
-        drds=drds,
-        grid=grid,
-        path_key="booz_xform_jax",
-        mboz=mboz,
-        nboz=nboz,
-        min_bmn_to_load=float(inputs.get("min_bmn_to_load", 1.0e-5)),
+    scan, scan_metadata = _load_or_build_scan(
+        bootstrap_payload=bootstrap_payload,
+        case=case,
+        field=field,
+        scan_grid=grid,
+        output_dir=output_dir,
     )
-    scan_seconds = float(time.perf_counter() - scan_start)
+    scan_seconds = float(
+        scan_metadata.get(
+            "scan_build_seconds",
+            scan_metadata.get("scan_load_seconds", 0.0),
+        )
+    )
     database = to_neopax_monoenergetic(
         scan,
         a_b=float(field.a_b),
@@ -202,13 +200,14 @@ def _evaluate_rows(
             )
     metadata = {
         "scan_seconds": scan_seconds,
+        "scan_cache": scan_metadata,
         "rho_compare": rho_compare.tolist(),
         "redl_current_over_root_fsab2": redl_current.tolist(),
         "boozmn_path": str(boozmn_path),
         "case": case.as_payload(),
         "inputs": {
             "scan_rho": scan_rho.tolist(),
-            "nu_v_count": int(nu_v.size),
+            "nu_v_count": int(np.asarray(inputs["nu_v"], dtype=float).size),
             "Es": es_values.tolist(),
             "ntx_grid": {
                 "n_theta": int(grid.n_theta),
@@ -332,6 +331,7 @@ def build_payload(
     x_values: tuple[int, ...] = (10, 14, 18),
     n_orders: tuple[int, ...] = (12, 14, 16, 18),
     output_dir: Path = WORKDIR,
+    output_prefix: Path = OUTPUT_PREFIX,
 ) -> dict[str, Any]:
     bootstrap_payload = _load_json(bootstrap_json)
     rows, metadata = _evaluate_rows(
@@ -391,8 +391,8 @@ def build_payload(
                     "a broad profile-current claim"
                 ),
             ],
-            "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
-            "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
+            "figure_png": str(output_prefix.with_suffix(".png").relative_to(ROOT)),
+            "figure_pdf": str(output_prefix.with_suffix(".pdf").relative_to(ROOT)),
         }
     )
 
@@ -538,6 +538,7 @@ def main() -> None:
         x_values=tuple(int(value) for value in args.x_values),
         n_orders=tuple(int(value) for value in args.n_orders),
         output_dir=args.output_dir,
+        output_prefix=args.output_prefix,
     )
     write_payload(payload, args.output_prefix)
     build_figure(payload, args.output_prefix)

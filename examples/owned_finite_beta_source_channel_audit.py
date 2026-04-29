@@ -293,6 +293,17 @@ def _load_or_build_scan(
             "scan_load_seconds": float(time.perf_counter() - start),
         }
 
+    fallback_path = output_dir / f"{case.id}_source_channel_scan.h5"
+    if fallback_path.exists() and not neopax_scan_requires_rebuild(fallback_path):
+        start = time.perf_counter()
+        scan = load_neopax_reference_scan(fallback_path)
+        return scan, {
+            "scan_source": "cached_fallback_hdf5",
+            "scan_path": str(fallback_path),
+            "preferred_scan_path": str(preferred_path) if str(preferred_path) else None,
+            "scan_load_seconds": float(time.perf_counter() - start),
+        }
+
     scan_rho = np.asarray(inputs["scan_rho"], dtype=float)
     nu_v = np.asarray(inputs["nu_v"], dtype=float)
     es_values = np.asarray(inputs["Es"], dtype=float)
@@ -311,11 +322,12 @@ def _load_or_build_scan(
         min_bmn_to_load=float(inputs.get("min_bmn_to_load", 1.0e-5)),
     )
     output_dir.mkdir(parents=True, exist_ok=True)
-    scan_path = output_dir / f"{case.id}_source_channel_scan.h5"
+    scan_path = fallback_path
     write_neopax_scan_hdf5(scan, scan_path)
     return scan, {
         "scan_source": "rebuilt",
         "scan_path": str(scan_path),
+        "preferred_scan_path": str(preferred_path) if str(preferred_path) else None,
         "scan_build_seconds": float(time.perf_counter() - start),
     }
 

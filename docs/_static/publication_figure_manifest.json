@@ -200,5 +200,10 @@
     "docs/_static/prepared_geometry_reuse_profile.png",
     "docs/_static/prepared_geometry_reuse_profile.pdf",
     "docs/_static/prepared_geometry_reuse_profile.json"
+  ],
+  "owned_finite_beta_field_radius_matched_closure_quadrature": [
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
   ]
 }

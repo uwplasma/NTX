@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "900f4b94d551b6fc8c0ea90a6a65ea7c4cf3b025",
+    "commit": "687ffa4e76cf3cc058a31bd8513730e55033df42",
     "branch": "main"
   },
   "environment": {
@@ -7431,6 +7431,164 @@
         "preserve the fixed-field QA/QH and integrated W7-X transfer gates for any future runtime interpolation policy change"
       ]
     },
+    "owned_finite_beta_field_radius_matched_closure_quadrature": {
+      "summary_metrics": {
+        "row_count": 8,
+        "x_values": [
+          10,
+          18
+        ],
+        "n_orders": [
+          10,
+          12,
+          14,
+          18
+        ],
+        "profile_current_gate": 0.1,
+        "reference_neopax_x": 10,
+        "reference_n_order": 12,
+        "reference_stress_relative_error": 0.21423688503114668,
+        "min_stress_relative_error": 0.0968385984035428,
+        "min_stress_neopax_x": 10,
+        "min_stress_n_order": 18,
+        "min_stress_x_to_order_ratio": 0.5555555555555556,
+        "min_stress_gate_pass": true,
+        "min_max_relative_error": 0.21423688503114668,
+        "min_max_neopax_x": 10,
+        "min_max_n_order": 12,
+        "high_x": 18,
+        "high_x_stress_error_monotone_nonincreasing_with_pmax": true,
+        "high_x_largest_order_stress_relative_error": 0.3081911117634043,
+        "max_same_order_stress_spread_over_x": 2.1825234652728023,
+        "underintegrated_gate_pass_count": 1,
+        "quadrature_stable_gate_pass_count": 0,
+        "quadrature_stable_current_gate_pass": false,
+        "best_stress_pass_rejected_as_underintegrated": true,
+        "quadrature_aliasing_detected": true,
+        "mean_closure_seconds": 12.731650401241495
+      },
+      "claim_scope": "Reuses the owned finite-beta NTX scan and Redl profile contract while varying only the momentum-closure Sonine order and velocity quadrature.  It is a numerical/physics consistency audit for the reduced closure, not a fitted correction and not a bootstrap-current parity claim.",
+      "conclusion": "The finite-beta current gap is sensitive to the coupling between Sonine order and velocity quadrature.  A low-quadrature setting can produce an apparent stress-radius pass, but that pass is not accepted unless it also transfers to higher velocity quadrature.  The current artifact therefore closes the under-integrated-closure explanation and keeps finite-beta profile-current parity scoped as an open reduced-closure lane.",
+      "rows": [
+        {
+          "neopax_x": 10,
+          "n_order": 10,
+          "x_to_order_ratio": 1.0,
+          "stress_rho": 0.07142857142857142,
+          "stress_relative_error_total_vs_redl": 0.25222552840159496,
+          "stress_current_over_root_fsab2": -21605752.901602335,
+          "stress_redl_current_over_root_fsab2": -17253883.115752343,
+          "max_relative_error_total_vs_redl": 0.25222552840159496,
+          "rms_relative_error_total_vs_redl": 0.13070391338778412,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.1539195849746662,
+          "closure_seconds": 13.132520249986555
+        },
+        {
+          "neopax_x": 10,
+          "n_order": 12,
+          "x_to_order_ratio": 0.8333333333333334,
+          "stress_rho": 0.07142857142857142,
+          "stress_relative_error_total_vs_redl": 0.21423688503114668,
+          "stress_current_over_root_fsab2": -20950301.28916262,
+          "stress_redl_current_over_root_fsab2": -17253883.115752343,
+          "max_relative_error_total_vs_redl": 0.21423688503114668,
+          "rms_relative_error_total_vs_redl": 0.11947419961397303,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.1539195849746662,
+          "closure_seconds": 12.246311583032366
+        },
+        {
+          "neopax_x": 10,
+          "n_order": 14,
+          "x_to_order_ratio": 0.7142857142857143,
+          "stress_rho": 0.07142857142857142,
+          "stress_relative_error_total_vs_redl": 0.14013494036058224,
+          "stress_current_over_root_fsab2": -14836011.234337931,
+          "stress_redl_current_over_root_fsab2": -17253883.115752343,
+          "max_relative_error_total_vs_redl": 0.2542331358803326,
+          "rms_relative_error_total_vs_redl": 0.1295240549734469,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.1539195849746662,
+          "closure_seconds": 12.25621629197849
+        },
+        {
+          "neopax_x": 10,
+          "n_order": 18,
+          "x_to_order_ratio": 0.5555555555555556,
+          "stress_rho": 0.07142857142857142,
+          "stress_relative_error_total_vs_redl": 0.0968385984035428,
+          "stress_current_over_root_fsab2": -15583041.257804334,
+          "stress_redl_current_over_root_fsab2": -17253883.115752343,
+          "max_relative_error_total_vs_redl": 0.5747406455696479,
+          "rms_relative_error_total_vs_redl": 0.24463381474731044,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.1539195849746662,
+          "closure_seconds": 12.276461125002243
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 10,
+          "x_to_order_ratio": 1.8,
+          "stress_rho": 0.07142857142857142,
+          "stress_relative_error_total_vs_redl": 0.3218010309114945,
+          "stress_current_over_root_fsab2": -22806200.489627875,
+          "stress_redl_current_over_root_fsab2": -17253883.115752343,
+          "max_relative_error_total_vs_redl": 0.3218010309114945,
+          "rms_relative_error_total_vs_redl": 0.14994013309807944,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.1621186353011843,
+          "closure_seconds": 13.691366792016197
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 12,
+          "x_to_order_ratio": 1.5,
+          "stress_rho": 0.07142857142857142,
+          "stress_relative_error_total_vs_redl": 0.31845716463442447,
+          "stress_current_over_root_fsab2": -22748505.811728604,
+          "stress_redl_current_over_root_fsab2": -17253883.115752343,
+          "max_relative_error_total_vs_redl": 0.31845716463442447,
+          "rms_relative_error_total_vs_redl": 0.1479748692261398,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.1621186353011843,
+          "closure_seconds": 12.761109666957054
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 14,
+          "x_to_order_ratio": 1.2857142857142858,
+          "stress_rho": 0.07142857142857142,
+          "stress_relative_error_total_vs_redl": 0.31432333252182443,
+          "stress_current_over_root_fsab2": -22677181.15563766,
+          "stress_redl_current_over_root_fsab2": -17253883.115752343,
+          "max_relative_error_total_vs_redl": 0.31432333252182443,
+          "rms_relative_error_total_vs_redl": 0.14642650804770097,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.1621186353011843,
+          "closure_seconds": 12.534225958981551
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "stress_rho": 0.07142857142857142,
+          "stress_relative_error_total_vs_redl": 0.3081911117634043,
+          "stress_current_over_root_fsab2": -22571376.535431888,
+          "stress_redl_current_over_root_fsab2": -17253883.115752343,
+          "max_relative_error_total_vs_redl": 0.3081911117634043,
+          "rms_relative_error_total_vs_redl": 0.14462996906911318,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.1621186353011843,
+          "closure_seconds": 12.954991541977506
+        }
+      ],
+      "open_work": [
+        "derive or import a quadrature-converged higher-order closure before promoting finite-beta bootstrap-current parity",
+        "require current-gate pass and velocity-quadrature stability simultaneously on the inner finite-beta stress radius",
+        "transfer the accepted closure setting to the existing fixed-field and integrated W7-X validation artifacts before making a broad profile-current claim"
+      ]
+    },
     "profile_uncertainty": {
       "basis_size": 3,
       "sample_count": 96,
@@ -7863,6 +8021,12 @@
     "owned_finite_beta_radial_interpolation_baseline_stress_error": 0.3106405551146464,
     "owned_finite_beta_radial_interpolation_matched_stress_error": 0.029993446052181426,
     "owned_finite_beta_radial_interpolation_gate_pass": false,
+    "owned_finite_beta_matched_quadrature_reference_error": 0.21423688503114668,
+    "owned_finite_beta_matched_quadrature_min_stress_error": 0.0968385984035428,
+    "owned_finite_beta_matched_quadrature_min_stress_x": 10,
+    "owned_finite_beta_matched_quadrature_min_stress_pmax": 18,
+    "owned_finite_beta_matched_quadrature_stable_pass_count": 0,
+    "owned_finite_beta_matched_quadrature_high_x_largest_order_error": 0.3081911117634043,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -8090,6 +8254,11 @@
       "docs/_static/prepared_geometry_reuse_profile.png",
       "docs/_static/prepared_geometry_reuse_profile.pdf",
       "docs/_static/prepared_geometry_reuse_profile.json"
+    ],
+    "owned_finite_beta_field_radius_matched_closure_quadrature": [
+      "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+      "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+      "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
     ]
   },
   "benchmark_matrix": {
@@ -10186,7 +10355,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, source-channel closure sidecar, profile source-response sidecar, radial interpolation sensitivity sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, source-channel closure sidecar, profile source-response sidecar, radial interpolation sensitivity sidecar, field-radius-matched closure quadrature sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
           "literature_anchors": [
             "Redl bootstrap-current formula and geometry-factor normalization",
             "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -10243,7 +10412,10 @@
             "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
             "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
             "docs/_static/owned_finite_beta_radial_interpolation_audit.json",
-            "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json"
+            "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json",
+            "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+            "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+            "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
           ],
           "manuscript_figures": [
             "owned_finite_beta_bootstrap_comparison",
@@ -10254,7 +10426,8 @@
             "owned_finite_beta_source_channel_audit",
             "owned_finite_beta_source_response_profile_audit",
             "owned_finite_beta_closure_target_audit",
-            "owned_finite_beta_radial_interpolation_audit"
+            "owned_finite_beta_radial_interpolation_audit",
+            "owned_finite_beta_field_radius_matched_closure_quadrature_audit"
           ],
           "docs": [
             "README.md",
@@ -10269,6 +10442,7 @@
             "close the inner-radius reduced-closure gap using the same physical profile, source-channel decomposition, normalization, and interpolation contract",
             "use the radial source-response map to distinguish a physics-derived closure term from a profile-local fitted multiplier",
             "repeat the field-radius-matched interpolation audit with a dense production radial scan before changing any runtime interpolation policy",
+            "derive a quadrature-stable finite-beta reduced-closure improvement; the current field-radius-matched apparent pass remains under-integrated",
             "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
             "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
             "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
@@ -10508,6 +10682,21 @@
             "exists": true
           },
           {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json",
+            "exists": true
+          },
+          {
             "kind": "doc",
             "path": "README.md",
             "exists": true
@@ -10698,6 +10887,7 @@
       "owned_finite_beta_source_response_profile",
       "owned_finite_beta_closure_target",
       "owned_finite_beta_radial_interpolation",
+      "owned_finite_beta_field_radius_matched_closure_quadrature",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",

@@ -45,6 +45,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_source_response_profile",
         "owned_finite_beta_closure_target",
         "owned_finite_beta_radial_interpolation",
+        "owned_finite_beta_field_radius_matched_closure_quadrature",
         "science",
         "robust_science",
         "validation",
@@ -93,6 +94,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_source_response_profile",
         "owned_finite_beta_closure_target",
         "owned_finite_beta_radial_interpolation",
+        "owned_finite_beta_field_radius_matched_closure_quadrature",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -472,6 +474,15 @@ def main() -> None:
             "owned_finite_beta_radial_interpolation_audit",
             output_dir,
             (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_field_radius_matched_closure_quadrature" in selected:
+        manifest["owned_finite_beta_field_radius_matched_closure_quadrature"] = (
+            _copy_existing_static(
+                "owned_finite_beta_field_radius_matched_closure_quadrature_audit",
+                output_dir,
+                (".png", ".pdf", ".json"),
+            )
         )
 
     if "profile_uncertainty" in selected:

@@ -195,6 +195,10 @@ rebuilding the database on the exact field radii. It reduces the previous
 `rho=0.143` stress point from `3.11e-1` to `3.00e-2`, but the profile maximum
 remains `2.14e-1`; this is treated as an interpolation/closure diagnostic, not
 a runtime policy change.
+A matched-radius Sonine/quadrature rerun confirms that the remaining apparent
+`1e-1` pass is still under-integrated: the best matched stress value is
+`9.68e-2` at `P=18, X=10`, but the quadrature-stable pass count remains zero
+and the `X=18, P=18` stress is `3.08e-1`.
 Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
 geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,
@@ -226,6 +230,11 @@ python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
 python examples/owned_finite_beta_radial_interpolation_audit.py --rebuild-matched
+python examples/owned_finite_beta_closure_quadrature_audit.py \
+  --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
+  --x-values 10 18 --n-orders 10 12 14 18 \
+  --output-prefix docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit \
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_closure_quadrature_audit
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```

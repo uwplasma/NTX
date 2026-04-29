@@ -152,6 +152,11 @@ python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_channel_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
 python examples/owned_finite_beta_radial_interpolation_audit.py --rebuild-matched
+python examples/owned_finite_beta_closure_quadrature_audit.py \
+  --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
+  --x-values 10 18 --n-orders 10 12 14 18 \
+  --output-prefix docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit \
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_closure_quadrature_audit
 ```
 
 These optional provenance artifacts prioritize local finite-beta stellarator
@@ -225,6 +230,11 @@ The closure-target audit reads that profile-response artifact and ranks local
 drivers before a runtime model is proposed. The current sidecar selects the
 Redl geometry factor `epsilon` as the strongest single driver and records that
 the best diagnostic model is not applied to the code.
+The radial-interpolation audit rebuilds the same current observable on the
+field radii. It removes most of the old `rho=0.143` stress, but the
+matched-radius quadrature rerun still finds zero quadrature-stable current-gate
+passes; its only apparent matched stress pass is at `P=18, X=10`, where
+velocity quadrature is lower than the Sonine truncation.
 
 It writes:
 
@@ -273,6 +283,9 @@ It writes:
 - `docs/_static/owned_finite_beta_radial_interpolation_audit.pdf`
 - `docs/_static/owned_finite_beta_radial_interpolation_audit.json`
 - `docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json`
+- `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png`
+- `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf`
+- `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -320,6 +333,13 @@ The radial-interpolation panel rebuilds the same finite-beta current audit with
 the monoenergetic database placed on the exact profile-current field radii. It
 substantially reduces the previous inner stress point, but it does not clear
 the full-profile current gate, so no runtime interpolation policy is promoted.
+
+![Owned finite-beta field-radius-matched closure quadrature audit](_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png)
+
+The matched closure-quadrature panel repeats the Sonine/quadrature sweep after
+removing the sparse-radius interpolation layer. It still rejects the apparent
+current-gate pass as under-integrated, so the open lane remains a
+quadrature-stable reduced profile-current closure.
 
 ## 10. Bootstrap Current With NEOPAX
 

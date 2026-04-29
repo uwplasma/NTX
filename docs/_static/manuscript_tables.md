@@ -171,6 +171,10 @@
 | Best stress-radius closure setting | `P=14, X=10, error=3.811e-02` |
 | Highest-X largest-order stress error | `3.952e-01` |
 | Max same-order stress spread over X | `9.495e+00` |
+| Field-radius-matched reference stress error | `2.142e-01` |
+| Field-radius-matched best apparent setting | `P=18, X=10, error=9.684e-02` |
+| Field-radius-matched quadrature-stable pass count | `0` |
+| Field-radius-matched highest-X largest-order error | `3.082e-01` |
 | Source-channel reconstruction residual | `1.079e-14` |
 | Source-channel reconstruction gate | `True` |
 | High-order source-channel stress error | `3.952e-01` |
@@ -244,7 +248,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `900f4b94d551b6fc8c0ea90a6a65ea7c4cf3b025` |
+| Commit | `687ffa4e76cf3cc058a31bd8513730e55033df42` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
