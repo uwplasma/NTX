@@ -196,9 +196,11 @@ or explicitly moved to documented future work with a clear reason.
   species, ambipolar-result, control, and transport-result ownership modules
   while preserving the flat public API and compatibility facades.
 - The current source-ownership pass also split artifact-gate scalar evaluation
-  from finite-beta artifact-gate ownership, and split TOML-run orchestration
-  from suffix-selected NetCDF/NPZ/HDF5 output writing while preserving the
-  public `ntx.inputfiles` and top-level exports.
+  from finite-beta artifact-gate ownership, finite-beta artifact-gate
+  definitions from the general artifact registry, finite-beta geometry-breadth
+  metadata from the general geometry benchmark matrix, and TOML-run
+  orchestration from suffix-selected NetCDF/NPZ/HDF5 output writing while
+  preserving the public `ntx.inputfiles` and top-level exports.
 - The current repo-hygiene pass verified every untracked source/artifact file
   against docs, tests, or benchmark metadata and removed local cache
   directories.
