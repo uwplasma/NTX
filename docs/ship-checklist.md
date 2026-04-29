@@ -7,7 +7,7 @@ or explicitly moved to documented future work with a clear reason.
 
 | Lane | Current Status | Required Before Merge |
 | --- | --- | --- |
-| Code refactoring | Partly closed; continue | Public facades remain stable while solver, bootstrap-autodiff, and profile dataclass ownership have been split into smaller internal modules; keep shrinking only with tests and docs. |
+| Code refactoring | Partly closed; continue | Public facades remain stable while solver, bootstrap-autodiff, profile dataclass, validation artifact-gate, and input/output ownership have been split into smaller internal modules; keep shrinking only with tests and docs. |
 | Repository hygiene | Current worktree audited | Split the dirty worktree into reviewable commit batches; all current untracked source/artifact files are tied to scripts/tests/docs, and local caches should stay removed. |
 | CI runtime and coverage | Closed; monitor | Maintain `>=95%` repository-owned coverage, module floors, and a normal CI wall time near `5-10` minutes. |
 | Literature-anchored physics gates | In progress | Add or preserve fast gates for convergence, Onsager residuals, exact low-order recovery, coefficient sign/normalization, and artifact-backed literature comparisons. |
@@ -195,6 +195,10 @@ or explicitly moved to documented future work with a clear reason.
   common, deterministic, and robust modules, and split profile dataclasses into
   species, ambipolar-result, control, and transport-result ownership modules
   while preserving the flat public API and compatibility facades.
+- The current source-ownership pass also split artifact-gate scalar evaluation
+  from finite-beta artifact-gate ownership, and split TOML-run orchestration
+  from suffix-selected NetCDF/NPZ/HDF5 output writing while preserving the
+  public `ntx.inputfiles` and top-level exports.
 - The current repo-hygiene pass verified every untracked source/artifact file
   against docs, tests, or benchmark metadata and removed local cache
   directories.
