@@ -8,6 +8,7 @@ import pytest
 from examples import owned_finite_beta_closure_target_audit as audit
 from ntx.validation._finite_beta_closure_target import (
     field_radius_matched_response_audit,
+    profile_closure_target_diagnostics,
 )
 
 
@@ -112,6 +113,10 @@ def _matched_quadrature_payload() -> dict:
 def test_build_payload_tracks_physical_driver_diagnostics(tmp_path: Path) -> None:
     source = tmp_path / "source_response.json"
     source.write_text(json.dumps(_source_response_payload()))
+
+    direct = profile_closure_target_diagnostics(_source_response_payload())
+    assert direct["summary_metrics"]["radius_count"] == 4
+    assert direct["summary_metrics"]["epsilon_abs_pearson"] == pytest.approx(1.0)
 
     payload = audit.build_payload(
         source_response_json=source,
