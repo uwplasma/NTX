@@ -395,15 +395,29 @@ def _plot_scan_coefficients(
                 ax.set_visible(False)
                 continue
             for ier, er_tilde_value in enumerate(er_tilde):
-                ax.semilogx(
-                    nu_v,
-                    values[:, ier],
-                    lw=1.8,
-                    label=rf"$\tilde E_r={er_tilde_value:.1e}$",
-                )
-            ax.set_title(f"{label} vs nu_v")
-            ax.set_xlabel("nu_v")
-            ax.set_ylabel(label)
+                if label in {"D11", "D33"}:
+                    safe_values = np.maximum(np.abs(values[:, ier]), 1.0e-300)
+                    ax.plot(
+                        np.log10(nu_v),
+                        np.log10(safe_values),
+                        lw=1.8,
+                        label=rf"$\tilde E_r={er_tilde_value:.1e}$",
+                    )
+                else:
+                    ax.semilogx(
+                        nu_v,
+                        values[:, ier],
+                        lw=1.8,
+                        label=rf"$\tilde E_r={er_tilde_value:.1e}$",
+                    )
+            if label in {"D11", "D33"}:
+                ax.set_title(f"log10({label}) vs log10(nu_v)")
+                ax.set_xlabel("log10(nu_v)")
+                ax.set_ylabel(f"log10({label})")
+            else:
+                ax.set_title(f"{label} vs nu_v")
+                ax.set_xlabel("nu_v")
+                ax.set_ylabel(label)
             ax.grid(alpha=0.24, lw=0.6, which="both")
 
         handles, labels = axes[0, 0].get_legend_handles_labels()
