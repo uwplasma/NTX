@@ -169,7 +169,10 @@ examples.
    - driver-identification artifact for the profile source-response target; the
      strongest single local driver is the Redl geometry factor `epsilon`
      (`|r|=0.975`), the best leave-one-out diagnostic model is epsilon-only
-     with RMSE `5.27e-2`, and no runtime correction is applied
+     with RMSE `5.27e-2`; the JSON also cross-links the field-radius-matched
+     source/quadrature sidecars, confirming the same stress radius, exact source
+     reconstruction, and rejection of the only apparent current-gate pass as
+     under-integrated, with no runtime correction applied
 25. `owned_finite_beta_radial_interpolation_audit.{png,pdf,json}`
    - interpolation-contract diagnostic; rebuilding the finite-beta database on
      the exact field radii reduces the previous `rho=0.143` stress point from

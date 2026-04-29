@@ -337,7 +337,10 @@ The closure-target panel ranks geometry, trapped-particle, and collisionality
 drivers for the measured response. It is a model-identification artifact only:
 the runtime closure remains unchanged until a physics-derived term passes the
 fixed-field, W7-X transfer, source reconstruction, and same-grid finite-beta
-coefficient gates.
+coefficient gates. Its JSON sidecar also cross-links the field-radius-matched
+source-channel and quadrature artifacts, confirming that the matched audit uses
+the same stress radius, reconstructs the source response, and rejects the only
+apparent current-gate pass as under-integrated.
 
 ![Owned finite-beta radial interpolation audit](_static/owned_finite_beta_radial_interpolation_audit.png)
 
