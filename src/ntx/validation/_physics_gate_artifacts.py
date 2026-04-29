@@ -319,6 +319,17 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "profile-current closure layer"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_closure_quadrature_stress",
+        path=static_root / "owned_finite_beta_closure_quadrature_audit.json",
+        metric_key="underintegrated_gate_pass_count",
+        details=(
+            "monitored finite-beta closure quadrature aliasing count; nonzero "
+            "means a current-gate pass was observed only where velocity "
+            "quadrature was lower than the Sonine truncation"
+        ),
+    )
 
     return results
 

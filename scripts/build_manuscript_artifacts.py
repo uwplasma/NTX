@@ -91,6 +91,9 @@ def build_payload() -> dict:
     owned_finite_beta_conditioning = _load_json(
         STATIC / "owned_finite_beta_current_conditioning_audit.json"
     )
+    owned_finite_beta_quadrature = _load_json(
+        STATIC / "owned_finite_beta_closure_quadrature_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -129,6 +132,7 @@ def build_payload() -> dict:
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
         "owned_finite_beta_current_conditioning",
+        "owned_finite_beta_closure_quadrature",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -329,6 +333,13 @@ def build_payload() -> dict:
                 "conclusion": owned_finite_beta_conditioning["conclusion"],
                 "stress_radius": owned_finite_beta_conditioning["stress_radius"],
                 "open_work": owned_finite_beta_conditioning["open_work"],
+            },
+            "owned_finite_beta_closure_quadrature": {
+                "summary_metrics": owned_finite_beta_quadrature["summary_metrics"],
+                "claim_scope": owned_finite_beta_quadrature["claim_scope"],
+                "conclusion": owned_finite_beta_quadrature["conclusion"],
+                "rows": owned_finite_beta_quadrature["rows"],
+                "open_work": owned_finite_beta_quadrature["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -618,6 +629,32 @@ def build_payload() -> dict:
                     "stress_coefficient_limited_current_relative_error_bound"
                 ]
             ),
+            "owned_finite_beta_quadrature_underintegrated_gate_pass_count": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "underintegrated_gate_pass_count"
+                ]
+            ),
+            "owned_finite_beta_quadrature_min_stress_error": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "min_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_quadrature_min_stress_x": (
+                owned_finite_beta_quadrature["summary_metrics"]["min_stress_neopax_x"]
+            ),
+            "owned_finite_beta_quadrature_min_stress_pmax": (
+                owned_finite_beta_quadrature["summary_metrics"]["min_stress_n_order"]
+            ),
+            "owned_finite_beta_quadrature_high_x_largest_order_stress_error": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "high_x_largest_order_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_quadrature_max_same_order_spread": (
+                owned_finite_beta_quadrature["summary_metrics"][
+                    "max_same_order_stress_spread_over_x"
+                ]
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -845,6 +882,30 @@ def build_markdown(payload: dict) -> str:
     ]
     conditioning_coefficient_bound = owned_finite_beta_conditioning_metrics[
         "stress_coefficient_limited_current_relative_error_bound"
+    ]
+    owned_finite_beta_quadrature = payload["tables"][
+        "owned_finite_beta_closure_quadrature"
+    ]
+    owned_finite_beta_quadrature_metrics = owned_finite_beta_quadrature[
+        "summary_metrics"
+    ]
+    quadrature_underintegrated_passes = owned_finite_beta_quadrature_metrics[
+        "underintegrated_gate_pass_count"
+    ]
+    quadrature_min_stress_error = owned_finite_beta_quadrature_metrics[
+        "min_stress_relative_error"
+    ]
+    quadrature_min_stress_x = owned_finite_beta_quadrature_metrics[
+        "min_stress_neopax_x"
+    ]
+    quadrature_min_stress_pmax = owned_finite_beta_quadrature_metrics[
+        "min_stress_n_order"
+    ]
+    quadrature_high_x_error = owned_finite_beta_quadrature_metrics[
+        "high_x_largest_order_stress_relative_error"
+    ]
+    quadrature_max_same_order_spread = owned_finite_beta_quadrature_metrics[
+        "max_same_order_stress_spread_over_x"
     ]
     owned_finite_beta_resolution = payload["tables"][
         "owned_finite_beta_sfincs_jax_resolution_audit"
@@ -1268,6 +1329,23 @@ def build_markdown(payload: dict) -> str:
                 f"`{conditioning_coefficient_bound:.3e}` |"
             ),
             (
+                "| Under-integrated closure current-gate passes | "
+                f"`{quadrature_underintegrated_passes}` |"
+            ),
+            (
+                "| Best stress-radius closure setting | "
+                f"`P={quadrature_min_stress_pmax}, X={quadrature_min_stress_x}, "
+                f"error={quadrature_min_stress_error:.3e}` |"
+            ),
+            (
+                "| Highest-X largest-order stress error | "
+                f"`{quadrature_high_x_error:.3e}` |"
+            ),
+            (
+                "| Max same-order stress spread over X | "
+                f"`{quadrature_max_same_order_spread:.3e}` |"
+            ),
+            (
                 "| Stress-radius Pmax error reduction | "
                 f"`{observable_pmax_error_reduction:.3f}x` |"
             ),
@@ -1631,6 +1709,24 @@ def build_claims_markdown(payload: dict) -> str:
                 "at the inner stress radius. This closes the finite-beta "
                 "production coefficient-ladder lane and keeps the open mismatch "
                 "at the profile-current closure layer."
+            ),
+            (
+                "- The owned finite-beta closure-quadrature audit shows that "
+                f"`{claims['owned_finite_beta_quadrature_underintegrated_gate_pass_count']}` "
+                "stress-radius current-gate pass occurs only when the velocity "
+                "quadrature is lower than the Sonine truncation. The best apparent "
+                "stress-radius setting is "
+                f"`P={claims['owned_finite_beta_quadrature_min_stress_pmax']}`, "
+                f"`X={claims['owned_finite_beta_quadrature_min_stress_x']}` with "
+                "relative difference "
+                f"`{claims['owned_finite_beta_quadrature_min_stress_error']:.3e}`, "
+                "but the highest-X largest-order stress difference remains "
+                f"`{claims['owned_finite_beta_quadrature_high_x_largest_order_stress_error']:.3e}` "
+                "and same-order stress values vary over X by "
+                f"`{claims['owned_finite_beta_quadrature_max_same_order_spread']:.3e}`. "
+                "This closes the under-integrated apparent-pass route and keeps "
+                "the finite-beta bootstrap-current gap assigned to a "
+                "quadrature-converged reduced-closure lane."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "

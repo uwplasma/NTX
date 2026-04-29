@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "fe969bc7d99fc961e0f06499d1b72fce4e3d2ced",
+    "commit": "f2a88196239b34884b6176000e879647b0f995d0",
     "branch": "main"
   },
   "environment": {
@@ -4287,6 +4287,218 @@
         "preserve the fixed-field QA/QH total-current gate and W7-X integrated transfer when testing any closure change"
       ]
     },
+    "owned_finite_beta_closure_quadrature": {
+      "summary_metrics": {
+        "row_count": 12,
+        "x_values": [
+          10,
+          14,
+          18
+        ],
+        "n_orders": [
+          12,
+          14,
+          16,
+          18
+        ],
+        "profile_current_gate": 0.1,
+        "reference_neopax_x": 10,
+        "reference_n_order": 12,
+        "reference_stress_relative_error": 0.3106405551146464,
+        "min_stress_relative_error": 0.038108482782810746,
+        "min_stress_neopax_x": 10,
+        "min_stress_n_order": 14,
+        "min_stress_x_to_order_ratio": 0.7142857142857143,
+        "min_stress_gate_pass": true,
+        "min_max_relative_error": 0.2023867427410282,
+        "min_max_neopax_x": 10,
+        "min_max_n_order": 14,
+        "high_x": 18,
+        "high_x_stress_error_monotone_nonincreasing_with_pmax": true,
+        "high_x_largest_order_stress_relative_error": 0.3951895275200511,
+        "max_same_order_stress_spread_over_x": 9.495420179206551,
+        "underintegrated_gate_pass_count": 1,
+        "quadrature_aliasing_detected": true,
+        "mean_closure_seconds": 14.032175489677078
+      },
+      "claim_scope": "Reuses the owned finite-beta NTX scan and Redl profile contract while varying only the momentum-closure Sonine order and velocity quadrature.  It is a numerical/physics consistency audit for the reduced closure, not a fitted correction and not a bootstrap-current parity claim.",
+      "conclusion": "The finite-beta current gap is sensitive to the coupling between Sonine order and velocity quadrature.  A low-quadrature setting can produce an apparent stress-radius pass, but that pass is not accepted unless it also transfers to higher velocity quadrature.  The current artifact therefore closes the under-integrated-closure explanation and keeps finite-beta profile-current parity scoped as an open reduced-closure lane.",
+      "rows": [
+        {
+          "neopax_x": 10,
+          "n_order": 12,
+          "x_to_order_ratio": 0.8333333333333334,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.3106405551146464,
+          "stress_current_over_root_fsab2": -26933424.318067342,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.3106405551146464,
+          "rms_relative_error_total_vs_redl": 0.12965669248029935,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5283426811042948,
+          "closure_seconds": 15.536527040996589
+        },
+        {
+          "neopax_x": 10,
+          "n_order": 14,
+          "x_to_order_ratio": 0.7142857142857143,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.038108482782810746,
+          "stress_current_over_root_fsab2": -19766695.208736278,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.2023867427410282,
+          "rms_relative_error_total_vs_redl": 0.12193032347875025,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5283426811042948,
+          "closure_seconds": 15.379545500036329
+        },
+        {
+          "neopax_x": 10,
+          "n_order": 16,
+          "x_to_order_ratio": 0.625,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 2.9155316115602696,
+          "stress_current_over_root_fsab2": -80463460.33885235,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 2.9155316115602696,
+          "rms_relative_error_total_vs_redl": 0.952930048749734,
+          "sign_agreement_fraction_total": 0.9230769230769231,
+          "nomom_stress_relative_error_vs_redl": 1.5283426811042948,
+          "closure_seconds": 12.931135041988455
+        },
+        {
+          "neopax_x": 10,
+          "n_order": 18,
+          "x_to_order_ratio": 0.5555555555555556,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.4845401048914776,
+          "stress_current_over_root_fsab2": -30507028.34289516,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 3.298166310359923,
+          "rms_relative_error_total_vs_redl": 0.9504936711269997,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5283426811042948,
+          "closure_seconds": 13.220851042016875
+        },
+        {
+          "neopax_x": 14,
+          "n_order": 12,
+          "x_to_order_ratio": 1.1666666666666667,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.38743547199403794,
+          "stress_current_over_root_fsab2": -28511545.850864287,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.38743547199403794,
+          "rms_relative_error_total_vs_redl": 0.15434601719849886,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5324500417033435,
+          "closure_seconds": 14.222765957994852
+        },
+        {
+          "neopax_x": 14,
+          "n_order": 14,
+          "x_to_order_ratio": 1.0,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.37963010006289094,
+          "stress_current_over_root_fsab2": -28351146.881549984,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.37963010006289094,
+          "rms_relative_error_total_vs_redl": 0.15153774682191268,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5324500417033435,
+          "closure_seconds": 13.78681487502763
+        },
+        {
+          "neopax_x": 14,
+          "n_order": 16,
+          "x_to_order_ratio": 0.875,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.3710554114556732,
+          "stress_current_over_root_fsab2": -28174938.594882637,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.3710554114556732,
+          "rms_relative_error_total_vs_redl": 0.14792310862605848,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5324500417033435,
+          "closure_seconds": 13.375899000035133
+        },
+        {
+          "neopax_x": 14,
+          "n_order": 18,
+          "x_to_order_ratio": 0.7777777777777778,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.3723718924768887,
+          "stress_current_over_root_fsab2": -28201992.039713647,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.3723718924768887,
+          "rms_relative_error_total_vs_redl": 0.14849803893715413,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5324500417033435,
+          "closure_seconds": 13.70694095903309
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 12,
+          "x_to_order_ratio": 1.5,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.4034811700206996,
+          "stress_current_over_root_fsab2": -28841282.018225484,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.4034811700206996,
+          "rms_relative_error_total_vs_redl": 0.1601159908573147,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5337259781180024,
+          "closure_seconds": 14.836903334013186
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 14,
+          "x_to_order_ratio": 1.2857142857142858,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.39996453919765734,
+          "stress_current_over_root_fsab2": -28769015.896322437,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.39996453919765734,
+          "rms_relative_error_total_vs_redl": 0.15870046977553876,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5337259781180024,
+          "closure_seconds": 14.061068874958437
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 16,
+          "x_to_order_ratio": 1.125,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.3961297212794702,
+          "stress_current_over_root_fsab2": -28690211.087658457,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.3961297212794702,
+          "rms_relative_error_total_vs_redl": 0.1573226729048593,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5337259781180024,
+          "closure_seconds": 13.623106583021581
+        },
+        {
+          "neopax_x": 18,
+          "n_order": 18,
+          "x_to_order_ratio": 1.0,
+          "stress_rho": 0.14285714285714285,
+          "stress_relative_error_total_vs_redl": 0.3951895275200511,
+          "stress_current_over_root_fsab2": -28670890.277414326,
+          "stress_redl_current_over_root_fsab2": -20549817.57810125,
+          "max_relative_error_total_vs_redl": 0.3951895275200511,
+          "rms_relative_error_total_vs_redl": 0.15690707595326758,
+          "sign_agreement_fraction_total": 1.0,
+          "nomom_stress_relative_error_vs_redl": 1.5337259781180024,
+          "closure_seconds": 13.704547667002771
+        }
+      ],
+      "open_work": [
+        "derive or import a quadrature-converged higher-order closure before promoting finite-beta bootstrap-current parity",
+        "require current-gate pass and velocity-quadrature stability simultaneously on the inner finite-beta stress radius",
+        "transfer the accepted closure setting to the existing fixed-field and integrated W7-X validation artifacts before making a broad profile-current claim"
+      ]
+    },
     "profile_uncertainty": {
       "basis_size": 3,
       "sample_count": 96,
@@ -4680,6 +4892,12 @@
     "owned_finite_beta_conditioning_required_coefficient_error": 0.0013006501179462983,
     "owned_finite_beta_conditioning_coefficient_precision_gap": 15.798130220751109,
     "owned_finite_beta_conditioning_coefficient_bound": 1.579813022075111,
+    "owned_finite_beta_quadrature_underintegrated_gate_pass_count": 1,
+    "owned_finite_beta_quadrature_min_stress_error": 0.038108482782810746,
+    "owned_finite_beta_quadrature_min_stress_x": 10,
+    "owned_finite_beta_quadrature_min_stress_pmax": 14,
+    "owned_finite_beta_quadrature_high_x_largest_order_stress_error": 0.3951895275200511,
+    "owned_finite_beta_quadrature_max_same_order_spread": 9.495420179206551,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -4823,6 +5041,11 @@
       "docs/_static/owned_finite_beta_current_conditioning_audit.png",
       "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
       "docs/_static/owned_finite_beta_current_conditioning_audit.json"
+    ],
+    "owned_finite_beta_closure_quadrature": [
+      "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+      "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+      "docs/_static/owned_finite_beta_closure_quadrature_audit.json"
     ],
     "profile_uncertainty": [
       "docs/_static/autodiff_profile_uncertainty.png",
@@ -6978,7 +7201,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
           "literature_anchors": [
             "Redl bootstrap-current formula and geometry-factor normalization",
             "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -6989,13 +7212,15 @@
             "examples/owned_finite_beta_bootstrap_comparison.py",
             "examples/owned_finite_beta_closure_localization.py",
             "examples/owned_finite_beta_profile_current_observable_audit.py",
-            "examples/owned_finite_beta_current_conditioning_audit.py"
+            "examples/owned_finite_beta_current_conditioning_audit.py",
+            "examples/owned_finite_beta_closure_quadrature_audit.py"
           ],
           "tests": [
             "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "tests/test_owned_finite_beta_closure_localization.py",
             "tests/test_owned_finite_beta_profile_current_observable_audit.py",
-            "tests/test_owned_finite_beta_current_conditioning_audit.py"
+            "tests/test_owned_finite_beta_current_conditioning_audit.py",
+            "tests/test_owned_finite_beta_closure_quadrature_audit.py"
           ],
           "artifacts": [
             "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -7009,13 +7234,17 @@
             "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
             "docs/_static/owned_finite_beta_current_conditioning_audit.png",
             "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
-            "docs/_static/owned_finite_beta_current_conditioning_audit.json"
+            "docs/_static/owned_finite_beta_current_conditioning_audit.json",
+            "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+            "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+            "docs/_static/owned_finite_beta_closure_quadrature_audit.json"
           ],
           "manuscript_figures": [
             "owned_finite_beta_bootstrap_comparison",
             "owned_finite_beta_closure_localization",
             "owned_finite_beta_profile_current_observable_audit",
-            "owned_finite_beta_current_conditioning_audit"
+            "owned_finite_beta_current_conditioning_audit",
+            "owned_finite_beta_closure_quadrature_audit"
           ],
           "docs": [
             "README.md",
@@ -7026,6 +7255,7 @@
             "docs/manuscript.md"
           ],
           "open_work": [
+            "derive or import a quadrature-converged higher-order closure before accepting any apparent finite-beta current gate pass at X < Pmax",
             "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract",
             "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
             "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
@@ -7056,6 +7286,11 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_closure_quadrature_audit.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "exists": true
@@ -7073,6 +7308,11 @@
           {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_current_conditioning_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_closure_quadrature_audit.py",
             "exists": true
           },
           {
@@ -7133,6 +7373,21 @@
           {
             "kind": "artifact",
             "path": "docs/_static/owned_finite_beta_current_conditioning_audit.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
             "exists": true
           },
           {
@@ -7321,6 +7576,7 @@
       "owned_finite_beta_closure_localization",
       "owned_finite_beta_profile_current_observable",
       "owned_finite_beta_current_conditioning",
+      "owned_finite_beta_closure_quadrature",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",

@@ -165,6 +165,10 @@
 | Production ladder max coefficient difference | `2.065e-02` |
 | Production ladder precision gap | `15.875x` |
 | Coefficient-conditioned current-error bound | `1.580e+00` |
+| Under-integrated closure current-gate passes | `1` |
+| Best stress-radius closure setting | `P=14, X=10, error=3.811e-02` |
+| Highest-X largest-order stress error | `3.952e-01` |
+| Max same-order stress spread over X | `9.495e+00` |
 | Stress-radius Pmax error reduction | `3.548x` |
 | Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
@@ -220,7 +224,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `fe969bc7d99fc961e0f06499d1b72fce4e3d2ced` |
+| Commit | `f2a88196239b34884b6176000e879647b0f995d0` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

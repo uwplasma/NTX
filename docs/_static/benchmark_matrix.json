@@ -2092,7 +2092,7 @@
         "lane": "geometry-breadth",
         "maturity": "stress-gate",
         "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-        "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+        "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
         "literature_anchors": [
           "Redl bootstrap-current formula and geometry-factor normalization",
           "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -2103,13 +2103,15 @@
           "examples/owned_finite_beta_bootstrap_comparison.py",
           "examples/owned_finite_beta_closure_localization.py",
           "examples/owned_finite_beta_profile_current_observable_audit.py",
-          "examples/owned_finite_beta_current_conditioning_audit.py"
+          "examples/owned_finite_beta_current_conditioning_audit.py",
+          "examples/owned_finite_beta_closure_quadrature_audit.py"
         ],
         "tests": [
           "tests/test_owned_finite_beta_bootstrap_comparison.py",
           "tests/test_owned_finite_beta_closure_localization.py",
           "tests/test_owned_finite_beta_profile_current_observable_audit.py",
-          "tests/test_owned_finite_beta_current_conditioning_audit.py"
+          "tests/test_owned_finite_beta_current_conditioning_audit.py",
+          "tests/test_owned_finite_beta_closure_quadrature_audit.py"
         ],
         "artifacts": [
           "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -2123,13 +2125,17 @@
           "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
           "docs/_static/owned_finite_beta_current_conditioning_audit.png",
           "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
-          "docs/_static/owned_finite_beta_current_conditioning_audit.json"
+          "docs/_static/owned_finite_beta_current_conditioning_audit.json",
+          "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+          "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+          "docs/_static/owned_finite_beta_closure_quadrature_audit.json"
         ],
         "manuscript_figures": [
           "owned_finite_beta_bootstrap_comparison",
           "owned_finite_beta_closure_localization",
           "owned_finite_beta_profile_current_observable_audit",
-          "owned_finite_beta_current_conditioning_audit"
+          "owned_finite_beta_current_conditioning_audit",
+          "owned_finite_beta_closure_quadrature_audit"
         ],
         "docs": [
           "README.md",
@@ -2140,6 +2146,7 @@
           "docs/manuscript.md"
         ],
         "open_work": [
+          "derive or import a quadrature-converged higher-order closure before accepting any apparent finite-beta current gate pass at X < Pmax",
           "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract",
           "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
           "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
@@ -2170,6 +2177,11 @@
           "exists": true
         },
         {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_closure_quadrature_audit.py",
+          "exists": true
+        },
+        {
           "kind": "test",
           "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
           "exists": true
@@ -2187,6 +2199,11 @@
         {
           "kind": "test",
           "path": "tests/test_owned_finite_beta_current_conditioning_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_closure_quadrature_audit.py",
           "exists": true
         },
         {
@@ -2247,6 +2264,21 @@
         {
           "kind": "artifact",
           "path": "docs/_static/owned_finite_beta_current_conditioning_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
           "exists": true
         },
         {

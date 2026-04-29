@@ -148,6 +148,7 @@ python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
 python examples/owned_finite_beta_current_conditioning_audit.py
+python examples/owned_finite_beta_closure_quadrature_audit.py
 ```
 
 These optional provenance artifacts prioritize local finite-beta stellarator
@@ -200,6 +201,12 @@ SFINCS-JAX points across the owned finite-beta QA radii and collisionalities.
 All completed coefficient differences stay below `2.07e-2`; the
 current-conditioned precision gap remains largest at the inner stress radius,
 so the next open item is the profile-current closure observable.
+The closure-quadrature audit holds the same scan, Redl observable, profiles, and
+normalization fixed while varying only Sonine order and velocity quadrature.
+It records that the only stress-radius current-gate pass occurs at `P=14,
+X=10`, where the velocity quadrature is lower than the Sonine truncation. That
+apparent pass does not transfer to `X=14` or `X=18`, so the example treats it as
+under-integrated closure aliasing rather than a valid finite-beta parity result.
 
 It writes:
 
@@ -232,6 +239,9 @@ It writes:
 - `docs/_static/owned_finite_beta_current_conditioning_audit.png`
 - `docs/_static/owned_finite_beta_current_conditioning_audit.pdf`
 - `docs/_static/owned_finite_beta_current_conditioning_audit.json`
+- `docs/_static/owned_finite_beta_closure_quadrature_audit.png`
+- `docs/_static/owned_finite_beta_closure_quadrature_audit.pdf`
+- `docs/_static/owned_finite_beta_closure_quadrature_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -249,6 +259,8 @@ It writes:
 ![Owned finite-beta profile-current observable audit](_static/owned_finite_beta_profile_current_observable_audit.png)
 
 ![Owned finite-beta current-conditioning audit](_static/owned_finite_beta_current_conditioning_audit.png)
+
+![Owned finite-beta closure quadrature audit](_static/owned_finite_beta_closure_quadrature_audit.png)
 
 ## 10. Bootstrap Current With NEOPAX
 

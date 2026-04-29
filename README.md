@@ -167,8 +167,12 @@ coefficient differences below `2.07e-2`. That closes the finite-beta
 coefficient-resolution lane; the remaining gap is a profile-current observable
 issue rather than an angular-resolution, harmonic-truncation, or broad
 transport-coefficient failure.
-Optimized finite-beta QH/QI Boozer
-reconstruction remains an explicit geometry-backend blocker.
+The closure-quadrature sidecar also rejects the only apparent stress-radius
+current-gate pass as under-integrated: `P=14, X=10` falls below `1e-1`, but the
+result does not transfer to `X=14` or `X=18`. Future finite-beta closure claims
+therefore require simultaneous current-gate and velocity-quadrature stability.
+Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
+geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,
 and large-optimization studies remain tracked as stress diagnostics or planned
 research lanes in the docs.
@@ -195,6 +199,7 @@ python examples/neopax_with_ntx.py
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_bootstrap_comparison.py
+python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```

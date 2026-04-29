@@ -245,6 +245,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "nu/v support, explicit D33_spitzer audit branch, Sonine-order "
                 "convergence sidecar, coefficient/profile localization sidecar, "
                 "profile-current observable sidecar, current-conditioning sidecar, "
+                "closure quadrature sidecar, "
                 "and current normalization. "
                 "The current reduced-closure result has the correct sign and "
                 "outer-radius errors near the 1e-1 target, but explicitly records "
@@ -263,12 +264,14 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "examples/owned_finite_beta_closure_localization.py",
                 "examples/owned_finite_beta_profile_current_observable_audit.py",
                 "examples/owned_finite_beta_current_conditioning_audit.py",
+                "examples/owned_finite_beta_closure_quadrature_audit.py",
             ),
             tests=(
                 "tests/test_owned_finite_beta_bootstrap_comparison.py",
                 "tests/test_owned_finite_beta_closure_localization.py",
                 "tests/test_owned_finite_beta_profile_current_observable_audit.py",
                 "tests/test_owned_finite_beta_current_conditioning_audit.py",
+                "tests/test_owned_finite_beta_closure_quadrature_audit.py",
             ),
             artifacts=(
                 "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -283,12 +286,16 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/owned_finite_beta_current_conditioning_audit.png",
                 "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
                 "docs/_static/owned_finite_beta_current_conditioning_audit.json",
+                "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+                "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+                "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
             ),
             manuscript_figures=(
                 "owned_finite_beta_bootstrap_comparison",
                 "owned_finite_beta_closure_localization",
                 "owned_finite_beta_profile_current_observable_audit",
                 "owned_finite_beta_current_conditioning_audit",
+                "owned_finite_beta_closure_quadrature_audit",
             ),
             docs=(
                 "README.md",
@@ -299,6 +306,11 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/manuscript.md",
             ),
             open_work=(
+                (
+                    "derive or import a quadrature-converged higher-order "
+                    "closure before accepting any apparent finite-beta current "
+                    "gate pass at X < Pmax"
+                ),
                 (
                     "close the inner-radius reduced-closure gap using the same "
                     "physical profile, normalization, and interpolation contract"

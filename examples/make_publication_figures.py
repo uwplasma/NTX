@@ -40,6 +40,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
         "owned_finite_beta_current_conditioning",
+        "owned_finite_beta_closure_quadrature",
         "science",
         "robust_science",
         "validation",
@@ -83,6 +84,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
         "owned_finite_beta_current_conditioning",
+        "owned_finite_beta_closure_quadrature",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -425,6 +427,13 @@ def main() -> None:
     if "owned_finite_beta_current_conditioning" in selected:
         manifest["owned_finite_beta_current_conditioning"] = _copy_existing_static(
             "owned_finite_beta_current_conditioning_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_closure_quadrature" in selected:
+        manifest["owned_finite_beta_closure_quadrature"] = _copy_existing_static(
+            "owned_finite_beta_closure_quadrature_audit",
             output_dir,
             (".png", ".pdf", ".json"),
         )

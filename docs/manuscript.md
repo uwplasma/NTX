@@ -35,14 +35,15 @@ examples.
 16. `owned_finite_beta_closure_localization.{png,pdf,json}`
 17. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
 18. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
-19. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-20. `bootstrap_current_robust_optimization.{png,pdf,json}`
-21. `performance_scaling_smoke.{png,pdf,json}`
-22. `performance_scaling_heavy.{png,pdf,json}`
-23. `performance_strong_scaling_production.{png,pdf,json}`
-24. `prepared_geometry_reuse_profile.{png,pdf,json}`
-25. `ambipolar_profile.{png,pdf}`
-26. `ambipolar_profile_family.{png,pdf}`
+19. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
+20. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+21. `bootstrap_current_robust_optimization.{png,pdf,json}`
+22. `performance_scaling_smoke.{png,pdf,json}`
+23. `performance_scaling_heavy.{png,pdf,json}`
+24. `performance_strong_scaling_production.{png,pdf,json}`
+25. `prepared_geometry_reuse_profile.{png,pdf,json}`
+26. `ambipolar_profile.{png,pdf}`
+27. `ambipolar_profile_family.{png,pdf}`
 27. `profile_force_reconstruction_audit.{png,pdf,json}`
 28. `profile_control_optimization.{png,pdf}`
 29. `profile_basis_optimization.{png,pdf,json}`
@@ -139,9 +140,13 @@ examples.
      finite-beta net-current observable; this explains why the smoke
      coefficient ladder is not yet sufficient for a `1e-1` bootstrap-current
      parity claim
-21. `derivative_path_benchmark.{png,pdf}`
+21. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
+   - Sonine-order versus velocity-quadrature stress audit; the only apparent
+     current-gate pass occurs at `P=14, X=10` and is not promoted because it
+     does not transfer to higher velocity quadrature
+22. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-22. `bootstrap_current_optimization.{png,pdf}`
+23. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
 23. `bootstrap_current_robust_optimization.{png,pdf,json}`
