@@ -8,6 +8,10 @@ import numpy as np
 import pytest
 
 from examples import owned_finite_beta_source_channel_audit as audit
+from ntx.validation._finite_beta_source_channels import (
+    effective_projection_and_drives,
+    source_channel_summary_metrics,
+)
 
 
 def test_effective_source_decomposition_preserves_transport_rhs() -> None:
@@ -19,10 +23,7 @@ def test_effective_source_decomposition_preserves_transport_rhs() -> None:
     )
     drives = np.asarray([7.0, -2.0, 0.0])
 
-    effective_projection, effective_drives = audit._effective_projection_and_drives(  # noqa: SLF001
-        projection,
-        drives,
-    )
+    effective_projection, effective_drives = effective_projection_and_drives(projection, drives)
 
     np.testing.assert_allclose(
         projection @ drives,
@@ -69,7 +70,7 @@ def test_source_channel_summary_tracks_high_stable_dominant_channel() -> None:
         },
     ]
 
-    metrics = audit._summary_metrics(rows)  # noqa: SLF001
+    metrics = source_channel_summary_metrics(rows)
 
     assert metrics["source_channel_superposition_gate_pass"] is True
     assert metrics["best_public_neopax_x"] == 10
@@ -186,7 +187,7 @@ def test_source_channel_audit_writes_payload_and_figure(tmp_path: Path) -> None:
     payload = {
         "benchmark": "owned_finite_beta_source_channel_audit",
         "rows": rows,
-        "summary_metrics": audit._summary_metrics(rows),  # noqa: SLF001
+        "summary_metrics": source_channel_summary_metrics(rows),
     }
 
     audit.write_payload(payload, output_prefix)

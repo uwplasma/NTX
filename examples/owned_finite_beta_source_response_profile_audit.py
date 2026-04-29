@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """Map finite-beta source-channel response across the radial profile.
 
 The stress-radius source-channel audit localizes the remaining finite-beta
@@ -34,7 +35,6 @@ from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
     DEFAULT_MBOZ,
     DEFAULT_NBOZ,
     DEFAULT_REDL_NTHETA,
-    EPS,
     _build_species,
     _case_by_id,
     _evaluate_neopax_currents,
@@ -45,18 +45,24 @@ from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
 )
 from examples.owned_finite_beta_source_channel_audit import (  # noqa: E402
     BOOTSTRAP_JSON,
-    PROFILE_CURRENT_GATE,
-    SOURCE_RECONSTRUCTION_GATE,
     _contract_from_payload,
     _grid_from_payload,
     _load_json,
     _load_or_build_scan,
     _momentum_blocks,
     _redl_effective_channel_targets,
-    _relative_scalar_error,
     _solve_channels,
 )
 from ntx import to_neopax_monoenergetic  # noqa: E402
+from ntx.validation._finite_beta_source_channels import (  # noqa: E402
+    PROFILE_CURRENT_GATE,
+    SOURCE_RECONSTRUCTION_GATE,
+    profile_source_response_summary_metrics,
+    rows_for_setting,
+)
+from ntx.validation._finite_beta_source_channels import (
+    relative_scalar_error as _relative_scalar_error,
+)
 
 OUTPUT_PREFIX = (
     ROOT / "docs" / "_static" / "owned_finite_beta_source_response_profile_audit"
@@ -73,21 +79,6 @@ def _parse_settings(values: list[str]) -> tuple[tuple[int, int], ...]:
         x_value, p_value = value.split(":", 1)
         settings.append((int(x_value), int(p_value)))
     return tuple(settings)
-
-
-def _finite_or_none(value: float | None) -> float | None:
-    if value is None:
-        return None
-    value = float(value)
-    return value if np.isfinite(value) else None
-
-
-def _finite_values(values: list[float | None]) -> np.ndarray:
-    array = np.asarray(
-        [float(value) for value in values if value is not None and np.isfinite(value)],
-        dtype=float,
-    )
-    return array
 
 
 def _interp_redl_key(
@@ -134,188 +125,6 @@ def _redl_profile_drivers(
         else None
     )
     return drivers
-
-
-def _correlation(
-    rows: list[dict[str, Any]],
-    *,
-    driver_key: str,
-    response_key: str = "effective_temperature_response_multiplier_to_redl",
-) -> float | None:
-    pairs: list[tuple[float, float]] = []
-    for row in rows:
-        driver = row.get("redl_profile_drivers", {}).get(driver_key)
-        response = row.get(response_key)
-        if (
-            driver is not None
-            and response is not None
-            and np.isfinite(float(driver))
-            and np.isfinite(float(response))
-        ):
-            pairs.append((float(driver), float(response)))
-    if len(pairs) < 3:
-        return None
-    x = np.asarray([pair[0] for pair in pairs], dtype=float)
-    y = np.asarray([pair[1] for pair in pairs], dtype=float)
-    if float(np.std(x)) <= EPS or float(np.std(y)) <= EPS:
-        return None
-    return float(np.corrcoef(x, y)[0, 1])
-
-
-def _high_order_setting(rows: list[dict[str, Any]]) -> tuple[int, int]:
-    high = max(
-        rows,
-        key=lambda row: (
-            row["x_to_order_ratio"] >= 1.0,
-            row["neopax_x"],
-            row["n_order"],
-        ),
-    )
-    return int(high["neopax_x"]), int(high["n_order"])
-
-
-def _rows_for_setting(
-    rows: list[dict[str, Any]],
-    *,
-    setting: tuple[int, int],
-) -> list[dict[str, Any]]:
-    x_value, p_value = setting
-    return sorted(
-        [
-            row
-            for row in rows
-            if int(row["neopax_x"]) == x_value and int(row["n_order"]) == p_value
-        ],
-        key=lambda row: float(row["rho"]),
-    )
-
-
-def _summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    if not rows:
-        raise ValueError("profile source-response audit requires at least one row")
-    high_setting = _high_order_setting(rows)
-    high_rows = _rows_for_setting(rows, setting=high_setting)
-    multipliers = _finite_values(
-        [
-            row.get("effective_temperature_response_multiplier_to_redl")
-            for row in high_rows
-        ]
-    )
-    response_errors = _finite_values(
-        [
-            row.get("effective_temperature_channel_relative_error_vs_redl")
-            for row in high_rows
-        ]
-    )
-    reconstruction = _finite_values(
-        [
-            row.get("source_channel_superposition_relative_residual")
-            for row in rows
-        ]
-    )
-    public_difference = _finite_values(
-        [row.get("full_vs_public_relative_difference") for row in rows]
-    )
-    profile_errors = _finite_values(
-        [row.get("public_neopax_relative_error_vs_redl") for row in high_rows]
-    )
-    target_values: list[float] = []
-    candidate_values: list[float] = []
-    for row in high_rows:
-        target = row.get(
-            "redl_effective_channel_current_by_channel_over_root_fsab2",
-            {},
-        ).get("effective_temperature_force")
-        candidate = row.get("source_decomposition", {}).get("effective", {}).get(
-            "current_by_channel_over_root_fsab2",
-            {},
-        ).get("effective_temperature_force")
-        if (
-            target is not None
-            and candidate is not None
-            and np.isfinite(float(target))
-            and np.isfinite(float(candidate))
-        ):
-            target_values.append(float(target))
-            candidate_values.append(float(candidate))
-    if profile_errors.size:
-        stress_row = high_rows[int(np.nanargmax(profile_errors))]
-    else:
-        stress_row = high_rows[0]
-    sign_agreement = (
-        float(
-            np.mean(
-                np.sign(np.asarray(target_values, dtype=float))
-                == np.sign(np.asarray(candidate_values, dtype=float))
-            )
-        )
-        if target_values
-        else None
-    )
-    multiplier_min = float(np.min(multipliers)) if multipliers.size else None
-    multiplier_max = float(np.max(multipliers)) if multipliers.size else None
-    return {
-        "row_count": int(len(rows)),
-        "radius_count": int(len({float(row["rho"]) for row in rows})),
-        "setting_count": int(len({(int(row["neopax_x"]), int(row["n_order"])) for row in rows})),
-        "high_order_neopax_x": int(high_setting[0]),
-        "high_order_n_order": int(high_setting[1]),
-        "source_reconstruction_gate": SOURCE_RECONSTRUCTION_GATE,
-        "source_channel_superposition_gate_pass": bool(
-            reconstruction.size > 0
-            and float(np.max(reconstruction)) <= SOURCE_RECONSTRUCTION_GATE
-        ),
-        "max_source_channel_superposition_relative_residual": (
-            float(np.max(reconstruction)) if reconstruction.size else None
-        ),
-        "max_full_vs_public_relative_difference": (
-            float(np.max(public_difference)) if public_difference.size else None
-        ),
-        "profile_current_gate": PROFILE_CURRENT_GATE,
-        "high_order_max_public_relative_error_vs_redl": (
-            float(np.max(profile_errors)) if profile_errors.size else None
-        ),
-        "high_order_median_public_relative_error_vs_redl": (
-            float(np.median(profile_errors)) if profile_errors.size else None
-        ),
-        "high_order_temperature_response_multiplier_min": multiplier_min,
-        "high_order_temperature_response_multiplier_median": (
-            float(np.median(multipliers)) if multipliers.size else None
-        ),
-        "high_order_temperature_response_multiplier_max": multiplier_max,
-        "high_order_temperature_response_multiplier_span": (
-            float(multiplier_max - multiplier_min)
-            if multiplier_min is not None and multiplier_max is not None
-            else None
-        ),
-        "high_order_temperature_response_multiplier_abs_deviation_from_one_max": (
-            float(np.max(np.abs(multipliers - 1.0))) if multipliers.size else None
-        ),
-        "high_order_temperature_channel_relative_error_max": (
-            float(np.max(response_errors)) if response_errors.size else None
-        ),
-        "high_order_temperature_channel_sign_agreement_fraction": sign_agreement,
-        "high_order_stress_rho": float(stress_row["rho"]),
-        "high_order_stress_temperature_response_multiplier": _finite_or_none(
-            stress_row.get("effective_temperature_response_multiplier_to_redl")
-        ),
-        "temperature_response_correlation_with_log10_nu_e_star": _correlation(
-            high_rows,
-            driver_key="log10_nu_e_star",
-        ),
-        "temperature_response_correlation_with_trapped_fraction": _correlation(
-            high_rows,
-            driver_key="trapped_fraction",
-        ),
-        "temperature_response_correlation_with_epsilon": _correlation(
-            high_rows,
-            driver_key="epsilon",
-        ),
-        "temperature_response_correlation_with_redl_L32": _correlation(
-            high_rows,
-            driver_key="L32",
-        ),
-    }
 
 
 def _evaluate_setting_profile(
@@ -495,7 +304,7 @@ def build_payload(
                 n_order=int(n_order),
             )
         )
-    metrics = _summary_metrics(rows)
+    metrics = profile_source_response_summary_metrics(rows)
     conclusion = (
         "The profile source-response audit extends the stress-radius "
         "decomposition over the finite-beta profile.  It keeps the Redl "
@@ -576,7 +385,7 @@ def build_figure(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) -
         int(metrics["high_order_neopax_x"]),
         int(metrics["high_order_n_order"]),
     )
-    high_rows = _rows_for_setting(rows, setting=high_setting)
+    high_rows = rows_for_setting(rows, setting=high_setting)
     rho = np.asarray([float(row["rho"]) for row in high_rows], dtype=float)
     redl = (
         np.asarray([float(row["redl_current_over_root_fsab2"]) for row in high_rows])

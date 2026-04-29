@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E402
 """Decompose the finite-beta profile-current stress point by source channel.
 
 The finite-beta current stress artifact has already separated coefficient
@@ -36,7 +37,6 @@ from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
     DEFAULT_MBOZ,
     DEFAULT_NBOZ,
     DEFAULT_REDL_NTHETA,
-    EPS,
     ProfileContract,
     _build_scan_for_path,
     _build_species,
@@ -55,23 +55,37 @@ from ntx import (  # noqa: E402
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
+from ntx.validation._finite_beta_source_channels import (  # noqa: E402
+    EFFECTIVE_LABELS,
+    EPS,
+    PROFILE_CURRENT_GATE,
+    SOURCE_RECONSTRUCTION_GATE,
+    TRANSPORT_LABELS,
+    source_channel_summary_metrics,
+)
+from ntx.validation._finite_beta_source_channels import (
+    channel_response_ratios as _channel_response_ratios,
+)
+from ntx.validation._finite_beta_source_channels import (
+    dominant_channel as _dominant_channel,
+)
+from ntx.validation._finite_beta_source_channels import (
+    effective_projection_and_drives as _effective_projection_and_drives,
+)
+from ntx.validation._finite_beta_source_channels import (
+    finite_or_none as _finite_or_none,
+)
+from ntx.validation._finite_beta_source_channels import (
+    relative_scalar_error as _relative_scalar_error,
+)
+from ntx.validation._finite_beta_source_channels import (
+    source_contributions_by_channel as _source_contributions_by_channel,
+)
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_source_channel_audit"
 BOOTSTRAP_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison.json"
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_source_channel_audit"
 DEFAULT_SETTINGS = ((10, 12), (18, 18))
-PROFILE_CURRENT_GATE = 1.0e-1
-SOURCE_RECONSTRUCTION_GATE = 1.0e-8
-TRANSPORT_LABELS = (
-    "A1_density_electric",
-    "A2_temperature",
-    "A3_parallel_electric",
-)
-EFFECTIVE_LABELS = (
-    "density_electric_force",
-    "effective_temperature_force",
-    "parallel_electric_force",
-)
 
 
 def _root_relative(path: Path) -> str:
@@ -120,40 +134,12 @@ def _stress_rho_from_reference(payload: dict[str, Any]) -> float:
     return float(rho[int(np.nanargmax(error))])
 
 
-def _finite_or_none(value: float | None) -> float | None:
-    if value is None:
-        return None
-    value = float(value)
-    return value if np.isfinite(value) else None
-
-
-def _dominant_channel(values: dict[str, float]) -> str:
-    if not values:
-        return "none"
-    return max(values, key=lambda key: abs(float(values[key])))
-
-
 def _assemble_dense_species_matrix(blocks: np.ndarray) -> np.ndarray:
     array = np.asarray(blocks, dtype=float)
     return np.transpose(array, (0, 2, 1, 3)).reshape(
         array.shape[0] * array.shape[2],
         array.shape[1] * array.shape[3],
     )
-
-
-def _relative_scalar_error(candidate: float, reference: float) -> float:
-    return float(abs(float(candidate) - float(reference)) / max(abs(float(reference)), EPS))
-
-
-def _relative_scalar_error_or_none(
-    candidate: float | None,
-    reference: float | None,
-) -> float | None:
-    if candidate is None or reference is None:
-        return None
-    if not np.isfinite(float(candidate)) or not np.isfinite(float(reference)):
-        return None
-    return _relative_scalar_error(float(candidate), float(reference))
 
 
 def _redl_effective_channel_targets(
@@ -193,79 +179,6 @@ def _redl_effective_channel_targets(
         if value is not None and np.isfinite(float(value))
     }
 
-
-def _channel_response_ratios(
-    candidate_by_channel: dict[str, float],
-    target_by_channel: dict[str, float],
-) -> tuple[dict[str, float | None], dict[str, float | None]]:
-    multipliers: dict[str, float | None] = {}
-    relative_errors: dict[str, float | None] = {}
-    for label in EFFECTIVE_LABELS:
-        candidate = candidate_by_channel.get(label)
-        target = target_by_channel.get(label)
-        if (
-            candidate is None
-            or target is None
-            or not np.isfinite(float(candidate))
-            or not np.isfinite(float(target))
-            or abs(float(candidate)) <= EPS
-        ):
-            multipliers[label] = None
-        else:
-            multipliers[label] = float(target) / float(candidate)
-        relative_errors[label] = _relative_scalar_error_or_none(candidate, target)
-    return multipliers, relative_errors
-
-
-def _effective_projection_and_drives(
-    projection: np.ndarray,
-    drives: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Rewrite A1/A2 source columns into physical density/electric and T channels."""
-
-    source_projection = np.asarray(projection, dtype=float)
-    force = np.asarray(drives, dtype=float)
-    effective_projection = np.stack(
-        [
-            source_projection[:, 0],
-            source_projection[:, 1] - 1.5 * source_projection[:, 0],
-            source_projection[:, 2],
-        ],
-        axis=1,
-    )
-    effective_drives = np.asarray(
-        [force[0] + 1.5 * force[1], force[1], force[2]],
-        dtype=float,
-    )
-    return effective_projection, effective_drives
-
-
-def _source_contributions_by_channel(
-    projection_by_species: np.ndarray,
-    drives_by_species: np.ndarray,
-    *,
-    mode: str,
-) -> tuple[np.ndarray, tuple[str, ...], np.ndarray]:
-    """Return RHS contributions shaped `(species, moment, channel)`."""
-
-    projection = np.asarray(projection_by_species, dtype=float)
-    drives = np.asarray(drives_by_species, dtype=float)
-    if mode == "transport":
-        labels = TRANSPORT_LABELS
-        active_projection = projection
-        active_drives = drives
-    elif mode == "effective":
-        labels = EFFECTIVE_LABELS
-        pieces = [
-            _effective_projection_and_drives(projection[index], drives[index])
-            for index in range(projection.shape[0])
-        ]
-        active_projection = np.stack([item[0] for item in pieces])
-        active_drives = np.stack([item[1] for item in pieces])
-    else:
-        raise ValueError(f"unknown source-decomposition mode {mode!r}")
-    rhs = -active_projection * active_drives[:, None, :]
-    return rhs, labels, active_drives
 
 
 def _copy_nonfinite_radial_boundaries(values: np.ndarray) -> np.ndarray:
@@ -687,81 +600,6 @@ def _evaluate_setting(
     }
 
 
-def _summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    if not rows:
-        raise ValueError("source-channel audit requires at least one row")
-    high_stable = max(
-        rows,
-        key=lambda row: (
-            row["x_to_order_ratio"] >= 1.0,
-            row["neopax_x"],
-            row["n_order"],
-        ),
-    )
-    max_reconstruction_residual = max(
-        float(row["source_channel_superposition_relative_residual"]) for row in rows
-    )
-    max_public_difference = max(float(row["full_vs_public_relative_difference"]) for row in rows)
-    stress_errors = [float(row["public_neopax_relative_error_vs_redl"]) for row in rows]
-    best_row = rows[int(np.argmin(stress_errors))]
-    return {
-        "row_count": int(len(rows)),
-        "source_reconstruction_gate": SOURCE_RECONSTRUCTION_GATE,
-        "source_channel_superposition_gate_pass": bool(
-            max_reconstruction_residual <= SOURCE_RECONSTRUCTION_GATE
-        ),
-        "max_source_channel_superposition_relative_residual": float(
-            max_reconstruction_residual
-        ),
-        "max_full_vs_public_relative_difference": float(max_public_difference),
-        "best_public_relative_error_vs_redl": float(
-            best_row["public_neopax_relative_error_vs_redl"]
-        ),
-        "best_public_neopax_x": int(best_row["neopax_x"]),
-        "best_public_n_order": int(best_row["n_order"]),
-        "profile_current_gate": PROFILE_CURRENT_GATE,
-        "best_public_current_gate_pass": bool(
-            float(best_row["public_neopax_relative_error_vs_redl"]) <= PROFILE_CURRENT_GATE
-        ),
-        "high_stable_neopax_x": int(high_stable["neopax_x"]),
-        "high_stable_n_order": int(high_stable["n_order"]),
-        "high_stable_public_relative_error_vs_redl": float(
-            high_stable["public_neopax_relative_error_vs_redl"]
-        ),
-        "high_stable_dominant_effective_channel": str(
-            high_stable["dominant_effective_channel"]
-        ),
-        "high_stable_effective_temperature_fraction_of_total": float(
-            high_stable["effective_temperature_fraction_of_total"]
-        ),
-        "high_stable_density_electric_fraction_of_total": float(
-            high_stable["density_electric_fraction_of_total"]
-        ),
-        "high_stable_parallel_electric_fraction_of_total": float(
-            high_stable["parallel_electric_fraction_of_total"]
-        ),
-        "high_stable_species_cancellation_factor": float(
-            high_stable["species_cancellation_factor"]
-        ),
-        "high_stable_effective_temperature_response_multiplier_to_redl": (
-            _finite_or_none(
-                high_stable.get("effective_temperature_response_multiplier_to_redl")
-            )
-        ),
-        "high_stable_effective_temperature_channel_relative_error_vs_redl": (
-            _finite_or_none(
-                high_stable.get("effective_temperature_channel_relative_error_vs_redl")
-            )
-        ),
-        "high_stable_redl_effective_temperature_fraction_of_total": (
-            _finite_or_none(high_stable.get("redl_effective_temperature_fraction_of_total"))
-        ),
-        "best_effective_temperature_response_multiplier_to_redl": _finite_or_none(
-            best_row.get("effective_temperature_response_multiplier_to_redl")
-        ),
-    }
-
-
 def build_payload(
     *,
     bootstrap_json: Path = BOOTSTRAP_JSON,
@@ -825,7 +663,7 @@ def build_payload(
         )
         for neopax_x, n_order in settings
     ]
-    metrics = _summary_metrics(rows)
+    metrics = source_channel_summary_metrics(rows)
     conclusion = (
         "The finite-beta stress current is linear in the frozen source channels "
         "to numerical precision, so the channel audit checks the actual "
