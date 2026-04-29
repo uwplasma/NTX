@@ -191,6 +191,11 @@
     "docs/_static/performance_strong_scaling_production.pdf",
     "docs/_static/performance_strong_scaling_production.json"
   ],
+  "owned_finite_beta_radial_interpolation": [
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.json"
+  ],
   "prepared_geometry_reuse": [
     "docs/_static/prepared_geometry_reuse_profile.png",
     "docs/_static/prepared_geometry_reuse_profile.pdf",

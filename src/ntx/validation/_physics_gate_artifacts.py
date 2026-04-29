@@ -377,6 +377,18 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "drivers before any runtime closure change is proposed"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_radial_interpolation_stress",
+        path=static_root / "owned_finite_beta_radial_interpolation_audit.json",
+        metric_key="field_radius_matched_max_relative_error_total_vs_redl",
+        details=(
+            "monitored finite-beta profile-current sensitivity to rebuilding "
+            "the monoenergetic database on the exact field radii; this separates "
+            "radial interpolation sensitivity from closure physics without "
+            "changing the runtime default"
+        ),
+    )
 
     return results
 

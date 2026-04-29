@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "6b01283c38b8e9580f32a5295440f499a6581ad1",
+    "commit": "900f4b94d551b6fc8c0ea90a6a65ea7c4cf3b025",
     "branch": "main"
   },
   "environment": {
@@ -7355,6 +7355,82 @@
         "the diagnostic regressions in this artifact are model-identification tools only, not production fits"
       ]
     },
+    "owned_finite_beta_radial_interpolation": {
+      "summary_metrics": {
+        "radius_count": 13,
+        "baseline_scan_rho_count": 9,
+        "field_radius_matched_scan_rho_count": 13,
+        "baseline_max_relative_error_total_vs_redl": 0.3106405551146464,
+        "field_radius_matched_max_relative_error_total_vs_redl": 0.21423688503114668,
+        "max_relative_error_improvement_factor": 1.4499863320430753,
+        "baseline_rms_relative_error_total_vs_redl": 0.12965669248029935,
+        "field_radius_matched_rms_relative_error_total_vs_redl": 0.11947419961397303,
+        "rms_relative_error_improvement_factor": 1.0852275461917842,
+        "baseline_stress_rho": 0.14285714285714285,
+        "baseline_stress_relative_error": 0.3106405551146464,
+        "field_radius_matched_error_at_baseline_stress_rho": 0.029993446052181426,
+        "baseline_stress_error_reduction_factor": 10.356947800336316,
+        "field_radius_matched_stress_rho": 0.07142857142857142,
+        "field_radius_matched_stress_relative_error": 0.21423688503114668,
+        "max_current_change_over_redl": 0.28064710906246493,
+        "median_current_change_over_redl": 0.004659443312045992,
+        "profile_current_gate": 0.1,
+        "field_radius_matched_current_gate_pass": false,
+        "runtime_interpolation_policy_changed": false,
+        "runtime_correction_applied": false
+      },
+      "claim_scope": "Compares the committed sparse-radius finite-beta NTX+NEOPAX bootstrap-current artifact with a rebuild whose monoenergetic database radii are exactly the profile-current field radii.  This isolates downstream radial interpolation sensitivity while keeping the same VMEC/Boozer geometry, profiles, nu/v support policy, D33_spitzer branch, Sonine order, and Redl observable.  It is a diagnostic only: no runtime interpolation policy or closure correction is promoted by this artifact.",
+      "conclusion": "Building the finite-beta database directly on the field radii strongly reduces the previous inner stress point, but the profile maximum remains above the 1e-1 current gate.  Radial interpolation therefore explains part, not all, of the remaining reduced-closure stress.",
+      "radial_contract": {
+        "baseline_scan_rho": [
+          0.08,
+          0.19,
+          0.3,
+          0.41000000000000003,
+          0.52,
+          0.63,
+          0.74,
+          0.85,
+          0.96
+        ],
+        "field_radius_matched_scan_rho": [
+          0.07142857142857142,
+          0.14285714285714285,
+          0.21428571428571427,
+          0.2857142857142857,
+          0.3571428571428571,
+          0.42857142857142855,
+          0.5,
+          0.5714285714285714,
+          0.6428571428571428,
+          0.7142857142857142,
+          0.7857142857142857,
+          0.8571428571428571,
+          0.9285714285714285
+        ],
+        "comparison_rho": [
+          0.07142857142857142,
+          0.14285714285714285,
+          0.21428571428571427,
+          0.2857142857142857,
+          0.3571428571428571,
+          0.42857142857142855,
+          0.5,
+          0.5714285714285714,
+          0.6428571428571428,
+          0.7142857142857142,
+          0.7857142857142857,
+          0.8571428571428571,
+          0.9285714285714285
+        ],
+        "interpretation": "A field-radius-matched database removes one interpolation layer from the profile-current observable.  Improvement at a single stress point is not sufficient for a runtime change; the global current gate must also pass and the fixed-field/W7-X transfer gates must remain unchanged."
+      },
+      "open_work": [
+        "repeat this audit with a production dense radial scan and the downstream general-vs-legacy interpolation selector when that interface is stable",
+        "require the field-radius-matched and sparse-grid contracts to clear the finite-beta current gate before promoting a new finite-beta bootstrap-current parity figure",
+        "preserve the fixed-field QA/QH and integrated W7-X transfer gates for any future runtime interpolation policy change"
+      ]
+    },
     "profile_uncertainty": {
       "basis_size": 3,
       "sample_count": 96,
@@ -7781,6 +7857,12 @@
     "owned_finite_beta_closure_target_best_model_loo_rmse": 0.052667435393105026,
     "owned_finite_beta_closure_target_improvement_over_constant": 3.922465146180446,
     "owned_finite_beta_closure_target_runtime_correction_applied": false,
+    "owned_finite_beta_radial_interpolation_baseline_max_error": 0.3106405551146464,
+    "owned_finite_beta_radial_interpolation_matched_max_error": 0.21423688503114668,
+    "owned_finite_beta_radial_interpolation_baseline_stress_rho": 0.14285714285714285,
+    "owned_finite_beta_radial_interpolation_baseline_stress_error": 0.3106405551146464,
+    "owned_finite_beta_radial_interpolation_matched_stress_error": 0.029993446052181426,
+    "owned_finite_beta_radial_interpolation_gate_pass": false,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -7998,6 +8080,11 @@
       "docs/_static/performance_strong_scaling_production.png",
       "docs/_static/performance_strong_scaling_production.pdf",
       "docs/_static/performance_strong_scaling_production.json"
+    ],
+    "owned_finite_beta_radial_interpolation": [
+      "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+      "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+      "docs/_static/owned_finite_beta_radial_interpolation_audit.json"
     ],
     "prepared_geometry_reuse": [
       "docs/_static/prepared_geometry_reuse_profile.png",
@@ -10099,7 +10186,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, source-channel closure sidecar, profile source-response sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, source-channel closure sidecar, profile source-response sidecar, radial interpolation sensitivity sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
           "literature_anchors": [
             "Redl bootstrap-current formula and geometry-factor normalization",
             "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -10114,7 +10201,8 @@
             "examples/owned_finite_beta_closure_quadrature_audit.py",
             "examples/owned_finite_beta_source_channel_audit.py",
             "examples/owned_finite_beta_source_response_profile_audit.py",
-            "examples/owned_finite_beta_closure_target_audit.py"
+            "examples/owned_finite_beta_closure_target_audit.py",
+            "examples/owned_finite_beta_radial_interpolation_audit.py"
           ],
           "tests": [
             "tests/test_owned_finite_beta_bootstrap_comparison.py",
@@ -10124,7 +10212,8 @@
             "tests/test_owned_finite_beta_closure_quadrature_audit.py",
             "tests/test_owned_finite_beta_source_channel_audit.py",
             "tests/test_owned_finite_beta_source_response_profile_audit.py",
-            "tests/test_owned_finite_beta_closure_target_audit.py"
+            "tests/test_owned_finite_beta_closure_target_audit.py",
+            "tests/test_owned_finite_beta_radial_interpolation_audit.py"
           ],
           "artifacts": [
             "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -10150,7 +10239,11 @@
             "docs/_static/owned_finite_beta_source_response_profile_audit.json",
             "docs/_static/owned_finite_beta_closure_target_audit.png",
             "docs/_static/owned_finite_beta_closure_target_audit.pdf",
-            "docs/_static/owned_finite_beta_closure_target_audit.json"
+            "docs/_static/owned_finite_beta_closure_target_audit.json",
+            "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+            "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+            "docs/_static/owned_finite_beta_radial_interpolation_audit.json",
+            "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json"
           ],
           "manuscript_figures": [
             "owned_finite_beta_bootstrap_comparison",
@@ -10160,7 +10253,8 @@
             "owned_finite_beta_closure_quadrature_audit",
             "owned_finite_beta_source_channel_audit",
             "owned_finite_beta_source_response_profile_audit",
-            "owned_finite_beta_closure_target_audit"
+            "owned_finite_beta_closure_target_audit",
+            "owned_finite_beta_radial_interpolation_audit"
           ],
           "docs": [
             "README.md",
@@ -10174,6 +10268,7 @@
             "derive or import a quadrature-converged higher-order closure before accepting any apparent finite-beta current gate pass at X < Pmax",
             "close the inner-radius reduced-closure gap using the same physical profile, source-channel decomposition, normalization, and interpolation contract",
             "use the radial source-response map to distinguish a physics-derived closure term from a profile-local fitted multiplier",
+            "repeat the field-radius-matched interpolation audit with a dense production radial scan before changing any runtime interpolation policy",
             "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
             "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
             "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
@@ -10223,6 +10318,11 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_radial_interpolation_audit.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "exists": true
@@ -10260,6 +10360,11 @@
           {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_closure_target_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_radial_interpolation_audit.py",
             "exists": true
           },
           {
@@ -10380,6 +10485,26 @@
           {
             "kind": "artifact",
             "path": "docs/_static/owned_finite_beta_closure_target_audit.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_radial_interpolation_audit.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json",
             "exists": true
           },
           {
@@ -10572,6 +10697,7 @@
       "owned_finite_beta_source_channel",
       "owned_finite_beta_source_response_profile",
       "owned_finite_beta_closure_target",
+      "owned_finite_beta_radial_interpolation",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",

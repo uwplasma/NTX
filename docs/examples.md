@@ -151,6 +151,7 @@ python examples/owned_finite_beta_current_conditioning_audit.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_channel_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
+python examples/owned_finite_beta_radial_interpolation_audit.py --rebuild-matched
 ```
 
 These optional provenance artifacts prioritize local finite-beta stellarator
@@ -268,6 +269,10 @@ It writes:
 - `docs/_static/owned_finite_beta_closure_target_audit.png`
 - `docs/_static/owned_finite_beta_closure_target_audit.pdf`
 - `docs/_static/owned_finite_beta_closure_target_audit.json`
+- `docs/_static/owned_finite_beta_radial_interpolation_audit.png`
+- `docs/_static/owned_finite_beta_radial_interpolation_audit.pdf`
+- `docs/_static/owned_finite_beta_radial_interpolation_audit.json`
+- `docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -308,6 +313,13 @@ drivers for the measured response. It is a model-identification artifact only:
 the runtime closure remains unchanged until a physics-derived term passes the
 fixed-field, W7-X transfer, source reconstruction, and same-grid finite-beta
 coefficient gates.
+
+![Owned finite-beta radial interpolation audit](_static/owned_finite_beta_radial_interpolation_audit.png)
+
+The radial-interpolation panel rebuilds the same finite-beta current audit with
+the monoenergetic database placed on the exact profile-current field radii. It
+substantially reduces the previous inner stress point, but it does not clear
+the full-profile current gate, so no runtime interpolation policy is promoted.
 
 ## 10. Bootstrap Current With NEOPAX
 

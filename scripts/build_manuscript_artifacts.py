@@ -103,6 +103,9 @@ def build_payload() -> dict:
     owned_finite_beta_closure_target = _load_json(
         STATIC / "owned_finite_beta_closure_target_audit.json"
     )
+    owned_finite_beta_radial_interpolation = _load_json(
+        STATIC / "owned_finite_beta_radial_interpolation_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -145,6 +148,7 @@ def build_payload() -> dict:
         "owned_finite_beta_source_channel",
         "owned_finite_beta_source_response_profile",
         "owned_finite_beta_closure_target",
+        "owned_finite_beta_radial_interpolation",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -382,6 +386,17 @@ def build_payload() -> dict:
                 "closure_requirements": owned_finite_beta_closure_target[
                     "closure_requirements"
                 ],
+            },
+            "owned_finite_beta_radial_interpolation": {
+                "summary_metrics": owned_finite_beta_radial_interpolation[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_radial_interpolation["claim_scope"],
+                "conclusion": owned_finite_beta_radial_interpolation["conclusion"],
+                "radial_contract": owned_finite_beta_radial_interpolation[
+                    "radial_contract"
+                ],
+                "open_work": owned_finite_beta_radial_interpolation["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -830,6 +845,36 @@ def build_payload() -> dict:
             "owned_finite_beta_closure_target_runtime_correction_applied": (
                 owned_finite_beta_closure_target["summary_metrics"][
                     "runtime_correction_applied"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_baseline_max_error": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "baseline_max_relative_error_total_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_matched_max_error": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "field_radius_matched_max_relative_error_total_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_baseline_stress_rho": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "baseline_stress_rho"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_baseline_stress_error": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "baseline_stress_relative_error"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_matched_stress_error": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "field_radius_matched_error_at_baseline_stress_rho"
+                ]
+            ),
+            "owned_finite_beta_radial_interpolation_gate_pass": (
+                owned_finite_beta_radial_interpolation["summary_metrics"][
+                    "field_radius_matched_current_gate_pass"
                 ]
             ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
@@ -2205,6 +2250,22 @@ def build_claims_markdown(payload: dict) -> str:
                 is not None
             )
             else "",
+            (
+                "- The radial-interpolation audit rebuilds the same finite-beta "
+                "database on the exact field radii used by the profile-current "
+                "observable. The previous stress point at "
+                f"`rho={claims['owned_finite_beta_radial_interpolation_baseline_stress_rho']:.3f}` "
+                "changes from "
+                f"`{claims['owned_finite_beta_radial_interpolation_baseline_stress_error']:.3e}` "
+                "to "
+                f"`{claims['owned_finite_beta_radial_interpolation_matched_stress_error']:.3e}`, "
+                "but the field-radius-matched profile maximum remains "
+                f"`{claims['owned_finite_beta_radial_interpolation_matched_max_error']:.3e}` "
+                "and gate status is "
+                f"`{claims['owned_finite_beta_radial_interpolation_gate_pass']}`. "
+                "This keeps the result as an interpolation sensitivity "
+                "diagnostic, not a promoted runtime policy."
+            ),
             (
                 "- The profile uncertainty stress benchmark now uses a "
                 f"`{claims['profile_uncertainty_basis_size']}`-term radial "

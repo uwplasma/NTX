@@ -38,18 +38,19 @@ examples.
 19. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
 20. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
 21. `owned_finite_beta_closure_target_audit.{png,pdf,json}`
-22. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-23. `bootstrap_current_robust_optimization.{png,pdf,json}`
-24. `performance_scaling_smoke.{png,pdf,json}`
-25. `performance_scaling_heavy.{png,pdf,json}`
-26. `performance_strong_scaling_production.{png,pdf,json}`
-27. `prepared_geometry_reuse_profile.{png,pdf,json}`
-28. `ambipolar_profile.{png,pdf}`
-29. `ambipolar_profile_family.{png,pdf}`
-30. `profile_force_reconstruction_audit.{png,pdf,json}`
-31. `profile_control_optimization.{png,pdf}`
-32. `profile_basis_optimization.{png,pdf,json}`
-33. `profile_transport_loop.{png,pdf}`
+22. `owned_finite_beta_radial_interpolation_audit.{png,pdf,json}`
+23. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+24. `bootstrap_current_robust_optimization.{png,pdf,json}`
+25. `performance_scaling_smoke.{png,pdf,json}`
+26. `performance_scaling_heavy.{png,pdf,json}`
+27. `performance_strong_scaling_production.{png,pdf,json}`
+28. `prepared_geometry_reuse_profile.{png,pdf,json}`
+29. `ambipolar_profile.{png,pdf}`
+30. `ambipolar_profile_family.{png,pdf}`
+31. `profile_force_reconstruction_audit.{png,pdf,json}`
+32. `profile_control_optimization.{png,pdf}`
+33. `profile_basis_optimization.{png,pdf,json}`
+34. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -166,45 +167,50 @@ examples.
      strongest single local driver is the Redl geometry factor `epsilon`
      (`|r|=0.975`), the best leave-one-out diagnostic model is epsilon-only
      with RMSE `5.27e-2`, and no runtime correction is applied
-25. `derivative_path_benchmark.{png,pdf}`
+25. `owned_finite_beta_radial_interpolation_audit.{png,pdf,json}`
+   - interpolation-contract diagnostic; rebuilding the finite-beta database on
+     the exact field radii reduces the previous `rho=0.143` stress point from
+     `3.11e-1` to `3.00e-2`, but the full-profile maximum remains `2.14e-1`,
+     so no runtime interpolation policy is promoted
+26. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-26. `bootstrap_current_optimization.{png,pdf}`
+27. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-27. `bootstrap_current_robust_optimization.{png,pdf,json}`
+28. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
-28. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+29. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
-29. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+30. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-30. `performance_scaling_smoke.{png,pdf,json}`
+31. `performance_scaling_smoke.{png,pdf,json}`
    - CPU/GPU scaling on the repository smoke grid
-31. `performance_scaling_heavy.{png,pdf,json}`
+32. `performance_scaling_heavy.{png,pdf,json}`
    - heavier-grid scaling where throughput effects are visible
-32. `performance_scaling_production.{png,pdf,json}`
+33. `performance_scaling_production.{png,pdf,json}`
    - production-grid CPU/GPU scaling with serial, device-parallel,
      multiprocess, memory, and coefficient-agreement metadata
-33. `performance_strong_scaling_production.{png,pdf,json}`
+34. `performance_strong_scaling_production.{png,pdf,json}`
    - fixed-workload CPU/GPU strong scaling with worker/device sweeps, memory,
      and coefficient-agreement metadata
-34. `prepared_geometry_reuse_profile.{png,pdf,json}`
+35. `prepared_geometry_reuse_profile.{png,pdf,json}`
    - fixed-geometry repeated-solve profile showing the direct, prepared, and
      compiled prepared solver paths with coefficient agreement recorded in the
      JSON artifact
-35. `ambipolar_profile.{png,pdf}`
+36. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and bootstrap-current proxy
-36. `ambipolar_profile_family.{png,pdf}`
+37. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-37. `profile_force_reconstruction_audit.{png,pdf,json}`
+38. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-38. `profile_control_optimization.{png,pdf}`
+39. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-39. `profile_basis_optimization.{png,pdf,json}`
+40. `profile_basis_optimization.{png,pdf,json}`
    - low-dimensional radial-basis optimization of the same profile closure
-40. `profile_transport_loop.{png,pdf}`
+41. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-41. `primitive_profile_transport.{png,pdf}`
+42. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:
