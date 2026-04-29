@@ -162,8 +162,11 @@ net-current claim at the stress radius, tighter than the current `2.1e-2`
 smoke ladder, so finite-beta parity is not promoted yet.
 The production stress probe reruns that same point at `35 x 43 x 48` and with
 a tighter VMEC harmonic cutoff; the coefficient floor remains near `2.05e-2`,
-so the next closure work is a profile-current observable issue rather than an
-angular-resolution or harmonic-truncation fix.
+and the six-point production radius/collisionality ladder keeps all
+coefficient differences below `2.07e-2`. That closes the finite-beta
+coefficient-resolution lane; the remaining gap is a profile-current observable
+issue rather than an angular-resolution, harmonic-truncation, or broad
+transport-coefficient failure.
 Optimized finite-beta QH/QI Boozer
 reconstruction remains an explicit geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,

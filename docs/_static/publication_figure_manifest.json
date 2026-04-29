@@ -92,6 +92,11 @@
     "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
     "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json"
   ],
+  "owned_finite_beta_sfincs_jax_production_ladder": [
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json"
+  ],
   "owned_finite_beta_bootstrap_comparison": [
     "docs/_static/owned_finite_beta_bootstrap_comparison.png",
     "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",

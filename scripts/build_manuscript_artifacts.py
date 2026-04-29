@@ -76,6 +76,9 @@ def build_payload() -> dict:
     owned_finite_beta_resolution = _load_json(
         STATIC / "owned_finite_beta_sfincs_jax_resolution_audit.json"
     )
+    owned_finite_beta_production_ladder = _load_json(
+        STATIC / "owned_finite_beta_sfincs_jax_production_ladder_audit.json"
+    )
     owned_finite_beta_bootstrap = _load_json(
         STATIC / "owned_finite_beta_bootstrap_comparison.json"
     )
@@ -121,6 +124,7 @@ def build_payload() -> dict:
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
+        "owned_finite_beta_sfincs_jax_production_ladder",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
@@ -276,6 +280,15 @@ def build_payload() -> dict:
                 "conclusion": owned_finite_beta_resolution["conclusion"],
                 "rows": owned_finite_beta_resolution["rows"],
                 "open_work": owned_finite_beta_resolution["open_work"],
+            },
+            "owned_finite_beta_sfincs_jax_production_ladder": {
+                "summary_metrics": owned_finite_beta_production_ladder[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_production_ladder["claim_scope"],
+                "conclusion": owned_finite_beta_production_ladder["conclusion"],
+                "stress_row": owned_finite_beta_production_ladder["stress_row"],
+                "open_work": owned_finite_beta_production_ladder["open_work"],
             },
             "owned_finite_beta_bootstrap_comparison": {
                 "case": owned_finite_beta_bootstrap["case"],
@@ -499,6 +512,26 @@ def build_payload() -> dict:
             "owned_finite_beta_resolution_tight_harmonics_change_vs_production": (
                 owned_finite_beta_resolution["summary_metrics"][
                     "tight_harmonics_change_vs_production"
+                ]
+            ),
+            "owned_finite_beta_production_ladder_count": (
+                owned_finite_beta_production_ladder["summary_metrics"][
+                    "completed_production_ladder_count"
+                ]
+            ),
+            "owned_finite_beta_production_ladder_max_transport_error": (
+                owned_finite_beta_production_ladder["summary_metrics"][
+                    "max_production_transport_relative_difference"
+                ]
+            ),
+            "owned_finite_beta_production_ladder_precision_gap": (
+                owned_finite_beta_production_ladder["summary_metrics"][
+                    "max_production_precision_gap_to_current_gate"
+                ]
+            ),
+            "owned_finite_beta_production_ladder_profile_current_error": (
+                owned_finite_beta_production_ladder["summary_metrics"][
+                    "max_profile_current_relative_difference_on_ladder"
                 ]
             ),
             "owned_finite_beta_bootstrap_rms_relative_error": (
@@ -824,6 +857,21 @@ def build_markdown(payload: dict) -> str:
     ]
     resolution_tight_harmonics_gap = owned_finite_beta_resolution_metrics[
         "tight_harmonics_precision_gap_to_current_gate"
+    ]
+    owned_finite_beta_production_ladder = payload["tables"][
+        "owned_finite_beta_sfincs_jax_production_ladder"
+    ]
+    owned_finite_beta_production_ladder_metrics = (
+        owned_finite_beta_production_ladder["summary_metrics"]
+    )
+    production_ladder_count = owned_finite_beta_production_ladder_metrics[
+        "completed_production_ladder_count"
+    ]
+    production_ladder_max_error = owned_finite_beta_production_ladder_metrics[
+        "max_production_transport_relative_difference"
+    ]
+    production_ladder_precision_gap = owned_finite_beta_production_ladder_metrics[
+        "max_production_precision_gap_to_current_gate"
     ]
     finite_beta_bootstrap_max_error = owned_finite_beta_bootstrap_metrics[
         "max_relative_error_total_vs_redl_interior"
@@ -1204,6 +1252,18 @@ def build_markdown(payload: dict) -> str:
                 f"`{resolution_tight_harmonics_gap:.3f}x` |"
             ),
             (
+                "| Production radial/collisionality ladder count | "
+                f"`{production_ladder_count}` |"
+            ),
+            (
+                "| Production ladder max coefficient difference | "
+                f"`{production_ladder_max_error:.3e}` |"
+            ),
+            (
+                "| Production ladder precision gap | "
+                f"`{production_ladder_precision_gap:.3f}x` |"
+            ),
+            (
                 "| Coefficient-conditioned current-error bound | "
                 f"`{conditioning_coefficient_bound:.3e}` |"
             ),
@@ -1557,6 +1617,20 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_resolution_tight_harmonics_precision_gap']:.3f}x` "
                 "above the current-conditioned target, so the remaining work is "
                 "not closed by angular resolution or harmonic truncation."
+            ),
+            (
+                "- The owned finite-beta production radial/collisionality "
+                "ladder completes "
+                f"`{claims['owned_finite_beta_production_ladder_count']}` "
+                "same-grid SFINCS-JAX/NTX points. Its maximum coefficient "
+                "difference is "
+                f"`{claims['owned_finite_beta_production_ladder_max_transport_error']:.3e}`, "
+                "still below the order-`1e-1` coefficient gate, but the "
+                "current-conditioned precision gap remains "
+                f"`{claims['owned_finite_beta_production_ladder_precision_gap']:.3f}x` "
+                "at the inner stress radius. This closes the finite-beta "
+                "production coefficient-ladder lane and keeps the open mismatch "
+                "at the profile-current closure layer."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "

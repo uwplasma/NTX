@@ -304,6 +304,21 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "net-current gate"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_production_ladder_stress",
+        path=(
+            static_root
+            / "owned_finite_beta_sfincs_jax_production_ladder_audit.json"
+        ),
+        metric_key="max_production_precision_gap_to_current_gate",
+        details=(
+            "monitored finite-beta production radial/collisionality coefficient "
+            "ladder compared with the current-conditioned precision target; "
+            "values above one keep bootstrap-current parity open at the "
+            "profile-current closure layer"
+        ),
+    )
 
     return results
 
