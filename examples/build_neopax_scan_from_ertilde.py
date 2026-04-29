@@ -505,6 +505,7 @@ def _plot_scan_coefficients(
     nu_v = np.asarray(scan.nu_v, dtype=float)
     if np.any(nu_v <= 0.0):
         raise ValueError("nu_v values must be positive for coefficient plots")
+    ln_nu_v = np.log(nu_v)
     er_tilde = (
         np.asarray(scan.Er_tilde, dtype=float)
         if scan.Er_tilde is not None
@@ -537,25 +538,25 @@ def _plot_scan_coefficients(
                 if label in {"D11", "D33"}:
                     safe_values = np.maximum(np.abs(values[:, ier]), 1.0e-300)
                     ax.plot(
-                        np.log10(nu_v),
-                        np.log10(safe_values),
+                        ln_nu_v,
+                        np.log(safe_values),
                         lw=1.8,
                         label=rf"$\tilde E_r={er_tilde_value:.1e}$",
                     )
                 else:
-                    ax.semilogx(
-                        nu_v,
+                    ax.plot(
+                        ln_nu_v,
                         values[:, ier],
                         lw=1.8,
                         label=rf"$\tilde E_r={er_tilde_value:.1e}$",
                     )
             if label in {"D11", "D33"}:
-                ax.set_title(f"log10({label}) vs log10(nu_v)")
-                ax.set_xlabel("log10(nu_v)")
-                ax.set_ylabel(f"log10({label})")
+                ax.set_title(f"ln({label}) vs ln(nu_v)")
+                ax.set_xlabel("ln(nu_v)")
+                ax.set_ylabel(f"ln({label})")
             else:
-                ax.set_title(f"{label} vs nu_v")
-                ax.set_xlabel("nu_v")
+                ax.set_title(f"{label} vs ln(nu_v)")
+                ax.set_xlabel("ln(nu_v)")
                 ax.set_ylabel(label)
             ax.grid(alpha=0.24, lw=0.6, which="both")
 
