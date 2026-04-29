@@ -6,6 +6,9 @@ from pathlib import Path
 import pytest
 
 from examples import owned_finite_beta_closure_target_audit as audit
+from ntx.validation._finite_beta_closure_target import (
+    field_radius_matched_response_audit,
+)
 
 
 def _source_response_payload() -> dict:
@@ -143,6 +146,13 @@ def test_build_payload_cross_links_field_radius_matched_audits(tmp_path: Path) -
     matched_source.write_text(json.dumps(_matched_source_channel_payload()))
     matched_quadrature.write_text(json.dumps(_matched_quadrature_payload()))
 
+    direct = field_radius_matched_response_audit(
+        matched_source_channel_json=matched_source,
+        matched_quadrature_json=matched_quadrature,
+        root=tmp_path,
+    )
+    assert direct is not None
+
     payload = audit.build_payload(
         source_response_json=source,
         matched_source_channel_json=matched_source,
@@ -151,6 +161,8 @@ def test_build_payload_cross_links_field_radius_matched_audits(tmp_path: Path) -
     metrics = payload["summary_metrics"]
     matched = payload["field_radius_matched_response_audit"]
 
+    assert direct["source_artifact"] == "matched_source.json"
+    assert direct["quadrature_artifact"] == "matched_quadrature.json"
     assert matched["same_stress_radius_between_artifacts"] is True
     assert matched["matched_setting_count"] == 3
     assert matched["best_public_setting"] == {"neopax_x": 10, "n_order": 18}
