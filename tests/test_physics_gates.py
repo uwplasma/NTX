@@ -85,6 +85,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "owned_finite_beta_species_cancellation_stress" in names
     assert "owned_finite_beta_current_conditioning_stress" in names
     assert "owned_finite_beta_resolution_floor_stress" in names
+    assert "owned_finite_beta_production_ladder_stress" in names
 
 
 def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
@@ -213,6 +214,17 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (
+        static_root / "owned_finite_beta_sfincs_jax_production_ladder_audit.json"
+    ).write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "max_production_precision_gap_to_current_gate": 6.0,
+                }
+            }
+        )
+    )
 
     results = {result.gate.name: result for result in evaluate_artifact_gates(tmp_path)}
 
@@ -266,6 +278,8 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["owned_finite_beta_current_conditioning_stress"].value == 4.0
     assert results["owned_finite_beta_resolution_floor_stress"].status == "monitor"
     assert results["owned_finite_beta_resolution_floor_stress"].value == 5.0
+    assert results["owned_finite_beta_production_ladder_stress"].status == "monitor"
+    assert results["owned_finite_beta_production_ladder_stress"].value == 6.0
 
 
 def test_gate_and_result_as_dict_include_optional_details():
@@ -344,6 +358,7 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
     assert results["owned_finite_beta_species_cancellation_stress"].status == "missing"
     assert results["owned_finite_beta_current_conditioning_stress"].status == "missing"
     assert results["owned_finite_beta_resolution_floor_stress"].status == "missing"
+    assert results["owned_finite_beta_production_ladder_stress"].status == "missing"
 
 
 def test_repository_artifact_gates_match_current_claim_statuses():
@@ -393,6 +408,8 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["owned_finite_beta_current_conditioning_stress"].value > 1.0
     assert results["owned_finite_beta_resolution_floor_stress"].status == "monitor"
     assert results["owned_finite_beta_resolution_floor_stress"].value > 1.0
+    assert results["owned_finite_beta_production_ladder_stress"].status == "monitor"
+    assert results["owned_finite_beta_production_ladder_stress"].value > 1.0
 
 
 def test_owned_surface_coefficient_convergence_and_onsager_gate():

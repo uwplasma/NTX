@@ -259,6 +259,20 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "closure."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_production_ladder_stress",
+        category="stress",
+        metric="max production-ladder coefficient precision gap for the 1e-1 current gate",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json",
+        rationale=(
+            "The finite-beta QA production radial/collisionality ladder should "
+            "show whether the coefficient floor is localized or a whole-profile "
+            "resolution failure before the remaining current residual is assigned "
+            "to the profile-current closure."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

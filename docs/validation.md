@@ -50,6 +50,7 @@ The owned provenance lane is:
 ```bash
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
+python examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
@@ -124,6 +125,12 @@ The production stress probe then reruns the inner finite-beta QA point at
 stays at about `2.05e-2`, roughly `15.8x` above the cancellation-conditioned
 target, so the current mismatch is not closed by angular resolution or harmonic
 truncation.
+The production radial/collisionality ladder then runs the six same-grid
+finite-beta QA SFINCS-JAX points at `35 x 43 x 48`. All completed points remain
+below `2.07e-2` coefficient difference; the maximum precision gap is still the
+inner `rho=1/7`, `nuPrime=1e-2` point. That closes the production coefficient
+ladder as a broad numerical failure and leaves the remaining parity work at the
+profile-current closure layer.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -149,11 +156,16 @@ These scripts write:
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
-The next parity-promotion step is to extend the production same-grid probe to
-neighboring finite-beta radii/collisionalities, run profile-current closure
-diagnostics on the same finite-beta contract, resolve the inner-radius
+The next parity-promotion step is to run profile-current closure diagnostics
+on the same finite-beta production contract, resolve the inner-radius
 reduced-closure observable, and then audit downstream interpolation modes once
 NEOPAX exposes a stable selector.
 
@@ -166,6 +178,8 @@ NEOPAX exposes a stable selector.
 ![Owned finite-beta current-conditioning audit](_static/owned_finite_beta_current_conditioning_audit.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
+
+![Owned finite-beta SFINCS-JAX production ladder audit](_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png)
 
 ## What Is Covered
 

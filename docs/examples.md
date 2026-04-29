@@ -143,6 +143,7 @@ It writes:
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_sfincs_jax_resolution_audit.py
+python examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
@@ -194,6 +195,11 @@ The resolution audit adds the first production stress probe: increasing the
 same point to `35 x 43 x 48` and tightening the VMEC harmonic cutoff leaves the
 coefficient floor near `2.05e-2`, so the remaining finite-beta current gap is
 not explained by those numerical knobs.
+The production-ladder audit then reads the six production same-grid
+SFINCS-JAX points across the owned finite-beta QA radii and collisionalities.
+All completed coefficient differences stay below `2.07e-2`; the
+current-conditioned precision gap remains largest at the inner stress radius,
+so the next open item is the profile-current closure observable.
 
 It writes:
 
@@ -207,6 +213,12 @@ It writes:
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json`
 - `examples/outputs/owned_finite_beta_sfincs_jax_inputs/**/input.namelist`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.png`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
@@ -227,6 +239,8 @@ It writes:
 ![Owned finite-beta SFINCS-JAX generation contract](_static/owned_finite_beta_sfincs_jax_inputs.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
+
+![Owned finite-beta SFINCS-JAX production ladder audit](_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png)
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 

@@ -57,6 +57,9 @@ For end-to-end examples, see:
 - [`examples/owned_finite_beta_sfincs_jax_resolution_audit.py`](../examples/owned_finite_beta_sfincs_jax_resolution_audit.py)
   for the production stress-radius coefficient-resolution and harmonic-cutoff
   audit that keeps the finite-beta current gap out of hidden numerical knobs
+- [`examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py`](../examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py)
+  for the production radius/collisionality coefficient ladder that localizes
+  the remaining finite-beta stress to the profile-current closure layer
 - [`examples/owned_finite_beta_bootstrap_comparison.py`](../examples/owned_finite_beta_bootstrap_comparison.py)
   for an owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress
   audit on the same VMEC wout, Boozer transform, profiles, radial grid, and

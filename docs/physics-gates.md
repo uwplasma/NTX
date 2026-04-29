@@ -192,6 +192,11 @@ These are trust-building comparisons against independent workflows:
   been rerun at `35 x 43 x 48` and with a tighter VMEC harmonic cutoff. The
   coefficient floor stays near `2.05e-2`, so angular resolution and harmonic
   truncation are not treated as the closure fix.
+- **Owned finite-beta production ladder:** the six production same-grid
+  radius/collisionality points all stay below `2.07e-2` coefficient difference.
+  The largest current-conditioned precision gap remains the inner stress point,
+  so the coefficient-resolution lane is localized rather than a broad
+  whole-profile failure.
   This keeps the next physics step honest: profile-current diagnostics must
   tighten the conditioned uncertainty before a new reduced-closure term is
   promoted.
@@ -261,7 +266,7 @@ remains the validated raw branch. A broader closure default is promotable only
 if it preserves both the precise-QS total-current gate and the integrated W7-X
 raw-branch transfer gate.
 
-The owned finite-beta closure lane is tracked by four additional artifact
+The owned finite-beta closure lane is tracked by five additional artifact
 gates:
 
 - same-grid finite-beta coefficient normalization: passing, with current
@@ -273,6 +278,9 @@ gates:
 - finite-beta production coefficient floor: monitored, with the current
   production stress probe still about `15.9x` looser than the
   cancellation-conditioned coefficient target.
+- finite-beta production radial/collisionality ladder: monitored, with all
+  production coefficient differences below `2.07e-2` but the maximum
+  current-conditioned precision gap still about `15.9x`.
 
 This is the current physics interpretation: the coefficient-side bridge is no
 longer the leading suspect for the finite-beta QA stress case, and the remaining

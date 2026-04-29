@@ -288,6 +288,15 @@ def test_geometry_family_transport_uses_paper_preset(
             ),
         ),
         (
+            "owned_finite_beta_sfincs_jax_production_ladder",
+            {"owned_finite_beta_sfincs_jax_production_ladder"},
+            (
+                "owned_finite_beta_sfincs_jax_production_ladder_audit.png",
+                "owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
+                "owned_finite_beta_sfincs_jax_production_ladder_audit.json",
+            ),
+        ),
+        (
             "owned_finite_beta_bootstrap_comparison",
             {"owned_finite_beta_bootstrap_comparison"},
             (

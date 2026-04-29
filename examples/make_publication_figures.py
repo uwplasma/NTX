@@ -35,6 +35,7 @@ FIGURE_PRESETS = {
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
+        "owned_finite_beta_sfincs_jax_production_ladder",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
@@ -77,6 +78,7 @@ FIGURE_PRESETS = {
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
+        "owned_finite_beta_sfincs_jax_production_ladder",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
@@ -388,6 +390,13 @@ def main() -> None:
     if "owned_finite_beta_sfincs_jax_resolution_audit" in selected:
         manifest["owned_finite_beta_sfincs_jax_resolution_audit"] = _copy_existing_static(
             "owned_finite_beta_sfincs_jax_resolution_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_sfincs_jax_production_ladder" in selected:
+        manifest["owned_finite_beta_sfincs_jax_production_ladder"] = _copy_existing_static(
+            "owned_finite_beta_sfincs_jax_production_ladder_audit",
             output_dir,
             (".png", ".pdf", ".json"),
         )
