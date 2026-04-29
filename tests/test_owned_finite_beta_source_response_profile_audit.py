@@ -6,6 +6,9 @@ from pathlib import Path
 import numpy as np
 
 from examples import owned_finite_beta_source_response_profile_audit as audit
+from ntx.validation._finite_beta_source_channels import (
+    profile_source_response_summary_metrics,
+)
 
 
 def _synthetic_row(
@@ -66,7 +69,7 @@ def test_summary_metrics_track_profile_response_range() -> None:
         _synthetic_row(rho=0.55, multiplier=0.95, error=0.05),
     ]
 
-    metrics = audit._summary_metrics(rows)  # noqa: SLF001
+    metrics = profile_source_response_summary_metrics(rows)
 
     assert metrics["source_channel_superposition_gate_pass"] is True
     assert metrics["radius_count"] == 3
@@ -91,7 +94,7 @@ def test_profile_response_audit_writes_payload_and_figure(tmp_path: Path) -> Non
     payload = {
         "benchmark": "owned_finite_beta_source_response_profile_audit",
         "rows": rows,
-        "summary_metrics": audit._summary_metrics(rows),  # noqa: SLF001
+        "summary_metrics": profile_source_response_summary_metrics(rows),
     }
 
     audit.write_payload(payload, output_prefix)
