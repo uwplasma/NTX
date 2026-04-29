@@ -166,6 +166,8 @@
 | Production ladder precision gap | `15.875x` |
 | Coefficient-conditioned current-error bound | `1.580e+00` |
 | Under-integrated closure current-gate passes | `1` |
+| Quadrature-stable closure current-gate passes | `0` |
+| Quadrature-stable current gate | `False` |
 | Best stress-radius closure setting | `P=14, X=10, error=3.811e-02` |
 | Highest-X largest-order stress error | `3.952e-01` |
 | Max same-order stress spread over X | `9.495e+00` |
@@ -224,7 +226,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `f2a88196239b34884b6176000e879647b0f995d0` |
+| Commit | `95223dd9c39945951428ca44aa6fc0ab8eb70b92` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

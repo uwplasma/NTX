@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "f2a88196239b34884b6176000e879647b0f995d0",
+    "commit": "95223dd9c39945951428ca44aa6fc0ab8eb70b92",
     "branch": "main"
   },
   "environment": {
@@ -4318,6 +4318,9 @@
         "high_x_largest_order_stress_relative_error": 0.3951895275200511,
         "max_same_order_stress_spread_over_x": 9.495420179206551,
         "underintegrated_gate_pass_count": 1,
+        "quadrature_stable_gate_pass_count": 0,
+        "quadrature_stable_current_gate_pass": false,
+        "best_stress_pass_rejected_as_underintegrated": true,
         "quadrature_aliasing_detected": true,
         "mean_closure_seconds": 14.032175489677078
       },
@@ -4893,6 +4896,8 @@
     "owned_finite_beta_conditioning_coefficient_precision_gap": 15.798130220751109,
     "owned_finite_beta_conditioning_coefficient_bound": 1.579813022075111,
     "owned_finite_beta_quadrature_underintegrated_gate_pass_count": 1,
+    "owned_finite_beta_quadrature_stable_gate_pass_count": 0,
+    "owned_finite_beta_quadrature_stable_current_gate_pass": false,
     "owned_finite_beta_quadrature_min_stress_error": 0.038108482782810746,
     "owned_finite_beta_quadrature_min_stress_x": 10,
     "owned_finite_beta_quadrature_min_stress_pmax": 14,

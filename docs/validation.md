@@ -138,6 +138,7 @@ and velocity quadrature while holding the finite-beta scan, profiles, Redl
 observable, and normalization fixed. It finds one apparent stress-radius
 current-gate pass at `P=14, X=10`, but that setting has velocity quadrature lower
 than the Sonine truncation and does not transfer to `X=14` or `X=18`. The
+accepted quadrature-stable pass count is therefore zero, and the
 highest-quadrature largest-order stress error remains about `4e-1`, so the
 apparent pass is treated as quadrature aliasing rather than a physics closure.
 Any future finite-beta profile-current claim must pass the current gate and the

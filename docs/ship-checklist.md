@@ -154,9 +154,10 @@ or explicitly moved to documented future work with a clear reason.
   production six-point radius/collisionality ladder keeps all coefficient
   differences below `2.07e-2`. The closure-quadrature sidecar rejects the only
   apparent stress-radius current-gate pass as under-integrated because it occurs
-  at `P=14, X=10` and does not transfer to higher `X`. The next required step is
-  a quadrature-converged profile-current closure on the same finite-beta
-  contract before any finite-beta parity promotion.
+  at `P=14, X=10` and does not transfer to higher `X`; the accepted
+  quadrature-stable current-gate pass count is zero. The next required step is a
+  quadrature-converged profile-current closure on the same finite-beta contract
+  before any finite-beta parity promotion.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the

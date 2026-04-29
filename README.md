@@ -169,7 +169,8 @@ issue rather than an angular-resolution, harmonic-truncation, or broad
 transport-coefficient failure.
 The closure-quadrature sidecar also rejects the only apparent stress-radius
 current-gate pass as under-integrated: `P=14, X=10` falls below `1e-1`, but the
-result does not transfer to `X=14` or `X=18`. Future finite-beta closure claims
+result does not transfer to `X=14` or `X=18`, and the current accepted
+quadrature-stable pass count is zero. Future finite-beta closure claims
 therefore require simultaneous current-gate and velocity-quadrature stability.
 Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
 geometry-backend blocker.

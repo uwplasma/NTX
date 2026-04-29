@@ -301,6 +301,9 @@
     "high_x_largest_order_stress_relative_error": 0.3951895275200511,
     "max_same_order_stress_spread_over_x": 9.495420179206551,
     "underintegrated_gate_pass_count": 1,
+    "quadrature_stable_gate_pass_count": 0,
+    "quadrature_stable_current_gate_pass": false,
+    "best_stress_pass_rejected_as_underintegrated": true,
     "quadrature_aliasing_detected": true,
     "mean_closure_seconds": 14.032175489677078
   },
