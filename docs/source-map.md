@@ -166,7 +166,7 @@ Implemented in:
 
 ## Profile Forces And Ambipolarity
 
-The profile workflow reconstructs the force proxies
+The profile workflow reconstructs the thermodynamic-force channels
 
 ```{math}
 A_3 = d\ln T/dr,

@@ -210,7 +210,7 @@ builds the boundary-projected VMEC state, transforms it to Boozer
 coordinates, and then differentiates two scalar outputs with respect to those
 controls:
 
-- an NTX monoenergetic transport proxy,
+- an NTX monoenergetic transport response,
 - and an NTX+NEOPAX integrated-current objective.
 
 The figure is written to:
@@ -247,7 +247,7 @@ outputs with respect to those controls:
 
 - equilibrium volume,
 - a Boozer-space scalar built from the implicit equilibrium,
-- and an NTX monoenergetic transport proxy.
+- and an NTX monoenergetic transport response.
 
 The figure is written to:
 
@@ -292,7 +292,7 @@ boundary-projected VMEC state it runs an explicitly relaxed fixed-boundary
 scalar outputs on each case:
 
 - a Boozer-space scalar built from the relaxed surface,
-- an NTX monoenergetic transport proxy,
+- an NTX monoenergetic transport response,
 - and an `NTX+NEOPAX` integrated-current objective.
 
 The figure is written to:
@@ -475,7 +475,7 @@ python examples/bootstrap_current_robust_optimization.py
 ```
 
 adds a prescribed Gaussian uncertainty on the scalar geometry control used by
-the bootstrap-current proxy optimization and compares:
+the bootstrap-current response optimization and compares:
 
 - the deterministic objective landscape,
 - the robust mean-minus-risk objective,
@@ -492,7 +492,7 @@ docs/_static/bootstrap_current_robust_optimization.json
 ```
 
 This is a synthetic robust-design benchmark anchored to the same differentiable
-current-proxy workflow as the main optimization example. It is currently a
+current-response workflow as the main optimization example. It is currently a
 tracked open lane, not a literature-grade validation claim. The JSON artifact
 separates `robust_objective_relative_change`, which gates the optimization
 workflow, from `weighted_current_ratio`, which is a signed current-profile

@@ -76,6 +76,6 @@ Planned lanes that must stay visible are:
 | Full monoenergetic geometry-family reproduction | paper-resolution independent-code parity for the available W7-X EIM/EJM, QI, QA/QH, and stellarator-family inputs; owned W7-X KJM input; radial/electric-field/collisionality ladders |
 | Larger geometry-control autodiff | broaden the current analytic and file-backed audits into reusable geometry families; add direct autodiff, implicit-adjoint, and finite-difference agreement on that basis |
 | Hidden-symmetry and omnigenous families | owned input families and convergence gates before adding research-grade figures |
-| QI and piecewise-omnigenous low-bootstrap families | owned input families; `D11`, `D31`, `D33`, bootstrap-current proxy, and radial-profile convergence; comparison to published qualitative ordering before any design claim |
+| QI and piecewise-omnigenous low-bootstrap families | owned input families; `D11`, `D31`, `D33`, reduced bootstrap-current response, and radial-profile convergence; comparison to published qualitative ordering before any design claim |
 | Implicit-equilibrium sensitivity transfer | restore only after the backend residual solve contracts and Boozer/NTX transport observables match centered finite differences |
 | Performance and memory crossover maps | repeat the production grid on additional GPU nodes and add device-memory timelines for larger VMEC-family workloads |

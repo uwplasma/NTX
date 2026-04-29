@@ -15,8 +15,8 @@ artifact and fixes the corresponding CI smoke gate.
   `robust_objective_relative_change` separately from the signed
   `weighted_current_ratio`.
 - The retained `robust_gain` JSON key is now explicitly defined as the
-  optimized weighted-current proxy normalized by the absolute baseline
-  weighted-current proxy.
+  optimized weighted-current response normalized by the absolute baseline
+  weighted-current response.
 - The robust optimization smoke test now verifies artifact/schema and finite
   uncertainty metrics, while objective improvement remains covered by the
   dedicated autodiff unit test.

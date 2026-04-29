@@ -3,8 +3,8 @@
 
 The goal of this example is provenance control.  It generates NTX surfaces,
 monoenergetic coefficients, NEOPAX-style HDF5 tables, and an interpolation-path
-audit from one owned input/wout pair at a time.  It also stores a compact
-profile flux/current response proxy from the same scan tables.  The resulting
+audit from one owned input/wout pair at a time.  It also stores compact
+profile flux/current responses from the same scan tables.  The resulting
 artifacts are not SFINCS parity claims; they are self-contained datasets on
 which SFINCS, Redl, and NTX+NEOPAX comparisons can later be run without mixing
 unrelated geometry, normalization, or interpolation conventions.
@@ -332,7 +332,7 @@ def _coefficient_summary(scan) -> dict[str, object]:
 
 
 def _profile_response_summary(scan) -> dict[str, object]:
-    """Return a compact profile-response proxy from the raw scan coefficients."""
+    """Return compact profile responses from the raw scan coefficients."""
 
     rho = np.asarray(scan.rho, dtype=float)
     density = 1.0 - rho**8 + 0.2
@@ -352,26 +352,34 @@ def _profile_response_summary(scan) -> dict[str, object]:
     ion_particle = -0.5 * (d11 * a1 + d13 * a3)
     electron_current = d31 * a1 + d33 * a3
     ion_current = -0.5 * (d31 * a1 + d33 * a3)
-    ambipolar_residual_proxy = -electron_particle + ion_particle
-    bootstrap_current_proxy = electron_current + ion_current
-    scale = max(float(np.nanmax(np.abs(bootstrap_current_proxy))), EPS)
-    normalized_current = bootstrap_current_proxy / scale
+    ambipolar_residual_response = -electron_particle + ion_particle
+    bootstrap_current_response = electron_current + ion_current
+    scale = max(float(np.nanmax(np.abs(bootstrap_current_response))), EPS)
+    normalized_current = bootstrap_current_response / scale
 
     return {
         "profile_model": (
-            "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and "
+            "dimensionless two-species response using analytic n=1-rho^8+0.2 and "
             "T=1-rho^2+0.2 gradients on the first scan collisionality and field point"
         ),
         "density": density.tolist(),
         "temperature": temperature.tolist(),
         "A1": a1.tolist(),
         "A3": a3.tolist(),
+        "electron_particle_flux_response": electron_particle.tolist(),
+        "ion_particle_flux_response": ion_particle.tolist(),
+        "ambipolar_residual_response": ambipolar_residual_response.tolist(),
+        "electron_current_response": electron_current.tolist(),
+        "ion_current_response": ion_current.tolist(),
+        "bootstrap_current_response": bootstrap_current_response.tolist(),
+        "bootstrap_current_response_normalized": normalized_current.tolist(),
+        "current_response_objective": float(np.trapezoid(normalized_current**2, rho)),
         "electron_particle_flux_proxy": electron_particle.tolist(),
         "ion_particle_flux_proxy": ion_particle.tolist(),
-        "ambipolar_residual_proxy": ambipolar_residual_proxy.tolist(),
+        "ambipolar_residual_proxy": ambipolar_residual_response.tolist(),
         "electron_current_proxy": electron_current.tolist(),
         "ion_current_proxy": ion_current.tolist(),
-        "bootstrap_current_proxy": bootstrap_current_proxy.tolist(),
+        "bootstrap_current_proxy": bootstrap_current_response.tolist(),
         "bootstrap_current_proxy_normalized": normalized_current.tolist(),
         "bootstrap_current_objective": float(np.trapezoid(normalized_current**2, rho)),
     }
@@ -872,11 +880,11 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
         path_key = str(case["primary_scan_path"])
         path_payload = case["scan_paths"][path_key]
         current = np.asarray(
-            path_payload["profile_responses"]["bootstrap_current_proxy_normalized"],
+            path_payload["profile_responses"]["bootstrap_current_response_normalized"],
             dtype=float,
         )
         residual = np.asarray(
-            path_payload["profile_responses"]["ambipolar_residual_proxy"],
+            path_payload["profile_responses"]["ambipolar_residual_response"],
             dtype=float,
         )
         residual_scale = max(float(np.nanmax(np.abs(residual))), EPS)
@@ -899,8 +907,8 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
         )
     ax_current.axhline(0.0, color="0.2", lw=0.8, alpha=0.55)
     ax_current.set_xlabel(r"$\rho$")
-    ax_current.set_ylabel("normalized proxy")
-    ax_current.set_title("(c) Same-grid profile response proxy")
+    ax_current.set_ylabel("normalized response")
+    ax_current.set_title("(c) Same-grid profile response")
     ax_current.legend(loc="best")
 
     audited_cases = [

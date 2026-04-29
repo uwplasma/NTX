@@ -11,7 +11,7 @@ from ._profiles_ambipolar_types import AmbipolarProfileResult
 
 @dataclass(frozen=True)
 class ProfileTransportClosureSpec:
-    """Relaxation closure for iterating profile proxies toward transport targets."""
+    """Relaxation closure for iterating reduced responses toward transport targets."""
 
     particle_relaxation: Array
     current_relaxation: Array
@@ -70,6 +70,12 @@ class ProfileTransportIterationResult:
     species_a3_history: Array
     best_profile: AmbipolarProfileResult
 
+    @property
+    def bootstrap_current_response_history(self) -> Array:
+        """Reduced monoenergetic bootstrap-current response history."""
+
+        return self.bootstrap_current_proxy_history
+
 
 tree_util.register_dataclass(
     ProfileTransportIterationResult,
@@ -97,6 +103,12 @@ class PrimitiveProfileTransportIterationResult:
     species_density_history: Array
     species_temperature_history: Array
     best_profile: AmbipolarProfileResult
+
+    @property
+    def bootstrap_current_response_history(self) -> Array:
+        """Reduced monoenergetic bootstrap-current response history."""
+
+        return self.bootstrap_current_proxy_history
 
 
 tree_util.register_dataclass(

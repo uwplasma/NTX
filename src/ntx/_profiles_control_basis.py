@@ -13,7 +13,7 @@ from ._profiles_control_types import (
     ProfileBasisOptimizationResult,
 )
 from ._profiles_eval import (
-    bootstrap_current_objective,
+    current_response_objective,
     solve_ambipolar_er_profile,
 )
 from ._profiles_radial import _broadcast_profile_field
@@ -91,9 +91,9 @@ def optimize_profile_basis_control(
             damping=damping,
             smoothing_strength=smoothing_strength,
         )
-        bootstrap_obj = bootstrap_current_objective(
+        bootstrap_obj = current_response_objective(
             rho,
-            profile.bootstrap_current_proxy,
+            profile.bootstrap_current_response,
             weight=weight_arr,
         )
         residual_obj = residual_scale * jnp.mean(profile.ambipolar_residual**2)

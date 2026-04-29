@@ -264,7 +264,7 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             ),
             (
                 "use the radial source-response map to distinguish a "
-                "physics-derived closure term from a profile-local fitted "
+                "physics-derived closure term from an empirical profile-local "
                 "multiplier"
             ),
             (

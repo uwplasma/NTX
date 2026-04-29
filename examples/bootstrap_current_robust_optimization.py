@@ -145,7 +145,7 @@ def main(
     axes[0, 0].plot(rho_np, mean_profile, lw=2.1, color=colors["robust"], label="Uncertain mean")
     axes[0, 0].fill_between(rho_np, q_low, q_high, color=colors["band"], alpha=0.14, label="16-84%")
     axes[0, 0].set_xlabel(r"$\rho$")
-    axes[0, 0].set_ylabel(r"Bootstrap-current proxy [$10^{18}$]")
+    axes[0, 0].set_ylabel(r"Bootstrap-current response [$10^{18}$]")
     axes[0, 0].set_title("Robust-design current profile")
     axes[0, 0].legend(loc="upper left")
     axes[0, 0].text(
@@ -232,6 +232,8 @@ def main(
         "radial_points": int(rho_np.size),
         "scale_grid_size": int(scale_grid.size),
         "quadrature_order": int(quadrature_order),
+        "baseline_weighted_current_response": baseline_weighted,
+        "optimized_weighted_current_response": optimized_weighted,
         "baseline_weighted_current_proxy": baseline_weighted,
         "optimized_weighted_current_proxy": optimized_weighted,
         "weighted_current_ratio": optimized_weighted / current_norm,
@@ -243,8 +245,8 @@ def main(
         / objective_norm,
         "robust_gain": optimized_weighted / current_norm,
         "robust_gain_definition": (
-            "optimized_weighted_current_proxy / "
-            "max(abs(baseline_weighted_current_proxy), 1e-30)"
+            "optimized_weighted_current_response / "
+            "max(abs(baseline_weighted_current_response), 1e-30)"
         ),
         "max_current_std": float(std_profile.max()),
         "rho": rho_np.tolist(),

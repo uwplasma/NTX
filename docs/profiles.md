@@ -3,7 +3,8 @@
 NTX now exposes a first imported profile workflow in
 [`src/ntx/profiles.py`](../src/ntx/profiles.py). This layer sits above the
 monoenergetic solve and above the radial scan builders, and it is intended for
-ambipolar electric-field studies and bootstrap-current proxy analysis.
+ambipolar electric-field studies and reduced bootstrap-current response
+analysis.
 
 ## Scope
 
@@ -13,8 +14,8 @@ clean, differentiable profile-level closure around them.
 
 The current closure uses:
 
-- monoenergetic particle-flux proxies
-- monoenergetic parallel-current proxies
+- reduced monoenergetic particle-flux responses
+- reduced monoenergetic parallel-current responses
 - a smooth ambipolar electric-field profile solve on a precomputed NTX scan
 
 ## Main Objects
@@ -30,7 +31,7 @@ One species is described by:
 - `particle_weight`
 - `current_weight`
 
-where `A1(r)` and `A3(r)` are the thermodynamic-force proxies used in the
+where `A1(r)` and `A3(r)` are the thermodynamic-force channels used in the
 monoenergetic closure.
 
 ### `AmbipolarProfileResult`
@@ -40,12 +41,16 @@ The solver returns:
 - `rho`
 - `er_profile`
 - `ambipolar_residual`
-- `bootstrap_current_proxy`
+- `bootstrap_current_response`
 - `species_particle_flux`
 - `species_current_response`
 - `loss_history`
 
-## Proxy Model
+The underlying dataclass still stores `bootstrap_current_proxy` for NTX 0.2.x
+compatibility, but new code should use the `bootstrap_current_response`
+property.
+
+## Reduced Monoenergetic Model
 
 For one species, NTX currently uses the monoenergetic closures
 
@@ -67,10 +72,10 @@ so a charge-symmetric pair with identical particle-flux response must cancel
 exactly. The fast physics-gate suite checks this local ambipolarity identity
 before the nonlinear radial-electric-field solve is trusted.
 
-and the current profile proxy is
+and the reduced current response is
 
 ```{math}
-J_{\mathrm{bs,proxy}}(r) = \sum_a J_a(r).
+J_{\mathrm{red}}(r) = \sum_a J_a(r).
 ```
 
 The ambipolar electric-field profile is obtained by minimizing a smooth radial
@@ -106,6 +111,7 @@ underflow an unconstrained explicit update.
 - `ambipolar_residual_profile(...)`
 - `solve_ambipolar_er_profile(...)`
 - `solve_ambipolar_profile_family(...)`
+- `current_response_objective(...)`
 - `bootstrap_current_objective(...)`
 - `apply_profile_control(...)`
 - `optimize_profile_control(...)`
@@ -184,8 +190,8 @@ docs/_static/ambipolar_profile.pdf
 It shows:
 
 - the ambipolar residual landscape over the scanned `E_r` axis
-- the bootstrap-current proxy profile
-- species particle-flux proxies and the charge-weighted residual
+- the reduced bootstrap-current response profile
+- species particle-flux responses and the charge-weighted residual
 - the integrated ambipolar landscape used by the smooth-profile solver
 
 ![Ambipolar profile](_static/ambipolar_profile.png)
@@ -195,7 +201,7 @@ It shows:
 NTX also exposes a small family-solve layer:
 
 ```{math}
-\mathcal J(c) = \int w(r) J_{\mathrm{bs,proxy}}(r;c)^2\,dr,
+\mathcal J(c) = \int w(r) J_{\mathrm{red}}(r;c)^2\,dr,
 ```
 
 where `c` is any explicit profile control and `w(r)` is an optional radial
@@ -205,8 +211,9 @@ Use:
 
 - `solve_ambipolar_profile_family(...)` to solve several profile closures on the
   same NTX scan
-- `bootstrap_current_objective(...)` to reduce one solved current profile to a
-  scalar optimization objective
+- `current_response_objective(...)` to reduce one solved current profile to a
+  scalar optimization objective; `bootstrap_current_objective(...)` remains as
+  a compatibility wrapper
 
 The repository example
 
@@ -224,7 +231,7 @@ docs/_static/ambipolar_profile_family.pdf
 It shows:
 
 - the integrated residual landscape across the control family
-- the resulting family of bootstrap-current proxies
+- the resulting family of reduced bootstrap-current responses
 - a scalar objective landscape across the control parameter
 - the final ambipolar residual norm across that family
 
@@ -235,7 +242,7 @@ It shows:
 On top of the family solve, NTX now exposes a scalar control optimization:
 
 ```{math}
-\mathcal J(c) = \int w(r) J_{\mathrm{bs,proxy}}(r;c)^2\,dr
+\mathcal J(c) = \int w(r) J_{\mathrm{red}}(r;c)^2\,dr
 + \lambda \left\langle R(r;c)^2 \right\rangle,
 ```
 
@@ -273,7 +280,7 @@ It shows:
 - objective descent across optimization iterations
 - scalar control updates
 - the residual-profile reduction relative to the uncontrolled baseline
-- the best bootstrap-current proxy profile
+- the best reduced bootstrap-current response profile
 
 The implementation lives entirely in
 [`src/ntx/profiles.py`](../src/ntx/profiles.py), so the optimization stays in
@@ -303,7 +310,7 @@ The profile objective then becomes
 ```{math}
 \mathcal J(\mathbf c)
 =
-\int w(r) J_{\mathrm{bs,proxy}}(r;\mathbf c)^2\,dr
+\int w(r) J_{\mathrm{red}}(r;\mathbf c)^2\,dr
 + \lambda \left\langle R(r;\mathbf c)^2 \right\rangle
 + \mu \|\mathbf c\|_2^2.
 ```
@@ -315,7 +322,7 @@ In the current implementation, the optimization step is stabilized in two ways:
 - a small backtracking line search rejects steps that increase the objective
 
 This keeps the public examples in a physically interpretable regime even when
-the bootstrap-current proxy changes rapidly with control amplitude.
+the reduced bootstrap-current response changes rapidly with control amplitude.
 
 The corresponding helpers are:
 
@@ -347,7 +354,7 @@ It shows:
 - the basis-coefficient history
 - the basis functions and the final optimized modifier
 - the residual-profile reduction relative to the uncontrolled baseline
-- the optimized bootstrap-current proxy profile
+- the optimized reduced bootstrap-current response profile
 
 The JSON sidecar records the objective improvement, residual norm ratio, and
 optimized basis coefficients so this profile-basis workflow can be tracked as a
@@ -365,7 +372,7 @@ transport-relaxation loop. NTX now exposes
 - `advance_profile_transport(...)`
 - `solve_profile_transport_loop(...)`
 
-The closure updates the profile-force proxies explicitly after each ambipolar
+The closure updates the profile-force channels explicitly after each ambipolar
 solve, using prescribed source and target channels:
 
 ```{math}
@@ -431,7 +438,7 @@ The loop records a quadratic transport mismatch loss,
 
 Each explicit update is then checked with a short backtracking acceptance rule:
 the next state is kept only if the recomputed transport loss does not increase.
-This makes the shipped workflow materially stronger than the older pure proxy
+This makes the shipped workflow materially stronger than the older raw-response
 relaxation loop and removes the large runaway profiles that were easy to
 trigger in coarse public examples.
 
@@ -496,7 +503,7 @@ docs/_static/profile_transport_loop.pdf
 It shows:
 
 - the ambipolar residual evolution across accepted transport iterations
-- the corresponding bootstrap-current proxy history
+- the corresponding reduced bootstrap-current response history
 - the transport-loss and ambipolar-residual histories
 - the final `A1(r)` and `A3(r)` profiles for each species
 

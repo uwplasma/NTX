@@ -6,8 +6,8 @@ bootstrap-current stress is not a scalar normalization error: the effective
 temperature-source response changes across radius. This script turns that
 observation into a machine-readable closure-target artifact. It compares the
 measured response multiplier with local neoclassical drivers that enter Redl
-and related bootstrap-current models: trapped fraction, inverse-aspect-ratio
-proxy, and collisionality.
+and related bootstrap-current models: trapped fraction, inverse aspect-ratio
+driver, and collisionality.
 
 The output is a design diagnostic. It does not modify the runtime closure and
 does not prescribe a fitted correction.
@@ -135,8 +135,8 @@ def build_payload(
                 (
                     "any promoted finite-beta profile-current closure must use "
                     "physical local drivers already present in the profile "
-                    "equations, such as trapped fraction, inverse-aspect-ratio "
-                    "proxy, collisionality, and thermodynamic-force "
+                    "equations, such as trapped fraction, inverse aspect "
+                    "ratio, collisionality, and thermodynamic-force "
                     "coefficients"
                 ),
                 (

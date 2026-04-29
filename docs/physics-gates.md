@@ -96,7 +96,7 @@ These are hard structural checks:
 - **Primitive profile force reconstruction:** the profile workflow must recover
   `A3 = d ln T / dr` and
   `A1 = d ln n / dr - 3 d ln T / (2 dr) + C_E Z E_r` before those forces are
-  used in particle-flux or bootstrap-current proxy calculations.
+  used in particle-flux or reduced bootstrap-current response calculations.
 - **Charge-symmetric ambipolar cancellation:** the profile workflow must return
   zero charge-weighted particle-flux residual for equal particle-flux responses
   with opposite charges. This is the local implementation gate for the
@@ -164,7 +164,7 @@ geometry breadth:
   not a passing gate. The current artifact validates the equilibrium-volume
   derivative but leaves the Boozer-space and NTX transport observables open.
 - **Bootstrap-current optimization gain:** the committed science/application
-  artifact must keep the optimized weighted-current proxy at least equal to the
+  artifact must keep the optimized weighted-current response at least equal to the
   baseline before the manuscript cites the gain. This is a stress gate, not a
   broad optimization-design claim.
 
@@ -375,9 +375,9 @@ Any higher-order closure change must satisfy all of the following:
 
 That is the standard for physically defensible closure work in this repository.
 
-## Current Higher-Order Scaffold
+## Current Higher-Order Closure Status
 
-The first higher-order implementation stage is now in place in the imported
+The first higher-order validation stage is now in place in the imported
 closure stack:
 
 - configurable Sonine truncation order in the closure grid

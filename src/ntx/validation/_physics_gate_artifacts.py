@@ -185,7 +185,10 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             _evaluate_scalar_gate(
                 optimization_gate,
                 weighted_gain,
-                details="optimized weighted bootstrap-current proxy divided by baseline",
+                details=(
+                    "optimized weighted reduced bootstrap-current response "
+                    "divided by baseline"
+                ),
             )
         )
     else:

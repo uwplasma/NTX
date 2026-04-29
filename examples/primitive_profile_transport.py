@@ -201,7 +201,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         )
         axes[0, 1].plot(
             rho,
-            result.bootstrap_current_proxy_history[idx],
+            result.bootstrap_current_response_history[idx],
             color=colors[idx],
             lw=2.2,
             label=label,
@@ -244,7 +244,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
 
     axes[0, 1].set_title("Primitive Transport Current Evolution")
     axes[0, 1].set_xlabel(r"$\rho$")
-    axes[0, 1].set_ylabel(r"$J_{\mathrm{bs,proxy}}$")
+    axes[0, 1].set_ylabel(r"$J_{\mathrm{red}}$")
     axes[0, 1].legend(loc="best")
 
     axes[1, 0].set_title("Derived Monoenergetic Forces")

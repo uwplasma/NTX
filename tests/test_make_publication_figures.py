@@ -122,9 +122,9 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
     monkeypatch.setattr(module, "_run", _fake_run)
 
     output_dir = tmp_path / "figures"
-    payload = _invoke_main(module, monkeypatch, output_dir, "bootstrap_proxy")
+    payload = _invoke_main(module, monkeypatch, output_dir, "bootstrap_response")
 
-    assert set(payload) == {"bootstrap_proxy"}
+    assert set(payload) == {"bootstrap_response"}
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.png").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.pdf").exists()
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.json").exists()

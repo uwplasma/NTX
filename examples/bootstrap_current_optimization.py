@@ -168,7 +168,7 @@ def main() -> None:
         label="Core weighting",
     )
     axes[0, 0].set_xlabel(r"$\rho$")
-    axes[0, 0].set_ylabel(r"Bootstrap-current proxy [$10^{18}$]")
+    axes[0, 0].set_ylabel(r"Bootstrap-current response [$10^{18}$]")
     axes[0, 0].set_title("Bootstrap-current profile")
     axes[0, 0].legend(loc="upper left", ncol=1)
     axes[0, 0].text(

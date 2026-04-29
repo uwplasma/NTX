@@ -97,7 +97,7 @@ def transport_profiles_from_raw_scale(
     a_b: float,
     source_name: str,
 ) -> tuple[Array, Array, Array]:
-    """Evaluate the current proxy and selected monoenergetic profiles."""
+    """Evaluate the reduced current response and selected monoenergetic profiles."""
 
     scale = bounded_surface_scale(raw_scale)
     perturbed_surfaces = tuple(

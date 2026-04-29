@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Optimize a scalar profile control against the NTX bootstrap-current objective."""
+"""Optimize a scalar profile control against the NTX current-response objective."""
 
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ from ntx import (  # noqa: E402
     GridSpec,
     MonoenergeticSpeciesProfile,
     ProfileControlSpec,
-    bootstrap_current_objective,
     build_ntx_neopax_scan_from_surfaces,
+    current_response_objective,
     example_surface,
     optimize_profile_control,
     solve_ambipolar_er_profile,
@@ -161,16 +161,16 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
     bootstrap_history = np.asarray(result.bootstrap_objective_history)
     residual_history = np.asarray(result.residual_norm_history)
     best_profile = result.best_profile
-    best_current = np.asarray(best_profile.bootstrap_current_proxy)
-    baseline_current = np.asarray(baseline_profile.bootstrap_current_proxy)
+    best_current = np.asarray(best_profile.bootstrap_current_response)
+    baseline_current = np.asarray(baseline_profile.bootstrap_current_response)
     best_residual = np.asarray(best_profile.ambipolar_residual)
     baseline_residual = np.asarray(baseline_profile.ambipolar_residual)
     rho_np = np.asarray(rho)
     weight_np = np.asarray(weight)
     best_objective = float(
-        bootstrap_current_objective(
+        current_response_objective(
             rho,
-            best_profile.bootstrap_current_proxy,
+            best_profile.bootstrap_current_response,
             weight=weight,
         )
     )
@@ -264,7 +264,7 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
         linewidth=0.0,
     )
     axes[1, 1].set_xlabel(r"$\rho$")
-    axes[1, 1].set_ylabel("Bootstrap-current proxy")
+    axes[1, 1].set_ylabel("Reduced current response")
     axes[1, 1].set_title("Best current profile")
     axes[1, 1].legend(loc="best")
     axes[1, 1].text(

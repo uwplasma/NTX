@@ -87,7 +87,7 @@ examples.
 9. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
    - low-dimensional boundary controls propagated through the implicit
      fixed-boundary `vmec_jax` residual solve, `booz_xform_jax`, and an NTX
-     monoenergetic transport proxy under forward mode, with the reverse-mode
+     monoenergetic transport response under forward mode, with the reverse-mode
      Boozer failure recorded in the JSON artifact
 10. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
    - low-dimensional boundary controls propagated through an explicitly relaxed
@@ -197,7 +197,7 @@ examples.
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
 31. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
-   - NTX-only bootstrap-current-proxy profile from VMEC/Boozer input
+   - NTX-only reduced bootstrap-current response profile from VMEC/Boozer input
 32. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
 33. `performance_scaling_smoke.{png,pdf,json}`
@@ -215,7 +215,7 @@ examples.
      compiled prepared solver paths with coefficient agreement recorded in the
      JSON artifact
 38. `ambipolar_profile.{png,pdf}`
-   - profile-grade ambipolar electric-field solve and bootstrap-current proxy
+   - profile-grade ambipolar electric-field solve and reduced bootstrap-current response
 39. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
 40. `profile_force_reconstruction_audit.{png,pdf,json}`
@@ -260,7 +260,7 @@ Together these figures cover:
 - derivative cost for prepared optimization workflows
 - a science-facing bootstrap-current optimization workflow
 - a pure NTX radial-profile figure
-- a profile-grade ambipolar and bootstrap-current-proxy workflow
+- a profile-grade ambipolar and reduced bootstrap-current response workflow
 - a control-parameter family view of the same profile-grade closure
 - a literature-anchored primitive-to-force reconstruction audit on the precise-QS profile family
 - a direct optimization view of the profile-grade closure
@@ -336,11 +336,11 @@ It uses:
 
 - a VMEC-derived radial surface family
 - a dominant non-axisymmetric harmonic as the control parameter
-- a weighted bootstrap-current proxy based on the current-response coefficients
+- a weighted bootstrap-current response based on the current-response coefficients
 - JAX autodiff to optimize that control directly
 
 The committed JSON artifact is also a monitored benchmark-matrix and
-physics-gate entry: the optimized weighted-current proxy must remain at least
+physics-gate entry: the optimized weighted-current response must remain at least
 as large as the baseline before the manuscript cites the gain. Broader
 stellarator-design claims still require reusable geometry-family controls and
 their derivative audits.
@@ -366,7 +366,7 @@ Use this figure when the paper needs an explicit statement of how NTX moves from
 plain reverse-mode to a prepared differentiable workflow that is better suited
 to repeated optimization scans.
 
-## NTX Bootstrap-Current Proxy Figure
+## NTX Reduced Bootstrap-Current Response Figure
 
 ```bash
 python examples/bootstrap_current_from_vmec_or_boozmn.py
@@ -383,10 +383,10 @@ docs/_static/bootstrap_current_from_vmec_or_boozmn.json
 It is the recommended figure when the paper needs a compact NTX-only radial
 profile panel without bringing in the external database workflow. The panel
 stays close to directly interpretable quantities: geometry, profile inputs,
-parallel-flow drive, and the resulting interior bootstrap-current proxy built
+parallel-flow drive, and the resulting interior reduced bootstrap-current response built
 from analytic profile gradients.
 
-![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
+![NTX reduced bootstrap-current response profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
 
 ## Ambipolar Profile Figure
 
@@ -403,7 +403,7 @@ docs/_static/ambipolar_profile.pdf
 
 Use this figure when the paper needs a profile-grade closure panel built
 entirely from NTX scan data, including the ambipolar residual landscape over
-the scanned `E_r` axis and the resulting bootstrap-current proxy.
+the scanned `E_r` axis and the resulting reduced bootstrap-current response.
 
 ![Ambipolar profile](_static/ambipolar_profile.png)
 
@@ -422,7 +422,7 @@ docs/_static/ambipolar_profile_family.pdf
 
 Use this figure when the paper needs an optimization-facing profile figure that
 shows how a scalar control changes the residual landscape and the
-bootstrap-current proxy profiles, while also exposing a one-dimensional
+reduced bootstrap-current response profiles, while also exposing a one-dimensional
 objective landscape.
 
 ![Ambipolar profile family](_static/ambipolar_profile_family.png)
@@ -481,7 +481,7 @@ docs/_static/profile_transport_loop.pdf
 
 Use this figure when the paper needs a self-consistent profile-transport panel
 instead of a pure control-optimization panel. It shows how the ambipolar
-residual, bootstrap-current proxy, and thermodynamic-force profiles evolve
+residual, reduced bootstrap-current response, and thermodynamic-force profiles evolve
 under an accepted-step transport-relaxation iteration.
 
 ![Profile transport loop](_static/profile_transport_loop.png)
@@ -499,7 +499,7 @@ docs/_static/primitive_profile_transport.png
 docs/_static/primitive_profile_transport.pdf
 ```
 
-Use this figure when the paper needs to move beyond direct `A1/A3` proxy
+Use this figure when the paper needs to move beyond direct `A1/A3` channel
 updates and show a primitive profile workflow in which density and temperature
 remain positive, respond to explicit source-target closure terms, and feed back
 into the ambipolar closure through reconstructed thermodynamic forces. The
