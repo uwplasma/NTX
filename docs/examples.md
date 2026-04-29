@@ -156,7 +156,12 @@ python examples/owned_finite_beta_closure_quadrature_audit.py \
   --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
   --x-values 10 18 --n-orders 10 12 14 18 \
   --output-prefix docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit \
-  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_closure_quadrature_audit
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe
+python examples/owned_finite_beta_source_channel_audit.py \
+  --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
+  --settings 10:12 10:18 18:18 \
+  --output-prefix docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit \
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe
 ```
 
 These optional provenance artifacts prioritize local finite-beta stellarator
@@ -235,6 +240,10 @@ field radii. It removes most of the old `rho=0.143` stress, but the
 matched-radius quadrature rerun still finds zero quadrature-stable current-gate
 passes; its only apparent matched stress pass is at `P=18, X=10`, where
 velocity quadrature is lower than the Sonine truncation.
+The matched-radius source-channel rerun reconstructs the corrected current to
+roundoff and shows the same pattern: the only current-gate pass is the
+under-integrated `X=10`, `P=18` setting, while `X=18`, `P=18` remains a
+quadrature-stable source-response stress diagnostic.
 
 It writes:
 
@@ -286,6 +295,9 @@ It writes:
 - `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png`
 - `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf`
 - `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json`
+- `docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.png`
+- `docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.pdf`
+- `docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -340,6 +352,13 @@ The matched closure-quadrature panel repeats the Sonine/quadrature sweep after
 removing the sparse-radius interpolation layer. It still rejects the apparent
 current-gate pass as under-integrated, so the open lane remains a
 quadrature-stable reduced profile-current closure.
+
+![Owned finite-beta field-radius-matched source-channel audit](_static/owned_finite_beta_field_radius_matched_source_channel_audit.png)
+
+The matched source-channel panel repeats the physical RHS decomposition on the
+same field-radius-matched contract. It reconstructs the corrected current to
+roundoff and keeps the remaining finite-beta mismatch localized to a
+quadrature-stable effective-temperature source response.
 
 ## 10. Bootstrap Current With NEOPAX
 

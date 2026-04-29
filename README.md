@@ -199,6 +199,12 @@ A matched-radius Sonine/quadrature rerun confirms that the remaining apparent
 `1e-1` pass is still under-integrated: the best matched stress value is
 `9.68e-2` at `P=18, X=10`, but the quadrature-stable pass count remains zero
 and the `X=18, P=18` stress is `3.08e-1`.
+The matched-radius source-channel rerun reconstructs the corrected current to
+`1.45e-14`; its best current-gate pass is the same under-integrated `X=10`,
+`P=18` setting, while the quadrature-stable `X=18`, `P=18` source-channel
+stress remains `3.08e-1`. This keeps the finite-beta work on a
+quadrature-stable reduced source-response closure rather than an interpolation
+or hidden-normalization explanation.
 Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
 geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,
@@ -234,7 +240,12 @@ python examples/owned_finite_beta_closure_quadrature_audit.py \
   --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
   --x-values 10 18 --n-orders 10 12 14 18 \
   --output-prefix docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit \
-  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_closure_quadrature_audit
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe
+python examples/owned_finite_beta_source_channel_audit.py \
+  --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
+  --settings 10:12 10:18 18:18 \
+  --output-prefix docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit \
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```

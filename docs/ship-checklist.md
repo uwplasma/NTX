@@ -169,6 +169,11 @@ or explicitly moved to documented future work with a clear reason.
   `1e-1` current gate. The next required step is a quadrature-converged
   profile-current/source-response closure on the same finite-beta contract
   before any finite-beta parity promotion.
+- The field-radius-matched source-channel sidecar now repeats the physical RHS
+  decomposition after removing the sparse radial interpolation layer. It
+  reconstructs the corrected current to `1.45e-14`, shows the only current-gate
+  pass is still under-integrated at `X=10, P=18`, and keeps the
+  quadrature-stable `X=18, P=18` result as a reduced-closure stress diagnostic.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the

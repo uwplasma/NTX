@@ -46,6 +46,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_closure_target",
         "owned_finite_beta_radial_interpolation",
         "owned_finite_beta_field_radius_matched_closure_quadrature",
+        "owned_finite_beta_field_radius_matched_source_channel",
         "science",
         "robust_science",
         "validation",
@@ -95,6 +96,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_closure_target",
         "owned_finite_beta_radial_interpolation",
         "owned_finite_beta_field_radius_matched_closure_quadrature",
+        "owned_finite_beta_field_radius_matched_source_channel",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -480,6 +482,15 @@ def main() -> None:
         manifest["owned_finite_beta_field_radius_matched_closure_quadrature"] = (
             _copy_existing_static(
                 "owned_finite_beta_field_radius_matched_closure_quadrature_audit",
+                output_dir,
+                (".png", ".pdf", ".json"),
+            )
+        )
+
+    if "owned_finite_beta_field_radius_matched_source_channel" in selected:
+        manifest["owned_finite_beta_field_radius_matched_source_channel"] = (
+            _copy_existing_static(
+                "owned_finite_beta_field_radius_matched_source_channel_audit",
                 output_dir,
                 (".png", ".pdf", ".json"),
             )

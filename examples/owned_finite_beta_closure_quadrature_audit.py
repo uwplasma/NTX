@@ -55,6 +55,12 @@ WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_closure_quadrature_
 PROFILE_CURRENT_GATE = 1.0e-1
 
 
+def _root_relative(path: Path) -> str:
+    path = Path(path)
+    resolved = path if path.is_absolute() else ROOT / path
+    return str(resolved.resolve().relative_to(ROOT))
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
 
@@ -391,8 +397,8 @@ def build_payload(
                     "a broad profile-current claim"
                 ),
             ],
-            "figure_png": str(output_prefix.with_suffix(".png").relative_to(ROOT)),
-            "figure_pdf": str(output_prefix.with_suffix(".pdf").relative_to(ROOT)),
+            "figure_png": _root_relative(output_prefix.with_suffix(".png")),
+            "figure_pdf": _root_relative(output_prefix.with_suffix(".pdf")),
         }
     )
 
