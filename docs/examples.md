@@ -149,6 +149,7 @@ python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
 python examples/owned_finite_beta_current_conditioning_audit.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
+python examples/owned_finite_beta_source_channel_audit.py
 ```
 
 These optional provenance artifacts prioritize local finite-beta stellarator
@@ -207,6 +208,11 @@ It records that the only stress-radius current-gate pass occurs at `P=14,
 X=10`, where the velocity quadrature is lower than the Sonine truncation. That
 apparent pass does not transfer to `X=14` or `X=18`, so the example treats it as
 under-integrated closure aliasing rather than a valid finite-beta parity result.
+The source-channel audit then freezes the same momentum-restoring matrix and
+solves one physical source channel at a time. The one-channel solves reconstruct
+the corrected current to roundoff, and the quadrature-stable high-order result
+is dominated by the effective temperature-gradient drive with no parallel-
+electric drive for this profile contract.
 
 It writes:
 
@@ -242,6 +248,9 @@ It writes:
 - `docs/_static/owned_finite_beta_closure_quadrature_audit.png`
 - `docs/_static/owned_finite_beta_closure_quadrature_audit.pdf`
 - `docs/_static/owned_finite_beta_closure_quadrature_audit.json`
+- `docs/_static/owned_finite_beta_source_channel_audit.png`
+- `docs/_static/owned_finite_beta_source_channel_audit.pdf`
+- `docs/_static/owned_finite_beta_source_channel_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -261,6 +270,8 @@ It writes:
 ![Owned finite-beta current-conditioning audit](_static/owned_finite_beta_current_conditioning_audit.png)
 
 ![Owned finite-beta closure quadrature audit](_static/owned_finite_beta_closure_quadrature_audit.png)
+
+![Owned finite-beta source-channel audit](_static/owned_finite_beta_source_channel_audit.png)
 
 ## 10. Bootstrap Current With NEOPAX
 

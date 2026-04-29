@@ -56,6 +56,7 @@ python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
 python examples/owned_finite_beta_current_conditioning_audit.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
+python examples/owned_finite_beta_source_channel_audit.py
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -143,6 +144,14 @@ highest-quadrature largest-order stress error remains about `4e-1`, so the
 apparent pass is treated as quadrature aliasing rather than a physics closure.
 Any future finite-beta profile-current claim must pass the current gate and the
 velocity-quadrature stability gate simultaneously.
+The source-channel audit then freezes the same inner-radius matrix and solves
+the density/electric, effective temperature-gradient, and parallel-electric
+source columns separately. Those one-channel solves reconstruct the full
+corrected current to roundoff. At the quadrature-stable high-order setting the
+effective temperature-gradient channel supplies essentially all of the net
+response, while the parallel-electric channel is zero for this profile
+contract. That keeps the open lane on a physics-derived profile-current closure
+response rather than on hidden normalization constants or fitted thresholds.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -168,6 +177,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_closure_quadrature_audit.png`
 - `docs/_static/owned_finite_beta_closure_quadrature_audit.pdf`
 - `docs/_static/owned_finite_beta_closure_quadrature_audit.json`
+- `docs/_static/owned_finite_beta_source_channel_audit.png`
+- `docs/_static/owned_finite_beta_source_channel_audit.pdf`
+- `docs/_static/owned_finite_beta_source_channel_audit.json`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
@@ -194,6 +206,8 @@ a stable selector.
 ![Owned finite-beta current-conditioning audit](_static/owned_finite_beta_current_conditioning_audit.png)
 
 ![Owned finite-beta closure quadrature audit](_static/owned_finite_beta_closure_quadrature_audit.png)
+
+![Owned finite-beta source-channel audit](_static/owned_finite_beta_source_channel_audit.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 

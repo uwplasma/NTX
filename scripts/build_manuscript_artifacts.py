@@ -94,6 +94,9 @@ def build_payload() -> dict:
     owned_finite_beta_quadrature = _load_json(
         STATIC / "owned_finite_beta_closure_quadrature_audit.json"
     )
+    owned_finite_beta_source_channel = _load_json(
+        STATIC / "owned_finite_beta_source_channel_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -133,6 +136,7 @@ def build_payload() -> dict:
         "owned_finite_beta_profile_current_observable",
         "owned_finite_beta_current_conditioning",
         "owned_finite_beta_closure_quadrature",
+        "owned_finite_beta_source_channel",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -340,6 +344,13 @@ def build_payload() -> dict:
                 "conclusion": owned_finite_beta_quadrature["conclusion"],
                 "rows": owned_finite_beta_quadrature["rows"],
                 "open_work": owned_finite_beta_quadrature["open_work"],
+            },
+            "owned_finite_beta_source_channel": {
+                "summary_metrics": owned_finite_beta_source_channel["summary_metrics"],
+                "claim_scope": owned_finite_beta_source_channel["claim_scope"],
+                "conclusion": owned_finite_beta_source_channel["conclusion"],
+                "rows": owned_finite_beta_source_channel["rows"],
+                "open_work": owned_finite_beta_source_channel["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -665,6 +676,46 @@ def build_payload() -> dict:
                     "max_same_order_stress_spread_over_x"
                 ]
             ),
+            "owned_finite_beta_source_channel_reconstruction_residual": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "max_source_channel_superposition_relative_residual"
+                ]
+            ),
+            "owned_finite_beta_source_channel_gate_pass": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "source_channel_superposition_gate_pass"
+                ]
+            ),
+            "owned_finite_beta_source_channel_high_stable_error": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_public_relative_error_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_source_channel_high_stable_dominant": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_dominant_effective_channel"
+                ]
+            ),
+            "owned_finite_beta_source_channel_temperature_fraction": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_effective_temperature_fraction_of_total"
+                ]
+            ),
+            "owned_finite_beta_source_channel_density_fraction": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_density_electric_fraction_of_total"
+                ]
+            ),
+            "owned_finite_beta_source_channel_parallel_fraction": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_parallel_electric_fraction_of_total"
+                ]
+            ),
+            "owned_finite_beta_source_channel_cancellation_factor": (
+                owned_finite_beta_source_channel["summary_metrics"][
+                    "high_stable_species_cancellation_factor"
+                ]
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -922,6 +973,36 @@ def build_markdown(payload: dict) -> str:
     ]
     quadrature_max_same_order_spread = owned_finite_beta_quadrature_metrics[
         "max_same_order_stress_spread_over_x"
+    ]
+    owned_finite_beta_source_channel = payload["tables"][
+        "owned_finite_beta_source_channel"
+    ]
+    owned_finite_beta_source_channel_metrics = owned_finite_beta_source_channel[
+        "summary_metrics"
+    ]
+    source_channel_reconstruction_residual = owned_finite_beta_source_channel_metrics[
+        "max_source_channel_superposition_relative_residual"
+    ]
+    source_channel_gate_pass = owned_finite_beta_source_channel_metrics[
+        "source_channel_superposition_gate_pass"
+    ]
+    source_channel_high_stable_error = owned_finite_beta_source_channel_metrics[
+        "high_stable_public_relative_error_vs_redl"
+    ]
+    source_channel_high_stable_dominant = owned_finite_beta_source_channel_metrics[
+        "high_stable_dominant_effective_channel"
+    ]
+    source_channel_temperature_fraction = owned_finite_beta_source_channel_metrics[
+        "high_stable_effective_temperature_fraction_of_total"
+    ]
+    source_channel_density_fraction = owned_finite_beta_source_channel_metrics[
+        "high_stable_density_electric_fraction_of_total"
+    ]
+    source_channel_parallel_fraction = owned_finite_beta_source_channel_metrics[
+        "high_stable_parallel_electric_fraction_of_total"
+    ]
+    source_channel_cancellation_factor = owned_finite_beta_source_channel_metrics[
+        "high_stable_species_cancellation_factor"
     ]
     owned_finite_beta_resolution = payload["tables"][
         "owned_finite_beta_sfincs_jax_resolution_audit"
@@ -1370,6 +1451,32 @@ def build_markdown(payload: dict) -> str:
                 f"`{quadrature_max_same_order_spread:.3e}` |"
             ),
             (
+                "| Source-channel reconstruction residual | "
+                f"`{source_channel_reconstruction_residual:.3e}` |"
+            ),
+            (
+                "| Source-channel reconstruction gate | "
+                f"`{source_channel_gate_pass}` |"
+            ),
+            (
+                "| High-order source-channel stress error | "
+                f"`{source_channel_high_stable_error:.3e}` |"
+            ),
+            (
+                "| Dominant high-order source channel | "
+                f"`{source_channel_high_stable_dominant}` |"
+            ),
+            (
+                "| High-order temperature/density/parallel fractions | "
+                f"`{source_channel_temperature_fraction:.3e}` / "
+                f"`{source_channel_density_fraction:.3e}` / "
+                f"`{source_channel_parallel_fraction:.3e}` |"
+            ),
+            (
+                "| Source-channel species-cancellation factor | "
+                f"`{source_channel_cancellation_factor:.3e}` |"
+            ),
+            (
                 "| Stress-radius Pmax error reduction | "
                 f"`{observable_pmax_error_reduction:.3f}x` |"
             ),
@@ -1753,6 +1860,27 @@ def build_claims_markdown(payload: dict) -> str:
                 "This closes the under-integrated apparent-pass route and keeps "
                 "the finite-beta bootstrap-current gap assigned to a "
                 "quadrature-converged reduced-closure lane."
+            ),
+            (
+                "- The owned finite-beta source-channel audit freezes the same "
+                "stress-radius matrix and solves one physical RHS channel at a "
+                "time. The summed channels reconstruct the full corrected "
+                "current with relative residual "
+                f"`{claims['owned_finite_beta_source_channel_reconstruction_residual']:.3e}` "
+                "and gate status "
+                f"`{claims['owned_finite_beta_source_channel_gate_pass']}`. "
+                "At the quadrature-stable high-order setting the current "
+                "relative difference is "
+                f"`{claims['owned_finite_beta_source_channel_high_stable_error']:.3e}`, "
+                "the dominant source is "
+                f"`{claims['owned_finite_beta_source_channel_high_stable_dominant']}`, "
+                "and the temperature/density/parallel source fractions are "
+                f"`{claims['owned_finite_beta_source_channel_temperature_fraction']:.3e}`/"
+                f"`{claims['owned_finite_beta_source_channel_density_fraction']:.3e}`/"
+                f"`{claims['owned_finite_beta_source_channel_parallel_fraction']:.3e}`. "
+                "This keeps the remaining finite-beta closure work on a "
+                "physics-derived source-channel response, not on fitted "
+                "thresholds or hidden normalization constants."
             ),
             (
                 "- The profile uncertainty stress benchmark now uses a "
