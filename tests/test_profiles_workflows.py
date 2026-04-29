@@ -48,8 +48,8 @@ def test_ambipolar_profile_solver_returns_finite_result_and_reduces_loss():
     )
     assert isinstance(result, AmbipolarProfileResult)
     assert result.er_profile.shape == scan.rho.shape
-    assert result.bootstrap_current_proxy.shape == scan.rho.shape
     assert result.bootstrap_current_response.shape == scan.rho.shape
+    assert result.bootstrap_current_proxy.shape == scan.rho.shape
     assert result.species_particle_flux.shape[1] == scan.rho.shape[0]
     assert jnp.all(jnp.isfinite(result.er_profile))
     assert jnp.all(jnp.isfinite(result.bootstrap_current_response))
@@ -96,8 +96,8 @@ def test_profile_family_solver_and_bootstrap_objective_return_finite_results():
     result = solve_ambipolar_profile_family(scan, family, control=control, steps=6)
     assert isinstance(result, AmbipolarProfileFamilyResult)
     assert result.er_profile.shape == (control.size, scan.rho.size)
-    assert result.bootstrap_current_proxy.shape == (control.size, scan.rho.size)
     assert result.bootstrap_current_response.shape == (control.size, scan.rho.size)
+    assert result.bootstrap_current_proxy.shape == (control.size, scan.rho.size)
     objective = current_response_objective(scan.rho, result.bootstrap_current_response[1])
     legacy_objective = bootstrap_current_objective(scan.rho, result.bootstrap_current_proxy[1])
     assert jnp.isfinite(objective)
@@ -246,6 +246,7 @@ def test_profile_transport_loop_returns_finite_histories():
     assert advanced[0].A1.shape == profiles[0].A1.shape
     assert isinstance(result, ProfileTransportIterationResult)
     assert result.er_profile_history.shape == (4, scan.rho.size)
+    assert result.bootstrap_current_response_history.shape == (4, scan.rho.size)
     assert result.bootstrap_current_proxy_history.shape == (4, scan.rho.size)
     assert result.species_a1_history.shape == (4, 2, scan.rho.size)
     assert result.species_a3_history.shape == (4, 2, scan.rho.size)
@@ -391,7 +392,7 @@ def test_primitive_profile_transport_update_preserves_positive_density_temperatu
         rho=rho,
         er_profile=jnp.zeros_like(rho),
         ambipolar_residual=jnp.zeros_like(rho),
-        bootstrap_current_proxy=jnp.zeros_like(rho),
+        bootstrap_current_response=jnp.zeros_like(rho),
         species_particle_flux=jnp.asarray([[1.0e4, 2.0e4, 3.0e4]]),
         species_current_response=jnp.asarray([[2.0e4, 1.0e4, 3.0e4]]),
         loss_history=jnp.asarray([0.0]),

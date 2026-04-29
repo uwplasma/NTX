@@ -151,7 +151,7 @@ def solve_ambipolar_er_profile(
         rho=rho,
         er_profile=solved_profile,
         ambipolar_residual=residual,
-        bootstrap_current_proxy=bootstrap_current,
+        bootstrap_current_response=bootstrap_current,
         species_particle_flux=species_flux,
         species_current_response=species_current,
         loss_history=loss_history,
@@ -189,7 +189,7 @@ def solve_ambipolar_profile_family(
         control=control_array,
         er_profile=jnp.stack([result.er_profile for result in family_results]),
         ambipolar_residual=jnp.stack([result.ambipolar_residual for result in family_results]),
-        bootstrap_current_proxy=jnp.stack(
+        bootstrap_current_response=jnp.stack(
             [result.bootstrap_current_response for result in family_results]
         ),
         loss_history=jnp.stack([result.loss_history for result in family_results]),

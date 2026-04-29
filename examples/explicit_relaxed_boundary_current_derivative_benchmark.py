@@ -248,7 +248,7 @@ def _build_case_payload(
         )
         return jnp.sum(surface.b_cos[:4]) + surface.iota
 
-    def ntx_transport_proxy(params):
+    def ntx_transport_response(params):
         state = _state_from_params(params, differentiable=True)
         surface = surface_from_vmec_jax_state(
             state=state,
@@ -302,7 +302,7 @@ def _build_case_payload(
 
     objectives = {
         "booz_xform_scalar": booz_xform_scalar,
-        "ntx_transport_proxy": ntx_transport_proxy,
+        "ntx_transport_response": ntx_transport_response,
         "ntx_neopax_integrated_current": integrated_current,
     }
     objective_payloads: list[dict[str, object]] = []

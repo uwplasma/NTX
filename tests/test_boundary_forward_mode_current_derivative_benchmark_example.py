@@ -54,4 +54,4 @@ def test_boundary_forward_mode_current_derivative_benchmark_writes_outputs(tmp_p
     )
     assert payload["summary_metrics"]["max_relative_mismatch"] < 1.0e-4
     objective_ids = {objective["id"] for objective in payload["objectives"]}
-    assert objective_ids == {"ntx_transport_proxy", "ntx_neopax_integrated_current"}
+    assert objective_ids == {"ntx_transport_response", "ntx_neopax_integrated_current"}

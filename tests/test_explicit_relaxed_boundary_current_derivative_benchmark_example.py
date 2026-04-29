@@ -60,6 +60,6 @@ def test_explicit_relaxed_boundary_current_derivative_benchmark_writes_outputs(t
         objective_ids = {objective["id"] for objective in case["objectives"]}
         assert objective_ids == {
             "booz_xform_scalar",
-            "ntx_transport_proxy",
+            "ntx_transport_response",
             "ntx_neopax_integrated_current",
         }

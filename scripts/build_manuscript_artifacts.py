@@ -164,7 +164,7 @@ def build_payload() -> dict:
         "profile_control",
         "profile_basis",
         "profile_transport",
-        "bootstrap_proxy",
+        "bootstrap_response",
         "robust_science",
         "performance_smoke",
         "performance_heavy",
@@ -516,7 +516,7 @@ def build_payload() -> dict:
                 implicit_objective_map["booz_xform_scalar"]["relative_mismatch"][0]
             ),
             "implicit_equilibrium_transport_relative_mismatch": (
-                implicit_objective_map["ntx_transport_proxy"]["relative_mismatch"][0]
+                implicit_objective_map["ntx_transport_response"]["relative_mismatch"][0]
             ),
             "implicit_equilibrium_reverse_mode_booz_max_relative_mismatch": (
                 implicit_equilibrium_forward_mode["reverse_mode_diagnostic"][
@@ -1616,7 +1616,8 @@ def build_markdown(payload: dict) -> str:
             ),
             (
                 "| NTX transport mismatch | "
-                f"`{implicit_objective_map['ntx_transport_proxy']['relative_mismatch'][0]:.3e}` |"
+                f"`{implicit_objective_map['ntx_transport_response']['relative_mismatch'][0]:.3e}` "
+                "|"
             ),
             "",
             "## Explicit-Relaxed Boundary Current Derivatives",
@@ -2558,7 +2559,7 @@ def build_claims_markdown(payload: dict) -> str:
             ),
             (
                 "- The differentiable bootstrap-current optimization example "
-                "improves the weighted current proxy by "
+                "improves the weighted reduced current response by "
                 f"`{claims['bootstrap_current_weighted_gain']:.3f}x` on the "
                 "committed W7-X study."
             ),

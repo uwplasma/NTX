@@ -374,14 +374,6 @@ def _profile_response_summary(scan) -> dict[str, object]:
         "bootstrap_current_response": bootstrap_current_response.tolist(),
         "bootstrap_current_response_normalized": normalized_current.tolist(),
         "current_response_objective": float(np.trapezoid(normalized_current**2, rho)),
-        "electron_particle_flux_proxy": electron_particle.tolist(),
-        "ion_particle_flux_proxy": ion_particle.tolist(),
-        "ambipolar_residual_proxy": ambipolar_residual_response.tolist(),
-        "electron_current_proxy": electron_current.tolist(),
-        "ion_current_proxy": ion_current.tolist(),
-        "bootstrap_current_proxy": bootstrap_current_response.tolist(),
-        "bootstrap_current_proxy_normalized": normalized_current.tolist(),
-        "bootstrap_current_objective": float(np.trapezoid(normalized_current**2, rho)),
     }
 
 

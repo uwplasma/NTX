@@ -39,14 +39,6 @@ def test_bootstrap_current_robust_optimization_writes_outputs(tmp_path):
         "robust_gain",
     ):
         assert math.isfinite(payload[key])
-    assert (
-        payload["baseline_weighted_current_proxy"]
-        == payload["baseline_weighted_current_response"]
-    )
-    assert (
-        payload["optimized_weighted_current_proxy"]
-        == payload["optimized_weighted_current_response"]
-    )
     assert payload["radial_points"] == 3
     assert payload["scale_grid_size"] == 5
     assert payload["quadrature_order"] == 3
