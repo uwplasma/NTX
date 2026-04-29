@@ -112,6 +112,13 @@ correction as residual. The Pmax sidecar reduces the stress error by about
 records that the stress-radius net current is a strong electron/ion
 cancellation: the remaining residual is only about `4e-3` of the species
 momentum-correction L1 scale.
+The current-conditioning audit adds the matching precision statement: at the
+same stress radius, the species-flow L1 scale divided by the Redl net current is
+about `7.7e1`. A `1e-1` net-current gate therefore requires same-grid
+coefficient precision near `1.3e-3`, while the completed smoke ladder is still
+about `2.1e-2`, a factor `15.8` looser. This is why the finite-beta lane now
+prioritizes production same-grid coefficient/profile-current diagnostics before
+assigning the residual to a new reduced-closure term.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -131,6 +138,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_profile_current_observable_audit.png`
 - `docs/_static/owned_finite_beta_profile_current_observable_audit.pdf`
 - `docs/_static/owned_finite_beta_profile_current_observable_audit.json`
+- `docs/_static/owned_finite_beta_current_conditioning_audit.png`
+- `docs/_static/owned_finite_beta_current_conditioning_audit.pdf`
+- `docs/_static/owned_finite_beta_current_conditioning_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 The next parity-promotion step is to expand the completed same-grid
@@ -144,6 +154,8 @@ interpolation modes once NEOPAX exposes a stable selector.
 ![Owned finite-beta closure localization](_static/owned_finite_beta_closure_localization.png)
 
 ![Owned finite-beta profile-current observable audit](_static/owned_finite_beta_profile_current_observable_audit.png)
+
+![Owned finite-beta current-conditioning audit](_static/owned_finite_beta_current_conditioning_audit.png)
 
 ## What Is Covered
 

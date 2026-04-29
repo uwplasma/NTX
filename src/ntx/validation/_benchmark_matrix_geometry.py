@@ -220,7 +220,8 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "production radial/collisionality ladder, adaptive physical "
                 "nu/v support, explicit D33_spitzer audit branch, Sonine-order "
                 "convergence sidecar, coefficient/profile localization sidecar, "
-                "profile-current observable sidecar, and current normalization. "
+                "profile-current observable sidecar, current-conditioning sidecar, "
+                "and current normalization. "
                 "The current reduced-closure result has the correct sign and "
                 "outer-radius errors near the 1e-1 target, but explicitly records "
                 "the remaining inner-radius gap; "
@@ -237,11 +238,13 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "examples/owned_finite_beta_bootstrap_comparison.py",
                 "examples/owned_finite_beta_closure_localization.py",
                 "examples/owned_finite_beta_profile_current_observable_audit.py",
+                "examples/owned_finite_beta_current_conditioning_audit.py",
             ),
             tests=(
                 "tests/test_owned_finite_beta_bootstrap_comparison.py",
                 "tests/test_owned_finite_beta_closure_localization.py",
                 "tests/test_owned_finite_beta_profile_current_observable_audit.py",
+                "tests/test_owned_finite_beta_current_conditioning_audit.py",
             ),
             artifacts=(
                 "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -253,11 +256,15 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
                 "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
                 "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+                "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+                "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+                "docs/_static/owned_finite_beta_current_conditioning_audit.json",
             ),
             manuscript_figures=(
                 "owned_finite_beta_bootstrap_comparison",
                 "owned_finite_beta_closure_localization",
                 "owned_finite_beta_profile_current_observable_audit",
+                "owned_finite_beta_current_conditioning_audit",
             ),
             docs=(
                 "README.md",
@@ -271,6 +278,11 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 (
                     "close the inner-radius reduced-closure gap using the same "
                     "physical profile, normalization, and interpolation contract"
+                ),
+                (
+                    "run the production same-grid coefficient ladder to the "
+                    "current-conditioned precision threshold before assigning "
+                    "the finite-beta net-current gap to the reduced closure"
                 ),
                 (
                     "extend the production-resolution QA ladder to QH/QI and "

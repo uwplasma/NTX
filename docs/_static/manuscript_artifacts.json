@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "a4a9945ef6538e898b2e6f37b7e5ee454186a91c",
+    "commit": "b81b7fbc7de3e9603eb82af382482853c7fefa99",
     "branch": "main"
   },
   "environment": {
@@ -4100,6 +4100,46 @@
         "require no regression of the existing fixed-field total-current stress gate and integrated W7-X transfer"
       ]
     },
+    "owned_finite_beta_current_conditioning": {
+      "summary_metrics": {
+        "stress_rho": 0.14285714285714285,
+        "stress_current_condition_number": 76.88462763367761,
+        "stress_same_grid_coefficient_relative_difference": 0.02054783993495091,
+        "stress_required_coefficient_relative_difference_for_current_gate": 0.0013006501179462983,
+        "stress_coefficient_precision_gap_to_current_gate": 15.798130220751109,
+        "stress_coefficient_limited_current_relative_error_bound": 1.579813022075111,
+        "stress_observed_current_relative_difference": 0.3106405551146464,
+        "stress_observed_current_error_over_coefficient_bound": 0.19663121570337153,
+        "max_current_condition_number": 77.17622518691384,
+        "max_condition_rho": 0.07142857142857142,
+        "max_coefficient_precision_gap_to_current_gate": 15.798130220751109,
+        "max_coefficient_precision_gap_rho": 0.14285714285714285,
+        "max_coefficient_limited_current_relative_error_bound": 1.579813022075111,
+        "max_coefficient_limited_bound_rho": 0.14285714285714285
+      },
+      "claim_scope": "Combines the completed same-grid finite-beta coefficient ladder with the profile-current observable sidecar.  The diagnostic quantifies how species-flow cancellation amplifies coefficient uncertainty in the net bootstrap-current observable.  It is a conditioning audit, not a fitted closure correction and not a bootstrap-current parity claim.",
+      "conclusion": "The same-grid coefficient ladder passes the order-1e-1 normalization gate, but the finite-beta stress radius is cancellation-conditioned.  A net-current 1e-1 gate requires coefficient precision closer to the current-conditioned threshold reported here before coefficient error can be ruled out as a source of the remaining profile-current gap.",
+      "stress_radius": {
+        "rho": 0.14285714285714285,
+        "same_grid_coefficient_relative_difference": 0.02054783993495091,
+        "redl_current_abs_over_root_fsab2": 20549817.57810125,
+        "profile_current_relative_difference": 0.3106405551146464,
+        "species_correction_l1_over_root_fsab2": 1579965072.4323175,
+        "current_condition_number_species_l1_over_redl": 76.88462763367761,
+        "correction_cancellation_number_species_l1_over_applied": 63.13910930490665,
+        "required_coefficient_relative_difference_for_current_gate": 0.0013006501179462983,
+        "coefficient_limited_current_relative_error_bound": 1.579813022075111,
+        "coefficient_precision_gap_to_current_gate": 15.798130220751109,
+        "observed_current_error_over_coefficient_bound": 0.19663121570337153,
+        "observed_residual_over_species_l1": 0.0040403467464876835,
+        "observed_residual_species_l1_over_coefficient_error": 0.1966312157033715
+      },
+      "open_work": [
+        "run a production-resolution same-grid coefficient ladder until the current-conditioned coefficient-precision threshold is resolved at the stress radius",
+        "only then use the profile-current residual to motivate a reduced momentum-closure change",
+        "preserve the fixed-field QA/QH total-current gate and W7-X integrated transfer when testing any closure change"
+      ]
+    },
     "profile_uncertainty": {
       "basis_size": 3,
       "sample_count": 96,
@@ -4481,6 +4521,10 @@
     "owned_finite_beta_observable_residual_over_species_l1": 0.0040403467464876835,
     "owned_finite_beta_observable_pmax_error_reduction": 3.5475366166118976,
     "owned_finite_beta_observable_correction_sign_agreement": 1.0,
+    "owned_finite_beta_conditioning_stress_condition_number": 76.88462763367761,
+    "owned_finite_beta_conditioning_required_coefficient_error": 0.0013006501179462983,
+    "owned_finite_beta_conditioning_coefficient_precision_gap": 15.798130220751109,
+    "owned_finite_beta_conditioning_coefficient_bound": 1.579813022075111,
     "profile_uncertainty_basis_size": 3,
     "profile_uncertainty_sample_count": 96,
     "profile_uncertainty_max_std_relative_mismatch": 1.0,
@@ -4609,6 +4653,11 @@
       "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
       "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
       "docs/_static/owned_finite_beta_profile_current_observable_audit.json"
+    ],
+    "owned_finite_beta_current_conditioning": [
+      "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+      "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+      "docs/_static/owned_finite_beta_current_conditioning_audit.json"
     ],
     "profile_uncertainty": [
       "docs/_static/autodiff_profile_uncertainty.png",
@@ -6649,7 +6698,7 @@
           "lane": "geometry-breadth",
           "maturity": "stress-gate",
           "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+          "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
           "literature_anchors": [
             "Redl bootstrap-current formula and geometry-factor normalization",
             "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -6659,12 +6708,14 @@
           "scripts": [
             "examples/owned_finite_beta_bootstrap_comparison.py",
             "examples/owned_finite_beta_closure_localization.py",
-            "examples/owned_finite_beta_profile_current_observable_audit.py"
+            "examples/owned_finite_beta_profile_current_observable_audit.py",
+            "examples/owned_finite_beta_current_conditioning_audit.py"
           ],
           "tests": [
             "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "tests/test_owned_finite_beta_closure_localization.py",
-            "tests/test_owned_finite_beta_profile_current_observable_audit.py"
+            "tests/test_owned_finite_beta_profile_current_observable_audit.py",
+            "tests/test_owned_finite_beta_current_conditioning_audit.py"
           ],
           "artifacts": [
             "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -6675,12 +6726,16 @@
             "docs/_static/owned_finite_beta_closure_localization.json",
             "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
             "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
-            "docs/_static/owned_finite_beta_profile_current_observable_audit.json"
+            "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+            "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+            "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+            "docs/_static/owned_finite_beta_current_conditioning_audit.json"
           ],
           "manuscript_figures": [
             "owned_finite_beta_bootstrap_comparison",
             "owned_finite_beta_closure_localization",
-            "owned_finite_beta_profile_current_observable_audit"
+            "owned_finite_beta_profile_current_observable_audit",
+            "owned_finite_beta_current_conditioning_audit"
           ],
           "docs": [
             "README.md",
@@ -6692,6 +6747,7 @@
           ],
           "open_work": [
             "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract",
+            "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
             "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
             "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
           ]
@@ -6715,6 +6771,11 @@
             "exists": true
           },
           {
+            "kind": "script",
+            "path": "examples/owned_finite_beta_current_conditioning_audit.py",
+            "exists": true
+          },
+          {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
             "exists": true
@@ -6727,6 +6788,11 @@
           {
             "kind": "test",
             "path": "tests/test_owned_finite_beta_profile_current_observable_audit.py",
+            "exists": true
+          },
+          {
+            "kind": "test",
+            "path": "tests/test_owned_finite_beta_current_conditioning_audit.py",
             "exists": true
           },
           {
@@ -6772,6 +6838,21 @@
           {
             "kind": "artifact",
             "path": "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+            "exists": true
+          },
+          {
+            "kind": "artifact",
+            "path": "docs/_static/owned_finite_beta_current_conditioning_audit.json",
             "exists": true
           },
           {
@@ -6957,6 +7038,7 @@
       "owned_finite_beta_bootstrap_comparison",
       "owned_finite_beta_closure_localization",
       "owned_finite_beta_profile_current_observable",
+      "owned_finite_beta_current_conditioning",
       "ambipolar",
       "ambipolar_family",
       "profile_reconstruction",

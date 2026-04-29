@@ -1977,7 +1977,7 @@
         "lane": "geometry-breadth",
         "maturity": "stress-gate",
         "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
-        "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
+        "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, and current normalization. The current reduced-closure result has the correct sign and outer-radius errors near the 1e-1 target, but explicitly records the remaining inner-radius gap; it is not promoted as SFINCS parity until same-grid SFINCS-JAX profile-current closure diagnostics are complete.",
         "literature_anchors": [
           "Redl bootstrap-current formula and geometry-factor normalization",
           "finite-beta VMEC and Boozer-coordinate profile workflows",
@@ -1987,12 +1987,14 @@
         "scripts": [
           "examples/owned_finite_beta_bootstrap_comparison.py",
           "examples/owned_finite_beta_closure_localization.py",
-          "examples/owned_finite_beta_profile_current_observable_audit.py"
+          "examples/owned_finite_beta_profile_current_observable_audit.py",
+          "examples/owned_finite_beta_current_conditioning_audit.py"
         ],
         "tests": [
           "tests/test_owned_finite_beta_bootstrap_comparison.py",
           "tests/test_owned_finite_beta_closure_localization.py",
-          "tests/test_owned_finite_beta_profile_current_observable_audit.py"
+          "tests/test_owned_finite_beta_profile_current_observable_audit.py",
+          "tests/test_owned_finite_beta_current_conditioning_audit.py"
         ],
         "artifacts": [
           "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -2003,12 +2005,16 @@
           "docs/_static/owned_finite_beta_closure_localization.json",
           "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
           "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
-          "docs/_static/owned_finite_beta_profile_current_observable_audit.json"
+          "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+          "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+          "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+          "docs/_static/owned_finite_beta_current_conditioning_audit.json"
         ],
         "manuscript_figures": [
           "owned_finite_beta_bootstrap_comparison",
           "owned_finite_beta_closure_localization",
-          "owned_finite_beta_profile_current_observable_audit"
+          "owned_finite_beta_profile_current_observable_audit",
+          "owned_finite_beta_current_conditioning_audit"
         ],
         "docs": [
           "README.md",
@@ -2020,6 +2026,7 @@
         ],
         "open_work": [
           "close the inner-radius reduced-closure gap using the same physical profile, normalization, and interpolation contract",
+          "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
           "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
           "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
         ]
@@ -2043,6 +2050,11 @@
           "exists": true
         },
         {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_current_conditioning_audit.py",
+          "exists": true
+        },
+        {
           "kind": "test",
           "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
           "exists": true
@@ -2055,6 +2067,11 @@
         {
           "kind": "test",
           "path": "tests/test_owned_finite_beta_profile_current_observable_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_current_conditioning_audit.py",
           "exists": true
         },
         {
@@ -2100,6 +2117,21 @@
         {
           "kind": "artifact",
           "path": "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_current_conditioning_audit.json",
           "exists": true
         },
         {

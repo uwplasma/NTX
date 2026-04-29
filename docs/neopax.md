@@ -65,6 +65,10 @@ For end-to-end examples, see:
   for the finite-beta stress-radius observable decomposition into no-momentum
   current, momentum correction, correction needed to match Redl, species-current
   cancellation scale, and Pmax trend
+- [`examples/owned_finite_beta_current_conditioning_audit.py`](../examples/owned_finite_beta_current_conditioning_audit.py)
+  for the cancellation-conditioned coefficient-precision requirement that must
+  be met before the finite-beta net-current residual is assigned to a reduced
+  closure change
 - [`examples/bootstrap_current_with_neopax.py`](../examples/bootstrap_current_with_neopax.py)
   for a radial bootstrap-current profile built from an NTX scan and evaluated
   through NEOPAX

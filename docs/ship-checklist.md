@@ -146,6 +146,11 @@ or explicitly moved to documented future work with a clear reason.
   same-grid coefficient normalization is a passing gate, while the
   profile-current observable and species-cancellation scale remain monitored
   stress diagnostics until same-grid profile-current closure comparisons pass.
+- The finite-beta current-conditioning sidecar now records the stricter
+  coefficient precision needed by the cancellation-dominated net-current
+  observable. The current smoke ladder is still looser than the `1e-1`
+  current-conditioned target, so production same-grid diagnostics are the next
+  required step before any finite-beta closure/parity promotion.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the

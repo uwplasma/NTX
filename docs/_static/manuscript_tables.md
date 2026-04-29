@@ -156,6 +156,10 @@
 | Stress-radius residual/needed correction | `0.203` |
 | Stress-radius species-correction cancellation amplification | `63.139` |
 | Stress-radius residual/species-correction L1 | `4.040e-03` |
+| Stress-radius current condition number | `7.688e+01` |
+| Required coefficient error for `1e-1` current gate | `1.301e-03` |
+| Coefficient precision gap to current gate | `15.798x` |
+| Coefficient-conditioned current-error bound | `1.580e+00` |
 | Stress-radius Pmax error reduction | `3.548x` |
 | Sonine-order max/RMS relative differences | `P=2: 1.10e+00/6.40e-01, P=4: 5.03e-01/2.43e-01, P=6: 4.01e-01/1.68e-01, P=8: 3.73e-01/1.52e-01, P=10: 3.46e-01/1.42e-01, P=12: 3.11e-01/1.30e-01` |
 
@@ -211,7 +215,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `a4a9945ef6538e898b2e6f37b7e5ee454186a91c` |
+| Commit | `b81b7fbc7de3e9603eb82af382482853c7fefa99` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

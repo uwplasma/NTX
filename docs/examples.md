@@ -145,6 +145,7 @@ python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
+python examples/owned_finite_beta_current_conditioning_audit.py
 ```
 
 These optional provenance artifacts prioritize local finite-beta stellarator
@@ -181,6 +182,13 @@ The profile-current observable audit decomposes the same stress radius into the
 no-momentum current, applied momentum correction, correction needed to match the
 Redl target, Pmax trend, species-current cancellation scale, and local
 profile/geometry drivers.
+The current-conditioning audit then asks a stricter question: given the observed
+electron/ion cancellation, how accurate must the same-grid coefficient ladder be
+before coefficient uncertainty can be ruled out for a `1e-1` net-current gate?
+For the current finite-beta QA artifact, the stress radius needs about
+`1.3e-3` coefficient precision, while the completed smoke ladder is about
+`2.1e-2`. That keeps the next step focused on production-resolution same-grid
+coefficient/profile-current diagnostics before any closure change is promoted.
 
 It writes:
 
@@ -201,6 +209,9 @@ It writes:
 - `docs/_static/owned_finite_beta_profile_current_observable_audit.png`
 - `docs/_static/owned_finite_beta_profile_current_observable_audit.pdf`
 - `docs/_static/owned_finite_beta_profile_current_observable_audit.json`
+- `docs/_static/owned_finite_beta_current_conditioning_audit.png`
+- `docs/_static/owned_finite_beta_current_conditioning_audit.pdf`
+- `docs/_static/owned_finite_beta_current_conditioning_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 ![Owned NTX+NEOPAX geometry dataset provenance](_static/owned_geometry_neopax_dataset.png)
@@ -212,6 +223,8 @@ It writes:
 ![Owned finite-beta closure localization](_static/owned_finite_beta_closure_localization.png)
 
 ![Owned finite-beta profile-current observable audit](_static/owned_finite_beta_profile_current_observable_audit.png)
+
+![Owned finite-beta current-conditioning audit](_static/owned_finite_beta_current_conditioning_audit.png)
 
 ## 10. Bootstrap Current With NEOPAX
 
