@@ -46,9 +46,8 @@ The solver returns:
 - `species_current_response`
 - `loss_history`
 
-The underlying dataclass still stores `bootstrap_current_proxy` for NTX 0.2.x
-compatibility, but new code should use the `bootstrap_current_response`
-property.
+The read-only `bootstrap_current_proxy` attribute remains as an NTX 0.2.x
+compatibility alias. New code should use `bootstrap_current_response`.
 
 ## Reduced Monoenergetic Model
 

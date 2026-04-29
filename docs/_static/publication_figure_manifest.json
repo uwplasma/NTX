@@ -163,7 +163,7 @@
     "docs/_static/closure_validation_report.json",
     "docs/_static/closure_validation_report.txt"
   ],
-  "bootstrap_proxy": [
+  "bootstrap_response": [
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf",
     "docs/_static/bootstrap_current_from_vmec_or_boozmn.json"

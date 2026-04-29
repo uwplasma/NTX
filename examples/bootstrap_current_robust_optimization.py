@@ -234,8 +234,6 @@ def main(
         "quadrature_order": int(quadrature_order),
         "baseline_weighted_current_response": baseline_weighted,
         "optimized_weighted_current_response": optimized_weighted,
-        "baseline_weighted_current_proxy": baseline_weighted,
-        "optimized_weighted_current_proxy": optimized_weighted,
         "weighted_current_ratio": optimized_weighted / current_norm,
         "weighted_current_relative_change": (optimized_weighted - baseline_weighted)
         / current_norm,

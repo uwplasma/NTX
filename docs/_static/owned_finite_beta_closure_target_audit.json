@@ -455,7 +455,7 @@
     "field_radius_matched_quadrature_aliasing_detected": true
   },
   "closure_requirements": [
-    "any promoted finite-beta profile-current closure must use physical local drivers already present in the profile equations, such as trapped fraction, inverse-aspect-ratio proxy, collisionality, and thermodynamic-force coefficients",
+    "any promoted finite-beta profile-current closure must use physical local drivers already present in the profile equations, such as trapped fraction, inverse aspect ratio, collisionality, and thermodynamic-force coefficients",
     "a scalar response multiplier is not sufficient because the measured response varies over the committed radial profile",
     "a runtime closure change must preserve the fixed-field QA/QH total-current stress gate, the W7-X transfer gate, the source-channel reconstruction gate, and the same-grid finite-beta coefficient gate",
     "the diagnostic regressions in this artifact are model-identification tools only, not production fits",

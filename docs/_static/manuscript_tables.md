@@ -125,7 +125,7 @@
 | Retired implicit diagnostics | `2` |
 | Active case ids | `analytic_geometry_control, file_backed_boozmn_sample, file_backed_vmec_sample, boundary_projected_current, explicit_relaxed_qa_lowres, explicit_relaxed_qh_warm_start, implicit_equilibrium_volume` |
 | Open case ids | `` |
-| Retired implicit ids | `implicit_booz_xform_scalar, implicit_ntx_transport_proxy` |
+| Retired implicit ids | `implicit_booz_xform_scalar, implicit_ntx_transport_response` |
 | Max active AD/centered-FD mismatch | `3.088e-04` |
 | Max retired implicit mismatch | `6.454e+00` |
 
@@ -219,10 +219,10 @@
 | --- | ---: |
 | Harmonic `(m, n)` | `(0, -1)` |
 | Baseline scale | `1.000` |
-| Optimized scale | `1.297` |
-| Weighted current gain | `1.085x` |
-| Serial scan time | `0.423 s` |
-| Parallel scan time | `1.750 s` |
+| Optimized scale | `1.255` |
+| Weighted current gain | `1.114x` |
+| Serial scan time | `0.981 s` |
+| Parallel scan time | `2.570 s` |
 
 ## Performance
 
@@ -254,7 +254,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `901cdcf2acb6ad17c20dd33132e43764e7b3f5e0` |
+| Commit | `c4bef899c2236f9bbfa9c032d9cf0fcc8fa8969d` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

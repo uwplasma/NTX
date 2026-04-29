@@ -197,7 +197,7 @@ def build_payload() -> dict[str, object]:
     retired_cases: list[dict[str, object]] = []
     for objective_id, label in (
         ("booz_xform_scalar", "Implicit Boozer"),
-        ("ntx_transport_proxy", "Implicit NTX response"),
+        ("ntx_transport_response", "Implicit NTX response"),
     ):
         objective = implicit_objectives[objective_id]
         retired_cases.append(

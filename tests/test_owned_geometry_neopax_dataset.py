@@ -60,14 +60,7 @@ def test_owned_geometry_neopax_dataset_records_provenance_without_external_runti
     responses = case_payload["scan_paths"]["booz_xform_jax"]["profile_responses"]
     assert responses["profile_model"]
     assert len(responses["bootstrap_current_response_normalized"]) == 2
-    assert (
-        responses["bootstrap_current_proxy_normalized"]
-        == responses["bootstrap_current_response_normalized"]
-    )
     assert np_is_finite_scalar(responses["current_response_objective"])
-    assert (
-        responses["bootstrap_current_objective"] == responses["current_response_objective"]
-    )
     assert case_payload["interpolation_audit"]["reference_path"] == "booz_xform_jax"
     assert case_payload["interpolation_audit"]["candidate_path"] == "vmec_jax_wout_cubic"
     assert max(

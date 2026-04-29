@@ -111,7 +111,7 @@ def solve_profile_transport_loop(
         ambipolar_residual_history=jnp.stack(
             [profile.ambipolar_residual for profile in profile_history]
         ),
-        bootstrap_current_proxy_history=jnp.stack(
+        bootstrap_current_response_history=jnp.stack(
             [profile.bootstrap_current_response for profile in profile_history]
         ),
         transport_loss_history=loss_array,
@@ -234,7 +234,7 @@ def solve_primitive_profile_transport_loop(
         ambipolar_residual_history=jnp.stack(
             [profile.ambipolar_residual for profile in profile_history]
         ),
-        bootstrap_current_proxy_history=jnp.stack(
+        bootstrap_current_response_history=jnp.stack(
             [profile.bootstrap_current_response for profile in profile_history]
         ),
         transport_loss_history=loss_array,

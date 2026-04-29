@@ -120,7 +120,6 @@ def solve_profiles() -> dict[str, np.ndarray | str | float]:
         "b0": b0,
         "iota": iota,
         "current_response": current_response,
-        "current_proxy": current_response,
     }
 
 
@@ -224,7 +223,6 @@ def write_summary(data: dict[str, np.ndarray | str | float]) -> None:
         "D13": np.asarray(data["d13"]).tolist(),
         "nuD33": np.asarray(data["d33_hat"]).tolist(),
         "bootstrap_current_response": np.asarray(data["current_response"]).tolist(),
-        "bootstrap_current_proxy": np.asarray(data["current_response"]).tolist(),
         "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
     }

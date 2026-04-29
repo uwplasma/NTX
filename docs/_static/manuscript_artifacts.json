@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "901cdcf2acb6ad17c20dd33132e43764e7b3f5e0",
+    "commit": "c4bef899c2236f9bbfa9c032d9cf0fcc8fa8969d",
     "branch": "main"
   },
   "environment": {
@@ -796,7 +796,7 @@
       "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmec_jax geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
       "objectives": [
         {
-          "id": "ntx_transport_proxy",
+          "id": "ntx_transport_response",
           "value": 8257.752387437193,
           "parameter_names": [
             "rc10",
@@ -897,7 +897,7 @@
           "status": "closed-not-shipped"
         },
         {
-          "id": "ntx_transport_proxy",
+          "id": "ntx_transport_response",
           "value": 1.7108093931111856,
           "parameter_names": [
             "rc01"
@@ -996,7 +996,7 @@
               ]
             },
             {
-              "id": "ntx_transport_proxy",
+              "id": "ntx_transport_response",
               "value": 30.74405302577114,
               "parameter_names": [
                 "rc01",
@@ -1091,7 +1091,7 @@
               "median_relative_mismatch": 2.9284843671089477e-08
             },
             {
-              "id": "ntx_transport_proxy",
+              "id": "ntx_transport_response",
               "max_relative_mismatch": 2.0835926699151202e-06,
               "median_relative_mismatch": 3.5255055283087405e-07
             },
@@ -1173,7 +1173,7 @@
               ]
             },
             {
-              "id": "ntx_transport_proxy",
+              "id": "ntx_transport_response",
               "value": 17.753467905446442,
               "parameter_names": [
                 "rc01",
@@ -1268,7 +1268,7 @@
               "median_relative_mismatch": 9.01644786767665e-09
             },
             {
-              "id": "ntx_transport_proxy",
+              "id": "ntx_transport_response",
               "max_relative_mismatch": 1.6643036184011035e-05,
               "median_relative_mismatch": 3.0684454266665806e-06
             },
@@ -1301,7 +1301,7 @@
       "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmec_jax solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
       "objective_ids": [
         "booz_xform_scalar",
-        "ntx_transport_proxy",
+        "ntx_transport_response",
         "ntx_neopax_integrated_current"
       ]
     },
@@ -1344,7 +1344,7 @@
           "id": "boundary_projected_current",
           "label": "Projected boundary",
           "geometry_path": "boundary-projected VMEC/Boozer path",
-          "observable_scope": "NTX proxy and integrated current",
+          "observable_scope": "NTX reduced response and integrated current",
           "max_relative_mismatch": 7.17355827984326e-07,
           "median_relative_mismatch": 3.556284405640031e-07,
           "status": "stress-pass",
@@ -1355,7 +1355,7 @@
           "id": "explicit_relaxed_qa_lowres",
           "label": "QA low-res",
           "geometry_path": "explicit-relaxed fixed-boundary path",
-          "observable_scope": "Boozer scalar, NTX proxy, and integrated current",
+          "observable_scope": "Boozer scalar, NTX reduced response, and integrated current",
           "max_relative_mismatch": 2.6260247221222558e-05,
           "median_relative_mismatch": 2.4755959253710013e-07,
           "status": "stress-pass",
@@ -1366,7 +1366,7 @@
           "id": "explicit_relaxed_qh_warm_start",
           "label": "QH warm-start",
           "geometry_path": "explicit-relaxed fixed-boundary path",
-          "observable_scope": "Boozer scalar, NTX proxy, and integrated current",
+          "observable_scope": "Boozer scalar, NTX reduced response, and integrated current",
           "max_relative_mismatch": 1.6643036184011035e-05,
           "median_relative_mismatch": 6.339712868902882e-07,
           "status": "stress-pass",
@@ -1399,10 +1399,10 @@
           "notes": "closed as non-shipping because residual contraction and surface/transport tangent parity do not pass"
         },
         {
-          "id": "implicit_ntx_transport_proxy",
-          "label": "Implicit NTX",
+          "id": "implicit_ntx_transport_response",
+          "label": "Implicit NTX response",
           "geometry_path": "implicit fixed-boundary equilibrium path",
-          "observable_scope": "ntx_transport_proxy",
+          "observable_scope": "ntx_transport_response",
           "max_relative_mismatch": 6.453988782153136,
           "median_relative_mismatch": null,
           "status": "closed-not-shipped",
@@ -2893,7 +2893,7 @@
               "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
               "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
               "status": "complete",
-              "seconds": 2.5189392080064863,
+              "seconds": 2.9345489160041325,
               "coefficients": {
                 "D11": {
                   "shape": [
@@ -3015,7 +3015,7 @@
                 ]
               },
               "profile_responses": {
-                "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+                "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
                 "density": [
                   1.19993439,
                   1.19609375,
@@ -3036,42 +3036,42 @@
                   -1.0526315789473684,
                   -1.971830985915493
                 ],
-                "electron_particle_flux_proxy": [
+                "electron_particle_flux_response": [
                   -13.82498084375162,
                   -37.36008988128227,
                   -86.05339758223428
                 ],
-                "ion_particle_flux_proxy": [
+                "ion_particle_flux_response": [
                   -6.91249042187581,
                   -18.680044940641135,
                   -43.02669879111714
                 ],
-                "ambipolar_residual_proxy": [
+                "ambipolar_residual_response": [
                   6.91249042187581,
                   18.680044940641135,
                   43.02669879111714
                 ],
-                "electron_current_proxy": [
+                "electron_current_response": [
                   -270.23368634213034,
                   -463.9184553993868,
                   -769.0129525756283
                 ],
-                "ion_current_proxy": [
+                "ion_current_response": [
                   135.11684317106517,
                   231.9592276996934,
                   384.50647628781417
                 ],
-                "bootstrap_current_proxy": [
+                "bootstrap_current_response": [
                   -135.11684317106517,
                   -231.9592276996934,
                   -384.50647628781417
                 ],
-                "bootstrap_current_proxy_normalized": [
+                "bootstrap_current_response_normalized": [
                   -0.3514032961825234,
                   -0.6032648134801902,
                   -1.0
                 ],
-                "bootstrap_current_objective": 0.18513411469345195
+                "current_response_objective": 0.18513411469345195
               },
               "hdf5": {
                 "status": "written",
@@ -3083,7 +3083,7 @@
               "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
               "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
               "status": "complete",
-              "seconds": 0.5914393339771777,
+              "seconds": 0.6604218750144355,
               "coefficients": {
                 "D11": {
                   "shape": [
@@ -3205,7 +3205,7 @@
                 ]
               },
               "profile_responses": {
-                "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+                "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
                 "density": [
                   1.19993439,
                   1.19609375,
@@ -3226,42 +3226,42 @@
                   -1.0526315789473684,
                   -1.971830985915493
                 ],
-                "electron_particle_flux_proxy": [
+                "electron_particle_flux_response": [
                   -13.308374422556403,
                   -35.67598708048107,
                   -83.75226272019661
                 ],
-                "ion_particle_flux_proxy": [
+                "ion_particle_flux_response": [
                   -6.6541872112782015,
                   -17.837993540240536,
                   -41.876131360098306
                 ],
-                "ambipolar_residual_proxy": [
+                "ambipolar_residual_response": [
                   6.6541872112782015,
                   17.837993540240536,
                   41.876131360098306
                 ],
-                "electron_current_proxy": [
+                "electron_current_response": [
                   -271.22779499567855,
                   -468.79966349615194,
                   -781.6441208473695
                 ],
-                "ion_current_proxy": [
+                "ion_current_response": [
                   135.61389749783928,
                   234.39983174807597,
                   390.8220604236848
                 ],
-                "bootstrap_current_proxy": [
+                "bootstrap_current_response": [
                   -135.61389749783928,
                   -234.39983174807597,
                   -390.8220604236848
                 ],
-                "bootstrap_current_proxy_normalized": [
+                "bootstrap_current_response_normalized": [
                   -0.34699652663112757,
                   -0.5997610050312062,
                   -1.0
                 ],
-                "bootstrap_current_objective": 0.18398331158061515
+                "current_response_objective": 0.18398331158061515
               },
               "hdf5": {
                 "status": "written",
@@ -3324,7 +3324,7 @@
               "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
               "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
               "status": "complete",
-              "seconds": 0.5687012499547563,
+              "seconds": 0.65752991696354,
               "coefficients": {
                 "D11": {
                   "shape": [
@@ -3446,7 +3446,7 @@
                 ]
               },
               "profile_responses": {
-                "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+                "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
                 "density": [
                   1.19993439,
                   1.19609375,
@@ -3467,42 +3467,42 @@
                   -1.0526315789473684,
                   -1.971830985915493
                 ],
-                "electron_particle_flux_proxy": [
+                "electron_particle_flux_response": [
                   -0.029636720147846476,
                   -0.10483504428050608,
                   -0.2644441865196647
                 ],
-                "ion_particle_flux_proxy": [
+                "ion_particle_flux_response": [
                   -0.014818360073923238,
                   -0.05241752214025304,
                   -0.13222209325983236
                 ],
-                "ambipolar_residual_proxy": [
+                "ambipolar_residual_response": [
                   0.014818360073923238,
                   0.05241752214025304,
                   0.13222209325983236
                 ],
-                "electron_current_proxy": [
+                "electron_current_response": [
                   -317.1788955073362,
                   -552.7916862108112,
                   -940.5837875389636
                 ],
-                "ion_current_proxy": [
+                "ion_current_response": [
                   158.5894477536681,
                   276.3958431054056,
                   470.2918937694818
                 ],
-                "bootstrap_current_proxy": [
+                "bootstrap_current_response": [
                   -158.5894477536681,
                   -276.3958431054056,
                   -470.2918937694818
                 ],
-                "bootstrap_current_proxy_normalized": [
+                "bootstrap_current_response_normalized": [
                   -0.3372149293974484,
                   -0.5877112635092191,
                   -1.0
                 ],
-                "bootstrap_current_objective": 0.18045229671197313
+                "current_response_objective": 0.18045229671197313
               },
               "hdf5": {
                 "status": "written",
@@ -7429,7 +7429,7 @@
         "runtime_correction_applied": false
       },
       "closure_requirements": [
-        "any promoted finite-beta profile-current closure must use physical local drivers already present in the profile equations, such as trapped fraction, inverse-aspect-ratio proxy, collisionality, and thermodynamic-force coefficients",
+        "any promoted finite-beta profile-current closure must use physical local drivers already present in the profile equations, such as trapped fraction, inverse aspect ratio, collisionality, and thermodynamic-force coefficients",
         "a scalar response multiplier is not sufficient because the measured response varies over the committed radial profile",
         "a runtime closure change must preserve the fixed-field QA/QH total-current stress gate, the W7-X transfer gate, the source-channel reconstruction gate, and the same-grid finite-beta coefficient gate",
         "the diagnostic regressions in this artifact are model-identification tools only, not production fits",
@@ -8465,10 +8465,10 @@
       "harmonic_m": 0,
       "harmonic_n": -1,
       "baseline_scale": 1.0,
-      "optimized_scale": 1.296932471472278,
-      "weighted_gain": 1.085158353544606,
-      "serial_scan_seconds": 0.42300166698987596,
-      "parallel_scan_seconds": 1.7497135830053594
+      "optimized_scale": 1.2549895436412974,
+      "weighted_gain": 1.1136728754327587,
+      "serial_scan_seconds": 0.98115779197542,
+      "parallel_scan_seconds": 2.5695602080086246
     }
   },
   "claims": {
@@ -8600,7 +8600,7 @@
     "profile_uncertainty_min_fisher_eigenvalue": 8.519842775332106e-21,
     "profile_uncertainty_max_fisher_eigenvalue": 0.02042855830259904,
     "profile_uncertainty_hessian_probe_relative_error": 1.7532953579425772e-16,
-    "bootstrap_current_weighted_gain": 1.085158353544606,
+    "bootstrap_current_weighted_gain": 1.1136728754327587,
     "cpu_heavy_best_multiprocess_speedup": 0.5914798110217425,
     "gpu_heavy_best_multiprocess_speedup": 0.47696975821147963,
     "gpu_heavy_healthy_device_count": 1,
@@ -8783,7 +8783,7 @@
       "docs/_static/closure_validation_report.json",
       "docs/_static/closure_validation_report.txt"
     ],
-    "bootstrap_proxy": [
+    "bootstrap_response": [
       "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
       "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf",
       "docs/_static/bootstrap_current_from_vmec_or_boozmn.json"
@@ -9866,7 +9866,7 @@
           "lane": "autodiff",
           "maturity": "stress-gate",
           "title": "Differentiable bootstrap-current optimization",
-          "claim_scope": "The differentiable bootstrap-current objective improves a weighted current proxy on the committed W7-X study while remaining scoped below a broad stellarator-design claim.",
+          "claim_scope": "The differentiable bootstrap-current objective improves a weighted reduced current response on the committed W7-X study while remaining scoped below a broad stellarator-design claim.",
           "literature_anchors": [
             "Paul et al. 2019 adjoint neoclassical optimization",
             "direct neoclassical ion-transport optimization literature",
@@ -11015,7 +11015,7 @@
           "open_work": [
             "derive or import a quadrature-converged higher-order closure before accepting any apparent finite-beta current gate pass at X < Pmax",
             "close the inner-radius reduced-closure gap using the same physical profile, source-channel decomposition, normalization, and interpolation contract",
-            "use the radial source-response map to distinguish a physics-derived closure term from a profile-local fitted multiplier",
+            "use the radial source-response map to distinguish a physics-derived closure term from an empirical profile-local multiplier",
             "repeat the field-radius-matched interpolation audit with a dense production radial scan before changing any runtime interpolation policy",
             "derive a quadrature-stable finite-beta reduced-closure improvement; the current field-radius-matched apparent pass remains under-integrated",
             "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
@@ -11485,7 +11485,7 @@
       "profile_control",
       "profile_basis",
       "profile_transport",
-      "bootstrap_proxy",
+      "bootstrap_response",
       "robust_science",
       "performance_smoke",
       "performance_heavy",

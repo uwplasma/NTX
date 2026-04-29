@@ -1032,7 +1032,7 @@
         "lane": "autodiff",
         "maturity": "stress-gate",
         "title": "Differentiable bootstrap-current optimization",
-        "claim_scope": "The differentiable bootstrap-current objective improves a weighted current proxy on the committed W7-X study while remaining scoped below a broad stellarator-design claim.",
+        "claim_scope": "The differentiable bootstrap-current objective improves a weighted reduced current response on the committed W7-X study while remaining scoped below a broad stellarator-design claim.",
         "literature_anchors": [
           "Paul et al. 2019 adjoint neoclassical optimization",
           "direct neoclassical ion-transport optimization literature",
@@ -2181,7 +2181,7 @@
         "open_work": [
           "derive or import a quadrature-converged higher-order closure before accepting any apparent finite-beta current gate pass at X < Pmax",
           "close the inner-radius reduced-closure gap using the same physical profile, source-channel decomposition, normalization, and interpolation contract",
-          "use the radial source-response map to distinguish a physics-derived closure term from a profile-local fitted multiplier",
+          "use the radial source-response map to distinguish a physics-derived closure term from an empirical profile-local multiplier",
           "repeat the field-radius-matched interpolation audit with a dense production radial scan before changing any runtime interpolation policy",
           "derive a quadrature-stable finite-beta reduced-closure improvement; the current field-radius-matched apparent pass remains under-integrated",
           "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",

@@ -84,7 +84,7 @@
           "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
           "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
           "status": "complete",
-          "seconds": 2.5189392080064863,
+          "seconds": 2.9345489160041325,
           "coefficients": {
             "D11": {
               "shape": [
@@ -206,7 +206,7 @@
             ]
           },
           "profile_responses": {
-            "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+            "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
             "density": [
               1.19993439,
               1.19609375,
@@ -227,42 +227,42 @@
               -1.0526315789473684,
               -1.971830985915493
             ],
-            "electron_particle_flux_proxy": [
+            "electron_particle_flux_response": [
               -13.82498084375162,
               -37.36008988128227,
               -86.05339758223428
             ],
-            "ion_particle_flux_proxy": [
+            "ion_particle_flux_response": [
               -6.91249042187581,
               -18.680044940641135,
               -43.02669879111714
             ],
-            "ambipolar_residual_proxy": [
+            "ambipolar_residual_response": [
               6.91249042187581,
               18.680044940641135,
               43.02669879111714
             ],
-            "electron_current_proxy": [
+            "electron_current_response": [
               -270.23368634213034,
               -463.9184553993868,
               -769.0129525756283
             ],
-            "ion_current_proxy": [
+            "ion_current_response": [
               135.11684317106517,
               231.9592276996934,
               384.50647628781417
             ],
-            "bootstrap_current_proxy": [
+            "bootstrap_current_response": [
               -135.11684317106517,
               -231.9592276996934,
               -384.50647628781417
             ],
-            "bootstrap_current_proxy_normalized": [
+            "bootstrap_current_response_normalized": [
               -0.3514032961825234,
               -0.6032648134801902,
               -1.0
             ],
-            "bootstrap_current_objective": 0.18513411469345195
+            "current_response_objective": 0.18513411469345195
           },
           "hdf5": {
             "status": "written",
@@ -274,7 +274,7 @@
           "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
           "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
           "status": "complete",
-          "seconds": 0.5914393339771777,
+          "seconds": 0.6604218750144355,
           "coefficients": {
             "D11": {
               "shape": [
@@ -396,7 +396,7 @@
             ]
           },
           "profile_responses": {
-            "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+            "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
             "density": [
               1.19993439,
               1.19609375,
@@ -417,42 +417,42 @@
               -1.0526315789473684,
               -1.971830985915493
             ],
-            "electron_particle_flux_proxy": [
+            "electron_particle_flux_response": [
               -13.308374422556403,
               -35.67598708048107,
               -83.75226272019661
             ],
-            "ion_particle_flux_proxy": [
+            "ion_particle_flux_response": [
               -6.6541872112782015,
               -17.837993540240536,
               -41.876131360098306
             ],
-            "ambipolar_residual_proxy": [
+            "ambipolar_residual_response": [
               6.6541872112782015,
               17.837993540240536,
               41.876131360098306
             ],
-            "electron_current_proxy": [
+            "electron_current_response": [
               -271.22779499567855,
               -468.79966349615194,
               -781.6441208473695
             ],
-            "ion_current_proxy": [
+            "ion_current_response": [
               135.61389749783928,
               234.39983174807597,
               390.8220604236848
             ],
-            "bootstrap_current_proxy": [
+            "bootstrap_current_response": [
               -135.61389749783928,
               -234.39983174807597,
               -390.8220604236848
             ],
-            "bootstrap_current_proxy_normalized": [
+            "bootstrap_current_response_normalized": [
               -0.34699652663112757,
               -0.5997610050312062,
               -1.0
             ],
-            "bootstrap_current_objective": 0.18398331158061515
+            "current_response_objective": 0.18398331158061515
           },
           "hdf5": {
             "status": "written",
@@ -515,7 +515,7 @@
           "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
           "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
           "status": "complete",
-          "seconds": 0.5687012499547563,
+          "seconds": 0.65752991696354,
           "coefficients": {
             "D11": {
               "shape": [
@@ -637,7 +637,7 @@
             ]
           },
           "profile_responses": {
-            "profile_model": "dimensionless two-species proxy using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+            "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
             "density": [
               1.19993439,
               1.19609375,
@@ -658,42 +658,42 @@
               -1.0526315789473684,
               -1.971830985915493
             ],
-            "electron_particle_flux_proxy": [
+            "electron_particle_flux_response": [
               -0.029636720147846476,
               -0.10483504428050608,
               -0.2644441865196647
             ],
-            "ion_particle_flux_proxy": [
+            "ion_particle_flux_response": [
               -0.014818360073923238,
               -0.05241752214025304,
               -0.13222209325983236
             ],
-            "ambipolar_residual_proxy": [
+            "ambipolar_residual_response": [
               0.014818360073923238,
               0.05241752214025304,
               0.13222209325983236
             ],
-            "electron_current_proxy": [
+            "electron_current_response": [
               -317.1788955073362,
               -552.7916862108112,
               -940.5837875389636
             ],
-            "ion_current_proxy": [
+            "ion_current_response": [
               158.5894477536681,
               276.3958431054056,
               470.2918937694818
             ],
-            "bootstrap_current_proxy": [
+            "bootstrap_current_response": [
               -158.5894477536681,
               -276.3958431054056,
               -470.2918937694818
             ],
-            "bootstrap_current_proxy_normalized": [
+            "bootstrap_current_response_normalized": [
               -0.3372149293974484,
               -0.5877112635092191,
               -1.0
             ],
-            "bootstrap_current_objective": 0.18045229671197313
+            "current_response_objective": 0.18045229671197313
           },
           "hdf5": {
             "status": "written",

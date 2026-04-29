@@ -69,18 +69,6 @@
     0.9573425510558056,
     1.0
   ],
-  "bootstrap_current_proxy": [
-    0.23975170959238648,
-    0.33534517897151095,
-    0.43333220086080293,
-    0.5346811845167169,
-    0.636657341354232,
-    0.7347986382763991,
-    0.8246537894292606,
-    0.9014826351108802,
-    0.9573425510558056,
-    1.0
-  ],
   "figure_png": "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
   "figure_pdf": "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf"
 }

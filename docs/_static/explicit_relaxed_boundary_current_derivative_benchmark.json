@@ -18,7 +18,7 @@
   "fd_step": 1e-05,
   "objective_ids": [
     "booz_xform_scalar",
-    "ntx_transport_proxy",
+    "ntx_transport_response",
     "ntx_neopax_integrated_current"
   ],
   "cases": [
@@ -89,7 +89,7 @@
           ]
         },
         {
-          "id": "ntx_transport_proxy",
+          "id": "ntx_transport_response",
           "value": 30.74405302577114,
           "parameter_names": [
             "rc01",
@@ -184,7 +184,7 @@
           "median_relative_mismatch": 2.9284843671089477e-08
         },
         {
-          "id": "ntx_transport_proxy",
+          "id": "ntx_transport_response",
           "max_relative_mismatch": 2.0835926699151202e-06,
           "median_relative_mismatch": 3.5255055283087405e-07
         },
@@ -266,7 +266,7 @@
           ]
         },
         {
-          "id": "ntx_transport_proxy",
+          "id": "ntx_transport_response",
           "value": 17.753467905446442,
           "parameter_names": [
             "rc01",
@@ -361,7 +361,7 @@
           "median_relative_mismatch": 9.01644786767665e-09
         },
         {
-          "id": "ntx_transport_proxy",
+          "id": "ntx_transport_response",
           "max_relative_mismatch": 1.6643036184011035e-05,
           "median_relative_mismatch": 3.0684454266665806e-06
         },
