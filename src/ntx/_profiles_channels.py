@@ -52,7 +52,7 @@ def evaluate_species_particle_flux(
     rho: Array | None = None,
     er_profile: Array,
 ) -> Array:
-    """Return the monoenergetic particle-flux proxy for one species."""
+    """Return the reduced monoenergetic particle-flux response for one species."""
 
     rho_eval = jnp.asarray(scan.rho) if rho is None else jnp.asarray(rho)
     d11 = evaluate_scan_channel(scan, "D11", rho_eval, species.nu_v, er_profile)
@@ -70,7 +70,7 @@ def evaluate_species_current_response(
     rho: Array | None = None,
     er_profile: Array,
 ) -> Array:
-    """Return the monoenergetic bootstrap-current proxy for one species."""
+    """Return the reduced monoenergetic parallel-current response for one species."""
 
     rho_eval = jnp.asarray(scan.rho) if rho is None else jnp.asarray(rho)
     d31 = evaluate_scan_channel(scan, "D31", rho_eval, species.nu_v, er_profile)

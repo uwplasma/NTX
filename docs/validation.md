@@ -640,7 +640,7 @@ at `P=2`.
 The first implementation step on that lane is now in place in the imported
 closure stack: the Sonine basis normalization and source-projection algebra are
 generated programmatically and tested against the current three-moment formulas.
-That scaffold has now been tightened further: the runtime `P=2` closure can be
+That validation path has now been tightened further: the runtime `P=2` closure can be
 reconstructed from generated Sonine coefficients and Hankel moment sequences,
 and still passes the shipped W7-X momentum-correction regression. The same is
 now true for the low-order momentum-conserving collisional blocks: they can be
@@ -755,7 +755,7 @@ profiles of:
 - `D11`
 - `D13`
 - `nu_hat * D33`
-- a compact bootstrap-current proxy
+- a compact reduced bootstrap-current response
 
 The shortest `NTX + NEOPAX` radial-profile workflow is:
 

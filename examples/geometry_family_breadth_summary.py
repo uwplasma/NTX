@@ -135,7 +135,7 @@ def build_payload() -> dict[str, object]:
             case_id="boundary_projected_current",
             label="Projected boundary",
             geometry_path="boundary-projected VMEC/Boozer path",
-            observable_scope="NTX proxy and integrated current",
+            observable_scope="NTX reduced response and integrated current",
             max_relative_mismatch=boundary["summary_metrics"]["max_relative_mismatch"],
             median_relative_mismatch=boundary["summary_metrics"][
                 "median_relative_mismatch"
@@ -155,7 +155,7 @@ def build_payload() -> dict[str, object]:
                 case_id=f"explicit_relaxed_{case['id']}",
                 label=str(case["label"]),
                 geometry_path="explicit-relaxed fixed-boundary path",
-                observable_scope="Boozer scalar, NTX proxy, and integrated current",
+                observable_scope="Boozer scalar, NTX reduced response, and integrated current",
                 max_relative_mismatch=case["summary_metrics"][
                     "max_relative_mismatch"
                 ],
@@ -197,7 +197,7 @@ def build_payload() -> dict[str, object]:
     retired_cases: list[dict[str, object]] = []
     for objective_id, label in (
         ("booz_xform_scalar", "Implicit Boozer"),
-        ("ntx_transport_proxy", "Implicit NTX"),
+        ("ntx_transport_proxy", "Implicit NTX response"),
     ):
         objective = implicit_objectives[objective_id]
         retired_cases.append(

@@ -40,8 +40,8 @@ on the NEOPAX Python package.
 
 The imported profile layer in [`src/ntx/profiles.py`](../src/ntx/profiles.py)
 builds directly on `NeopaxScan` when the next step is an ambipolar or
-bootstrap-current-proxy solve instead of immediate export into the external
-package object.
+reduced bootstrap-current response solve instead of immediate export into the
+external package object.
 
 For end-to-end examples, see:
 

@@ -65,8 +65,9 @@ def autodiff_design_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             title="Differentiable bootstrap-current optimization",
             claim_scope=(
                 "The differentiable bootstrap-current objective improves a "
-                "weighted current proxy on the committed W7-X study while "
-                "remaining scoped below a broad stellarator-design claim."
+                "weighted reduced current response on the committed W7-X "
+                "study while remaining scoped below a broad stellarator-design "
+                "claim."
             ),
             literature_anchors=(
                 "Paul et al. 2019 adjoint neoclassical optimization",

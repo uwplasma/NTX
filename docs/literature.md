@@ -79,7 +79,7 @@ These references anchor NTX's autodiff tests:
 - inverse-design recovery from generated targets
 - uncertainty propagation from Jacobians
 - profile and geometry optimization with explicit physical metrics rather
-  than proxy-only validation
+  than reduced-response-only validation
 
 ## Geometry-Breadth And Future Benchmark Families
 

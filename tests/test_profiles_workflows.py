@@ -25,6 +25,7 @@ from ntx import (
     apply_profile_control,
     bootstrap_current_objective,
     build_species_profiles_from_primitives,
+    current_response_objective,
     optimize_profile_basis_control,
     optimize_profile_control,
     primitive_profile_transport_loss,
@@ -48,9 +49,10 @@ def test_ambipolar_profile_solver_returns_finite_result_and_reduces_loss():
     assert isinstance(result, AmbipolarProfileResult)
     assert result.er_profile.shape == scan.rho.shape
     assert result.bootstrap_current_proxy.shape == scan.rho.shape
+    assert result.bootstrap_current_response.shape == scan.rho.shape
     assert result.species_particle_flux.shape[1] == scan.rho.shape[0]
     assert jnp.all(jnp.isfinite(result.er_profile))
-    assert jnp.all(jnp.isfinite(result.bootstrap_current_proxy))
+    assert jnp.all(jnp.isfinite(result.bootstrap_current_response))
     assert result.loss_history[-1] <= result.loss_history[0] + 1e-12
 
 
@@ -64,7 +66,9 @@ def test_ambipolar_residual_and_solver_are_differentiable():
             profiles[1],
         )
         result = solve_ambipolar_er_profile(scan, scaled_species, steps=6)
-        return jnp.sum(result.bootstrap_current_proxy**2) + jnp.sum(result.ambipolar_residual**2)
+        return jnp.sum(result.bootstrap_current_response**2) + jnp.sum(
+            result.ambipolar_residual**2
+        )
 
     gradient = jax.grad(objective)(1.0)
     assert jnp.isfinite(gradient)
@@ -93,8 +97,11 @@ def test_profile_family_solver_and_bootstrap_objective_return_finite_results():
     assert isinstance(result, AmbipolarProfileFamilyResult)
     assert result.er_profile.shape == (control.size, scan.rho.size)
     assert result.bootstrap_current_proxy.shape == (control.size, scan.rho.size)
-    objective = bootstrap_current_objective(scan.rho, result.bootstrap_current_proxy[1])
+    assert result.bootstrap_current_response.shape == (control.size, scan.rho.size)
+    objective = current_response_objective(scan.rho, result.bootstrap_current_response[1])
+    legacy_objective = bootstrap_current_objective(scan.rho, result.bootstrap_current_proxy[1])
     assert jnp.isfinite(objective)
+    assert jnp.allclose(objective, legacy_objective)
 
 
 def test_profile_family_solver_defaults_control_index():

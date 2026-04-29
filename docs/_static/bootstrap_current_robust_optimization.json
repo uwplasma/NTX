@@ -6,6 +6,8 @@
   "radial_points": 7,
   "scale_grid_size": 29,
   "quadrature_order": 5,
+  "baseline_weighted_current_response": 18.05476672344296,
+  "optimized_weighted_current_response": 17.941244433225066,
   "baseline_weighted_current_proxy": 18.05476672344296,
   "optimized_weighted_current_proxy": 17.941244433225066,
   "weighted_current_ratio": 0.993712336915963,
@@ -14,7 +16,7 @@
   "robust_objective_final": 7.756627108952917,
   "robust_objective_relative_change": 0.039246752885494854,
   "robust_gain": 0.993712336915963,
-  "robust_gain_definition": "optimized_weighted_current_proxy / max(abs(baseline_weighted_current_proxy), 1e-30)",
+  "robust_gain_definition": "optimized_weighted_current_response / max(abs(baseline_weighted_current_response), 1e-30)",
   "max_current_std": 1.042178789534516,
   "rho": [
     0.15,

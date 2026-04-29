@@ -86,7 +86,7 @@ This example is the shortest NTX-only workflow:
 - or, if a Boozer `boozmn` file already exists, use `booz_xform_jax` output directly
 - solve a fixed-collisionality NTX radial family
 - plot magnetic geometry, radial profile inputs, `D11`, `nu_hat * D33`, and a compact
-  interior bootstrap-current proxy
+  interior reduced bootstrap-current response
 
 All user inputs live at the top of the file. The script prefers direct Boozer
 input in `auto` mode when a `boozmn` file is available and otherwise falls back
@@ -100,7 +100,7 @@ It writes:
 - `docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf`
 - `docs/_static/bootstrap_current_from_vmec_or_boozmn.json`
 
-![NTX bootstrap-current proxy profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
+![NTX reduced bootstrap-current response profile](_static/bootstrap_current_from_vmec_or_boozmn.png)
 
 ## 8. W7-X Bootstrap-Current Convergence Audit
 
@@ -533,7 +533,7 @@ python examples/bootstrap_current_robust_optimization.py
 
 This writes `docs/_static/bootstrap_current_robust_optimization.{png,pdf,json}`
 and compares deterministic versus robust optimization of the scalar
-bootstrap-current proxy under a prescribed Gaussian control uncertainty.
+bootstrap-current response under a prescribed Gaussian control uncertainty.
 
 ## 19. Ambipolar Profile
 
@@ -552,7 +552,7 @@ and demonstrates:
 - defining two species profiles with `A1(r)`, `A3(r)`, and `\nu_v(r)`
 - visualizing the residual landscape over the scanned `E_r` axis
 - solving a smooth ambipolar `E_r(r)` profile with radial regularization
-- evaluating the resulting bootstrap-current proxy profile
+- evaluating the resulting reduced bootstrap-current response profile
 
 ## 20. Ambipolar Profile Family
 
@@ -583,7 +583,7 @@ differentiable geometry-control problem:
 
 - a VMEC-derived radial surface family
 - one dominant non-axisymmetric harmonic used as the control variable
-- autodiff optimization of a weighted bootstrap-current proxy
+- autodiff optimization of a weighted bootstrap-current response
 - explicit serial-versus-multiprocess timing annotations
 
 This is the main application/science-case figure for a methods paper centered
@@ -662,7 +662,7 @@ and demonstrates:
 - reconstructing `A1(r)` and `A3(r)` from primitive density and temperature
   profiles
 - comparing initial and final residual/current profiles for the primitive closure
-- updating density and temperature instead of force proxies directly
+- updating density and temperature instead of thermodynamic-force channels directly
 - enforcing explicit density/temperature source-target closure terms in addition
   to the transport mismatch
 - exposing the derived monoenergetic force profiles alongside the final primitive state

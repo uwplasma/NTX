@@ -51,6 +51,7 @@ FIGURE_PRESETS = {
         "robust_science",
         "validation",
         "closure_validation",
+        "bootstrap_response",
         "bootstrap_proxy",
         "w7x_audit",
         "performance_smoke",
@@ -100,6 +101,7 @@ FIGURE_PRESETS = {
         "profile_control",
         "profile_basis",
         "profile_transport",
+        "bootstrap_response",
         "bootstrap_proxy",
         "robust_science",
         "performance_smoke",
@@ -569,7 +571,7 @@ def main() -> None:
             (".png", ".pdf", ".json", ".txt"),
         )
 
-    if "bootstrap_proxy" in selected:
+    if "bootstrap_response" in selected or "bootstrap_proxy" in selected:
         _run(
             [
                 sys.executable,
@@ -580,7 +582,7 @@ def main() -> None:
             source = ROOT / "docs" / "_static" / f"bootstrap_current_from_vmec_or_boozmn{suffix}"
             target = output_dir / source.name
             target.write_bytes(source.read_bytes())
-        manifest["bootstrap_proxy"] = [
+        manifest["bootstrap_response"] = [
             _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.png"),
             _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.pdf"),
             _manifest_path(output_dir / "bootstrap_current_from_vmec_or_boozmn.json"),
