@@ -58,6 +58,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
         "owned_finite_beta_field_radius_matched_closure_quadrature"
         in payload["tables"]
     )
+    assert "owned_finite_beta_field_radius_matched_source_channel" in payload["tables"]
     assert "owned_finite_beta_sfincs_jax_resolution_audit" in payload["tables"]
     assert "owned_finite_beta_sfincs_jax_production_ladder" in payload["tables"]
     finite_beta_bootstrap = payload["tables"]["owned_finite_beta_bootstrap_comparison"]
@@ -140,6 +141,18 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     )
     assert (
         payload["claims"][
+            "owned_finite_beta_matched_source_channel_reconstruction_residual"
+        ]
+        < 1.0e-8
+    )
+    assert (
+        payload["claims"][
+            "owned_finite_beta_matched_source_channel_high_stable_error"
+        ]
+        > 1.0e-1
+    )
+    assert (
+        payload["claims"][
             "owned_finite_beta_closure_target_runtime_correction_applied"
         ]
         is False
@@ -175,6 +188,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "Production radial/collisionality ladder count" in markdown
     assert "Under-integrated closure current-gate passes" in markdown
     assert "Field-radius-matched quadrature-stable pass count" in markdown
+    assert "Field-radius-matched source-channel reconstruction residual" in markdown
     assert "Source-channel reconstruction residual" in markdown
     assert "Profile source-response radii" in markdown
     assert "Closure-target best physics driver" in markdown
@@ -202,6 +216,7 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "owned finite-beta production radial/collisionality" in claims
     assert "owned finite-beta closure-quadrature audit" in claims
     assert "field-radius-matched closure-quadrature audit" in claims
+    assert "field-radius-matched source-channel audit" in claims
     assert "adaptive `nu/v` support points" in claims
     assert "production-grid CPU performance" in claims
     assert "fixed-workload CPU strong-scaling" in claims

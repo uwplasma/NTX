@@ -84,6 +84,13 @@ def test_closure_quadrature_summary_flags_underintegrated_pass() -> None:
     assert metrics["reference_stress_relative_error"] == 0.31
 
 
+def test_root_relative_accepts_relative_output_prefix() -> None:
+    assert (
+        audit._root_relative(Path("docs/_static/example.png"))  # noqa: SLF001
+        == "docs/_static/example.png"
+    )
+
+
 def test_closure_quadrature_audit_writes_payload_and_figure(tmp_path: Path) -> None:
     payload = _synthetic_payload()
     output_prefix = tmp_path / "closure_quadrature_audit"

@@ -175,6 +175,10 @@
 | Field-radius-matched best apparent setting | `P=18, X=10, error=9.684e-02` |
 | Field-radius-matched quadrature-stable pass count | `0` |
 | Field-radius-matched highest-X largest-order error | `3.082e-01` |
+| Field-radius-matched source-channel reconstruction residual | `1.452e-14` |
+| Field-radius-matched source-channel reconstruction gate | `True` |
+| Field-radius-matched high-order source-channel stress error | `3.082e-01` |
+| Field-radius-matched Redl temperature response multiplier | `7.644e-01` |
 | Source-channel reconstruction residual | `1.079e-14` |
 | Source-channel reconstruction gate | `True` |
 | High-order source-channel stress error | `3.952e-01` |
@@ -248,7 +252,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `687ffa4e76cf3cc058a31bd8513730e55033df42` |
+| Commit | `4b5f822cf4382b889c0e3b28d2f0eeb9306cd557` |
 | Branch | `main` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

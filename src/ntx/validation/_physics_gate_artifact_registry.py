@@ -376,6 +376,40 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "closure aliasing."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_field_radius_matched_source_reconstruction",
+        category="stress",
+        metric="field-radius-matched source-channel superposition relative residual",
+        relation="<=",
+        threshold=1.0e-8,
+        source=(
+            "docs/_static/"
+            "owned_finite_beta_field_radius_matched_source_channel_audit.json"
+        ),
+        rationale=(
+            "After removing the sparse-radius interpolation layer, the "
+            "field-radius-matched source-channel diagnostic must still "
+            "reconstruct the same momentum-restoring solve from one-channel "
+            "RHS solves before its physical channel split is interpreted."
+        ),
+    ),
+    PhysicsGate(
+        name="owned_finite_beta_field_radius_matched_temperature_response_stress",
+        category="stress",
+        metric="field-radius-matched Redl/NTX effective-temperature source response multiplier",
+        relation="monitor",
+        threshold=None,
+        source=(
+            "docs/_static/"
+            "owned_finite_beta_field_radius_matched_source_channel_audit.json"
+        ),
+        rationale=(
+            "The matched-radius finite-beta profile-current gap should be "
+            "localized to physical source-channel response after interpolation "
+            "is removed. The temperature response ratio is tracked as a "
+            "diagnostic, not as a fitted runtime correction."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

@@ -205,5 +205,10 @@
     "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
     "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
     "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
+  ],
+  "owned_finite_beta_field_radius_matched_source_channel": [
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.png",
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.pdf",
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json"
   ]
 }

@@ -74,6 +74,12 @@ EFFECTIVE_LABELS = (
 )
 
 
+def _root_relative(path: Path) -> str:
+    path = Path(path)
+    resolved = path if path.is_absolute() else ROOT / path
+    return str(resolved.resolve().relative_to(ROOT))
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
 
@@ -761,6 +767,7 @@ def build_payload(
     bootstrap_json: Path = BOOTSTRAP_JSON,
     settings: tuple[tuple[int, int], ...] = DEFAULT_SETTINGS,
     output_dir: Path = WORKDIR,
+    output_prefix: Path = OUTPUT_PREFIX,
 ) -> dict[str, Any]:
     *_, NEOPAX = _require_external_stacks()
     bootstrap_payload = _load_json(bootstrap_json)
@@ -890,8 +897,8 @@ def build_payload(
                     "selectors"
                 ),
             ],
-            "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
-            "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
+            "figure_png": _root_relative(output_prefix.with_suffix(".png")),
+            "figure_pdf": _root_relative(output_prefix.with_suffix(".pdf")),
         }
     )
 
@@ -1101,6 +1108,7 @@ def main() -> None:
         bootstrap_json=args.bootstrap_json,
         settings=_parse_settings([str(value) for value in args.settings]),
         output_dir=args.output_dir,
+        output_prefix=args.output_prefix,
     )
     write_payload(payload, args.output_prefix)
     build_figure(payload, args.output_prefix)

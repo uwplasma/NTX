@@ -64,7 +64,12 @@ python examples/owned_finite_beta_closure_quadrature_audit.py \
   --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
   --x-values 10 18 --n-orders 10 12 14 18 \
   --output-prefix docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit \
-  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_closure_quadrature_audit
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe
+python examples/owned_finite_beta_source_channel_audit.py \
+  --bootstrap-json docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json \
+  --settings 10:12 10:18 18:18 \
+  --output-prefix docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit \
+  --output-dir examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -190,6 +195,10 @@ value is `9.68e-2` at `P=18, X=10`, but the quadrature-stable pass count is
 still zero and the `X=18, P=18` stress is about `3.1e-1`. This closes the
 interpolation-only and Pmax-only explanations without promoting a runtime
 closure change.
+The matched-radius source-channel sidecar reconstructs the corrected current to
+`1.45e-14` and keeps the accepted physics interpretation unchanged: the
+current-gate pass is confined to an under-integrated setting, while the
+quadrature-stable response remains a finite-beta reduced-closure stress.
 These scripts write:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
@@ -230,6 +239,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png`
 - `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf`
 - `docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json`
+- `docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.png`
+- `docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.pdf`
+- `docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
@@ -266,6 +278,8 @@ a stable selector.
 ![Owned finite-beta radial interpolation audit](_static/owned_finite_beta_radial_interpolation_audit.png)
 
 ![Owned finite-beta field-radius-matched closure quadrature audit](_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png)
+
+![Owned finite-beta field-radius-matched source-channel audit](_static/owned_finite_beta_field_radius_matched_source_channel_audit.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 

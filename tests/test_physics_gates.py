@@ -92,6 +92,10 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "owned_finite_beta_profile_source_response_stress" in names
     assert "owned_finite_beta_closure_target_driver_stress" in names
     assert "owned_finite_beta_field_radius_matched_quadrature_stress" in names
+    assert "owned_finite_beta_field_radius_matched_source_reconstruction" in names
+    assert (
+        "owned_finite_beta_field_radius_matched_temperature_response_stress" in names
+    )
 
 
 def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
@@ -270,6 +274,18 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (
+        static_root / "owned_finite_beta_field_radius_matched_source_channel_audit.json"
+    ).write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "max_source_channel_superposition_relative_residual": 2.0e-14,
+                    "high_stable_effective_temperature_response_multiplier_to_redl": 0.76,
+                }
+            }
+        )
+    )
 
     results = {result.gate.name: result for result in evaluate_artifact_gates(tmp_path)}
 
@@ -349,6 +365,22 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["owned_finite_beta_closure_target_driver_stress"].value == (
         pytest.approx(0.95)
     )
+    assert (
+        results["owned_finite_beta_field_radius_matched_source_reconstruction"].status
+        == "pass"
+    )
+    assert results[
+        "owned_finite_beta_field_radius_matched_source_reconstruction"
+    ].value == pytest.approx(2.0e-14)
+    assert (
+        results[
+            "owned_finite_beta_field_radius_matched_temperature_response_stress"
+        ].status
+        == "monitor"
+    )
+    assert results[
+        "owned_finite_beta_field_radius_matched_temperature_response_stress"
+    ].value == pytest.approx(0.76)
 
 
 def test_gate_and_result_as_dict_include_optional_details():
@@ -430,6 +462,16 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
     assert results["owned_finite_beta_production_ladder_stress"].status == "missing"
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "missing"
     assert results["owned_finite_beta_closure_target_driver_stress"].status == "missing"
+    assert (
+        results["owned_finite_beta_field_radius_matched_source_reconstruction"].status
+        == "missing"
+    )
+    assert (
+        results[
+            "owned_finite_beta_field_radius_matched_temperature_response_stress"
+        ].status
+        == "missing"
+    )
 
 
 def test_repository_artifact_gates_match_current_claim_statuses():
@@ -485,6 +527,26 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["owned_finite_beta_closure_quadrature_stress"].value >= 1.0
     assert results["owned_finite_beta_closure_target_driver_stress"].status == "monitor"
     assert results["owned_finite_beta_closure_target_driver_stress"].value > 0.0
+    assert (
+        results["owned_finite_beta_field_radius_matched_source_reconstruction"].status
+        == "pass"
+    )
+    assert (
+        results["owned_finite_beta_field_radius_matched_source_reconstruction"].value
+        <= 1.0e-8
+    )
+    assert (
+        results[
+            "owned_finite_beta_field_radius_matched_temperature_response_stress"
+        ].status
+        == "monitor"
+    )
+    assert (
+        results[
+            "owned_finite_beta_field_radius_matched_temperature_response_stress"
+        ].value
+        > 0.0
+    )
 
 
 def test_owned_surface_coefficient_convergence_and_onsager_gate():

@@ -404,6 +404,36 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "interpolation layer is removed"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_field_radius_matched_source_reconstruction",
+        path=(
+            static_root
+            / "owned_finite_beta_field_radius_matched_source_channel_audit.json"
+        ),
+        metric_key="max_source_channel_superposition_relative_residual",
+        details=(
+            "matched-radius finite-beta source-channel decomposition of the "
+            "same momentum-restoring solve; the one-channel RHS solves must "
+            "reconstruct the full corrected current before source-response "
+            "interpretation"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
+        gate_name="owned_finite_beta_field_radius_matched_temperature_response_stress",
+        path=(
+            static_root
+            / "owned_finite_beta_field_radius_matched_source_channel_audit.json"
+        ),
+        metric_key="high_stable_effective_temperature_response_multiplier_to_redl",
+        details=(
+            "monitored matched-radius ratio between the Redl effective-"
+            "temperature target channel and the high-order corrected source "
+            "channel; this localizes the remaining closure response without "
+            "applying a fitted runtime correction"
+        ),
+    )
 
     return results
 

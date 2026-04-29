@@ -101,6 +101,13 @@ def test_redl_effective_channel_targets_extract_density_and_temperature_terms() 
     assert targets["parallel_electric_force"] == 0.0
 
 
+def test_root_relative_accepts_relative_output_prefix() -> None:
+    assert (
+        audit._root_relative(Path("docs/_static/example.png"))  # noqa: SLF001
+        == "docs/_static/example.png"
+    )
+
+
 def test_load_or_build_scan_reuses_fallback_cache(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

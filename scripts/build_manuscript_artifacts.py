@@ -110,6 +110,9 @@ def build_payload() -> dict:
         STATIC
         / "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
     )
+    owned_finite_beta_matched_source_channel = _load_json(
+        STATIC / "owned_finite_beta_field_radius_matched_source_channel_audit.json"
+    )
     profile_uncertainty = _load_json(STATIC / "autodiff_profile_uncertainty.json")
     science = _load_json(STATIC / "bootstrap_current_optimization.json")
     cpu = _load_json(STATIC / "performance_scaling_cpu_heavy.json")
@@ -154,6 +157,7 @@ def build_payload() -> dict:
         "owned_finite_beta_closure_target",
         "owned_finite_beta_radial_interpolation",
         "owned_finite_beta_field_radius_matched_closure_quadrature",
+        "owned_finite_beta_field_radius_matched_source_channel",
         "ambipolar",
         "ambipolar_family",
         "profile_reconstruction",
@@ -411,6 +415,17 @@ def build_payload() -> dict:
                 "conclusion": owned_finite_beta_matched_quadrature["conclusion"],
                 "rows": owned_finite_beta_matched_quadrature["rows"],
                 "open_work": owned_finite_beta_matched_quadrature["open_work"],
+            },
+            "owned_finite_beta_field_radius_matched_source_channel": {
+                "summary_metrics": owned_finite_beta_matched_source_channel[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_matched_source_channel[
+                    "claim_scope"
+                ],
+                "conclusion": owned_finite_beta_matched_source_channel["conclusion"],
+                "rows": owned_finite_beta_matched_source_channel["rows"],
+                "open_work": owned_finite_beta_matched_source_channel["open_work"],
             },
             "profile_uncertainty": {
                 "basis_size": profile_uncertainty["basis_size"],
@@ -921,6 +936,26 @@ def build_payload() -> dict:
                     "high_x_largest_order_stress_relative_error"
                 ]
             ),
+            "owned_finite_beta_matched_source_channel_reconstruction_residual": (
+                owned_finite_beta_matched_source_channel["summary_metrics"][
+                    "max_source_channel_superposition_relative_residual"
+                ]
+            ),
+            "owned_finite_beta_matched_source_channel_gate_pass": (
+                owned_finite_beta_matched_source_channel["summary_metrics"][
+                    "source_channel_superposition_gate_pass"
+                ]
+            ),
+            "owned_finite_beta_matched_source_channel_high_stable_error": (
+                owned_finite_beta_matched_source_channel["summary_metrics"][
+                    "high_stable_public_relative_error_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_matched_source_channel_temperature_response_multiplier": (
+                owned_finite_beta_matched_source_channel["summary_metrics"].get(
+                    "high_stable_effective_temperature_response_multiplier_to_redl"
+                )
+            ),
             "profile_uncertainty_basis_size": profile_uncertainty["basis_size"],
             "profile_uncertainty_sample_count": profile_uncertainty["sample_count"],
             "profile_uncertainty_max_std_relative_mismatch": (
@@ -1206,6 +1241,24 @@ def build_markdown(payload: dict) -> str:
         owned_finite_beta_matched_quadrature_metrics[
             "high_x_largest_order_stress_relative_error"
         ]
+    )
+    owned_finite_beta_matched_source_channel = payload["tables"][
+        "owned_finite_beta_field_radius_matched_source_channel"
+    ]
+    matched_source_metrics = owned_finite_beta_matched_source_channel[
+        "summary_metrics"
+    ]
+    matched_source_reconstruction_residual = matched_source_metrics[
+        "max_source_channel_superposition_relative_residual"
+    ]
+    matched_source_gate_pass = matched_source_metrics[
+        "source_channel_superposition_gate_pass"
+    ]
+    matched_source_high_stable_error = matched_source_metrics[
+        "high_stable_public_relative_error_vs_redl"
+    ]
+    matched_source_temperature_response_multiplier = matched_source_metrics.get(
+        "high_stable_effective_temperature_response_multiplier_to_redl"
     )
     owned_finite_beta_source_channel = payload["tables"][
         "owned_finite_beta_source_channel"
@@ -1767,6 +1820,24 @@ def build_markdown(payload: dict) -> str:
                 f"`{matched_quadrature_high_x_error:.3e}` |"
             ),
             (
+                "| Field-radius-matched source-channel reconstruction residual | "
+                f"`{matched_source_reconstruction_residual:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched source-channel reconstruction gate | "
+                f"`{matched_source_gate_pass}` |"
+            ),
+            (
+                "| Field-radius-matched high-order source-channel stress error | "
+                f"`{matched_source_high_stable_error:.3e}` |"
+            ),
+            (
+                "| Field-radius-matched Redl temperature response multiplier | "
+                f"`{matched_source_temperature_response_multiplier:.3e}` |"
+            )
+            if matched_source_temperature_response_multiplier is not None
+            else "",
+            (
                 "| Source-channel reconstruction residual | "
                 f"`{source_channel_reconstruction_residual:.3e}` |"
             ),
@@ -2249,6 +2320,34 @@ def build_claims_markdown(payload: dict) -> str:
                 "This closes the under-integrated apparent-pass route and keeps "
                 "the finite-beta bootstrap-current gap assigned to a "
                 "quadrature-converged reduced-closure lane."
+            ),
+            (
+                "- The field-radius-matched source-channel audit repeats the "
+                "same RHS decomposition after removing the sparse radial "
+                "interpolation layer. The channel sum reconstructs the corrected "
+                "current with residual "
+                "`"
+                f"{claims['owned_finite_beta_matched_source_channel_reconstruction_residual']:.3e}"
+                "` "
+                "and gate status "
+                f"`{claims['owned_finite_beta_matched_source_channel_gate_pass']}`. "
+                "At the quadrature-stable high-order setting the matched-radius "
+                "source-channel stress is "
+                f"`{claims['owned_finite_beta_matched_source_channel_high_stable_error']:.3e}`"
+                + (
+                    " and the Redl temperature-channel response multiplier is "
+                    "`"
+                    f"{claims['owned_finite_beta_matched_source_channel_temperature_response_multiplier']:.3e}"
+                    "`"
+                    if claims.get(
+                        "owned_finite_beta_matched_source_channel_temperature_response_multiplier"
+                    )
+                    is not None
+                    else ""
+                )
+                + ". This keeps interpolation and source-response diagnostics on "
+                "the same finite-beta contract without applying a fitted runtime "
+                "correction."
             ),
             (
                 "- The owned finite-beta source-channel audit freezes the same "
