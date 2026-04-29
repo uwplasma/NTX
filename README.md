@@ -190,6 +190,11 @@ threshold lane. The closure-target sidecar now ranks those drivers without
 changing the runtime: the best single profile driver is the local Redl
 geometry factor `epsilon` with `|r|=0.975`, the best leave-one-out diagnostic
 model is epsilon-only with RMSE `5.27e-2`, and no runtime correction is applied.
+The radial-interpolation sidecar removes one downstream interpolation layer by
+rebuilding the database on the exact field radii. It reduces the previous
+`rho=0.143` stress point from `3.11e-1` to `3.00e-2`, but the profile maximum
+remains `2.14e-1`; this is treated as an interpolation/closure diagnostic, not
+a runtime policy change.
 Optimized finite-beta QH/QI Boozer reconstruction remains an explicit
 geometry-backend blocker.
 Species-resolved fixed-field closure parity, broader geometry-family studies,
@@ -220,6 +225,7 @@ python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
+python examples/owned_finite_beta_radial_interpolation_audit.py --rebuild-matched
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```

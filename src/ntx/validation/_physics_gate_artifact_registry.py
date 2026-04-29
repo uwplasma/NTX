@@ -343,6 +343,21 @@ ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "it is not a runtime fit."
         ),
     ),
+    PhysicsGate(
+        name="owned_finite_beta_radial_interpolation_stress",
+        category="stress",
+        metric="field-radius-matched finite-beta current-profile relative difference",
+        relation="monitor",
+        threshold=None,
+        source="docs/_static/owned_finite_beta_radial_interpolation_audit.json",
+        rationale=(
+            "Finite-beta bootstrap-current closure diagnostics must separate "
+            "radial database interpolation from the reduced momentum/profile "
+            "closure.  This monitor tracks the same profile-current observable "
+            "after rebuilding the database on the exact field radii; it is not "
+            "a promoted runtime interpolation policy."
+        ),
+    ),
 )
 
 __all__ = ["ARTIFACT_GATES"]

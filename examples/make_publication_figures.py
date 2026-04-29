@@ -44,6 +44,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_source_channel",
         "owned_finite_beta_source_response_profile",
         "owned_finite_beta_closure_target",
+        "owned_finite_beta_radial_interpolation",
         "science",
         "robust_science",
         "validation",
@@ -91,6 +92,7 @@ FIGURE_PRESETS = {
         "owned_finite_beta_source_channel",
         "owned_finite_beta_source_response_profile",
         "owned_finite_beta_closure_target",
+        "owned_finite_beta_radial_interpolation",
         "profile_control",
         "profile_basis",
         "profile_transport",
@@ -461,6 +463,13 @@ def main() -> None:
     if "owned_finite_beta_closure_target" in selected:
         manifest["owned_finite_beta_closure_target"] = _copy_existing_static(
             "owned_finite_beta_closure_target_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_radial_interpolation" in selected:
+        manifest["owned_finite_beta_radial_interpolation"] = _copy_existing_static(
+            "owned_finite_beta_radial_interpolation_audit",
             output_dir,
             (".png", ".pdf", ".json"),
         )

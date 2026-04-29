@@ -179,6 +179,7 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
     "tests/test_owned_finite_beta_source_channel_audit.py",
     "tests/test_owned_finite_beta_source_response_profile_audit.py",
     "tests/test_owned_finite_beta_closure_target_audit.py",
+    "tests/test_owned_finite_beta_radial_interpolation_audit.py",
     "tests/test_owned_finite_beta_profile_current_observable_audit.py",
     "tests/test_owned_finite_beta_sfincs_jax_production_ladder_audit.py",
     "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py",

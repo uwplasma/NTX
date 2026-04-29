@@ -59,6 +59,7 @@ python examples/owned_finite_beta_closure_quadrature_audit.py
 python examples/owned_finite_beta_source_channel_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
 python examples/owned_finite_beta_closure_target_audit.py
+python examples/owned_finite_beta_radial_interpolation_audit.py --rebuild-matched
 ```
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
@@ -209,6 +210,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_closure_target_audit.png`
 - `docs/_static/owned_finite_beta_closure_target_audit.pdf`
 - `docs/_static/owned_finite_beta_closure_target_audit.json`
+- `docs/_static/owned_finite_beta_radial_interpolation_audit.png`
+- `docs/_static/owned_finite_beta_radial_interpolation_audit.pdf`
+- `docs/_static/owned_finite_beta_radial_interpolation_audit.json`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json`
@@ -241,6 +245,8 @@ a stable selector.
 ![Owned finite-beta profile source-response audit](_static/owned_finite_beta_source_response_profile_audit.png)
 
 ![Owned finite-beta closure-target driver audit](_static/owned_finite_beta_closure_target_audit.png)
+
+![Owned finite-beta radial interpolation audit](_static/owned_finite_beta_radial_interpolation_audit.png)
 
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 

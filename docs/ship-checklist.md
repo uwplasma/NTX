@@ -163,7 +163,10 @@ or explicitly moved to documented future work with a clear reason.
   radii and records the response multiplier against Redl collisionality and
   geometry drivers. The closure-target sidecar now ranks those drivers and
   records `epsilon` as the strongest single profile response driver without
-  applying any runtime correction. The next required step is a quadrature-converged
+  applying any runtime correction. The radial-interpolation sidecar rebuilds
+  the same database on the exact field radii and removes the previous
+  `rho=0.143` stress point, but the full-profile maximum remains above the
+  `1e-1` current gate. The next required step is a quadrature-converged
   profile-current/source-response closure on the same finite-beta contract
   before any finite-beta parity promotion.
 - The differentiable bootstrap-current optimization figure is now represented

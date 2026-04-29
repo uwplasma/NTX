@@ -248,6 +248,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "closure quadrature sidecar, "
                 "source-channel closure sidecar, "
                 "profile source-response sidecar, "
+                "radial interpolation sensitivity sidecar, "
                 "and current normalization. "
                 "The current reduced-closure result has the correct sign and "
                 "outer-radius errors near the 1e-1 target, but explicitly records "
@@ -270,6 +271,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "examples/owned_finite_beta_source_channel_audit.py",
                 "examples/owned_finite_beta_source_response_profile_audit.py",
                 "examples/owned_finite_beta_closure_target_audit.py",
+                "examples/owned_finite_beta_radial_interpolation_audit.py",
             ),
             tests=(
                 "tests/test_owned_finite_beta_bootstrap_comparison.py",
@@ -280,6 +282,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "tests/test_owned_finite_beta_source_channel_audit.py",
                 "tests/test_owned_finite_beta_source_response_profile_audit.py",
                 "tests/test_owned_finite_beta_closure_target_audit.py",
+                "tests/test_owned_finite_beta_radial_interpolation_audit.py",
             ),
             artifacts=(
                 "docs/_static/owned_finite_beta_bootstrap_comparison.png",
@@ -306,6 +309,10 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "docs/_static/owned_finite_beta_closure_target_audit.png",
                 "docs/_static/owned_finite_beta_closure_target_audit.pdf",
                 "docs/_static/owned_finite_beta_closure_target_audit.json",
+                "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+                "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+                "docs/_static/owned_finite_beta_radial_interpolation_audit.json",
+                "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json",
             ),
             manuscript_figures=(
                 "owned_finite_beta_bootstrap_comparison",
@@ -316,6 +323,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "owned_finite_beta_source_channel_audit",
                 "owned_finite_beta_source_response_profile_audit",
                 "owned_finite_beta_closure_target_audit",
+                "owned_finite_beta_radial_interpolation_audit",
             ),
             docs=(
                 "README.md",
@@ -340,6 +348,11 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                     "use the radial source-response map to distinguish a "
                     "physics-derived closure term from a profile-local fitted "
                     "multiplier"
+                ),
+                (
+                    "repeat the field-radius-matched interpolation audit with "
+                    "a dense production radial scan before changing any runtime "
+                    "interpolation policy"
                 ),
                 (
                     "run the production same-grid coefficient ladder to the "
