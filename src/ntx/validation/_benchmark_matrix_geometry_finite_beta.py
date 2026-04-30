@@ -57,7 +57,7 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
                 "finite-beta cubic-spline current profiles"
             ),
             (
-                "expand to paper-resolution QA, QH, QI, and W7-X families "
+                "expand to production-resolution QA, QH, QI, and W7-X families "
                 "after owned independent-code generation scripts have "
                 "completed runs"
             ),

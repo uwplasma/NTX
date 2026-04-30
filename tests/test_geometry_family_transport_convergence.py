@@ -48,11 +48,15 @@ def test_geometry_family_transport_convergence_builds_fixture_payload():
     assert payload["summary_metrics"]["successful_case_count"] == 1
     assert payload["summary_metrics"]["skipped_case_count"] == 0
     assert payload["summary_metrics"]["max_successful_residual_l2"] >= 0.0
+    assert payload["summary_metrics"]["max_successful_relative_onsager_residual"] >= 0.0
     case = payload["cases"][0]
     assert case["id"] == "repo_vmec_fixture"
     assert case["surface"]["loaded_mode_count"] > 0
     assert len(case["grid_results"]) == 2
     assert set(case["last_step_relative_change"]) == {"D11", "D31", "D33"}
+    assert set(case["last_step_absolute_change"]) == {"D11", "D31", "D33"}
+    assert set(case["grid_results"][0]["coefficients"]) == {"D11", "D31", "D13", "D33"}
+    assert case["quality_status"] in {"stress-pass", "monitor"}
     assert all(result["finite"] for result in case["grid_results"])
 
 

@@ -380,7 +380,7 @@ def main() -> None:
                 sys.executable,
                 str(ROOT / "examples" / "geometry_family_transport_convergence.py"),
                 "--preset",
-                "paper",
+                "production",
                 "--output-prefix",
                 str(output_dir / "geometry_family_transport_convergence"),
             ]

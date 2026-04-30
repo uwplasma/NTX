@@ -229,11 +229,12 @@ excluded from promoted claims.
 The direct VMEC transport-convergence breadth check now lives in
 [`examples/geometry_family_transport_convergence.py`](../examples/geometry_family_transport_convergence.py).
 It discovers local public VMEC examples from `vmec_jax`, STELLOPT, and SIMSOPT,
-then records `D11/D31/D33` grid-ladder behavior across tokamak, precise-QS,
-QI-style, W7-X EIM/EJM, and stellarator-family inputs. That closes the
-reduced-grid NTX geometry-family stress artifact; independent-code parity,
-paper-resolution radial/electric-field/collisionality ladders, and owned W7-X
-KJM input coverage remain promotion requirements.
+then records production `D11/D31/D33` grid-ladder behavior across tokamak,
+precise-QS, QI-style, W7-X EIM/EJM, and stellarator-family inputs. `D13` and
+the normalized Onsager residual are retained in the JSON sidecar. That closes
+the NTX geometry-family stress artifact; independent-code parity,
+radial/electric-field/collisionality ladders, and owned W7-X KJM input coverage
+remain promotion requirements.
 
 The `Er_tilde` HDF5 export path now has one explicit geometry-backend
 validation lane before any Boozer-file-backed coefficient claim is promoted:
@@ -332,7 +333,7 @@ lane:
 1. keep every promoted result mapped to a script, test, artifact, and manuscript
    figure through `scripts/build_benchmark_matrix.py`,
 2. promote the new VMEC geometry-family convergence stress artifact only after
-   independent-code parity and paper-resolution radial/electric-field ladders,
+   independent-code parity and radial/electric-field/collisionality ladders,
 3. transfer the three-control derivative audit to reusable VMEC/Boozer
    geometry-control families and compare direct autodiff, prepared adjoints, and
    centered finite differences,

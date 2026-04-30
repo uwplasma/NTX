@@ -1714,7 +1714,7 @@ def build_markdown(payload: dict) -> str:
                 f"`{geometry_transport_metrics['successful_case_count']}` |"
             ),
             (
-                "| Below smoke convergence rtol | "
+                "| Below production convergence rtol | "
                 f"`{geometry_transport_metrics['stress_pass_case_count']}` |"
             ),
             (
@@ -2249,8 +2249,8 @@ def build_claims_markdown(payload: dict) -> str:
                 f"solves `{claims['geometry_family_transport_successful_case_count']}` "
                 "public VMEC-family cases, with "
                 f"`{claims['geometry_family_transport_stress_pass_case_count']}` "
-                "below the smoke-grid convergence tolerance and maximum last-step "
-                "relative D11/D31/D33 change "
+                "below the production-grid convergence tolerance and maximum "
+                "last-step relative D11/D31/D33 change "
                 f"`{claims['geometry_family_transport_max_last_step_relative_change']:.3e}`. "
                 "It is a reduced NTX convergence diagnostic, not an "
                 "independent-code parity claim."

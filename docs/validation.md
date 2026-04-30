@@ -229,7 +229,7 @@ These scripts write:
 - `docs/_static/owned_geometry_neopax_dataset.png`
 - `docs/_static/owned_geometry_neopax_dataset.pdf`
 - `docs/_static/owned_geometry_neopax_dataset.json`
-- `examples/outputs/owned_geometry_neopax_dataset/*.h5`
+- `docs/_static/owned_geometry_neopax_database/*.h5`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.json`
@@ -389,15 +389,16 @@ convergence figure.
 The broader VMEC geometry-family transport stress diagnostic is:
 
 ```bash
-python examples/geometry_family_transport_convergence.py --preset paper
+python examples/geometry_family_transport_convergence.py --preset production
 ```
 
 It discovers local public examples from the surrounding `vmec_jax`, STELLOPT,
-and SIMSOPT checkouts and runs a `D11/D31/D33` convergence ladder. The current
+and SIMSOPT checkouts and runs a production `D11/D31/D33` convergence ladder.
+The JSON also records `D13` so the Onsager quality check is visible. The current
 artifact includes tokamak, precise-QS QA/QH, QI-style, W7-X EIM/EJM, LHD, HSX,
-and NCSX-family cases when those inputs are present. This is monitored as
-reduced-grid NTX convergence breadth; independent-code parity and a reusable
-W7-X KJM input remain explicit promotion requirements.
+and NCSX-family cases when those inputs are present. This is tracked as NTX
+convergence breadth; independent-code parity and a reusable W7-X KJM input
+remain explicit promotion requirements.
 
 It writes:
 

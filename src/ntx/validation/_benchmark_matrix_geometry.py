@@ -83,7 +83,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             ),
             open_work=(
                 (
-                    "promote only after paper-resolution sweeps with "
+                    "promote only after production-resolution sweeps with "
                     "independent reference parity on each family"
                 ),
                 (

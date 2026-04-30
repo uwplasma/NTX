@@ -17,7 +17,7 @@ or explicitly moved to documented future work with a clear reason.
 | SFINCS comparisons | Partly closed | Add more artifact-backed comparisons with aligned physics settings and normalizations; distinguish promoted agreement gates from monitored stress gates. |
 | Documentation | In progress | Keep docs synchronized with source layout, benchmark matrix, test lanes, performance guidance, examples, and release path. |
 | Implicit-equilibrium derivative lane | Closed as non-shipping diagnostic | Do not promote this path for optimization claims; restore only after Boozer and NTX transport observables match centered finite differences, not just equilibrium volume. |
-| Broader W7-X/QI/omnigenous families | Stress artifact added | Keep the new VMEC family convergence artifact as reduced NTX stress evidence; add paper-resolution independent-code parity, owned W7-X KJM input coverage, and radial/electric-field ladders before promotion. |
+| Broader W7-X/QI/omnigenous families | Production stress artifact added | Keep the new VMEC family convergence artifact as reduced NTX stress evidence; add independent-code parity, owned W7-X KJM input coverage, and radial/electric-field ladders before promotion. |
 | PyPI/release automation | Closed for `v0.2.0`; monitor | PyPI Trusted Publishing published `v0.2.0` from `release.yml`; future releases should keep the same green-CI, tag, artifact-provenance, and PyPI smoke-test path. |
 
 ## Acceptance Criteria

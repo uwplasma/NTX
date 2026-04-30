@@ -171,8 +171,8 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
         path=static_root / "geometry_family_transport_convergence.json",
         metric_key="max_successful_last_step_relative_change",
         details=(
-            "monitored D11/D31/D33 last-step convergence across reusable VMEC "
-            "geometry families; not an independent-code parity gate"
+            "production-grid D11/D31/D33 last-step convergence across reusable "
+            "VMEC geometry families; not an independent-code parity gate"
         ),
     )
     _append_summary_metric_gate(

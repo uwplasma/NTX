@@ -29,12 +29,14 @@ from ntx.solver import prepare_monoenergetic_system, solve_prepared  # noqa: E40
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "geometry_family_transport_convergence"
 COEFFICIENTS = ("D11", "D31", "D33")
+REPORTED_COEFFICIENTS = ("D11", "D31", "D13", "D33")
 EPS = 1.0e-30
 DEFAULT_NU_HAT = 1.0e-3
 DEFAULT_ER_HAT = 0.0
 DEFAULT_PSI_N = 0.25
 DEFAULT_MIN_BMN_TO_LOAD = 1.0e-4
 DEFAULT_CONVERGENCE_RTOL = 5.0e-1
+DEFAULT_ONSAGER_RELATIVE_RTOL = 5.0e-1
 
 GRID_PRESETS: dict[str, tuple[GridSpec, ...]] = {
     "smoke": (
@@ -46,6 +48,11 @@ GRID_PRESETS: dict[str, tuple[GridSpec, ...]] = {
         GridSpec(7, 9, 6),
         GridSpec(9, 11, 8),
         GridSpec(11, 13, 10),
+    ),
+    "production": (
+        GridSpec(29, 31, 28),
+        GridSpec(35, 37, 32),
+        GridSpec(41, 43, 36),
     ),
 }
 
@@ -353,8 +360,18 @@ def _relative_change(coarse: float, fine: float) -> float:
     return float(abs(coarse - fine) / max(abs(fine), EPS))
 
 
+def _absolute_change(coarse: float, fine: float) -> float:
+    return float(abs(coarse - fine))
+
+
 def _coefficient_payload(result) -> dict[str, float]:
-    return {name: float(getattr(result, name)) for name in COEFFICIENTS}
+    return {name: float(getattr(result, name)) for name in REPORTED_COEFFICIENTS}
+
+
+def _relative_onsager(coefficients: dict[str, float]) -> float:
+    d31 = float(coefficients["D31"])
+    d13 = float(coefficients["D13"])
+    return float(abs(d31 + d13) / max(abs(d31), abs(d13), EPS))
 
 
 def _solve_case(
@@ -390,6 +407,7 @@ def _solve_case(
         coefficients = _coefficient_payload(result)
         solve_seconds = time.perf_counter() - solve_start
         finite = bool(np.all(np.isfinite([*coefficients.values(), float(result.residual_l2)])))
+        relative_onsager = _relative_onsager(coefficients)
         grid_results.append(
             {
                 "grid": _grid_payload(grid),
@@ -397,6 +415,7 @@ def _solve_case(
                 "coefficients": coefficients,
                 "residual_l2": float(result.residual_l2),
                 "onsager_residual": float(result.onsager_residual),
+                "relative_onsager_residual": float(relative_onsager),
                 "D33_spitzer": float(result.D33_spitzer),
                 "prepare_seconds": float(prepare_seconds),
                 "solve_seconds": float(solve_seconds),
@@ -427,6 +446,13 @@ def _solve_case(
         )
         for name in COEFFICIENTS
     }
+    last_absolute_change = {
+        name: _absolute_change(
+            float(grid_results[-2]["coefficients"][name]),
+            float(grid_results[-1]["coefficients"][name]),
+        )
+        for name in COEFFICIENTS
+    }
     max_last_step = max(last_relative_change.values())
     max_to_finest = max(
         (
@@ -436,10 +462,15 @@ def _solve_case(
         default=0.0,
     )
     all_finite = all(bool(item["finite"]) for item in grid_results)
+    max_relative_onsager = max(float(item["relative_onsager_residual"]) for item in grid_results)
+    finest_relative_onsager = float(grid_results[-1]["relative_onsager_residual"])
     return {
         **case.as_payload(),
         "status": "stress-pass"
         if all_finite and max_last_step <= convergence_rtol
+        else "monitor",
+        "quality_status": "stress-pass"
+        if all_finite and finest_relative_onsager <= DEFAULT_ONSAGER_RELATIVE_RTOL
         else "monitor",
         "surface": {
             "nfp": int(surface.nfp),
@@ -453,8 +484,11 @@ def _solve_case(
         "grid_results": grid_results,
         "relative_to_finest": relative_to_finest,
         "last_step_relative_change": last_relative_change,
+        "last_step_absolute_change": last_absolute_change,
         "max_last_step_relative_change": float(max_last_step),
         "max_relative_change_to_finest": float(max_to_finest),
+        "max_relative_onsager_residual": float(max_relative_onsager),
+        "finest_relative_onsager_residual": float(finest_relative_onsager),
     }
 
 
@@ -487,6 +521,12 @@ def build_payload(
     successful_cases = [case for case in cases if case["status"] != "skipped"]
     stress_pass_cases = [case for case in successful_cases if case["status"] == "stress-pass"]
     monitored_cases = [case for case in successful_cases if case["status"] == "monitor"]
+    quality_pass_cases = [
+        case for case in successful_cases if case.get("quality_status") == "stress-pass"
+    ]
+    quality_monitored_cases = [
+        case for case in successful_cases if case.get("quality_status") == "monitor"
+    ]
     skipped_cases = [case for case in cases if case["status"] == "skipped"]
     max_last_step = max(
         (float(case["max_last_step_relative_change"]) for case in successful_cases),
@@ -503,13 +543,22 @@ def build_payload(
         ),
         default=float("nan"),
     )
+    max_relative_onsager = max(
+        (float(case["max_relative_onsager_residual"]) for case in successful_cases),
+        default=float("nan"),
+    )
+    max_finest_relative_onsager = max(
+        (float(case["finest_relative_onsager_residual"]) for case in successful_cases),
+        default=float("nan"),
+    )
     return {
         "benchmark": "geometry_family_transport_convergence",
         "classification": "geometry-family monoenergetic transport convergence stress diagnostic",
         "claim_scope": (
             "Runs reusable public VMEC inputs through NTX and reports D11, D31, "
-            "and D33 coarse-to-fine changes. This is a reduced NTX convergence "
-            "stress diagnostic, not an independent-code parity claim."
+            "and D33 coarse-to-fine changes, with D13 retained for the Onsager "
+            "quality check. This is a reduced NTX convergence stress diagnostic, "
+            "not an independent-code parity claim."
         ),
         "literature_anchors": [
             "W7-X standard-configuration benchmark workflows",
@@ -522,6 +571,7 @@ def build_payload(
             "er_hat": float(er_hat),
             "grids": [_grid_payload(grid) for grid in selected_grids],
             "convergence_rtol": float(convergence_rtol),
+            "onsager_relative_rtol": float(DEFAULT_ONSAGER_RELATIVE_RTOL),
             "min_bmn_to_load_default": DEFAULT_MIN_BMN_TO_LOAD,
         },
         "cases": cases,
@@ -530,14 +580,20 @@ def build_payload(
             "successful_case_count": len(successful_cases),
             "stress_pass_case_count": len(stress_pass_cases),
             "monitored_case_count": len(monitored_cases),
+            "quality_pass_case_count": len(quality_pass_cases),
+            "quality_monitored_case_count": len(quality_monitored_cases),
             "skipped_case_count": len(skipped_cases),
             "max_successful_last_step_relative_change": float(max_last_step),
             "max_successful_relative_change_to_finest": float(max_to_finest),
             "max_successful_residual_l2": float(max_residual),
+            "max_successful_relative_onsager_residual": float(max_relative_onsager),
+            "max_successful_finest_relative_onsager_residual": float(
+                max_finest_relative_onsager
+            ),
         },
         "open_work": [
             (
-                "promote only after paper-resolution sweeps with independent "
+                "promote only after production-resolution sweeps with independent "
                 "reference parity on each family"
             ),
             (
@@ -656,8 +712,8 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
     fig.text(
         0.5,
         0.01,
-        "This figure monitors reduced-grid convergence across public VMEC examples; "
-        "independent-code parity and paper-resolution sweeps remain separate gates.",
+        "This figure monitors production-grid convergence across public VMEC examples; "
+        "independent-code parity and profile ladders remain separate gates.",
         ha="center",
         va="bottom",
         fontsize=9.3,

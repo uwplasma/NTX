@@ -121,13 +121,14 @@ imported workflow, and writes a convergence figure:
 ## 9. VMEC Geometry-Family Transport Convergence
 
 ```bash
-python examples/geometry_family_transport_convergence.py --preset paper
+python examples/geometry_family_transport_convergence.py --preset production
 ```
 
 This optional artifact discovers local public VMEC examples from `vmec_jax`,
-STELLOPT, and SIMSOPT checkouts, then runs a `D11/D31/D33` convergence ladder.
-It is a reduced NTX stress diagnostic across available geometry families, not
-an independent-code parity claim.
+STELLOPT, and SIMSOPT checkouts, then runs a production `D11/D31/D33`
+convergence ladder and stores `D13` for the Onsager quality check. It is an NTX
+stress diagnostic across available geometry families, not an independent-code
+parity claim.
 
 It writes:
 
@@ -250,7 +251,7 @@ It writes:
 - `docs/_static/owned_geometry_neopax_dataset.png`
 - `docs/_static/owned_geometry_neopax_dataset.pdf`
 - `docs/_static/owned_geometry_neopax_dataset.json`
-- `examples/outputs/owned_geometry_neopax_dataset/*.h5`
+- `docs/_static/owned_geometry_neopax_database/*.h5`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.json`

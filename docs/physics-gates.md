@@ -260,8 +260,9 @@ The active acceptance target is:
   explicit-relaxed artifacts; the implicit-equilibrium artifact is monitored
   separately until it closes.
 - **Geometry-family transport convergence:** the public VMEC example-family
-  `D11/D31/D33` ladder is monitored as a stress diagnostic; it must stay finite
-  and visible before any broad geometry-family parity claim is promoted.
+  production `D11/D31/D33` ladder must keep its maximum last-step relative
+  change `<= 5e-1`; `D13` and the normalized Onsager residual remain visible in
+  the artifact before any broad geometry-family parity claim is promoted.
 - **W7-X rebuilt raw branch:** best observed maximum relative error
   `<= 2e-2` against the frozen reference profile.
 

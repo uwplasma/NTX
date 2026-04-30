@@ -130,7 +130,7 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.json").exists()
 
 
-def test_geometry_family_transport_uses_paper_preset(
+def test_geometry_family_transport_uses_production_preset(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ):
@@ -147,7 +147,7 @@ def test_geometry_family_transport_uses_paper_preset(
 
     assert commands
     command = commands[0]
-    assert command[command.index("--preset") + 1] == "paper"
+    assert command[command.index("--preset") + 1] == "production"
 
 
 @pytest.mark.parametrize(

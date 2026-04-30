@@ -206,7 +206,7 @@ Full example coverage is in [docs/examples.md](docs/examples.md).
 
 The major open lanes are:
 
-- full geometry-family reproduction on paper-resolution W7-X, QI, QA/QH, and
+- full geometry-family reproduction on production-resolution W7-X, QI, QA/QH, and
   additional stellarator-family inputs,
 - reusable hidden-symmetry and omnigenous benchmark families,
 - broader geometry-control autodiff with direct AD, prepared adjoints, and

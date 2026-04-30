@@ -323,7 +323,7 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["implicit_equilibrium_derivative_nonshipping_diagnostic"].value == (
         pytest.approx(6.0)
     )
-    assert results["geometry_family_transport_convergence_stress"].status == "monitor"
+    assert results["geometry_family_transport_convergence_stress"].status == "pass"
     assert results["geometry_family_transport_convergence_stress"].value == (
         pytest.approx(0.22)
     )

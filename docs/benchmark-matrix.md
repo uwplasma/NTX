@@ -60,7 +60,7 @@ Current stress gates are:
 | Implicit-equilibrium forward-mode derivatives | retained as a non-shipping diagnostic: equilibrium volume matches centered finite differences, but residual contraction and Boozer/NTX tangent parity do not pass |
 | Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the machine-checked self-consistent forward-mode audit, but additional families plus reverse-mode equilibrium sensitivities remain open |
 | Artifact-backed geometry-family breadth summary | analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-volume derivative artifacts are summarized in one figure, while retired implicit Boozer/transport diagnostics are excluded from promoted geometry-family claims |
-| VMEC geometry-family transport convergence | public VMEC example families now have a committed `D11/D31/D33` convergence stress artifact; independent-code parity and paper-resolution promotion remain separate gates |
+| VMEC geometry-family transport convergence | public VMEC example families now have a committed production-grid `D11/D31/D33` convergence stress artifact with `D13`/Onsager diagnostics retained; independent-code parity and radial/electric-field/collisionality promotion remain separate gates |
 | Same-coordinate Boozer-file round trip | generated `boozmn` surfaces now reload on VMEC half-grid coordinates and reproduce the in-memory `vmec_jax -> booz_xform_jax -> NTX` transport coefficients; VMEC-harmonic versus Boozer-coordinate comparisons remain representation audits |
 | Finite-beta finalized-wout Boozer transfer | optimized finite-beta `wout` magnetic channels now transform and reload through the direct `boozmn` backend to roundoff on the same VMEC half-grid surfaces; the fully differentiable finite-beta state path remains non-shipping for unsupported current-profile representations |
 | Profile uncertainty propagation | three-term radial-basis covariance propagation and Fisher/HVP consistency are machine checked; cross-geometry profile families remain open |
@@ -75,7 +75,7 @@ Planned lanes that must stay visible are:
 
 | Lane | Required Before Promotion |
 | --- | --- |
-| Full monoenergetic geometry-family reproduction | paper-resolution independent-code parity for the available W7-X EIM/EJM, QI, QA/QH, and stellarator-family inputs; owned W7-X KJM input; radial/electric-field/collisionality ladders |
+| Full monoenergetic geometry-family reproduction | production-resolution independent-code parity for the available W7-X EIM/EJM, QI, QA/QH, and stellarator-family inputs; owned W7-X KJM input; radial/electric-field/collisionality ladders |
 | Larger geometry-control autodiff | broaden the current analytic and file-backed audits into reusable geometry families; add direct autodiff, implicit-adjoint, and finite-difference agreement on that basis |
 | Hidden-symmetry and omnigenous families | owned input families and convergence gates before adding research-grade figures |
 | QI and piecewise-omnigenous low-bootstrap families | owned input families; `D11`, `D31`, `D33`, reduced bootstrap-current response, and radial-profile convergence; comparison to published qualitative ordering before any design claim |

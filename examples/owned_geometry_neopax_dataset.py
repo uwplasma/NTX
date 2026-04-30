@@ -38,7 +38,7 @@ from ntx import (  # noqa: E402
 from ntx._checkout_paths import find_vmec_jax_root  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_geometry_neopax_dataset"
-DATABASE_DIR = ROOT / "examples" / "outputs" / "owned_geometry_neopax_dataset"
+DATABASE_DIR = ROOT / "docs" / "_static" / "owned_geometry_neopax_database"
 DEFAULT_RHO = (0.30, 0.50, 0.70)
 DEFAULT_NU_V = (1.0e-3, 1.0e-2)
 DEFAULT_ES = (0.0,)
@@ -50,6 +50,14 @@ FINITE_BETA_ROOT_CANDIDATES = (
     Path("/Users/rogeriojorge/local/single_stage_optimization_finite_beta"),
     Path("/Users/rogeriojorge/local/tests/single_stage_optimization_finite_beta"),
 )
+
+
+def _display_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(ROOT))
+    except ValueError:
+        return str(resolved)
 
 
 @dataclass(frozen=True)
@@ -490,7 +498,7 @@ def _write_scan_file(scan, output_dir: Path, case_id: str, path_key: str) -> dic
         }
     return {
         "status": "written",
-        "path": str(written),
+        "path": _display_path(Path(written)),
     }
 
 
@@ -746,13 +754,13 @@ def build_payload(
                 "JAX Boozer path as the power-series finite-beta QA case"
             ),
             (
-                "expand the default case set to paper-resolution QA, QH, QI, and W7-X "
+                "expand the default case set to production-resolution QA, QH, QI, and W7-X "
                 "inputs after owned SFINCS-generation scripts have completed runs"
             ),
         ],
         "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
-        "database_dir": str(output_dir),
+        "database_dir": _display_path(output_dir),
     }
 
 

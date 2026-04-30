@@ -365,12 +365,14 @@ derivative parity.
 The script:
 
 ```bash
-python examples/geometry_family_transport_convergence.py --preset paper
+python examples/geometry_family_transport_convergence.py --preset production
 ```
 
 discovers reusable VMEC `wout` examples from local `vmec_jax`, STELLOPT, and
 SIMSOPT checkouts, loads each surface through the NTX VMEC path, and runs a
-`D11/D31/D33` grid ladder. The figure and JSON sidecar are written to:
+production `D11/D31/D33` grid ladder. The JSON also stores `D13` and the
+normalized Onsager residual so coefficient convergence and reciprocity quality
+are audited together. The figure and JSON sidecar are written to:
 
 ```text
 docs/_static/geometry_family_transport_convergence.png
@@ -380,7 +382,7 @@ docs/_static/geometry_family_transport_convergence.json
 
 The current artifact is a convergence stress diagnostic across the available
 public geometry families. It distinguishes cases that are below the tracked
-stress tolerance from cases that need paper-resolution or independent-reference
+stress tolerance from cases that need profile-ladder or independent-reference
 promotion work.
 
 ![Geometry-family transport convergence](_static/geometry_family_transport_convergence.png)
