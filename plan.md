@@ -236,18 +236,20 @@ and docs that explain which claims are closed versus monitored.
      implicit-equilibrium derivative artifact is kept as a monitored
      non-shipping diagnostic, because only the equilibrium-volume derivative
      closes on the committed diagnostic.
-   - Open geometry-backend validation lane: the `Er_tilde` HDF5 scan exporter
-     now defaults to the validated VMEC surface path, while direct `boozmn`
-     loading is retained as an explicit audit mode. Before promoting direct
-     Boozer-file-backed coefficient examples, diagnose the same-geometry
-     VMEC-versus-`boozmn` `D11/D31/D33` difference by dumping and comparing
-     `B_{mn}`, `R_{mn}`, `B_{00}`, `iota`, Boozer `G/I`, `psi_p`, Jacobian sign,
-     radial-coordinate factors, interpolation radius, mode filtering,
-     `Er_tilde -> Er/Es`, assembled source/operator blocks, and
-     resolution-ladder convergence on the same `rho`, `nu_v`, and `Er_tilde`
-     grids. Accept a fix only if the discrepancy is traced to a documented
-     normalization, interpolation, sign, or mode-selection convention and the
-     corrected backend transfers to precise-QS and W7-X-style cases without
+   - Geometry-backend validation lane: the `Er_tilde` HDF5 scan exporter now
+     defaults to the validated VMEC surface path, while direct `boozmn` loading
+     is retained as an explicit audit mode. The reproducible audit in
+     `examples/boozmn_backend_validation_audit.py` now dumps `B_{mn}`, `B_{00}`,
+     `iota`, Boozer `G/I`, `psi_p`, Jacobian sign, radial-drift source,
+     assembled source/operator blocks, and `D11/D31/D13/D33` differences on the
+     same `rho`, `nu_v`, and electric-field point. The current same-file audit
+     confirms that simple unit-flux versus VMEC-edge-flux scaling does not close
+     the direct Boozer-file discrepancy because the mismatch appears first in
+     the radial-drift/source channel. Remaining promotion gate: rerun this audit
+     on owned VMEC-input cases where both paths are generated in the same
+     Boozer-coordinate convention, then accept a fix only if the discrepancy is
+     traced to a documented normalization, interpolation, sign, or mode-selection
+     convention and transfers to precise-QS and W7-X-style cases without
      changing the VMEC-backed validation path.
 
 4. **Differentiability gates**
