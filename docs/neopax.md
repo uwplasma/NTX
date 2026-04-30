@@ -154,7 +154,7 @@ python examples/build_neopax_scan_from_ertilde.py \
   --rho 0.25,0.5,0.75 \
   --nu-v 1e-5,3e-5,1e-4,3e-4,1e-3 \
   --er-tilde 0.0,1e-5,3e-5 \
-  --surface-backend auto \
+  --surface-backend vmec \
   --device-backend cpu \
   --output examples/outputs/neopax_scan_from_ertilde/scan.h5 \
   --plot
@@ -164,6 +164,9 @@ The script validates the input files and grids, computes `Er`, `Es`, and
 normalization metadata from the supplied VMEC/Boozer files, solves the NTX
 monoenergetic coefficient tables, writes `write_neopax_scan_hdf5(...)` output,
 and can emit per-radius coefficient panels for quick sanity checks.
+Use the VMEC surface backend for validation and benchmark generation. The
+`boozmn` backend is available as an explicit geometry-backend audit path, but
+it is not the default validation path.
 
 When converting NEOPAX parallel-flow output into current, use one charge
 conversion only. If the workflow uses `species.charge`, that array already

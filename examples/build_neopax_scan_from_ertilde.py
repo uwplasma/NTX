@@ -121,8 +121,11 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--surface-backend",
         choices=("auto", "vmec", "boozmn"),
-        default="auto",
-        help="Geometry source used for the NTX surface solve.",
+        default="vmec",
+        help=(
+            "Geometry source used for the NTX surface solve. The VMEC backend "
+            "is the validated default; boozmn is an explicit backend audit mode."
+        ),
     )
     parser.add_argument(
         "--device-backend",
@@ -390,15 +393,15 @@ def _select_surface_loader(*, backend: str, wout_path: Path, boozmn_path: Path):
             lambda rho_value: _surface_loader(wout_path, float(rho_value)),
             "vmec_jax",
         )
-    if boozmn_path.exists():
-        return (
-            lambda rho_value: load_boozmn_surface(boozmn_path, rho=float(rho_value)).surface,
-            "boozmn",
-        )
     if wout_path.exists():
         return (
             lambda rho_value: _surface_loader(wout_path, float(rho_value)),
             "vmec_jax",
+        )
+    if boozmn_path.exists():
+        return (
+            lambda rho_value: load_boozmn_surface(boozmn_path, rho=float(rho_value)).surface,
+            "boozmn",
         )
     raise FileNotFoundError("no usable backend input file was found")
 
