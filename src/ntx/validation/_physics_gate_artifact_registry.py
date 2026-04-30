@@ -143,6 +143,23 @@ _GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="boozmn_finite_beta_wout_roundtrip",
+        category="transfer",
+        metric="max finite-beta finalized-wout Boozer transport mismatch",
+        relation="<=",
+        threshold=1.0e-6,
+        source="docs/_static/boozmn_finite_beta_wout_roundtrip_audit.json",
+        rationale=(
+            "Optimized finite-beta inputs can use VMEC profile representations "
+            "that the differentiable VMEC-state path cannot yet re-evaluate. "
+            "For those cases the physically controlled file-backed route is "
+            "to transform the finalized VMEC wout magnetic channels, then "
+            "reload the generated Boozer spectra on the same half-grid "
+            "surfaces. The round trip must preserve D11/D31/D13/D33 before "
+            "finite-beta Boozer-file artifacts are used as validation inputs."
+        ),
+    ),
+    PhysicsGate(
         name="bootstrap_current_optimization_gain",
         category="stress",
         metric="weighted optimized-current gain",

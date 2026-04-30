@@ -157,6 +157,12 @@ geometry breadth:
   reload on the VMEC half grid and reproduce the in-memory
   `vmec_jax -> booz_xform_jax -> NTX` transport coefficients below `1e-6`.
   This protects the radial-coordinate convention used by packed Boozer spectra.
+- **Finite-beta finalized-wout Boozer transfer:** optimized finite-beta `wout`
+  files whose input current-profile representation cannot yet be re-evaluated
+  by the optional differentiable state path must still transform through the
+  finalized VMEC magnetic channels and reload through the direct `boozmn`
+  backend below `1e-6` transport mismatch. This is a file-backed transfer gate,
+  not a claim of differentiable finite-beta equilibrium-state sensitivities.
 - **Boundary-projected current derivatives:** forward-mode derivatives through
   the optional JAX geometry backends, NTX coefficients, and the integrated
   current objective must stay below `1e-5` on the committed sample input.

@@ -256,6 +256,16 @@ and docs that explain which claims are closed versus monitored.
      VMEC-harmonic versus direct Boozer-file comparisons scoped as
      representation/source-channel audits unless the two geometry channels are
      shown to be mathematically equivalent for the claim being made.
+   - Finite-beta finalized-wout transfer lane: optimized finite-beta VMEC
+     inputs with unsupported current-profile representations now use the
+     finalized `wout` magnetic channels for the file-backed Boozer transform
+     instead of a reconstructed differentiable input-profile state. The
+     committed finite-beta QA same-coordinate round-trip artifact closes
+     geometry and `D11/D31/D13/D33` transport differences to roundoff. This
+     closes the Boozer mismatch for file-backed finite-beta validation inputs;
+     fully differentiable finite-beta equilibrium-state sensitivities remain
+     non-shipping until the optional VMEC stack supports the profile form or
+     exposes solver-consistent finalized channels in differentiable form.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint

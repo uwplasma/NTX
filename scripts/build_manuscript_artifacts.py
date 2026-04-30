@@ -144,6 +144,7 @@ def build_payload() -> dict:
         "geometry_family_breadth",
         "geometry_family_transport",
         "boozmn_same_coordinate_roundtrip",
+        "boozmn_finite_beta_wout_roundtrip",
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",

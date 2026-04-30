@@ -159,6 +159,15 @@ not shift the selected surface. `tests/test_boozmn.py` protects the fixture
 half-grid selection, and `examples/boozmn_same_coordinate_roundtrip_audit.py`
 provides the artifact-backed VMEC-to-Boozer-file round trip.
 
+The same audit is also committed on an optimized finite-beta QA `wout` that
+uses a current-profile representation not currently re-evaluated by the
+optional differentiable VMEC-state path. The accepted path for that case is the
+finalized `wout` magnetic-channel transform, not a reconstructed input-profile
+state. `tests/test_vmec_jax_backend.py` protects the `profile_source="wout"`
+and automatic fallback branches, while
+`boozmn_finite_beta_wout_roundtrip_audit.json` keeps the resulting
+same-coordinate `D11/D31/D13/D33` mismatch below `1e-6`.
+
 The operator unit tests also include a derivative gate for the implicit-adjoint
 lane: the hand-coded `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks must match
 JAX differentiation of the assembled Legendre-space operator. This is a fast

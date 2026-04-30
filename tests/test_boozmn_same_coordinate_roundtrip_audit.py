@@ -62,6 +62,7 @@ def test_boozmn_same_coordinate_roundtrip_audit_writes_artifacts(monkeypatch, tm
         mboz=4,
         nboz=4,
         psi_p=1.0,
+        profile_source="auto",
         nu_hat=1.0e-2,
         epsi_hat=0.0,
         grid=GridSpec(5, 5, 4),
@@ -69,6 +70,7 @@ def test_boozmn_same_coordinate_roundtrip_audit_writes_artifacts(monkeypatch, tm
     )
 
     assert payload["benchmark"] == "boozmn_same_coordinate_roundtrip_audit"
+    assert payload["inputs"]["profile_source"] == "auto"
     assert payload["summary_metrics"]["roundtrip_closed"] is True
     assert payload["summary_metrics"]["max_transport_relative_difference"] == 0.0
     assert [surface["s"] for surface in payload["surfaces"]] == [0.125, 0.375]

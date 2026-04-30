@@ -185,6 +185,16 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "with the in-memory vmec_jax/booz_xform_jax path"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="boozmn_finite_beta_wout_roundtrip",
+        path=static_root / "boozmn_finite_beta_wout_roundtrip_audit.json",
+        metric_key="max_transport_relative_difference",
+        details=(
+            "finite-beta finalized-wout magnetic-channel Boozer transform "
+            "round trip compared on the same VMEC half-grid surfaces"
+        ),
+    )
 
     optimization_gate = _gate_by_name("bootstrap_current_optimization_gain")
     optimization_path = static_root / "bootstrap_current_optimization.json"

@@ -166,6 +166,10 @@ Boozer-file backend validation:
 python examples/boozmn_same_coordinate_roundtrip_audit.py
 ```
 
+The direct Boozer loader is gated on VMEC half-grid `boozmn` metadata; the
+finite-beta finalized-`wout` transfer audit is documented in
+[`docs/geometry.md`](docs/geometry.md).
+
 NEOPAX database and bootstrap-current examples:
 
 ```bash

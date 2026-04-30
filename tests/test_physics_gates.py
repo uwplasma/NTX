@@ -75,6 +75,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "implicit_equilibrium_derivative_nonshipping_diagnostic" in names
     assert "geometry_family_transport_convergence_stress" in names
     assert "boozmn_same_coordinate_roundtrip" in names
+    assert "boozmn_finite_beta_wout_roundtrip" in names
     assert "bootstrap_current_optimization_gain" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
@@ -165,6 +166,9 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     )
     (static_root / "boozmn_same_coordinate_roundtrip_audit.json").write_text(
         json.dumps({"summary_metrics": {"max_transport_relative_difference": 2.0e-8}})
+    )
+    (static_root / "boozmn_finite_beta_wout_roundtrip_audit.json").write_text(
+        json.dumps({"summary_metrics": {"max_transport_relative_difference": 8.0e-14}})
     )
     (static_root / "bootstrap_current_optimization.json").write_text(
         json.dumps({"weighted_gain": 1.08})
@@ -325,6 +329,8 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     )
     assert results["boozmn_same_coordinate_roundtrip"].status == "pass"
     assert results["boozmn_same_coordinate_roundtrip"].value == pytest.approx(2.0e-8)
+    assert results["boozmn_finite_beta_wout_roundtrip"].status == "pass"
+    assert results["boozmn_finite_beta_wout_roundtrip"].value == pytest.approx(8.0e-14)
     assert results["bootstrap_current_optimization_gain"].status == "pass"
     assert results["bootstrap_current_optimization_gain"].value == pytest.approx(1.08)
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
@@ -448,6 +454,7 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
     )
     assert results["geometry_family_transport_convergence_stress"].status == "missing"
     assert results["boozmn_same_coordinate_roundtrip"].status == "missing"
+    assert results["boozmn_finite_beta_wout_roundtrip"].status == "missing"
     assert results["bootstrap_current_optimization_gain"].status == "missing"
     assert "bootstrap_current_reference_audit_w7x.json" in results[
         "w7x_integrated_rebuild_raw"
@@ -509,6 +516,8 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     )
     assert results["boozmn_same_coordinate_roundtrip"].status == "pass"
     assert results["boozmn_same_coordinate_roundtrip"].value <= 1.0e-6
+    assert results["boozmn_finite_beta_wout_roundtrip"].status == "pass"
+    assert results["boozmn_finite_beta_wout_roundtrip"].value <= 1.0e-6
     assert results["bootstrap_current_optimization_gain"].status == "pass"
     assert results["bootstrap_current_optimization_gain"].value >= 1.0
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"

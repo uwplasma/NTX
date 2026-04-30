@@ -279,6 +279,15 @@ def test_geometry_family_transport_uses_paper_preset(
             ),
         ),
         (
+            "boozmn_finite_beta_wout_roundtrip",
+            {"boozmn_finite_beta_wout_roundtrip"},
+            (
+                "boozmn_finite_beta_wout_roundtrip_audit.png",
+                "boozmn_finite_beta_wout_roundtrip_audit.pdf",
+                "boozmn_finite_beta_wout_roundtrip_audit.json",
+            ),
+        ),
+        (
             "owned_finite_beta_sfincs_jax_inputs",
             {"owned_finite_beta_sfincs_jax_inputs"},
             (

@@ -144,6 +144,24 @@ different geometry channels.
 
 ![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
 
+Optimized finite-beta inputs can use VMEC current-profile representations that
+the differentiable state-reconstruction path cannot yet re-evaluate. For those
+cases `surface_from_vmec_jax_wout(..., profile_source="wout")` uses the
+finalized `wout` magnetic channels through the JAX Boozer transform and then
+hands NTX the same `B_{mn}`, `iota`, `G/I`, and VMEC half-grid metadata that a
+generated Boozer file would store. The automatic mode uses this finalized
+file-backed path only when the differentiable state path raises an unsupported
+profile-representation error. This is a physics/numerics distinction rather
+than a fitted correction: the finalized `wout` is the VMEC solution being
+validated, while unsupported profile reconstruction is an upstream state-path
+limitation.
+
+The finite-beta transfer artifact exercises this path on an optimized QA
+finite-beta `wout` and closes the same-coordinate transport mismatch to
+roundoff.
+
+![Finite-beta finalized-wout Boozer round-trip audit](_static/boozmn_finite_beta_wout_roundtrip_audit.png)
+
 ## Geometry Evaluation On The Angular Grid
 
 All surface families are converted to `GeometryOnGrid` by

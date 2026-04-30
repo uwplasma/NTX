@@ -95,6 +95,8 @@ def _booz_xform_bundle_from_vmec_jax_state(
     s_values: Sequence[float] | None,
     mboz: int,
     nboz: int,
+    flux_profiles=None,
+    profiles_half=None,
 ):
     vmec_jax = _import_vmec_jax()
     jax_api = _import_booz_xform_jax_api()
@@ -103,6 +105,8 @@ def _booz_xform_bundle_from_vmec_jax_state(
         static=static,
         indata=indata,
         signgs=signgs,
+        flux=flux_profiles,
+        profiles_half=profiles_half,
     )
     surface_indices = None
     if s_values is not None:

@@ -185,6 +185,7 @@ def build_roundtrip_audit(
     epsi_hat: float,
     grid: GridSpec,
     output_dir: Path | None = None,
+    profile_source: str = "auto",
 ) -> dict[str, Any]:
     input_path = input_path.expanduser().resolve()
     wout_path = wout_path.expanduser().resolve()
@@ -231,6 +232,7 @@ def build_roundtrip_audit(
                 mboz=mboz,
                 nboz=nboz,
                 psi_p=resolved_psi_p,
+                profile_source=profile_source,
             )
             by_index = load_boozmn_surface(
                 boozmn_path,
@@ -325,6 +327,7 @@ def build_roundtrip_audit(
                 "nu_hat": float(nu_hat),
                 "epsi_hat": float(epsi_hat),
                 "psi_p": float(resolved_psi_p),
+                "profile_source": str(profile_source),
                 "grid": {
                     "n_theta": grid.n_theta,
                     "n_zeta": grid.n_zeta,
@@ -494,6 +497,16 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--mboz", type=int, default=4)
     parser.add_argument("--nboz", type=int, default=4)
     parser.add_argument("--psi-p", type=float, default=None)
+    parser.add_argument(
+        "--profile-source",
+        choices=("auto", "input", "wout", "state_wout_profiles"),
+        default="auto",
+        help=(
+            "Reference VMEC-to-Boozer path. Use 'wout' for finalized finite-beta "
+            "wout magnetic channels when the differentiable state path cannot "
+            "re-evaluate the VMEC input profile representation."
+        ),
+    )
     parser.add_argument("--nu-hat", type=float, default=1.0e-2)
     parser.add_argument("--epsi-hat", type=float, default=0.0)
     parser.add_argument("--n-theta", type=int, default=7)
@@ -514,6 +527,7 @@ def main() -> None:
         mboz=args.mboz,
         nboz=args.nboz,
         psi_p=args.psi_p,
+        profile_source=args.profile_source,
         nu_hat=args.nu_hat,
         epsi_hat=args.epsi_hat,
         grid=GridSpec(args.n_theta, args.n_zeta, args.n_xi),

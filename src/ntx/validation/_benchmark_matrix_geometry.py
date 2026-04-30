@@ -144,6 +144,61 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 ),
             ),
         ),
+        BenchmarkEntry(
+            id="boozmn_finite_beta_wout_roundtrip",
+            lane="geometry-breadth",
+            maturity="positive-gate",
+            title="Finite-beta finalized-wout Boozer-file transfer validation",
+            claim_scope=(
+                "Transforms an optimized finite-beta QA VMEC wout through "
+                "finalized magnetic channels, reloads the generated Boozer "
+                "file on the same half-grid surfaces, and requires "
+                "D11/D31/D13/D33 to match the reference transform to "
+                "roundoff. This validates the file-backed finite-beta "
+                "Boozer path for input profile representations that the "
+                "differentiable VMEC-state reconstruction path does not yet "
+                "support; it is not a claim of differentiable finite-beta "
+                "state sensitivities."
+            ),
+            literature_anchors=(
+                "VMEC finite-beta wout magnetic-field representation",
+                "Boozer-coordinate flux-surface representation",
+                "VMEC half-grid placement of Boozer spectra and radial profiles",
+                "finite-beta quasi-symmetric benchmark input families",
+            ),
+            scripts=("examples/boozmn_same_coordinate_roundtrip_audit.py",),
+            tests=(
+                "tests/test_boozmn.py",
+                "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
+                "tests/test_vmec_jax_backend.py",
+            ),
+            artifacts=(
+                "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.png",
+                "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.pdf",
+                "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.json",
+            ),
+            manuscript_figures=("boozmn_finite_beta_wout_roundtrip_audit",),
+            docs=(
+                "docs/geometry.md",
+                "docs/validation.md",
+                "docs/testing.md",
+                "docs/physics-gates.md",
+                "docs/benchmark-matrix.md",
+            ),
+            open_work=(
+                (
+                    "promote fully differentiable finite-beta state sensitivities "
+                    "only after the optional VMEC stack supports the optimized "
+                    "current-profile representation or exposes solver-consistent "
+                    "finalized magnetic channels in differentiable form"
+                ),
+                (
+                    "extend the same finalized-wout transfer gate to QH, QI, "
+                    "and W7-X-owned finite-beta cases when those owned inputs "
+                    "are promoted"
+                ),
+            ),
+        ),
         *FINITE_BETA_GEOMETRY_BREADTH_ENTRIES,
         BenchmarkEntry(
             id="geometry_breadth_hidden_symmetry",

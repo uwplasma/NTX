@@ -33,6 +33,7 @@ FIGURE_PRESETS = {
         "geometry_family_breadth",
         "geometry_family_transport",
         "boozmn_same_coordinate_roundtrip",
+        "boozmn_finite_beta_wout_roundtrip",
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
@@ -84,6 +85,7 @@ FIGURE_PRESETS = {
         "geometry_family_breadth",
         "geometry_family_transport",
         "boozmn_same_coordinate_roundtrip",
+        "boozmn_finite_beta_wout_roundtrip",
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
@@ -392,6 +394,13 @@ def main() -> None:
     if "boozmn_same_coordinate_roundtrip" in selected:
         manifest["boozmn_same_coordinate_roundtrip"] = _copy_existing_static(
             "boozmn_same_coordinate_roundtrip_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "boozmn_finite_beta_wout_roundtrip" in selected:
+        manifest["boozmn_finite_beta_wout_roundtrip"] = _copy_existing_static(
+            "boozmn_finite_beta_wout_roundtrip_audit",
             output_dir,
             (".png", ".pdf", ".json"),
         )
