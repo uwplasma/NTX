@@ -128,6 +128,21 @@ _GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="boozmn_same_coordinate_roundtrip",
+        category="analytical",
+        metric="max same-coordinate boozmn round-trip transport mismatch",
+        relation="<=",
+        threshold=1.0e-6,
+        source="docs/_static/boozmn_same_coordinate_roundtrip_audit.json",
+        rationale=(
+            "Boozer spectra and Boozer radial profiles are defined on VMEC "
+            "half-grid surfaces. A same-coordinate VMEC-to-Boozer-file "
+            "round trip must preserve selected surfaces and transport "
+            "coefficients before the direct boozmn backend is used for "
+            "benchmark claims."
+        ),
+    ),
+    PhysicsGate(
         name="bootstrap_current_optimization_gain",
         category="stress",
         metric="weighted optimized-current gain",

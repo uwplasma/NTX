@@ -193,7 +193,7 @@ def test_packed_surface_grid_success_and_shape_branches(monkeypatch, tmp_path):
         def __init__(self, _path, mode="r"):
             assert mode == "r"
             self.variables = {
-                "jlist": np.asarray([1, 3], dtype=np.int64),
+                "jlist": np.asarray([2, 4], dtype=np.int64),
                 "buco_b": np.zeros((5,), dtype=np.float64),
             }
 
@@ -207,7 +207,7 @@ def test_packed_surface_grid_success_and_shape_branches(monkeypatch, tmp_path):
     module.Dataset = _FakeDataset
     monkeypatch.setitem(sys.modules, "netCDF4", module)
     grid = _packed_surface_grid(fixture, 2)
-    assert np.allclose(grid, np.asarray([0.0, 0.5]))
+    assert np.allclose(grid, np.asarray([0.125, 0.625]))
 
 
 def test_packed_surface_grid_ns_b_and_error_paths(monkeypatch, tmp_path):
@@ -232,13 +232,13 @@ def test_packed_surface_grid_ns_b_and_error_paths(monkeypatch, tmp_path):
 
     module.Dataset = _dataset_factory(
         {
-            "jlist": np.asarray([1, 2], dtype=np.int64),
+            "jlist": np.asarray([2, 3], dtype=np.int64),
             "ns_b": np.asarray([4], dtype=np.int64),
         }
     )
     monkeypatch.setitem(sys.modules, "netCDF4", module)
     grid = _packed_surface_grid(fixture, 2)
-    assert np.allclose(grid, np.asarray([0.0, 1.0 / 3.0]))
+    assert np.allclose(grid, np.asarray([1.0 / 6.0, 0.5]))
 
     module.Dataset = _dataset_factory({})
     with pytest.raises(ValueError, match="radial grid length does not match"):

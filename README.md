@@ -160,6 +160,12 @@ ntx examples/sample_dkes.toml
 ntx examples/sample_vmec.toml
 ```
 
+Boozer-file backend validation:
+
+```bash
+python examples/boozmn_same_coordinate_roundtrip_audit.py
+```
+
 NEOPAX database and bootstrap-current examples:
 
 ```bash
