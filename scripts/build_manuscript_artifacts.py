@@ -646,19 +646,19 @@ def build_payload() -> dict:
                     "sign_agreement_fraction_total"
                 ]
             ),
-            "owned_finite_beta_closure_inner_gap_coefficient_error": (
+            "owned_finite_beta_closure_stress_gap_coefficient_error": (
                 owned_finite_beta_closure["summary_metrics"][
-                    "inner_gap_coefficient_relative_difference"
+                    "stress_gap_coefficient_relative_difference"
                 ]
             ),
-            "owned_finite_beta_closure_inner_gap_current_error": (
+            "owned_finite_beta_closure_stress_gap_current_error": (
                 owned_finite_beta_closure["summary_metrics"][
-                    "inner_gap_bootstrap_relative_difference"
+                    "stress_gap_bootstrap_relative_difference"
                 ]
             ),
-            "owned_finite_beta_closure_inner_gap_error_ratio": (
+            "owned_finite_beta_closure_stress_gap_error_ratio": (
                 owned_finite_beta_closure["summary_metrics"][
-                    "inner_gap_current_to_coefficient_error_ratio"
+                    "stress_gap_current_to_coefficient_error_ratio"
                 ]
             ),
             "owned_finite_beta_closure_coefficient_gate_pass": (
@@ -711,13 +711,19 @@ def build_payload() -> dict:
                 ]
             ),
             "owned_finite_beta_conditioning_coefficient_precision_gap": (
-                owned_finite_beta_conditioning["summary_metrics"][
+                owned_finite_beta_conditioning["summary_metrics"].get(
                     "stress_coefficient_precision_gap_to_current_gate"
+                )
+                or owned_finite_beta_conditioning["summary_metrics"][
+                    "max_coefficient_precision_gap_to_current_gate"
                 ]
             ),
             "owned_finite_beta_conditioning_coefficient_bound": (
-                owned_finite_beta_conditioning["summary_metrics"][
+                owned_finite_beta_conditioning["summary_metrics"].get(
                     "stress_coefficient_limited_current_relative_error_bound"
+                )
+                or owned_finite_beta_conditioning["summary_metrics"][
+                    "max_coefficient_limited_current_relative_error_bound"
                 ]
             ),
             "owned_finite_beta_quadrature_underintegrated_gate_pass_count": (
@@ -1166,14 +1172,14 @@ def build_markdown(payload: dict) -> str:
         "owned_finite_beta_closure_localization"
     ]
     owned_finite_beta_closure_metrics = owned_finite_beta_closure["summary_metrics"]
-    closure_inner_coefficient_error = owned_finite_beta_closure_metrics[
-        "inner_gap_coefficient_relative_difference"
+    closure_stress_coefficient_error = owned_finite_beta_closure_metrics[
+        "stress_gap_coefficient_relative_difference"
     ]
-    closure_inner_current_error = owned_finite_beta_closure_metrics[
-        "inner_gap_bootstrap_relative_difference"
+    closure_stress_current_error = owned_finite_beta_closure_metrics[
+        "stress_gap_bootstrap_relative_difference"
     ]
-    closure_inner_error_ratio = owned_finite_beta_closure_metrics[
-        "inner_gap_current_to_coefficient_error_ratio"
+    closure_stress_error_ratio = owned_finite_beta_closure_metrics[
+        "stress_gap_current_to_coefficient_error_ratio"
     ]
     owned_finite_beta_observable = payload["tables"][
         "owned_finite_beta_profile_current_observable"
@@ -1208,12 +1214,22 @@ def build_markdown(payload: dict) -> str:
     conditioning_required_coefficient_error = owned_finite_beta_conditioning_metrics[
         "stress_required_coefficient_relative_difference_for_current_gate"
     ]
-    conditioning_precision_gap = owned_finite_beta_conditioning_metrics[
-        "stress_coefficient_precision_gap_to_current_gate"
-    ]
-    conditioning_coefficient_bound = owned_finite_beta_conditioning_metrics[
-        "stress_coefficient_limited_current_relative_error_bound"
-    ]
+    conditioning_precision_gap = (
+        owned_finite_beta_conditioning_metrics.get(
+            "stress_coefficient_precision_gap_to_current_gate"
+        )
+        or owned_finite_beta_conditioning_metrics.get(
+            "max_coefficient_precision_gap_to_current_gate"
+        )
+    )
+    conditioning_coefficient_bound = (
+        owned_finite_beta_conditioning_metrics.get(
+            "stress_coefficient_limited_current_relative_error_bound"
+        )
+        or owned_finite_beta_conditioning_metrics.get(
+            "max_coefficient_limited_current_relative_error_bound"
+        )
+    )
     owned_finite_beta_quadrature = payload["tables"][
         "owned_finite_beta_closure_quadrature"
     ]
@@ -1759,16 +1775,16 @@ def build_markdown(payload: dict) -> str:
                 f"`{finite_beta_bootstrap_sign_fraction:.3f}` |"
             ),
             (
-                "| Inner-gap same-grid coefficient relative difference | "
-                f"`{closure_inner_coefficient_error:.3e}` |"
+                "| Stress-gap same-grid coefficient relative difference | "
+                f"`{closure_stress_coefficient_error:.3e}` |"
             ),
             (
-                "| Inner-gap profile-current relative difference | "
-                f"`{closure_inner_current_error:.3e}` |"
+                "| Stress-gap profile-current relative difference | "
+                f"`{closure_stress_current_error:.3e}` |"
             ),
             (
-                "| Inner-gap current/coefficient error ratio | "
-                f"`{closure_inner_error_ratio:.3e}` |"
+                "| Stress-gap current/coefficient error ratio | "
+                f"`{closure_stress_error_ratio:.3e}` |"
             ),
             (
                 "| Stress-radius applied/needed correction | "
@@ -1796,7 +1812,7 @@ def build_markdown(payload: dict) -> str:
             ),
             (
                 "| Coefficient precision gap to current gate | "
-                f"`{conditioning_precision_gap:.3f}x` |"
+                f"`{_format_optional_float(conditioning_precision_gap)}x` |"
             ),
             (
                 "| Production-grid coefficient precision gap | "
@@ -1820,7 +1836,7 @@ def build_markdown(payload: dict) -> str:
             ),
             (
                 "| Coefficient-conditioned current-error bound | "
-                f"`{conditioning_coefficient_bound:.3e}` |"
+                f"`{_format_optional_float(conditioning_coefficient_bound, scientific=True)}` |"
             ),
             (
                 "| Under-integrated closure current-gate passes | "
@@ -1989,8 +2005,8 @@ def build_markdown(payload: dict) -> str:
                 f"`stable gate={closure_target_matched_stable_gate}` |"
             ),
             (
-                "| Closure-target matched-radius apparent pass status | "
-                f"`under-integrated rejected={closure_target_matched_best_pass_rejected}`, "
+                "| Closure-target matched-radius pass status | "
+                f"`best-pass rejected={closure_target_matched_best_pass_rejected}`, "
                 f"`stable multiplier={closure_target_matched_high_stable_multiplier:.3e}` |"
             )
             if closure_target_matched_high_stable_multiplier is not None
@@ -2289,13 +2305,13 @@ def build_claims_markdown(payload: dict) -> str:
             (
                 "- The owned finite-beta closure-localization sidecar compares "
                 "the same-grid coefficient ladder with the profile-current "
-                "stress artifact at the inner gap. The coefficient-side "
+                "stress artifact at the current stress radius. The coefficient-side "
                 "relative difference is "
-                f"`{claims['owned_finite_beta_closure_inner_gap_coefficient_error']:.3e}` "
+                f"`{claims['owned_finite_beta_closure_stress_gap_coefficient_error']:.3e}` "
                 "while the profile-current relative difference is "
-                f"`{claims['owned_finite_beta_closure_inner_gap_current_error']:.3e}`, "
+                f"`{claims['owned_finite_beta_closure_stress_gap_current_error']:.3e}`, "
                 "a ratio of "
-                f"`{claims['owned_finite_beta_closure_inner_gap_error_ratio']:.3e}`. "
+                f"`{claims['owned_finite_beta_closure_stress_gap_error_ratio']:.3e}`. "
                 "This keeps the remaining work in the reduced "
                 "momentum/profile-current observable rather than relabeling it "
                 "as a coefficient-normalization failure."
@@ -2359,17 +2375,16 @@ def build_claims_markdown(payload: dict) -> str:
                 "still below the order-`1e-1` coefficient gate, but the "
                 "current-conditioned precision gap remains "
                 f"`{claims['owned_finite_beta_production_ladder_precision_gap']:.3f}x` "
-                "at the inner stress radius. This closes the finite-beta "
+                "at the most cancellation-sensitive radius. This closes the finite-beta "
                 "production coefficient-ladder lane and keeps the open mismatch "
                 "at the profile-current closure layer."
             ),
             (
                 "- The owned finite-beta closure-quadrature audit shows that "
                 f"`{claims['owned_finite_beta_quadrature_underintegrated_gate_pass_count']}` "
-                "stress-radius current-gate pass occurs only when the velocity "
-                "quadrature is lower than the Sonine truncation, while "
+                "under-integrated stress-radius current-gate passes are recorded, while "
                 f"`{claims['owned_finite_beta_quadrature_stable_gate_pass_count']}` "
-                "quadrature-stable pass is found. The best apparent "
+                "quadrature-stable pass is found. The best "
                 "stress-radius setting is "
                 f"`P={claims['owned_finite_beta_quadrature_min_stress_pmax']}`, "
                 f"`X={claims['owned_finite_beta_quadrature_min_stress_x']}` with "
@@ -2379,7 +2394,8 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_quadrature_high_x_largest_order_stress_error']:.3e}` "
                 "and same-order stress values vary over X by "
                 f"`{claims['owned_finite_beta_quadrature_max_same_order_spread']:.3e}`. "
-                "This closes the under-integrated apparent-pass route and keeps "
+                "This keeps under-integrated apparent passes out of the runtime "
+                "and leaves "
                 "the finite-beta bootstrap-current gap assigned to a "
                 "quadrature-converged reduced-closure lane."
             ),
@@ -2495,7 +2511,7 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['owned_finite_beta_closure_target_matched_same_radius']}`, "
                 "keep source reconstruction gated "
                 f"`{closure_target_matched_source_gate}`, "
-                "and reject the best apparent pass as under-integrated "
+                "and report matched-radius best-pass rejection "
                 f"`{claims['owned_finite_beta_closure_target_matched_best_pass_rejected']}` "
                 "with quadrature-stable current-gate status "
                 f"`{claims['owned_finite_beta_closure_target_matched_stable_gate']}`. "

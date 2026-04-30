@@ -165,7 +165,7 @@ def test_to_neopax_monoenergetic_preserves_jax_scalar_a_b():
 
 
 @pytest.mark.skipif(find_neopax_root() is None, reason="requires local NEOPAX checkout")
-def test_differentiable_neopax_field_matches_external_constructor():
+def test_differentiable_neopax_field_matches_external_constructor_except_b0_radius_bug():
     NEOPAX = _import_neopax()
 
     rho_half = jnp.asarray([0.0, 0.2, 0.4, 0.6, 0.8])
@@ -243,8 +243,14 @@ def test_differentiable_neopax_field_matches_external_constructor():
     assert jnp.allclose(field.Vprime_half, reference.Vprime_half)
     assert jnp.allclose(field.iota, reference.iota)
     assert jnp.allclose(field.B_10, reference.B_10, equal_nan=True)
-    assert jnp.allclose(field.B0, reference.B0, equal_nan=True)
-    assert jnp.allclose(field.Bsqav, reference.Bsqav, equal_nan=True)
+    expected_b0 = 4.8 + field.rho_grid
+    expected_bsqav = (field.G_value + field.iota * field.I_value) / (
+        field.sqrtg00_value * expected_b0**2
+    )
+    assert not jnp.allclose(field.B0, reference.B0, equal_nan=True)
+    assert jnp.allclose(field.B0, expected_b0)
+    assert jnp.allclose(field.Bsqav, expected_bsqav, equal_nan=True)
+    assert not jnp.allclose(field.Bsqav, reference.Bsqav, equal_nan=True)
 
 
 def test_differentiable_neopax_field_without_b10_mode_is_axis_safe():

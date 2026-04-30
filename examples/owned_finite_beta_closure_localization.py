@@ -239,26 +239,26 @@ def build_payload(
 
     profile_rho = np.asarray(profile["rho"], dtype=float)
     profile_error = np.asarray(profile["relative_error_total_vs_redl"], dtype=float)
-    inner_index = int(np.nanargmax(profile_error)) if profile_error.size else 0
-    inner_rho = float(profile_rho[inner_index]) if profile_rho.size else None
-    inner_error = float(profile_error[inner_index]) if profile_error.size else None
-    inner_coeff_row, inner_coeff_distance = (
-        _nearest_coefficient_at_rho(by_rho, inner_rho)
-        if inner_rho is not None
+    stress_index = int(np.nanargmax(profile_error)) if profile_error.size else 0
+    stress_rho = float(profile_rho[stress_index]) if profile_rho.size else None
+    stress_error = float(profile_error[stress_index]) if profile_error.size else None
+    stress_coeff_row, stress_coeff_distance = (
+        _nearest_coefficient_at_rho(by_rho, stress_rho)
+        if stress_rho is not None
         else (None, None)
     )
-    inner_coeff_error = (
-        inner_coeff_row["max_raw_relative_difference"]
-        if inner_coeff_row is not None
+    stress_coeff_error = (
+        stress_coeff_row["max_raw_relative_difference"]
+        if stress_coeff_row is not None
         else None
     )
-    inner_ratio = None
+    stress_ratio = None
     if (
-        inner_error is not None
-        and inner_coeff_error is not None
-        and inner_coeff_error > 0.0
+        stress_error is not None
+        and stress_coeff_error is not None
+        and stress_coeff_error > 0.0
     ):
-        inner_ratio = inner_error / inner_coeff_error
+        stress_ratio = stress_error / stress_coeff_error
 
     max_coefficient_error = _max_or_none(
         [
@@ -283,8 +283,9 @@ def build_payload(
             "Compares the completed same-grid finite-beta SFINCS-JAX "
             "transport-matrix coefficient ladder with the finite-beta Redl and "
             "NTX+NEOPAX profile-current stress artifact. It is a localization "
-            "diagnostic: coefficient errors below the 1e-1 gate at the inner "
-            "stress radius do not by themselves promote bootstrap-current parity."
+            "diagnostic: coefficient errors below the 1e-1 gate at the "
+            "profile-current stress radius do not by themselves promote "
+            "bootstrap-current parity."
         ),
         "inputs": {
             "sfincs_artifact": str(sfincs_json),
@@ -301,17 +302,17 @@ def build_payload(
             "max_same_grid_coefficient_relative_difference": max_coefficient_error,
             "max_bootstrap_total_relative_difference": max_profile_error,
             "rms_bootstrap_total_relative_difference": rms_profile_error,
-            "inner_gap_rho": inner_rho,
-            "inner_gap_bootstrap_relative_difference": inner_error,
-            "inner_gap_nearest_coefficient_rho": (
-                inner_coeff_row["rho"] if inner_coeff_row is not None else None
+            "stress_gap_rho": stress_rho,
+            "stress_gap_bootstrap_relative_difference": stress_error,
+            "stress_gap_nearest_coefficient_rho": (
+                stress_coeff_row["rho"] if stress_coeff_row is not None else None
             ),
-            "inner_gap_nearest_coefficient_distance": inner_coeff_distance,
-            "inner_gap_coefficient_relative_difference": inner_coeff_error,
-            "inner_gap_current_to_coefficient_error_ratio": _finite_or_none(
-                inner_ratio
+            "stress_gap_nearest_coefficient_distance": stress_coeff_distance,
+            "stress_gap_coefficient_relative_difference": stress_coeff_error,
+            "stress_gap_current_to_coefficient_error_ratio": _finite_or_none(
+                stress_ratio
             )
-            if inner_ratio is not None
+            if stress_ratio is not None
             else None,
             "coefficient_gate": COEFFICIENT_GATE,
             "coefficient_gate_pass": (
@@ -325,14 +326,14 @@ def build_payload(
         },
         "conclusion": (
             "The same-grid finite-beta coefficient ladder passes below 1e-1 at "
-            "the inner stress radius; the remaining current-profile gap is "
+            "the profile-current stress radius; the remaining current-profile gap is "
             "therefore tracked as a reduced momentum/profile-closure observable "
             "lane rather than a monoenergetic coefficient normalization failure."
         ),
         "open_work": [
             (
                 "derive and test the remaining reduced momentum/profile-current "
-                "observable term at the inner finite-beta radius"
+                "observable term at the finite-beta stress radius"
             ),
             (
                 "rerun the profile-current closure with production SFINCS-JAX "
@@ -444,9 +445,9 @@ def build_figure(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) -
         match_rho = np.asarray([row["rho"] for row in matched], dtype=float)
         ratio = _array_or_empty(matched, "current_to_coefficient_error_ratio")
         ax_ratio.semilogy(match_rho, ratio, marker="o", color="tab:red")
-        inner_rho = payload["summary_metrics"]["inner_gap_rho"]
-        if inner_rho is not None:
-            ax_ratio.axvline(float(inner_rho), color="0.35", linestyle=":")
+        stress_rho = payload["summary_metrics"]["stress_gap_rho"]
+        if stress_rho is not None:
+            ax_ratio.axvline(float(stress_rho), color="0.35", linestyle=":")
     ax_ratio.axhline(1.0, color="0.35", linestyle=":")
     ax_ratio.set_xlabel(r"$\rho$")
     ax_ratio.set_ylabel("current error / coefficient error")

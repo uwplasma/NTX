@@ -129,19 +129,19 @@ examples.
    - production six-point finite-beta QA same-grid SFINCS-JAX/NTX ladder across
      radius and collisionality; all coefficient differences stay below
      `2.07e-2`, with the current-conditioned precision gap localized to the
-     inner stress point
+     most cancellation-sensitive radius
 18. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
    - same finite-beta QA pressure/current `wout`, Boozer transform, analytic
-     profiles, production radial/collisionality ladder, physical `nu/v`
-     support, `D33_spitzer` branch, and current normalization used for Redl
-     and `NTX+NEOPAX`; retained as a reduced-closure stress audit because the
-     outer-radius current is near the `1e-1` target while the inner-radius gap
-     remains open
+     profiles, normalized-radius `B00(rho)` Boozer-field convention, production
+     radial/collisionality ladder, physical `nu/v` support, `D33_spitzer`
+     branch, and current normalization used for Redl and `NTX+NEOPAX`; retained
+     as a reduced-closure stress audit because the corrected-field current
+     residual remains above the `1e-1` target over the profile
 19. `owned_finite_beta_closure_localization.{png,pdf,json}`
    - sidecar figure and JSON that compare the same-grid coefficient ladder with
-     the finite-beta profile-current stress artifact; at the inner gap the
-     coefficient-level error is about `2.1e-2`, while the current-profile error
-     remains about `3.1e-1`
+     the finite-beta profile-current stress artifact; the coefficient ladder
+     stays below the coefficient gate while the current-profile residual remains
+     above the `1e-1` current gate
 20. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
    - stress-radius decomposition of the profile-current observable into
      no-momentum current, applied momentum correction, correction needed to match
@@ -153,47 +153,43 @@ examples.
      coefficient ladder is not yet sufficient for a `1e-1` bootstrap-current
      parity claim
 22. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
-   - Sonine-order versus velocity-quadrature stress audit; the only apparent
-     current-gate pass occurs at `P=14, X=10`, the accepted
-     quadrature-stable pass count is zero, and the apparent pass is not
-     promoted because it does not transfer to higher velocity quadrature
+   - Sonine-order versus velocity-quadrature stress audit; the accepted
+     quadrature-stable pass count is zero and the best stress value remains
+     above `1e-1`, so no apparent finite-beta current-gate pass is promoted
 23. `owned_finite_beta_source_channel_audit.{png,pdf,json}`
    - frozen stress-radius source-channel decomposition of the same
      momentum-restoring system; one-channel solves reconstruct the full current
-     to roundoff and localize the high-order response to the effective
-     temperature-gradient drive under the current profile contract; Redl
-     density and temperature target terms are stored on the same observable,
-     giving a high-order temperature-channel response multiplier of about
-     `0.717` rather than a fitted runtime correction
+     to roundoff and localize the high-order response to mixed density/electric
+     and temperature-gradient drives under the current profile contract; Redl
+     density and temperature target terms are stored on the same observable
+     rather than converted into a fitted runtime correction
 24. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
    - profile-wide source-response map at `X=18, P=18`; the temperature-channel
-     response multiplier spans `0.717` to `1.317` with median `1.010`, preserves
+     response multiplier spans `0.765` to `1.349` with median `1.040`, preserves
      source sign agreement, and keeps the maximum current stress at the inner
      radius while storing correlations with Redl collisionality and geometry
      factors
 25. `owned_finite_beta_closure_target_audit.{png,pdf,json}`
    - driver-identification artifact for the profile source-response target; the
      strongest single local driver is the Redl geometry factor `epsilon`
-     (`|r|=0.975`), the best leave-one-out diagnostic model is epsilon-only
-     with RMSE `5.27e-2`; the JSON also cross-links the field-radius-matched
+     (`|r|=0.970`), the best leave-one-out diagnostic model is epsilon-only
+     with RMSE `5.58e-2`; the JSON also cross-links the field-radius-matched
      source/quadrature sidecars, confirming the same stress radius, exact source
-     reconstruction, and rejection of the only apparent current-gate pass as
-     under-integrated, with no runtime correction applied
+     reconstruction, and no quadrature-stable current-gate pass, with no runtime
+     correction applied
 26. `owned_finite_beta_radial_interpolation_audit.{png,pdf,json}`
    - interpolation-contract diagnostic; rebuilding the finite-beta database on
-     the exact field radii reduces the previous `rho=0.143` stress point from
-     `3.11e-1` to `3.00e-2`, but the full-profile maximum remains `2.14e-1`,
-     so no runtime interpolation policy is promoted
+     the exact field radii changes individual radii but leaves the full-profile
+     maximum near `2.3e-1`, so no runtime interpolation policy is promoted
 27. `owned_finite_beta_field_radius_matched_closure_quadrature_audit.{png,pdf,json}`
    - field-radius-matched Sonine/quadrature rerun; the best apparent stress
-     value is `9.68e-2` at `P=18, X=10`, but the quadrature-stable pass count
-     remains zero and `X=18, P=18` gives about `3.08e-1`, so the remaining
-     current gap is not closed by interpolation removal or Pmax alone
+     value remains above `1e-1`, the quadrature-stable pass count is zero, and
+     `X=18, P=18` gives about `1.44e-1`, so the remaining current gap is not
+     closed by interpolation removal or Pmax alone
 28. `owned_finite_beta_field_radius_matched_source_channel_audit.{png,pdf,json}`
    - field-radius-matched source-channel rerun; one-channel solves reconstruct
-     the corrected current to about `1.45e-14`, the best apparent pass remains
-     the under-integrated `X=10, P=18` setting, and the quadrature-stable
-     `X=18, P=18` response remains a reduced-closure stress diagnostic
+     the corrected current to roundoff, and the quadrature-stable `X=18`,
+     `P=18` response remains a reduced-closure stress diagnostic
 29. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
 30. `bootstrap_current_optimization.{png,pdf}`
@@ -253,9 +249,10 @@ Together these figures cover:
 - artifact-backed geometry-breadth status across the committed derivative
   families, with unresolved implicit objectives kept out of promoted claims
 - same-grid finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress
-  diagnostics with the physical Boozer flux scale, production radial/
-  collisionality ladder, adaptive `nu/v` support, and Sonine-order convergence
-  sidecar recorded while the inner-radius gap remains open work
+  diagnostics with the physical Boozer flux scale, normalized-radius `B00`
+  evaluation, production radial/collisionality ladder, adaptive `nu/v` support,
+  and Sonine-order convergence sidecar recorded while the profile-current
+  closure residual remains open work
 - finite-beta source-response and closure-target diagnostics that map the
   dominant effective-temperature channel over the full profile, rank physical
   geometry/trapped-particle/collisionality drivers, and keep fitted diagnostic

@@ -48,7 +48,7 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
     PhysicsGate(
         name="owned_finite_beta_current_conditioning_stress",
         category="stress",
-        metric="stress-radius coefficient precision gap for the 1e-1 current gate",
+        metric="max coefficient precision gap for the 1e-1 current gate",
         relation="monitor",
         threshold=None,
         source="docs/_static/owned_finite_beta_current_conditioning_audit.json",

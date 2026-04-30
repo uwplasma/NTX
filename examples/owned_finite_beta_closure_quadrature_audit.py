@@ -38,6 +38,7 @@ from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
     _case_by_id,
     _evaluate_neopax_currents,
     _interp,
+    _read_neopax_field,
     _redl_geometry_and_current,
     _relative_error,
     _require_external_stacks,
@@ -116,11 +117,7 @@ def _evaluate_rows(
     mboz = int(inputs.get("mboz", DEFAULT_MBOZ))
     nboz = int(inputs.get("nboz", DEFAULT_NBOZ))
     boozmn_path = _write_boozmn(case, output_dir, mboz=mboz, nboz=nboz)
-    field = NEOPAX.Field.read_vmec_booz(
-        int(inputs.get("field_radial_points", 15)),
-        str(case.wout_path),
-        str(boozmn_path),
-    )
+    field = _read_neopax_field(int(inputs.get("field_radial_points", 15)), case, boozmn_path)
     species = _build_species(NEOPAX, field, contract)
     scan_rho = np.asarray(inputs["scan_rho"], dtype=float)
     es_values = np.asarray(inputs["Es"], dtype=float)
@@ -389,7 +386,7 @@ def build_payload(
                 ),
                 (
                     "require current-gate pass and velocity-quadrature stability "
-                    "simultaneously on the inner finite-beta stress radius"
+                    "simultaneously on the finite-beta profile-current stress radius"
                 ),
                 (
                     "transfer the accepted closure setting to the existing fixed-"

@@ -247,10 +247,10 @@ def build_payload_from_comparisons(
         "summary_metrics": summary_metrics,
         "conclusion": (
             "Building the finite-beta database directly on the field radii "
-            "strongly reduces the previous inner stress point, but the profile "
-            "maximum remains above the 1e-1 current gate.  Radial interpolation "
-            "therefore explains part, not all, of the remaining reduced-closure "
-            "stress."
+            "does not reduce the full-profile maximum below the 1e-1 current "
+            "gate. The sparse radial interpolation layer is therefore not the "
+            "root cause of the remaining reduced-closure stress, and no runtime "
+            "interpolation policy is promoted by this diagnostic."
         ),
         "open_work": [
             (

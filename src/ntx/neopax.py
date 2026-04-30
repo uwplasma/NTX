@@ -9,6 +9,7 @@ from ._neopax_bridge import (
 )
 from ._neopax_field import (
     build_differentiable_neopax_field,
+    build_differentiable_neopax_field_from_vmec_booz_files,
     build_differentiable_neopax_field_from_vmec_jax_boundary_params,
     build_differentiable_neopax_field_from_vmec_jax_state,
 )
@@ -31,6 +32,7 @@ __all__ = [
     "NeopaxMonoenergeticArrays",
     "NeopaxScan",
     "build_differentiable_neopax_field",
+    "build_differentiable_neopax_field_from_vmec_booz_files",
     "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
     "build_differentiable_neopax_field_from_vmec_jax_state",
     "build_ntx_neopax_scan",

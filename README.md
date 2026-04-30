@@ -141,9 +141,12 @@ The owned finite-beta stellarator lane now has same-grid SFINCS-JAX input
 generation, completed coefficient ladders, Redl and `NTX+NEOPAX` current
 audits, source-channel decompositions, and radial-interpolation diagnostics.
 That lane is intentionally reported as a reduced-closure stress benchmark: the
-monoenergetic coefficient differences are below `2.1e-2`, while the
-quadrature-stable profile-current stress remains about `3.1e-1`. The detailed
-interpretation and open promotion gates are in [docs/validation.md](docs/validation.md).
+monoenergetic coefficient differences are below `2.1e-2`, while the corrected
+Boozer-field profile-current stress remains above the `1e-1` current gate. The
+corrected Boozer path evaluates `B00` on normalized radius and converts
+`dB00/d rho` to the physical radial derivative with the VMEC minor radius. The
+detailed interpretation and open promotion gates are in
+[docs/validation.md](docs/validation.md).
 
 Run the local gate summary with:
 

@@ -187,13 +187,16 @@ localization tool, not as a bootstrap-current parity claim.
 The finite-beta bootstrap-current script runs Redl and `NTX+NEOPAX` on the
 same QA pressure/current `wout`, Boozer transform, analytic profile contract,
 radial grid, adaptive physical `nu/v` support, and current normalization. It
-is a production-resolution reduced-closure stress audit for this QA case; the
-current JSON sidecar records the remaining inner-radius Redl/`NTX+NEOPAX` gap
-and a Sonine-order convergence scan instead of promoting the figure as parity.
+uses the normalized-radius Boozer `B00(rho)` convention, including
+`dB00/dr = (dB00/d rho)/a_b`, so the file-backed field object and the profile
+closure use the same radial coordinate. It is a production-resolution
+reduced-closure stress audit for this QA case; the current JSON sidecar records
+the remaining profile-wide Redl/`NTX+NEOPAX` residual and a Sonine-order
+convergence scan instead of promoting the figure as parity.
 The closure-localization script then overlays these two committed sidecars. It
-shows that the inner-radius same-grid `L13/L31/L33` coefficient difference is
-about `2.1e-2`, while the profile-current difference at the same radius remains
-about `3.1e-1`; the open lane is therefore the reduced profile-current
+shows that the same-grid `L13/L31/L33` coefficient ladder remains below the
+coefficient gate, while the profile-current residual is still larger than the
+`1e-1` current gate; the open lane is therefore the reduced profile-current
 observable rather than the monoenergetic coefficient bridge.
 The profile-current observable audit decomposes the same stress radius into the
 no-momentum current, applied momentum correction, correction needed to match the
@@ -203,9 +206,10 @@ The current-conditioning audit then asks a stricter question: given the observed
 electron/ion cancellation, how accurate must the same-grid coefficient ladder be
 before coefficient uncertainty can be ruled out for a `1e-1` net-current gate?
 For the current finite-beta QA artifact, the stress radius needs about
-`1.3e-3` coefficient precision, while the completed smoke ladder is about
-`2.1e-2`. That keeps the next step focused on production-resolution same-grid
-coefficient/profile-current diagnostics before any closure change is promoted.
+`1.1e-3` coefficient precision, while the completed coefficient ladder is still
+order `2e-2`. That keeps the next step focused on production-resolution
+same-grid coefficient/profile-current diagnostics before any closure change is
+promoted.
 The resolution audit adds the first production stress probe: increasing the
 same point to `35 x 43 x 48` and tightening the VMEC harmonic cutoff leaves the
 coefficient floor near `2.05e-2`, so the remaining finite-beta current gap is
@@ -213,19 +217,18 @@ not explained by those numerical knobs.
 The production-ladder audit then reads the six production same-grid
 SFINCS-JAX points across the owned finite-beta QA radii and collisionalities.
 All completed coefficient differences stay below `2.07e-2`; the
-current-conditioned precision gap remains largest at the inner stress radius,
-so the next open item is the profile-current closure observable.
+current-conditioned precision gap remains larger than the coefficient floor, so
+the next open item is the profile-current closure observable.
 The closure-quadrature audit holds the same scan, Redl observable, profiles, and
 normalization fixed while varying only Sonine order and velocity quadrature.
-It records that the only stress-radius current-gate pass occurs at `P=14,
-X=10`, where the velocity quadrature is lower than the Sonine truncation. That
-apparent pass does not transfer to `X=14` or `X=18`, so the example treats it as
-under-integrated closure aliasing rather than a valid finite-beta parity result.
+After the Boozer-field normalization fix, it records no stress-radius current
+gate pass; the best stress point remains above `1e-1` and the full-profile
+maximum remains a monitored reduced-closure residual.
 The source-channel audit then freezes the same momentum-restoring matrix and
 solves one physical source channel at a time. The one-channel solves reconstruct
-the corrected current to roundoff, and the quadrature-stable high-order result
-is dominated by the effective temperature-gradient drive with no parallel-
-electric drive for this profile contract.
+the corrected current to roundoff. The corrected high-order stress is a mixed
+density/electric and temperature-gradient response with no parallel-electric
+drive for this profile contract.
 The profile source-response audit extends that decomposition from the single
 stress radius to the full finite-beta profile at `X=18, P=18`. It plots the
 Redl and corrected current profiles, the Redl/NTX effective source-response
@@ -237,14 +240,12 @@ drivers before a runtime model is proposed. The current sidecar selects the
 Redl geometry factor `epsilon` as the strongest single driver and records that
 the best diagnostic model is not applied to the code.
 The radial-interpolation audit rebuilds the same current observable on the
-field radii. It removes most of the old `rho=0.143` stress, but the
-matched-radius quadrature rerun still finds zero quadrature-stable current-gate
-passes; its only apparent matched stress pass is at `P=18, X=10`, where
-velocity quadrature is lower than the Sonine truncation.
+field radii. It changes individual radii but does not improve the full-profile
+maximum; the matched-radius quadrature rerun still finds zero quadrature-stable
+current-gate passes.
 The matched-radius source-channel rerun reconstructs the corrected current to
-roundoff and shows the same pattern: the only current-gate pass is the
-under-integrated `X=10`, `P=18` setting, while `X=18`, `P=18` remains a
-quadrature-stable source-response stress diagnostic.
+roundoff and shows the same pattern: `X=18`, `P=18` remains a quadrature-stable
+source-response stress diagnostic rather than a finite-beta parity claim.
 
 It writes:
 
@@ -323,14 +324,14 @@ It writes:
 
 The source-channel panel overlays the Redl density and temperature target terms
 on the same current observable. The current artifact reconstructs the corrected
-NTX+NEOPAX current to roundoff and records that the high-order Redl temperature
-target is `0.717` of the frozen corrected temperature-channel response.
+NTX+NEOPAX current to roundoff and records a mixed density/electric and
+temperature-gradient high-order stress response.
 
 ![Owned finite-beta profile source-response audit](_static/owned_finite_beta_source_response_profile_audit.png)
 
 The profile source-response panel shows that the temperature response multiplier
 is not a single hidden constant: it spans the profile while preserving source
-sign agreement and keeping the largest current stress at the inner radius.
+sign agreement, with the high-order stress largest at the inner radius.
 
 ![Owned finite-beta closure-target driver audit](_static/owned_finite_beta_closure_target_audit.png)
 
@@ -340,21 +341,21 @@ the runtime closure remains unchanged until a physics-derived term passes the
 fixed-field, W7-X transfer, source reconstruction, and same-grid finite-beta
 coefficient gates. Its JSON sidecar also cross-links the field-radius-matched
 source-channel and quadrature artifacts, confirming that the matched audit uses
-the same stress radius, reconstructs the source response, and rejects the only
-apparent current-gate pass as under-integrated.
+the same stress radius, reconstructs the source response, and still has no
+quadrature-stable current-gate pass.
 
 ![Owned finite-beta radial interpolation audit](_static/owned_finite_beta_radial_interpolation_audit.png)
 
 The radial-interpolation panel rebuilds the same finite-beta current audit with
 the monoenergetic database placed on the exact profile-current field radii. It
-substantially reduces the previous inner stress point, but it does not clear
-the full-profile current gate, so no runtime interpolation policy is promoted.
+changes individual radii but does not clear the full-profile current gate, so
+no runtime interpolation policy is promoted.
 
 ![Owned finite-beta field-radius-matched closure quadrature audit](_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png)
 
 The matched closure-quadrature panel repeats the Sonine/quadrature sweep after
-removing the sparse-radius interpolation layer. It still rejects the apparent
-current-gate pass as under-integrated, so the open lane remains a
+removing the sparse-radius interpolation layer. It still has zero
+quadrature-stable current-gate passes, so the open lane remains a
 quadrature-stable reduced profile-current closure.
 
 ![Owned finite-beta field-radius-matched source-channel audit](_static/owned_finite_beta_field_radius_matched_source_channel_audit.png)
@@ -362,7 +363,7 @@ quadrature-stable reduced profile-current closure.
 The matched source-channel panel repeats the physical RHS decomposition on the
 same field-radius-matched contract. It reconstructs the corrected current to
 roundoff and keeps the remaining finite-beta mismatch localized to a
-quadrature-stable effective-temperature source response.
+quadrature-stable source-response stress.
 
 ## 10. Bootstrap Current With NEOPAX
 

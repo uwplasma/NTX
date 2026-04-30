@@ -44,12 +44,12 @@ def append_finite_beta_artifact_gates(
         results,
         gate_name="owned_finite_beta_current_conditioning_stress",
         path=static_root / "owned_finite_beta_current_conditioning_audit.json",
-        metric_key="stress_coefficient_precision_gap_to_current_gate",
+        metric_key="max_coefficient_precision_gap_to_current_gate",
         details=(
-            "monitored coefficient precision gap after species-current "
-            "cancellation conditioning; values above one mean the current "
-            "observable needs a tighter same-grid coefficient ladder before "
-            "coefficient uncertainty can be ruled out"
+            "monitored maximum coefficient precision gap after species-current "
+            "cancellation conditioning; values above one mean sensitive radii "
+            "need a tighter same-grid coefficient ladder before coefficient "
+            "uncertainty can be ruled out"
         ),
     )
     _append_summary_metric_gate(
@@ -159,9 +159,9 @@ def append_finite_beta_artifact_gates(
         metric_key="quadrature_stable_gate_pass_count",
         details=(
             "monitored matched-radius finite-beta closure quadrature pass count; "
-            "zero means the current-gate pass remains confined to an "
-            "under-integrated X < Pmax setting even after the sparse radial "
-            "interpolation layer is removed"
+            "zero means no current-gate pass survives the velocity-quadrature "
+            "stability requirement after the sparse radial interpolation layer "
+            "is removed"
         ),
     )
     _append_summary_metric_gate(

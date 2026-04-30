@@ -75,7 +75,7 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "Completed outputs are ingested with the reported nu_n "
             "normalization and compared against NTX on the same geometry "
             "and grid. This is the owned independent-code generation "
-            "contract, an inner-radius smoke-resolution coefficient "
+            "contract, a stress-radius smoke-resolution coefficient "
             "ladder, an isolated production-grid stress-radius "
             "resolution/harmonic-cutoff probe, and a completed production "
             "radial/collisionality coefficient ladder with the exact radial "
@@ -161,8 +161,8 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "field-radius-matched source-channel sidecar, "
             "and current normalization. "
             "The current reduced-closure result has the correct sign and "
-            "outer-radius errors near the 1e-1 target, but explicitly records "
-            "the remaining inner-radius gap; "
+            "some radii near the 1e-1 target, but explicitly records "
+            "the remaining profile-current stress gap; "
             "it is not promoted as SFINCS parity until same-grid SFINCS-JAX "
             "profile-current closure diagnostics are complete."
         ),
@@ -258,7 +258,7 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
                 "gate pass at X < Pmax"
             ),
             (
-                "close the inner-radius reduced-closure gap using the same "
+                "close the reduced-closure profile-current stress using the same "
                 "physical profile, source-channel decomposition, normalization, "
                 "and interpolation contract"
             ),
@@ -274,8 +274,8 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             ),
             (
                 "derive a quadrature-stable finite-beta reduced-closure "
-                "improvement; the current field-radius-matched apparent "
-                "pass remains under-integrated"
+                "improvement; the current field-radius-matched sweep still "
+                "has zero quadrature-stable current-gate passes"
             ),
             (
                 "run the production same-grid coefficient ladder to the "

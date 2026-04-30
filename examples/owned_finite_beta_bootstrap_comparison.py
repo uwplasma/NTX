@@ -37,7 +37,12 @@ from examples.owned_geometry_neopax_dataset import (  # noqa: E402
     _drds_from_minor_radius,
     discover_owned_case_specs,
 )
-from ntx import GridSpec, to_neopax_monoenergetic, write_neopax_scan_hdf5  # noqa: E402
+from ntx import (  # noqa: E402
+    GridSpec,
+    build_differentiable_neopax_field_from_vmec_booz_files,
+    to_neopax_monoenergetic,
+    write_neopax_scan_hdf5,
+)
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison"
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_bootstrap_comparison"
@@ -157,6 +162,20 @@ def _write_boozmn(case: OwnedJaxGeometryCase, output_dir: Path, *, mboz: int, nb
     bx = _run_boozer(case, mboz=mboz, nboz=nboz)
     bx.write_boozmn(str(path))
     return path
+
+
+def _read_neopax_field(
+    n_r: int,
+    case: OwnedJaxGeometryCase,
+    boozmn_path: Path,
+):
+    """Read the Boozer field with normalized-radius B00 evaluation."""
+
+    return build_differentiable_neopax_field_from_vmec_booz_files(
+        int(n_r),
+        str(case.wout_path),
+        str(boozmn_path),
+    )
 
 
 def _redl_geometry_and_current(
@@ -470,11 +489,7 @@ def _ntx_neopax_current(
 ) -> dict[str, Any]:
     *_, NEOPAX = _require_external_stacks()
     boozmn_path = _write_boozmn(case, output_dir, mboz=mboz, nboz=nboz)
-    field = NEOPAX.Field.read_vmec_booz(
-        int(field_radial_points),
-        str(case.wout_path),
-        str(boozmn_path),
-    )
+    field = _read_neopax_field(int(field_radial_points), case, boozmn_path)
     species = _build_species(NEOPAX, field, contract)
     nu_support = None
     if adaptive_nu or nu_v is None or np.asarray(nu_v).size == 0:
@@ -805,7 +820,7 @@ def build_payload(
                 "finite-beta profile contract"
             ),
             (
-                "close the inner-radius reduced-closure gap using the same physical "
+                "close the reduced-closure profile-current stress using the same physical "
                 "profile, normalization, and interpolation contract before promoting parity"
             ),
             (

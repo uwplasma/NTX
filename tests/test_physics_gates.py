@@ -219,6 +219,7 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             {
                 "summary_metrics": {
                     "stress_coefficient_precision_gap_to_current_gate": 4.0,
+                    "max_coefficient_precision_gap_to_current_gate": 4.0,
                 }
             }
         )
@@ -542,7 +543,7 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["owned_finite_beta_production_ladder_stress"].status == "monitor"
     assert results["owned_finite_beta_production_ladder_stress"].value > 1.0
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "monitor"
-    assert results["owned_finite_beta_closure_quadrature_stress"].value >= 1.0
+    assert results["owned_finite_beta_closure_quadrature_stress"].value == 0.0
     assert results["owned_finite_beta_closure_target_driver_stress"].status == "monitor"
     assert results["owned_finite_beta_closure_target_driver_stress"].value > 0.0
     assert (

@@ -70,8 +70,8 @@ def test_profile_current_observable_audit_identifies_correction_amplitude(tmp_pa
         json.dumps(
             {
                 "summary_metrics": {
-                    "inner_gap_coefficient_relative_difference": 0.02,
-                    "inner_gap_bootstrap_relative_difference": 0.5,
+                    "stress_gap_coefficient_relative_difference": 0.02,
+                    "stress_gap_bootstrap_relative_difference": 0.5,
                 }
             }
         )

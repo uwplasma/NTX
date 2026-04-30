@@ -615,7 +615,7 @@ def build_payload(
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
         "open_work": [
             (
-                "expand the current completed inner-radius smoke-resolution "
+                "expand the current completed stress-radius smoke-resolution "
                 "SFINCS-JAX transport-matrix ladder to production radial and "
                 "collisionality resolution using the reported nu_n bridge"
             ),

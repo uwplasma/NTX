@@ -37,6 +37,7 @@ on the NEOPAX Python package.
 - `to_neopax_monoenergetic(...)`
 - `write_neopax_scan_hdf5(...)`
 - `load_neopax_reference_scan(...)`
+- `build_differentiable_neopax_field_from_vmec_booz_files(...)`
 
 The imported profile layer in [`src/ntx/profiles.py`](../src/ntx/profiles.py)
 builds directly on `NeopaxScan` when the next step is an ambipolar or
@@ -284,6 +285,12 @@ low-level Boozer helper's default `psi_p=1`. Pass the VMEC edge toroidal flux
 divided by `2*pi` explicitly. The owned finite-beta diagnostic records this
 value in its JSON sidecar and uses it to keep the Boozer-coordinate and direct
 VMEC-harmonic transport paths on the same flux normalization.
+
+When building a NEOPAX-style field object from VMEC and `boozmn` files, use
+`build_differentiable_neopax_field_from_vmec_booz_files(...)`. Boozer `B00`
+profiles are tabulated on normalized radius, so the helper evaluates `B00` on
+`rho` and converts the derivative with `dB00/dr = (dB00/d rho)/a_b`. This is the
+normalization used by the finite-beta bootstrap-current stress artifacts.
 
 For in-memory differentiable studies, avoid file-backed geometry loops and use
 `build_ntx_neopax_scan_from_vmec_jax_state(...)` or

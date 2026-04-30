@@ -152,28 +152,25 @@ or explicitly moved to documented future work with a clear reason.
   current-conditioned target. The first production stress-radius rerun and
   tight-harmonic probe leave the coefficient floor near `2.05e-2`; the
   production six-point radius/collisionality ladder keeps all coefficient
-  differences below `2.07e-2`. The closure-quadrature sidecar rejects the only
-  apparent stress-radius current-gate pass as under-integrated because it occurs
-  at `P=14, X=10` and does not transfer to higher `X`; the accepted
-  quadrature-stable current-gate pass count is zero. The source-channel
-  sidecar reconstructs the same corrected current to roundoff from one-channel
-  solves and localizes the high-order response to the effective
-  temperature-gradient drive under the current profile contract. The
-  profile-response sidecar extends that measurement over all committed profile
-  radii and records the response multiplier against Redl collisionality and
-  geometry drivers. The closure-target sidecar now ranks those drivers and
-  records `epsilon` as the strongest single profile response driver without
-  applying any runtime correction. The radial-interpolation sidecar rebuilds
-  the same database on the exact field radii and removes the previous
-  `rho=0.143` stress point, but the full-profile maximum remains above the
-  `1e-1` current gate. The next required step is a quadrature-converged
-  profile-current/source-response closure on the same finite-beta contract
-  before any finite-beta parity promotion.
+  differences below `2.07e-2`. The corrected Boozer-field path evaluates
+  `B00` on normalized radius and converts `dB00/d rho` with the VMEC minor
+  radius. The closure-quadrature sidecar has zero accepted current-gate passes.
+  The source-channel sidecar reconstructs the same corrected current to
+  roundoff from one-channel solves and localizes the high-order response to
+  mixed density/electric and temperature-gradient drives under the current
+  profile contract. The profile-response sidecar extends that measurement over
+  all committed profile radii and records the response multiplier against Redl
+  collisionality and geometry drivers. The closure-target sidecar now ranks
+  those drivers and records `epsilon` as the strongest single profile response
+  driver without applying any runtime correction. The radial-interpolation
+  sidecar rebuilds the same database on the exact field radii but the
+  full-profile maximum remains above the `1e-1` current gate. The next required
+  step is a quadrature-converged profile-current/source-response closure on the
+  same finite-beta contract before any finite-beta parity promotion.
 - The field-radius-matched source-channel sidecar now repeats the physical RHS
   decomposition after removing the sparse radial interpolation layer. It
-  reconstructs the corrected current to `1.45e-14`, shows the only current-gate
-  pass is still under-integrated at `X=10, P=18`, and keeps the
-  quadrature-stable `X=18, P=18` result as a reduced-closure stress diagnostic.
+  reconstructs the corrected current to roundoff and keeps the quadrature-stable
+  `X=18, P=18` result as a reduced-closure stress diagnostic.
 - The differentiable bootstrap-current optimization figure is now represented
   in the benchmark matrix and physics-gate registry as a monitored stress gate:
   the committed weighted-current gain must stay above the baseline before the

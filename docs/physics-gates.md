@@ -219,23 +219,22 @@ These are trust-building comparisons against independent workflows:
   electron/ion cancellation.
 - **Owned finite-beta current conditioning:** the coefficient ladder is also
   compared with the species-current L1 scale. The current artifact reports that
-  the stress-radius net current needs about `1.3e-3` coefficient precision for
-  a `1e-1` current gate, while the completed smoke ladder is about `2.1e-2`.
+  the stress-radius net current needs about `1.1e-3` coefficient precision for
+  a `1e-1` current gate, while the completed coefficient ladder is order
+  `2e-2`.
 - **Owned finite-beta resolution floor:** the stress-radius point has also
   been rerun at `35 x 43 x 48` and with a tighter VMEC harmonic cutoff. The
   coefficient floor stays near `2.05e-2`, so angular resolution and harmonic
   truncation are not treated as the closure fix.
 - **Owned finite-beta production ladder:** the six production same-grid
   radius/collisionality points all stay below `2.07e-2` coefficient difference.
-  The largest current-conditioned precision gap remains the inner stress point,
-  so the coefficient-resolution lane is localized rather than a broad
+  The current-conditioned precision gap remains larger than the coefficient
+  floor, so the coefficient-resolution lane is localized rather than a broad
   whole-profile failure.
 - **Owned finite-beta closure quadrature:** higher Sonine order is now
-  monitored together with velocity quadrature. The only stress-radius
-  current-gate pass occurs at `P=14, X=10`, where `X < Pmax`, and does not
-  transfer to `X=14` or `X=18`. The accepted quadrature-stable current-gate
-  pass count is zero, so this is treated as quadrature aliasing, not a valid
-  physics closure.
+  monitored together with velocity quadrature. The current corrected-field
+  artifact has zero stress-radius current-gate passes; the best stress point
+  remains above `1e-1`, so this remains a reduced-closure stress diagnostic.
   This keeps the next physics step honest: profile-current diagnostics must
   tighten the conditioned uncertainty before a new reduced-closure term is
   promoted.
@@ -312,22 +311,25 @@ gates:
 - same-grid finite-beta coefficient normalization: passing, with current
   maximum relative difference about `2.1e-2`;
 - finite-beta profile-current observable: monitored, with current stress-radius
-  total-current relative difference about `3.1e-1`;
+  total-current relative difference about `2.2e-1`;
+- finite-beta Boozer-field normalization: file-backed `B00` profiles are
+  evaluated on normalized radius and converted to physical radial derivatives
+  with the VMEC minor radius;
 - finite-beta species-cancellation scale: monitored, with current stress-radius
-  residual about `4e-3` of the species momentum-correction L1 scale.
+  residual about `2.5e-3` of the species momentum-correction L1 scale.
 - finite-beta production coefficient floor: monitored, with the current
-  production stress probe still about `15.9x` looser than the
+  production stress probe still much looser than the
   cancellation-conditioned coefficient target.
 - finite-beta production radial/collisionality ladder: monitored, with all
   production coefficient differences below `2.07e-2` but the maximum
-  current-conditioned precision gap still about `15.9x`.
-- finite-beta closure quadrature: monitored, with one under-integrated
-  current-gate pass and a highest-quadrature largest-order stress difference
-  near `4e-1`.
+  current-conditioned precision gap still well above unity.
+- finite-beta closure quadrature: monitored, with zero current-gate passes and
+  a highest-quadrature largest-order stress difference near `1.3e-1` at the
+  default stress radius.
 - finite-beta profile source response: monitored, with the current high-order
-  temperature response multiplier spanning `0.717` to `1.317` over the profile.
+  temperature response multiplier spanning `0.765` to `1.349` over the profile.
 - finite-beta closure-target driver ranking: monitored, with the current best
-  single driver `epsilon`, absolute Pearson correlation `0.975`, and no runtime
+  single driver `epsilon`, absolute Pearson correlation `0.970`, and no runtime
   correction applied.
 
 This is the current physics interpretation: the coefficient-side bridge is no
