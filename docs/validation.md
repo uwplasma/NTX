@@ -126,6 +126,14 @@ localizes the remaining finite-beta bootstrap-current mismatch downstream of
 the monoenergetic coefficient solve. These artifacts are deliberately scoped
 as smoke-resolution same-grid generation control, not independent-code
 bootstrap-current parity.
+The same generator can also emit bounded `RHSMode=2` row-3 diagnostic decks
+with explicit electron/ion species selection.  In that mode, the input axis is
+written as SFINCS `nu_n` rather than using the `RHSMode=3` `nuPrime` overwrite,
+and an optional profile-contract switch writes `nHats=n/10^20` and
+`THats=T/(1 keV)` from the same analytic finite-beta profiles used by the
+Redl/`NTX+NEOPAX` stress audit.  These `RHSMode=2` decks are source-row
+diagnostics only; they are not used to promote a finite-beta current parity
+claim until the collisionality/profile-current normalization is closed.
 
 The finite-beta bootstrap-current script now runs Redl and `NTX+NEOPAX` on the
 same finite-beta QA pressure/current `wout`, Boozer transform, analytic profile
