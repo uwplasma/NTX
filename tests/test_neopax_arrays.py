@@ -801,6 +801,17 @@ def test_build_neopax_scan_from_ertilde_helpers_are_validated_and_plot(tmp_path:
     assert len(plot_paths) == 1
     assert plot_paths[0].exists()
 
+    wout_path = tmp_path / "wout.nc"
+    booz_path = tmp_path / "boozmn.nc"
+    wout_path.write_text("", encoding="utf-8")
+    booz_path.write_text("", encoding="utf-8")
+    _, backend_name = module._select_surface_loader(
+        backend="auto",
+        wout_path=wout_path,
+        boozmn_path=booz_path,
+    )
+    assert backend_name == "vmec_jax"
+
     with pytest.raises(ValueError, match="positive"):
         module._parse_float_grid("0.0", default=(), name="nu_v", positive=True)
     with pytest.raises(FileNotFoundError, match="Boozer"):
