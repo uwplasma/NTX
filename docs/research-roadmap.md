@@ -235,6 +235,27 @@ reduced-grid NTX geometry-family stress artifact; independent-code parity,
 paper-resolution radial/electric-field/collisionality ladders, and owned W7-X
 KJM input coverage remain promotion requirements.
 
+The `Er_tilde` HDF5 export path now has one explicit geometry-backend
+validation lane before any Boozer-file-backed coefficient claim is promoted:
+
+- keep the VMEC surface backend as the default validation path for QA/QH and
+  Redl/SFINCS-style benchmark generation,
+- keep direct `boozmn` loading as an explicit audit mode until the coefficient
+  difference from the VMEC-backed path is explained,
+- diagnose the mismatch on the same VMEC `wout`, matching Boozer transform,
+  identical `rho`, `nu_v`, and `Er_tilde` grids, and identical angular/pitch
+  resolution,
+- compare the imported geometry channels before solving transport:
+  `B_{mn}`, `R_{mn}`, `B_{00}`, `iota`, Boozer `G/I`, `psi_p`, Jacobian sign,
+  radial-coordinate factors, mode filtering, interpolation radius, and
+  `Er_tilde -> Er/Es` conversion,
+- then compare the assembled NTX sources/operators and final `D11`, `D31`, and
+  `D33` coefficient ladders at increasing `N_theta`, `N_zeta`, and `N_xi`,
+- accept the direct `boozmn` backend for promoted examples only after the
+  coefficient gap is traced to a documented normalization, interpolation, sign,
+  or mode-selection convention and the fix transfers to both precise-QS and
+  W7-X-style cases without changing the VMEC-backed validation path.
+
 ## Phase 4: Production Throughput
 
 NTX already has:
