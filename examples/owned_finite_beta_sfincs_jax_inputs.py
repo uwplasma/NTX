@@ -219,6 +219,8 @@ def _run_sfincs_jax(
     timeout_s: int,
 ) -> tuple[str, float | None, str | None]:
     env = os.environ.copy()
+    env.setdefault("SFINCS_JAX_GMRES_DISTRIBUTED", "0")
+    env.setdefault("SFINCS_JAX_MATVEC_SHARD_AXIS", "off")
     if SFINCS_JAX_ROOT.exists():
         env["PYTHONPATH"] = f"{SFINCS_JAX_ROOT}{os.pathsep}{env.get('PYTHONPATH', '')}"
     command = [
