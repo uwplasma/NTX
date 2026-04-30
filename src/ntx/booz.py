@@ -58,22 +58,13 @@ def load_boozmn_surface(
     iota = np.asarray(bx.iota, dtype=np.float64).reshape(-1)
     buco = np.asarray(bx.Boozer_I_all, dtype=np.float64).reshape(-1)
     bvco = np.asarray(bx.Boozer_G_all, dtype=np.float64).reshape(-1)
-    phi_attr = getattr(bx, "phi", None)
-    phi = None if phi_attr is None else np.asarray(phi_attr, dtype=np.float64).reshape(-1)
-    s_profile = (
-        np.asarray(phi / float(phi[-1]), dtype=np.float64)
-        if phi is not None and phi.size > 0
-        else np.asarray(bx.s_in, dtype=np.float64).reshape(-1)
-    )
+    s_profile = _profile_surface_grid(bx, iota.size)
     nfp = int(np.asarray(bx.nfp).reshape(()))
 
     if bmnc.ndim != 2:
         raise ValueError("expected booz_xform_jax bmnc_b to be a 2D `(surface, mode)` array")
     ns_b, mode_count = bmnc.shape
-    if s_profile.shape[0] == ns_b:
-        s_bmn = s_profile
-    else:
-        s_bmn = _packed_surface_grid(booz_path, ns_b)
+    s_bmn = _mode_surface_grid(bx, booz_path, ns_b, s_profile)
     rho_grid = np.sqrt(np.clip(s_bmn, 0.0, None))
 
     idx: int
@@ -163,4 +154,52 @@ def _packed_surface_grid(path: Path, ns_b: int) -> np.ndarray:
     if ns_full < 2:
         raise ValueError("packed Boozer radial resolution must be at least 2")
     s_full = np.linspace(0.0, 1.0, ns_full, dtype=np.float64)
-    return s_full[jlist - 1]
+    s_half = 0.5 * (s_full[:-1] + s_full[1:])
+    half_indices = jlist - 2
+    if np.all((0 <= half_indices) & (half_indices < s_half.size)):
+        return s_half[half_indices]
+    alternate_indices = jlist - 1
+    if np.all((0 <= alternate_indices) & (alternate_indices < s_half.size)):
+        return s_half[alternate_indices]
+    raise ValueError("packed Boozer surface indices are inconsistent with radius grid")
+
+
+def _profile_surface_grid(bx, size: int) -> np.ndarray:
+    """Return the half-grid radial coordinate for Boozer radial profiles."""
+
+    s_in = getattr(bx, "s_in", None)
+    if s_in is not None:
+        values = np.asarray(s_in, dtype=np.float64).reshape(-1)
+        if values.size == size:
+            return values
+    if size <= 0:
+        raise ValueError("Boozer profile grid must contain at least one surface")
+    s_full = np.linspace(0.0, 1.0, size + 1, dtype=np.float64)
+    return 0.5 * (s_full[:-1] + s_full[1:])
+
+
+def _mode_surface_grid(
+    bx,
+    path: Path,
+    ns_b: int,
+    s_profile: np.ndarray,
+) -> np.ndarray:
+    """Return the half-grid radial coordinate for packed Boozer spectra."""
+
+    s_b = getattr(bx, "s_b", None)
+    if s_b is not None:
+        values = np.asarray(s_b, dtype=np.float64).reshape(-1)
+        if values.size == ns_b:
+            return values
+    compute_surfs = getattr(bx, "compute_surfs", None)
+    if compute_surfs is not None:
+        indices = np.asarray(compute_surfs, dtype=np.int64).reshape(-1)
+        if (
+            indices.size == ns_b
+            and indices.size > 0
+            and np.all((0 <= indices) & (indices < s_profile.size))
+        ):
+            return s_profile[indices]
+    if s_profile.shape[0] == ns_b:
+        return s_profile
+    return _packed_surface_grid(path, ns_b)

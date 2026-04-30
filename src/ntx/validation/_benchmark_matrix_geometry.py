@@ -96,6 +96,54 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 ),
             ),
         ),
+        BenchmarkEntry(
+            id="boozmn_same_coordinate_roundtrip",
+            lane="geometry-breadth",
+            maturity="positive-gate",
+            title="Same-coordinate Boozer-file round-trip validation",
+            claim_scope=(
+                "Generates a Boozer file from a VMEC wout, reloads the same "
+                "VMEC half-grid surfaces through the direct boozmn backend, "
+                "and requires geometry metadata plus D11/D31/D13/D33 to match "
+                "the in-memory vmec_jax/booz_xform_jax path. This validates "
+                "the direct loader radial coordinate and normalization "
+                "conventions; it does not equate VMEC-harmonic and "
+                "Boozer-coordinate representations."
+            ),
+            literature_anchors=(
+                "Boozer-coordinate flux-surface representation",
+                "VMEC half-grid placement of magnetic-field spectra",
+                "Boozer-transform boozmn jlist and packed-surface convention",
+            ),
+            scripts=("examples/boozmn_same_coordinate_roundtrip_audit.py",),
+            tests=(
+                "tests/test_boozmn.py",
+                "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
+            ),
+            artifacts=(
+                "docs/_static/boozmn_same_coordinate_roundtrip_audit.png",
+                "docs/_static/boozmn_same_coordinate_roundtrip_audit.pdf",
+                "docs/_static/boozmn_same_coordinate_roundtrip_audit.json",
+            ),
+            manuscript_figures=("boozmn_same_coordinate_roundtrip_audit",),
+            docs=(
+                "docs/geometry.md",
+                "docs/neopax.md",
+                "docs/validation.md",
+                "docs/benchmark-matrix.md",
+            ),
+            open_work=(
+                (
+                    "keep VMEC-harmonic versus Boozer-file comparisons scoped "
+                    "as representation audits unless their source channels are "
+                    "shown to be mathematically identical"
+                ),
+                (
+                    "repeat the round-trip gate on larger finite-beta family "
+                    "inputs when those artifacts are promoted"
+                ),
+            ),
+        ),
         *FINITE_BETA_GEOMETRY_BREADTH_ENTRIES,
         BenchmarkEntry(
             id="geometry_breadth_hidden_symmetry",

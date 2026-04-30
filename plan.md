@@ -245,12 +245,17 @@ and docs that explain which claims are closed versus monitored.
      same `rho`, `nu_v`, and electric-field point. The current same-file audit
      confirms that simple unit-flux versus VMEC-edge-flux scaling does not close
      the direct Boozer-file discrepancy because the mismatch appears first in
-     the radial-drift/source channel. Remaining promotion gate: rerun this audit
-     on owned VMEC-input cases where both paths are generated in the same
-     Boozer-coordinate convention, then accept a fix only if the discrepancy is
-     traced to a documented normalization, interpolation, sign, or mode-selection
-     convention and transfers to precise-QS and W7-X-style cases without
-     changing the VMEC-backed validation path.
+     the radial-drift/source channel. The same-coordinate round-trip audit in
+     `examples/boozmn_same_coordinate_roundtrip_audit.py` now closes the direct
+     loader bug itself: Boozer spectra and Boozer radial profiles are selected
+     on the VMEC half grid (`s_in`, `s_b`, or `jlist = compute_surfs + 2`), not
+     on the full-grid `phi_b` toroidal-flux profile. The gate compares generated
+     `boozmn` surfaces with the in-memory `vmec_jax -> booz_xform_jax -> NTX`
+     surfaces on the same half-grid coordinates and requires geometry metadata
+     plus `D11/D31/D13/D33` agreement. Remaining promotion gate: keep
+     VMEC-harmonic versus direct Boozer-file comparisons scoped as
+     representation/source-channel audits unless the two geometry channels are
+     shown to be mathematically equivalent for the claim being made.
 
 4. **Differentiability gates**
    - Keep direct AD, forward-mode boundary controls, prepared implicit-adjoint

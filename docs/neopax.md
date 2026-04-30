@@ -99,6 +99,9 @@ For end-to-end examples, see:
 - [`examples/boozmn_backend_validation_audit.py`](../examples/boozmn_backend_validation_audit.py)
   for dumping the direct Boozer-file geometry, radial-drift source, operator
   channels, and transport coefficients against the validated VMEC-harmonic path
+- [`examples/boozmn_same_coordinate_roundtrip_audit.py`](../examples/boozmn_same_coordinate_roundtrip_audit.py)
+  for the same-coordinate VMEC half-grid Boozer-file round-trip gate that
+  validates direct `boozmn` loading before representation-comparison claims
 
 ## Typical Imported Workflow
 
@@ -172,6 +175,24 @@ Use the VMEC surface backend for validation and benchmark generation. The
 it is not the default validation path.
 
 ### Direct Boozer-File Backend Audit
+
+`boozmn` spectra and Boozer radial profiles are half-grid quantities. The
+direct loader therefore selects and interpolates packed `B_{mn}` surfaces using
+`s_in`, `s_b`, or `jlist = compute_surfs + 2`, not the full-grid toroidal-flux
+profile `phi_b`. The same-coordinate round-trip gate is the first check:
+
+```bash
+python examples/boozmn_same_coordinate_roundtrip_audit.py
+```
+
+This script generates a Boozer file from a VMEC `wout`, reloads the same
+half-grid surfaces through `load_boozmn_surface(...)`, and compares geometry
+metadata plus `D11/D31/D13/D33` with the in-memory
+`vmec_jax -> booz_xform_jax -> NTX` path. A passing gate validates the direct
+file loader. It does not imply that a VMEC-harmonic representation and a
+direct Boozer-coordinate representation have identical source channels.
+
+![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
 
 The direct Boozer-file path and the VMEC-harmonic path do not expose identical
 coordinate channels. The direct Boozer helper represents the magnetic field in

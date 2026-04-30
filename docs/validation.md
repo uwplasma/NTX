@@ -87,6 +87,18 @@ cases until the JAX geometry stack supports their cubic-spline current-profile
 input representation. That blocker is recorded in the JSON sidecar rather than
 hidden behind a parity plot.
 
+The direct `boozmn` backend now has a separate same-coordinate round-trip gate.
+The loader uses VMEC half-grid metadata (`s_in`, `s_b`, or
+`jlist = compute_surfs + 2`) for Boozer spectra and radial profiles; it does
+not use the full-grid `phi_b` profile as the packed-mode interpolation grid.
+The artifact below generates a Boozer file from a VMEC `wout`, reloads the same
+half-grid surfaces, and compares geometry metadata plus `D11/D31/D13/D33` with
+the in-memory `vmec_jax -> booz_xform_jax -> NTX` path. This closes the direct
+loader radial-coordinate mismatch while leaving VMEC-harmonic versus
+Boozer-coordinate comparisons as representation audits.
+
+![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
+
 The SFINCS-JAX generation script writes `RHSMode=3`, `geometryScheme=5`
 namelists for the same finite-beta `wout`, `rho`, collisionality,
 electric-field, and resolution grids. Add `--run-sfincs-jax` only when the
