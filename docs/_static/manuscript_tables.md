@@ -49,6 +49,7 @@
 | `prepared_geometry_reuse_profile` | `performance` | `software-gate` | `complete` |
 | `geometry_family_breadth_summary` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_family_transport_convergence` | `geometry-breadth` | `stress-gate` | `complete` |
+| `boozmn_same_coordinate_roundtrip` | `geometry-breadth` | `positive-gate` | `complete` |
 | `owned_geometry_neopax_dataset` | `geometry-breadth` | `stress-gate` | `complete` |
 | `owned_finite_beta_sfincs_jax_inputs` | `geometry-breadth` | `stress-gate` | `complete` |
 | `owned_finite_beta_bootstrap_comparison` | `geometry-breadth` | `stress-gate` | `complete` |
@@ -254,8 +255,8 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `c4bef899c2236f9bbfa9c032d9cf0fcc8fa8969d` |
-| Branch | `main` |
+| Commit | `9ca692a9e67930a35c6b0817f10238aabb5bbbce` |
+| Branch | `boozmn-backend-audit` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
 | NumPy | `2.4.4` |
