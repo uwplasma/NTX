@@ -175,6 +175,16 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
             "geometry families; not an independent-code parity gate"
         ),
     )
+    _append_summary_metric_gate(
+        results,
+        gate_name="boozmn_same_coordinate_roundtrip",
+        path=static_root / "boozmn_same_coordinate_roundtrip_audit.json",
+        metric_key="max_transport_relative_difference",
+        details=(
+            "same-coordinate VMEC half-grid Boozer-file round trip compared "
+            "with the in-memory vmec_jax/booz_xform_jax path"
+        ),
+    )
 
     optimization_gate = _gate_by_name("bootstrap_current_optimization_gain")
     optimization_path = static_root / "bootstrap_current_optimization.json"

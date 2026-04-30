@@ -270,6 +270,15 @@ def test_geometry_family_transport_uses_paper_preset(
             ),
         ),
         (
+            "boozmn_same_coordinate_roundtrip",
+            {"boozmn_same_coordinate_roundtrip"},
+            (
+                "boozmn_same_coordinate_roundtrip_audit.png",
+                "boozmn_same_coordinate_roundtrip_audit.pdf",
+                "boozmn_same_coordinate_roundtrip_audit.json",
+            ),
+        ),
+        (
             "owned_finite_beta_sfincs_jax_inputs",
             {"owned_finite_beta_sfincs_jax_inputs"},
             (

@@ -17,6 +17,17 @@ def test_load_boozmn_surface_by_rho_and_s_are_consistent():
     assert by_rho.surface.b0 > 0.0
 
 
+def test_load_boozmn_surface_uses_half_grid_for_packed_modes():
+    payload = load_boozmn_surface(SAMPLE_BOOZMN, surface_index=1)
+    by_s = load_boozmn_surface(SAMPLE_BOOZMN, s=payload.s)
+
+    assert abs(payload.s - 0.375) < 1.0e-12
+    assert payload.surface_index == 1
+    assert by_s.surface_index == payload.surface_index
+    assert jnp.allclose(by_s.surface.b_cos, payload.surface.b_cos)
+    assert jnp.allclose(by_s.surface.iota, payload.surface.iota)
+
+
 def test_boozmn_surface_solves_finite_transport():
     payload = load_boozmn_surface(SAMPLE_BOOZMN, rho=0.5)
     result = solve_monoenergetic(

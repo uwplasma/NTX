@@ -32,6 +32,7 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "boozmn_same_coordinate_roundtrip",
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
@@ -82,6 +83,7 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "boozmn_same_coordinate_roundtrip",
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
@@ -386,6 +388,13 @@ def main() -> None:
             _manifest_path(output_dir / "geometry_family_transport_convergence.pdf"),
             _manifest_path(output_dir / "geometry_family_transport_convergence.json"),
         ]
+
+    if "boozmn_same_coordinate_roundtrip" in selected:
+        manifest["boozmn_same_coordinate_roundtrip"] = _copy_existing_static(
+            "boozmn_same_coordinate_roundtrip_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
 
     if "owned_geometry_neopax" in selected:
         manifest["owned_geometry_neopax"] = _copy_existing_static(

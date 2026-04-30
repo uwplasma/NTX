@@ -152,6 +152,13 @@ imported Boozer handedness convention directly. Scalar and profile forms must
 leave `B_\zeta + \iota B_\theta >= 0`, matching the file-backed loader before
 the solver evaluates the Boozer Jacobian and drift source terms.
 
+The direct `boozmn` loader also has a half-grid radial-coordinate gate. Packed
+Boozer spectra and Boozer radial profiles are selected with `s_in`, `s_b`, or
+`jlist = compute_surfs + 2`; the full-grid `phi_b` profile is metadata and must
+not shift the selected surface. `tests/test_boozmn.py` protects the fixture
+half-grid selection, and `examples/boozmn_same_coordinate_roundtrip_audit.py`
+provides the artifact-backed VMEC-to-Boozer-file round trip.
+
 The operator unit tests also include a derivative gate for the implicit-adjoint
 lane: the hand-coded `dD_k/dnu_hat` and `dD_k/depsi_hat` blocks must match
 JAX differentiation of the assembled Legendre-space operator. This is a fast

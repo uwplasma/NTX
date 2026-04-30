@@ -96,6 +96,12 @@ For end-to-end examples, see:
 - [`examples/build_neopax_scan_from_ertilde.py`](../examples/build_neopax_scan_from_ertilde.py)
   for generating a NEOPAX-style HDF5 coefficient database directly from
   VMEC/Boozer files and a user-provided `rho`, `nu_v`, and `Er_tilde` grid
+- [`examples/boozmn_backend_validation_audit.py`](../examples/boozmn_backend_validation_audit.py)
+  for dumping the direct Boozer-file geometry, radial-drift source, operator
+  channels, and transport coefficients against the validated VMEC-harmonic path
+- [`examples/boozmn_same_coordinate_roundtrip_audit.py`](../examples/boozmn_same_coordinate_roundtrip_audit.py)
+  for the same-coordinate VMEC half-grid Boozer-file round-trip gate that
+  validates direct `boozmn` loading before representation-comparison claims
 
 ## Typical Imported Workflow
 
@@ -167,6 +173,62 @@ and can emit per-radius coefficient panels for quick sanity checks.
 Use the VMEC surface backend for validation and benchmark generation. The
 `boozmn` backend is available as an explicit geometry-backend audit path, but
 it is not the default validation path.
+
+### Direct Boozer-File Backend Audit
+
+`boozmn` spectra and Boozer radial profiles are half-grid quantities. The
+direct loader therefore selects and interpolates packed `B_{mn}` surfaces using
+`s_in`, `s_b`, or `jlist = compute_surfs + 2`, not the full-grid toroidal-flux
+profile `phi_b`. The same-coordinate round-trip gate is the first check:
+
+```bash
+python examples/boozmn_same_coordinate_roundtrip_audit.py
+```
+
+This script generates a Boozer file from a VMEC `wout`, reloads the same
+half-grid surfaces through `load_boozmn_surface(...)`, and compares geometry
+metadata plus `D11/D31/D13/D33` with the in-memory
+`vmec_jax -> booz_xform_jax -> NTX` path. A passing gate validates the direct
+file loader. It does not imply that a VMEC-harmonic representation and a
+direct Boozer-coordinate representation have identical source channels.
+
+![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
+
+The direct Boozer-file path and the VMEC-harmonic path do not expose identical
+coordinate channels. The direct Boozer helper represents the magnetic field in
+Boozer coordinates with flux-function covariant components, while the
+VMEC-harmonic helper reads the signed VMEC Jacobian and angle-dependent
+covariant/contravariant channels from the `wout` file. Because the NTX
+monoenergetic source contains
+
+```math
+v_{m,\psi} \propto
+\frac{B_\theta \partial_\zeta B - B_\zeta \partial_\theta B}
+     {\sqrt{g}\,B^3},
+```
+
+backend promotion must be based on this source channel, not only on close
+`B_{00}` or `D_{33}` values.
+
+Run the backend audit before using direct `boozmn` surfaces for benchmark
+claims:
+
+```bash
+python examples/boozmn_backend_validation_audit.py \
+  --wout path/to/wout.nc \
+  --boozmn path/to/boozmn.nc \
+  --rho 0.5 \
+  --nu-hat 1e-2 \
+  --epsi-hat 0.0
+```
+
+The audit writes JSON plus PNG/PDF panels with the surface metadata, geometry
+statistics, `s1/s3` source norms, `k=1` operator-channel norms, signed
+`D11/D31/D13/D33` values, and relative differences against the VMEC-harmonic
+path. Direct Boozer-file output should stay in audit mode unless both the
+transport-coefficient and radial-drift source differences pass on owned
+same-coordinate cases. A failing audit localizes a convention or interpolation
+gap; it is not a reason to introduce fitted closure constants.
 
 When converting NEOPAX parallel-flow output into current, use one charge
 conversion only. If the workflow uses `species.charge`, that array already

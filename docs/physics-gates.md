@@ -153,6 +153,10 @@ geometry breadth:
 - **File-backed geometry-control derivatives:** the same direct AD/finite
   difference comparison must stay below `5e-4` on the repository-owned Boozer
   and VMEC sample surfaces.
+- **Same-coordinate Boozer-file round trip:** generated `boozmn` surfaces must
+  reload on the VMEC half grid and reproduce the in-memory
+  `vmec_jax -> booz_xform_jax -> NTX` transport coefficients below `1e-6`.
+  This protects the radial-coordinate convention used by packed Boozer spectra.
 - **Boundary-projected current derivatives:** forward-mode derivatives through
   the optional JAX geometry backends, NTX coefficients, and the integrated
   current objective must stay below `1e-5` on the committed sample input.

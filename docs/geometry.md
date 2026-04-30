@@ -119,6 +119,31 @@ Use this path when:
 In that case, NTX bypasses VMEC interpolation and goes directly to
 `BoozerSurface`.
 
+The direct `boozmn` loader treats Boozer spectra and Boozer radial profiles as
+VMEC half-grid quantities. In modern `boozmn` files this information is exposed
+through `s_in`, `s_b`, and the packed-surface `jlist` convention, where
+`jlist = compute_surfs + 2`. The full-grid toroidal-flux profile `phi_b` is
+metadata and is not the radial coordinate for selecting packed `B_{mn}`
+surfaces. This matters because a full-grid shift changes the selected surface
+and therefore the magnetic-drift source before any closure or current-profile
+normalization is reached.
+
+The maintained same-coordinate round-trip audit is:
+
+```bash
+python examples/boozmn_same_coordinate_roundtrip_audit.py
+```
+
+It generates a `boozmn` file from a VMEC `wout`, reloads the same VMEC
+half-grid surfaces through `load_boozmn_surface(...)`, and compares the loaded
+geometry and `D11/D31/D13/D33` against the in-memory
+`vmec_jax -> booz_xform_jax -> NTX` path. That audit validates the direct
+loader on the same coordinate representation. It is separate from audits that
+compare VMEC-harmonic and Boozer-coordinate representations, since those expose
+different geometry channels.
+
+![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
+
 ## Geometry Evaluation On The Angular Grid
 
 All surface families are converted to `GeometryOnGrid` by

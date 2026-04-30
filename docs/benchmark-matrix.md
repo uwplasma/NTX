@@ -61,6 +61,7 @@ Current stress gates are:
 | Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the machine-checked self-consistent forward-mode audit, but additional families plus reverse-mode equilibrium sensitivities remain open |
 | Artifact-backed geometry-family breadth summary | analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-volume derivative artifacts are summarized in one figure, while retired implicit Boozer/transport diagnostics are excluded from promoted geometry-family claims |
 | VMEC geometry-family transport convergence | public VMEC example families now have a committed `D11/D31/D33` convergence stress artifact; independent-code parity and paper-resolution promotion remain separate gates |
+| Same-coordinate Boozer-file round trip | generated `boozmn` surfaces now reload on VMEC half-grid coordinates and reproduce the in-memory `vmec_jax -> booz_xform_jax -> NTX` transport coefficients; VMEC-harmonic versus Boozer-coordinate comparisons remain representation audits |
 | Profile uncertainty propagation | three-term radial-basis covariance propagation and Fisher/HVP consistency are machine checked; cross-geometry profile families remain open |
 | Bootstrap-current optimization | machine-checked weighted-current improvement on the committed W7-X study, but not yet broad enough for a stellarator-design claim |
 | Robust bootstrap-current optimization | useful robust-design stress test, but not yet broad enough for a promoted physics claim |
