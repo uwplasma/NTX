@@ -51,6 +51,7 @@ The owned provenance lane is:
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py
+python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
@@ -134,6 +135,15 @@ and an optional profile-contract switch writes `nHats=n/10^20` and
 Redl/`NTX+NEOPAX` stress audit.  These `RHSMode=2` decks are source-row
 diagnostics only; they are not used to promote a finite-beta current parity
 claim until the collisionality/profile-current normalization is closed.
+
+The owned RHSMode=1 profile-current diagnostic writes direct profile-current
+SFINCS-JAX decks on the same finite-beta VMEC wout and analytic profile
+contract used by the Redl and `NTX+NEOPAX` stress audit. The committed
+low-resolution artifact completes three radii and shows that direct
+profile-current amplitudes need their own pitch, velocity, radial, and
+collisionality-normalization ladder before they can be used as a finite-beta
+current reference. This keeps the current comparison explicit rather than
+folding an unconverged direct-profile observable into a promoted parity claim.
 
 The finite-beta bootstrap-current script now runs Redl and `NTX+NEOPAX` on the
 same finite-beta QA pressure/current `wout`, Boozer transform, analytic profile
@@ -238,6 +248,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.json`
 - `examples/outputs/owned_finite_beta_sfincs_jax_inputs/**/input.namelist`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.png`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.json`
@@ -316,6 +329,8 @@ has no current-gate pass that transfers to quadrature-stable `X >= Pmax`.
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 
 ![Owned finite-beta SFINCS-JAX production ladder audit](_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png)
+
+![Owned finite-beta SFINCS-JAX profile-current diagnostic](_static/owned_finite_beta_sfincs_jax_profile_current_audit.png)
 
 ## What Is Covered
 

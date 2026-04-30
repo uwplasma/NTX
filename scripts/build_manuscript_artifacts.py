@@ -79,6 +79,9 @@ def build_payload() -> dict:
     owned_finite_beta_production_ladder = _load_json(
         STATIC / "owned_finite_beta_sfincs_jax_production_ladder_audit.json"
     )
+    owned_finite_beta_profile_current_sfincs = _load_json(
+        STATIC / "owned_finite_beta_sfincs_jax_profile_current_audit.json"
+    )
     owned_finite_beta_bootstrap = _load_json(
         STATIC / "owned_finite_beta_bootstrap_comparison.json"
     )
@@ -149,6 +152,7 @@ def build_payload() -> dict:
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
         "owned_finite_beta_sfincs_jax_production_ladder",
+        "owned_finite_beta_sfincs_jax_profile_current",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
@@ -320,6 +324,17 @@ def build_payload() -> dict:
                 "conclusion": owned_finite_beta_production_ladder["conclusion"],
                 "stress_row": owned_finite_beta_production_ladder["stress_row"],
                 "open_work": owned_finite_beta_production_ladder["open_work"],
+            },
+            "owned_finite_beta_sfincs_jax_profile_current": {
+                "summary_metrics": owned_finite_beta_profile_current_sfincs[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_profile_current_sfincs["claim_scope"],
+                "conclusion": owned_finite_beta_profile_current_sfincs["conclusion"],
+                "normalization_contract": owned_finite_beta_profile_current_sfincs[
+                    "normalization_contract"
+                ],
+                "open_work": owned_finite_beta_profile_current_sfincs["open_work"],
             },
             "owned_finite_beta_bootstrap_comparison": {
                 "case": owned_finite_beta_bootstrap["case"],
@@ -634,6 +649,26 @@ def build_payload() -> dict:
             "owned_finite_beta_production_ladder_profile_current_error": (
                 owned_finite_beta_production_ladder["summary_metrics"][
                     "max_profile_current_relative_difference_on_ladder"
+                ]
+            ),
+            "owned_finite_beta_sfincs_profile_current_count": (
+                owned_finite_beta_profile_current_sfincs["summary_metrics"][
+                    "completed_current_count"
+                ]
+            ),
+            "owned_finite_beta_sfincs_profile_current_error_vs_redl": (
+                owned_finite_beta_profile_current_sfincs["summary_metrics"][
+                    "max_sfincs_jax_relative_error_vs_redl"
+                ]
+            ),
+            "owned_finite_beta_sfincs_profile_current_error_vs_ntx": (
+                owned_finite_beta_profile_current_sfincs["summary_metrics"][
+                    "max_sfincs_jax_relative_error_vs_ntx_neopax"
+                ]
+            ),
+            "owned_finite_beta_sfincs_profile_current_ntx_error_vs_redl": (
+                owned_finite_beta_profile_current_sfincs["summary_metrics"][
+                    "max_ntx_neopax_relative_error_vs_redl"
                 ]
             ),
             "owned_finite_beta_bootstrap_rms_relative_error": (
@@ -2378,6 +2413,21 @@ def build_claims_markdown(payload: dict) -> str:
                 "at the most cancellation-sensitive radius. This closes the finite-beta "
                 "production coefficient-ladder lane and keeps the open mismatch "
                 "at the profile-current closure layer."
+            ),
+            (
+                "- The owned finite-beta RHSMode=1 profile-current diagnostic "
+                "runs "
+                f"`{claims['owned_finite_beta_sfincs_profile_current_count']}` "
+                "direct profile-current points on the same VMEC/profile "
+                "contract. Its current differences are "
+                f"`{claims['owned_finite_beta_sfincs_profile_current_error_vs_redl']:.3e}` "
+                "against Redl and "
+                f"`{claims['owned_finite_beta_sfincs_profile_current_error_vs_ntx']:.3e}` "
+                "against NTX+NEOPAX, while the same NTX+NEOPAX points differ "
+                "from Redl by "
+                f"`{claims['owned_finite_beta_sfincs_profile_current_ntx_error_vs_redl']:.3e}`. "
+                "This is retained as a direct profile-current convergence and "
+                "normalization diagnostic, not as a finite-beta parity claim."
             ),
             (
                 "- The owned finite-beta closure-quadrature audit shows that "

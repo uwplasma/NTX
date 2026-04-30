@@ -89,6 +89,24 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="owned_finite_beta_sfincs_jax_profile_current_stress",
+        category="stress",
+        metric="max RHSMode=1 SFINCS-JAX finite-beta profile-current difference",
+        relation="monitor",
+        threshold=None,
+        source=(
+            "docs/_static/"
+            "owned_finite_beta_sfincs_jax_profile_current_audit.json"
+        ),
+        rationale=(
+            "The owned finite-beta SFINCS-JAX profile-current diagnostic runs "
+            "RHSMode=1 on the same VMEC/profile contract as Redl and "
+            "NTX+NEOPAX. It remains a monitored stress lane, not a parity gate, "
+            "until pitch, velocity, radial, and collisionality-normalization "
+            "ladders are complete."
+        ),
+    ),
+    PhysicsGate(
         name="owned_finite_beta_closure_quadrature_stress",
         category="stress",
         metric="under-integrated finite-beta closure gate-pass count",

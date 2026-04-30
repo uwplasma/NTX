@@ -80,9 +80,12 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "resolution/harmonic-cutoff probe, and a completed production "
             "radial/collisionality coefficient ladder with the exact radial "
             "interpolation, pitch-angle-scattering frequency, and RHSMode=3 "
-            "flow-row normalizations recorded; it is not a bootstrap-current "
-            "parity claim until production-resolution profile-current outputs "
-            "are compared against the same NTX, Redl, and profile artifacts."
+            "flow-row normalizations recorded. It also writes a bounded "
+            "RHSMode=1 profile-current diagnostic on the same finite-beta "
+            "profile contract; this is not a bootstrap-current parity claim "
+            "until production-resolution profile-current outputs are "
+            "converged and compared against the same NTX, Redl, and profile "
+            "artifacts."
         ),
         literature_anchors=(
             "SFINCS monoenergetic RHSMode=3 transport-matrix convention",
@@ -93,11 +96,13 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "examples/owned_finite_beta_sfincs_jax_inputs.py",
             "examples/owned_finite_beta_sfincs_jax_resolution_audit.py",
             "examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py",
+            "examples/owned_finite_beta_sfincs_jax_profile_current_audit.py",
         ),
         tests=(
             "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
             "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py",
             "tests/test_owned_finite_beta_sfincs_jax_production_ladder_audit.py",
+            "tests/test_owned_finite_beta_sfincs_jax_profile_current_audit.py",
         ),
         artifacts=(
             "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
@@ -118,11 +123,15 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
             "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
             "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json",
         ),
         manuscript_figures=(
             "owned_finite_beta_sfincs_jax_inputs",
             "owned_finite_beta_sfincs_jax_resolution_audit",
             "owned_finite_beta_sfincs_jax_production_ladder",
+            "owned_finite_beta_sfincs_jax_profile_current_audit",
         ),
         docs=(
             "docs/benchmark-matrix.md",

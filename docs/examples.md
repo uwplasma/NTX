@@ -145,6 +145,7 @@ python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_sfincs_jax_resolution_audit.py
 python examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py
+python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
@@ -183,6 +184,11 @@ outputs are ingested into the JSON sidecar with the SFINCS-reported
 comparison. The committed artifact now contains a six-point same-grid
 finite-beta QA ladder; use it as a smoke-resolution transport-coefficient
 localization tool, not as a bootstrap-current parity claim.
+The RHSMode=1 profile-current diagnostic uses the same finite-beta VMEC wout,
+analytic profiles, current observable, and Redl/`NTX+NEOPAX` comparison
+contract. The committed low-resolution artifact is a direct-profile
+normalization and convergence diagnostic; it is not promoted until its own
+pitch/velocity/radial ladder is complete.
 
 The finite-beta bootstrap-current script runs Redl and `NTX+NEOPAX` on the
 same QA pressure/current `wout`, Boozer transform, analytic profile contract,
@@ -265,6 +271,9 @@ It writes:
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json`
 - `examples/outputs/owned_finite_beta_sfincs_jax_inputs/**/input.namelist`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.png`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
@@ -309,6 +318,8 @@ It writes:
 ![Owned finite-beta SFINCS-JAX resolution audit](_static/owned_finite_beta_sfincs_jax_resolution_audit.png)
 
 ![Owned finite-beta SFINCS-JAX production ladder audit](_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png)
+
+![Owned finite-beta SFINCS-JAX profile-current diagnostic](_static/owned_finite_beta_sfincs_jax_profile_current_audit.png)
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 

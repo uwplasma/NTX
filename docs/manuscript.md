@@ -32,29 +32,30 @@ examples.
 13. `owned_finite_beta_sfincs_jax_inputs.{png,pdf,json}`
 14. `owned_finite_beta_sfincs_jax_resolution_audit.{png,pdf,json}`
 15. `owned_finite_beta_sfincs_jax_production_ladder_audit.{png,pdf,json}`
-16. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
-17. `owned_finite_beta_closure_localization.{png,pdf,json}`
-18. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
-19. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
-20. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
-21. `owned_finite_beta_source_channel_audit.{png,pdf,json}`
-22. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
-23. `owned_finite_beta_closure_target_audit.{png,pdf,json}`
-24. `owned_finite_beta_radial_interpolation_audit.{png,pdf,json}`
-25. `owned_finite_beta_field_radius_matched_closure_quadrature_audit.{png,pdf,json}`
-26. `owned_finite_beta_field_radius_matched_source_channel_audit.{png,pdf,json}`
-27. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
-28. `bootstrap_current_robust_optimization.{png,pdf,json}`
-29. `performance_scaling_smoke.{png,pdf,json}`
-30. `performance_scaling_heavy.{png,pdf,json}`
-31. `performance_strong_scaling_production.{png,pdf,json}`
-32. `prepared_geometry_reuse_profile.{png,pdf,json}`
-33. `ambipolar_profile.{png,pdf}`
-34. `ambipolar_profile_family.{png,pdf}`
-35. `profile_force_reconstruction_audit.{png,pdf,json}`
-36. `profile_control_optimization.{png,pdf}`
-37. `profile_basis_optimization.{png,pdf,json}`
-38. `profile_transport_loop.{png,pdf}`
+16. `owned_finite_beta_sfincs_jax_profile_current_audit.{png,pdf,json}`
+17. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
+18. `owned_finite_beta_closure_localization.{png,pdf,json}`
+19. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
+20. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
+21. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
+22. `owned_finite_beta_source_channel_audit.{png,pdf,json}`
+23. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
+24. `owned_finite_beta_closure_target_audit.{png,pdf,json}`
+25. `owned_finite_beta_radial_interpolation_audit.{png,pdf,json}`
+26. `owned_finite_beta_field_radius_matched_closure_quadrature_audit.{png,pdf,json}`
+27. `owned_finite_beta_field_radius_matched_source_channel_audit.{png,pdf,json}`
+28. `bootstrap_current_from_vmec_or_boozmn.{png,pdf,json}`
+29. `bootstrap_current_robust_optimization.{png,pdf,json}`
+30. `performance_scaling_smoke.{png,pdf,json}`
+31. `performance_scaling_heavy.{png,pdf,json}`
+32. `performance_strong_scaling_production.{png,pdf,json}`
+33. `prepared_geometry_reuse_profile.{png,pdf,json}`
+34. `ambipolar_profile.{png,pdf}`
+35. `ambipolar_profile_family.{png,pdf}`
+36. `profile_force_reconstruction_audit.{png,pdf,json}`
+37. `profile_control_optimization.{png,pdf}`
+38. `profile_basis_optimization.{png,pdf,json}`
+39. `profile_transport_loop.{png,pdf}`
 
 ## Full Figure Inventory
 
@@ -130,46 +131,51 @@ examples.
      radius and collisionality; all coefficient differences stay below
      `2.07e-2`, with the current-conditioned precision gap localized to the
      most cancellation-sensitive radius
-18. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
+18. `owned_finite_beta_sfincs_jax_profile_current_audit.{png,pdf,json}`
+   - bounded RHSMode=1 profile-current diagnostic on the same finite-beta
+     VMEC/profile contract; retained as a convergence and normalization
+     diagnostic, not as a parity claim, because the direct profile-current
+     amplitudes need their own pitch/velocity/radial ladder
+19. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
    - same finite-beta QA pressure/current `wout`, Boozer transform, analytic
      profiles, normalized-radius `B00(rho)` Boozer-field convention, production
      radial/collisionality ladder, physical `nu/v` support, `D33_spitzer`
      branch, and current normalization used for Redl and `NTX+NEOPAX`; retained
      as a reduced-closure stress audit because the corrected-field current
      residual remains above the `1e-1` target over the profile
-19. `owned_finite_beta_closure_localization.{png,pdf,json}`
+20. `owned_finite_beta_closure_localization.{png,pdf,json}`
    - sidecar figure and JSON that compare the same-grid coefficient ladder with
      the finite-beta profile-current stress artifact; the coefficient ladder
      stays below the coefficient gate while the current-profile residual remains
      above the `1e-1` current gate
-20. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
+21. `owned_finite_beta_profile_current_observable_audit.{png,pdf,json}`
    - stress-radius decomposition of the profile-current observable into
      no-momentum current, applied momentum correction, correction needed to match
      Redl, species-current cancellation scale, local profile/geometry drivers,
      and Pmax trend
-21. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
+22. `owned_finite_beta_current_conditioning_audit.{png,pdf,json}`
    - cancellation-conditioned coefficient-precision requirement for the
      finite-beta net-current observable; this explains why the smoke
      coefficient ladder is not yet sufficient for a `1e-1` bootstrap-current
      parity claim
-22. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
+23. `owned_finite_beta_closure_quadrature_audit.{png,pdf,json}`
    - Sonine-order versus velocity-quadrature stress audit; the accepted
      quadrature-stable pass count is zero and the best stress value remains
      above `1e-1`, so no apparent finite-beta current-gate pass is promoted
-23. `owned_finite_beta_source_channel_audit.{png,pdf,json}`
+24. `owned_finite_beta_source_channel_audit.{png,pdf,json}`
    - frozen stress-radius source-channel decomposition of the same
      momentum-restoring system; one-channel solves reconstruct the full current
      to roundoff and localize the high-order response to mixed density/electric
      and temperature-gradient drives under the current profile contract; Redl
      density and temperature target terms are stored on the same observable
      rather than converted into a fitted runtime correction
-24. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
+25. `owned_finite_beta_source_response_profile_audit.{png,pdf,json}`
    - profile-wide source-response map at `X=18, P=18`; the temperature-channel
      response multiplier spans `0.765` to `1.349` with median `1.040`, preserves
      source sign agreement, and keeps the maximum current stress at the inner
      radius while storing correlations with Redl collisionality and geometry
      factors
-25. `owned_finite_beta_closure_target_audit.{png,pdf,json}`
+26. `owned_finite_beta_closure_target_audit.{png,pdf,json}`
    - driver-identification artifact for the profile source-response target; the
      strongest single local driver is the Redl geometry factor `epsilon`
      (`|r|=0.970`), the best leave-one-out diagnostic model is epsilon-only
@@ -177,58 +183,58 @@ examples.
      source/quadrature sidecars, confirming the same stress radius, exact source
      reconstruction, and no quadrature-stable current-gate pass, with no runtime
      correction applied
-26. `owned_finite_beta_radial_interpolation_audit.{png,pdf,json}`
+27. `owned_finite_beta_radial_interpolation_audit.{png,pdf,json}`
    - interpolation-contract diagnostic; rebuilding the finite-beta database on
      the exact field radii changes individual radii but leaves the full-profile
      maximum near `2.3e-1`, so no runtime interpolation policy is promoted
-27. `owned_finite_beta_field_radius_matched_closure_quadrature_audit.{png,pdf,json}`
+28. `owned_finite_beta_field_radius_matched_closure_quadrature_audit.{png,pdf,json}`
    - field-radius-matched Sonine/quadrature rerun; the best apparent stress
      value remains above `1e-1`, the quadrature-stable pass count is zero, and
      `X=18, P=18` gives about `1.44e-1`, so the remaining current gap is not
      closed by interpolation removal or Pmax alone
-28. `owned_finite_beta_field_radius_matched_source_channel_audit.{png,pdf,json}`
+29. `owned_finite_beta_field_radius_matched_source_channel_audit.{png,pdf,json}`
    - field-radius-matched source-channel rerun; one-channel solves reconstruct
      the corrected current to roundoff, and the quadrature-stable `X=18`,
      `P=18` response remains a reduced-closure stress diagnostic
-29. `derivative_path_benchmark.{png,pdf}`
+30. `derivative_path_benchmark.{png,pdf}`
    - prepared-derivative timing and agreement against direct reverse-mode
-30. `bootstrap_current_optimization.{png,pdf}`
+31. `bootstrap_current_optimization.{png,pdf}`
    - science/application figure for differentiable bootstrap-current
      optimization
-31. `bootstrap_current_robust_optimization.{png,pdf,json}`
+32. `bootstrap_current_robust_optimization.{png,pdf,json}`
    - deterministic versus robust optimization under a prescribed control
      uncertainty; tracked as an open robust-design lane
-32. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
+33. `bootstrap_current_from_vmec_or_boozmn.{png,pdf}`
    - NTX-only reduced bootstrap-current response profile from VMEC/Boozer input
-33. `bootstrap_current_reference_audit_w7x.{png,pdf}`
+34. `bootstrap_current_reference_audit_w7x.{png,pdf}`
    - W7-X imported-workflow bootstrap-current convergence audit
-34. `performance_scaling_smoke.{png,pdf,json}`
+35. `performance_scaling_smoke.{png,pdf,json}`
    - CPU/GPU scaling on the repository smoke grid
-35. `performance_scaling_heavy.{png,pdf,json}`
+36. `performance_scaling_heavy.{png,pdf,json}`
    - heavier-grid scaling where throughput effects are visible
-36. `performance_scaling_production.{png,pdf,json}`
+37. `performance_scaling_production.{png,pdf,json}`
    - production-grid CPU/GPU scaling with serial, device-parallel,
      multiprocess, memory, and coefficient-agreement metadata
-37. `performance_strong_scaling_production.{png,pdf,json}`
+38. `performance_strong_scaling_production.{png,pdf,json}`
    - fixed-workload CPU/GPU strong scaling with worker/device sweeps, memory,
      and coefficient-agreement metadata
-38. `prepared_geometry_reuse_profile.{png,pdf,json}`
+39. `prepared_geometry_reuse_profile.{png,pdf,json}`
    - fixed-geometry repeated-solve profile showing the direct, prepared, and
      compiled prepared solver paths with coefficient agreement recorded in the
      JSON artifact
-39. `ambipolar_profile.{png,pdf}`
+40. `ambipolar_profile.{png,pdf}`
    - profile-grade ambipolar electric-field solve and reduced bootstrap-current response
-40. `ambipolar_profile_family.{png,pdf}`
+41. `ambipolar_profile_family.{png,pdf}`
    - control-parameter family of ambipolar closures and scalar bootstrap-current objective
-41. `profile_force_reconstruction_audit.{png,pdf,json}`
+42. `profile_force_reconstruction_audit.{png,pdf,json}`
    - archived precise-QS QA/QH primitive-to-force reconstruction audit
-42. `profile_control_optimization.{png,pdf}`
+43. `profile_control_optimization.{png,pdf}`
    - differentiable optimization of a scalar profile control on top of the ambipolar closure
-43. `profile_basis_optimization.{png,pdf,json}`
+44. `profile_basis_optimization.{png,pdf,json}`
    - low-dimensional radial-basis optimization of the same profile closure
-44. `profile_transport_loop.{png,pdf}`
+45. `profile_transport_loop.{png,pdf}`
    - explicit self-consistent transport-relaxation iteration on the same profile closure
-45. `primitive_profile_transport.{png,pdf}`
+46. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
 
 Together these figures cover:

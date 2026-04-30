@@ -139,7 +139,8 @@ used in the runtime.
 
 The owned finite-beta stellarator lane now has same-grid SFINCS-JAX input
 generation, completed coefficient ladders, Redl and `NTX+NEOPAX` current
-audits, source-channel decompositions, and radial-interpolation diagnostics.
+audits, a direct RHSMode=1 SFINCS-JAX profile-current diagnostic,
+source-channel decompositions, and radial-interpolation diagnostics.
 That lane is intentionally reported as a reduced-closure stress benchmark: the
 monoenergetic coefficient differences are below `2.1e-2`, while the corrected
 Boozer-field profile-current stress remains above the `1e-1` current gate. The
@@ -179,6 +180,7 @@ NEOPAX database and bootstrap-current examples:
 python examples/neopax_with_ntx.py
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_bootstrap_comparison.py
+python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py
 python examples/owned_finite_beta_source_response_profile_audit.py
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py

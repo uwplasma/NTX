@@ -167,6 +167,10 @@ or explicitly moved to documented future work with a clear reason.
   full-profile maximum remains above the `1e-1` current gate. The next required
   step is a quadrature-converged profile-current/source-response closure on the
   same finite-beta contract before any finite-beta parity promotion.
+- The finite-beta RHSMode=1 SFINCS-JAX profile-current diagnostic now runs on
+  the same owned VMEC/profile contract as the Redl and `NTX+NEOPAX` stress
+  audit. It remains a monitored direct-profile-current normalization and
+  convergence lane, not a promoted finite-beta current parity claim.
 - The field-radius-matched source-channel sidecar now repeats the physical RHS
   decomposition after removing the sparse radial interpolation layer. It
   reconstructs the corrected current to roundoff and keeps the quadrature-stable

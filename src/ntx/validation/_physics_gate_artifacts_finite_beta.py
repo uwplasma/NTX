@@ -81,6 +81,18 @@ def append_finite_beta_artifact_gates(
     )
     _append_summary_metric_gate(
         results,
+        gate_name="owned_finite_beta_sfincs_jax_profile_current_stress",
+        path=static_root / "owned_finite_beta_sfincs_jax_profile_current_audit.json",
+        metric_key="max_sfincs_jax_relative_error_vs_redl",
+        details=(
+            "monitored finite-beta RHSMode=1 SFINCS-JAX profile-current "
+            "diagnostic on the same owned VMEC/profile contract as Redl and "
+            "NTX+NEOPAX; this is not a promoted parity gate until the direct "
+            "profile-current convergence and normalization ladder is complete"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
         gate_name="owned_finite_beta_closure_quadrature_stress",
         path=static_root / "owned_finite_beta_closure_quadrature_audit.json",
         metric_key="underintegrated_gate_pass_count",

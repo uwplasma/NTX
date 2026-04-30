@@ -192,6 +192,11 @@ These are trust-building comparisons against independent workflows:
   `L13/L31/L33` relative difference is required to stay below `1e-1` before
   any finite-beta profile-current result is interpreted. This is not by itself
   a current-parity gate when the net current is cancellation-conditioned.
+- **Owned finite-beta RHSMode=1 profile current:** direct SFINCS-JAX
+  profile-current decks now use the same finite-beta VMEC wout and analytic
+  profile contract as Redl and `NTX+NEOPAX`. The committed artifact is a
+  monitored convergence and normalization diagnostic, not a parity gate, until
+  pitch, velocity, radial, and collisionality-normalization ladders pass.
 - **Owned finite-beta source-channel reconstruction:** the finite-beta source
   decomposition is a stress gate on the linear momentum-restoring system:
   one-channel solves must reconstruct the full corrected current below `1e-8`.
@@ -323,6 +328,9 @@ gates:
 - finite-beta production radial/collisionality ladder: monitored, with all
   production coefficient differences below `2.07e-2` but the maximum
   current-conditioned precision gap still well above unity.
+- finite-beta RHSMode=1 profile current: monitored, with the current
+  low-resolution direct-profile diagnostic retained only as a normalization and
+  convergence lane.
 - finite-beta closure quadrature: monitored, with zero current-gate passes and
   a highest-quadrature largest-order stress difference near `1.3e-1` at the
   default stress radius.
