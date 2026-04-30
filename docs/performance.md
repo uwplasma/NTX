@@ -238,6 +238,16 @@ path from the multiprocess throughput lane:
 python examples/prepared_geometry_reuse_profile.py --preset paper
 ```
 
+For targeted trace capture:
+
+```bash
+python examples/prepared_geometry_reuse_profile.py \
+  --preset smoke --case-counts 3 \
+  --trace-dir examples/outputs/ntx_prepared_geometry_profile/cpu_smoke_trace \
+  --perfetto \
+  --device-memory-profile examples/outputs/ntx_prepared_geometry_profile/cpu_smoke_trace/device_memory.prof
+```
+
 Figure assets:
 
 ```text
@@ -264,6 +274,30 @@ Current local CPU interpretation:
 This turns the speed lane into a concrete engineering target: stabilize and
 reuse prepared compiled closures before deeper linear-algebra rewrites or
 multi-process orchestration.
+
+## Finite-Beta RHSMode=1 Profile-Current Profiling
+
+The finite-beta profile-current lane now has a dedicated handoff note for the
+same-contract SFINCS-JAX RHSMode=1 bottleneck:
+
+```text
+docs/sfincs-jax-rhsmode1-profile-current-handoff.md
+```
+
+The current profiling result is:
+
+- `13 x 15 x 8, Nx=5` runs complete on CPU and one office GPU with identical
+  `FSABjHatOverRootFSAB2`
+- warm CPU solve time is about `1.13 s`
+- warm GPU solve time is about `2.29 s`, after a much larger first GPU warmup
+- `17 x 21 x 12, Nx=5` does not complete within the current five-minute cap on
+  local CPU or the tested GPU path
+- the large GPU log reaches the RHSMode=1 `pas_lite` fallback with residual
+  `1.887e-02` against target `1.088e-09`
+
+That lane remains a SFINCS-JAX solver/profiling handoff, not an NTX physics
+claim.  The bootstrap-current figure should not be promoted until the
+same-contract RHSMode=1 ladder can be converged.
 
 ## Reproducibility
 

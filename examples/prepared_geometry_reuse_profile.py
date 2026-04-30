@@ -10,6 +10,7 @@ import resource
 import sys
 import time
 from collections.abc import Callable
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Any
 
@@ -310,6 +311,17 @@ def main(argv: list[str] | None = None) -> int:
         default=ROOT / "docs" / "_static" / "prepared_geometry_reuse_profile",
     )
     parser.add_argument("--trace-dir", type=Path, default=None)
+    parser.add_argument(
+        "--perfetto",
+        action="store_true",
+        help="Also emit perfetto_trace.json.gz when --trace-dir is set.",
+    )
+    parser.add_argument(
+        "--device-memory-profile",
+        type=Path,
+        default=None,
+        help="Optional pprof-format device-memory snapshot written after profiling.",
+    )
     args = parser.parse_args(argv)
 
     os.environ.setdefault("JAX_ENABLE_X64", "1")
@@ -325,13 +337,18 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(
             f"requested --backend={args.backend} but JAX initialized {jax.default_backend()}"
         )
-    trace_started = False
+    trace_context = (
+        jax.profiler.trace(
+            str(args.trace_dir),
+            create_perfetto_trace=bool(args.perfetto),
+        )
+        if args.trace_dir is not None
+        else nullcontext()
+    )
     if args.trace_dir is not None:
         args.trace_dir.mkdir(parents=True, exist_ok=True)
-        jax.profiler.start_trace(str(args.trace_dir))
-        trace_started = True
 
-    try:
+    with trace_context:
         surface = example_surface()
         grid = _grid_for_preset(args.preset)
         warmup_seconds = _warm_up_solver(surface, grid)
@@ -342,9 +359,9 @@ def main(argv: list[str] | None = None) -> int:
                 int(item.strip()) for item in args.case_counts.split(",") if item.strip()
             )
         results = [_profile_case_count(surface, grid, count) for count in counts]
-    finally:
-        if trace_started:
-            jax.profiler.stop_trace()
+    if args.device_memory_profile is not None:
+        args.device_memory_profile.parent.mkdir(parents=True, exist_ok=True)
+        jax.profiler.save_device_memory_profile(str(args.device_memory_profile))
 
     payload = {
         "artifact": "prepared_geometry_reuse_profile",
