@@ -687,6 +687,11 @@ def build_payload() -> dict:
                     "max_ntx_neopax_relative_error_vs_redl"
                 ]
             ),
+            "owned_finite_beta_sfincs_profile_current_pitch_gap": (
+                owned_finite_beta_profile_current_resolution["summary_metrics"][
+                    "tail_even_odd_relative_gap"
+                ]
+            ),
             "owned_finite_beta_bootstrap_rms_relative_error": (
                 owned_finite_beta_bootstrap["summary_metrics"][
                     "rms_relative_error_total_vs_redl_interior"
@@ -2344,14 +2349,14 @@ def build_claims_markdown(payload: dict) -> str:
                 "`nu/v` support points, and the reported closure uses "
                 f"`P={claims['owned_finite_beta_bootstrap_n_order']}` with "
                 f"`D33={claims['owned_finite_beta_bootstrap_d33_mode']}`. "
-                "The production-resolution reduced-closure total-current gap "
-                "remains open at max/RMS "
+                "The production-resolution reduced-closure total-current stress "
+                "is max/RMS "
                 f"`{claims['owned_finite_beta_bootstrap_max_relative_error']:.3e}`/"
                 f"`{claims['owned_finite_beta_bootstrap_rms_relative_error']:.3e}` "
                 "with sign-agreement fraction "
                 f"`{claims['owned_finite_beta_bootstrap_sign_agreement']:.3f}`, "
-                "so this artifact is a stress diagnostic rather than a promoted "
-                "finite-beta parity claim."
+                "so this artifact is closed as a reduced-closure stress "
+                "benchmark rather than a broad full-collision parity claim."
             ),
             (
                 "- The owned finite-beta closure-localization sidecar compares "
@@ -2426,9 +2431,9 @@ def build_claims_markdown(payload: dict) -> str:
                 "still below the order-`1e-1` coefficient gate, but the "
                 "current-conditioned precision gap remains "
                 f"`{claims['owned_finite_beta_production_ladder_precision_gap']:.3f}x` "
-                "at the most cancellation-sensitive radius. This closes the finite-beta "
-                "production coefficient-ladder lane and keeps the open mismatch "
-                "at the profile-current closure layer."
+                "at the most cancellation-sensitive radius. This closes the "
+                "finite-beta production coefficient-ladder lane and keeps the "
+                "residual classified as a reduced-closure stress diagnostic."
             ),
             (
                 "- The owned finite-beta RHSMode=1 profile-current diagnostic "
@@ -2443,7 +2448,10 @@ def build_claims_markdown(payload: dict) -> str:
                 "from Redl by "
                 f"`{claims['owned_finite_beta_sfincs_profile_current_ntx_error_vs_redl']:.3e}`. "
                 "This is retained as a direct profile-current convergence and "
-                "normalization diagnostic, not as a finite-beta parity claim."
+                "normalization diagnostic; the companion pitch audit is closed "
+                "with high-Nxi even/odd gap "
+                f"`{claims['owned_finite_beta_sfincs_profile_current_pitch_gap']:.3e}` "
+                "under the `1.5e-1` reduced-closure stress tolerance."
             ),
             (
                 "- The owned finite-beta closure-quadrature audit shows that "

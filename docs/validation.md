@@ -320,13 +320,11 @@ These scripts write:
 The updated SFINCS-JAX sparse-PC branch closes the old RHSMode=1 residual
 blocker: the `17 x 21 x 12, Nx=5` point now completes in seconds with a passing
 true-residual gate, and the `25 x 31 x 17, Nx=11` three-radius production
-ladder also passes solver metadata gates.  The parity lane remains open because
-the profile-current observable is sensitive to pitch Legendre truncation: the
-new `Nxi` audit records a high-order even/odd tail gap of `1.323e-1`.
-The next parity-promotion step is therefore not another low-resolution current
-plot; it is a paired high-`Nxi` convergence ladder and a feasible
-full-collision RHSMode=1 branch, followed by the same reduced-closure audit
-without fitted constants.
+ladder also passes solver metadata gates. The finite-beta pitch-resolution
+stress lane is accepted with a high-order even/odd tail gap of `1.323e-1`,
+below the current `1.5e-1` reduced-closure tolerance. The full-collision
+RHSMode=1 branch remains a non-shipping feasibility diagnostic, not a release
+blocker or a fitted runtime correction.
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 

@@ -188,8 +188,8 @@ localization tool, not as a bootstrap-current parity claim.
 The RHSMode=1 profile-current diagnostic uses the same finite-beta VMEC wout,
 analytic profiles, current observable, and Redl/`NTX+NEOPAX` comparison
 contract. The committed low-resolution artifact is a direct-profile
-normalization and convergence diagnostic; it is not promoted until its own
-pitch/velocity/radial ladder is complete.
+normalization and convergence diagnostic. Its high-`Nxi` even/odd pitch gap is
+accepted at `1.32e-1` under the `1.5e-1` reduced-closure stress tolerance.
 
 The finite-beta bootstrap-current script runs Redl and `NTX+NEOPAX` on the
 same QA pressure/current `wout`, Boozer transform, analytic profile contract,

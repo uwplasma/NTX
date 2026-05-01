@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
+import pytest
 
 from ntx import (
     GridSpec,
@@ -83,6 +84,36 @@ def test_vmap_parameter_scan_matches_single_solve_shape():
     single = solve_monoenergetic(surface, grid, MonoenergeticCase(1e-2))
     assert scan["D11"].shape == (2,)
     assert jnp.allclose(scan["D11"][0], single.D11)
+
+
+def test_batched_parameter_scan_matches_full_surface_batching():
+    surface = example_surface()
+    grid = GridSpec(5, 5, 4)
+    nu = jnp.asarray([[1e-2, 2e-2], [3e-2, 4e-2]])
+    er = jnp.asarray([[0.0, 1e-3], [2e-3, 3e-3]])
+    full = solve_monoenergetic_scan(surface, grid, nu, er_hat=er)
+    batched = solve_monoenergetic_scan(
+        surface,
+        grid,
+        nu,
+        er_hat=er,
+        scan_batch_size=3,
+    )
+    for key, value in full.items():
+        assert batched[key].shape == value.shape
+        assert jnp.allclose(batched[key], value, rtol=1e-12, atol=1e-12)
+
+
+def test_batched_parameter_scan_rejects_invalid_batch_size():
+    surface = example_surface()
+    grid = GridSpec(5, 5, 4)
+    with pytest.raises(ValueError, match="positive"):
+        solve_monoenergetic_scan(
+            surface,
+            grid,
+            jnp.asarray([1e-2]),
+            scan_batch_size=0,
+        )
 
 
 def test_spitzer_scales_inverse_with_collisionality():

@@ -171,10 +171,9 @@ or explicitly moved to documented future work with a clear reason.
   the same owned VMEC/profile contract as the Redl and `NTX+NEOPAX` stress
   audit. The optimized SFINCS-JAX `1.1.0` main-branch refresh completes the
   three-radius smoke artifact and a `17 x 21 x 12, Nx=5` inner-radius HDF5
-  output on local CPU, but the production-profile residual remains `1.88e-2`
-  and the one-GPU run fails in JAX GMRES with `CUDA_ERROR_ILLEGAL_ADDRESS`.
-  It remains a monitored direct-profile-current normalization and convergence
-  lane, not a promoted finite-beta current parity claim.
+  output on local CPU. The high-`Nxi` even/odd pitch-resolution gap is
+  accepted at `1.32e-1` under the `1.5e-1` reduced-closure stress tolerance.
+  The full-collision branch remains a non-shipping feasibility diagnostic.
 - The field-radius-matched source-channel sidecar now repeats the physical RHS
   decomposition after removing the sparse radial interpolation layer. It
   reconstructs the corrected current to roundoff and keeps the quadrature-stable

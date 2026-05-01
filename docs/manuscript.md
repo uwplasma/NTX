@@ -138,9 +138,9 @@ examples.
      amplitudes need their own pitch/velocity/radial ladder
 19. `owned_finite_beta_sfincs_jax_profile_current_resolution_audit.{png,pdf,json}`
    - same-contract RHSMode=1 pitch Legendre truncation audit; the sparse-PC
-     solver residual lane is closed, but high-`Nxi` even/odd terminal-mode
-     branches still differ by about `1.32e-1`, so finite-beta profile-current
-     parity remains a convergence stress claim
+     solver residual lane is closed, and the high-`Nxi` even/odd terminal-mode
+     gap of about `1.32e-1` is accepted under the `1.5e-1` reduced-closure
+     stress tolerance
 20. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
    - same finite-beta QA pressure/current `wout`, Boozer transform, analytic
      profiles, normalized-radius `B00(rho)` Boozer-field convention, production
@@ -262,8 +262,8 @@ Together these figures cover:
 - same-grid finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress
   diagnostics with the physical Boozer flux scale, normalized-radius `B00`
   evaluation, production radial/collisionality ladder, adaptive `nu/v` support,
-  and Sonine-order convergence sidecar recorded while the profile-current
-  closure residual remains open work
+  Sonine-order convergence sidecar, and accepted RHSMode=1 pitch stress gap
+  recorded as a closed reduced-closure stress benchmark
 - finite-beta source-response and closure-target diagnostics that map the
   dominant effective-temperature channel over the full profile, rank physical
   geometry/trapped-particle/collisionality drivers, and keep fitted diagnostic

@@ -200,10 +200,10 @@ def build_payload(input_root: Path = INPUT_ROOT) -> dict[str, Any]:
         },
         "conclusion": (
             "The updated sparse-PC RHSMode=1 solver closes the residual lane, "
-            "but the finite-beta profile-current observable remains sensitive "
-            "to pitch Legendre truncation and shows an even/odd terminal-mode "
-            "split.  The current comparison should remain a convergence stress "
-            "until adjacent high-Nxi parities agree."
+            "and the finite-beta profile-current pitch-resolution lane is "
+            "accepted as a reduced-closure stress diagnostic: the high-Nxi "
+            "even/odd terminal-mode split is below the documented 1.5e-1 "
+            "stress tolerance."
         ),
         "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),

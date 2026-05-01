@@ -9,9 +9,13 @@ conversion metadata from scratch before writing a NEOPAX-style HDF5 file.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
+import time
 from collections.abc import Sequence
 from pathlib import Path
+
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 import interpax
 import jax
@@ -158,6 +162,16 @@ def _parse_args() -> argparse.Namespace:
         help="Pitch-angle / Legendre resolution.",
     )
     parser.add_argument(
+        "--scan-batch-size",
+        type=int,
+        default=None,
+        help=(
+            "Optional fixed batch size for the flattened (nu_v, Er_tilde) "
+            "scan on each surface. Leave unset for full-surface batching; "
+            "use smaller values to reduce CPU/GPU peak memory."
+        ),
+    )
+    parser.add_argument(
         "--rho",
         type=str,
         default=None,
@@ -203,6 +217,11 @@ def _parse_args() -> argparse.Namespace:
         type=int,
         default=None,
         help="Optional rho index to plot. If omitted, plots all rho surfaces.",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress per-surface progress and timing output.",
     )
     return parser.parse_args()
 
@@ -585,8 +604,12 @@ def build_scan(
     nu_v: jnp.ndarray,
     er_tilde: jnp.ndarray,
     source_name: str | None = None,
+    scan_batch_size: int | None = None,
+    progress: bool = False,
 ) -> NeopaxScan:
     _validate_scan_axes(rho, nu_v, er_tilde)
+    if scan_batch_size is not None and scan_batch_size < 1:
+        raise ValueError("scan_batch_size must be a positive integer")
     channels = _load_vmec_boozer_channels(wout_path, boozmn_path, rho)
     load_surface, backend_name = _select_surface_loader(
         backend=backend,
@@ -609,11 +632,34 @@ def build_scan(
     d31 = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     d33 = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     d33_spitzer = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
+    case_count = n_nu * n_er
+    batch_label = "full-surface" if scan_batch_size is None else str(scan_batch_size)
 
     for idx, rho_value in enumerate(np.asarray(rho)):
+        t0 = time.perf_counter()
+        if progress:
+            print(
+                f"[{idx + 1}/{n_r}] rho={float(rho_value):.5f}: "
+                f"{case_count} cases, grid={grid.n_theta}x{grid.n_zeta}x{grid.n_xi}, "
+                f"scan_batch_size={batch_label}",
+                flush=True,
+            )
         surface = load_surface(float(rho_value))
         nu_grid, es_grid = jnp.meshgrid(nu_v, es[idx], indexing="ij")
-        coeffs = solve_monoenergetic_scan(surface, grid, nu_grid, epsi_hat=es_grid)
+        coeffs = solve_monoenergetic_scan(
+            surface,
+            grid,
+            nu_grid,
+            epsi_hat=es_grid,
+            scan_batch_size=scan_batch_size,
+        )
+        if progress:
+            jax.block_until_ready(tuple(coeffs.values()))
+            print(
+                f"[{idx + 1}/{n_r}] rho={float(rho_value):.5f}: "
+                f"solved in {time.perf_counter() - t0:.2f} s",
+                flush=True,
+            )
         d11 = d11.at[idx].set(coeffs["D11"])
         d13 = d13.at[idx].set(coeffs["D13"])
         d31 = d31.at[idx].set(coeffs["D31"])
@@ -660,6 +706,7 @@ def build_scan(
 
 def main() -> None:
     args = _parse_args()
+    t0 = time.perf_counter()
     wout_path = args.wout.expanduser().resolve()
     boozmn_path = args.booz.expanduser().resolve()
     output_path = args.output.expanduser().resolve()
@@ -682,6 +729,8 @@ def main() -> None:
             nu_v=nu_v,
             er_tilde=er_tilde,
             source_name=args.source_name,
+            scan_batch_size=args.scan_batch_size,
+            progress=not args.quiet,
         )
     _report_scan_warnings(scan, onsager_warn_threshold=args.onsager_warn_threshold)
     output = write_neopax_scan_hdf5(scan, output_path)
@@ -690,6 +739,10 @@ def main() -> None:
     print(f"requested surface backend: {args.surface_backend}")
     print(f"device backend: {args.device_backend}")
     print(f"device: {device}")
+    print(
+        "scan batch size: "
+        f"{args.scan_batch_size if args.scan_batch_size is not None else 'full-surface'}"
+    )
     print(f"wout: {wout_path}")
     print(f"booz: {boozmn_path}")
     print(f"grid: n_theta={grid.n_theta}, n_zeta={grid.n_zeta}, n_xi={grid.n_xi}")
@@ -698,6 +751,7 @@ def main() -> None:
     print(f"Er_tilde points: {scan.Er_tilde.shape[0] if scan.Er_tilde is not None else 0}")
     print(f"D11 shape: {scan.D11.shape}")
     print(f"D31 shape: {scan.D31.shape if scan.D31 is not None else None}")
+    print(f"total runtime: {time.perf_counter() - t0:.2f} s")
     if args.plot:
         plot_paths = _plot_scan_coefficients(
             scan,

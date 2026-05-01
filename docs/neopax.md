@@ -65,8 +65,8 @@ For end-to-end examples, see:
   for the direct RHSMode=1 profile-current diagnostic on the same finite-beta
   VMEC/profile contract used by Redl and `NTX+NEOPAX`
 - [`examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py`](../examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py)
-  for the pitch Legendre truncation audit that keeps finite-beta current parity
-  gated on adjacent high-`Nxi` convergence rather than a single attractive point
+  for the pitch Legendre truncation audit that closes the finite-beta
+  reduced-closure stress lane at the documented high-`Nxi` tolerance
 - [`examples/owned_finite_beta_bootstrap_comparison.py`](../examples/owned_finite_beta_bootstrap_comparison.py)
   for an owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress
   audit on the same VMEC wout, Boozer transform, profiles, radial grid, and
@@ -169,6 +169,7 @@ python examples/build_neopax_scan_from_ertilde.py \
   --er-tilde 0.0,1e-5,3e-5 \
   --surface-backend vmec \
   --device-backend cpu \
+  --scan-batch-size 32 \
   --output examples/outputs/neopax_scan_from_ertilde/scan.h5 \
   --plot
 ```
@@ -180,6 +181,16 @@ and can emit per-radius coefficient panels for quick sanity checks.
 Use the VMEC surface backend for validation and benchmark generation. The
 `boozmn` backend is available as an explicit geometry-backend audit path, but
 it is not the default validation path.
+
+For the QI finite-beta hires example used in downstream database generation,
+the full-surface vectorized scan is GPU-friendly but memory-heavy on CPU. On
+the local CPU reference run, `25 x 25 x 60` with one radial surface and the
+default `16 x 12` `(nu_v, Er_tilde)` grid took `64.7 s` and about `5.0 GB`
+peak RSS. Adding `--scan-batch-size 32` reduced that to `55.9 s` and about
+`1.46 GB` peak RSS for the same coefficients. Smaller batches such as `16`
+lower memory further but were slower in this probe, so `32` is the recommended
+CPU fallback for this case. Leave the option unset on GPU unless device memory
+is the limiting factor.
 
 ### Direct Boozer-File Backend Audit
 

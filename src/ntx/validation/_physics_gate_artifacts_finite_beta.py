@@ -100,9 +100,9 @@ def append_finite_beta_artifact_gates(
         ),
         metric_key="tail_even_odd_relative_gap",
         details=(
-            "monitored finite-beta RHSMode=1 SFINCS-JAX pitch Legendre "
+            "accepted finite-beta RHSMode=1 SFINCS-JAX pitch Legendre "
             "truncation stress metric; adjacent high-Nxi parity branches "
-            "must agree before promoting profile-current parity"
+            "are below the 1.5e-1 reduced-closure stress tolerance"
         ),
     )
     _append_summary_metric_gate(

@@ -40,8 +40,14 @@ def solve_monoenergetic_scan(
     *,
     epsi_hat: Array | None = None,
     er_hat: Array | None = None,
+    scan_batch_size: int | None = None,
 ) -> dict[str, Array]:
-    """Vectorized scan over collisionality and radial electric field."""
+    """Vectorized scan over collisionality and radial electric field.
+
+    ``scan_batch_size`` optionally splits the flattened scan into fixed-size
+    batches. This preserves the coefficient values while lowering peak memory
+    for large CPU or memory-constrained GPU scans.
+    """
 
     prepared = prepare_monoenergetic_system(surface, grid)
     nu_values, epsi_values, output_shape = _resolved_scan_inputs(
@@ -51,7 +57,17 @@ def solve_monoenergetic_scan(
         epsi_hat,
         er_hat,
     )
-    coeffs = _scan_coefficients_serial(prepared, nu_values.ravel(), epsi_values.ravel())
+    flat_nu = nu_values.ravel()
+    flat_epsi = epsi_values.ravel()
+    if scan_batch_size is None:
+        coeffs = _scan_coefficients_serial(prepared, flat_nu, flat_epsi)
+    else:
+        coeffs = _scan_coefficients_batched(
+            prepared,
+            flat_nu,
+            flat_epsi,
+            batch_size=scan_batch_size,
+        )
     return _coefficients_dict(coeffs.reshape((*output_shape, 5)))
 
 
@@ -172,6 +188,39 @@ def _scan_coefficients_serial(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
+    return _scan_coefficients_function(prepared)(nu_values, epsi_values)
+
+
+def _scan_coefficients_batched(
+    prepared: PreparedMonoenergeticSystem,
+    nu_values: Array,
+    epsi_values: Array,
+    *,
+    batch_size: int,
+) -> Array:
+    if batch_size < 1:
+        msg = "scan_batch_size must be a positive integer"
+        raise ValueError(msg)
+    case_count = int(nu_values.size)
+    if case_count == 0:
+        return jnp.zeros((0, 5), dtype=prepared.grid.jax_dtype)
+
+    solve_batch = _scan_coefficients_function(prepared)
+    chunks = []
+    for start in range(0, case_count, batch_size):
+        stop = min(start + batch_size, case_count)
+        chunk_nu = nu_values[start:stop]
+        chunk_epsi = epsi_values[start:stop]
+        valid_count = stop - start
+        if valid_count < batch_size:
+            pad = batch_size - valid_count
+            chunk_nu = jnp.pad(chunk_nu, (0, pad), mode="edge")
+            chunk_epsi = jnp.pad(chunk_epsi, (0, pad), mode="edge")
+        chunks.append(solve_batch(chunk_nu, chunk_epsi)[:valid_count])
+    return jnp.concatenate(chunks, axis=0)
+
+
+def _scan_coefficients_function(prepared: PreparedMonoenergeticSystem):
     geom = prepared.geometry
     grid = prepared.grid
 
@@ -190,7 +239,7 @@ def _scan_coefficients_serial(
         )
         return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
 
-    return jax.jit(jax.vmap(solve_one))(nu_values, epsi_values)
+    return jax.jit(jax.vmap(solve_one))
 
 
 def _coefficients_dict(coeffs: Array) -> dict[str, Array]:

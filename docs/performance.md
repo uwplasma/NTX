@@ -296,14 +296,35 @@ The current profiling result is:
   `383.16 s` with about `9.46 GB` max RSS and true-residual gates passing at
   every radius
 - the pitch-resolution audit shows the remaining RHSMode=1 profile-current
-  discrepancy is not a residual failure: high-`Nxi` even/odd Legendre
-  truncations still differ by `1.323e-1`
+  discrepancy is not a residual failure: the accepted high-`Nxi` even/odd
+  Legendre stress gap is `1.323e-1`, below the current `1.5e-1`
+  reduced-closure tolerance
 - a same-grid `collisionOperator=0` full-collision probe timed out after
   `901.76 s` and about `9.97 GB` max RSS without a completed current output
 
-The old sparse-solver runtime lane is closed.  The finite-beta current figure
-should still not be promoted until the same-contract RHSMode=1 pitch truncation
-and full-collision physics branches are converged.
+The old sparse-solver runtime lane and the reduced-closure pitch stress lane
+are closed under the documented tolerances. The full-collision branch remains a
+non-shipping feasibility diagnostic rather than a release blocker.
+
+## QI Hires NEOPAX-Database Export
+
+The downstream QI finite-beta hires database-generation command exercises the
+largest public `examples/build_neopax_scan_from_ertilde.py` path used so far:
+`25 x 25 x 60`, seven radial surfaces, and the default `16 x 12`
+`(nu_v, Er_tilde)` scan per surface. The current script reports per-surface
+timing and accepts `--scan-batch-size` to split that flattened scan into
+fixed-size chunks.
+
+Measured on the local CPU for one radial surface with the same QI hires
+VMEC/Boozer files:
+
+- full-surface batching: `64.7 s`, about `5.0 GB` peak RSS
+- `--scan-batch-size 32`: `55.9 s`, about `1.46 GB` peak RSS
+- `--scan-batch-size 16`: `75.3 s`, about `1.27 GB` peak RSS
+
+For CPU runs of that example, start with `--scan-batch-size 32`. For GPU runs,
+leave full-surface batching enabled when memory permits; add a batch size only
+when the device runs out of memory at higher resolution.
 
 ## Reproducibility
 

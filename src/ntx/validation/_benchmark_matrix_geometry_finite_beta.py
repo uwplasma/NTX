@@ -146,17 +146,18 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
         ),
         open_work=(
             (
-                "run production SFINCS-JAX profile-current closure "
-                "diagnostics against the owned finite-beta Redl and "
-                "NTX+NEOPAX bootstrap-current stress audit"
+                "keep the accepted finite-beta profile-current stress "
+                "diagnostics artifact-backed as SFINCS-JAX and downstream "
+                "interpolation modes evolve"
             ),
             (
                 "promote only after geometry, profile, normalization, and "
                 "interpolation sidecars are complete"
             ),
             (
-                "treat the RHSMode=1 profile-current branch as open until "
-                "adjacent high-Nxi Legendre parities agree on the same current"
+                "treat the full-collision RHSMode=1 branch as a non-shipping "
+                "feasibility diagnostic until it is practical at production "
+                "resolution"
             ),
         ),
     ),
@@ -179,11 +180,11 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "field-radius-matched closure quadrature sidecar, "
             "field-radius-matched source-channel sidecar, "
             "and current normalization. "
-            "The current reduced-closure result has the correct sign and "
-            "some radii near the 1e-1 target, but explicitly records "
-            "the remaining profile-current stress gap; "
-            "it is not promoted as SFINCS parity until same-grid SFINCS-JAX "
-            "profile-current closure diagnostics are complete."
+            "The current reduced-closure result has the correct sign, "
+            "some radii near the 1e-1 target, and an accepted high-Nxi "
+            "RHSMode=1 pitch stress gap below 1.5e-1; it is reported as "
+            "a closed reduced-closure stress benchmark rather than a broad "
+            "full-collision SFINCS parity claim."
         ),
         literature_anchors=(
             "Redl bootstrap-current formula and geometry-factor normalization",

@@ -141,13 +141,14 @@ The owned finite-beta stellarator lane now has same-grid SFINCS-JAX input
 generation, completed coefficient ladders, Redl and `NTX+NEOPAX` current
 audits, true-residual-converged RHSMode=1 SFINCS-JAX profile-current outputs,
 source-channel decompositions, and radial-interpolation diagnostics.
-That lane is intentionally reported as a reduced-closure stress benchmark: the
+That lane is closed as a reduced-closure stress benchmark: the
 monoenergetic coefficient differences are below `2.1e-2`, while the
-profile-current branch still has a high-`Nxi` even/odd pitch-truncation gap of
-`1.32e-1` and a full-collision production branch that is not yet practical on
-the local CPU. The corrected Boozer path evaluates `B00` on normalized radius
+profile-current pitch-resolution audit accepts the high-`Nxi` even/odd
+truncation gap of `1.32e-1` under the `1.5e-1` reduced-closure stress
+tolerance. The full-collision production branch remains a non-shipping
+feasibility diagnostic. The corrected Boozer path evaluates `B00` on normalized radius
 and converts `dB00/d rho` to the physical radial derivative with the VMEC minor
-radius. The detailed interpretation and open promotion gates are in
+radius. The detailed reduced-closure interpretation is in
 [docs/validation.md](docs/validation.md).
 
 Run the local gate summary with:
@@ -179,6 +180,7 @@ NEOPAX database and bootstrap-current examples:
 
 ```bash
 python examples/neopax_with_ntx.py
+python examples/build_neopax_scan_from_ertilde.py --help
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py
@@ -186,6 +188,11 @@ python examples/owned_finite_beta_source_response_profile_audit.py
 python examples/bootstrap_current_with_neopax.py
 python examples/bootstrap_current_from_vmec_or_boozmn.py
 ```
+
+For large finite-beta NEOPAX database exports on CPU, use
+`--scan-batch-size 32` first; it kept the QI hires `25 x 25 x 60` seven-surface
+example under 10 minutes and about `1.46 GB` peak RSS locally. On GPU, leave
+full-surface batching enabled unless device memory is the limiter.
 
 The full finite-beta validation sequence, including same-grid SFINCS-JAX input
 generation and matched-radius closure audits, is documented in

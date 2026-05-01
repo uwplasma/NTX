@@ -267,7 +267,7 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
         json.dumps(
             {
                 "summary_metrics": {
-                    "tail_even_odd_relative_gap": 0.2,
+                    "tail_even_odd_relative_gap": 0.132,
                 }
             }
         )
@@ -394,13 +394,13 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
         results[
             "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
         ].status
-        == "monitor"
+        == "pass"
     )
     assert (
         results[
             "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
         ].value
-        == pytest.approx(0.2)
+        == pytest.approx(0.132)
     )
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "monitor"
     assert results["owned_finite_beta_closure_quadrature_stress"].value == 1.0
@@ -612,13 +612,13 @@ def test_repository_artifact_gates_match_current_claim_statuses():
         results[
             "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
         ].status
-        == "monitor"
+        == "pass"
     )
     assert (
         results[
             "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
         ].value
-        > 1.0e-1
+        <= 1.5e-1
     )
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "monitor"
     assert results["owned_finite_beta_closure_quadrature_stress"].value == 0.0

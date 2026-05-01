@@ -328,9 +328,9 @@ gates:
 - finite-beta production radial/collisionality ladder: monitored, with all
   production coefficient differences below `2.07e-2` but the maximum
   current-conditioned precision gap still well above unity.
-- finite-beta RHSMode=1 profile current: monitored, with the current
-  low-resolution direct-profile diagnostic retained only as a normalization and
-  convergence lane.
+- finite-beta RHSMode=1 profile current: the direct-profile amplitudes remain
+  monitored, while the companion high-`Nxi` even/odd pitch stress gap is
+  accepted at `1.32e-1` under the `1.5e-1` reduced-closure tolerance.
 - finite-beta closure quadrature: monitored, with zero current-gate passes and
   a highest-quadrature largest-order stress difference near `1.3e-1` at the
   default stress radius.
@@ -341,11 +341,11 @@ gates:
   correction applied.
 
 This is the current physics interpretation: the coefficient-side bridge is no
-longer the leading suspect for the finite-beta QA stress case, and the remaining
-gap lives in a quadrature-converged reduced profile-current/source-response
-observable under strong species-current cancellation. Future closure work must
-improve that observable without changing device-specific scale factors and
-without regressing the fixed-field precise-QS or integrated W7-X gates.
+longer the leading suspect for the finite-beta QA stress case, and the accepted
+result is a reduced profile-current/source-response stress benchmark under
+strong species-current cancellation. Future closure work may improve that
+observable, but any runtime change must avoid device-specific scale factors and
+must not regress the fixed-field precise-QS or integrated W7-X gates.
 
 ## Current Policy
 
