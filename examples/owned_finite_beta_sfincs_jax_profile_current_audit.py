@@ -53,7 +53,9 @@ OUTPUT_PREFIX = (
 )
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_sfincs_jax_profile_current_audit"
 BOOTSTRAP_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison.json"
-SFINCS_JAX_ROOT = Path("/Users/rogeriojorge/local/tests/sfincs_jax")
+SFINCS_JAX_ROOT = Path(
+    os.environ.get("NTX_SFINCS_JAX_ROOT", "/Users/rogeriojorge/local/tests/sfincs_jax")
+)
 
 DEFAULT_GRID = GridSpec(13, 15, 8)
 DEFAULT_NX = 5
@@ -211,9 +213,10 @@ def _run_sfincs_jax_profile(
     env = os.environ.copy()
     env.setdefault("SFINCS_JAX_GMRES_DISTRIBUTED", "0")
     env.setdefault("SFINCS_JAX_MATVEC_SHARD_AXIS", "off")
-    # Avoid dense PAS fallbacks on medium diagnostic ladders; they can allocate
-    # much more memory than the matrix-free path on this workstation.
-    env.setdefault("SFINCS_JAX_RHSMODE1_DENSE_PAS_MAX", "0")
+    # Keep the optimized SFINCS-JAX RHSMode=1 policy as the default.  The
+    # dense-PAS cutoff remains opt-out for constrained local reruns.
+    if os.environ.get("NTX_SFINCS_JAX_DISABLE_DENSE_PAS") == "1":
+        env.setdefault("SFINCS_JAX_RHSMODE1_DENSE_PAS_MAX", "0")
     if SFINCS_JAX_ROOT.exists():
         env["PYTHONPATH"] = f"{SFINCS_JAX_ROOT}{os.pathsep}{env.get('PYTHONPATH', '')}"
     command = [
@@ -568,6 +571,13 @@ def build_payload(
 
 def write_payload(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) -> None:
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    payload = dict(payload)
+    for key, suffix in (("figure_png", ".png"), ("figure_pdf", ".pdf")):
+        path = output_prefix.with_suffix(suffix)
+        try:
+            payload[key] = str(path.relative_to(ROOT))
+        except ValueError:
+            payload[key] = str(path)
     output_prefix.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
 
 

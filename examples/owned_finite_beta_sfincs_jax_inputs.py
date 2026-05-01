@@ -50,7 +50,9 @@ from ntx import (  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_inputs"
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_sfincs_jax_inputs"
-SFINCS_JAX_ROOT = Path("/Users/rogeriojorge/local/tests/sfincs_jax")
+SFINCS_JAX_ROOT = Path(
+    os.environ.get("NTX_SFINCS_JAX_ROOT", "/Users/rogeriojorge/local/tests/sfincs_jax")
+)
 DEFAULT_GRID = GridSpec(25, 31, 32)
 DEFAULT_SFINCS_RHO = (1.0 / 7.0, 0.30, 0.50)
 DEFAULT_RHS2_NL = 3
@@ -749,6 +751,13 @@ def build_payload(
 
 def write_payload(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX) -> None:
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    payload = dict(payload)
+    for key, suffix in (("figure_png", ".png"), ("figure_pdf", ".pdf")):
+        path = output_prefix.with_suffix(suffix)
+        try:
+            payload[key] = str(path.relative_to(ROOT))
+        except ValueError:
+            payload[key] = str(path)
     output_prefix.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
 
 

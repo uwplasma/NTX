@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import h5py
@@ -112,3 +113,6 @@ def test_profile_current_audit_builds_empty_status_figure(tmp_path: Path):
     assert output_prefix.with_suffix(".json").exists()
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()
+    written = json.loads(output_prefix.with_suffix(".json").read_text())
+    assert written["figure_png"] == str(output_prefix.with_suffix(".png"))
+    assert written["figure_pdf"] == str(output_prefix.with_suffix(".pdf"))

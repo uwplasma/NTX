@@ -286,14 +286,19 @@ docs/sfincs-jax-rhsmode1-profile-current-handoff.md
 
 The current profiling result is:
 
-- `13 x 15 x 8, Nx=5` runs complete on CPU and one office GPU with identical
-  `FSABjHatOverRootFSAB2`
-- warm CPU solve time is about `1.13 s`
-- warm GPU solve time is about `2.29 s`, after a much larger first GPU warmup
-- `17 x 21 x 12, Nx=5` does not complete within the current five-minute cap on
-  local CPU or the tested GPU path
-- the large GPU log reaches the RHSMode=1 `pas_lite` fallback with residual
-  `1.887e-02` against target `1.088e-09`
+- SFINCS-JAX `1.1.0` on clean `origin/main` completes the
+  `13 x 15 x 8, Nx=5` three-radius smoke profile-current artifact quickly on
+  local CPU, with residuals near roundoff and unchanged current amplitudes
+- the same clean checkout completes the `17 x 21 x 12, Nx=5` inner-radius HDF5
+  output on local CPU in about `17.1 min`, but the solve residual remains
+  `1.88e-2` against target `1.09e-9`
+- the production-point summary is committed as
+  `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.{json,png,pdf}`
+- the CPU profiling wrapper then fails while finalizing traces at about
+  `28.8 min`, with max RSS about `7.65 GB` and no local trace flushed
+- the office one-GPU run reaches the same PAS-lite fallback residual and then
+  fails with `CUDA_ERROR_ILLEGAL_ADDRESS`; the remote does write Perfetto/XPlane
+  artifacts, but the largest trace is about `755 MB` and is kept off-repo
 
 That lane remains a SFINCS-JAX solver/profiling handoff, not an NTX physics
 claim.  The bootstrap-current figure should not be promoted until the

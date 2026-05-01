@@ -139,11 +139,17 @@ claim until the collisionality/profile-current normalization is closed.
 The owned RHSMode=1 profile-current diagnostic writes direct profile-current
 SFINCS-JAX decks on the same finite-beta VMEC wout and analytic profile
 contract used by the Redl and `NTX+NEOPAX` stress audit. The committed
-low-resolution artifact completes three radii and shows that direct
-profile-current amplitudes need their own pitch, velocity, radial, and
-collisionality-normalization ladder before they can be used as a finite-beta
-current reference. This keeps the current comparison explicit rather than
-folding an unconverged direct-profile observable into a promoted parity claim.
+low-resolution artifact completes three radii with the optimized SFINCS-JAX
+`1.1.0` main branch and shows that direct profile-current amplitudes need their
+own pitch, velocity, radial, and collisionality-normalization ladder before
+they can be used as a finite-beta current reference. A `17 x 21 x 12, Nx=5`
+inner-radius rerun now completes the HDF5 output on local CPU, moving the
+SFINCS-JAX-vs-Redl current gap from about `8.5e-1` on the smoke grid to about
+`5.6e-1`, but the reported linear residual remains `1.88e-2` against a
+`1.09e-9` target. The office one-GPU rerun reaches the same fallback residual
+and then fails with a CUDA illegal-address error in JAX GMRES. This keeps the
+current comparison explicit rather than folding an unconverged direct-profile
+observable into a promoted parity claim.
 
 The finite-beta bootstrap-current script now runs Redl and `NTX+NEOPAX` on the
 same finite-beta QA pressure/current `wout`, Boozer transform, analytic profile
@@ -183,11 +189,12 @@ same-grid finite-beta coefficient differences near `2.1e-2`. That closes the
 production coefficient ladder as a broad numerical failure and leaves the
 remaining parity work at the profile-current closure layer.
 The production radial/collisionality ladder then runs the six same-grid
-finite-beta QA SFINCS-JAX points at `35 x 43 x 48`. All completed points remain
-below `2.07e-2` coefficient difference; the maximum precision gap is still the
-inner `rho=1/7`, `nuPrime=1e-2` point. That closes the production coefficient
-ladder as a broad numerical failure and leaves the remaining parity work at the
-profile-current closure layer.
+finite-beta QA SFINCS-JAX points at `35 x 43 x 48`. The optimized SFINCS-JAX
+main-branch refresh leaves all completed points below `2.07e-2` coefficient
+difference; the maximum precision gap is still the inner `rho=1/7`,
+`nuPrime=1e-2` point. That closes the production coefficient ladder as a broad
+numerical failure and leaves the remaining parity work at the profile-current
+closure and converged RHSMode=1 profile-current layers.
 The closure-quadrature audit then varies only the momentum-closure Sonine order
 and velocity quadrature while holding the finite-beta scan, profiles, Redl
 observable, and normalization fixed. After the Boozer-field radius fix, the
@@ -293,6 +300,12 @@ These scripts write:
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
 The next parity-promotion step is to build or import a quadrature-converged
@@ -331,6 +344,8 @@ has no current-gate pass that transfers to quadrature-stable `X >= Pmax`.
 ![Owned finite-beta SFINCS-JAX production ladder audit](_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png)
 
 ![Owned finite-beta SFINCS-JAX profile-current diagnostic](_static/owned_finite_beta_sfincs_jax_profile_current_audit.png)
+
+![Owned finite-beta SFINCS-JAX profile-current production probe](_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.png)
 
 ## What Is Covered
 

@@ -66,6 +66,16 @@ which matches the normalization used by the NTX diagnostic script.
 
 ## Completed Same-Contract Data
 
+Refresh status on 2026-04-30:
+
+- SFINCS-JAX clean worktree:
+  `/Users/rogeriojorge/local/tests/sfincs_jax_main_clean`
+- SFINCS-JAX version: `1.1.0`
+- SFINCS-JAX commit: `0107be7` (`origin/main`)
+- NTX used `NTX_SFINCS_JAX_ROOT` to force the clean checkout, so the rerun did
+  not depend on the dirty development checkout at
+  `/Users/rogeriojorge/local/tests/sfincs_jax`.
+
 Committed finite-beta RHSMode=1 low-resolution profile-current artifact:
 
 - JSON: `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json`
@@ -78,9 +88,9 @@ Committed finite-beta RHSMode=1 low-resolution profile-current artifact:
 Current status from that artifact:
 
 - completed RHSMode=1 current points: `3`
-- max SFINCS-JAX vs Redl current relative difference: `0.8478018522703096`
+- max SFINCS-JAX vs Redl current relative difference: `0.8478018522703108`
 - max SFINCS-JAX vs NTX+NEOPAX current relative difference:
-  `0.8740375383375432`
+  `0.8740375383375442`
 - max NTX+NEOPAX vs Redl current relative difference:
   `0.21926076611238907`
 
@@ -96,13 +106,12 @@ CPU and GPU runs agree to roundoff on this point.
 
 ## Profiling Runs
 
-All profiling runs used:
+The 2026-04-30 optimized-main rerun used SFINCS-JAX default RHSMode=1 solver
+policy unless noted otherwise:
 
 ```bash
 JAX_ENABLE_X64=True
-SFINCS_JAX_GMRES_DISTRIBUTED=0
-SFINCS_JAX_MATVEC_SHARD_AXIS=off
-SFINCS_JAX_RHSMODE1_DENSE_PAS_MAX=0
+PYTHONPATH=/Users/rogeriojorge/local/tests/sfincs_jax_main_clean:$PYTHONPATH
 ```
 
 Important wrapper detail: `profile_write_output_trace.py` must be run with
@@ -110,77 +119,39 @@ Important wrapper detail: `profile_write_output_trace.py` must be run with
 writes geometry/output fields; the resulting HDF5 has `NIterations = 0` and is
 not a transport-solve trace.
 
-### Local CPU, 13 x 15 x 8, Cold Trace
+### Local CPU, 13 x 15 x 8, Cold Traces, Optimized Main
 
-Command:
+Command template:
 
 ```bash
-PYTHONPATH=/Users/rogeriojorge/local/tests/sfincs_jax:$PYTHONPATH \
-python /Users/rogeriojorge/local/tests/sfincs_jax/scripts/profile_write_output_trace.py \
-  --input examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p142857/nu_n_0p00831565/input.namelist \
-  --trace-dir examples/outputs/sfincs_jax_rhsmode1_profile_current_profiling/cpu_smoke_solution_trace \
-  --out examples/outputs/sfincs_jax_rhsmode1_profile_current_profiling/cpu_smoke_solution_outputs/sfincsOutput_profiled.h5 \
-  --warmup 0 --perfetto --compute-solution \
-  --device-memory-profile examples/outputs/sfincs_jax_rhsmode1_profile_current_profiling/cpu_smoke_solution_trace/device_memory.prof
+PYTHONPATH=/Users/rogeriojorge/local/tests/sfincs_jax_main_clean:$PYTHONPATH \
+JAX_ENABLE_X64=True \
+python /Users/rogeriojorge/local/tests/sfincs_jax_main_clean/scripts/profile_write_output_trace.py \
+  --input <finite-beta-rhsmode1-input.namelist> \
+  --trace-dir examples/outputs/sfincs_jax_v1p1_profile_current/<rho>_trace \
+  --out <deck-dir>/sfincsOutput.h5 \
+  --warmup 0 \
+  --perfetto \
+  --compute-solution \
+  --device-memory-profile examples/outputs/sfincs_jax_v1p1_profile_current/<rho>_trace/device_memory.prof
 ```
 
 Result:
 
-- completed
-- `write_sfincs_jax_output_h5`: `4.659 s`
-- `solve_v3_full_system_linear_gmres`: `3.757 s`
-- RHSMode=1 Schur preconditioner build: `0.594 s`
-- top overhead after the solve: JAX/PJIT cache misses and lowering
-- Perfetto/XPlane trace written under
-  `examples/outputs/sfincs_jax_rhsmode1_profile_current_profiling/cpu_smoke_solution_trace/`
+- all three committed low-resolution radii completed
+- the optimized SFINCS-JAX policy reached residuals near roundoff on these
+  small systems
+- representative traced wall times were about `15-20 s` including compilation,
+  profiler overhead, diagnostics, and HDF5 write
+- observed max resident set size was about `3.1 GB`
+- device-memory snapshots were written under
+  `examples/outputs/sfincs_jax_v1p1_profile_current/*/device_memory.prof`
 
-### Local CPU, 13 x 15 x 8, Warm Trace
+The low-resolution current values did not change relative to the prior
+diagnostic; the optimized release improved the smoke runtime/profiling lane, not
+the finite-beta profile-current physics gap.
 
-Same command with `--warmup 1`.
-
-Result:
-
-- completed
-- traced `write_sfincs_jax_output_h5`: `1.155 s`
-- traced `solve_v3_full_system_linear_gmres`: `1.126 s`
-- trace still shows Python/JAX tracing overhead in `custom_linear_solve`,
-  `trace_to_jaxpr`, and GMRES application
-- current output is identical to the cold trace
-
-### Office GPU, 13 x 15 x 8, Cold and Warm Traces
-
-The remote GPU host has two RTX A4000 GPUs.  The run used GPU 0 with
-`CUDA_VISIBLE_DEVICES=0`.
-
-Cold result:
-
-- completed
-- `solve_v3_full_system_linear_gmres`: `15.496 s`
-- RHSMode=1 Schur/PAS preconditioner build: `6.686 s`
-- output current agrees with local CPU to roundoff
-- GPU trace artifacts were copied to
-  `examples/outputs/sfincs_jax_rhsmode1_profile_current_profiling/gpu_13x15x8/`
-
-Warm result:
-
-- completed
-- traced `solve_v3_full_system_linear_gmres`: `2.293 s`
-- traced `write_sfincs_jax_output_h5`: `2.405 s`
-- first untraced warmup solve in the same process still took about `40 s`
-- output current agrees with CPU to roundoff
-- trace artifacts were copied to
-  `examples/outputs/sfincs_jax_rhsmode1_profile_current_profiling/gpu_13x15x8_warm/`
-
-The GPU environment does not have TensorFlow installed, so the profiler logs
-
-```text
-Can't import tensorflow.python.profiler.trace
-```
-
-but JAX still writes Perfetto and XPlane profile artifacts.  Local TensorBoard
-and TensorFlow are available for inspecting copied XPlane traces.
-
-### Larger 17 x 21 x 12 RHSMode=1 Run
+### Local CPU, 17 x 21 x 12, Nx=5, Optimized Main
 
 Generated single-point deck:
 
@@ -188,62 +159,127 @@ Generated single-point deck:
 python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py \
   --rho 0.14285714285714285 --nu-n 0.00831565 \
   --n-theta 17 --n-zeta 21 --n-xi 12 --nx 5 \
-  --output-dir examples/outputs/sfincs_jax_rhsmode1_profile_current_profiling/cpu_17x21x12_deck \
-  --output-prefix examples/outputs/sfincs_jax_rhsmode1_profile_current_profiling/cpu_17x21x12_deck/payload
+  --output-dir examples/outputs/sfincs_jax_v1p1_profile_current/prod_17x21x12_deck \
+  --output-prefix examples/outputs/sfincs_jax_v1p1_profile_current/prod_17x21x12_deck/payload
 ```
 
-Local CPU profile:
+Result:
 
-- capped at `300 s`
-- no completed HDF5
-- no flushed trace or device-memory profile because the process was killed
-  before the profiler context could close
+- HDF5 output completed before the 30-minute ceiling
+- committed lightweight summary artifact:
+  `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.{json,png,pdf}`
+- solver elapsed time: `1025.714 s`
+- wrapper elapsed time: `1727.40 s`
+- wrapper exit status: `1`, after failing during/after profiler finalization
+- max resident set size: `7.65 GB`
+- peak memory footprint reported by `/usr/bin/time -lp`: `90.9 GB`
+- local Perfetto/XPlane trace did not flush; trace directory remained empty
+- output:
 
-Office GPU profile:
+```text
+FSABjHat                 = -1.2773637952477914
+FSABjHatOverRootFSAB2    = -1.29105723879398
+<J.B>/sqrt(<B^2>)        = -9.053722784664137e6 A m^-2
+residual_norm            = 1.880588e-02
+target                   = 1.088e-09
+```
 
-- capped at `300 s`
-- no completed HDF5
-- no flushed trace for the same reason
-- observed active matrix size: `42850 x 42850`
-- log reached Krylov iterations and then reported:
+Comparison to the same-profile targets at `rho=1/7`:
+
+- SFINCS-JAX vs Redl relative difference: `0.5594256372225822`
+- SFINCS-JAX vs NTX+NEOPAX relative difference: `0.6353711782394719`
+- NTX+NEOPAX vs Redl relative difference: `0.20828178269124106`
+
+The production current therefore moves toward the Redl/NTX+NEOPAX scale as the
+grid is refined, but it is not a converged profile-current reference because
+the reported linear residual remains order `1e-2`.
+
+### Office GPU, 17 x 21 x 12, Nx=5, Optimized Main
+
+The remote GPU host exposes two RTX A4000 GPUs.  The run used GPU 0 with
+`CUDA_VISIBLE_DEVICES=0`.
+
+Result:
+
+- failed after `7:56.75`
+- JAX version on the remote: `0.6.2`
+- observed GPU state before failure: GPU 0 at about `93%` utilization and
+  `12.8 GB` memory use
+- max resident set size from `/usr/bin/time -v`: `17.7 GB`
+- TensorFlow profiler hook was unavailable:
+
+```text
+Can't import tensorflow.python.profiler.trace
+```
+
+Failure:
+
+```text
+CUDA_ERROR_ILLEGAL_ADDRESS: an illegal memory access was encountered
+```
+
+The error occurred inside JAX GMRES after the same PAS-lite fallback residual
+reported by the CPU run:
 
 ```text
 strong preconditioner fallback kind=pas_lite
 residual=1.887e-02 > target=1.088e-09
 ```
 
-The last point is the most actionable diagnostic: the production-like
-profile-current deck is not failing because the geometry cannot be loaded or
-because the current normalization is unknown; it is spending the run budget in
-the RHSMode=1 preconditioner/Krylov policy and does not expose enough progress
-or partial diagnostics on timeout to build a convergence ladder.
+The remote did flush profile artifacts despite the failed solve:
 
-An older higher-pitch probe, `25 x 31 x 24, Nx=7`, was also killed after about
-30 minutes with no useful current output.
+```text
+~/ntx_sfincs_jax_v1p1/outputs/prod_17x21x12_gpu0_trace/
+  plugins/profile/2026_04_30_20_44_41/pop-os.xplane.pb
+  plugins/profile/2026_04_30_20_44_41/pop-os.trace.json.gz
+  plugins/profile/2026_04_30_20_44_41/perfetto_trace.json.gz
+```
+
+Those remote traces are intentionally not committed to NTX because the XPlane
+file is about `755 MB`; the path above is the handoff location.
+
+### Production RHSMode=3 Coefficient Ladder, Optimized Main
+
+The production coefficient ladder was rerun through the same clean SFINCS-JAX
+main checkout:
+
+- grid: `35 x 43 x 48`
+- six completed same-grid points
+- max NTX/SFINCS-JAX `L13/L31/L33` relative difference:
+  `0.02064719610195181`
+- coefficient gate: `1e-1`, passed
+- current-conditioned precision gate: still failed, with maximum precision gap
+  `29.948023011811134`
+- mean production point runtime: `5.999091423504676 s`
+
+This closes the broad finite-beta coefficient-resolution lane for the current
+owned QA case.  The remaining finite-beta current work is localized to the
+profile-current closure/observable layer and to RHSMode=1 solver convergence.
 
 ## Current Bottleneck Hypotheses
 
-1. The finite-beta RHSMode=1 profile-current path is dominated by the active-DOF
-   Schur/PAS preconditioner and fallback policy as grid size increases.
-2. GPU execution only becomes competitive after warmup.  On the small grid the
-   cold GPU path is slower than local CPU because preconditioner construction
-   and JAX compilation/lowering dominate.
-3. The current profiling wrapper cannot preserve a useful trace on timeout
-   because `jax.profiler.trace` only flushes when the context exits normally.
-4. Solver progress is too sparse for long RHSMode=1 runs.  The large case
-   reports setup and a fallback decision but not enough per-iteration residual,
-   preconditioner timing, or partial current diagnostics to diagnose convergence
-   without waiting for completion.
-5. The existing low-resolution profile-current mismatch is therefore not ready
-   to be interpreted as a physics mismatch until a resolved RHSMode=1 ladder can
-   be produced on the same profile contract.
+1. The remaining finite-beta profile-current gap is not explained by the
+   RHSMode=3 monoenergetic coefficient bridge.  The optimized production
+   coefficient ladder remains below `2.1e-2`.
+2. The `17 x 21 x 12, Nx=5` RHSMode=1 profile-current point changes the current
+   amplitude substantially relative to the `13 x 15 x 8` smoke grid, so the
+   profile-current observable is resolution sensitive.
+3. That same production point still exits with residual `1.88e-2`, so it is not
+   yet a converged reference for Redl/NTX+NEOPAX parity.
+4. The local CPU path can now produce an HDF5 output within 30 minutes, but the
+   profiler wrapper can still fail after the solve while finalizing traces.
+5. The one-GPU path reaches the same fallback residual and then fails with a
+   CUDA illegal-address error in JAX GMRES.  This is a concrete upstream GPU
+   robustness issue for this RHSMode=1 production branch.
 
 ## Requested SFINCS-JAX Developer Actions
 
 Recommended implementation work:
 
-- add a timeout-safe profiling mode that periodically flushes phase timings,
-  residual history, and partial diagnostics outside the JAX profiler context;
+- add a solve-complete/profile-finalization split so a successful HDF5 solve is
+  not reported as a failed run if Perfetto/XPlane finalization fails;
+- add timeout-safe profiling that periodically flushes phase timings, residual
+  history, and partial diagnostics outside the JAX profiler context;
 - write solver progress for RHSMode=1 every fixed number of Krylov iterations,
   including residual norm, preconditioner kind, fallback decisions, and elapsed
   time since last progress line;
@@ -253,23 +289,24 @@ Recommended implementation work:
   diagnostics, and HDF5 write;
 - expose a stable option to write partial HDF5 diagnostics on timeout when the
   state vector or current residual is available;
-- evaluate whether the Schur/PAS preconditioner can be built in lower-memory
-  chunks or with a reusable prepared structure for fixed geometry/profile
-  shape;
-- evaluate a GPU-native policy for the large RHSMode=1 branch, since the current
-  GPU run still spends substantial time in preconditioner construction and
-  fallback;
+- evaluate why the `17 x 21 x 12, Nx=5` PAS-lite fallback stalls at residual
+  `1.88e-2` and whether Schur/PAS rescue should trigger for this species/profile
+  contract;
+- evaluate the GPU illegal-address failure on the same input and JAX `0.6.2`;
+- evaluate whether RHSMode=1 Schur/PAS structures can be built in lower-memory
+  chunks or reused across a fixed geometry/profile shape;
 - add a small finite-beta RHSMode=1 profile-current regression at
   `13 x 15 x 8, Nx=5`, using the current observable above;
 - add a larger optional benchmark at `17 x 21 x 12, Nx=5` that is expected to
-  either complete within a documented budget or emit enough progress and partial
-  diagnostics to explain why it did not.
+  complete HDF5 output within a documented budget and report whether the solve
+  residual satisfies the requested tolerance.
 
 Recommended validation sequence after those changes:
 
 1. Re-run `13 x 15 x 8, Nx=5` CPU and GPU, warm and cold, and confirm the
    current remains `FSABjHatOverRootFSAB2 = -0.44600080476476256` at `rho=1/7`.
-2. Re-run `17 x 21 x 12, Nx=5` with full progress logging and no hard timeout.
+2. Re-run `17 x 21 x 12, Nx=5` with full progress logging and require the
+   residual to converge, not just the HDF5 output to exist.
 3. Only if that converges, run the six-point finite-beta radial/collisionality
    profile-current ladder.
 4. Compare that ladder to the existing coefficient-level finite-beta ladder and
