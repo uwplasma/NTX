@@ -220,9 +220,11 @@ python scripts/benchmark_scaling.py --help
 
 Full example coverage is in [docs/examples.md](docs/examples.md).
 
-## Current Open Research Lanes
+## Non-Blocking Research Lanes
 
-The major open lanes are:
+The current release-facing lanes are closed or explicitly scoped as stress
+diagnostics. Remaining work is intentionally kept as future research and must
+not be promoted until its acceptance gates pass:
 
 - full geometry-family reproduction on production-resolution W7-X, QI, QA/QH, and
   additional stellarator-family inputs,
@@ -240,7 +242,9 @@ The major open lanes are:
 - broader profile, uncertainty, and robust-design studies before promoting
   stellarator-design claims.
 
-The live roadmap is in [docs/research-roadmap.md](docs/research-roadmap.md).
+The live roadmap and promotion criteria are in
+[docs/research-roadmap.md](docs/research-roadmap.md) and
+[docs/benchmark-matrix.md](docs/benchmark-matrix.md).
 
 ## Documentation
 

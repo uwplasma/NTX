@@ -149,6 +149,29 @@ def test_build_benchmark_matrix_script_writes_machine_readable_artifact(tmp_path
     )
 
 
+def test_release_facing_docs_scope_future_work_without_open_blocker_language():
+    release_docs = (
+        ROOT / "README.md",
+        ROOT / "docs" / "ship-checklist.md",
+        ROOT / "docs" / "benchmark-matrix.md",
+        ROOT / "docs" / "repo-hygiene.md",
+    )
+    forbidden = (
+        "Current Open Research Lanes",
+        "Blocking Lanes",
+        "Do not merge",
+        "Partly closed",
+        "In progress",
+        "open lane",
+        "open work",
+        "stays open",
+    )
+    for path in release_docs:
+        text = path.read_text(encoding="utf-8")
+        for phrase in forbidden:
+            assert phrase not in text, (path, phrase)
+
+
 def test_benchmark_evaluation_status_and_payload_branches(tmp_path):
     entry = BenchmarkEntry(
         id="unit_gate",

@@ -1,8 +1,9 @@
 # Research Roadmap
 
 NTX has a strong monoenergetic transport base and a published `0.2.0` package.
-The next step is to turn the current open lanes into a research platform for
-open stellarator transport and optimization problems.
+The release-facing lanes are closed or explicitly scoped as non-shipping
+diagnostics. The next step is to turn the planned research lanes into a broader
+platform for open stellarator transport and optimization problems.
 
 This page summarizes the active development lanes, why they matter, and where
 they map onto the current source tree.
@@ -168,7 +169,7 @@ QH family cases:
 - its JSON artifact records ordinary-versus-explicit primal-volume agreement in
   addition to the AD versus centered-finite-difference mismatch metrics on both
   cases,
-- so the remaining open work is no longer "projected versus relaxed
+- so the non-promoted follow-up is no longer "projected versus relaxed
   equilibrium", but rather additional geometry families, integrated-current
   objectives on the explicit-relaxed lane, and reverse-mode equilibrium paths.
 
@@ -324,11 +325,13 @@ around them:
 Those lessons are already reflected in the current NTX public API, parallel
 execution notes, and the next derivative milestone.
 
-## Immediate Milestone
+## Current Milestone Status
 
-The derivative-audit and prepared implicit-adjoint milestones are now in place.
-The active implementation milestone is therefore the benchmark-matrix hardening
-lane:
+The release-facing derivative, benchmark-matrix, geometry-backend, finite-beta
+stress, NEOPAX export, CI, package, and documentation lanes are now closed or
+explicitly scoped as non-shipping diagnostics. The remaining items are
+promotion criteria for future research claims, not blockers for the current
+shipping code:
 
 1. keep every promoted result mapped to a script, test, artifact, and manuscript
    figure through `scripts/build_benchmark_matrix.py`,
@@ -346,8 +349,8 @@ lane:
    total-current stress gate until a transferable species-resolved closure model
    also passes the integrated W7-X gate.
 
-This is the shortest path from a strong forward solver to a research tool with
-reviewable validation claims instead of isolated example scripts.
+This keeps NTX as a research tool with reviewable validation claims instead of
+isolated example scripts or unsupported parity language.
 
 ## Next Development Pass
 

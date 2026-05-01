@@ -150,9 +150,10 @@ docs/_static/geometry_control_derivative_benchmark.json
 ```
 
 This is an artifact-backed autodiff stress benchmark. It is not yet a
-large-geometry-control validation claim; the open lane is to transfer the same
-audit to reusable VMEC/Boozer geometry-control families and to compare geometry
-pullbacks with a prepared implicit-adjoint path once that pullback exists.
+large-geometry-control validation claim; the non-promoted follow-up is to
+transfer the same audit to reusable VMEC/Boozer geometry-control families and to
+compare geometry pullbacks with a prepared implicit-adjoint path once that
+pullback exists.
 The JSON sidecar is checked by the physics-gate registry with a current
 acceptance threshold of `2e-4` maximum relative direct-AD/finite-difference
 mismatch on this owned analytic surface.
@@ -185,11 +186,12 @@ docs/_static/file_backed_geometry_control_derivative_benchmark.pdf
 docs/_static/file_backed_geometry_control_derivative_benchmark.json
 ```
 
-This closes part of the previous open lane: the derivative audit now transfers
-from an owned analytic surface to repository-owned file-backed magnetic
-geometry. It is still a stress benchmark rather than a promoted design claim,
-since the remaining open work is a reusable family of VMEC/Boozer controls plus
-prepared implicit-adjoint geometry pullbacks.
+This closes the first file-backed slice of the geometry-control derivative
+path: the derivative audit now transfers from an owned analytic surface to
+repository-owned file-backed magnetic geometry. It is still a stress benchmark
+rather than a promoted design claim, since the non-promoted follow-up is a
+reusable family of VMEC/Boozer controls plus prepared implicit-adjoint geometry
+pullbacks.
 The committed JSON sidecar is now a physics gate with a `5e-4` maximum relative
 direct-AD/finite-difference mismatch threshold on the file-backed samples.
 
@@ -307,7 +309,7 @@ This is the first committed self-consistent boundary-to-current forward-mode
 benchmark family. The JSON artifact records that the ordinary and explicit
 relaxed primal volumes agree on both committed cases, so the benchmark is not
 just an internally consistent autodiff loop on a different equilibrium branch.
-The remaining open work is now narrower:
+The non-promoted follow-up is now narrower:
 
 - widen from the committed QA/QH cases to additional geometry families,
 - add integrated-current objectives on the supported explicit-relaxed lane,
@@ -495,7 +497,7 @@ docs/_static/bootstrap_current_robust_optimization.json
 
 This is a synthetic robust-design benchmark anchored to the same differentiable
 current-response workflow as the main optimization example. It is currently a
-tracked open lane, not a literature-grade validation claim. The JSON artifact
+tracked stress diagnostic, not a literature-grade validation claim. The JSON artifact
 separates `robust_objective_relative_change`, which gates the optimization
 workflow, from `weighted_current_ratio`, which is a signed current-profile
 diagnostic and should not be interpreted as a standalone parity claim.

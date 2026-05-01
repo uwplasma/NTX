@@ -8,7 +8,7 @@ each claim or monitored stress lane to:
 - tests,
 - committed artifacts,
 - manuscript figures,
-- and open work that must not be promoted yet.
+- and non-promoted future work that must not be promoted yet.
 
 Generate the machine-readable artifact with:
 
@@ -50,7 +50,7 @@ Current software gates are:
 
 Current stress gates are:
 
-| Gate | Why It Stays Open |
+| Gate | Current Non-Promoted Scope |
 | --- | --- |
 | Fixed-field species-current closure parity | the total current passes the scoped stress gate, but species-resolved current decomposition and broader closure defaults remain reduced-closure issues |
 | Synthetic inverse-design recovery | useful differentiable workflow check, but too small to be a research-grade geometry claim |
@@ -71,7 +71,8 @@ Current stress gates are:
 | Owned finite-beta SFINCS-JAX generation contract | same-grid finite-beta SFINCS-JAX input generation, six-point completed HDF5 ladder ingestion including the profile-current stress neighborhood, exact radial interpolation, PAS `nuD` bridge, coefficient-level NTX comparison, a `35 x 43 x 48` production stress-radius resolution/harmonic-cutoff probe, a completed six-point production radial/collisionality coefficient ladder, and an accepted high-`Nxi` RHSMode=1 pitch stress gap below `1.5e-1` are artifact-backed |
 | Owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress | same finite-beta VMEC wout, Boozer transform, normalized-radius `B00(rho)` field convention, analytic profile contract, production radial/collisionality ladder, adaptive physical `nu/v` support, `D33_spitzer` audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure-quadrature sidecar, source-channel sidecar, profile source-response sidecar, closure-target driver sidecar, and production SFINCS-JAX coefficient ladder sidecar are artifact-backed; this is closed as a reduced-closure stress benchmark with the current high-order source response classified as mixed density/electric and temperature-gradient physics, not as a broad full-collision parity claim |
 
-Planned lanes that must stay visible are:
+Planned lanes are not release blockers. They stay visible so future work has
+clear promotion criteria instead of drifting into unsupported claims:
 
 | Lane | Required Before Promotion |
 | --- | --- |

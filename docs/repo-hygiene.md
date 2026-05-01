@@ -8,6 +8,22 @@ preserving benchmark reproducibility.
 The tracked worktree is clean after the latest ship-readiness commits. No
 tracked benchmark artifact was removed during the cleanup pass.
 
+The canonical local checkout for commits, pushes, and collaborator-facing
+relative paths is:
+
+```text
+/Users/rogeriojorge/local/NTX
+```
+
+Do not maintain a second writable NTX checkout under nearby code directories.
+If a sibling project needs `../NTX/...`, use a symlink to the canonical checkout
+rather than a stale clone. The local NEOPAX sibling path currently follows that
+policy:
+
+```text
+/Users/rogeriojorge/local/several_codes/NTX -> /Users/rogeriojorge/local/NTX
+```
+
 The following reproducible local artifacts were removed from the NTX worktree:
 
 - Python bytecode caches,

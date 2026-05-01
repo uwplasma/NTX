@@ -19,7 +19,7 @@ The gate hierarchy behind those layers is now documented explicitly in
 
 The maintained benchmark matrix in [`benchmark-matrix.md`](benchmark-matrix.md)
 maps each promoted claim and monitored stress lane to its scripts, tests,
-artifacts, manuscript figures, and open work.
+artifacts, manuscript figures, and non-promoted future work.
 
 ## Validation Philosophy
 
@@ -170,7 +170,7 @@ The closure-localization sidecar makes this split explicit: at the current
 stress radius, the nearest same-grid coefficient difference is about `1.3e-2`,
 the profile-current difference is about `2.2e-1`, and the current/coefficient
 error ratio is about `17`. The maximum same-grid coefficient difference remains
-about `2.1e-2`, so the open work stays focused on the reduced
+about `2.1e-2`, so the non-promoted follow-up is scoped to the reduced
 momentum/profile-current observable and production profile-current closure.
 The profile-current observable audit then shows that the stress-radius momentum
 correction has the correct sign but overshoots the Redl target correction by
@@ -186,15 +186,15 @@ same-grid coefficient precision near `1e-3` at sensitive radii, tighter than
 the completed coefficient ladders.
 The production stress probe and six-point radial/collisionality ladder keep the
 same-grid finite-beta coefficient differences near `2.1e-2`. That closes the
-production coefficient ladder as a broad numerical failure and leaves the
-remaining parity work at the profile-current closure layer.
+production coefficient ladder as a broad numerical failure and scopes the
+non-promoted finite-beta parity work to the profile-current closure layer.
 The production radial/collisionality ladder then runs the six same-grid
 finite-beta QA SFINCS-JAX points at `35 x 43 x 48`. The optimized SFINCS-JAX
 main-branch refresh leaves all completed points below `2.07e-2` coefficient
 difference; the maximum precision gap is still the inner `rho=1/7`,
 `nuPrime=1e-2` point. That closes the production coefficient ladder as a broad
-numerical failure and leaves the remaining parity work at the profile-current
-closure and converged RHSMode=1 profile-current layers.
+numerical failure and scopes the non-promoted finite-beta parity work to the
+profile-current closure and converged RHSMode=1 profile-current layers.
 The closure-quadrature audit then varies only the momentum-closure Sonine order
 and velocity quadrature while holding the finite-beta scan, profiles, Redl
 observable, and normalization fixed. After the Boozer-field radius fix, the
@@ -749,7 +749,7 @@ The sharper reading is now:
 - the conductivity-side `D33_spitzer - D33` interpretation remains a useful
   audit clue on the precise-QS fixed-field archive, but it is not the active
   database-normalization path for the integrated workflow
-- the remaining open lane is therefore the precise-QS closure/model gap, not
+- the non-promoted follow-up is therefore the precise-QS closure/model gap, not
   the W7-X database handoff or interpolation
 
 The W7-X picture is now more specific than before:

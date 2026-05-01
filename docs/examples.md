@@ -203,8 +203,8 @@ convergence scan instead of promoting the figure as parity.
 The closure-localization script then overlays these two committed sidecars. It
 shows that the same-grid `L13/L31/L33` coefficient ladder remains below the
 coefficient gate, while the profile-current residual is still larger than the
-`1e-1` current gate; the open lane is therefore the reduced profile-current
-observable rather than the monoenergetic coefficient bridge.
+`1e-1` current gate; the non-promoted follow-up is therefore the reduced
+profile-current observable rather than the monoenergetic coefficient bridge.
 The profile-current observable audit decomposes the same stress radius into the
 no-momentum current, applied momentum correction, correction needed to match the
 Redl target, Pmax trend, species-current cancellation scale, and local
@@ -372,7 +372,7 @@ no runtime interpolation policy is promoted.
 
 The matched closure-quadrature panel repeats the Sonine/quadrature sweep after
 removing the sparse-radius interpolation layer. It still has zero
-quadrature-stable current-gate passes, so the open lane remains a
+quadrature-stable current-gate passes, so the non-promoted follow-up remains a
 quadrature-stable reduced profile-current closure.
 
 ![Owned finite-beta field-radius-matched source-channel audit](_static/owned_finite_beta_field_radius_matched_source_channel_audit.png)

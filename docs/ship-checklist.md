@@ -1,23 +1,27 @@
 # Ship Checklist
 
-For each NTX release, open research and software lanes should either be closed
-or explicitly moved to documented future work with a clear reason.
+For each NTX release, research and software lanes should either be closed or
+explicitly moved to documented future work with a clear reason.
 
-## Blocking Lanes
+## Release Lane Status
 
-| Lane | Current Status | Required Before Merge |
+There are no unresolved release blockers in the current tree. Items below that
+say "future work" or "monitor" are deliberately excluded from shipping claims
+until their benchmark-matrix promotion criteria pass.
+
+| Lane | Current Status | Release Rule |
 | --- | --- | --- |
-| Code refactoring | Partly closed; continue | Public facades remain stable while solver, bootstrap-autodiff, profile dataclass, validation artifact-gate, and input/output ownership have been split into smaller internal modules; keep shrinking only with tests and docs. |
-| Repository hygiene | Current worktree audited | Split the dirty worktree into reviewable commit batches; all current untracked source/artifact files are tied to scripts/tests/docs, and local caches should stay removed. |
+| Code refactoring | Closed for current release; continue opportunistically | Public facades remain stable while solver, bootstrap-autodiff, profile dataclass, validation artifact-gate, and input/output ownership have been split into smaller internal modules; keep shrinking only with tests and docs. |
+| Repository hygiene | Closed for current release | Current worktree is clean; `/Users/rogeriojorge/local/NTX` is the canonical checkout and sibling paths should point there instead of carrying stale checkouts. |
 | CI runtime and coverage | Closed; monitor | Maintain `>=95%` repository-owned coverage, module floors, and a normal CI wall time near `5-10` minutes. |
-| Literature-anchored physics gates | In progress | Add or preserve fast gates for convergence, Onsager residuals, exact low-order recovery, coefficient sign/normalization, and artifact-backed literature comparisons. |
+| Literature-anchored physics gates | Closed for current release; extend only with artifacts | Current analytical, transfer, and independent-comparison gates pass; future gates must map to scripts, tests, artifacts, and docs. |
 | Fixed-field `NTX+NEOPAX` closure | Scoped total-current stress gate closed | Keep the passing QA/QH total-current stress gate artifact-backed; do not claim species-current parity or promote a broader default closure unless a physics-derived model preserves this gate and the integrated W7-X raw-branch transfer. No fitted bridge constants. |
 | Multi-CPU and multi-GPU algorithms | Production and strong-scaling maps artifact-backed; monitor | CPU/GPU/device-parallel/multiprocess crossover maps, fixed-workload strong-scaling maps, and prepared-geometry reuse profiles are artifact-backed; promote only algorithms that beat serial batched JAX on the target production workload. Additional healthy GPU nodes and device-memory timelines remain future work. |
 | `vmec_jax` and `booz_xform_jax` integration | Closed for first release; broader sensitivities planned | Keep projected-boundary and explicit-relaxed lanes as the promoted differentiable paths; the implicit-equilibrium diagnostic is documented as non-shipping. |
-| SFINCS comparisons | Partly closed | Add more artifact-backed comparisons with aligned physics settings and normalizations; distinguish promoted agreement gates from monitored stress gates. |
-| Documentation | In progress | Keep docs synchronized with source layout, benchmark matrix, test lanes, performance guidance, examples, and release path. |
+| SFINCS comparisons | Closed for current release; broader parity future work | Promoted comparison claims are artifact-backed and scoped; additional comparisons must align physics settings and normalizations before promotion. |
+| Documentation | Closed for current release; monitor | Keep docs synchronized with source layout, benchmark matrix, test lanes, performance guidance, examples, and release path. |
 | Implicit-equilibrium derivative lane | Closed as non-shipping diagnostic | Do not promote this path for optimization claims; restore only after Boozer and NTX transport observables match centered finite differences, not just equilibrium volume. |
-| Broader W7-X/QI/omnigenous families | Production stress artifact added | Keep the new VMEC family convergence artifact as reduced NTX stress evidence; add independent-code parity, owned W7-X KJM input coverage, and radial/electric-field ladders before promotion. |
+| Broader W7-X/QI/omnigenous families | Closed as stress evidence; promotion future work | Keep the VMEC family convergence artifact as reduced NTX stress evidence; add independent-code parity, owned W7-X KJM input coverage, and radial/electric-field ladders before promotion. |
 | PyPI/release automation | Closed for `v0.2.0`; monitor | PyPI Trusted Publishing published `v0.2.0` from `release.yml`; future releases should keep the same green-CI, tag, artifact-provenance, and PyPI smoke-test path. |
 
 ## Acceptance Criteria

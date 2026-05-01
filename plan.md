@@ -42,8 +42,9 @@ research problems.
   - keep fixed-field Redl/SFINCS audits separate from finite-beta integrated
     workflow audits
   - the README now carries the fixed-field precise-QS comparison figure as the
-    current validation status view, but the QA momentum-correction closure is
-    still an active audit lane rather than a closed parity claim
+    current validation status view; the QA/QH momentum-correction comparison is
+    closed as a scoped total-current reduced-closure stress gate, not as a
+    species-current parity claim
   - the validation surface is now codified as explicit physics gates:
     - analytical identities and exact `P=2` recovery
     - independent-code comparison gates
@@ -65,11 +66,13 @@ research problems.
 - [x] shift near-term work toward CI speed, packaging, manuscript clarity, and
   reproducibility rather than new closure-model physics
 
-## Pre-Merge Gate Decision
+## Release Gate State
 
-Do not merge, tag, or ship this branch until the open-lane checklist in
-[`docs/ship-checklist.md`](docs/ship-checklist.md) is satisfied. The release
-order is:
+The release-facing checklist in
+[`docs/ship-checklist.md`](docs/ship-checklist.md) is satisfied for the current
+tree. Future work remains visible, but it is explicitly excluded from shipping
+claims until its benchmark-matrix promotion criteria pass. The maintained
+release order is:
 
 1. close repository hygiene and commit batching,
 2. lock CI runtime and `>=95%` coverage,
@@ -685,7 +688,7 @@ Research-grade / positive validation surface:
 - derivative audit against centered finite differences
 - prepared derivative benchmark
 
-Tracked stress benchmarks / open lanes:
+Tracked stress diagnostics / non-promoted follow-ups:
 
 - fixed-field `NTX+NEOPAX` closure gap
 - primitive-to-force profile reconstruction audit
@@ -694,9 +697,9 @@ Tracked stress benchmarks / open lanes:
 - boundary-to-output forward-mode derivative benchmark on boundary-projected
   `vmec_jax` geometry
 
-These open lanes stay in the repository on purpose. They are useful research
-and methods surfaces, but they should not be promoted to parity or literature
-claims until they are anchored to stronger external baselines.
+These non-promoted follow-ups stay in the repository on purpose. They are useful
+research and methods surfaces, but they should not be promoted to parity or
+literature claims until they are anchored to stronger external baselines.
 - [x] targeted branch-coverage tightening landed on the refactored workflow
   modules without adding a new heavy benchmark lane:
   - `_autodiff_workflows.py` now closes fully in the current fast coverage
@@ -794,7 +797,7 @@ claims until they are anchored to stronger external baselines.
     `docs/_static/file_backed_geometry_control_derivative_benchmark.{png,pdf,json}`
   - current default max AD/centered-finite-difference mismatch is about
     `2.1e-4`
-  - remaining open work is now broader reusable geometry families plus a
+  - non-promoted follow-up is now broader reusable geometry families plus a
     prepared implicit-adjoint geometry pullback, not the basic transfer from
     analytic to file-backed geometry
 - [x] manuscript artifact hardening now includes the geometry-control stress
@@ -1507,7 +1510,7 @@ templates:
   - the `RHSMode=3` monoenergetic audit remains useful, but it does not probe
     the full zero-`E_r` bootstrap-current closure because it omits the
     temperature-gradient (`A2`) drive entirely
-  - so the remaining open problem is no longer a generic sign or
+  - so the non-promoted problem is no longer a generic sign or
     benchmark-family bug; it has narrowed to the full parallel-flow closure,
     especially the `RHSMode=2` row-3 (`L31/L32`) thermal channel and the final
     current observable map
@@ -1778,8 +1781,8 @@ templates:
     - a direct coefficient-path audit now shows the same thing internally:
       default NTSS-style `get_Dij`, direct 3D cubic interpolation, and direct
       3D linear interpolation all reproduce the same cached QA/QH errors
-    - therefore interpolation is now documented and bounded, and the remaining
-      open lane is still the momentum-correction closure equations
+    - therefore interpolation is now documented and bounded, and the
+      non-promoted follow-up is still the momentum-correction closure equations
     - a cached channel-sensitivity probe sharpens that closure result:
       perturbing `D13` away from the current bridge worsens QA/QH rapidly,
       while perturbing `D33` moves the fixed-field current comparison strongly
@@ -1789,7 +1792,7 @@ templates:
     - the baseline `c0` map is still the least-bad simple universal rule
     - weighted and fitted linear remaps do not transfer across the fixed-field
       archive and the shipped W7-X regression
-    - therefore the remaining open lane is not an output remap; it is the
+    - therefore the non-promoted follow-up is not an output remap; it is the
       momentum-correction closure equations themselves
   - two more candidate explanations are now closed:
     - switching the NTX-to-NEOPAX handoff back from `D33_spitzer` to raw `D33`
@@ -1829,7 +1832,7 @@ templates:
       - QH `4.06e-2`
     - interpolation remains bounded out of the dominant error budget on this
       benchmark
-    - the active open lane is again the momentum-correction closure equations
+    - the active non-promoted follow-up is again the momentum-correction closure equations
       themselves
   - physically motivated `D33` audit result:
     - Escoto's DKES-comparison appendix implies that the conductivity-side
@@ -1917,9 +1920,9 @@ templates:
         `1.16e+0` on both QA and QH
       - Redl remains closer on that archive (`6.86e-2` on QA and `4.06e-2`
         on QH, interior window)
-    - the open parity lane is therefore now narrower and cleaner:
+    - the non-promoted parity follow-up is therefore now narrower and cleaner:
       - integrated W7-X database parity is closed on the raw branch
-      - the remaining open lane is the precise-QS closure/model discrepancy,
+      - the non-promoted follow-up is the precise-QS closure/model discrepancy,
         not interpolation, not the W7-X handoff, and not a stale-cache issue
   - latest closure and performance follow-up on the corrected raw branch:
     - the fixed-field cached momentum-correction diagnostic was rerun on the
@@ -1961,7 +1964,7 @@ templates:
       - stabilizing shapes and dtypes
       - hoisting compiled closure calls
       - and only then revisiting deeper kernel/vectorization work
-    - two immediate follow-up probes now narrow the remaining open lanes
+    - two immediate follow-up probes now narrow the remaining non-promoted follow-ups
       further:
       - the cache-aware raw-branch QA diagnostic now dumps the explicit
         additive correction terms from the moment-equation assembly, and those
