@@ -64,6 +64,9 @@ For end-to-end examples, see:
 - [`examples/owned_finite_beta_sfincs_jax_profile_current_audit.py`](../examples/owned_finite_beta_sfincs_jax_profile_current_audit.py)
   for the direct RHSMode=1 profile-current diagnostic on the same finite-beta
   VMEC/profile contract used by Redl and `NTX+NEOPAX`
+- [`examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py`](../examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py)
+  for the pitch Legendre truncation audit that keeps finite-beta current parity
+  gated on adjacent high-`Nxi` convergence rather than a single attractive point
 - [`examples/owned_finite_beta_bootstrap_comparison.py`](../examples/owned_finite_beta_bootstrap_comparison.py)
   for an owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress
   audit on the same VMEC wout, Boozer transform, profiles, radial grid, and

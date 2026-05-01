@@ -207,6 +207,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `owned_finite_beta_sfincs_jax_resolution_audit.py`
 - `owned_finite_beta_sfincs_jax_production_ladder_audit.py`
 - `owned_finite_beta_sfincs_jax_profile_current_audit.py`
+- `owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py`
 - `owned_finite_beta_bootstrap_comparison.py`
 - `owned_finite_beta_closure_localization.py`
 - `owned_finite_beta_profile_current_observable_audit.py`

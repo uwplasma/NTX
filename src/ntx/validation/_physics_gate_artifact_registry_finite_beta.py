@@ -107,6 +107,23 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress",
+        category="stress",
+        metric="RHSMode=1 profile-current high-Nxi even/odd parity gap",
+        relation="monitor",
+        threshold=None,
+        source=(
+            "docs/_static/"
+            "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
+        ),
+        rationale=(
+            "The RHSMode=1 current observable is sensitive to the terminal "
+            "Legendre pitch moment. Adjacent high-Nxi even and odd truncations "
+            "must agree before the finite-beta current comparison can be used "
+            "as a parity claim."
+        ),
+    ),
+    PhysicsGate(
         name="owned_finite_beta_closure_quadrature_stress",
         category="stress",
         metric="under-integrated finite-beta closure gate-pass count",

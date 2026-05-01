@@ -146,6 +146,7 @@ python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_sfincs_jax_resolution_audit.py
 python examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py
 python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py
+python examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
@@ -274,6 +275,9 @@ It writes:
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json`
 - `examples/outputs/owned_finite_beta_sfincs_jax_inputs/**/input.namelist`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.png`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
@@ -320,6 +324,8 @@ It writes:
 ![Owned finite-beta SFINCS-JAX production ladder audit](_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png)
 
 ![Owned finite-beta SFINCS-JAX profile-current diagnostic](_static/owned_finite_beta_sfincs_jax_profile_current_audit.png)
+
+![Owned finite-beta SFINCS-JAX profile-current pitch-resolution audit](_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png)
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 

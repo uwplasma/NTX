@@ -93,6 +93,20 @@ def append_finite_beta_artifact_gates(
     )
     _append_summary_metric_gate(
         results,
+        gate_name="owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress",
+        path=(
+            static_root
+            / "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
+        ),
+        metric_key="tail_even_odd_relative_gap",
+        details=(
+            "monitored finite-beta RHSMode=1 SFINCS-JAX pitch Legendre "
+            "truncation stress metric; adjacent high-Nxi parity branches "
+            "must agree before promoting profile-current parity"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
         gate_name="owned_finite_beta_closure_quadrature_stress",
         path=static_root / "owned_finite_beta_closure_quadrature_audit.json",
         metric_key="underintegrated_gate_pass_count",

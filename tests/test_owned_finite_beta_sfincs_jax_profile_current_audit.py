@@ -46,6 +46,7 @@ def test_profile_current_audit_writes_rhs1_deck(tmp_path: Path):
     deck = payload["decks"][0]
     assert deck["n_hat"] == pytest.approx(3.996484375)
     assert deck["t_hat"] == pytest.approx(9.125)
+    assert deck["solver_trace_path"].endswith("sfincsOutput.solver_trace.json")
     input_text = Path(deck["input_path"]).read_text()
     assert "RHSMode = 1" in input_text
     assert f'equilibriumFile = "{wout_path}"' in input_text
@@ -68,6 +69,14 @@ def test_profile_current_audit_summarizes_h5_current(tmp_path: Path):
         handle["collisionOperator"] = 1
         handle["Ntheta"] = 5
         handle["nu_n"] = 8.31565e-3
+        handle["linearSolverMethod"] = "sparse_pc_gmres"
+        handle["linearSolverResidualNorm"] = 9.0e-16
+        handle["linearSolverResidualTarget"] = 1.0e-9
+        handle["linearSolverConverged"] = 1
+        handle["linearSolverTrueResidualConverged"] = 1
+        handle["linearSolverAccepted"] = 1
+        handle["linearSolverAcceptanceCriterion"] = "true_residual"
+        handle["linearSolverIterations"] = 4
 
     summary = audit._summarize_profile_output(output_path)
 
@@ -80,6 +89,11 @@ def test_profile_current_audit_summarizes_h5_current(tmp_path: Path):
     )
     assert summary["scalars"]["RHSMode"] == 1
     assert summary["scalars"]["nu_n"] == pytest.approx(8.31565e-3)
+    assert summary["solver"]["linearSolverMethod"] == "sparse_pc_gmres"
+    assert summary["solver"]["linearSolverAcceptanceCriterion"] == "true_residual"
+    assert summary["solver"]["linearSolverIterations"] == 4
+    assert summary["solver"]["true_residual_over_target"] == pytest.approx(9.0e-7)
+    assert summary["solver"]["true_residual_gate_pass"] is True
 
 
 def test_profile_current_audit_builds_empty_status_figure(tmp_path: Path):

@@ -286,23 +286,24 @@ docs/sfincs-jax-rhsmode1-profile-current-handoff.md
 
 The current profiling result is:
 
-- SFINCS-JAX `1.1.0` on clean `origin/main` completes the
-  `13 x 15 x 8, Nx=5` three-radius smoke profile-current artifact quickly on
-  local CPU, with residuals near roundoff and unchanged current amplitudes
-- the same clean checkout completes the `17 x 21 x 12, Nx=5` inner-radius HDF5
-  output on local CPU in about `17.1 min`, but the solve residual remains
-  `1.88e-2` against target `1.09e-9`
-- the production-point summary is committed as
-  `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.{json,png,pdf}`
-- the CPU profiling wrapper then fails while finalizing traces at about
-  `28.8 min`, with max RSS about `7.65 GB` and no local trace flushed
-- the office one-GPU run reaches the same PAS-lite fallback residual and then
-  fails with `CUDA_ERROR_ILLEGAL_ADDRESS`; the remote does write Perfetto/XPlane
-  artifacts, but the largest trace is about `755 MB` and is kept off-repo
+- SFINCS-JAX `1.1.0` at `df0c70d` completes the `13 x 15 x 8, Nx=5`
+  three-radius smoke profile-current artifact in `24.7 s` total on local CPU;
+  all three HDF5 outputs pass the true-residual metadata gate
+- the same checkout completes the `17 x 21 x 12, Nx=5` inner-radius HDF5 output
+  in `9.90 s` wall time with `1.55 GB` max RSS, `sparse_pc_gmres`, and
+  true-residual/target `8.45e-7`
+- a three-radius `25 x 31 x 17, Nx=11` production ladder completes in
+  `383.16 s` with about `9.46 GB` max RSS and true-residual gates passing at
+  every radius
+- the pitch-resolution audit shows the remaining RHSMode=1 profile-current
+  discrepancy is not a residual failure: high-`Nxi` even/odd Legendre
+  truncations still differ by `1.323e-1`
+- a same-grid `collisionOperator=0` full-collision probe timed out after
+  `901.76 s` and about `9.97 GB` max RSS without a completed current output
 
-That lane remains a SFINCS-JAX solver/profiling handoff, not an NTX physics
-claim.  The bootstrap-current figure should not be promoted until the
-same-contract RHSMode=1 ladder can be converged.
+The old sparse-solver runtime lane is closed.  The finite-beta current figure
+should still not be promoted until the same-contract RHSMode=1 pitch truncation
+and full-collision physics branches are converged.
 
 ## Reproducibility
 

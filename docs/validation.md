@@ -258,6 +258,9 @@ These scripts write:
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.png`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.json`
@@ -306,16 +309,24 @@ These scripts write:
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_25x31x17.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_25x31x17.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_25x31x17.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json`
 - `examples/outputs/owned_finite_beta_bootstrap_comparison/*.h5`
 
-The next parity-promotion step is to build or import a quadrature-converged
-reduced closure that improves the profile-current stress observable without fitted
-constants, then rerun profile-current diagnostics on the same finite-beta
-production contract and audit downstream interpolation modes once NEOPAX exposes
-a stable selector. The closure-target artifact now cross-links the
-field-radius-matched source-channel and quadrature sidecars: the matched source
-solve reconstructs the corrected current, uses the same stress radius, and still
-has no current-gate pass that transfers to quadrature-stable `X >= Pmax`.
+The updated SFINCS-JAX sparse-PC branch closes the old RHSMode=1 residual
+blocker: the `17 x 21 x 12, Nx=5` point now completes in seconds with a passing
+true-residual gate, and the `25 x 31 x 17, Nx=11` three-radius production
+ladder also passes solver metadata gates.  The parity lane remains open because
+the profile-current observable is sensitive to pitch Legendre truncation: the
+new `Nxi` audit records a high-order even/odd tail gap of `1.323e-1`.
+The next parity-promotion step is therefore not another low-resolution current
+plot; it is a paired high-`Nxi` convergence ladder and a feasible
+full-collision RHSMode=1 branch, followed by the same reduced-closure audit
+without fitted constants.
 
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 
@@ -346,6 +357,8 @@ has no current-gate pass that transfers to quadrature-stable `X >= Pmax`.
 ![Owned finite-beta SFINCS-JAX profile-current diagnostic](_static/owned_finite_beta_sfincs_jax_profile_current_audit.png)
 
 ![Owned finite-beta SFINCS-JAX profile-current production probe](_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.png)
+
+![Owned finite-beta SFINCS-JAX profile-current pitch-resolution audit](_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png)
 
 ## What Is Covered
 

@@ -97,12 +97,14 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "examples/owned_finite_beta_sfincs_jax_resolution_audit.py",
             "examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py",
             "examples/owned_finite_beta_sfincs_jax_profile_current_audit.py",
+            "examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py",
         ),
         tests=(
             "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
             "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py",
             "tests/test_owned_finite_beta_sfincs_jax_production_ladder_audit.py",
             "tests/test_owned_finite_beta_sfincs_jax_profile_current_audit.py",
+            "tests/test_owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py",
         ),
         artifacts=(
             "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
@@ -126,12 +128,16 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png",
             "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf",
             "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json",
         ),
         manuscript_figures=(
             "owned_finite_beta_sfincs_jax_inputs",
             "owned_finite_beta_sfincs_jax_resolution_audit",
             "owned_finite_beta_sfincs_jax_production_ladder",
             "owned_finite_beta_sfincs_jax_profile_current_audit",
+            "owned_finite_beta_sfincs_jax_profile_current_resolution_audit",
         ),
         docs=(
             "docs/benchmark-matrix.md",
@@ -147,6 +153,10 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             (
                 "promote only after geometry, profile, normalization, and "
                 "interpolation sidecars are complete"
+            ),
+            (
+                "treat the RHSMode=1 profile-current branch as open until "
+                "adjacent high-Nxi Legendre parities agree on the same current"
             ),
         ),
     ),

@@ -89,6 +89,10 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "owned_finite_beta_resolution_floor_stress" in names
     assert "owned_finite_beta_production_ladder_stress" in names
     assert "owned_finite_beta_sfincs_jax_profile_current_stress" in names
+    assert (
+        "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        in names
+    )
     assert "owned_finite_beta_closure_quadrature_stress" in names
     assert "owned_finite_beta_source_channel_reconstruction" in names
     assert "owned_finite_beta_temperature_source_response_stress" in names
@@ -256,6 +260,18 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (
+        static_root
+        / "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
+    ).write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "tail_even_odd_relative_gap": 0.2,
+                }
+            }
+        )
+    )
     (static_root / "owned_finite_beta_closure_quadrature_audit.json").write_text(
         json.dumps(
             {
@@ -373,6 +389,18 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert (
         results["owned_finite_beta_sfincs_jax_profile_current_stress"].value
         == pytest.approx(0.85)
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].status
+        == "monitor"
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].value
+        == pytest.approx(0.2)
     )
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "monitor"
     assert results["owned_finite_beta_closure_quadrature_stress"].value == 1.0
@@ -499,6 +527,12 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
         results["owned_finite_beta_sfincs_jax_profile_current_stress"].status
         == "missing"
     )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].status
+        == "missing"
+    )
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "missing"
     assert results["owned_finite_beta_closure_target_driver_stress"].status == "missing"
     assert (
@@ -572,6 +606,18 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     )
     assert (
         results["owned_finite_beta_sfincs_jax_profile_current_stress"].value
+        > 1.0e-1
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].status
+        == "monitor"
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].value
         > 1.0e-1
     )
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "monitor"

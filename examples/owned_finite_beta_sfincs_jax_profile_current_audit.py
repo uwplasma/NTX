@@ -85,6 +85,7 @@ class SfincsProfileCurrentDeck:
     dt_hat_dr_n: float
     input_path: Path
     output_path: Path
+    solver_trace_path: Path
     wout_path: Path
     status: str
     seconds: float | None = None
@@ -93,7 +94,7 @@ class SfincsProfileCurrentDeck:
 
     def as_payload(self) -> dict[str, object]:
         payload = asdict(self)
-        for key in ("input_path", "output_path", "wout_path"):
+        for key in ("input_path", "output_path", "solver_trace_path", "wout_path"):
             payload[key] = str(payload[key])
         return payload
 
@@ -207,10 +208,13 @@ def _sfincs_profile_input_text(
 def _run_sfincs_jax_profile(
     input_path: Path,
     output_path: Path,
+    solver_trace_path: Path,
     *,
     timeout_s: int,
+    solve_method: str | None = None,
 ) -> tuple[str, float | None, str | None]:
     env = os.environ.copy()
+    env.setdefault("JAX_ENABLE_X64", "True")
     env.setdefault("SFINCS_JAX_GMRES_DISTRIBUTED", "0")
     env.setdefault("SFINCS_JAX_MATVEC_SHARD_AXIS", "off")
     # Keep the optimized SFINCS-JAX RHSMode=1 policy as the default.  The
@@ -228,8 +232,13 @@ def _run_sfincs_jax_profile(
         str(input_path),
         "--out",
         str(output_path),
+        "--compute-solution",
+        "--solver-trace",
+        str(solver_trace_path),
         "--quiet",
     ]
+    if solve_method:
+        command.extend(["--solve-method", str(solve_method)])
     start = time.perf_counter()
     try:
         subprocess.run(
@@ -255,6 +264,23 @@ def _run_sfincs_jax_profile(
     except Exception as exc:  # pragma: no cover - optional runtime.
         return "failed", time.perf_counter() - start, f"{type(exc).__name__}: {exc}"
     return "complete", time.perf_counter() - start, None
+
+
+def _read_h5_scalar(handle: Any, key: str) -> object:
+    raw = np.asarray(handle[key])
+    if raw.shape == ():
+        value = raw.item()
+    else:
+        value = raw.reshape(-1)[-1]
+    if isinstance(value, bytes):
+        return value.decode("utf-8")
+    if isinstance(value, np.bytes_):
+        return bytes(value).decode("utf-8")
+    if isinstance(value, np.integer):
+        return int(value)
+    if isinstance(value, np.floating):
+        return float(value)
+    return value
 
 
 def _last_scalar(values: np.ndarray) -> float:
@@ -296,14 +322,59 @@ def _summarize_profile_output(output_path: Path) -> dict[str, object] | None:
             "psiN",
         ):
             if key in handle:
-                value = np.asarray(handle[key])
-                if value.shape == ():
-                    raw = value.item()
+                raw = _read_h5_scalar(handle, key)
+                if isinstance(raw, (int, float)):
                     scalars[key] = int(raw) if str(key).startswith("N") or key in {
                         "RHSMode",
                         "collisionOperator",
                         "constraintScheme",
                     } else float(raw)
+        solver: dict[str, object] = {}
+        for key in (
+            "linearSolverMethod",
+            "linearSolverAcceptanceCriterion",
+        ):
+            if key in handle:
+                solver[key] = str(_read_h5_scalar(handle, key))
+        for key in (
+            "linearSolverConverged",
+            "linearSolverTrueResidualConverged",
+            "linearSolverAccepted",
+            "linearSolverIterations",
+            "linearSolverInfoCode",
+            "linearSolverLeastSquaresConverged",
+        ):
+            if key in handle:
+                raw = _read_h5_scalar(handle, key)
+                if isinstance(raw, (int, float)):
+                    solver[key] = int(raw)
+        for key in (
+            "linearSolverResidualNorm",
+            "linearSolverResidualTarget",
+            "linearSolverResidualTargetRatio",
+            "linearSolverReportedResidualNorm",
+        ):
+            if key in handle:
+                raw = _read_h5_scalar(handle, key)
+                if isinstance(raw, (int, float)):
+                    solver[key] = float(raw)
+        residual = solver.get("linearSolverResidualNorm")
+        target = solver.get("linearSolverResidualTarget")
+        if isinstance(residual, float) and isinstance(target, float) and target > 0.0:
+            solver["true_residual_over_target"] = float(residual / target)
+        residual_ratio = solver.get("true_residual_over_target")
+        accepted = solver.get("linearSolverAccepted")
+        converged = solver.get("linearSolverTrueResidualConverged")
+        if converged is None:
+            converged = solver.get("linearSolverConverged")
+        solver["true_residual_gate_pass"] = bool(
+            accepted == 1
+            and converged == 1
+            and (
+                not isinstance(residual_ratio, float)
+                or residual_ratio <= 1.0 + 1.0e-12
+            )
+        )
         return {
             "status": "complete",
             "fsab_jhat": float(fsab_jhat),
@@ -311,6 +382,7 @@ def _summarize_profile_output(output_path: Path) -> dict[str, object] | None:
             "current_over_root_fsab2_am2": float(fsab_jhat_over_root * SFINCS_JHAT_TO_AM2),
             "jhat_to_am2_scale": float(SFINCS_JHAT_TO_AM2),
             "scalars": scalars,
+            "solver": solver,
         }
 
 
@@ -369,6 +441,7 @@ def build_payload(
     solver_tolerance: float = 1.0e-7,
     min_bmn_to_load: float = 1.0e-5,
     collision_operator: int = 1,
+    solve_method: str | None = None,
     output_dir: Path = WORKDIR,
     run_sfincs_jax: bool = False,
     timeout_s: int = 300,
@@ -394,6 +467,7 @@ def build_payload(
             deck_dir.mkdir(parents=True, exist_ok=True)
             input_path = deck_dir / "input.namelist"
             output_path = deck_dir / "sfincsOutput.h5"
+            solver_trace_path = deck_dir / "sfincsOutput.solver_trace.json"
             input_path.write_text(
                 _sfincs_profile_input_text(
                     wout_path=case.wout_path,
@@ -417,7 +491,9 @@ def build_payload(
                 status, seconds, error = _run_sfincs_jax_profile(
                     input_path,
                     output_path,
+                    solver_trace_path,
                     timeout_s=int(timeout_s),
+                    solve_method=solve_method,
                 )
             elif output_path.exists():
                 status = "output_found"
@@ -447,6 +523,7 @@ def build_payload(
                     dt_hat_dr_n=dt_hat_dr_n,
                     input_path=input_path,
                     output_path=output_path,
+                    solver_trace_path=solver_trace_path,
                     wout_path=case.wout_path,
                     status=status,
                     seconds=seconds,
@@ -483,6 +560,32 @@ def build_payload(
         if deck.current_summary is not None
         and isinstance(deck.current_summary.get("comparison"), dict)
     ]
+    solver_residual_ratios = [
+        float(deck.current_summary["solver"]["true_residual_over_target"])
+        for deck in completed
+        if deck.current_summary is not None
+        and isinstance(deck.current_summary.get("solver"), dict)
+        and isinstance(
+            deck.current_summary["solver"].get("true_residual_over_target"),
+            (int, float),
+        )
+    ]
+    solver_gate_passes = [
+        bool(deck.current_summary["solver"].get("true_residual_gate_pass"))
+        for deck in completed
+        if deck.current_summary is not None
+        and isinstance(deck.current_summary.get("solver"), dict)
+        and "true_residual_gate_pass" in deck.current_summary["solver"]
+    ]
+    solver_methods = sorted(
+        {
+            str(deck.current_summary["solver"]["linearSolverMethod"])
+            for deck in completed
+            if deck.current_summary is not None
+            and isinstance(deck.current_summary.get("solver"), dict)
+            and "linearSolverMethod" in deck.current_summary["solver"]
+        }
+    )
     payload = {
         "benchmark": "owned_finite_beta_sfincs_jax_profile_current_audit",
         "classification": "owned finite-beta RHSMode=1 profile-current diagnostic",
@@ -510,6 +613,18 @@ def build_payload(
                 "useDKESExBDrift=.false., includePhi1=.false."
             ),
         },
+        "sfincs_jax_contract": {
+            "root": str(SFINCS_JAX_ROOT),
+            "jax_enable_x64": "True unless explicitly overridden in the subprocess environment",
+            "rhs_mode_1_solve_policy": (
+                "write-output --compute-solution with SFINCS-JAX auto solver "
+                "selection and a JSON solver-trace sidecar"
+            ),
+            "solver_convergence_gate": (
+                "linearSolverAccepted=1, linearSolverTrueResidualConverged=1, "
+                "and linearSolverResidualNorm <= linearSolverResidualTarget"
+            ),
+        },
         "inputs": {
             "rho": [float(value) for value in rho],
             "nu_n": [float(value) for value in nu_n],
@@ -522,6 +637,7 @@ def build_payload(
             "solver_tolerance": float(solver_tolerance),
             "min_bmn_to_load": float(min_bmn_to_load),
             "collision_operator": int(collision_operator),
+            "solve_method": solve_method,
             "bootstrap_artifact": str(bootstrap_json),
         },
         "decks": [deck.as_payload() for deck in decks],
@@ -538,6 +654,16 @@ def build_payload(
             ),
             "max_ntx_neopax_relative_error_vs_redl": (
                 float(np.max(ntx_redl_errors)) if ntx_redl_errors else None
+            ),
+            "solver_methods": solver_methods,
+            "completed_solver_converged_count": int(sum(solver_gate_passes)),
+            "max_solver_true_residual_over_target": (
+                float(np.max(solver_residual_ratios)) if solver_residual_ratios else None
+            ),
+            "all_completed_solver_converged": (
+                bool(solver_gate_passes and all(solver_gate_passes))
+                if completed
+                else None
             ),
         },
         "conclusion": (
@@ -747,6 +873,14 @@ def main() -> None:
     parser.add_argument("--solver-tolerance", type=float, default=1.0e-7)
     parser.add_argument("--min-bmn-to-load", type=float, default=1.0e-5)
     parser.add_argument("--collision-operator", type=int, choices=(0, 1), default=1)
+    parser.add_argument(
+        "--solve-method",
+        default=None,
+        help=(
+            "Optional SFINCS-JAX RHSMode=1 solve method override, e.g. "
+            "sparse_pc_gmres. Defaults to the SFINCS-JAX auto policy."
+        ),
+    )
     parser.add_argument("--run-sfincs-jax", action="store_true")
     parser.add_argument("--timeout-s", type=int, default=300)
     parser.add_argument("--bootstrap-json", type=Path, default=BOOTSTRAP_JSON)
@@ -763,6 +897,7 @@ def main() -> None:
         solver_tolerance=float(args.solver_tolerance),
         min_bmn_to_load=float(args.min_bmn_to_load),
         collision_operator=int(args.collision_operator),
+        solve_method=(str(args.solve_method) if args.solve_method else None),
         output_dir=args.output_dir,
         run_sfincs_jax=bool(args.run_sfincs_jax),
         timeout_s=int(args.timeout_s),

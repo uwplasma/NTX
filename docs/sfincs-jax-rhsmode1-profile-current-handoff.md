@@ -66,15 +66,13 @@ which matches the normalization used by the NTX diagnostic script.
 
 ## Completed Same-Contract Data
 
-Refresh status on 2026-04-30:
+Refresh status on 2026-05-01:
 
-- SFINCS-JAX clean worktree:
-  `/Users/rogeriojorge/local/tests/sfincs_jax_main_clean`
+- SFINCS-JAX worktree: `/Users/rogeriojorge/local/tests/sfincs_jax`
 - SFINCS-JAX version: `1.1.0`
-- SFINCS-JAX commit: `0107be7` (`origin/main`)
-- NTX used `NTX_SFINCS_JAX_ROOT` to force the clean checkout, so the rerun did
-  not depend on the dirty development checkout at
-  `/Users/rogeriojorge/local/tests/sfincs_jax`.
+- SFINCS-JAX commit: `df0c70d` (`origin/main`)
+- NTX used `NTX_SFINCS_JAX_ROOT=/Users/rogeriojorge/local/tests/sfincs_jax`
+  and `JAX_ENABLE_X64=True` for the reruns.
 
 Committed finite-beta RHSMode=1 low-resolution profile-current artifact:
 
@@ -93,6 +91,8 @@ Current status from that artifact:
   `0.8740375383375442`
 - max NTX+NEOPAX vs Redl current relative difference:
   `0.21926076611238907`
+- all completed SFINCS-JAX solver residual gates pass
+- maximum true residual over target: `1.2527267276319048e-4`
 
 At `rho=1/7`, the completed low-resolution current is
 
@@ -102,54 +102,33 @@ FSABjHatOverRootFSAB2 = -0.44600080476476256
 NIterations           = 1
 ```
 
-CPU and GPU runs agree to roundoff on this point.
+The low-resolution current values are unchanged by the optimized SFINCS-JAX
+solver-policy update.  This confirms that the smoke-grid current gap is not a
+linear-solver residual artifact.
 
 ## Profiling Runs
 
-The 2026-04-30 optimized-main rerun used SFINCS-JAX default RHSMode=1 solver
-policy unless noted otherwise:
+The 2026-05-01 rerun used SFINCS-JAX default RHSMode=1 solver policy unless
+noted otherwise:
 
 ```bash
 JAX_ENABLE_X64=True
-PYTHONPATH=/Users/rogeriojorge/local/tests/sfincs_jax_main_clean:$PYTHONPATH
+PYTHONPATH=/Users/rogeriojorge/local/tests/sfincs_jax:$PYTHONPATH
 ```
 
-Important wrapper detail: `profile_write_output_trace.py` must be run with
-`--compute-solution` for RHSMode=1 solve profiling.  Without that flag, it only
-writes geometry/output fields; the resulting HDF5 has `NIterations = 0` and is
-not a transport-solve trace.
+The NTX profile-current audit now calls `write-output --compute-solution` and
+writes `sfincsOutput.solver_trace.json` beside each HDF5 output.  The HDF5
+summary must include `linearSolverAccepted=1`,
+`linearSolverTrueResidualConverged=1`, and
+`linearSolverResidualNorm <= linearSolverResidualTarget` before a current point
+is treated as a numerically converged comparison.
 
-### Local CPU, 13 x 15 x 8, Cold Traces, Optimized Main
+### Local CPU, 13 x 15 x 8, Nx=5
 
-Command template:
-
-```bash
-PYTHONPATH=/Users/rogeriojorge/local/tests/sfincs_jax_main_clean:$PYTHONPATH \
-JAX_ENABLE_X64=True \
-python /Users/rogeriojorge/local/tests/sfincs_jax_main_clean/scripts/profile_write_output_trace.py \
-  --input <finite-beta-rhsmode1-input.namelist> \
-  --trace-dir examples/outputs/sfincs_jax_v1p1_profile_current/<rho>_trace \
-  --out <deck-dir>/sfincsOutput.h5 \
-  --warmup 0 \
-  --perfetto \
-  --compute-solution \
-  --device-memory-profile examples/outputs/sfincs_jax_v1p1_profile_current/<rho>_trace/device_memory.prof
-```
-
-Result:
-
-- all three committed low-resolution radii completed
-- the optimized SFINCS-JAX policy reached residuals near roundoff on these
-  small systems
-- representative traced wall times were about `15-20 s` including compilation,
-  profiler overhead, diagnostics, and HDF5 write
-- observed max resident set size was about `3.1 GB`
-- device-memory snapshots were written under
-  `examples/outputs/sfincs_jax_v1p1_profile_current/*/device_memory.prof`
-
-The low-resolution current values did not change relative to the prior
-diagnostic; the optimized release improved the smoke runtime/profiling lane, not
-the finite-beta profile-current physics gap.
+The committed three-radius smoke artifact now completes through the normal
+SFINCS-JAX CLI in `24.7 s` total on local CPU.  All three points use the
+auto policy and pass the true-residual gate.  The current amplitudes remain the
+same as before the solver-policy update.
 
 ### Local CPU, 17 x 21 x 12, Nx=5, Optimized Main
 
@@ -159,84 +138,81 @@ Generated single-point deck:
 python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py \
   --rho 0.14285714285714285 --nu-n 0.00831565 \
   --n-theta 17 --n-zeta 21 --n-xi 12 --nx 5 \
+  --run-sfincs-jax \
   --output-dir examples/outputs/sfincs_jax_v1p1_profile_current/prod_17x21x12_deck \
-  --output-prefix examples/outputs/sfincs_jax_v1p1_profile_current/prod_17x21x12_deck/payload
+  --output-prefix docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12
 ```
 
 Result:
 
-- HDF5 output completed before the 30-minute ceiling
+- HDF5 output completes through the normal CLI path in `9.90 s`
 - committed lightweight summary artifact:
   `docs/_static/owned_finite_beta_sfincs_jax_profile_current_prod_17x21x12.{json,png,pdf}`
-- solver elapsed time: `1025.714 s`
-- wrapper elapsed time: `1727.40 s`
-- wrapper exit status: `1`, after failing during/after profiler finalization
-- max resident set size: `7.65 GB`
-- peak memory footprint reported by `/usr/bin/time -lp`: `90.9 GB`
-- local Perfetto/XPlane trace did not flush; trace directory remained empty
+- max resident set size: `1.55 GB`
+- solver method: `sparse_pc_gmres`
+- true residual over target: `8.45200712991399e-7`
 - output:
 
 ```text
-FSABjHat                 = -1.2773637952477914
-FSABjHatOverRootFSAB2    = -1.29105723879398
-<J.B>/sqrt(<B^2>)        = -9.053722784664137e6 A m^-2
-residual_norm            = 1.880588e-02
-target                   = 1.088e-09
+FSABjHatOverRootFSAB2    = -1.3120713644649011
+<J.B>/sqrt(<B^2>)        = -9.201087334174225e6 A m^-2
 ```
 
 Comparison to the same-profile targets at `rho=1/7`:
 
-- SFINCS-JAX vs Redl relative difference: `0.5594256372225822`
-- SFINCS-JAX vs NTX+NEOPAX relative difference: `0.6353711782394719`
+- SFINCS-JAX vs Redl relative difference: `0.5522545492579316`
+- SFINCS-JAX vs NTX+NEOPAX relative difference: `0.6294362315512264`
 - NTX+NEOPAX vs Redl relative difference: `0.20828178269124106`
 
-The production current therefore moves toward the Redl/NTX+NEOPAX scale as the
-grid is refined, but it is not a converged profile-current reference because
-the reported linear residual remains order `1e-2`.
+This closes the previous `17 x 21 x 12` residual/runtime blocker.  It does not
+close finite-beta bootstrap-current parity because the current amplitude remains
+far from both reference currents at this pitch truncation.
 
-### Office GPU, 17 x 21 x 12, Nx=5, Optimized Main
+### Local CPU, 25 x 31 x 17, Nx=11
 
-The remote GPU host exposes two RTX A4000 GPUs.  The run used GPU 0 with
-`CUDA_VISIBLE_DEVICES=0`.
+The three-radius production ladder:
 
-Result:
+- completes in `383.16 s` wall time;
+- uses `sparse_pc_gmres` at every radius;
+- reaches a maximum true residual over target of `2.058374287457432e-5`;
+- reaches max SFINCS-JAX vs Redl current relative difference
+  `1.2860477350497015`;
+- reaches max SFINCS-JAX vs NTX+NEOPAX current relative difference
+  `1.442947235410411`.
 
-- failed after `7:56.75`
-- JAX version on the remote: `0.6.2`
-- observed GPU state before failure: GPU 0 at about `93%` utilization and
-  `12.8 GB` memory use
-- max resident set size from `/usr/bin/time -v`: `17.7 GB`
-- TensorFlow profiler hook was unavailable:
+This proves the remaining profile-current discrepancy is not caused by a failed
+linear solve.  It is a pitch truncation / collision-model / physical-branch
+audit.
 
-```text
-Can't import tensorflow.python.profiler.trace
-```
+### Pitch-Resolution Audit
 
-Failure:
+The new artifact
+`docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.{json,png,pdf}`
+summarizes a fixed-radius `Nxi` scan at `rho=1/7`, `Ntheta=17`, `Nzeta=21`,
+`Nx=5`.
 
-```text
-CUDA_ERROR_ILLEGAL_ADDRESS: an illegal memory access was encountered
-```
+Key metrics:
 
-The error occurred inside JAX GMRES after the same PAS-lite fallback residual
-reported by the CPU run:
+- scan rows: `18`
+- solver-converged rows: `17`
+- best SFINCS-JAX vs Redl relative difference: `0.024877277870714646`
+- best SFINCS-JAX vs NTX+NEOPAX relative difference: `0.015201711479977497`
+- high-`Nxi` even/odd tail relative gap: `0.13232636827032285`
+- Redl `1e-1` gate pass count: `2`
+- NTX+NEOPAX `1e-1` gate pass count: `4`
 
-```text
-strong preconditioner fallback kind=pas_lite
-residual=1.887e-02 > target=1.088e-09
-```
+The scan shows a real terminal-Legendre-mode parity split.  Even `Nxi` values
+move through both reference scales, while odd `Nxi` values sit on a larger
+current branch.  Adjacent high-`Nxi` parities have not merged below the `1e-1`
+current gate, so this remains a convergence stress lane.
 
-The remote did flush profile artifacts despite the failed solve:
+### Full-Collision Probe
 
-```text
-~/ntx_sfincs_jax_v1p1/outputs/prod_17x21x12_gpu0_trace/
-  plugins/profile/2026_04_30_20_44_41/pop-os.xplane.pb
-  plugins/profile/2026_04_30_20_44_41/pop-os.trace.json.gz
-  plugins/profile/2026_04_30_20_44_41/perfetto_trace.json.gz
-```
-
-Those remote traces are intentionally not committed to NTX because the XPlane
-file is about `755 MB`; the path above is the handoff location.
+A same-grid `collisionOperator=0` probe at `17 x 21 x 20, Nx=5` was attempted
+as a physics discriminator.  It timed out after `901.76 s`, used about
+`9.97 GB` max RSS, and did not write a completed current output.  The PAS
+profile-current branch is therefore the only completed SFINCS-JAX RHSMode=1
+finite-beta current reference in this NTX artifact set.
 
 ### Production RHSMode=3 Coefficient Ladder, Optimized Main
 
@@ -254,7 +230,8 @@ main checkout:
 
 This closes the broad finite-beta coefficient-resolution lane for the current
 owned QA case.  The remaining finite-beta current work is localized to the
-profile-current closure/observable layer and to RHSMode=1 solver convergence.
+profile-current closure/observable layer, pitch Legendre truncation, and the
+full-collision production path.
 
 ## Current Bottleneck Hypotheses
 
@@ -264,13 +241,12 @@ profile-current closure/observable layer and to RHSMode=1 solver convergence.
 2. The `17 x 21 x 12, Nx=5` RHSMode=1 profile-current point changes the current
    amplitude substantially relative to the `13 x 15 x 8` smoke grid, so the
    profile-current observable is resolution sensitive.
-3. That same production point still exits with residual `1.88e-2`, so it is not
-   yet a converged reference for Redl/NTX+NEOPAX parity.
-4. The local CPU path can now produce an HDF5 output within 30 minutes, but the
-   profiler wrapper can still fail after the solve while finalizing traces.
-5. The one-GPU path reaches the same fallback residual and then fails with a
-   CUDA illegal-address error in JAX GMRES.  This is a concrete upstream GPU
-   robustness issue for this RHSMode=1 production branch.
+3. The `17 x 21 x 12, Nx=5` point now converges quickly with sparse-PC GMRES,
+   so the old residual-stalling hypothesis is closed.
+4. The `Nxi` scan shows a high-order even/odd Legendre truncation split in the
+   current observable.
+5. The full-collision RHSMode=1 point is not yet a practical production
+   comparison at this grid on the local CPU.
 
 ## Requested SFINCS-JAX Developer Actions
 
@@ -289,12 +265,11 @@ Recommended implementation work:
   diagnostics, and HDF5 write;
 - expose a stable option to write partial HDF5 diagnostics on timeout when the
   state vector or current residual is available;
-- evaluate why the `17 x 21 x 12, Nx=5` PAS-lite fallback stalls at residual
-  `1.88e-2` and whether Schur/PAS rescue should trigger for this species/profile
-  contract;
-- evaluate the GPU illegal-address failure on the same input and JAX `0.6.2`;
-- evaluate whether RHSMode=1 Schur/PAS structures can be built in lower-memory
-  chunks or reused across a fixed geometry/profile shape;
+- document the expected even/odd `Nxi` behavior for the finite Legendre
+  hierarchy and add a convergence policy that requires adjacent high-`Nxi`
+  parities to agree before profile-current parity is claimed;
+- make `collisionOperator=0` RHSMode=1 feasible for this finite-beta deck or
+  document the memory/runtime ceiling and recommended reduced test;
 - add a small finite-beta RHSMode=1 profile-current regression at
   `13 x 15 x 8, Nx=5`, using the current observable above;
 - add a larger optional benchmark at `17 x 21 x 12, Nx=5` that is expected to
@@ -305,12 +280,10 @@ Recommended validation sequence after those changes:
 
 1. Re-run `13 x 15 x 8, Nx=5` CPU and GPU, warm and cold, and confirm the
    current remains `FSABjHatOverRootFSAB2 = -0.44600080476476256` at `rho=1/7`.
-2. Re-run `17 x 21 x 12, Nx=5` with full progress logging and require the
-   residual to converge, not just the HDF5 output to exist.
-3. Only if that converges, run the six-point finite-beta radial/collisionality
-   profile-current ladder.
-4. Compare that ladder to the existing coefficient-level finite-beta ladder and
-   the NTX+NEOPAX/Redl profile-current artifact.
+2. Re-run `17 x 21 x 12, Nx=5` with the solver metadata gate and require
+   `sparse_pc_gmres` or another true-residual-converged method.
+3. Run paired even/odd `Nxi` ladders until adjacent high-order parities agree.
+4. Only then run the finite-beta radial/collisionality profile-current ladder.
 5. Promote the bootstrap-current figure only if the same-contract RHSMode=1
    current ladder is numerically converged and the remaining gap is below the
    agreed current-conditioned physics gate.

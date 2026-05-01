@@ -125,9 +125,9 @@ highest-signal artifacts:
 | --- | --- |
 | ![Owned finite-beta Redl and NTX + NEOPAX bootstrap-current stress audit](docs/_static/owned_finite_beta_bootstrap_comparison.png) | ![Explicit-relaxed boundary current derivative benchmark](docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png) |
 
-| Owned finite-beta source response | Same-grid SFINCS-JAX input generation |
+| Owned finite-beta source response | Same-grid profile-current pitch audit |
 | --- | --- |
-| ![Owned finite-beta profile source-response audit](docs/_static/owned_finite_beta_source_response_profile_audit.png) | ![Owned finite-beta SFINCS-JAX generation contract](docs/_static/owned_finite_beta_sfincs_jax_inputs.png) |
+| ![Owned finite-beta profile source-response audit](docs/_static/owned_finite_beta_source_response_profile_audit.png) | ![Owned finite-beta SFINCS-JAX profile-current pitch-resolution audit](docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png) |
 
 Current promoted validation includes monoenergetic convergence and identities,
 the fixed-field Redl/SFINCS comparison on the precise-QS benchmark family, the
@@ -139,14 +139,15 @@ used in the runtime.
 
 The owned finite-beta stellarator lane now has same-grid SFINCS-JAX input
 generation, completed coefficient ladders, Redl and `NTX+NEOPAX` current
-audits, a direct RHSMode=1 SFINCS-JAX profile-current diagnostic,
+audits, true-residual-converged RHSMode=1 SFINCS-JAX profile-current outputs,
 source-channel decompositions, and radial-interpolation diagnostics.
 That lane is intentionally reported as a reduced-closure stress benchmark: the
-monoenergetic coefficient differences are below `2.1e-2`, while the corrected
-Boozer-field profile-current stress remains above the `1e-1` current gate. The
-corrected Boozer path evaluates `B00` on normalized radius and converts
-`dB00/d rho` to the physical radial derivative with the VMEC minor radius. The
-detailed interpretation and open promotion gates are in
+monoenergetic coefficient differences are below `2.1e-2`, while the
+profile-current branch still has a high-`Nxi` even/odd pitch-truncation gap of
+`1.32e-1` and a full-collision production branch that is not yet practical on
+the local CPU. The corrected Boozer path evaluates `B00` on normalized radius
+and converts `dB00/d rho` to the physical radial derivative with the VMEC minor
+radius. The detailed interpretation and open promotion gates are in
 [docs/validation.md](docs/validation.md).
 
 Run the local gate summary with:

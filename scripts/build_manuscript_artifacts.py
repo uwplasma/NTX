@@ -82,6 +82,9 @@ def build_payload() -> dict:
     owned_finite_beta_profile_current_sfincs = _load_json(
         STATIC / "owned_finite_beta_sfincs_jax_profile_current_audit.json"
     )
+    owned_finite_beta_profile_current_resolution = _load_json(
+        STATIC / "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
+    )
     owned_finite_beta_bootstrap = _load_json(
         STATIC / "owned_finite_beta_bootstrap_comparison.json"
     )
@@ -153,6 +156,7 @@ def build_payload() -> dict:
         "owned_finite_beta_sfincs_jax_resolution_audit",
         "owned_finite_beta_sfincs_jax_production_ladder",
         "owned_finite_beta_sfincs_jax_profile_current",
+        "owned_finite_beta_sfincs_jax_profile_current_resolution",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
@@ -335,6 +339,18 @@ def build_payload() -> dict:
                     "normalization_contract"
                 ],
                 "open_work": owned_finite_beta_profile_current_sfincs["open_work"],
+            },
+            "owned_finite_beta_sfincs_jax_profile_current_resolution": {
+                "summary_metrics": owned_finite_beta_profile_current_resolution[
+                    "summary_metrics"
+                ],
+                "claim_scope": owned_finite_beta_profile_current_resolution[
+                    "claim_scope"
+                ],
+                "conclusion": owned_finite_beta_profile_current_resolution[
+                    "conclusion"
+                ],
+                "rows": owned_finite_beta_profile_current_resolution["rows"],
             },
             "owned_finite_beta_bootstrap_comparison": {
                 "case": owned_finite_beta_bootstrap["case"],

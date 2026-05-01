@@ -136,7 +136,12 @@ examples.
      VMEC/profile contract; retained as a convergence and normalization
      diagnostic, not as a parity claim, because the direct profile-current
      amplitudes need their own pitch/velocity/radial ladder
-19. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
+19. `owned_finite_beta_sfincs_jax_profile_current_resolution_audit.{png,pdf,json}`
+   - same-contract RHSMode=1 pitch Legendre truncation audit; the sparse-PC
+     solver residual lane is closed, but high-`Nxi` even/odd terminal-mode
+     branches still differ by about `1.32e-1`, so finite-beta profile-current
+     parity remains a convergence stress claim
+20. `owned_finite_beta_bootstrap_comparison.{png,pdf,json}`
    - same finite-beta QA pressure/current `wout`, Boozer transform, analytic
      profiles, normalized-radius `B00(rho)` Boozer-field convention, production
      radial/collisionality ladder, physical `nu/v` support, `D33_spitzer`
