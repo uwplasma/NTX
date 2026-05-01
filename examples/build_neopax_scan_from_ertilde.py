@@ -34,6 +34,7 @@ from ntx import (  # noqa: E402
     GridSpec,
     NeopaxScan,
     load_boozmn_surface,
+    solve_monoenergetic_parallel_scan,
     solve_monoenergetic_scan,
     surface_from_vmec_jax_vmec_wout_file,
     write_neopax_scan_hdf5,
@@ -169,6 +170,16 @@ def _parse_args() -> argparse.Namespace:
             "Optional fixed batch size for the flattened (nu_v, Er_tilde) "
             "scan on each surface. Leave unset for full-surface batching; "
             "use smaller values to reduce CPU/GPU peak memory."
+        ),
+    )
+    parser.add_argument(
+        "--parallel-devices",
+        type=int,
+        default=None,
+        help=(
+            "Optional number of local JAX devices used to shard each surface "
+            "scan. For CPU runs, expose host devices before launch, for example "
+            "XLA_FLAGS=--xla_force_host_platform_device_count=4."
         ),
     )
     parser.add_argument(
@@ -429,7 +440,15 @@ def _select_jax_device(*, backend: str, device_index: int):
     if backend == "auto":
         devices = list(jax.devices())
     else:
-        devices = list(jax.devices(backend))
+        try:
+            devices = list(jax.devices(backend))
+        except RuntimeError as exc:
+            available = ", ".join(sorted({device.platform for device in jax.devices()}))
+            raise RuntimeError(
+                f"JAX backend {backend!r} is not available; available platforms: "
+                f"{available or 'none'}. Use --device-backend cpu on CPU-only laptops "
+                "or run on a machine with a configured JAX GPU backend."
+            ) from exc
     if not devices:
         raise RuntimeError(f"no JAX devices available for backend {backend!r}")
     if device_index < 0 or device_index >= len(devices):
@@ -605,11 +624,14 @@ def build_scan(
     er_tilde: jnp.ndarray,
     source_name: str | None = None,
     scan_batch_size: int | None = None,
+    parallel_devices: int | None = None,
     progress: bool = False,
 ) -> NeopaxScan:
     _validate_scan_axes(rho, nu_v, er_tilde)
     if scan_batch_size is not None and scan_batch_size < 1:
         raise ValueError("scan_batch_size must be a positive integer")
+    if parallel_devices is not None and parallel_devices < 1:
+        raise ValueError("parallel_devices must be a positive integer")
     channels = _load_vmec_boozer_channels(wout_path, boozmn_path, rho)
     load_surface, backend_name = _select_surface_loader(
         backend=backend,
@@ -634,6 +656,7 @@ def build_scan(
     d33_spitzer = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     case_count = n_nu * n_er
     batch_label = "full-surface" if scan_batch_size is None else str(scan_batch_size)
+    parallel_label = "serial" if parallel_devices is None else str(parallel_devices)
 
     for idx, rho_value in enumerate(np.asarray(rho)):
         t0 = time.perf_counter()
@@ -641,18 +664,28 @@ def build_scan(
             print(
                 f"[{idx + 1}/{n_r}] rho={float(rho_value):.5f}: "
                 f"{case_count} cases, grid={grid.n_theta}x{grid.n_zeta}x{grid.n_xi}, "
-                f"scan_batch_size={batch_label}",
+                f"scan_batch_size={batch_label}, parallel_devices_requested={parallel_label}",
                 flush=True,
             )
         surface = load_surface(float(rho_value))
         nu_grid, es_grid = jnp.meshgrid(nu_v, es[idx], indexing="ij")
-        coeffs = solve_monoenergetic_scan(
-            surface,
-            grid,
-            nu_grid,
-            epsi_hat=es_grid,
-            scan_batch_size=scan_batch_size,
-        )
+        if parallel_devices is None:
+            coeffs = solve_monoenergetic_scan(
+                surface,
+                grid,
+                nu_grid,
+                epsi_hat=es_grid,
+                scan_batch_size=scan_batch_size,
+            )
+        else:
+            coeffs = solve_monoenergetic_parallel_scan(
+                surface,
+                grid,
+                nu_grid,
+                epsi_hat=es_grid,
+                num_devices=parallel_devices,
+                scan_batch_size=scan_batch_size,
+            )
         if progress:
             jax.block_until_ready(tuple(coeffs.values()))
             print(
@@ -718,6 +751,20 @@ def main() -> None:
     _require_file(boozmn_path, "Boozer")
     grid = GridSpec(n_theta=args.n_theta, n_zeta=args.n_zeta, n_xi=args.n_xi)
     device = _select_jax_device(backend=args.device_backend, device_index=args.device_index)
+    if args.parallel_devices is not None:
+        available_devices = sum(
+            1 for candidate in jax.devices() if candidate.platform == device.platform
+        )
+        if available_devices < args.parallel_devices:
+            print(
+                "warning: requested "
+                f"{args.parallel_devices} parallel device(s), but only "
+                f"{available_devices} {device.platform} device(s) are visible. "
+                "For CPU runs, set "
+                "XLA_FLAGS=--xla_force_host_platform_device_count=N before launch.",
+                file=sys.stderr,
+                flush=True,
+            )
 
     with jax.default_device(device):
         scan = build_scan(
@@ -730,6 +777,7 @@ def main() -> None:
             er_tilde=er_tilde,
             source_name=args.source_name,
             scan_batch_size=args.scan_batch_size,
+            parallel_devices=args.parallel_devices,
             progress=not args.quiet,
         )
     _report_scan_warnings(scan, onsager_warn_threshold=args.onsager_warn_threshold)
@@ -742,6 +790,10 @@ def main() -> None:
     print(
         "scan batch size: "
         f"{args.scan_batch_size if args.scan_batch_size is not None else 'full-surface'}"
+    )
+    print(
+        "parallel devices requested: "
+        f"{args.parallel_devices if args.parallel_devices is not None else 'serial'}"
     )
     print(f"wout: {wout_path}")
     print(f"booz: {boozmn_path}")

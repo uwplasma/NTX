@@ -820,3 +820,19 @@ def test_build_neopax_scan_from_ertilde_helpers_are_validated_and_plot(tmp_path:
             wout_path=tmp_path / "missing_wout.nc",
             boozmn_path=tmp_path / "missing_booz.nc",
         )
+
+
+def test_build_neopax_scan_from_ertilde_reports_missing_device_backend(monkeypatch):
+    module = _load_ertilde_example()
+
+    class FakeDevice:
+        platform = "cpu"
+
+    def fake_devices(backend=None):
+        if backend == "gpu":
+            raise RuntimeError("no gpu")
+        return [FakeDevice()]
+
+    monkeypatch.setattr(module.jax, "devices", fake_devices)
+    with pytest.raises(RuntimeError, match="available platforms: cpu"):
+        module._select_jax_device(backend="gpu", device_index=0)

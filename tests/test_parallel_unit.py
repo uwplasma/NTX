@@ -243,6 +243,30 @@ def test_parallel_scan_handles_zero_devices_empty_inputs_and_single_device(monke
     )
     assert jnp.allclose(serial["D33"], jnp.asarray([4.0, 9.0]))
 
+    batched_calls = []
+    monkeypatch.setattr(
+        solver_scan,
+        "_scan_coefficients_batched",
+        lambda prepared, nu_values, epsi_values, *, batch_size: (
+            batched_calls.append(batch_size)
+            or jnp.asarray(
+                [
+                    [11.0, 12.0, 13.0, 14.0, 15.0],
+                    [16.0, 17.0, 18.0, 19.0, 20.0],
+                ]
+            )
+        ),
+    )
+    serial_batched = solver_scan.solve_monoenergetic_parallel_scan(
+        example_surface(),
+        grid,
+        jnp.asarray([1.0e-3, 2.0e-3]),
+        num_devices=1,
+        scan_batch_size=1,
+    )
+    assert jnp.allclose(serial_batched["D33"], jnp.asarray([14.0, 19.0]))
+    assert batched_calls == [1]
+
 
 def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
     grid = GridSpec(5, 5, 4)
@@ -275,7 +299,10 @@ def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
     monkeypatch.setattr(solver_scan.jax, "default_device", lambda device: DummyContext())
     monkeypatch.setattr(solver_scan.jax, "device_get", lambda value: value)
 
-    def fake_scan(surface, grid, nu_hat, *, epsi_hat=None, er_hat=None):
+    seen_batch_sizes = []
+
+    def fake_scan(surface, grid, nu_hat, *, epsi_hat=None, er_hat=None, scan_batch_size=None):
+        seen_batch_sizes.append(scan_batch_size)
         size = len(nu_hat)
         base = np.arange(size, dtype=float) + 1.0
         return {
@@ -292,9 +319,11 @@ def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
             example_surface(),
             grid,
             jnp.asarray([1.0e-3, 2.0e-3, 3.0e-3]),
+            scan_batch_size=2,
         )
     assert result["D11"].shape == (3,)
     assert jnp.allclose(result["D11"], jnp.asarray([1.0, 2.0, 1.0]))
+    assert seen_batch_sizes == [2, 2]
 
 
 def test_healthy_parallel_helpers_cover_count_and_exception_branch(monkeypatch):

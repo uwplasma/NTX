@@ -321,10 +321,35 @@ VMEC/Boozer files:
 - full-surface batching: `64.7 s`, about `5.0 GB` peak RSS
 - `--scan-batch-size 32`: `55.9 s`, about `1.46 GB` peak RSS
 - `--scan-batch-size 16`: `75.3 s`, about `1.27 GB` peak RSS
+- `XLA_FLAGS=--xla_force_host_platform_device_count=4` with
+  `--parallel-devices 4 --scan-batch-size 32`: `47.7 s` for the same one-surface
+  workload on the local CPU, with coefficient differences from the serial
+  batched run at roundoff
 
 For CPU runs of that example, start with `--scan-batch-size 32`. For GPU runs,
 leave full-surface batching enabled when memory permits; add a batch size only
 when the device runs out of memory at higher resolution.
+
+`--scan-batch-size` primarily reduces peak memory; it is not a CPU parallelism
+switch. For CPU-only laptops that are still too slow, expose multiple JAX host
+devices before launch and request per-surface scan sharding:
+
+```bash
+XLA_FLAGS=--xla_force_host_platform_device_count=4 \
+python examples/build_neopax_scan_from_ertilde.py \
+  --wout examples/inputs/wout_QI_nfp2_newNT_opt_hires.nc \
+  --booz examples/inputs/boozermn_wout_QI_nfp2_newNT_opt_hires.nc \
+  --surface-backend vmec \
+  --device-backend cpu \
+  --parallel-devices 4 \
+  --scan-batch-size 32 \
+  --output examples/input/Dij_NTX.h5
+```
+
+The script reports the resolved batch size, requested parallel device count,
+and visible backend. If the collaborator command still includes
+`--device-backend gpu` on a CPU-only machine, it will fail before solving; use
+`--device-backend cpu` or omit the flag on laptops without a configured JAX GPU.
 
 ## Reproducibility
 

@@ -79,8 +79,14 @@ def solve_monoenergetic_parallel_scan(
     epsi_hat: Array | None = None,
     er_hat: Array | None = None,
     num_devices: int | None = None,
+    scan_batch_size: int | None = None,
 ) -> dict[str, Array]:
-    """Device-parallel scan over collisionality and radial electric field."""
+    """Device-parallel scan over collisionality and radial electric field.
+
+    ``scan_batch_size`` is applied inside each device shard. It is useful when
+    the scan is wide enough to benefit from device sharding but each shard still
+    needs bounded peak memory.
+    """
 
     prepared = prepare_monoenergetic_system(surface, grid)
     nu_values, epsi_values, output_shape = _resolved_scan_inputs(
@@ -109,7 +115,15 @@ def solve_monoenergetic_parallel_scan(
         coeffs = jnp.zeros((*output_shape, 5), dtype=grid.jax_dtype)
         return _coefficients_dict(coeffs)
     if device_count == 1:
-        coeffs = _scan_coefficients_serial(prepared, flat_nu, flat_epsi)
+        if scan_batch_size is None:
+            coeffs = _scan_coefficients_serial(prepared, flat_nu, flat_epsi)
+        else:
+            coeffs = _scan_coefficients_batched(
+                prepared,
+                flat_nu,
+                flat_epsi,
+                batch_size=scan_batch_size,
+            )
         return _coefficients_dict(coeffs.reshape((*output_shape, 5)))
 
     shard_count = min(device_count, flat_nu.size)
@@ -130,6 +144,7 @@ def solve_monoenergetic_parallel_scan(
                 grid,
                 jnp.asarray(nu_shard, dtype=grid.jax_dtype),
                 epsi_hat=jnp.asarray(epsi_shard, dtype=grid.jax_dtype),
+                scan_batch_size=scan_batch_size,
             )
         return {key: np.asarray(jax.device_get(value)) for key, value in values.items()}
 

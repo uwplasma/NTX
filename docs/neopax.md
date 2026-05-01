@@ -182,6 +182,29 @@ Use the VMEC surface backend for validation and benchmark generation. The
 `boozmn` backend is available as an explicit geometry-backend audit path, but
 it is not the default validation path.
 
+`--scan-batch-size` bounds memory inside each radial-surface scan. It is not
+itself a CPU parallelism switch. For CPU-only laptops, expose multiple JAX host
+devices before Python imports JAX, then request sharding explicitly:
+
+```bash
+XLA_FLAGS=--xla_force_host_platform_device_count=4 \
+python examples/build_neopax_scan_from_ertilde.py \
+  --wout path/to/wout.nc \
+  --booz path/to/boozmn.nc \
+  --surface-backend vmec \
+  --device-backend cpu \
+  --parallel-devices 4 \
+  --scan-batch-size 32 \
+  --output examples/outputs/neopax_scan_from_ertilde/scan.h5
+```
+
+If `--device-backend gpu` is requested on a CPU-only laptop, the script now
+fails with the available JAX platforms and tells the user to switch to
+`--device-backend cpu`. Also check
+`python examples/build_neopax_scan_from_ertilde.py --help`: if
+`--scan-batch-size` and `--parallel-devices` are missing, the local NTX checkout
+or installed package is stale.
+
 For the QI finite-beta hires example used in downstream database generation,
 the full-surface vectorized scan is GPU-friendly but memory-heavy on CPU. On
 the local CPU reference run, `25 x 25 x 60` with one radial surface and the
@@ -219,7 +242,7 @@ VMEC-harmonic helper reads the signed VMEC Jacobian and angle-dependent
 covariant/contravariant channels from the `wout` file. Because the NTX
 monoenergetic source contains
 
-```math
+```{math}
 v_{m,\psi} \propto
 \frac{B_\theta \partial_\zeta B - B_\zeta \partial_\theta B}
      {\sqrt{g}\,B^3},

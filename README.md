@@ -192,7 +192,12 @@ python examples/bootstrap_current_from_vmec_or_boozmn.py
 For large finite-beta NEOPAX database exports on CPU, use
 `--scan-batch-size 32` first; it kept the QI hires `25 x 25 x 60` seven-surface
 example under 10 minutes and about `1.46 GB` peak RSS locally. On GPU, leave
-full-surface batching enabled unless device memory is the limiter.
+full-surface batching enabled unless device memory is the limiter. If a CPU-only
+laptop still runs too slowly, expose multiple JAX CPU devices before launch and
+shard the per-surface scan, for example
+`XLA_FLAGS=--xla_force_host_platform_device_count=4 python examples/build_neopax_scan_from_ertilde.py ... --device-backend cpu --parallel-devices 4 --scan-batch-size 32`.
+Run `python examples/build_neopax_scan_from_ertilde.py --help` and confirm both
+flags are listed; otherwise the local NTX checkout is stale.
 
 The full finite-beta validation sequence, including same-grid SFINCS-JAX input
 generation and matched-radius closure audits, is documented in

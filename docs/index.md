@@ -120,6 +120,7 @@ autodiff
 profiles
 examples
 validation
+sfincs-jax-rhsmode1-profile-current-handoff
 testing
 benchmark-matrix
 repo-hygiene
