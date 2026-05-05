@@ -239,25 +239,6 @@ def _parse_args() -> argparse.Namespace:
         help="Optional rho index to plot. If omitted, plots all rho surfaces.",
     )
     parser.add_argument(
-        "--scan-batch-size",
-        type=int,
-        default=None,
-        help=(
-            "Optional number of (nu_v, Er) scan cases to solve per batch on each rho surface. "
-            "If omitted, each rho surface is solved as one full batch."
-        ),
-    )
-    parser.add_argument(
-        "--parallel-devices",
-        type=int,
-        default=None,
-        help=(
-            "Optional number of same-platform JAX devices to use through "
-            "solve_monoenergetic_parallel_scan(...). If omitted, runs serially on "
-            "the selected device."
-        ),
-    )
-    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Suppress per-surface progress and timing output.",
