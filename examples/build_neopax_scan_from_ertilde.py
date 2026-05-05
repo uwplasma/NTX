@@ -210,6 +210,24 @@ def _parse_args() -> argparse.Namespace:
         help="Comma-separated Er_tilde grid.",
     )
     parser.add_argument(
+        "--er-tilde-logspace",
+        type=str,
+        default=None,
+        help=(
+            "Convenience alternative to --er-tilde: specify "
+            "'start,stop,count' to generate a geometric Er_tilde grid over "
+            "positive values. Example: --er-tilde-logspace 1e-6,1e-1,16"
+        ),
+    )
+    parser.add_argument(
+        "--er-tilde-include-zero",
+        action="store_true",
+        help=(
+            "When used with --er-tilde-logspace, prepend 0.0 to the generated "
+            "positive Er_tilde grid."
+        ),
+    )
+    parser.add_argument(
         "--onsager-warn-threshold",
         type=float,
         default=ONSAGER_WARN_THRESHOLD,
@@ -299,6 +317,44 @@ def _resolve_rho_grid(args: argparse.Namespace) -> jnp.ndarray:
     if rho_linspace is not None:
         return rho_linspace
     return _parse_float_grid(None, default=DEFAULT_RHO, name="rho")
+
+
+def _parse_er_tilde_logspace(text: str | None, *, include_zero: bool) -> jnp.ndarray | None:
+    if text is None:
+        return None
+    parts = [piece.strip() for piece in str(text).split(",")]
+    if len(parts) != 3:
+        raise ValueError("er-tilde-logspace must be in 'start,stop,count' format")
+    try:
+        start = float(parts[0])
+        stop = float(parts[1])
+        count = int(parts[2])
+    except ValueError as exc:
+        raise ValueError("er-tilde-logspace must be in 'start,stop,count' format") from exc
+    if start <= 0.0 or stop <= 0.0:
+        raise ValueError("er-tilde-logspace start and stop must be positive")
+    if count < 2:
+        raise ValueError("er-tilde-logspace count must be at least 2")
+    grid = jnp.geomspace(start, stop, count, dtype=jnp.float64)
+    if include_zero:
+        grid = jnp.concatenate((jnp.asarray([0.0], dtype=jnp.float64), grid))
+    if not bool(jnp.all(jnp.isfinite(grid))):
+        raise ValueError("er-tilde-logspace produced non-finite values")
+    return grid
+
+
+def _resolve_er_tilde_grid(args: argparse.Namespace) -> jnp.ndarray:
+    if args.er_tilde is not None and args.er_tilde_logspace is not None:
+        raise ValueError("set only one of --er-tilde or --er-tilde-logspace")
+    if args.er_tilde is not None:
+        return _parse_float_grid(args.er_tilde, default=DEFAULT_ER_TILDE, name="er_tilde")
+    er_tilde_logspace = _parse_er_tilde_logspace(
+        args.er_tilde_logspace,
+        include_zero=bool(args.er_tilde_include_zero),
+    )
+    if er_tilde_logspace is not None:
+        return er_tilde_logspace
+    return _parse_float_grid(None, default=DEFAULT_ER_TILDE, name="er_tilde")
 
 
 def _validate_scan_axes(rho: jnp.ndarray, nu_v: jnp.ndarray, er_tilde: jnp.ndarray) -> None:
@@ -785,7 +841,7 @@ def main() -> None:
     output_path = args.output.expanduser().resolve()
     rho = _resolve_rho_grid(args)
     nu_v = _parse_float_grid(args.nu_v, default=DEFAULT_NU_V, name="nu_v", positive=True)
-    er_tilde = _parse_float_grid(args.er_tilde, default=DEFAULT_ER_TILDE, name="er_tilde")
+    er_tilde = _resolve_er_tilde_grid(args)
     _validate_scan_axes(rho, nu_v, er_tilde)
     _require_file(wout_path, "VMEC wout")
     _require_file(boozmn_path, "Boozer")
