@@ -189,6 +189,15 @@ def _parse_args() -> argparse.Namespace:
         help="Comma-separated rho grid. Default is the W7-X reference grid.",
     )
     parser.add_argument(
+        "--rho-linspace",
+        type=str,
+        default=None,
+        help=(
+            "Convenience alternative to --rho: specify 'start,stop,count' to "
+            "generate a uniform rho grid. Example: --rho-linspace 0.1,0.9,15"
+        ),
+    )
+    parser.add_argument(
         "--nu-v",
         type=str,
         default=None,
@@ -230,6 +239,25 @@ def _parse_args() -> argparse.Namespace:
         help="Optional rho index to plot. If omitted, plots all rho surfaces.",
     )
     parser.add_argument(
+        "--scan-batch-size",
+        type=int,
+        default=None,
+        help=(
+            "Optional number of (nu_v, Er) scan cases to solve per batch on each rho surface. "
+            "If omitted, each rho surface is solved as one full batch."
+        ),
+    )
+    parser.add_argument(
+        "--parallel-devices",
+        type=int,
+        default=None,
+        help=(
+            "Optional number of same-platform JAX devices to use through "
+            "solve_monoenergetic_parallel_scan(...). If omitted, runs serially on "
+            "the selected device."
+        ),
+    )
+    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Suppress per-surface progress and timing output.",
@@ -259,6 +287,37 @@ def _parse_float_grid(
     if positive and not bool(jnp.all(array > 0.0)):
         raise ValueError(f"{name} values must be positive")
     return array
+
+
+def _parse_rho_linspace(text: str | None) -> jnp.ndarray | None:
+    if text is None:
+        return None
+    parts = [piece.strip() for piece in str(text).split(",")]
+    if len(parts) != 3:
+        raise ValueError("rho-linspace must be in 'start,stop,count' format")
+    try:
+        start = float(parts[0])
+        stop = float(parts[1])
+        count = int(parts[2])
+    except ValueError as exc:
+        raise ValueError("rho-linspace must be in 'start,stop,count' format") from exc
+    if count < 2:
+        raise ValueError("rho-linspace count must be at least 2")
+    grid = jnp.linspace(start, stop, count, dtype=jnp.float64)
+    if not bool(jnp.all(jnp.isfinite(grid))):
+        raise ValueError("rho-linspace produced non-finite values")
+    return grid
+
+
+def _resolve_rho_grid(args: argparse.Namespace) -> jnp.ndarray:
+    if args.rho is not None and args.rho_linspace is not None:
+        raise ValueError("set only one of --rho or --rho-linspace")
+    if args.rho is not None:
+        return _parse_float_grid(args.rho, default=DEFAULT_RHO, name="rho")
+    rho_linspace = _parse_rho_linspace(args.rho_linspace)
+    if rho_linspace is not None:
+        return rho_linspace
+    return _parse_float_grid(None, default=DEFAULT_RHO, name="rho")
 
 
 def _validate_scan_axes(rho: jnp.ndarray, nu_v: jnp.ndarray, er_tilde: jnp.ndarray) -> None:
@@ -743,7 +802,7 @@ def main() -> None:
     wout_path = args.wout.expanduser().resolve()
     boozmn_path = args.booz.expanduser().resolve()
     output_path = args.output.expanduser().resolve()
-    rho = _parse_float_grid(args.rho, default=DEFAULT_RHO, name="rho")
+    rho = _resolve_rho_grid(args)
     nu_v = _parse_float_grid(args.nu_v, default=DEFAULT_NU_V, name="nu_v", positive=True)
     er_tilde = _parse_float_grid(args.er_tilde, default=DEFAULT_ER_TILDE, name="er_tilde")
     _validate_scan_axes(rho, nu_v, er_tilde)
