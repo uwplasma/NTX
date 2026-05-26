@@ -1,0 +1,253 @@
+{
+  "benchmark": "boozmn_same_coordinate_roundtrip_audit",
+  "classification": "same-coordinate VMEC half-grid Boozer-file round trip",
+  "inputs": {
+    "input": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
+    "wout": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_LandremanPaul2021_QA_lowres.nc",
+    "generated_boozmn": "/var/folders/bg/ksp0y7qn2rl1jj667080mw080000gn/T/ntx_boozmn_roundtrip_gvekwioq/boozmn_roundtrip_m4_n4.nc",
+    "generated_boozmn_retained": false,
+    "surface_indices": [
+      6,
+      16,
+      32
+    ],
+    "mboz": 4,
+    "nboz": 4,
+    "nu_hat": 0.01,
+    "epsi_hat": 0.0,
+    "psi_p": 0.013346299916410087,
+    "grid": {
+      "n_theta": 7,
+      "n_zeta": 7,
+      "n_xi": 8,
+      "dtype": "float64",
+      "x64": true
+    }
+  },
+  "summary_metrics": {
+    "max_geometry_relative_difference": 4.421088746621607e-08,
+    "max_transport_relative_difference": 2.274976549488732e-09,
+    "geometry_gate_rtol": 1e-07,
+    "transport_gate_rtol": 1e-06,
+    "roundtrip_closed": true
+  },
+  "interpretation": "Boozer spectra and Boozer radial profiles live on the VMEC half grid. A passing same-coordinate round trip means the direct boozmn loader uses s_in/s_b/jlist half-grid metadata rather than full-grid phi metadata for radial selection and interpolation.",
+  "surfaces": [
+    {
+      "surface_index": 6,
+      "packed_index": 0,
+      "s": 0.13265306122448978,
+      "rho": 0.36421567954234174,
+      "loaded_by_s_selected_index": 0,
+      "geometry_relative": {
+        "surface_index": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 8.743260645916408e-09,
+          "iota_relative": 3.3400494767549217e-14,
+          "b_theta_scaled_difference": 5.758183516366446e-18,
+          "b_zeta_relative": 6.227601394729592e-16,
+          "b0_relative": 3.673564518752726e-12
+        },
+        "s_selector": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 8.743260645916408e-09,
+          "iota_relative": 3.3400494767549217e-14,
+          "b_theta_scaled_difference": 5.758183516366446e-18,
+          "b_zeta_relative": 6.227601394729592e-16,
+          "b0_relative": 3.673564518752726e-12
+        }
+      },
+      "transport": {
+        "reference": {
+          "D11": 8.97576960485101,
+          "D31": 4.33678101662396,
+          "D13": -4.336780992823831,
+          "D33": 64.212960209717,
+          "D33_spitzer": 66.50491175661118,
+          "residual_l2": 0.013722940217811216,
+          "onsager_residual": 2.3800128978734847e-08
+        },
+        "surface_index": {
+          "D11": 8.975769615216382,
+          "D31": 4.336781021390191,
+          "D13": -4.336780997631511,
+          "D33": 64.21296021229581,
+          "D33_spitzer": 66.50491175626992,
+          "residual_l2": 0.013722940224155116,
+          "onsager_residual": 2.37586803564227e-08
+        },
+        "s_selector": {
+          "D11": 8.975769615216382,
+          "D31": 4.336781021390191,
+          "D13": -4.336780997631511,
+          "D33": 64.21296021229581,
+          "D33_spitzer": 66.50491175626992,
+          "residual_l2": 0.013722940224155116,
+          "onsager_residual": 2.37586803564227e-08
+        }
+      },
+      "transport_relative": {
+        "surface_index": {
+          "D11": 1.1548171359813482e-09,
+          "D31": 1.0990250469069123e-09,
+          "D13": 1.1085825155561634e-09,
+          "D33": 4.016035664657729e-11,
+          "D33_spitzer": 5.1313422740830375e-12
+        },
+        "s_selector": {
+          "D11": 1.1548171359813482e-09,
+          "D31": 1.0990250469069123e-09,
+          "D13": 1.1085825155561634e-09,
+          "D33": 4.016035664657729e-11,
+          "D33_spitzer": 5.1313422740830375e-12
+        }
+      }
+    },
+    {
+      "surface_index": 16,
+      "packed_index": 1,
+      "s": 0.336734693877551,
+      "rho": 0.5802884574739972,
+      "loaded_by_s_selected_index": 1,
+      "geometry_relative": {
+        "surface_index": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 1.9907784466667412e-08,
+          "iota_relative": 1.1235272623355465e-13,
+          "b_theta_scaled_difference": 6.645394225057523e-18,
+          "b_zeta_relative": 2.0758674759161057e-16,
+          "b0_relative": 1.470218909857717e-11
+        },
+        "s_selector": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 1.9907784466667412e-08,
+          "iota_relative": 1.1235272623355465e-13,
+          "b_theta_scaled_difference": 6.645394225057523e-18,
+          "b_zeta_relative": 2.0758674759161057e-16,
+          "b0_relative": 1.470218909857717e-11
+        }
+      },
+      "transport": {
+        "reference": {
+          "D11": 21.495625021059443,
+          "D31": 10.224558694984703,
+          "D13": -10.224554545578984,
+          "D33": 60.90109504864516,
+          "D33_spitzer": 66.2566467821729,
+          "residual_l2": 0.021081818836280443,
+          "onsager_residual": 4.1494057185786914e-06
+        },
+        "surface_index": {
+          "D11": 21.49562504318775,
+          "D31": 10.224558718165076,
+          "D13": -10.224554568839606,
+          "D33": 60.90109502384999,
+          "D33_spitzer": 66.25664678293687,
+          "residual_l2": 0.021081818810325916,
+          "onsager_residual": 4.149325469882115e-06
+        },
+        "s_selector": {
+          "D11": 21.49562504318775,
+          "D31": 10.224558718165076,
+          "D13": -10.224554568839606,
+          "D33": 60.90109502384999,
+          "D33_spitzer": 66.25664678293687,
+          "residual_l2": 0.021081818810325916,
+          "onsager_residual": 4.149325469882115e-06
+        }
+      },
+      "transport_relative": {
+        "surface_index": {
+          "D11": 1.0294331069852187e-09,
+          "D31": 2.2671270042509218e-09,
+          "D13": 2.274976549488732e-09,
+          "D33": 4.071383337451112e-10,
+          "D33_spitzer": 1.1530549561195224e-11
+        },
+        "s_selector": {
+          "D11": 1.0294331069852187e-09,
+          "D31": 2.2671270042509218e-09,
+          "D13": 2.274976549488732e-09,
+          "D33": 4.071383337451112e-10,
+          "D33_spitzer": 1.1530549561195224e-11
+        }
+      }
+    },
+    {
+      "surface_index": 32,
+      "packed_index": 2,
+      "s": 0.6632653061224489,
+      "rho": 0.8144110179279557,
+      "loaded_by_s_selected_index": 2,
+      "geometry_relative": {
+        "surface_index": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 4.421088746621607e-08,
+          "iota_relative": 1.213706371131939e-13,
+          "b_theta_scaled_difference": 1.0069069492195362e-18,
+          "b_zeta_relative": 2.075867696508716e-16,
+          "b0_relative": 8.48218907208531e-12
+        },
+        "s_selector": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 4.421088746621607e-08,
+          "iota_relative": 1.213706371131939e-13,
+          "b_theta_scaled_difference": 1.0069069492195362e-18,
+          "b_zeta_relative": 2.075867696508716e-16,
+          "b0_relative": 8.48218907208531e-12
+        }
+      },
+      "transport": {
+        "reference": {
+          "D11": 39.09208171252621,
+          "D31": 18.1522749294296,
+          "D13": -18.152234214510308,
+          "D33": 56.481912987790814,
+          "D33_spitzer": 65.86042993728421,
+          "residual_l2": 0.0281520333926509,
+          "onsager_residual": 4.071491929025228e-05
+        },
+        "surface_index": {
+          "D11": 39.09208179053503,
+          "D31": 18.15227496578587,
+          "D13": -18.15223425115764,
+          "D33": 56.48191296205505,
+          "D33_spitzer": 65.86042993924805,
+          "residual_l2": 0.028152033351372348,
+          "onsager_residual": 4.071462823063143e-05
+        },
+        "s_selector": {
+          "D11": 39.09208179053503,
+          "D31": 18.15227496578587,
+          "D13": -18.15223425115764,
+          "D33": 56.48191296205505,
+          "D33_spitzer": 65.86042993924805,
+          "residual_l2": 0.028152033351372348,
+          "onsager_residual": 4.071462823063143e-05
+        }
+      },
+      "transport_relative": {
+        "surface_index": {
+          "D11": 1.995514710807425e-09,
+          "D31": 2.0028493799043313e-09,
+          "D13": 2.0188882411314965e-09,
+          "D33": 4.556461379811666e-10,
+          "D33_spitzer": 2.981821782016038e-11
+        },
+        "s_selector": {
+          "D11": 1.995514710807425e-09,
+          "D31": 2.0028493799043313e-09,
+          "D13": 2.0188882411314965e-09,
+          "D33": 4.556461379811666e-10,
+          "D33_spitzer": 2.981821782016038e-11
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "claim_scope": {
+    "positive_gates": [
+      "Redl fixed-field current agrees with the archived precise-QS SFINCS interior-window reference within the documented gate.",
+      "The fixed-field NTX+NEOPAX total-current stress comparison passes the documented interior-window gate using the explicit low-order Spitzer-conductivity closure, without fitted bridge constants.",
+      "The rebuilt raw-branch imported W7-X workflow remains within the integrated-transfer regression gate."
+    ],
+    "monitored_stress": [
+      "The Pmax extension artifact is retained as a development stress metric until precise-QS convergence improves without regressing integrated W7-X."
+    ],
+    "promotion_requirements": [
+      "derive the closure change from the moment equations or an equivalent documented physics model",
+      "avoid fitted bridge constants in the shipping runtime",
+      "preserve the fixed-field QA/QH total-current stress gate",
+      "preserve the integrated W7-X transfer regression"
+    ]
+  },
+  "closure_decision": {
+    "status": "fixed-field-stress-gate-passed",
+    "reason": "The precise-QS fixed-field total-current stress comparison now passes after applying only two physics-normalization changes: the SFINCS flux-surface-averaged parallel-flow observable bridge and the explicit low-order Spitzer conductivity block in the reduced momentum-restoring closure. The integrated W7-X workflow remains a separate raw-branch transfer gate, since the low-order fixed-field branch does not transfer to that imported-database convention.",
+    "literature_basis": [
+      "Monoenergetic momentum-restoring closures are moment-equation approximations built from precomputed transport coefficients; the literature does not justify fitted per-benchmark bridge constants as a replacement for a projected collision model.",
+      "The Redl precise-QS comparison is an analytic bootstrap-current validation path and is intentionally kept separate from the reduced NTX+NEOPAX closure stress metric."
+    ],
+    "promotion_condition": "Any broader closure default can be promoted only if it is derived from the same moment equations or an equivalent documented physics model, preserves the fixed-field QA/QH total-current gate, and preserves the integrated W7-X transfer gate.",
+    "fixed_field_gate": 0.1,
+    "fixed_field_max_error": 0.09954426865591719,
+    "fixed_field_d33_mode": "spitzer",
+    "fixed_field_n_order": 2
+  },
+  "precise_qs": {
+    "qa": {
+      "Redl": 0.06857472132654796,
+      "NTX+NEOPAX": 0.08304630703290415
+    },
+    "qh": {
+      "Redl": 0.04062681526953228,
+      "NTX+NEOPAX": 0.09954426865591719
+    },
+    "redl_gate": 0.1,
+    "ntx_neopax_gate": 0.1
+  },
+  "fixed_field_diagnostics": {
+    "qa": {
+      "current_total": 0.08304630703290415,
+      "current_nomom_scale": 0.709837247163984,
+      "thermal_raw_fit": 0.2360169097293035,
+      "thermal_eff_fit": 0.1962276475885872,
+      "hybrid_errors": {
+        "electron_nomom_ion_total": 152.8171435800753,
+        "electron_total_ion_nomom": 152.3981893809782,
+        "nomom": 0.46015228421699716,
+        "total": 0.08304163041975055
+      }
+    },
+    "qh": {
+      "current_total": 0.09954426865591719,
+      "current_nomom_scale": 0.7430300788775693,
+      "thermal_raw_fit": 0.3126983416518052,
+      "thermal_eff_fit": 0.2801657269741853,
+      "hybrid_errors": {
+        "electron_nomom_ion_total": 60.372752090765424,
+        "electron_total_ion_nomom": 60.64949253496869,
+        "nomom": 0.4482205452918201,
+        "total": 0.0995442686559138
+      }
+    }
+  },
+  "w7x_transfer": {
+    "raw_branch_error": 0.018297079828848713,
+    "raw_gate": 0.02,
+    "pmax4_transfer_error": 0.49423424778953606
+  },
+  "pmax_stress": {
+    "levels": [
+      3,
+      4
+    ],
+    "qa_errors": [
+      1.1571902916712908,
+      1.152457631911886
+    ],
+    "qh_errors": [
+      1.1620140338095981,
+      1.1577049117956955
+    ],
+    "w7x_errors": [
+      1.1670174968393047e-12,
+      0.49423424778953606
+    ],
+    "max_successive_change": 0.11084249103141489
+  },
+  "sources": {
+    "fixed_field": "docs/_static/bootstrap_current_fixed_field_validation.json",
+    "w7x": "docs/_static/bootstrap_current_reference_audit_w7x.json",
+    "pmax": "docs/_static/closure_pmax_convergence.json"
+  }
+}

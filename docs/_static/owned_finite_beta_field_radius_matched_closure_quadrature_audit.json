@@ -1,0 +1,269 @@
+{
+  "benchmark": "owned_finite_beta_closure_quadrature_audit",
+  "classification": "owned finite-beta closure quadrature audit",
+  "claim_scope": "Reuses the owned finite-beta NTX scan and Redl profile contract while varying only the momentum-closure Sonine order and velocity quadrature.  It is a numerical/physics consistency audit for the reduced closure, not a fitted correction and not a bootstrap-current parity claim.",
+  "inputs": {
+    "bootstrap_artifact": "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json",
+    "x_values": [
+      10,
+      18
+    ],
+    "n_orders": [
+      10,
+      12,
+      14,
+      18
+    ],
+    "quadrature_note": "Gauss-Laguerre velocity quadrature must be increased with Sonine order; apparent current-gate passes at X < Pmax are treated as under-integrated until they transfer to larger X.",
+    "scan_rho": [
+      0.07142857142857142,
+      0.14285714285714285,
+      0.21428571428571427,
+      0.2857142857142857,
+      0.3571428571428571,
+      0.42857142857142855,
+      0.5,
+      0.5714285714285714,
+      0.6428571428571428,
+      0.7142857142857142,
+      0.7857142857142857,
+      0.8571428571428571,
+      0.9285714285714285
+    ],
+    "nu_v_count": 17,
+    "Es": [
+      0.0,
+      1e-05,
+      0.0001
+    ],
+    "ntx_grid": {
+      "n_theta": 25,
+      "n_zeta": 31,
+      "n_xi": 24
+    },
+    "d33_mode": "spitzer",
+    "field_radial_points": 15,
+    "mboz": 5,
+    "nboz": 5,
+    "min_bmn_to_load": 1e-05
+  },
+  "rows": [
+    {
+      "neopax_x": 10,
+      "n_order": 10,
+      "x_to_order_ratio": 1.0,
+      "stress_rho": 0.8571428571428571,
+      "stress_relative_error_total_vs_redl": 0.18749435175970908,
+      "stress_current_over_root_fsab2": -75800695.12117799,
+      "stress_redl_current_over_root_fsab2": -93292514.68632331,
+      "max_relative_error_total_vs_redl": 0.19047936276204666,
+      "rms_relative_error_total_vs_redl": 0.13036584598703022,
+      "sign_agreement_fraction_total": 1.0,
+      "nomom_stress_relative_error_vs_redl": 0.3131236346537046,
+      "closure_seconds": 12.26117366598919
+    },
+    {
+      "neopax_x": 10,
+      "n_order": 12,
+      "x_to_order_ratio": 0.8333333333333334,
+      "stress_rho": 0.8571428571428571,
+      "stress_relative_error_total_vs_redl": 0.22729943601709113,
+      "stress_current_over_root_fsab2": -72087178.71350583,
+      "stress_redl_current_over_root_fsab2": -93292514.68632331,
+      "max_relative_error_total_vs_redl": 0.22729943601709113,
+      "rms_relative_error_total_vs_redl": 0.14257762529178783,
+      "sign_agreement_fraction_total": 1.0,
+      "nomom_stress_relative_error_vs_redl": 0.3131236346537046,
+      "closure_seconds": 11.382910832995549
+    },
+    {
+      "neopax_x": 10,
+      "n_order": 14,
+      "x_to_order_ratio": 0.7142857142857143,
+      "stress_rho": 0.8571428571428571,
+      "stress_relative_error_total_vs_redl": 0.5810538435689956,
+      "stress_current_over_root_fsab2": -39084540.45161819,
+      "stress_redl_current_over_root_fsab2": -93292514.68632331,
+      "max_relative_error_total_vs_redl": 0.5941959534233622,
+      "rms_relative_error_total_vs_redl": 0.4344071433513627,
+      "sign_agreement_fraction_total": 1.0,
+      "nomom_stress_relative_error_vs_redl": 0.3131236346537046,
+      "closure_seconds": 11.649844124971423
+    },
+    {
+      "neopax_x": 10,
+      "n_order": 18,
+      "x_to_order_ratio": 0.5555555555555556,
+      "stress_rho": 0.8571428571428571,
+      "stress_relative_error_total_vs_redl": 0.12984112645237977,
+      "stress_current_over_root_fsab2": -105405719.88277072,
+      "stress_redl_current_over_root_fsab2": -93292514.68632331,
+      "max_relative_error_total_vs_redl": 4.074872868481896,
+      "rms_relative_error_total_vs_redl": 1.1799906739128192,
+      "sign_agreement_fraction_total": 0.9230769230769231,
+      "nomom_stress_relative_error_vs_redl": 0.3131236346537046,
+      "closure_seconds": 11.666495833022054
+    },
+    {
+      "neopax_x": 18,
+      "n_order": 10,
+      "x_to_order_ratio": 1.8,
+      "stress_rho": 0.8571428571428571,
+      "stress_relative_error_total_vs_redl": 0.1239994105546484,
+      "stress_current_over_root_fsab2": -81724297.85605834,
+      "stress_redl_current_over_root_fsab2": -93292514.68632331,
+      "max_relative_error_total_vs_redl": 0.27716293841818573,
+      "rms_relative_error_total_vs_redl": 0.13186510774574448,
+      "sign_agreement_fraction_total": 1.0,
+      "nomom_stress_relative_error_vs_redl": 0.31371380169328705,
+      "closure_seconds": 12.978408083959948
+    },
+    {
+      "neopax_x": 18,
+      "n_order": 12,
+      "x_to_order_ratio": 1.5,
+      "stress_rho": 0.8571428571428571,
+      "stress_relative_error_total_vs_redl": 0.1319920972254803,
+      "stress_current_over_root_fsab2": -80978640.01743658,
+      "stress_redl_current_over_root_fsab2": -93292514.68632331,
+      "max_relative_error_total_vs_redl": 0.268068292948081,
+      "rms_relative_error_total_vs_redl": 0.1305241623655604,
+      "sign_agreement_fraction_total": 1.0,
+      "nomom_stress_relative_error_vs_redl": 0.31371380169328705,
+      "closure_seconds": 11.95809712499613
+    },
+    {
+      "neopax_x": 18,
+      "n_order": 14,
+      "x_to_order_ratio": 1.2857142857142858,
+      "stress_rho": 0.8571428571428571,
+      "stress_relative_error_total_vs_redl": 0.13804425297056205,
+      "stress_current_over_root_fsab2": -80414019.18870462,
+      "stress_redl_current_over_root_fsab2": -93292514.68632331,
+      "max_relative_error_total_vs_redl": 0.25977587260208646,
+      "rms_relative_error_total_vs_redl": 0.12978009357782927,
+      "sign_agreement_fraction_total": 1.0,
+      "nomom_stress_relative_error_vs_redl": 0.31371380169328705,
+      "closure_seconds": 11.78339162498014
+    },
+    {
+      "neopax_x": 18,
+      "n_order": 18,
+      "x_to_order_ratio": 1.0,
+      "stress_rho": 0.8571428571428571,
+      "stress_relative_error_total_vs_redl": 0.14410334956302176,
+      "stress_current_over_root_fsab2": -79848750.83086672,
+      "stress_redl_current_over_root_fsab2": -93292514.68632331,
+      "max_relative_error_total_vs_redl": 0.2499702133117282,
+      "rms_relative_error_total_vs_redl": 0.12961194715428917,
+      "sign_agreement_fraction_total": 1.0,
+      "nomom_stress_relative_error_vs_redl": 0.31371380169328705,
+      "closure_seconds": 12.379096125019714
+    }
+  ],
+  "metadata": {
+    "scan_seconds": 0.0015830410411581397,
+    "scan_cache": {
+      "scan_source": "cached_hdf5",
+      "scan_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_radial_interpolation_audit/finite_beta_qa_pressure_current_bootstrap_scan.h5",
+      "scan_load_seconds": 0.0015830410411581397
+    },
+    "rho_compare": [
+      0.07142857142857142,
+      0.14285714285714285,
+      0.21428571428571427,
+      0.2857142857142857,
+      0.3571428571428571,
+      0.42857142857142855,
+      0.5,
+      0.5714285714285714,
+      0.6428571428571428,
+      0.7142857142857142,
+      0.7857142857142857,
+      0.8571428571428571,
+      0.9285714285714285
+    ],
+    "redl_current_over_root_fsab2": [
+      -17253883.115752343,
+      -20549817.57810125,
+      -25591534.488937475,
+      -29736965.13256633,
+      -33767621.081322536,
+      -37995551.99079884,
+      -42873282.35260753,
+      -49126823.71681437,
+      -57761701.195756,
+      -69545224.37032287,
+      -83472283.37932375,
+      -93292514.68632331,
+      -81499165.87162043
+    ],
+    "boozmn_path": "examples/outputs/owned_finite_beta_field_radius_matched_quadrature_probe/boozmn_finite_beta_qa_pressure_current_m5_n5.nc",
+    "case": {
+      "id": "finite_beta_qa_pressure_current",
+      "label": "Finite-beta QA pressure/current",
+      "family": "QA finite beta",
+      "source": "single-stage finite-beta test case",
+      "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
+      "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+      "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmec_jax input reader",
+      "primary_geometry_path": "booz_xform_jax",
+      "wout_metadata": {
+        "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+        "exists": true,
+        "nfp": 2,
+        "ns": 50,
+        "mpol": 8,
+        "ntor": 8,
+        "beta_vol": 0.0002519202234664469,
+        "betatotal": 0.012648204949374074,
+        "Aminor_p": 0.16831206437162471,
+        "Rmajor_p": 1.0098736979848884,
+        "b0": 0.8705673153008565
+      }
+    }
+  },
+  "summary_metrics": {
+    "row_count": 8,
+    "x_values": [
+      10,
+      18
+    ],
+    "n_orders": [
+      10,
+      12,
+      14,
+      18
+    ],
+    "profile_current_gate": 0.1,
+    "reference_neopax_x": 10,
+    "reference_n_order": 12,
+    "reference_stress_relative_error": 0.22729943601709113,
+    "min_stress_relative_error": 0.1239994105546484,
+    "min_stress_neopax_x": 18,
+    "min_stress_n_order": 10,
+    "min_stress_x_to_order_ratio": 1.8,
+    "min_stress_gate_pass": false,
+    "min_max_relative_error": 0.19047936276204666,
+    "min_max_neopax_x": 10,
+    "min_max_n_order": 10,
+    "high_x": 18,
+    "high_x_stress_error_monotone_nonincreasing_with_pmax": false,
+    "high_x_largest_order_stress_relative_error": 0.14410334956302176,
+    "max_same_order_stress_spread_over_x": 3.2091853232956056,
+    "underintegrated_gate_pass_count": 0,
+    "quadrature_stable_gate_pass_count": 0,
+    "quadrature_stable_current_gate_pass": false,
+    "best_stress_pass_rejected_as_underintegrated": false,
+    "quadrature_aliasing_detected": false,
+    "mean_closure_seconds": 12.007427176991769
+  },
+  "conclusion": "The finite-beta current gap is sensitive to the coupling between Sonine order and velocity quadrature.  A low-quadrature setting can produce an apparent stress-radius pass, but that pass is not accepted unless it also transfers to higher velocity quadrature.  The current artifact therefore closes the under-integrated-closure explanation and keeps finite-beta profile-current parity scoped as an open reduced-closure lane.",
+  "open_work": [
+    "derive or import a quadrature-converged higher-order closure before promoting finite-beta bootstrap-current parity",
+    "require current-gate pass and velocity-quadrature stability simultaneously on the finite-beta profile-current stress radius",
+    "transfer the accepted closure setting to the existing fixed-field and integrated W7-X validation artifacts before making a broad profile-current claim"
+  ],
+  "figure_png": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+  "figure_pdf": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf"
+}

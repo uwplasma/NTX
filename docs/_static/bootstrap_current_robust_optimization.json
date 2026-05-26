@@ -1,0 +1,46 @@
+{
+  "baseline_scale": 1.0,
+  "optimized_scale": 1.0457748670368257,
+  "uncertainty_sigma": 0.06,
+  "risk_aversion": 0.35,
+  "radial_points": 7,
+  "scale_grid_size": 29,
+  "quadrature_order": 5,
+  "baseline_weighted_current_response": 18.05476672344296,
+  "optimized_weighted_current_response": 17.941244433225066,
+  "weighted_current_ratio": 0.993712336915963,
+  "weighted_current_relative_change": -0.006287663084037104,
+  "robust_objective_initial": 7.463701077166174,
+  "robust_objective_final": 7.756627108952917,
+  "robust_objective_relative_change": 0.039246752885494854,
+  "robust_gain": 0.993712336915963,
+  "robust_gain_definition": "optimized_weighted_current_response / max(abs(baseline_weighted_current_response), 1e-30)",
+  "max_current_std": 1.042178789534516,
+  "rho": [
+    0.15,
+    0.25,
+    0.35000000000000003,
+    0.45,
+    0.55,
+    0.65,
+    0.75
+  ],
+  "optimized_current_mean": [
+    2.5144622657115487,
+    3.425261709991453,
+    5.495536209567113,
+    9.001052667268057,
+    22.380844498536657,
+    70.48112729048715,
+    134.74278164708898
+  ],
+  "optimized_current_std": [
+    0.041190829569616595,
+    0.03646310586191243,
+    0.013966025504794912,
+    0.13139818365529307,
+    0.14281425511137216,
+    0.3019153390745735,
+    1.042178789534516
+  ]
+}

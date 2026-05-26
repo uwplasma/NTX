@@ -1,0 +1,253 @@
+{
+  "benchmark": "owned_finite_beta_sfincs_jax_production_ladder_audit",
+  "classification": "owned finite-beta production same-grid coefficient ladder",
+  "claim_scope": "Audits the completed production-resolution finite-beta QA SFINCS-JAX/NTX same-grid transport-matrix ladder across the profile-relevant radii and collisionalities. This closes the coefficient-resolution breadth check for the finite-beta stress case, while keeping bootstrap-current parity open until the profile-current closure clears the current-conditioned precision target.",
+  "inputs": {
+    "smoke_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+    "production_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_ladder.json",
+    "conditioning_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_current_conditioning_audit.json",
+    "observable_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+    "coefficient_gate": 0.1
+  },
+  "rows": [
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "rho": 0.14285714285714285,
+      "nu_prime": 0.001,
+      "e_star": 0.0,
+      "production_seconds": 3.381583541049622,
+      "smoke_grid": {
+        "Ntheta": 25,
+        "Nzeta": 31,
+        "Nxi": 32,
+        "Nx": 1
+      },
+      "production_grid": {
+        "Ntheta": 35,
+        "Nzeta": 43,
+        "Nxi": 48,
+        "Nx": 1
+      },
+      "smoke_max_transport_relative_difference": 0.015572152661195883,
+      "production_max_transport_relative_difference": 0.015219563238649645,
+      "production_change_vs_smoke": -0.0226423045174,
+      "required_coefficient_relative_difference_for_current_gate": 0.0006894343607859794,
+      "production_precision_gap_to_current_gate": 22.075434739427273,
+      "profile_current_relative_difference": 0.20828178269124106,
+      "relative_difference": {
+        "L13_bridge_vs_sfincs": 0.015148217834204602,
+        "L31_bridge_vs_sfincs": 0.015219563238649645,
+        "L33_bridge_vs_sfincs": 0.01337133496333736,
+        "L33_spitzer_bridge_vs_sfincs": 0.056946597656109314
+      }
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "rho": 0.14285714285714285,
+      "nu_prime": 0.01,
+      "e_star": 0.0,
+      "production_seconds": 6.3202911670086905,
+      "smoke_grid": {
+        "Ntheta": 25,
+        "Nzeta": 31,
+        "Nxi": 32,
+        "Nx": 1
+      },
+      "production_grid": {
+        "Ntheta": 35,
+        "Nzeta": 43,
+        "Nxi": 48,
+        "Nx": 1
+      },
+      "smoke_max_transport_relative_difference": 0.02054783993495091,
+      "production_max_transport_relative_difference": 0.02064719610195181,
+      "production_change_vs_smoke": 0.004835358233052073,
+      "required_coefficient_relative_difference_for_current_gate": 0.0006894343607859794,
+      "production_precision_gap_to_current_gate": 29.948023011811134,
+      "profile_current_relative_difference": 0.20828178269124106,
+      "relative_difference": {
+        "L13_bridge_vs_sfincs": 0.02039121102203927,
+        "L31_bridge_vs_sfincs": 0.02064719610195181,
+        "L33_bridge_vs_sfincs": 0.012518057430190818,
+        "L33_spitzer_bridge_vs_sfincs": 0.003628590757549038
+      }
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "rho": 0.3,
+      "nu_prime": 0.001,
+      "e_star": 0.0,
+      "production_seconds": 6.33978920802474,
+      "smoke_grid": {
+        "Ntheta": 25,
+        "Nzeta": 31,
+        "Nxi": 32,
+        "Nx": 1
+      },
+      "production_grid": {
+        "Ntheta": 35,
+        "Nzeta": 43,
+        "Nxi": 48,
+        "Nx": 1
+      },
+      "smoke_max_transport_relative_difference": 0.012547172467539508,
+      "production_max_transport_relative_difference": 0.012411739538719442,
+      "production_change_vs_smoke": -0.010793900312635447,
+      "required_coefficient_relative_difference_for_current_gate": 0.0010745832667783915,
+      "production_precision_gap_to_current_gate": 11.550281790567917,
+      "profile_current_relative_difference": 0.0569114447166989,
+      "relative_difference": {
+        "L13_bridge_vs_sfincs": 0.00040118959365025573,
+        "L31_bridge_vs_sfincs": 0.00042968762659662565,
+        "L33_bridge_vs_sfincs": 0.012411739538719442,
+        "L33_spitzer_bridge_vs_sfincs": 0.17535184710639637
+      }
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "rho": 0.3,
+      "nu_prime": 0.01,
+      "e_star": 0.0,
+      "production_seconds": 5.4216770000057295,
+      "smoke_grid": {
+        "Ntheta": 25,
+        "Nzeta": 31,
+        "Nxi": 32,
+        "Nx": 1
+      },
+      "production_grid": {
+        "Ntheta": 35,
+        "Nzeta": 43,
+        "Nxi": 48,
+        "Nx": 1
+      },
+      "smoke_max_transport_relative_difference": 0.014072815428719222,
+      "production_max_transport_relative_difference": 0.012353045092020261,
+      "production_change_vs_smoke": -0.1222051369471758,
+      "required_coefficient_relative_difference_for_current_gate": 0.0010745832667783915,
+      "production_precision_gap_to_current_gate": 11.495661131086454,
+      "profile_current_relative_difference": 0.0569114447166989,
+      "relative_difference": {
+        "L13_bridge_vs_sfincs": 0.0009364054546884834,
+        "L31_bridge_vs_sfincs": 0.0008423632578576418,
+        "L33_bridge_vs_sfincs": 0.012353045092020261,
+        "L33_spitzer_bridge_vs_sfincs": 0.026057007617514515
+      }
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "rho": 0.5,
+      "nu_prime": 0.001,
+      "e_star": 0.0,
+      "production_seconds": 7.444976249942556,
+      "smoke_grid": {
+        "Ntheta": 25,
+        "Nzeta": 31,
+        "Nxi": 32,
+        "Nx": 1
+      },
+      "production_grid": {
+        "Ntheta": 35,
+        "Nzeta": 43,
+        "Nxi": 48,
+        "Nx": 1
+      },
+      "smoke_max_transport_relative_difference": 0.012535349439094555,
+      "production_max_transport_relative_difference": 0.012705730021011363,
+      "production_change_vs_smoke": 0.013592008961906885,
+      "required_coefficient_relative_difference_for_current_gate": 0.001614741226146946,
+      "production_precision_gap_to_current_gate": 7.8685858856341016,
+      "profile_current_relative_difference": 0.06422549700888262,
+      "relative_difference": {
+        "L13_bridge_vs_sfincs": 0.0017319052152244062,
+        "L31_bridge_vs_sfincs": 0.0006107235045065839,
+        "L33_bridge_vs_sfincs": 0.012705730021011363,
+        "L33_spitzer_bridge_vs_sfincs": 0.30211660467281937
+      }
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "rho": 0.5,
+      "nu_prime": 0.01,
+      "e_star": 0.0,
+      "production_seconds": 7.086231374996714,
+      "smoke_grid": {
+        "Ntheta": 25,
+        "Nzeta": 31,
+        "Nxi": 32,
+        "Nx": 1
+      },
+      "production_grid": {
+        "Ntheta": 35,
+        "Nzeta": 43,
+        "Nxi": 48,
+        "Nx": 1
+      },
+      "smoke_max_transport_relative_difference": 0.012280032502483489,
+      "production_max_transport_relative_difference": 0.012391484180635917,
+      "production_change_vs_smoke": 0.009075845534601704,
+      "required_coefficient_relative_difference_for_current_gate": 0.001614741226146946,
+      "production_precision_gap_to_current_gate": 7.673975235155269,
+      "profile_current_relative_difference": 0.06422549700888262,
+      "relative_difference": {
+        "L13_bridge_vs_sfincs": 0.007136971517195299,
+        "L31_bridge_vs_sfincs": 0.0011591218091746107,
+        "L33_bridge_vs_sfincs": 0.012391484180635917,
+        "L33_spitzer_bridge_vs_sfincs": 0.0834978521713222
+      }
+    }
+  ],
+  "stress_row": {
+    "case_id": "finite_beta_qa_pressure_current",
+    "rho": 0.14285714285714285,
+    "nu_prime": 0.01,
+    "e_star": 0.0,
+    "production_seconds": 6.3202911670086905,
+    "smoke_grid": {
+      "Ntheta": 25,
+      "Nzeta": 31,
+      "Nxi": 32,
+      "Nx": 1
+    },
+    "production_grid": {
+      "Ntheta": 35,
+      "Nzeta": 43,
+      "Nxi": 48,
+      "Nx": 1
+    },
+    "smoke_max_transport_relative_difference": 0.02054783993495091,
+    "production_max_transport_relative_difference": 0.02064719610195181,
+    "production_change_vs_smoke": 0.004835358233052073,
+    "required_coefficient_relative_difference_for_current_gate": 0.0006894343607859794,
+    "production_precision_gap_to_current_gate": 29.948023011811134,
+    "profile_current_relative_difference": 0.20828178269124106,
+    "relative_difference": {
+      "L13_bridge_vs_sfincs": 0.02039121102203927,
+      "L31_bridge_vs_sfincs": 0.02064719610195181,
+      "L33_bridge_vs_sfincs": 0.012518057430190818,
+      "L33_spitzer_bridge_vs_sfincs": 0.003628590757549038
+    }
+  },
+  "summary_metrics": {
+    "completed_production_ladder_count": 6,
+    "max_production_transport_relative_difference": 0.02064719610195181,
+    "max_production_transport_relative_difference_rho": 0.14285714285714285,
+    "max_production_transport_relative_difference_nuPrime": 0.01,
+    "max_production_precision_gap_to_current_gate": 29.948023011811134,
+    "max_production_precision_gap_rho": 0.14285714285714285,
+    "max_production_precision_gap_nuPrime": 0.01,
+    "max_profile_current_relative_difference_on_ladder": 0.20828178269124106,
+    "mean_production_seconds": 5.999091423504676,
+    "coefficient_gate": 0.1,
+    "production_ladder_coefficient_gate_pass": true,
+    "production_ladder_current_conditioned_gate_pass": false
+  },
+  "conclusion": "The production radial/collisionality ladder keeps the same-grid finite-beta coefficient differences below the order-1e-1 coefficient gate at every completed point. The current-conditioned precision target is still missed at the most cancellation-sensitive radius, so the remaining bootstrap-current work stays assigned to the profile-current observable and reduced closure, not to a broad production-resolution coefficient failure.",
+  "open_work": [
+    "apply the same production contract to profile-current closure diagnostics before promoting finite-beta bootstrap parity",
+    "test any reduced-closure change against the fixed-field QA/QH current gate and W7-X integrated transfer",
+    "extend the owned production ladder to QH/QI and W7-X-family inputs only after those independent-reference cases are owned"
+  ],
+  "figure_png": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png",
+  "figure_pdf": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf"
+}

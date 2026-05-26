@@ -1,0 +1,234 @@
+{
+  "inverse": [
+    "docs/_static/autodiff_inverse_problem.png",
+    "docs/_static/autodiff_inverse_problem.pdf"
+  ],
+  "profiles": [
+    "docs/_static/autodiff_neopax_profiles.png",
+    "docs/_static/autodiff_neopax_profiles.pdf"
+  ],
+  "ambipolar": [
+    "docs/_static/ambipolar_profile.png",
+    "docs/_static/ambipolar_profile.pdf"
+  ],
+  "ambipolar_family": [
+    "docs/_static/ambipolar_profile_family.png",
+    "docs/_static/ambipolar_profile_family.pdf"
+  ],
+  "profile_reconstruction": [
+    "docs/_static/profile_force_reconstruction_audit.png",
+    "docs/_static/profile_force_reconstruction_audit.pdf",
+    "docs/_static/profile_force_reconstruction_audit.json"
+  ],
+  "profile_control": [
+    "docs/_static/profile_control_optimization.png",
+    "docs/_static/profile_control_optimization.pdf"
+  ],
+  "profile_basis": [
+    "docs/_static/profile_basis_optimization.png",
+    "docs/_static/profile_basis_optimization.pdf",
+    "docs/_static/profile_basis_optimization.json"
+  ],
+  "profile_transport": [
+    "docs/_static/profile_transport_loop.png",
+    "docs/_static/profile_transport_loop.pdf"
+  ],
+  "primitive_transport": [
+    "docs/_static/primitive_profile_transport.png",
+    "docs/_static/primitive_profile_transport.pdf"
+  ],
+  "derivative_benchmark": [
+    "docs/_static/derivative_path_benchmark.png",
+    "docs/_static/derivative_path_benchmark.pdf",
+    "docs/_static/derivative_path_benchmark.json"
+  ],
+  "geometry_derivative": [
+    "docs/_static/geometry_control_derivative_benchmark.png",
+    "docs/_static/geometry_control_derivative_benchmark.pdf",
+    "docs/_static/geometry_control_derivative_benchmark.json"
+  ],
+  "file_backed_geometry_derivative": [
+    "docs/_static/file_backed_geometry_control_derivative_benchmark.png",
+    "docs/_static/file_backed_geometry_control_derivative_benchmark.pdf",
+    "docs/_static/file_backed_geometry_control_derivative_benchmark.json"
+  ],
+  "boundary_forward_mode": [
+    "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
+    "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
+    "docs/_static/boundary_forward_mode_current_derivative_benchmark.json"
+  ],
+  "implicit_equilibrium_forward_mode": [
+    "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.png",
+    "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf",
+    "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json"
+  ],
+  "boundary_explicit_relaxed": [
+    "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png",
+    "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf",
+    "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json"
+  ],
+  "geometry_family_breadth": [
+    "docs/_static/geometry_family_breadth_summary.png",
+    "docs/_static/geometry_family_breadth_summary.pdf",
+    "docs/_static/geometry_family_breadth_summary.json"
+  ],
+  "geometry_family_transport": [
+    "docs/_static/geometry_family_transport_convergence.png",
+    "docs/_static/geometry_family_transport_convergence.pdf",
+    "docs/_static/geometry_family_transport_convergence.json"
+  ],
+  "boozmn_same_coordinate_roundtrip": [
+    "docs/_static/boozmn_same_coordinate_roundtrip_audit.png",
+    "docs/_static/boozmn_same_coordinate_roundtrip_audit.pdf",
+    "docs/_static/boozmn_same_coordinate_roundtrip_audit.json"
+  ],
+  "boozmn_finite_beta_wout_roundtrip": [
+    "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.png",
+    "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.pdf",
+    "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.json"
+  ],
+  "owned_geometry_neopax": [
+    "docs/_static/owned_geometry_neopax_dataset.png",
+    "docs/_static/owned_geometry_neopax_dataset.pdf",
+    "docs/_static/owned_geometry_neopax_dataset.json"
+  ],
+  "owned_finite_beta_sfincs_jax_inputs": [
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_inputs.json"
+  ],
+  "owned_finite_beta_sfincs_jax_resolution_audit": [
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json"
+  ],
+  "owned_finite_beta_sfincs_jax_production_ladder": [
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json"
+  ],
+  "owned_finite_beta_sfincs_jax_profile_current": [
+    "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json"
+  ],
+  "owned_finite_beta_sfincs_jax_profile_current_resolution": [
+    "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png",
+    "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf",
+    "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
+  ],
+  "owned_finite_beta_bootstrap_comparison": [
+    "docs/_static/owned_finite_beta_bootstrap_comparison.png",
+    "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
+    "docs/_static/owned_finite_beta_bootstrap_comparison.json"
+  ],
+  "owned_finite_beta_closure_localization": [
+    "docs/_static/owned_finite_beta_closure_localization.png",
+    "docs/_static/owned_finite_beta_closure_localization.pdf",
+    "docs/_static/owned_finite_beta_closure_localization.json"
+  ],
+  "owned_finite_beta_profile_current_observable": [
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
+    "docs/_static/owned_finite_beta_profile_current_observable_audit.json"
+  ],
+  "owned_finite_beta_current_conditioning": [
+    "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+    "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+    "docs/_static/owned_finite_beta_current_conditioning_audit.json"
+  ],
+  "owned_finite_beta_closure_quadrature": [
+    "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+    "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+    "docs/_static/owned_finite_beta_closure_quadrature_audit.json"
+  ],
+  "owned_finite_beta_source_channel": [
+    "docs/_static/owned_finite_beta_source_channel_audit.png",
+    "docs/_static/owned_finite_beta_source_channel_audit.pdf",
+    "docs/_static/owned_finite_beta_source_channel_audit.json"
+  ],
+  "owned_finite_beta_source_response_profile": [
+    "docs/_static/owned_finite_beta_source_response_profile_audit.png",
+    "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
+    "docs/_static/owned_finite_beta_source_response_profile_audit.json"
+  ],
+  "owned_finite_beta_closure_target": [
+    "docs/_static/owned_finite_beta_closure_target_audit.png",
+    "docs/_static/owned_finite_beta_closure_target_audit.pdf",
+    "docs/_static/owned_finite_beta_closure_target_audit.json"
+  ],
+  "owned_finite_beta_radial_interpolation": [
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+    "docs/_static/owned_finite_beta_radial_interpolation_audit.json"
+  ],
+  "owned_finite_beta_field_radius_matched_closure_quadrature": [
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+    "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
+  ],
+  "owned_finite_beta_field_radius_matched_source_channel": [
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.png",
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.pdf",
+    "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json"
+  ],
+  "profile_uncertainty": [
+    "docs/_static/autodiff_profile_uncertainty.png",
+    "docs/_static/autodiff_profile_uncertainty.pdf",
+    "docs/_static/autodiff_profile_uncertainty.json"
+  ],
+  "science": [
+    "docs/_static/bootstrap_current_optimization.png",
+    "docs/_static/bootstrap_current_optimization.pdf",
+    "docs/_static/bootstrap_current_optimization.json"
+  ],
+  "robust_science": [
+    "docs/_static/bootstrap_current_robust_optimization.png",
+    "docs/_static/bootstrap_current_robust_optimization.pdf",
+    "docs/_static/bootstrap_current_robust_optimization.json"
+  ],
+  "validation": [
+    "docs/_static/validation_summary.png",
+    "docs/_static/validation_summary.pdf",
+    "docs/_static/validation_summary.json"
+  ],
+  "closure_validation": [
+    "docs/_static/closure_validation_report.png",
+    "docs/_static/closure_validation_report.pdf",
+    "docs/_static/closure_validation_report.json",
+    "docs/_static/closure_validation_report.txt"
+  ],
+  "bootstrap_response": [
+    "docs/_static/bootstrap_current_from_vmec_or_boozmn.png",
+    "docs/_static/bootstrap_current_from_vmec_or_boozmn.pdf",
+    "docs/_static/bootstrap_current_from_vmec_or_boozmn.json"
+  ],
+  "w7x_audit": [
+    "docs/_static/bootstrap_current_reference_audit_w7x.png",
+    "docs/_static/bootstrap_current_reference_audit_w7x.pdf",
+    "docs/_static/bootstrap_current_reference_audit_w7x.json"
+  ],
+  "performance_smoke": [
+    "docs/_static/performance_scaling_smoke.png",
+    "docs/_static/performance_scaling_smoke.pdf"
+  ],
+  "performance_heavy": [
+    "docs/_static/performance_scaling_heavy.png",
+    "docs/_static/performance_scaling_heavy.pdf"
+  ],
+  "performance_production": [
+    "docs/_static/performance_scaling_production.png",
+    "docs/_static/performance_scaling_production.pdf",
+    "docs/_static/performance_scaling_production.json"
+  ],
+  "performance_strong": [
+    "docs/_static/performance_strong_scaling_production.png",
+    "docs/_static/performance_strong_scaling_production.pdf",
+    "docs/_static/performance_strong_scaling_production.json"
+  ],
+  "prepared_geometry_reuse": [
+    "docs/_static/prepared_geometry_reuse_profile.png",
+    "docs/_static/prepared_geometry_reuse_profile.pdf",
+    "docs/_static/prepared_geometry_reuse_profile.json"
+  ]
+}

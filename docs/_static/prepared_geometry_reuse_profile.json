@@ -1,0 +1,75 @@
+{
+  "artifact": "prepared_geometry_reuse_profile",
+  "backend": "cpu",
+  "claim_scope": "Profiles repeated monoenergetic solves on one prepared geometry. The artifact supports performance guidance and does not change physics validation claims.",
+  "devices": [
+    "TFRT_CPU_0"
+  ],
+  "grid": {
+    "n_theta": 9,
+    "n_xi": 6,
+    "n_zeta": 11,
+    "x64": true
+  },
+  "notes": "Direct solves rebuild geometry and derivative operators for every case; prepared solves hoist those arrays; compiled steady timings reuse the same JAX trace after one first-call compilation.",
+  "preset": "paper",
+  "results": [
+    {
+      "compiled_first_seconds": 0.2752895000157878,
+      "compiled_steady_seconds": 0.004900834057480097,
+      "compiled_steady_speedup_vs_direct": 119.22936507152242,
+      "compiled_total_seconds": 0.2801903340732679,
+      "compiled_total_speedup_vs_direct": 2.085451430460297,
+      "direct_seconds": 0.584323332994245,
+      "first_compiled_relative_mismatch": 1.1074615113848552e-09,
+      "max_compiled_relative_mismatch": 1.1074615113848552e-09,
+      "max_prepared_relative_mismatch": 0.0,
+      "num_cases": 4,
+      "prepare_seconds": 0.003818750032223761,
+      "prepared_loop_seconds": 0.5947307919850573,
+      "prepared_speedup_vs_direct": 0.9762321946232058,
+      "prepared_total_seconds": 0.598549542017281
+    },
+    {
+      "compiled_first_seconds": 0.271024499903433,
+      "compiled_steady_seconds": 0.01984541700221598,
+      "compiled_steady_speedup_vs_direct": 117.02683671389794,
+      "compiled_total_seconds": 0.290869916905649,
+      "compiled_total_speedup_vs_direct": 7.984484609973906,
+      "direct_seconds": 2.3224463750375435,
+      "first_compiled_relative_mismatch": 1.1074615113848552e-09,
+      "max_compiled_relative_mismatch": 1.3345542832317026e-09,
+      "max_prepared_relative_mismatch": 0.0,
+      "num_cases": 16,
+      "prepare_seconds": 0.003974791965447366,
+      "prepared_loop_seconds": 2.3133735419251025,
+      "prepared_speedup_vs_direct": 1.0021999459780975,
+      "prepared_total_seconds": 2.31734833389055
+    },
+    {
+      "compiled_first_seconds": 0.26982066698838025,
+      "compiled_steady_seconds": 0.05718483298551291,
+      "compiled_steady_speedup_vs_direct": 124.52349182858651,
+      "compiled_total_seconds": 0.32700549997389317,
+      "compiled_total_speedup_vs_direct": 21.77594897810313,
+      "direct_seconds": 7.120855082990602,
+      "first_compiled_relative_mismatch": 1.1074615113848552e-09,
+      "max_compiled_relative_mismatch": 1.8559192830983638e-09,
+      "max_prepared_relative_mismatch": 0.0,
+      "num_cases": 48,
+      "prepare_seconds": 0.0039031250635161996,
+      "prepared_loop_seconds": 7.015197333064862,
+      "prepared_speedup_vs_direct": 1.0144968184269807,
+      "prepared_total_seconds": 7.019100458128378
+    }
+  ],
+  "summary_metrics": {
+    "best_compiled_steady_speedup_vs_direct": 124.52349182858651,
+    "best_prepared_speedup_vs_direct": 1.0144968184269807,
+    "max_compiled_first_call_seconds": 0.2752895000157878,
+    "max_compiled_relative_mismatch": 1.8559192830983638e-09,
+    "max_prepared_relative_mismatch": 0.0,
+    "max_rss_mb": 1262.234375
+  },
+  "warmup_seconds": 2.2336075420025736
+}

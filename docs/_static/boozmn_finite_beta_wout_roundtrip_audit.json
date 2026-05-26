@@ -1,0 +1,254 @@
+{
+  "benchmark": "boozmn_same_coordinate_roundtrip_audit",
+  "classification": "same-coordinate VMEC half-grid Boozer-file round trip",
+  "inputs": {
+    "input": "/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/configurations/QA_aspect6_beta2.5/input.QA_beta0p025_iota0p42_dreopt_HIGHERRES_2022-04-15",
+    "wout": "/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/configurations/QA_aspect6_beta2.5/wout_QA_beta0p025_iota0p42_dreopt_HIGHERRES_2022-04-15.nc",
+    "generated_boozmn": "/var/folders/bg/ksp0y7qn2rl1jj667080mw080000gn/T/ntx_boozmn_roundtrip_4cj0g06f/boozmn_roundtrip_m6_n6.nc",
+    "generated_boozmn_retained": false,
+    "surface_indices": [
+      25,
+      66,
+      133
+    ],
+    "mboz": 6,
+    "nboz": 6,
+    "nu_hat": 0.01,
+    "epsi_hat": 0.0,
+    "psi_p": 8.255090909616666,
+    "profile_source": "wout",
+    "grid": {
+      "n_theta": 7,
+      "n_zeta": 7,
+      "n_xi": 8,
+      "dtype": "float64",
+      "x64": true
+    }
+  },
+  "summary_metrics": {
+    "max_geometry_relative_difference": 9.087557845504731e-16,
+    "max_transport_relative_difference": 7.957805349978332e-14,
+    "geometry_gate_rtol": 1e-07,
+    "transport_gate_rtol": 1e-06,
+    "roundtrip_closed": true
+  },
+  "interpretation": "Boozer spectra and Boozer radial profiles live on the VMEC half grid. A passing same-coordinate round trip means the direct boozmn loader uses s_in/s_b/jlist half-grid metadata rather than full-grid phi metadata for radial selection and interpolation.",
+  "surfaces": [
+    {
+      "surface_index": 25,
+      "packed_index": 0,
+      "s": 0.1275,
+      "rho": 0.3570714214271425,
+      "loaded_by_s_selected_index": 0,
+      "geometry_relative": {
+        "surface_index": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 4.526800238767779e-16,
+          "iota_relative": 0.0,
+          "b_theta_scaled_difference": 0.0,
+          "b_zeta_relative": 0.0,
+          "b0_relative": 1.5441035661394035e-16
+        },
+        "s_selector": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 4.526800238767779e-16,
+          "iota_relative": 0.0,
+          "b_theta_scaled_difference": 0.0,
+          "b_zeta_relative": 0.0,
+          "b0_relative": 1.5441035661394035e-16
+        }
+      },
+      "transport": {
+        "reference": {
+          "D11": 0.0003427734840403105,
+          "D31": 0.0025656502277716818,
+          "D13": -0.002566834451370552,
+          "D33": 66.48571354147322,
+          "D33_spitzer": 66.55140357870404,
+          "residual_l2": 0.0018415400275661466,
+          "onsager_residual": 1.184223598870316e-06
+        },
+        "surface_index": {
+          "D11": 0.0003427734840403159,
+          "D31": 0.002565650227771882,
+          "D13": -0.0025668344513707564,
+          "D33": 66.48571354147322,
+          "D33_spitzer": 66.55140357870403,
+          "residual_l2": 0.001841540027566168,
+          "onsager_residual": 1.1842235988742192e-06
+        },
+        "s_selector": {
+          "D11": 0.0003427734840403159,
+          "D31": 0.002565650227771882,
+          "D13": -0.0025668344513707564,
+          "D33": 66.48571354147322,
+          "D33_spitzer": 66.55140357870403,
+          "residual_l2": 0.001841540027566168,
+          "onsager_residual": 1.1842235988742192e-06
+        }
+      },
+      "transport_relative": {
+        "surface_index": {
+          "D11": 1.5815140653615786e-14,
+          "D31": 7.809348262148839e-14,
+          "D13": 7.957805349978332e-14,
+          "D33": 0.0,
+          "D33_spitzer": 2.135320061040662e-16
+        },
+        "s_selector": {
+          "D11": 1.5815140653615786e-14,
+          "D31": 7.809348262148839e-14,
+          "D13": 7.957805349978332e-14,
+          "D33": 0.0,
+          "D33_spitzer": 2.135320061040662e-16
+        }
+      }
+    },
+    {
+      "surface_index": 66,
+      "packed_index": 1,
+      "s": 0.3325,
+      "rho": 0.5766281297335398,
+      "loaded_by_s_selected_index": 1,
+      "geometry_relative": {
+        "surface_index": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 9.087557845504731e-16,
+          "iota_relative": 0.0,
+          "b_theta_scaled_difference": 0.0,
+          "b_zeta_relative": 0.0,
+          "b0_relative": 7.619875259596363e-16
+        },
+        "s_selector": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 9.087557845504731e-16,
+          "iota_relative": 0.0,
+          "b_theta_scaled_difference": 0.0,
+          "b_zeta_relative": 0.0,
+          "b0_relative": 7.619875259596363e-16
+        }
+      },
+      "transport": {
+        "reference": {
+          "D11": 0.0006627530304126768,
+          "D31": 0.008530849991868875,
+          "D13": -0.008537969177081835,
+          "D33": 66.06535731390677,
+          "D33_spitzer": 66.34600836073581,
+          "residual_l2": 0.004319560161306609,
+          "onsager_residual": 7.119185212959428e-06
+        },
+        "surface_index": {
+          "D11": 0.0006627530304126822,
+          "D31": 0.008530849991868828,
+          "D13": -0.008537969177081852,
+          "D33": 66.06535731390676,
+          "D33_spitzer": 66.34600836073584,
+          "residual_l2": 0.004319560161306681,
+          "onsager_residual": 7.119185213023613e-06
+        },
+        "s_selector": {
+          "D11": 0.0006627530304126822,
+          "D31": 0.008530849991868828,
+          "D13": -0.008537969177081852,
+          "D33": 66.06535731390676,
+          "D33_spitzer": 66.34600836073584,
+          "residual_l2": 0.004319560161306681,
+          "onsager_residual": 7.119185213023613e-06
+        }
+      },
+      "transport_relative": {
+        "surface_index": {
+          "D11": 8.17953387410688e-15,
+          "D31": 5.490371287271103e-15,
+          "D13": 2.0317752851969294e-15,
+          "D33": 2.1510297216254692e-16,
+          "D33_spitzer": 4.2838612499292767e-16
+        },
+        "s_selector": {
+          "D11": 8.17953387410688e-15,
+          "D31": 5.490371287271103e-15,
+          "D13": 2.0317752851969294e-15,
+          "D33": 2.1510297216254692e-16,
+          "D33_spitzer": 4.2838612499292767e-16
+        }
+      }
+    },
+    {
+      "surface_index": 133,
+      "packed_index": 2,
+      "s": 0.6675,
+      "rho": 0.8170067319184096,
+      "loaded_by_s_selected_index": 2,
+      "geometry_relative": {
+        "surface_index": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 5.93633710441938e-16,
+          "iota_relative": 0.0,
+          "b_theta_scaled_difference": 0.0,
+          "b_zeta_relative": 0.0,
+          "b0_relative": 4.476893518028717e-16
+        },
+        "s_selector": {
+          "m_equal": 1.0,
+          "n_equal": 1.0,
+          "b_cos_relative_l2": 5.93633710441938e-16,
+          "iota_relative": 0.0,
+          "b_theta_scaled_difference": 0.0,
+          "b_zeta_relative": 0.0,
+          "b0_relative": 4.476893518028717e-16
+        }
+      },
+      "transport": {
+        "reference": {
+          "D11": 0.0011361527036757653,
+          "D31": 0.01895561740028228,
+          "D13": -0.01901285110152102,
+          "D33": 65.29901849335909,
+          "D33_spitzer": 66.01239063226735,
+          "residual_l2": 0.007575201826557175,
+          "onsager_residual": 5.723370123874097e-05
+        },
+        "surface_index": {
+          "D11": 0.0011361527036757642,
+          "D31": 0.018955617400282242,
+          "D13": -0.019012851101520997,
+          "D33": 65.29901849335903,
+          "D33_spitzer": 66.01239063226735,
+          "residual_l2": 0.0075752018265571215,
+          "onsager_residual": 5.723370123875485e-05
+        },
+        "s_selector": {
+          "D11": 0.0011361527036757642,
+          "D31": 0.018955617400282242,
+          "D13": -0.019012851101520997,
+          "D33": 65.29901849335903,
+          "D33_spitzer": 66.01239063226735,
+          "residual_l2": 0.0075752018265571215,
+          "onsager_residual": 5.723370123875485e-05
+        }
+      },
+      "transport_relative": {
+        "surface_index": {
+          "D11": 9.542750450514384e-16,
+          "D31": 2.0133301736149956e-15,
+          "D13": 1.2773533298081957e-15,
+          "D33": 8.705095447428355e-16,
+          "D33_spitzer": 0.0
+        },
+        "s_selector": {
+          "D11": 9.542750450514384e-16,
+          "D31": 2.0133301736149956e-15,
+          "D13": 1.2773533298081957e-15,
+          "D33": 8.705095447428355e-16,
+          "D33_spitzer": 0.0
+        }
+      }
+    }
+  ]
+}

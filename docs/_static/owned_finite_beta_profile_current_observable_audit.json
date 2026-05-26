@@ -1,0 +1,676 @@
+{
+  "benchmark": "owned_finite_beta_profile_current_observable_audit",
+  "classification": "owned finite-beta profile-current observable audit",
+  "claim_scope": "Reads the finite-beta Redl and NTX+NEOPAX bootstrap-current stress sidecar and decomposes the remaining profile-current gap into the no-momentum current, applied momentum correction, correction needed to hit the Redl target, local Redl/profile drivers, and Pmax trend. It is a reduced-closure diagnostic, not a parity claim.",
+  "inputs": {
+    "bootstrap_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_bootstrap_comparison.json",
+    "closure_localization_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_closure_localization.json",
+    "current_units": "<J dot B> / sqrt(<B^2>)",
+    "profile_current_gate": 0.1
+  },
+  "rows": [
+    {
+      "rho": 0.07142857142857142,
+      "redl_current_over_root_fsab2": -17253883.115752343,
+      "ntx_neopax_nomom_over_root_fsab2": -34076025.630947866,
+      "ntx_neopax_total_over_root_fsab2": -18171244.350103956,
+      "applied_momentum_correction_over_root_fsab2": 15904781.28084391,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 16822142.515195522,
+      "applied_over_needed_correction": 0.9454670394378745,
+      "residual_after_correction_over_needed": 0.05453296056212553,
+      "relative_error_nomom_vs_redl": 0.9749771922262153,
+      "relative_error_total_vs_redl": 0.05316839277264408,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1043917528.6889212,
+        -1062088773.0390252
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1062852482.3346404,
+        -1046947701.0537965
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 2109800183.3884368,
+      "species_correction_cancellation_amplification": 132.6519457346785,
+      "residual_after_correction_over_species_correction_l1": 0.00043480953389542703,
+      "applied_correction_over_species_correction_l1": 0.007538524930498439,
+      "needed_correction_over_species_correction_l1": 0.007973334464393866,
+      "profile_drivers": {
+        "epsilon": 0.011415958569430456,
+        "trapped_fraction": 0.15550616579105536,
+        "redl_L31": 0.1244070687133513,
+        "redl_L32": -0.0028875521067182747,
+        "redl_alpha": -0.7603495979539846,
+        "nu_e_star": 0.557699355366503,
+        "nu_i_star": 0.47381776991965147,
+        "density": 3.999999999987554e+20,
+        "temperature": 11941.326530612245,
+        "A1_electron": 1.2307005254832915,
+        "A2_electron": -0.8204670187207211,
+        "L31_electron": -232533.54609631203,
+        "L32_electron": -708960.7937130504
+      }
+    },
+    {
+      "rho": 0.14285714285714285,
+      "redl_current_over_root_fsab2": -20549817.57810125,
+      "ntx_neopax_nomom_over_root_fsab2": -52023986.88051309,
+      "ntx_neopax_total_over_root_fsab2": -24829970.21724798,
+      "applied_momentum_correction_over_root_fsab2": 27194016.663265105,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 31474169.302411836,
+      "applied_over_needed_correction": 0.8640106241400072,
+      "residual_after_correction_over_needed": 0.1359893758599928,
+      "relative_error_nomom_vs_redl": 1.5316033430852463,
+      "relative_error_total_vs_redl": 0.20828178269124106,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1476727435.7807221,
+        -1501557405.9979703
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1503935954.788677,
+        -1476741938.125412
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 2980677892.914089,
+      "species_correction_cancellation_amplification": 109.60785711882431,
+      "residual_after_correction_over_species_correction_l1": 0.0014359661771310005,
+      "applied_correction_over_species_correction_l1": 0.009123433541045459,
+      "needed_correction_over_species_correction_l1": 0.01055939971817646,
+      "profile_drivers": {
+        "epsilon": 0.015591627274414658,
+        "trapped_fraction": 0.18143885287524886,
+        "redl_L31": 0.1634199490192511,
+        "redl_L32": -0.0191513493139282,
+        "redl_alpha": -0.7809395841640946,
+        "nu_e_star": 0.3600113627358884,
+        "nu_i_star": 0.3057963529701699,
+        "density": 3.999999987255521e+20,
+        "temperature": 11765.30612244898,
+        "A1_electron": 2.4982246768470384,
+        "A2_electron": -1.665484004610449,
+        "L31_electron": -171025.51595439,
+        "L32_electron": -511440.04001362366
+      }
+    },
+    {
+      "rho": 0.21428571428571427,
+      "redl_current_over_root_fsab2": -25591534.488937475,
+      "ntx_neopax_nomom_over_root_fsab2": -59740834.84483009,
+      "ntx_neopax_total_over_root_fsab2": -25105254.977875695,
+      "applied_momentum_correction_over_root_fsab2": 34635579.86695439,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 34149300.35589261,
+      "applied_over_needed_correction": 1.0142398088978086,
+      "residual_after_correction_over_needed": -0.014239808897808662,
+      "relative_error_nomom_vs_redl": 1.3343983093571208,
+      "relative_error_total_vs_redl": 0.019001576918804365,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1252149170.1358151,
+        -1277254425.1136909
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1281244545.031035,
+        -1246608965.1640806
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 2527853510.1951156,
+      "species_correction_cancellation_amplification": 72.98429880213803,
+      "residual_after_correction_over_species_correction_l1": 0.00019236854869182909,
+      "applied_correction_over_species_correction_l1": 0.013701577139365565,
+      "needed_correction_over_species_correction_l1": 0.013509208590673736,
+      "profile_drivers": {
+        "epsilon": 0.0240681655983092,
+        "trapped_fraction": 0.22470782366718478,
+        "redl_L31": 0.2267888655812035,
+        "redl_L32": -0.0498756693326559,
+        "redl_alpha": -0.7937763570005314,
+        "nu_e_star": 0.19768760641915403,
+        "nu_i_star": 0.16785465242215777,
+        "density": 3.9999992650890956e+20,
+        "temperature": 11471.938775510203,
+        "A1_electron": 3.8431170944671136,
+        "A2_electron": -2.562112151188589,
+        "L31_electron": -126379.07583489639,
+        "L32_electron": -366726.78515720315
+      }
+    },
+    {
+      "rho": 0.2857142857142857,
+      "redl_current_over_root_fsab2": -29736965.13256633,
+      "ntx_neopax_nomom_over_root_fsab2": -77301069.40640828,
+      "ntx_neopax_total_over_root_fsab2": -31486376.388092488,
+      "applied_momentum_correction_over_root_fsab2": 45814693.01831579,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 47564104.27384195,
+      "applied_over_needed_correction": 0.9632199264080696,
+      "residual_after_correction_over_needed": 0.03678007359193042,
+      "relative_error_nomom_vs_redl": 1.5994942342570222,
+      "relative_error_total_vs_redl": 0.058829515645841664,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1414118886.554098,
+        -1445605262.9421906
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1451260250.9470553,
+        -1405445557.9287398
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 2856705808.8757954,
+      "species_correction_cancellation_amplification": 62.35348576348076,
+      "residual_after_correction_over_species_correction_l1": 0.0006123876144651408,
+      "applied_correction_over_species_correction_l1": 0.016037595777615384,
+      "needed_correction_over_species_correction_l1": 0.01664998339208052,
+      "profile_drivers": {
+        "epsilon": 0.03215621567256126,
+        "trapped_fraction": 0.25885866087607223,
+        "redl_L31": 0.2731928844646863,
+        "redl_L32": -0.07176152968276472,
+        "redl_alpha": -0.7896421556961618,
+        "nu_e_star": 0.1379417723627748,
+        "nu_i_star": 0.11706165277441032,
+        "density": 3.9999869496530646e+20,
+        "temperature": 11061.224489795919,
+        "A1_electron": 5.313810858679271,
+        "A2_electron": -3.542994570693446,
+        "L31_electron": -117895.90012991887,
+        "L32_electron": -340319.77442697604
+      }
+    },
+    {
+      "rho": 0.3571428571428571,
+      "redl_current_over_root_fsab2": -33767621.081322536,
+      "ntx_neopax_nomom_over_root_fsab2": -88063592.84363149,
+      "ntx_neopax_total_over_root_fsab2": -35430310.41233709,
+      "applied_momentum_correction_over_root_fsab2": 52633282.431294404,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 54295971.762308955,
+      "applied_over_needed_correction": 0.9693772985905236,
+      "residual_after_correction_over_needed": 0.030622701409476438,
+      "relative_error_nomom_vs_redl": 1.6079300236030252,
+      "relative_error_total_vs_redl": 0.04923916100012784,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1380355105.2134001,
+        -1415785415.6257372
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1422706570.6160934,
+        -1370073288.184799
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 2792779858.8008924,
+      "species_correction_cancellation_amplification": 53.06109993133122,
+      "residual_after_correction_over_species_correction_l1": 0.0005953528079826683,
+      "applied_correction_over_species_correction_l1": 0.018846198086623637,
+      "needed_correction_over_species_correction_l1": 0.019441550894606304,
+      "profile_drivers": {
+        "epsilon": 0.04017501587489108,
+        "trapped_fraction": 0.28834351681317283,
+        "redl_L31": 0.31028441454100797,
+        "redl_L32": -0.08692305067035891,
+        "redl_alpha": -0.7785646677428111,
+        "nu_e_star": 0.10917715306078934,
+        "nu_i_star": 0.09258344543399373,
+        "density": 3.999878459172929e+20,
+        "temperature": 10533.163265306122,
+        "A1_electron": 6.971081488276405,
+        "A2_electron": -4.650770301079795,
+        "L31_electron": -104655.96020579617,
+        "L32_electron": -298848.8796445716
+      }
+    },
+    {
+      "rho": 0.42857142857142855,
+      "redl_current_over_root_fsab2": -37995551.99079884,
+      "ntx_neopax_nomom_over_root_fsab2": -93539743.09776562,
+      "ntx_neopax_total_over_root_fsab2": -37465991.38415534,
+      "applied_momentum_correction_over_root_fsab2": 56073751.713610284,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 55544191.106966786,
+      "applied_over_needed_correction": 1.0095340412037628,
+      "residual_after_correction_over_needed": -0.009534041203762824,
+      "relative_error_nomom_vs_redl": 1.4618603546124977,
+      "relative_error_total_vs_redl": 0.013937436855022887,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1276610407.9600215,
+        -1314076399.344177
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1321801292.66007,
+        -1265727540.9464598
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 2587528833.6065297,
+      "species_correction_cancellation_amplification": 46.145099169073106,
+      "residual_after_correction_over_species_correction_l1": 0.00020465882341700898,
+      "applied_correction_over_species_correction_l1": 0.021670773668424785,
+      "needed_correction_over_species_correction_l1": 0.021466114845007777,
+      "profile_drivers": {
+        "epsilon": 0.04811424074861143,
+        "trapped_fraction": 0.3144463762983528,
+        "redl_L31": 0.3405217113178895,
+        "redl_L32": -0.0965298466843493,
+        "redl_alpha": -0.7634463184477605,
+        "nu_e_star": 0.09476951584465232,
+        "nu_i_star": 0.08028913262764759,
+        "density": 3.999247451234214e+20,
+        "temperature": 9887.755102040817,
+        "A1_electron": 8.891631388472156,
+        "A2_electron": -5.945210703764233,
+        "L31_electron": -89348.2712890821,
+        "L32_electron": -252106.2575406147
+      }
+    },
+    {
+      "rho": 0.5,
+      "redl_current_over_root_fsab2": -42873282.35260753,
+      "ntx_neopax_nomom_over_root_fsab2": -99763961.68410163,
+      "ntx_neopax_total_over_root_fsab2": -40119724.48510916,
+      "applied_momentum_correction_over_root_fsab2": 59644237.19899247,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 56890679.33149409,
+      "applied_over_needed_correction": 1.0484008610875215,
+      "residual_after_correction_over_needed": -0.048400861087521486,
+      "relative_error_nomom_vs_redl": 1.3269494708523064,
+      "relative_error_total_vs_redl": 0.06422549700888262,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1309208740.1837666,
+        -1349328464.6688755
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1357381038.207645,
+        -1297736801.0086522
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 2655117839.216297,
+      "species_correction_cancellation_amplification": 44.51591576832419,
+      "residual_after_correction_over_species_correction_l1": 0.0010370755779002014,
+      "applied_correction_over_species_correction_l1": 0.022463875733891144,
+      "needed_correction_over_species_correction_l1": 0.021426800155990945,
+      "profile_drivers": {
+        "epsilon": 0.056000629709018444,
+        "trapped_fraction": 0.3380409133163701,
+        "redl_L31": 0.3653574074061055,
+        "redl_L32": -0.10136114102207561,
+        "redl_alpha": -0.7451894360251438,
+        "nu_e_star": 0.08881030784270079,
+        "nu_i_star": 0.07514851678327328,
+        "density": 3.996484375e+20,
+        "temperature": 9125.0,
+        "A1_electron": 11.168872431432954,
+        "A2_electron": -7.515863238026801,
+        "L31_electron": -75529.58230470294,
+        "L32_electron": -212155.64664474988
+      }
+    },
+    {
+      "rho": 0.5714285714285714,
+      "redl_current_over_root_fsab2": -49126823.71681437,
+      "ntx_neopax_nomom_over_root_fsab2": -105379354.90358163,
+      "ntx_neopax_total_over_root_fsab2": -43590205.35545828,
+      "applied_momentum_correction_over_root_fsab2": 61789149.54812335,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 56252531.186767265,
+      "applied_over_needed_correction": 1.0984243418838104,
+      "residual_after_correction_over_needed": -0.09842434188381038,
+      "relative_error_nomom_vs_redl": 1.1450471846302983,
+      "relative_error_total_vs_redl": 0.11270051557314703,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1449250199.262988,
+        -1492840404.6184466
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1500293217.007524,
+        -1438504067.4594007
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 2938797284.4669247,
+      "species_correction_cancellation_amplification": 47.56170469991816,
+      "residual_after_correction_over_species_correction_l1": 0.0018839742334797983,
+      "applied_correction_over_species_correction_l1": 0.021025318716167057,
+      "needed_correction_over_species_correction_l1": 0.01914134448268726,
+      "profile_drivers": {
+        "epsilon": 0.06381303497776346,
+        "trapped_fraction": 0.3595706165908753,
+        "redl_L31": 0.3853106824515493,
+        "redl_L32": -0.10155902672633768,
+        "redl_alpha": -0.7237844547670981,
+        "nu_e_star": 0.08945975234000522,
+        "nu_i_star": 0.07557917612492274,
+        "density": 3.9866364447385616e+20,
+        "temperature": 8244.897959183674,
+        "A1_electron": 13.909837886172156,
+        "A2_electron": -9.506450778791324,
+        "L31_electron": -62649.25102468772,
+        "L32_electron": -175523.60222385376
+      }
+    },
+    {
+      "rho": 0.6428571428571428,
+      "redl_current_over_root_fsab2": -57761701.195756,
+      "ntx_neopax_nomom_over_root_fsab2": -111492891.79086867,
+      "ntx_neopax_total_over_root_fsab2": -48774108.88522634,
+      "applied_momentum_correction_over_root_fsab2": 62718782.90564233,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 53731190.59511267,
+      "applied_over_needed_correction": 1.1672695544428744,
+      "residual_after_correction_over_needed": -0.1672695544428745,
+      "relative_error_nomom_vs_redl": 0.9302217469844971,
+      "relative_error_total_vs_redl": 0.15559777715116915,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        1794799072.4302874,
+        -1843573181.3155138
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        1848918209.24147,
+        -1786199426.3358278
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 3635117635.577298,
+      "species_correction_cancellation_amplification": 57.958995171289814,
+      "residual_after_correction_over_species_correction_l1": 0.0024724350658056025,
+      "applied_correction_over_species_correction_l1": 0.017253577241024245,
+      "needed_correction_over_species_correction_l1": 0.01478114217521864,
+      "profile_drivers": {
+        "epsilon": 0.07155330806147352,
+        "trapped_fraction": 0.37939978201976754,
+        "redl_L31": 0.4003968464040697,
+        "redl_L32": -0.09673719476831799,
+        "redl_alpha": -0.6984702592716978,
+        "nu_e_star": 0.0970065480286841,
+        "nu_i_star": 0.08178709709115375,
+        "density": 3.956604246024523e+20,
+        "temperature": 7247.448979591837,
+        "A1_electron": 17.232500539610747,
+        "A2_electron": -12.166650838326383,
+        "L31_electron": -50527.60408756949,
+        "L32_electron": -141512.27772980515
+      }
+    },
+    {
+      "rho": 0.7142857142857142,
+      "redl_current_over_root_fsab2": -69545224.37032287,
+      "ntx_neopax_nomom_over_root_fsab2": -118273835.4010794,
+      "ntx_neopax_total_over_root_fsab2": -56178557.53202218,
+      "applied_momentum_correction_over_root_fsab2": 62095277.86905722,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 48728611.03075653,
+      "applied_over_needed_correction": 1.2743083899901009,
+      "residual_after_correction_over_needed": -0.27430838999010076,
+      "relative_error_nomom_vs_redl": 0.7006751573807642,
+      "relative_error_total_vs_redl": 0.1922010743271779,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        2420810614.143936,
+        -2476989171.675958
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        2478133238.813429,
+        -2416037960.944371
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 4894171199.7578,
+      "species_correction_cancellation_amplification": 78.81712374455161,
+      "residual_after_correction_over_species_correction_l1": 0.0027311400220250107,
+      "applied_correction_over_species_correction_l1": 0.012687598233615155,
+      "needed_correction_over_species_correction_l1": 0.009956458211590143,
+      "profile_drivers": {
+        "epsilon": 0.07920681305475358,
+        "trapped_fraction": 0.39775523825521,
+        "redl_L31": 0.4098527334478395,
+        "redl_L32": -0.08577005199176274,
+        "redl_alpha": -0.6675971255465601,
+        "nu_e_star": 0.11411594372712389,
+        "nu_i_star": 0.09594675247271404,
+        "density": 3.875542193079012e+20,
+        "temperature": 6132.653061224491,
+        "A1_electron": 21.282633644804356,
+        "A2_electron": -15.975898979333174,
+        "L31_electron": -39048.61798537447,
+        "L32_electron": -109575.54655220834
+      }
+    },
+    {
+      "rho": 0.7857142857142857,
+      "redl_current_over_root_fsab2": -83472283.37932375,
+      "ntx_neopax_nomom_over_root_fsab2": -124355201.34951645,
+      "ntx_neopax_total_over_root_fsab2": -65807038.08152718,
+      "applied_momentum_correction_over_root_fsab2": 58548163.26798927,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 40882917.9701927,
+      "applied_over_needed_correction": 1.4320935533680867,
+      "residual_after_correction_over_needed": -0.4320935533680867,
+      "relative_error_nomom_vs_redl": 0.48977835893632066,
+      "relative_error_total_vs_redl": 0.211630071475585,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        3201865588.454648,
+        -3267672626.5361753
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        3262000450.7096696,
+        -3203452287.4416804
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 6465452738.15135,
+      "species_correction_cancellation_amplification": 110.42964249036115,
+      "residual_after_correction_over_species_correction_l1": 0.0027322518643679,
+      "applied_correction_over_species_correction_l1": 0.00905553959469972,
+      "needed_correction_over_species_correction_l1": 0.00632328773033182,
+      "profile_drivers": {
+        "epsilon": 0.08677066717553042,
+        "trapped_fraction": 0.41483555706550823,
+        "redl_L31": 0.4117204537764934,
+        "redl_L32": -0.06647502846181874,
+        "redl_alpha": -0.6279093639709783,
+        "nu_e_star": 0.14788289720906203,
+        "nu_i_star": 0.123850295253624,
+        "density": 3.677188501698106e+20,
+        "temperature": 4900.510204081633,
+        "A1_electron": 26.32483512429608,
+        "A2_electron": -21.992018355517256,
+        "L31_electron": -28455.930736418995,
+        "L32_electron": -80250.39400367875
+      }
+    },
+    {
+      "rho": 0.8571428571428571,
+      "redl_current_over_root_fsab2": -93292514.68632331,
+      "ntx_neopax_nomom_over_root_fsab2": -123120146.58426872,
+      "ntx_neopax_total_over_root_fsab2": -73019018.0650608,
+      "applied_momentum_correction_over_root_fsab2": 50101128.519207925,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 29827631.897945404,
+      "applied_over_needed_correction": 1.679688440927119,
+      "residual_after_correction_over_needed": -0.6796884409271192,
+      "relative_error_nomom_vs_redl": 0.31972159822505175,
+      "relative_error_total_vs_redl": 0.21731107462831223,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        3841059996.1403093,
+        -3914079014.2053704
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        3900249416.925867,
+        -3850148288.4066596
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 7750397705.332527,
+      "species_correction_cancellation_amplification": 154.69507243456914,
+      "residual_after_correction_over_species_correction_l1": 0.002615800813332933,
+      "applied_correction_over_species_correction_l1": 0.006464330015572841,
+      "needed_correction_over_species_correction_l1": 0.003848529202239908,
+      "profile_drivers": {
+        "epsilon": 0.09423389411303673,
+        "trapped_fraction": 0.4307788475968114,
+        "redl_L31": 0.4011814355622342,
+        "redl_L32": -0.03478812119501418,
+        "redl_alpha": -0.5724156781839613,
+        "nu_e_star": 0.21793649294142767,
+        "nu_i_star": 0.1814104331986575,
+        "density": 3.2293900638352926e+20,
+        "temperature": 3551.020408163266,
+        "A1_electron": 33.06046032406813,
+        "A2_electron": -33.108673401997365,
+        "L31_electron": -18490.11648944006,
+        "L32_electron": -52815.665936176476
+      }
+    },
+    {
+      "rho": 0.9285714285714285,
+      "redl_current_over_root_fsab2": -81499165.87162043,
+      "ntx_neopax_nomom_over_root_fsab2": -97745389.05719736,
+      "ntx_neopax_total_over_root_fsab2": -63629596.32508826,
+      "applied_momentum_correction_over_root_fsab2": 34115792.7321091,
+      "needed_momentum_correction_to_redl_over_root_fsab2": 16246223.18557693,
+      "applied_over_needed_correction": 2.099921461278238,
+      "residual_after_correction_over_needed": -1.099921461278238,
+      "relative_error_nomom_vs_redl": 0.19934220199466085,
+      "relative_error_total_vs_redl": 0.21926076611238907,
+      "correction_sign_matches_needed": true,
+      "species_current_total_over_root_fsab2": [
+        3602282815.2356133,
+        -3665912411.5607014
+      ],
+      "species_momentum_correction_over_root_fsab2": [
+        3648652645.0956526,
+        -3614536852.3635435
+      ],
+      "species_momentum_correction_l1_over_root_fsab2": 7263189497.459196,
+      "species_correction_cancellation_amplification": 212.89815993703198,
+      "residual_after_correction_over_species_correction_l1": 0.0024602923485313568,
+      "applied_correction_over_species_correction_l1": 0.004697081460430499,
+      "needed_correction_over_species_correction_l1": 0.002236789111899142,
+      "profile_drivers": {
+        "epsilon": 0.10159203168594942,
+        "trapped_fraction": 0.44570995218600096,
+        "redl_L31": 0.36460937727988785,
+        "redl_L32": 0.01686356596265487,
+        "redl_alpha": -0.4819029568595647,
+        "nu_e_star": 0.3963515285000487,
+        "nu_i_star": 0.3262449226501963,
+        "density": 2.2842434439038576e+20,
+        "temperature": 2084.183673469389,
+        "A1_electron": 43.42634624660454,
+        "A2_electron": -61.111235606134656,
+        "L31_electron": -9197.827418805367,
+        "L32_electron": -27128.639685603564
+      }
+    }
+  ],
+  "stress_radius": {
+    "rho": 0.9285714285714285,
+    "redl_current_over_root_fsab2": -81499165.87162043,
+    "ntx_neopax_nomom_over_root_fsab2": -97745389.05719736,
+    "ntx_neopax_total_over_root_fsab2": -63629596.32508826,
+    "applied_momentum_correction_over_root_fsab2": 34115792.7321091,
+    "needed_momentum_correction_to_redl_over_root_fsab2": 16246223.18557693,
+    "applied_over_needed_correction": 2.099921461278238,
+    "residual_after_correction_over_needed": -1.099921461278238,
+    "relative_error_nomom_vs_redl": 0.19934220199466085,
+    "relative_error_total_vs_redl": 0.21926076611238907,
+    "correction_sign_matches_needed": true,
+    "species_current_total_over_root_fsab2": [
+      3602282815.2356133,
+      -3665912411.5607014
+    ],
+    "species_momentum_correction_over_root_fsab2": [
+      3648652645.0956526,
+      -3614536852.3635435
+    ],
+    "species_momentum_correction_l1_over_root_fsab2": 7263189497.459196,
+    "species_correction_cancellation_amplification": 212.89815993703198,
+    "residual_after_correction_over_species_correction_l1": 0.0024602923485313568,
+    "applied_correction_over_species_correction_l1": 0.004697081460430499,
+    "needed_correction_over_species_correction_l1": 0.002236789111899142,
+    "profile_drivers": {
+      "epsilon": 0.10159203168594942,
+      "trapped_fraction": 0.44570995218600096,
+      "redl_L31": 0.36460937727988785,
+      "redl_L32": 0.01686356596265487,
+      "redl_alpha": -0.4819029568595647,
+      "nu_e_star": 0.3963515285000487,
+      "nu_i_star": 0.3262449226501963,
+      "density": 2.2842434439038576e+20,
+      "temperature": 2084.183673469389,
+      "A1_electron": 43.42634624660454,
+      "A2_electron": -61.111235606134656,
+      "L31_electron": -9197.827418805367,
+      "L32_electron": -27128.639685603564
+    }
+  },
+  "momentum_order_at_stress_radius": [
+    {
+      "n_order": 2,
+      "stress_relative_error_total_vs_redl": 0.051100099234338336,
+      "stress_current_over_root_fsab2": -85663781.33517604,
+      "max_relative_error_total_vs_redl": 1.0374175039391136,
+      "rms_relative_error_total_vs_redl": 0.6185756660503684
+    },
+    {
+      "n_order": 4,
+      "stress_relative_error_total_vs_redl": 0.06566631037938629,
+      "stress_current_over_root_fsab2": -76147416.34983352,
+      "max_relative_error_total_vs_redl": 0.43149651920833715,
+      "rms_relative_error_total_vs_redl": 0.20857545165793526
+    },
+    {
+      "n_order": 6,
+      "stress_relative_error_total_vs_redl": 0.1167242099008341,
+      "stress_current_over_root_fsab2": -71986240.12767851,
+      "max_relative_error_total_vs_redl": 0.32523253553558085,
+      "rms_relative_error_total_vs_redl": 0.14026307977045432
+    },
+    {
+      "n_order": 8,
+      "stress_relative_error_total_vs_redl": 0.14470819236349738,
+      "stress_current_over_root_fsab2": -69705568.8992054,
+      "max_relative_error_total_vs_redl": 0.29498516877149517,
+      "rms_relative_error_total_vs_redl": 0.13411699818864636
+    },
+    {
+      "n_order": 10,
+      "stress_relative_error_total_vs_redl": 0.17692465934672,
+      "stress_current_over_root_fsab2": -67079953.71274216,
+      "max_relative_error_total_vs_redl": 0.25857689827671976,
+      "rms_relative_error_total_vs_redl": 0.13538971231867789
+    },
+    {
+      "n_order": 12,
+      "stress_relative_error_total_vs_redl": 0.21926076611238907,
+      "stress_current_over_root_fsab2": -63629596.32508826,
+      "max_relative_error_total_vs_redl": 0.21926076611238907,
+      "rms_relative_error_total_vs_redl": 0.1443057154681684
+    }
+  ],
+  "coefficient_localization_summary": {
+    "max_same_grid_coefficient_relative_difference": 0.02054783993495091,
+    "max_bootstrap_total_relative_difference": 0.21926076611238907,
+    "rms_bootstrap_total_relative_difference": 0.1443057154681684,
+    "stress_gap_rho": 0.9285714285714285,
+    "stress_gap_bootstrap_relative_difference": 0.21926076611238907,
+    "stress_gap_nearest_coefficient_rho": 0.5,
+    "stress_gap_nearest_coefficient_distance": 0.4285714285714285,
+    "stress_gap_coefficient_relative_difference": 0.012535349439094555,
+    "stress_gap_current_to_coefficient_error_ratio": 17.491396404839797,
+    "coefficient_gate": 0.1,
+    "coefficient_gate_pass": true,
+    "profile_current_gate": 0.1,
+    "profile_current_gate_pass": false
+  },
+  "summary_metrics": {
+    "stress_rho": 0.9285714285714285,
+    "stress_relative_error_total_vs_redl": 0.21926076611238907,
+    "stress_relative_error_nomom_vs_redl": 0.19934220199466085,
+    "stress_applied_over_needed_correction": 2.099921461278238,
+    "stress_residual_after_correction_over_needed": -1.099921461278238,
+    "stress_species_correction_l1_over_root_fsab2": 7263189497.459196,
+    "stress_species_correction_cancellation_amplification": 212.89815993703198,
+    "stress_residual_after_correction_over_species_correction_l1": 0.0024602923485313568,
+    "stress_applied_correction_over_species_correction_l1": 0.004697081460430499,
+    "stress_needed_correction_over_species_correction_l1": 0.002236789111899142,
+    "correction_sign_agreement_fraction": 1.0,
+    "min_applied_over_needed_correction": 0.8640106241400072,
+    "max_applied_over_needed_correction": 2.099921461278238,
+    "max_abs_residual_after_correction_over_needed": 1.099921461278238,
+    "max_species_correction_cancellation_amplification": 212.89815993703198,
+    "max_residual_after_correction_over_species_correction_l1": 0.0027322518643679,
+    "pmax_stress_error_monotone_nonincreasing": false,
+    "pmax_stress_error_reduction": 0.23305628334868336,
+    "profile_current_gate": 0.1,
+    "profile_current_gate_pass": false
+  },
+  "conclusion": "At the finite-beta stress radius the correction has the right sign but its amplitude does not match the Redl target. The finite-Pmax trend is not yet a quadrature-stable convergence claim, and the default reduced closure remains above the 1e-1 current gate. The stress-radius current is also a cancellation-dominated species-current observable, so small species-flow imbalances are amplified in the net current.",
+  "open_work": [
+    "derive the missing reduced momentum/profile-current observable term that changes correction amplitude without fitting a radius or device-specific threshold",
+    "validate the correction-amplitude change against production same-grid SFINCS-JAX profile-current diagnostics",
+    "require no regression of the existing fixed-field total-current stress gate and integrated W7-X transfer"
+  ],
+  "figure_png": "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+  "figure_pdf": "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf"
+}
