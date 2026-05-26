@@ -190,6 +190,7 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
     "tests/test_owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py",
     "tests/test_owned_geometry_neopax_dataset.py",
     "tests/test_physics_gates.py",
+    "tests/test_repository_size.py",
     "tests/test_w7x_reference_benchmark.py",
 )
 

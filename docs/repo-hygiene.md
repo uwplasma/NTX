@@ -58,6 +58,55 @@ artifact surface.
 Do not commit local caches, profiling scratch directories, generated docs HTML,
 wheel/sdist build directories, or external reference-code checkouts.
 
+## Size Policy
+
+The current tracked tree is intentionally small:
+
+- no tracked file in `HEAD` is larger than `2 MiB`,
+- the tracked logical tree size is about `19.5 MiB`,
+- `docs/_static` is about `17 MiB`,
+- `tests/fixtures` is about `68 KiB`.
+
+`tests/test_repository_size.py` enforces the current policy:
+
+- every tracked file must stay `<= 2 MiB`,
+- the tracked tree must stay `<= 25 MiB`,
+- `docs/_static` must stay `<= 20 MiB`.
+
+If a new validation input, profile, trace, figure, or database would exceed
+those limits, do not commit it directly. Prefer one of:
+
+- regenerate it from a script and store only the compact JSON summary and a
+  small PNG,
+- keep it as an ignored local artifact under `examples/outputs/`,
+- attach it to a GitHub release or external archive and link it from docs,
+- or add a tiny fixture that exercises the same code path.
+
+The local working directory can still grow much larger because ignored
+profiling traces and rerun outputs are useful during development. They are safe
+to remove with:
+
+```bash
+git clean -fdX
+```
+
+The current clone size is larger than the tracked tree because Git history still
+contains older large blobs. The largest historical blobs are removed NetCDF
+fixtures under `tests/fixtures/`, and the largest accumulated history category
+is repeated generated artifacts under `docs/_static/`. A normal commit cannot
+remove those historical blobs from clone transfer.
+
+To make fresh clones substantially smaller, the project would need a coordinated
+history rewrite, for example with `git filter-repo`, followed by a force push
+and collaborator re-clones. That is a repository-maintenance decision, not a
+normal feature commit. Until then, users who only need the latest source can use
+a shallow or partial clone:
+
+```bash
+git clone --depth 1 https://github.com/uwplasma/NTX.git
+git clone --filter=blob:none https://github.com/uwplasma/NTX.git
+```
+
 ## CI Lane Manifest
 
 Every `tests/test_*.py` file must be covered by the maintained lane manifest.
