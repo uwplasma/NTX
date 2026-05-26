@@ -82,6 +82,10 @@ those limits, do not commit it directly. Prefer one of:
 - attach it to a GitHub release or external archive and link it from docs,
 - or add a tiny fixture that exercises the same code path.
 
+`pyproject.toml` excludes `docs/_static` from built distributions. Those
+figures are useful in the repository and hosted docs, but they are not needed
+for `pip install ntx`.
+
 The local working directory can still grow much larger because ignored
 profiling traces and rerun outputs are useful during development. They are safe
 to remove with:

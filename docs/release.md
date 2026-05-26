@@ -37,8 +37,8 @@ research checkout.
 6. Create an annotated tag:
 
    ```bash
-   git tag -a v0.2.3 -m "NTX 0.2.3"
-   git push origin v0.2.3
+   git tag -a v0.2.4 -m "NTX 0.2.4"
+   git push origin v0.2.4
    ```
 
 7. Let the GitHub release workflow build the distributions, attach them to the
@@ -46,27 +46,29 @@ research checkout.
 
 ## Current Release
 
-The current release is `0.2.3`.
+The current release is `0.2.4`.
 
-Verified locally on 2026-04-26:
+Verified locally on 2026-05-26:
 
 - `python -m ruff check .`
-- `python -m mypy src/ntx`
-- `python -m pytest -q`: `336 passed, 5 skipped`
+- `python scripts/test_lane_manifest.py --check`
+- `JAX_ENABLE_X64=True python -m pytest tests/test_repository_size.py tests/test_ci_lane_manifest.py -q`
+- `JAX_ENABLE_X64=True python -m pytest tests/test_benchmark_matrix.py tests/test_physics_gates.py tests/test_repository_size.py -q`
 - `python -m sphinx -b html docs docs/_build/html`
 - `python -m build`
 - `python -m twine check dist/*`
 - clean-venv wheel smoke test for `ntx --help`, `python -m ntx --help`, and
   `python -c "import ntx; from ntx import GridSpec"`
+- fresh full-clone size check after the history rewrite
 
 The previous `v0.2.0` tag workflows were green for `tests`, `package`, and
-`release`, and published successfully through Trusted Publishing. The `v0.2.3`
-release uses the same tag-gated workflow and supersedes `v0.2.2` with
-file-backed NetCDF output, CLI plotting, and output-path selected
-NetCDF/NPZ/HDF5 serialization:
+`release`, and published successfully through Trusted Publishing. The `v0.2.4`
+release uses the same tag-gated workflow and supersedes `v0.2.3` with a
+rewritten slim Git history, repository-size guardrails, and slimmer PyPI
+distributions that exclude generated docs artifacts from the install package:
 
-- [GitHub release v0.2.3](https://github.com/uwplasma/NTX/releases/tag/v0.2.3)
-- [PyPI ntx 0.2.3](https://pypi.org/project/ntx/0.2.3/)
+- [GitHub release v0.2.4](https://github.com/uwplasma/NTX/releases/tag/v0.2.4)
+- [PyPI ntx 0.2.4](https://pypi.org/project/ntx/0.2.4/)
 
 ## CI/CD Release Path
 

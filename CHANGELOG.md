@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.4
+
+Repository and package-size hardening after the `0.2.3` output release.
+
+Highlights:
+
+- rewrote repository history to remove old NetCDF fixture blobs larger than
+  `2 MiB` and repeated generated `docs/_static` artifact history
+- restored the current documentation artifacts once on top of the rewritten
+  history so README/docs figures remain available without carrying repeated
+  generated-asset history
+- added CI guardrails that reject tracked files larger than `2 MiB`, cap the
+  tracked tree size, and cap committed docs artifacts
+- excluded `docs/_static` from built distributions so PyPI wheel/sdist
+  downloads stay focused on installable source code
+- documented clone-reset guidance for collaborators after the public history
+  rewrite
+
 ## 0.2.3
 
 Highlights:
