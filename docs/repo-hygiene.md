@@ -90,17 +90,16 @@ to remove with:
 git clean -fdX
 ```
 
-The current clone size is larger than the tracked tree because Git history still
-contains older large blobs. The largest historical blobs are removed NetCDF
-fixtures under `tests/fixtures/`, and the largest accumulated history category
-is repeated generated artifacts under `docs/_static/`. A normal commit cannot
-remove those historical blobs from clone transfer.
+The public history was rewritten on 2026-05-26 with `git filter-repo` to remove
+older NetCDF fixtures larger than `2 MiB` and repeated historical
+`docs/_static` generated-artifact blobs. The current documentation artifacts
+were then restored once on top of the rewritten history. This keeps the current
+README/docs figures available while avoiding repeated generated-figure history
+in fresh clones.
 
-To make fresh clones substantially smaller, the project would need a coordinated
-history rewrite, for example with `git filter-repo`, followed by a force push
-and collaborator re-clones. That is a repository-maintenance decision, not a
-normal feature commit. Until then, users who only need the latest source can use
-a shallow or partial clone:
+After a history rewrite, existing local clones should be replaced with a fresh
+clone or reset deliberately against the new `origin/main`. Users who only need
+the latest source can still use a shallow or partial clone:
 
 ```bash
 git clone --depth 1 https://github.com/uwplasma/NTX.git
