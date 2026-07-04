@@ -6,6 +6,7 @@ from functools import partial
 
 import jax
 import jax.numpy as jnp
+import jax.scipy.sparse.linalg as jsp_linalg
 from jax import Array
 
 from ._solver_adjoint import (
@@ -27,7 +28,12 @@ from ._solver_types import (
     TransportResult,
     transport_result_from_arrays,
 )
-from .operators import parameter_derivative_blocks, source_modes
+from .operators import (
+    apply_nullspace_condition,
+    operator_blocks,
+    parameter_derivative_blocks,
+    source_modes,
+)
 from .transport import coefficients_from_modes, onsager_error
 
 
@@ -83,6 +89,25 @@ def solve_prepared_coefficient_vector_vjp(
     """Coefficient-vector solve with an explicit custom-VJP contract point."""
 
     return solve_prepared_coefficient_vector(prepared, case)
+
+
+@partial(jax.custom_vjp, nondiff_argnums=(0,))
+def solve_prepared_coefficient_vector_iterative_vjp(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> Array:
+    """Coefficient-vector solve with matrix-free primal and transpose solves.
+
+    This reverse-oriented path avoids exposing dense LU factorization buffers to
+    the enclosing compiler graph. It is intentionally opt-in because it trades
+    execution speed for lower compile/runtime memory pressure.
+    """
+
+    return _solve_prepared_coefficient_vector_iterative_raw(
+        prepared,
+        case.nu_hat,
+        case.resolved_epsi_hat(prepared.geometry.transport_psi_scale),
+    )
 
 
 def compile_prepared_solver(
@@ -284,6 +309,202 @@ def _solve_prepared_coefficient_vector_vjp_bwd(
     g3 = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low)
     lambda1 = _solve_factorized_adjoint(saved_lu, saved_piv, saved_lower, saved_upper, g1)
     lambda3 = _solve_factorized_adjoint(saved_lu, saved_piv, saved_lower, saved_upper, g3)
+    nu_bar_implicit, epsi_bar = _parameter_gradient_from_adjoint(
+        prepared,
+        ctx,
+        f1_full,
+        f3_full,
+        lambda1,
+        lambda3,
+    )
+    nu_bar = nu_bar_direct + nu_bar_implicit
+    if uses_epsi_hat:
+        return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None),)
+    if uses_er_hat:
+        assert transport_scale is not None
+        er_bar = epsi_bar / transport_scale
+        return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=er_bar),)
+    return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),)
+
+
+def _apply_prepared_block_operator(
+    prepared: PreparedMonoenergeticSystem,
+    ctx,
+    modes: Array,
+) -> Array:
+    values = []
+    for k in range(prepared.grid.n_xi + 1):
+        lower, diagonal, upper = operator_blocks(
+            ctx,
+            k,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        if k == 0:
+            diagonal, upper = apply_nullspace_condition(diagonal, upper)
+            assert upper is not None
+        value = diagonal @ modes[k]
+        if k > 0:
+            value = value + lower @ modes[k - 1]
+        if k < prepared.grid.n_xi:
+            value = value + upper @ modes[k + 1]
+        values.append(value)
+    return jnp.stack(values)
+
+
+def _apply_prepared_block_operator_transpose(
+    prepared: PreparedMonoenergeticSystem,
+    ctx,
+    modes: Array,
+) -> Array:
+    values = []
+    for k in range(prepared.grid.n_xi + 1):
+        lower, diagonal, upper = operator_blocks(
+            ctx,
+            k,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        if k == 0:
+            diagonal, upper = apply_nullspace_condition(diagonal, upper)
+            assert upper is not None
+        value = diagonal.T @ modes[k]
+        if k > 0:
+            _lower_prev, diagonal_prev, upper_prev = operator_blocks(
+                ctx,
+                k - 1,
+                prepared.d_theta,
+                prepared.d_zeta,
+            )
+            if k - 1 == 0:
+                diagonal_prev, upper_prev = apply_nullspace_condition(diagonal_prev, upper_prev)
+                assert upper_prev is not None
+            value = value + upper_prev.T @ modes[k - 1]
+        if k < prepared.grid.n_xi:
+            lower_next, _diagonal_next, _upper_next = operator_blocks(
+                ctx,
+                k + 1,
+                prepared.d_theta,
+                prepared.d_zeta,
+            )
+            value = value + lower_next.T @ modes[k + 1]
+        values.append(value)
+    return jnp.stack(values)
+
+
+def _solve_prepared_modes_bicgstab(
+    prepared: PreparedMonoenergeticSystem,
+    ctx,
+    source: Array,
+    *,
+    transpose: bool = False,
+) -> Array:
+    source_shape = source.shape
+
+    def matvec(flat_modes):
+        modes = flat_modes.reshape(source_shape)
+        if transpose:
+            applied = _apply_prepared_block_operator_transpose(prepared, ctx, modes)
+        else:
+            applied = _apply_prepared_block_operator(prepared, ctx, modes)
+        return applied.reshape((-1,))
+
+    solution, _info = jsp_linalg.bicgstab(
+        matvec,
+        source.reshape((-1,)),
+        tol=1.0e-10,
+        atol=0.0,
+        maxiter=max(40, 2 * int(prepared.grid.n_xi + 1)),
+    )
+    return solution.reshape(source_shape)
+
+
+def _prepared_iterative_vjp_primal(
+    prepared: PreparedMonoenergeticSystem,
+    nu_hat,
+    epsi_hat,
+) -> tuple[Array, Array, Array]:
+    geom = prepared.geometry
+    grid = prepared.grid
+    ctx = _operator_context(prepared.surface, geom, grid, nu_hat, epsi_hat)
+    s1, s3 = source_modes(ctx, grid.n_xi)
+    f1_full = _solve_prepared_modes_bicgstab(prepared, ctx, s1)
+    f3_full = _solve_prepared_modes_bicgstab(prepared, ctx, s3)
+
+    def coefficient_fn(modes1, modes3, nu_value):
+        return jnp.stack(coefficients_from_modes(geom, modes1, modes3, nu_value))
+
+    coefficients = coefficient_fn(f1_full[:3], f3_full[:3], ctx.nu_hat)
+    return coefficients, f1_full, f3_full
+
+
+def _solve_prepared_coefficient_vector_iterative_raw(
+    prepared: PreparedMonoenergeticSystem,
+    nu_hat,
+    epsi_hat,
+) -> Array:
+    coefficients, _f1_full, _f3_full = _prepared_iterative_vjp_primal(
+        prepared,
+        nu_hat,
+        epsi_hat,
+    )
+    return coefficients
+
+
+def _solve_prepared_coefficient_vector_iterative_vjp_fwd(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> tuple[Array, tuple[Array, Array, Array | None, bool, bool, Array, Array]]:
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    coefficients, f1_full, f3_full = _prepared_iterative_vjp_primal(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    return coefficients, (
+        jnp.asarray(case.nu_hat),
+        resolved_epsi_hat,
+        None if transport_scale is None else jnp.asarray(transport_scale),
+        case.epsi_hat is not None,
+        case.er_hat is not None,
+        f1_full,
+        f3_full,
+    )
+
+
+def _solve_prepared_coefficient_vector_iterative_vjp_bwd(
+    prepared: PreparedMonoenergeticSystem,
+    residuals: tuple[Array, Array, Array | None, bool, bool, Array, Array],
+    coefficient_bar: Array,
+) -> tuple[MonoenergeticCase]:
+    (
+        nu_hat,
+        resolved_epsi_hat,
+        transport_scale,
+        uses_epsi_hat,
+        uses_er_hat,
+        f1_full,
+        f3_full,
+    ) = residuals
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        nu_hat,
+        resolved_epsi_hat,
+    )
+    f1_bar_low, f3_bar_low, nu_bar_direct = _coefficient_mode_pullback(
+        prepared.geometry,
+        f1_full[:3],
+        f3_full[:3],
+        ctx.nu_hat,
+        coefficient_bar,
+    )
+    g1 = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low)
+    g3 = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low)
+    lambda1 = _solve_prepared_modes_bicgstab(prepared, ctx, g1, transpose=True)
+    lambda3 = _solve_prepared_modes_bicgstab(prepared, ctx, g3, transpose=True)
     nu_bar_implicit, epsi_bar = _parameter_gradient_from_adjoint(
         prepared,
         ctx,
@@ -536,6 +757,10 @@ solve_prepared_coefficient_vector_vjp.defvjp(
     _solve_prepared_coefficient_vector_vjp_fwd,
     _solve_prepared_coefficient_vector_vjp_bwd,
 )
+solve_prepared_coefficient_vector_iterative_vjp.defvjp(
+    _solve_prepared_coefficient_vector_iterative_vjp_fwd,
+    _solve_prepared_coefficient_vector_iterative_vjp_bwd,
+)
 
 solve_prepared_coefficient_vector_jvp.defjvp(
     _solve_prepared_coefficient_vector_jvp_rule,
@@ -618,6 +843,7 @@ __all__ = [
     "solve_prepared",
     "solve_prepared_coefficient_vector",
     "solve_prepared_coefficient_vector_derivative_vjp",
+    "solve_prepared_coefficient_vector_iterative_vjp",
     "solve_prepared_coefficient_vector_jvp",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared_internal",
