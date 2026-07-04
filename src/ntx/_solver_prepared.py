@@ -110,6 +110,20 @@ def solve_prepared_coefficient_vector_iterative_vjp(
     )
 
 
+@jax.custom_jvp
+def solve_prepared_coefficient_vector_iterative_jvp(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> Array:
+    """Coefficient-vector solve with matrix-free primal and tangent solves."""
+
+    return _solve_prepared_coefficient_vector_iterative_raw(
+        prepared,
+        case.nu_hat,
+        case.resolved_epsi_hat(prepared.geometry.transport_psi_scale),
+    )
+
+
 def compile_prepared_solver(
     prepared: PreparedMonoenergeticSystem,
 ) -> CompiledPreparedSolver:
@@ -451,6 +465,81 @@ def _solve_prepared_coefficient_vector_iterative_raw(
     return coefficients
 
 
+def _prepared_coefficient_vector_iterative_jvp_from_values(
+    prepared: PreparedMonoenergeticSystem,
+    nu_hat,
+    epsi_hat,
+    nu_hat_dot,
+    epsi_hat_dot,
+) -> tuple[Array, Array]:
+    coefficients, f1_full, f3_full = _prepared_iterative_vjp_primal(
+        prepared,
+        nu_hat,
+        epsi_hat,
+    )
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        nu_hat,
+        epsi_hat,
+    )
+
+    source1_dot = []
+    source3_dot = []
+    for k in range(prepared.grid.n_xi + 1):
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx,
+            k,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        if k == 0:
+            diagonal_nu = _zero_first_row(diagonal_nu)
+            diagonal_epsi = _zero_first_row(diagonal_epsi)
+        diagonal_dot = nu_hat_dot * diagonal_nu + epsi_hat_dot * diagonal_epsi
+        source1_dot.append(-(diagonal_dot @ f1_full[k]))
+        source3_dot.append(-(diagonal_dot @ f3_full[k]))
+
+    f1_dot = _solve_prepared_modes_bicgstab(prepared, ctx, jnp.stack(source1_dot))
+    f3_dot = _solve_prepared_modes_bicgstab(prepared, ctx, jnp.stack(source3_dot))
+
+    def coefficient_fn(modes1, modes3, nu_value):
+        return jnp.stack(coefficients_from_modes(prepared.geometry, modes1, modes3, nu_value))
+
+    _, coefficients_dot = jax.jvp(
+        coefficient_fn,
+        (f1_full[:3], f3_full[:3], ctx.nu_hat),
+        (f1_dot[:3], f3_dot[:3], nu_hat_dot),
+    )
+    return coefficients, coefficients_dot
+
+
+def _solve_prepared_coefficient_vector_iterative_jvp_rule(
+    primals: tuple[PreparedMonoenergeticSystem, MonoenergeticCase],
+    tangents: tuple[PreparedMonoenergeticSystem, MonoenergeticCase],
+) -> tuple[Array, Array]:
+    prepared, case = primals
+    _prepared_dot, case_dot = tangents
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    nu_hat_dot = jnp.asarray(case_dot.nu_hat)
+    if case.epsi_hat is not None:
+        epsi_hat_dot = jnp.asarray(case_dot.epsi_hat)
+    elif case.er_hat is not None:
+        assert transport_scale is not None
+        epsi_hat_dot = jnp.asarray(case_dot.er_hat) / jnp.asarray(transport_scale)
+    else:
+        epsi_hat_dot = jnp.zeros_like(resolved_epsi_hat)
+    return _prepared_coefficient_vector_iterative_jvp_from_values(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+        nu_hat_dot,
+        epsi_hat_dot,
+    )
+
+
 def _solve_prepared_coefficient_vector_iterative_vjp_fwd(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -790,6 +879,9 @@ solve_prepared_coefficient_vector_iterative_vjp.defvjp(
 solve_prepared_coefficient_vector_jvp.defjvp(
     _solve_prepared_coefficient_vector_jvp_rule,
 )
+solve_prepared_coefficient_vector_iterative_jvp.defjvp(
+    _solve_prepared_coefficient_vector_iterative_jvp_rule,
+)
 
 
 def _solve_prepared_coefficient_vector_raw(
@@ -868,6 +960,7 @@ __all__ = [
     "solve_prepared",
     "solve_prepared_coefficient_vector",
     "solve_prepared_coefficient_vector_derivative_vjp",
+    "solve_prepared_coefficient_vector_iterative_jvp",
     "solve_prepared_coefficient_vector_iterative_vjp",
     "solve_prepared_coefficient_vector_jvp",
     "solve_prepared_coefficient_vector_vjp",
