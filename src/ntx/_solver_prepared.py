@@ -17,6 +17,7 @@ from ._solver_context import _operator_context
 from ._solver_factorization import (
     _residual_norm,
     _solve_factorized_adjoint,
+    _solve_factorized_modes,
     _solve_modes,
 )
 from ._solver_types import (
@@ -26,7 +27,7 @@ from ._solver_types import (
     TransportResult,
     transport_result_from_arrays,
 )
-from .operators import source_modes
+from .operators import parameter_derivative_blocks, source_modes
 from .transport import coefficients_from_modes, onsager_error
 
 
@@ -62,6 +63,16 @@ def solve_prepared_coefficient_vector(
         case.nu_hat,
         case.resolved_epsi_hat(prepared.geometry.transport_psi_scale),
     )
+
+
+@partial(jax.custom_jvp, nondiff_argnums=(0,))
+def solve_prepared_coefficient_vector_jvp(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> Array:
+    """Coefficient-vector solve with an explicit custom-JVP contract point."""
+
+    return solve_prepared_coefficient_vector(prepared, case)
 
 
 @partial(jax.custom_vjp, nondiff_argnums=(0,))
@@ -122,6 +133,106 @@ def _solve_prepared_coefficient_vector_vjp_fwd(
         saved_piv,
         saved_lower,
         saved_upper,
+    )
+
+
+def _zero_first_row(block: Array) -> Array:
+    return block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
+
+
+def _prepared_coefficient_vector_jvp_from_values(
+    prepared: PreparedMonoenergeticSystem,
+    nu_hat,
+    epsi_hat,
+    nu_hat_dot,
+    epsi_hat_dot,
+) -> tuple[Array, Array]:
+    (
+        coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(
+        prepared,
+        nu_hat,
+        epsi_hat,
+    )
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        nu_hat,
+        epsi_hat,
+    )
+
+    source1_dot = []
+    source3_dot = []
+    for k in range(prepared.grid.n_xi + 1):
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx,
+            k,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        if k == 0:
+            diagonal_nu = _zero_first_row(diagonal_nu)
+            diagonal_epsi = _zero_first_row(diagonal_epsi)
+        diagonal_dot = nu_hat_dot * diagonal_nu + epsi_hat_dot * diagonal_epsi
+        source1_dot.append(-(diagonal_dot @ f1_full[k]))
+        source3_dot.append(-(diagonal_dot @ f3_full[k]))
+
+    f1_dot = _solve_factorized_modes(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.stack(source1_dot),
+    )
+    f3_dot = _solve_factorized_modes(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.stack(source3_dot),
+    )
+
+    def coefficient_fn(modes1, modes3, nu_value):
+        return jnp.stack(coefficients_from_modes(prepared.geometry, modes1, modes3, nu_value))
+
+    _, coefficients_dot = jax.jvp(
+        coefficient_fn,
+        (f1_full[:3], f3_full[:3], ctx.nu_hat),
+        (f1_dot[:3], f3_dot[:3], nu_hat_dot),
+    )
+    return coefficients, coefficients_dot
+
+
+def _solve_prepared_coefficient_vector_jvp_rule(
+    prepared: PreparedMonoenergeticSystem,
+    primals: tuple[MonoenergeticCase],
+    tangents: tuple[MonoenergeticCase],
+) -> tuple[Array, Array]:
+    (case,) = primals
+    (case_dot,) = tangents
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    nu_hat_dot = jnp.asarray(case_dot.nu_hat)
+    if case.epsi_hat is not None:
+        epsi_hat_dot = jnp.asarray(case_dot.epsi_hat)
+    elif case.er_hat is not None:
+        assert transport_scale is not None
+        epsi_hat_dot = jnp.asarray(case_dot.er_hat) / jnp.asarray(transport_scale)
+    else:
+        epsi_hat_dot = jnp.zeros_like(resolved_epsi_hat)
+    return _prepared_coefficient_vector_jvp_from_values(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+        nu_hat_dot,
+        epsi_hat_dot,
     )
 
 
@@ -191,9 +302,243 @@ def _solve_prepared_coefficient_vector_vjp_bwd(
     return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),)
 
 
+def _parameter_gradient_directional_from_adjoint(
+    prepared: PreparedMonoenergeticSystem,
+    ctx,
+    f1_full: Array,
+    f3_full: Array,
+    f1_dot: Array,
+    f3_dot: Array,
+    lambda1: Array,
+    lambda3: Array,
+    lambda1_dot: Array,
+    lambda3_dot: Array,
+) -> tuple[Array, Array]:
+    nu_bar_dot = jnp.asarray(0.0, dtype=prepared.grid.jax_dtype)
+    epsi_bar_dot = jnp.asarray(0.0, dtype=prepared.grid.jax_dtype)
+    for k in range(prepared.grid.n_xi + 1):
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx,
+            k,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        if k == 0:
+            diagonal_nu = _zero_first_row(diagonal_nu)
+            diagonal_epsi = _zero_first_row(diagonal_epsi)
+        nu_bar_dot = nu_bar_dot - (
+            jnp.vdot(lambda1_dot[k], diagonal_nu @ f1_full[k])
+            + jnp.vdot(lambda1[k], diagonal_nu @ f1_dot[k])
+            + jnp.vdot(lambda3_dot[k], diagonal_nu @ f3_full[k])
+            + jnp.vdot(lambda3[k], diagonal_nu @ f3_dot[k])
+        )
+        epsi_bar_dot = epsi_bar_dot - (
+            jnp.vdot(lambda1_dot[k], diagonal_epsi @ f1_full[k])
+            + jnp.vdot(lambda1[k], diagonal_epsi @ f1_dot[k])
+            + jnp.vdot(lambda3_dot[k], diagonal_epsi @ f3_full[k])
+            + jnp.vdot(lambda3[k], diagonal_epsi @ f3_dot[k])
+        )
+    return nu_bar_dot, epsi_bar_dot
+
+
+def solve_prepared_coefficient_vector_derivative_vjp(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    case_dot: MonoenergeticCase,
+    coefficient_bar: Array,
+) -> tuple[MonoenergeticCase, MonoenergeticCase]:
+    """Return a compact VJP and directional derivative of that VJP.
+
+    This is the reverse-mode companion needed by callers that differentiate
+    coefficient-solve derivative fields. It avoids tracing a JVP through the LU
+    factorization by differentiating the implicit primal/adjoint systems
+    directly for one monoenergetic case.
+    """
+
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    nu_hat_dot = jnp.asarray(case_dot.nu_hat)
+    if case.epsi_hat is not None:
+        epsi_hat_dot = jnp.asarray(case_dot.epsi_hat)
+    elif case.er_hat is not None:
+        assert transport_scale is not None
+        epsi_hat_dot = jnp.asarray(case_dot.er_hat) / jnp.asarray(transport_scale)
+    else:
+        epsi_hat_dot = jnp.zeros_like(resolved_epsi_hat)
+
+    (
+        _coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+
+    source1_dot = []
+    source3_dot = []
+    for k in range(prepared.grid.n_xi + 1):
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx,
+            k,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        if k == 0:
+            diagonal_nu = _zero_first_row(diagonal_nu)
+            diagonal_epsi = _zero_first_row(diagonal_epsi)
+        diagonal_dot = nu_hat_dot * diagonal_nu + epsi_hat_dot * diagonal_epsi
+        source1_dot.append(-(diagonal_dot @ f1_full[k]))
+        source3_dot.append(-(diagonal_dot @ f3_full[k]))
+
+    f1_dot = _solve_factorized_modes(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.stack(source1_dot),
+    )
+    f3_dot = _solve_factorized_modes(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.stack(source3_dot),
+    )
+
+    def _coefficient_pullback(modes1, modes3, nu_value):
+        return _coefficient_mode_pullback(
+            prepared.geometry,
+            modes1,
+            modes3,
+            nu_value,
+            coefficient_bar,
+        )
+
+    (
+        f1_bar_low,
+        f3_bar_low,
+        nu_bar_direct,
+    ), (
+        f1_bar_low_dot,
+        f3_bar_low_dot,
+        nu_bar_direct_dot,
+    ) = jax.jvp(
+        _coefficient_pullback,
+        (f1_full[:3], f3_full[:3], ctx.nu_hat),
+        (f1_dot[:3], f3_dot[:3], nu_hat_dot),
+    )
+
+    g1 = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low)
+    g3 = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low)
+    g1_dot = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low_dot)
+    g3_dot = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low_dot)
+
+    lambda1 = _solve_factorized_adjoint(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        g1,
+    )
+    lambda3 = _solve_factorized_adjoint(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        g3,
+    )
+
+    adjoint_rhs1_dot = []
+    adjoint_rhs3_dot = []
+    for k in range(prepared.grid.n_xi + 1):
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx,
+            k,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        if k == 0:
+            diagonal_nu = _zero_first_row(diagonal_nu)
+            diagonal_epsi = _zero_first_row(diagonal_epsi)
+        diagonal_dot = nu_hat_dot * diagonal_nu + epsi_hat_dot * diagonal_epsi
+        adjoint_rhs1_dot.append(g1_dot[k] - diagonal_dot.T @ lambda1[k])
+        adjoint_rhs3_dot.append(g3_dot[k] - diagonal_dot.T @ lambda3[k])
+
+    lambda1_dot = _solve_factorized_adjoint(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.stack(adjoint_rhs1_dot),
+    )
+    lambda3_dot = _solve_factorized_adjoint(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.stack(adjoint_rhs3_dot),
+    )
+
+    nu_bar_implicit, epsi_bar = _parameter_gradient_from_adjoint(
+        prepared,
+        ctx,
+        f1_full,
+        f3_full,
+        lambda1,
+        lambda3,
+    )
+    nu_bar_implicit_dot, epsi_bar_dot = _parameter_gradient_directional_from_adjoint(
+        prepared,
+        ctx,
+        f1_full,
+        f3_full,
+        f1_dot,
+        f3_dot,
+        lambda1,
+        lambda3,
+        lambda1_dot,
+        lambda3_dot,
+    )
+
+    nu_bar = nu_bar_direct + nu_bar_implicit
+    nu_bar_dot = nu_bar_direct_dot + nu_bar_implicit_dot
+    if case.epsi_hat is not None:
+        return (
+            MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None),
+            MonoenergeticCase(nu_hat=nu_bar_dot, epsi_hat=epsi_bar_dot, er_hat=None),
+        )
+    if case.er_hat is not None:
+        assert transport_scale is not None
+        return (
+            MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=epsi_bar / transport_scale),
+            MonoenergeticCase(nu_hat=nu_bar_dot, epsi_hat=None, er_hat=epsi_bar_dot / transport_scale),
+        )
+    return (
+        MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),
+        MonoenergeticCase(nu_hat=nu_bar_dot, epsi_hat=None, er_hat=None),
+    )
+
+
 solve_prepared_coefficient_vector_vjp.defvjp(
     _solve_prepared_coefficient_vector_vjp_fwd,
     _solve_prepared_coefficient_vector_vjp_bwd,
+)
+
+solve_prepared_coefficient_vector_jvp.defjvp(
+    _solve_prepared_coefficient_vector_jvp_rule,
 )
 
 
@@ -272,6 +617,8 @@ __all__ = [
     "compile_prepared_solver",
     "solve_prepared",
     "solve_prepared_coefficient_vector",
+    "solve_prepared_coefficient_vector_derivative_vjp",
+    "solve_prepared_coefficient_vector_jvp",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared_internal",
 ]
