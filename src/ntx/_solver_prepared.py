@@ -91,6 +91,21 @@ def solve_prepared_coefficient_vector_vjp(
     return solve_prepared_coefficient_vector(prepared, case)
 
 
+@partial(jax.custom_vjp, nondiff_argnums=(0,))
+def solve_prepared_coefficient_vector_recompute_vjp(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> Array:
+    """Exact coefficient-vector VJP that recomputes factorization in backward.
+
+    The standard exact custom VJP saves the dense LU/factorization state in the
+    forward residual. This opt-in variant keeps only scalar inputs in the
+    residual and rebuilds the exact factorization in the transpose rule.
+    """
+
+    return solve_prepared_coefficient_vector(prepared, case)
+
+
 @jax.custom_vjp
 def solve_prepared_coefficient_vector_iterative_vjp(
     prepared: PreparedMonoenergeticSystem,
@@ -172,6 +187,26 @@ def _solve_prepared_coefficient_vector_vjp_fwd(
         saved_piv,
         saved_lower,
         saved_upper,
+    )
+
+
+def _solve_prepared_coefficient_vector_recompute_vjp_fwd(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> tuple[Array, tuple[Array, Array, Array | None, bool, bool]]:
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    coefficients, *_ = _prepared_implicit_vjp_primal(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    return coefficients, (
+        jnp.asarray(case.nu_hat),
+        resolved_epsi_hat,
+        None if transport_scale is None else jnp.asarray(transport_scale),
+        case.epsi_hat is not None,
+        case.er_hat is not None,
     )
 
 
@@ -305,6 +340,67 @@ def _solve_prepared_coefficient_vector_vjp_bwd(
         saved_lower,
         saved_upper,
     ) = residuals
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        nu_hat,
+        resolved_epsi_hat,
+    )
+    f1_bar_low, f3_bar_low, nu_bar_direct = _coefficient_mode_pullback(
+        prepared.geometry,
+        f1_full[:3],
+        f3_full[:3],
+        ctx.nu_hat,
+        coefficient_bar,
+    )
+    g1 = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low)
+    g3 = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low)
+    lambda1 = _solve_factorized_adjoint(saved_lu, saved_piv, saved_lower, saved_upper, g1)
+    lambda3 = _solve_factorized_adjoint(saved_lu, saved_piv, saved_lower, saved_upper, g3)
+    nu_bar_implicit, epsi_bar = _parameter_gradient_from_adjoint(
+        prepared,
+        ctx,
+        f1_full,
+        f3_full,
+        lambda1,
+        lambda3,
+    )
+    nu_bar = nu_bar_direct + nu_bar_implicit
+    if uses_epsi_hat:
+        return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None),)
+    if uses_er_hat:
+        assert transport_scale is not None
+        er_bar = epsi_bar / transport_scale
+        return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=er_bar),)
+    return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),)
+
+
+def _solve_prepared_coefficient_vector_recompute_vjp_bwd(
+    prepared: PreparedMonoenergeticSystem,
+    residuals: tuple[Array, Array, Array | None, bool, bool],
+    coefficient_bar: Array,
+) -> tuple[MonoenergeticCase]:
+    (
+        nu_hat,
+        resolved_epsi_hat,
+        transport_scale,
+        uses_epsi_hat,
+        uses_er_hat,
+    ) = residuals
+    (
+        _coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(
+        prepared,
+        nu_hat,
+        resolved_epsi_hat,
+    )
     ctx = _operator_context(
         prepared.surface,
         prepared.geometry,
@@ -871,6 +967,10 @@ solve_prepared_coefficient_vector_vjp.defvjp(
     _solve_prepared_coefficient_vector_vjp_fwd,
     _solve_prepared_coefficient_vector_vjp_bwd,
 )
+solve_prepared_coefficient_vector_recompute_vjp.defvjp(
+    _solve_prepared_coefficient_vector_recompute_vjp_fwd,
+    _solve_prepared_coefficient_vector_recompute_vjp_bwd,
+)
 solve_prepared_coefficient_vector_iterative_vjp.defvjp(
     _solve_prepared_coefficient_vector_iterative_vjp_fwd,
     _solve_prepared_coefficient_vector_iterative_vjp_bwd,
@@ -963,6 +1063,7 @@ __all__ = [
     "solve_prepared_coefficient_vector_iterative_jvp",
     "solve_prepared_coefficient_vector_iterative_vjp",
     "solve_prepared_coefficient_vector_jvp",
+    "solve_prepared_coefficient_vector_recompute_vjp",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared_internal",
 ]
