@@ -441,6 +441,73 @@ def _solve_prepared_coefficient_vector_recompute_vjp_bwd(
     return (None, MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None))
 
 
+def solve_prepared_coefficient_vector_scalar_pullback(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    coefficient_bar: Array,
+) -> MonoenergeticCase:
+    """Contract coefficient cotangents directly to monoenergetic input bars.
+
+    This helper exposes the exact coefficient-solve reverse algebra without
+    asking callers to materialize or differentiate coefficient vectors
+    themselves. It is intentionally a narrow scalar-pullback boundary for
+    memory experiments in higher-level reverse-mode transport code.
+    """
+
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    (
+        _coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    f1_bar_low, f3_bar_low, nu_bar_direct = _coefficient_mode_pullback(
+        prepared.geometry,
+        f1_full[:3],
+        f3_full[:3],
+        ctx.nu_hat,
+        coefficient_bar,
+    )
+    g1 = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low)
+    g3 = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low)
+    lambda1 = _solve_factorized_adjoint(saved_lu, saved_piv, saved_lower, saved_upper, g1)
+    lambda3 = _solve_factorized_adjoint(saved_lu, saved_piv, saved_lower, saved_upper, g3)
+    nu_bar_implicit, epsi_bar = _parameter_gradient_from_adjoint(
+        prepared,
+        ctx,
+        f1_full,
+        f3_full,
+        lambda1,
+        lambda3,
+    )
+    nu_bar = nu_bar_direct + nu_bar_implicit
+    if case.epsi_hat is not None:
+        return MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None)
+    if case.er_hat is not None:
+        assert transport_scale is not None
+        return MonoenergeticCase(
+            nu_hat=nu_bar,
+            epsi_hat=None,
+            er_hat=epsi_bar / transport_scale,
+        )
+    return MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None)
+
+
 def _apply_prepared_block_operator(
     prepared: PreparedMonoenergeticSystem,
     ctx,
@@ -1068,6 +1135,7 @@ __all__ = [
     "solve_prepared_coefficient_vector_iterative_vjp",
     "solve_prepared_coefficient_vector_jvp",
     "solve_prepared_coefficient_vector_recompute_vjp",
+    "solve_prepared_coefficient_vector_scalar_pullback",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared_internal",
 ]

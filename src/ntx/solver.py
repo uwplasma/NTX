@@ -15,6 +15,7 @@ from ._solver_prepared import (
     solve_prepared_coefficient_vector_iterative_vjp,
     solve_prepared_coefficient_vector_jvp,
     solve_prepared_coefficient_vector_recompute_vjp,
+    solve_prepared_coefficient_vector_scalar_pullback,
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
@@ -55,6 +56,7 @@ __all__ = [
     "solve_prepared_coefficient_vector_iterative_vjp",
     "solve_prepared_coefficient_vector_jvp",
     "solve_prepared_coefficient_vector_recompute_vjp",
+    "solve_prepared_coefficient_vector_scalar_pullback",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared_internal",
     "solve_scan",
