@@ -1673,8 +1673,8 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
             g1_dot = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low_dot)
             g3_dot = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low_dot)
 
-            lambda1 = _solve_factorized_adjoint_scan(lambda k: _take_mode(g1, k))
-            lambda3 = _solve_factorized_adjoint_scan(lambda k: _take_mode(g3, k))
+            lambda1 = _solve_factorized_adjoint_scan(g1)
+            lambda3 = _solve_factorized_adjoint_scan(g3)
 
             def _diagonal_dot(k):
                 diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
