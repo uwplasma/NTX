@@ -91,7 +91,7 @@ def solve_prepared_coefficient_vector_vjp(
     return solve_prepared_coefficient_vector(prepared, case)
 
 
-@partial(jax.custom_vjp, nondiff_argnums=(0,))
+@jax.custom_vjp
 def solve_prepared_coefficient_vector_recompute_vjp(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -193,7 +193,10 @@ def _solve_prepared_coefficient_vector_vjp_fwd(
 def _solve_prepared_coefficient_vector_recompute_vjp_fwd(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
-) -> tuple[Array, tuple[Array, Array, Array | None, bool, bool]]:
+) -> tuple[
+    Array,
+    tuple[PreparedMonoenergeticSystem, Array, Array, Array | None, bool, bool],
+]:
     transport_scale = prepared.geometry.transport_psi_scale
     resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
     coefficients, *_ = _prepared_implicit_vjp_primal(
@@ -202,6 +205,7 @@ def _solve_prepared_coefficient_vector_recompute_vjp_fwd(
         resolved_epsi_hat,
     )
     return coefficients, (
+        prepared,
         jnp.asarray(case.nu_hat),
         resolved_epsi_hat,
         None if transport_scale is None else jnp.asarray(transport_scale),
@@ -377,11 +381,11 @@ def _solve_prepared_coefficient_vector_vjp_bwd(
 
 
 def _solve_prepared_coefficient_vector_recompute_vjp_bwd(
-    prepared: PreparedMonoenergeticSystem,
-    residuals: tuple[Array, Array, Array | None, bool, bool],
+    residuals: tuple[PreparedMonoenergeticSystem, Array, Array, Array | None, bool, bool],
     coefficient_bar: Array,
-) -> tuple[MonoenergeticCase]:
+) -> tuple[None, MonoenergeticCase]:
     (
+        prepared,
         nu_hat,
         resolved_epsi_hat,
         transport_scale,
@@ -429,12 +433,12 @@ def _solve_prepared_coefficient_vector_recompute_vjp_bwd(
     )
     nu_bar = nu_bar_direct + nu_bar_implicit
     if uses_epsi_hat:
-        return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None),)
+        return (None, MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None))
     if uses_er_hat:
         assert transport_scale is not None
         er_bar = epsi_bar / transport_scale
-        return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=er_bar),)
-    return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),)
+        return (None, MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=er_bar))
+    return (None, MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None))
 
 
 def _apply_prepared_block_operator(
