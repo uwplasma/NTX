@@ -1,4 +1,26 @@
-"""Block-tridiagonal solve and factorized adjoint helpers."""
+"""Block-tridiagonal solve and factorized adjoint helpers.
+
+The prepared factorization/solve pair is backed by :mod:`solvax`
+(``block_thomas_factor`` / ``block_thomas_solve``), which implements the same
+Schur-complement (block Thomas) recursion this module previously carried
+inline:
+
+    Delta_{N} = D_{N},  Delta_k = D_k - U_k Delta_{k+1}^{-1} L_{k+1}
+    sigma_k   = b_k - U_k Delta_{k+1}^{-1} sigma_{k+1}
+    x_0 = Delta_0^{-1} sigma_0,  x_k = Delta_k^{-1} (sigma_k - L_k x_{k-1})
+
+Two pieces intentionally stay local:
+
+- ``_solve_modes`` fuses on-the-fly operator-block assembly with a truncated
+  sweep so that only O(1) blocks are ever materialized. solvax's array-based
+  ``block_thomas_truncated`` would require materializing all
+  ``(n_xi + 1, n_fs, n_fs)`` blocks up front, which regresses peak memory for
+  large grids and under the vmapped nu/epsi scans.
+- ``_solve_factorized_adjoint`` solves the transposed system by reusing the
+  forward LU factors with ``trans=1`` (``Delta_k^T`` are exactly the Schur
+  complements of ``A^T``); solvax does not currently expose a transposed
+  block-Thomas solve on precomputed factors.
+"""
 
 from __future__ import annotations
 
@@ -6,6 +28,7 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 from jax.scipy.linalg import lu_factor, lu_solve
+from solvax import BlockTridiagFactors, block_thomas_factor, block_thomas_solve
 
 from .operators import OperatorContext, apply_nullspace_condition, operator_blocks
 
@@ -119,48 +142,36 @@ def _solve_modes(
     return jnp.stack(f1), jnp.stack(f3)
 
 
+def _stacked_operator_blocks(
+    ctx: OperatorContext,
+    n_xi: int,
+    d_theta: Array,
+    d_zeta: Array,
+) -> tuple[Array, Array, Array]:
+    """Materialize `(L_k, D_k, U_k)` stacks with the nullspace fix applied."""
+
+    lower, diagonal, upper = jax.vmap(
+        lambda k: operator_blocks(ctx, k, d_theta, d_zeta)
+    )(jnp.arange(n_xi + 1))
+    diagonal_fixed, upper_fixed = apply_nullspace_condition(diagonal[0], upper[0])
+    assert upper_fixed is not None
+    diagonal = diagonal.at[0].set(diagonal_fixed)
+    upper = upper.at[0].set(upper_fixed)
+    # The terminal super-diagonal block does not exist; keep it zero so the
+    # saved factors match the previous layout exactly.
+    upper = upper.at[n_xi].set(jnp.zeros_like(upper[n_xi]))
+    return lower, diagonal, upper
+
+
 def _factorize_prepared_modes(
     ctx: OperatorContext,
     n_xi: int,
     d_theta: Array,
     d_zeta: Array,
 ) -> tuple[Array, Array, Array, Array]:
-    lower_terminal, delta_terminal, lower_next = _terminal_delta(ctx, n_xi, d_theta, d_zeta)
-    lu_terminal, piv_terminal = lu_factor(delta_terminal)
-    x_prev = lu_solve((lu_terminal, piv_terminal), lower_next)
-
-    zeros_block = jnp.zeros_like(delta_terminal)
-    zeros_piv = jnp.zeros((delta_terminal.shape[0],), dtype=jnp.int32)
-    saved_lu = [zeros_block] * (n_xi + 1)
-    saved_piv = [zeros_piv] * (n_xi + 1)
-    saved_lower = [zeros_block] * (n_xi + 1)
-    saved_upper = [zeros_block] * (n_xi + 1)
-    saved_lu[n_xi] = lu_terminal
-    saved_piv[n_xi] = piv_terminal
-    saved_lower[n_xi] = lower_terminal
-
-    for k in range(n_xi - 1, -1, -1):
-        lower, diagonal, upper = operator_blocks(ctx, k, d_theta, d_zeta)
-        if k == 0:
-            diagonal_fixed, upper_fixed = apply_nullspace_condition(diagonal, upper)
-            assert upper_fixed is not None
-            diagonal = diagonal_fixed
-            upper = upper_fixed
-        delta_k = diagonal - upper @ x_prev
-        lu_k, piv_k = lu_factor(delta_k)
-        saved_lu[k] = lu_k
-        saved_piv[k] = piv_k
-        saved_lower[k] = lower
-        saved_upper[k] = upper
-        if k > 0:
-            x_prev = lu_solve((lu_k, piv_k), lower)
-
-    return (
-        jnp.stack(saved_lu),
-        jnp.stack(saved_piv),
-        jnp.stack(saved_lower),
-        jnp.stack(saved_upper),
-    )
+    lower, diagonal, upper = _stacked_operator_blocks(ctx, n_xi, d_theta, d_zeta)
+    factors = block_thomas_factor(lower, diagonal, upper)
+    return factors.delta_lu, factors.delta_piv, factors.lower, factors.upper
 
 
 def _solve_factorized_modes(
@@ -170,18 +181,8 @@ def _solve_factorized_modes(
     saved_upper: Array,
     source: Array,
 ) -> Array:
-    n_xi = source.shape[0] - 1
-    y = [jnp.zeros_like(source[0])] * (n_xi + 1)
-    y[n_xi] = lu_solve((saved_lu[n_xi], saved_piv[n_xi]), source[n_xi])
-    for k in range(n_xi - 1, -1, -1):
-        rhs = source[k] - saved_upper[k] @ y[k + 1]
-        y[k] = lu_solve((saved_lu[k], saved_piv[k]), rhs)
-
-    modes = [y[0]]
-    for k in range(1, n_xi + 1):
-        propagated = lu_solve((saved_lu[k], saved_piv[k]), saved_lower[k] @ modes[k - 1])
-        modes.append(y[k] - propagated)
-    return jnp.stack(modes)
+    factors = BlockTridiagFactors(saved_lu, saved_piv, saved_lower, saved_upper)
+    return block_thomas_solve(factors, source)
 
 
 def _solve_factorized_adjoint(

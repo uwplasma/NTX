@@ -31,6 +31,8 @@ dependencies = [
   "numpy",
   "rich",
   "scipy",
+  # Not yet on PyPI: install from git+https://github.com/uwplasma/SOLVAX until released.
+  "solvax",
   "typing-extensions",
   "tomli; python_version < '3.11'",
 ]
