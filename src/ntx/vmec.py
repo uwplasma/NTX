@@ -50,6 +50,8 @@ def load_vmec_surface(
     mpol = int(wout.mpol)
     ntor = int(wout.ntor)
     phi = np.asarray(wout.phi, dtype=np.float64)
+    if float(phi[-1]) == 0.0:
+        raise ValueError("VMEC transport normalization produced dpsi_hat/dr_hat = 0")
     psi_n_grid = phi / float(phi[-1])
     iota_full = _iota_grid_from_wout(wout)
     aminor_p = float(np.asarray(wout.Aminor_p).reshape(()))

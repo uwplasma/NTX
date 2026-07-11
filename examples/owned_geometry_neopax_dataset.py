@@ -398,7 +398,7 @@ def _max_relative_difference(reference, candidate) -> float:
 def _scan_path_metadata(path_key: str) -> dict[str, str]:
     if path_key == "booz_xform_jax":
         return {
-            "geometry_path": "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+            "geometry_path": ("vmec_jax.read_wout -> booz_xform_jax -> NTX BoozerSurface"),
             "interpolation_owner": (
                 "The requested radial points are transformed directly from the matching "
                 "VMEC input/wout pair; no external profile or database interpolation is used."
@@ -857,9 +857,7 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
             max(
                 float(
                     np.nanmax(
-                        np.abs(
-                            np.asarray(path_payload["coefficients"]["D11"]["values"])[:, 0, 0]
-                        )
+                        np.abs(np.asarray(path_payload["coefficients"]["D11"]["values"])[:, 0, 0])
                     )
                 ),
                 EPS,
