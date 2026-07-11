@@ -346,6 +346,39 @@ def test_surface_from_vmec_jax_wout_auto_falls_back_to_wout_backend(
     assert fallback["kwargs"]["s"] == 0.25
 
 
+def test_surface_from_vmec_jax_wout_current_api_uses_finalized_wout(
+    monkeypatch,
+    tmp_path,
+):
+    wout = SimpleNamespace(ns=3, mpol=2, ntor=1, signgs=1)
+    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg.read_wout = lambda path: wout
+    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.delitem(sys.modules, "vmec_jax.api", raising=False)
+
+    captured = {}
+
+    def fake_wout_fallback(wout_obj, **kwargs):
+        captured["wout"] = wout_obj
+        captured["kwargs"] = kwargs
+        return "surface"
+
+    monkeypatch.setattr(
+        "ntx._vmec_jax_surfaces._surface_from_booz_xform_wout_data",
+        fake_wout_fallback,
+    )
+
+    result = surface_from_vmec_jax_wout(
+        input_path=tmp_path / "input.vmec",
+        wout_path=tmp_path / "wout.nc",
+        s=0.5,
+    )
+
+    assert result == "surface"
+    assert captured["wout"] is wout
+    assert captured["kwargs"]["s"] == 0.5
+
+
 def test_surface_from_vmec_jax_wout_source_uses_wout_backend(monkeypatch, tmp_path):
     @dataclasses.dataclass(frozen=True)
     class FakeCfg:

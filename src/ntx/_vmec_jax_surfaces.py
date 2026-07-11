@@ -295,11 +295,17 @@ def surface_from_vmec_jax_wout(
     still using the state-reconstructed magnetic channels.
     """
 
-    import vmec_jax
     try:
-        from vmec_jax.api import read_wout, state_from_wout
-    except ModuleNotFoundError:
-        from vmec_jax.core.wout import read_wout, state_from_wout
+        import vmec_jax
+        from vmec_jax import read_wout
+    except (ImportError, ModuleNotFoundError):
+        import vmec_jax
+        from vmec_jax.api import read_wout
+
+    try:
+        from vmec_jax.api import state_from_wout
+    except (ImportError, ModuleNotFoundError):
+        state_from_wout = None
 
     if profile_source not in {"auto", "input", "wout", "state_wout_profiles"}:
         raise ValueError(
@@ -308,8 +314,25 @@ def surface_from_vmec_jax_wout(
 
     vmec_input = Path(input_path).expanduser().resolve()
     vmec_wout = Path(wout_path).expanduser().resolve()
-    cfg, indata = vmec_jax.load_config(vmec_input)
     wout = read_wout(vmec_wout)
+    if profile_source == "wout" or (profile_source == "auto" and state_from_wout is None):
+        return _surface_from_booz_xform_wout_data(
+            wout,
+            source_path=vmec_wout,
+            s=s,
+            mboz=mboz,
+            nboz=nboz,
+            psi_p=psi_p,
+            min_bmn_to_load=min_bmn_to_load,
+        )
+    if state_from_wout is None:
+        raise NotImplementedError(
+            f"profile_source={profile_source!r} requires the legacy "
+            "vmec_jax state_from_wout API. Use profile_source='wout' with "
+            "current vmec_jax."
+        )
+
+    cfg, indata = vmec_jax.load_config(vmec_input)
     state = state_from_wout(wout)
 
     replacements: dict[str, int] = {}
@@ -348,16 +371,6 @@ def surface_from_vmec_jax_wout(
             profiles_half=profiles_half,
         )
 
-    if profile_source == "wout":
-        return _surface_from_booz_xform_wout_data(
-            wout,
-            source_path=vmec_wout,
-            s=s,
-            mboz=mboz,
-            nboz=nboz,
-            psi_p=psi_p,
-            min_bmn_to_load=min_bmn_to_load,
-        )
     if profile_source == "state_wout_profiles":
         return build_surface(use_wout_profiles=True)
     try:
