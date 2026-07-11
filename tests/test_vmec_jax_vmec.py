@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import jax.numpy as jnp
-from vmec_jax.api import read_wout
+from vmec_jax import read_wout
 
 from ntx import (
     GridSpec,

@@ -30,15 +30,18 @@ def load_vmec_surface(
         raise FileNotFoundError(str(wout_path))
 
     try:
-        import vmec_jax.api as vmec_jax_api
-    except ModuleNotFoundError as exc:
-        raise ModuleNotFoundError(
-            "load_vmec_surface requires vmec_jax. Install it with "
-            "`pip install vmec_jax`, `pip install -e ../vmec_jax`, "
-            "or `pip install git+https://github.com/uwplasma/vmec_jax.git`."
-        ) from exc
+        from vmec_jax import read_wout
+    except (ImportError, ModuleNotFoundError):
+        try:
+            from vmec_jax.api import read_wout
+        except (ImportError, ModuleNotFoundError) as exc:
+            raise ModuleNotFoundError(
+                "load_vmec_surface requires vmec_jax. Install it with "
+                "`pip install vmec_jax`, `pip install -e ../vmec_jax`, "
+                "or `pip install git+https://github.com/uwplasma/vmec_jax.git`."
+            ) from exc
 
-    wout = vmec_jax_api.read_wout(wout_path)
+    wout = read_wout(wout_path)
     if bool(wout.lasym):
         raise NotImplementedError("VMEC lasym=true inputs are not supported yet")
 
