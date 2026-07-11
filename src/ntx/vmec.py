@@ -31,7 +31,16 @@ def load_vmec_surface(
 
     try:
         import vmec_jax.api as vmec_jax_api
-    except ModuleNotFoundError as exc:
+    except ModuleNotFoundError:
+        try:
+            from vmec_jax.core import wout as vmec_jax_api
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "load_vmec_surface requires vmec_jax. Install it with "
+                "`pip install vmec_jax`, `pip install -e ../vmec_jax`, "
+                "or `pip install git+https://github.com/uwplasma/vmec_jax.git`."
+            ) from exc
+    except ImportError as exc:
         raise ModuleNotFoundError(
             "load_vmec_surface requires vmec_jax. Install it with "
             "`pip install vmec_jax`, `pip install -e ../vmec_jax`, "

@@ -296,7 +296,10 @@ def surface_from_vmec_jax_wout(
     """
 
     import vmec_jax
-    from vmec_jax.api import read_wout, state_from_wout
+    try:
+        from vmec_jax.api import read_wout, state_from_wout
+    except ModuleNotFoundError:
+        from vmec_jax.core.wout import read_wout, state_from_wout
 
     if profile_source not in {"auto", "input", "wout", "state_wout_profiles"}:
         raise ValueError(
