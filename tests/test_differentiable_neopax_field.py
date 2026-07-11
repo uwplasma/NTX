@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 from types import ModuleType, SimpleNamespace
 
@@ -523,10 +524,14 @@ def test_differentiable_neopax_fluxes_copy_axis_block_and_apply_lij_forces(monke
         + lij[0, 0, 0, 1] * species.A2[0, 0]
         + lij[0, 0, 0, 2] * species.A3[0]
     )
-    expected_heat_axis = -species.temperature[1, 0] * species.density[1, 0] * (
-        lij[1, 0, 1, 0] * species.A1[1, 0]
-        + lij[1, 0, 1, 1] * species.A2[1, 0]
-        + lij[1, 0, 1, 2] * species.A3[0]
+    expected_heat_axis = (
+        -species.temperature[1, 0]
+        * species.density[1, 0]
+        * (
+            lij[1, 0, 1, 0] * species.A1[1, 0]
+            + lij[1, 0, 1, 1] * species.A2[1, 0]
+            + lij[1, 0, 1, 2] * species.A3[0]
+        )
     )
     expected_upar_edge = -species.density[1, 2] * (
         lij[1, 2, 2, 0] * species.A1[1, 2]
@@ -663,8 +668,11 @@ def test_booz_xform_gmnc_helpers_with_fake_internal_api(monkeypatch):
 
 
 @pytest.mark.skipif(
-    not _has_local_boundary_stack(),
-    reason="requires local vmec_jax, booz_xform_jax, and NEOPAX checkouts",
+    not _has_local_boundary_stack() or os.environ.get("NTX_RUN_BOUNDARY_AUTODIFF") != "1",
+    reason=(
+        "requires local vmec_jax, booz_xform_jax, and NEOPAX checkouts plus "
+        "NTX_RUN_BOUNDARY_AUTODIFF=1; the full reverse-mode compile is memory intensive"
+    ),
 )
 def test_boundary_to_neopax_current_objective_is_differentiable():
     NEOPAX = _import_neopax()

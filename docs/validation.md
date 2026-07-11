@@ -101,15 +101,15 @@ Boozer-coordinate comparisons as representation audits.
 ![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
 
 The same backend issue has now been checked on the finite-beta QA `wout` used
-by the owned stellarator lane. That input uses an optimized current-profile
-form that the optional differentiable VMEC-state reconstruction path does not
-yet support. NTX therefore treats `profile_source="wout"` as the correct
-file-backed transfer route for this case: it transforms the finalized VMEC
+by the owned stellarator lane. NTX treats `profile_source="wout"` as the
+correct file-backed transfer route: current `vmec_jax` no longer reconstructs
+equilibrium states from WOUT coefficients. NTX transforms the finalized VMEC
 magnetic channels, reloads the generated Boozer file on the same half-grid
 surfaces, and compares `D11/D31/D13/D33`. The committed artifact closes the
 transport mismatch to about `8e-14`. This removes the Boozer radial-selection
-and finalized-channel ambiguity for finite-beta file-backed runs while keeping
-fully differentiable finite-beta state sensitivities out of shipping claims.
+and finalized-channel ambiguity for finite-beta file-backed runs. Differentiable
+runs use the converged state plus matching runtime through vmec_jax's traced
+core Boozer tables; broad finite-beta equilibrium sensitivities remain gated.
 
 ![Finite-beta finalized-wout Boozer round-trip audit](_static/boozmn_finite_beta_wout_roundtrip_audit.png)
 

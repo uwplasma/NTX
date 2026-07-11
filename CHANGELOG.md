@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- migrated WOUT loading to the current root-level `vmec_jax.read_wout` API
+- replaced removed WOUT-to-state reconstruction with separate finalized-WOUT
+  and traceable `SpectralState`/`SolverRuntime` Boozer paths
+- migrated fixed-boundary reverse-mode workflows to
+  `vmec_jax.implicit.solve_implicit`
+- restored physical VMEC radial-flux normalization in the direct WOUT builder
+- made the memory-intensive boundary-to-current reverse-mode integration gate
+  opt-in with `NTX_RUN_BOUNDARY_AUTODIFF=1`
+
 ## 0.2.4
 
 Repository and package-size hardening after the `0.2.3` output release.

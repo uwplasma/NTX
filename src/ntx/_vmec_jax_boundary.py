@@ -22,7 +22,18 @@ class VmecJaxBoundaryContext:
     static: Any
     signgs: int
     boundary: Any
-    specs: tuple[object, ...]
+    specs: tuple[Any, ...]
+    backend: str = "legacy"
+
+
+@dataclasses.dataclass(frozen=True)
+class _CoreBoundaryParamSpec:
+    """One additive boundary coefficient in the current vmec_jax basis."""
+
+    name: str
+    field: str
+    n_index: int
+    m_index: int
 
 
 def build_vmec_jax_boundary_context(
@@ -42,17 +53,33 @@ def build_vmec_jax_boundary_context(
 
     vmec_jax = _import_vmec_jax()
     vmec_input = Path(input_path).expanduser().resolve()
-    cfg, indata = vmec_jax.load_config(vmec_input)
-    static = vmec_jax.build_static(cfg)
-    boundary = vmec_jax.boundary_input_from_indata(indata, static.modes)
-    specs = vmec_jax.boundary_param_specs(
-        boundary,
-        static.modes,
-        max_mode=max_mode,
-        include=include,
-        fix=fix,
-        include_axis=include_axis,
-    )
+    if hasattr(vmec_jax, "VmecInput"):
+        indata = vmec_jax.VmecInput.from_file(str(vmec_input))
+        cfg = vmec_jax.implicit.make_config(indata)
+        boundary = vmec_jax.implicit.params_from_input(indata)
+        static = vmec_jax.implicit.runtime_from_params(boundary, cfg)
+        specs = _core_boundary_param_specs(
+            indata,
+            max_mode=max_mode,
+            include=include,
+            fix=fix,
+            include_axis=include_axis,
+        )
+        backend = "core"
+        signgs = int(static.setup.signgs)
+    else:
+        cfg, indata = vmec_jax.load_config(vmec_input)
+        static = vmec_jax.build_static(cfg)
+        boundary = vmec_jax.boundary_input_from_indata(indata, static.modes)
+        specs = vmec_jax.boundary_param_specs(
+            boundary,
+            static.modes,
+            max_mode=max_mode,
+            include=include,
+            fix=fix,
+            include_axis=include_axis,
+        )
+        backend = "legacy"
     return VmecJaxBoundaryContext(
         input_path=vmec_input,
         cfg=cfg,
@@ -61,7 +88,55 @@ def build_vmec_jax_boundary_context(
         signgs=int(signgs),
         boundary=boundary,
         specs=tuple(specs),
+        backend=backend,
     )
+
+
+def _core_boundary_param_specs(
+    inp,
+    *,
+    max_mode: int | None,
+    include: Sequence[str],
+    fix: Sequence[str],
+    include_axis: bool,
+) -> tuple[_CoreBoundaryParamSpec, ...]:
+    include_set = {name.lower() for name in include}
+    fix_set = {name.lower() for name in fix}
+    families = (("rc", "rbc"), ("rs", "rbs"), ("zc", "zbc"), ("zs", "zbs"))
+    specs = []
+    for m in range(int(inp.mpol)):
+        for n in range(-int(inp.ntor), int(inp.ntor) + 1):
+            if m == 0 and n < 0:
+                continue
+            if max_mode is not None and (m > int(max_mode) or abs(n) > int(max_mode)):
+                continue
+            if not include_axis and m == 0 and n == 0:
+                continue
+            suffix = f"{m}{n:+d}".replace("+", "")
+            for prefix, field in families:
+                name = f"{prefix}{suffix}"
+                if prefix in include_set and name.lower() not in fix_set:
+                    specs.append(
+                        _CoreBoundaryParamSpec(
+                            name=name,
+                            field=field,
+                            n_index=n + int(inp.ntor),
+                            m_index=m,
+                        )
+                    )
+    return tuple(specs)
+
+
+def _core_params_with_updates(context: VmecJaxBoundaryContext, params):
+    values = jnp.asarray(params)
+    if values.ndim != 1 or int(values.size) != len(context.specs):
+        raise ValueError(f"expected {len(context.specs)} boundary updates, got {values.size}")
+    arrays = {
+        name: jnp.asarray(getattr(context.boundary, name)) for name in ("rbc", "rbs", "zbc", "zbs")
+    }
+    for value, spec in zip(values, context.specs, strict=True):
+        arrays[spec.field] = arrays[spec.field].at[spec.n_index, spec.m_index].add(value)
+    return dataclasses.replace(context.boundary, **arrays)
 
 
 def initial_guess_vmec_jax_boundary_state(
@@ -79,6 +154,12 @@ def initial_guess_vmec_jax_boundary_state(
     """
 
     vmec_jax = _import_vmec_jax()
+    if context.backend == "core":
+        from vmec_jax.core.solver import _initial_state
+
+        updated = _core_params_with_updates(context, params)
+        runtime = vmec_jax.implicit.runtime_from_params(updated, context.cfg)
+        return _initial_state(runtime.setup)
     boundary = vmec_jax.apply_boundary_params(context.boundary, context.specs, params)
     return vmec_jax.initial_guess_from_boundary(
         context.static,
@@ -106,6 +187,20 @@ def solve_vmec_jax_boundary_state(
     """
 
     vmec_jax = _import_vmec_jax()
+    if context.backend == "core":
+        updated = _core_params_with_updates(context, params)
+        cfg = context.cfg
+        replacements: dict[str, int | float] = {}
+        if max_iter is not None:
+            # The current implicit API returns only converged roots. Legacy
+            # callers used small values for truncated explicit smoke runs, so
+            # never reduce the equilibrium deck's convergence budget here.
+            replacements["max_iterations"] = max(int(cfg.max_iterations), int(max_iter))
+        if ftol is not None:
+            replacements["ftol"] = float(ftol)
+        if replacements:
+            cfg = dataclasses.replace(cfg, **replacements)
+        return vmec_jax.implicit.solve_implicit(updated, cfg)
     state0 = initial_guess_vmec_jax_boundary_state(
         context,
         params,
@@ -153,6 +248,13 @@ def relax_vmec_jax_boundary_state_explicit(
     """
 
     vmec_jax = _import_vmec_jax()
+    if context.backend == "core":
+        raise NotImplementedError(
+            "The current vmec_jax API removed the experimental explicit "
+            "fixed-step relaxation. Use solve_vmec_jax_boundary_state(), "
+            "which uses vmec_jax.implicit.solve_implicit and its validated "
+            "custom-VJP equilibrium derivative."
+        )
     state0 = initial_guess_vmec_jax_boundary_state(
         context,
         params,
@@ -164,9 +266,7 @@ def relax_vmec_jax_boundary_state_explicit(
         signgs=context.signgs,
     )
     pressure_value = (
-        jnp.zeros_like(jnp.asarray(context.static.s))
-        if pressure is None
-        else jnp.asarray(pressure)
+        jnp.zeros_like(jnp.asarray(context.static.s)) if pressure is None else jnp.asarray(pressure)
     )
     result = vmec_jax.solve_fixed_boundary_gd(
         state0,
