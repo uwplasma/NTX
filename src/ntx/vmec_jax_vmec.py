@@ -107,7 +107,10 @@ def surface_from_vmec_jax_vmec_wout_file(
 ) -> VmecSurface:
     """Build a VMEC harmonic surface from a `wout` file through `vmec_jax`."""
 
-    from vmec_jax.api import read_wout
+    try:
+        from vmec_jax.api import read_wout
+    except ModuleNotFoundError:
+        from vmec_jax.core.wout import read_wout
 
     wout_path = Path(path).expanduser().resolve()
     wout = read_wout(wout_path)
