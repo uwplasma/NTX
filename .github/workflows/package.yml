@@ -26,6 +26,8 @@ jobs:
           python -m pip install build twine
       - name: Build distributions
         run: python -m build
+      - name: Check distribution sizes
+        run: python scripts/check_distribution_size.py dist/*
       - name: Check distributions
         run: python -m twine check dist/*
       - name: Upload distributions

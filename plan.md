@@ -528,19 +528,19 @@ Target ownership:
 - SOLVAX: all generic direct, iterative, refinement, fixed-point, operator,
   Jacobian-chunking, and implicit-solve algorithms.
 
-- [ ] Keep flat compatibility exports while documenting owned namespaces.
-- [ ] Remove unused NTX runtime dependencies after clean-wheel testing:
+- [x] Keep flat compatibility exports while documenting owned namespaces.
+- [x] Remove unused NTX runtime dependencies after clean-wheel testing:
   `scipy` moves to dev/examples, `typing-extensions` is removed if unused, and
   direct `jaxlib` is removed if `jax` provides the correct installation
   contract. Keep `netCDF4` as a supported runtime output/input dependency.
-- [ ] Measure wheel and clean-environment install size in CI. Current wheels are
+- [x] Measure wheel and clean-environment install size in CI. Current wheels are
   about 153 KiB for NTX and 53 KiB for SOLVAX.
-- [ ] Document all exported functions/classes. The audit found 70 undocumented
+- [x] Document all exported functions/classes. The audit found 70 undocumented
   top-level public definitions; internal callbacks do not need ceremonial
   docstrings.
 - [ ] Require docstrings to include units, array shapes, coordinate convention,
   differentiability, static arguments, and raised errors where relevant.
-- [ ] Keep modules below roughly 400 lines unless cohesion justifies more.
+- [x] Keep modules below roughly 400 lines unless cohesion justifies more.
 
 Acceptance:
 

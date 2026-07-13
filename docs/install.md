@@ -52,13 +52,19 @@ pin a GPU-specific JAX wheel.
 
 ## First Run
 
-After installation:
+After installation, run the built-in surface without repository files:
+
+```bash
+ntx solve --example --nu-hat 1e-2 --n-theta 9 --n-zeta 9 --n-xi 8
+```
+
+From a source checkout, write and plot the bundled TOML case:
 
 ```bash
 ntx examples/example_surface.toml --plot
 ```
 
-That should:
+The source-checkout command should:
 
 1. print a Rich run summary
 2. solve one sample monoenergetic problem

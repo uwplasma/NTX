@@ -14,6 +14,12 @@ from ._physics_gate_types import PhysicsGateResult
 
 
 def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
+    """Evaluate committed artifact-backed gates below a repository root.
+
+    Missing artifacts produce ``missing`` results rather than exceptions so
+    validation reports can distinguish absent evidence from failed thresholds.
+    """
+
     root = Path(root)
     static_root = root / "docs" / "_static"
     results: list[PhysicsGateResult] = []
