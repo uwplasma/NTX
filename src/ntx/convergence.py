@@ -38,9 +38,12 @@ class AdaptiveConvergenceResult:
 
 
 def _snapshot(result: TransportResult) -> tuple[float, float, float, float, float]:
-    return tuple(
-        float(value)
-        for value in (result.D11, result.D31, result.D13, result.D33, result.D33_spitzer)
+    return (
+        float(result.D11),
+        float(result.D31),
+        float(result.D13),
+        float(result.D33),
+        float(result.D33_spitzer),
     )
 
 
@@ -59,9 +62,11 @@ def _changes(
     tolerance = atol + rtol * scale
     denominator = np.maximum(np.maximum(scale, atol), np.finfo(float).tiny)
     relative = absolute / denominator
+    absolute_tuple = (float(absolute[0]), float(absolute[1]), float(absolute[2]))
+    relative_tuple = (float(relative[0]), float(relative[1]), float(relative[2]))
     return (
-        tuple(float(value) for value in absolute),
-        tuple(float(value) for value in relative),
+        absolute_tuple,
+        relative_tuple,
         bool(np.all(absolute <= tolerance)),
     )
 
