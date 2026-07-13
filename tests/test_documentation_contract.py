@@ -16,6 +16,8 @@ def test_readme_is_concise_and_decision_oriented():
 
     assert 150 <= line_count <= 220
     assert "pip install ntx" in readme
+    assert "ntx solve --example --nu-hat 1e-2" in readme
+    assert "From a source checkout" in readme
     assert "## Choose A Workflow" in readme
     assert "| Solved directly |" in readme
     assert "| Downstream closure |" in readme

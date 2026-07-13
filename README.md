@@ -26,7 +26,13 @@ pip install git+https://github.com/uwplasma/booz_xform_jax.git
 
 ## Quick Start
 
-Run the bundled surface and create NetCDF and PDF output:
+Run the built-in surface without cloning the repository:
+
+```bash
+ntx solve --example --nu-hat 1e-2 --n-theta 9 --n-zeta 9 --n-xi 8
+```
+
+From a source checkout, create NetCDF and PDF output with the bundled TOML:
 
 ```bash
 ntx examples/example_surface.toml --plot
@@ -93,7 +99,7 @@ required angular and Legendre refinement studies.
 
 | Goal | Start here |
 | --- | --- |
-| Solve one coefficient set | `ntx examples/example_surface.toml --plot` |
+| Solve one coefficient set | `ntx solve --example --nu-hat 1e-2` |
 | Run a prepared collisionality/electric-field scan | [Python API and performance](docs/performance.md) |
 | Load VMEC or Boozer geometry | [Geometry and inputs](docs/geometry.md) |
 | Export a NEOPAX database | `python examples/build_neopax_scan_from_ertilde.py --help` |
