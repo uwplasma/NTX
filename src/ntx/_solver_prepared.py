@@ -16,15 +16,17 @@ from ._solver_adjoint import (
 )
 from ._solver_context import _operator_context
 from ._solver_factorization import (
-    _residual_norm,
+    _factorize_prepared_modes,
+    _full_mode_residual_norm,
     _solve_factorized_adjoint,
     _solve_factorized_modes,
-    _solve_modes,
+    _solve_modes_with_tail_residual,
 )
 from ._solver_types import (
     CompiledPreparedSolver,
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
+    ResidualAuditResult,
     TransportResult,
     transport_result_from_arrays,
 )
@@ -56,6 +58,49 @@ def solve_prepared_internal(
     result = transport_result_from_arrays(values)
     dij = _monoenergetic_matrix(result.D11, result.D31, result.D13, result.D33)
     return dij, values[9], values[10]
+
+
+def audit_prepared_residuals(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> ResidualAuditResult:
+    """Reconstruct all Legendre modes and independently audit every block row.
+
+    This diagnostic stores full block factors and modes. Use it for validation,
+    not in memory-constrained production scans.
+    """
+    grid = prepared.grid
+    epsi_hat = case.resolved_epsi_hat(prepared.geometry.transport_psi_scale)
+    ctx = _operator_context(
+        prepared.surface, prepared.geometry, grid, case.nu_hat, epsi_hat
+    )
+    source, parallel_source = source_modes(ctx, grid.n_xi)
+    retained, _, tail_residual = _solve_modes_with_tail_residual(
+        ctx,
+        grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+        source,
+        parallel_source,
+    )
+    factors = _factorize_prepared_modes(
+        ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta
+    )
+    full_modes = _solve_factorized_modes(*factors, source)
+    full_residual = _full_mode_residual_norm(
+        ctx,
+        grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+        source,
+        full_modes,
+    )
+    return ResidualAuditResult(
+        tail_eliminated_l2=tail_residual,
+        full_system_l2=full_residual,
+        retained_mode_max_abs_error=jnp.max(jnp.abs(retained - full_modes[:3])),
+        n_modes=grid.n_xi + 1,
+    )
 
 
 def solve_prepared_coefficient_vector(
@@ -1854,7 +1899,7 @@ def _solve_prepared_arrays_from_values(
     grid = prepared.grid
     ctx = _operator_context(prepared.surface, geom, grid, nu_hat, epsi_hat)
     s1, s3 = source_modes(ctx, grid.n_xi)
-    f1_modes, f3_modes = _solve_modes(
+    f1_modes, f3_modes, residual = _solve_modes_with_tail_residual(
         ctx,
         grid.n_xi,
         prepared.d_theta,
@@ -1864,14 +1909,6 @@ def _solve_prepared_arrays_from_values(
     )
     d11, d31, d13, d33, d33_spitzer = coefficients_from_modes(
         geom, f1_modes, f3_modes, ctx.nu_hat
-    )
-    residual = _residual_norm(
-        ctx,
-        grid.n_xi,
-        prepared.d_theta,
-        prepared.d_zeta,
-        s1,
-        f1_modes,
     )
     return (
         d11,
@@ -1897,6 +1934,7 @@ def _monoenergetic_matrix(d11: Array, d31: Array, d13: Array, d33: Array) -> Arr
 
 
 __all__ = [
+    "audit_prepared_residuals",
     "compile_prepared_solver",
     "solve_prepared",
     "solve_prepared_coefficient_vector",

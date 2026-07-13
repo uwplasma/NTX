@@ -70,6 +70,7 @@ def _fake_vmec_module(wout):
     vmec_api = ModuleType("vmec_jax.api")
     vmec_api.read_wout = lambda path: wout
     vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg.read_wout = vmec_api.read_wout
     vmec_pkg.api = vmec_api
     return vmec_pkg, vmec_api
 

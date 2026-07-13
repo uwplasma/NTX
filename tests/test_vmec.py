@@ -102,6 +102,12 @@ def test_vmec_filtered_nyquist_matches_direct_vmec_harmonics_sign_convention():
             abs=tolerance,
         )
 
+    assert direct.psi_a_hat == pytest.approx(filtered.psi_a_hat)
+    assert direct.r_hat == pytest.approx(filtered.r_hat)
+    assert direct.dpsi_hat_dr_hat == pytest.approx(filtered.dpsi_hat_dr_hat)
+    assert direct.dr_hat_dpsi_hat == pytest.approx(filtered.dr_hat_dpsi_hat)
+    assert direct.transport_psi_scale == pytest.approx(filtered.transport_psi_scale)
+
 
 def test_vmec_surface_resolves_er_hat_from_transport_scale():
     surface = load_vmec_surface(SAMPLE_WOUT, psi_n=0.25)

@@ -1,5 +1,59 @@
 # Changelog
 
+## Unreleased
+
+- split scan orchestration, fixed-bucket compilation, and local-device sharding
+  into separate internal owners behind the unchanged solver API; removed
+  redundant direct runtime dependencies and added wheel/sdist size gates
+- condensed the README into a decision-oriented quickstart, corrected the
+  normalized drift-kinetic equation on the documentation entry page, added a
+  generated public API reference and normalization glossary, and separated the
+  release checklist from the authoritative research plan
+- added a reusable angular-oversampling audit with coefficient error, compile
+  and warm-runtime timing, and XLA temporary-memory reporting; the committed
+  finite-beta QA/NCSX/HSX artifact supports a warning-only `2.25`-times-Nyquist
+  starting-grid recommendation while preserving successive-grid acceptance
+- exposed the production algebraic diagnostic as
+  `TransportResult.schur_residual_l2` while preserving `residual_l2` as a
+  compatibility alias, and added independent full-system and dense-operator
+  residual oracles through `N_xi=63`
+- refreshed geometry-family discovery for current and legacy `vmec_jax`
+  layouts, added the finite-beta NFP2 QA example, and retained the near-zero-
+  transform vacuum QA input as a visible diagnostic-only case
+- added a public prepared-derivative audit that requires independent full
+  primal and transpose residual convergence and compares direct reverse mode,
+  forward mode, the factor-reusing adjoint, and centered finite differences
+- measured selective recomputation against saved-factor adjoints; the committed
+  CPU artifact keeps rematerialization disabled because it does not reduce
+  temporary memory for the prepared block solve
+- added opt-in SOLVAX chunked Jacobians to profile sensitivity and uncertainty
+  workflows, preserving native JAX reverse mode as the small-control default
+- added reusable fixed-bucket prepared scan solvers with CPU-sequential and
+  accelerator-vectorized execution, explicit warmup timing, and executable
+  memory diagnostics
+- replaced per-call scan JIT factories with reusable module-level kernels and
+  synchronized CPU/GPU benchmark timing
+- added optional persistent JAX compilation-cache configuration and cache-miss
+  diagnostics
+- limited branch CI to pull-request runs while retaining post-merge `main`
+  validation, avoiding duplicate workflow execution
+- moved generated truncated solves, reusable Schur factors, primal factor reuse,
+  exact transpose reuse, and tail-aware residuals to `solvax>=0.7.3,<0.8`
+  while retaining all physics
+  assembly and observable definitions in NTX
+- corrected the production residual to include the reconstructed mode-3
+  coupling and added an opt-in full Legendre residual audit
+- added strict Fourier geometry sampling reports and adaptive two-successive-step
+  angular/Legendre convergence gates
+- migrated WOUT loading to the current root-level `vmec_jax.read_wout` API
+- replaced removed WOUT-to-state reconstruction with separate finalized-WOUT
+  and traceable `SpectralState`/`SolverRuntime` Boozer paths
+- migrated fixed-boundary reverse-mode workflows to
+  `vmec_jax.implicit.solve_implicit`
+- restored physical VMEC radial-flux normalization in the direct WOUT builder
+- made the memory-intensive boundary-to-current reverse-mode integration gate
+  opt-in with `NTX_RUN_BOUNDARY_AUTODIFF=1`
+
 ## 0.2.4
 
 Repository and package-size hardening after the `0.2.3` output release.

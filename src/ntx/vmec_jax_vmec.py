@@ -36,18 +36,10 @@ def surface_from_vmec_jax_vmec_wout(
 
     bmnc = _interp_mode_columns(s_half, np.asarray(wout.bmnc, dtype=np.float64)[1:, :], s)
     gmnc = _interp_mode_columns(s_half, np.asarray(wout.gmnc, dtype=np.float64)[1:, :], s)
-    bsupumnc = _interp_mode_columns(
-        s_half, np.asarray(wout.bsupumnc, dtype=np.float64)[1:, :], s
-    )
-    bsupvmnc = _interp_mode_columns(
-        s_half, np.asarray(wout.bsupvmnc, dtype=np.float64)[1:, :], s
-    )
-    bsubumnc = _interp_mode_columns(
-        s_half, np.asarray(wout.bsubumnc, dtype=np.float64)[1:, :], s
-    )
-    bsubvmnc = _interp_mode_columns(
-        s_half, np.asarray(wout.bsubvmnc, dtype=np.float64)[1:, :], s
-    )
+    bsupumnc = _interp_mode_columns(s_half, np.asarray(wout.bsupumnc, dtype=np.float64)[1:, :], s)
+    bsupvmnc = _interp_mode_columns(s_half, np.asarray(wout.bsupvmnc, dtype=np.float64)[1:, :], s)
+    bsubumnc = _interp_mode_columns(s_half, np.asarray(wout.bsubumnc, dtype=np.float64)[1:, :], s)
+    bsubvmnc = _interp_mode_columns(s_half, np.asarray(wout.bsubvmnc, dtype=np.float64)[1:, :], s)
     iota = -float(_interp_profile(s_full, np.asarray(wout.iotaf, dtype=np.float64), s))
 
     b0 = float(np.max(np.abs(bmnc)))
@@ -60,8 +52,14 @@ def surface_from_vmec_jax_vmec_wout(
         include[np.argmax(zero_mode)] = True
 
     aminor_p = float(np.asarray(wout.Aminor_p, dtype=np.float64).reshape(()))
+    if aminor_p == 0.0:
+        raise ValueError("VMEC input must provide a nonzero Aminor_p for transport normalization")
     r_n = float(np.sqrt(float(s)))
     r_hat = float(aminor_p * r_n)
+    psi_a_hat = float(phi[-1]) / (2.0 * np.pi)
+    dpsi_hat_dr_hat = float(2.0 * psi_a_hat * r_n / aminor_p)
+    if dpsi_hat_dr_hat == 0.0:
+        raise ValueError("VMEC transport normalization produced dpsi_hat/dr_hat = 0")
 
     resolved_path = Path(
         source_path if source_path is not None else getattr(wout, "path", "vmec_jax_wout")
@@ -87,15 +85,15 @@ def surface_from_vmec_jax_vmec_wout(
         b_sup_theta_cos=jnp.asarray(bsupumnc[include], dtype=jnp.float64),
         b_sup_zeta_cos=jnp.asarray(bsupvmnc[include], dtype=jnp.float64),
         b0=b0,
-        psi_a_hat=float(abs(phi[-1]) / (2.0 * np.pi)),
+        psi_a_hat=psi_a_hat,
         phi_edge=float(phi[-1]),
         r_n=r_n,
         r_hat=r_hat,
-        dpsi_hat_dr_hat=1.0,
-        dr_hat_dpsi_hat=1.0,
+        dpsi_hat_dr_hat=dpsi_hat_dr_hat,
+        dr_hat_dpsi_hat=float(1.0 / dpsi_hat_dr_hat),
         aminor_p=aminor_p,
         psi_p=None,
-        transport_psi_scale=1.0,
+        transport_psi_scale=dpsi_hat_dr_hat,
     )
 
 
@@ -108,9 +106,15 @@ def surface_from_vmec_jax_vmec_wout_file(
     """Build a VMEC harmonic surface from a `wout` file through `vmec_jax`."""
 
     try:
-        from vmec_jax.api import read_wout
-    except ModuleNotFoundError:
-        from vmec_jax.core.wout import read_wout
+        from vmec_jax import read_wout
+    except (ImportError, ModuleNotFoundError):
+        try:
+            from vmec_jax.api import read_wout
+        except (ImportError, ModuleNotFoundError) as exc:
+            raise ModuleNotFoundError(
+                "surface_from_vmec_jax_vmec_wout_file requires vmec_jax. "
+                "Install it with `pip install vmec_jax`."
+            ) from exc
 
     wout_path = Path(path).expanduser().resolve()
     wout = read_wout(wout_path)

@@ -144,17 +144,15 @@ different geometry channels.
 
 ![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
 
-Optimized finite-beta inputs can use VMEC current-profile representations that
-the differentiable state-reconstruction path cannot yet re-evaluate. For those
-cases `surface_from_vmec_jax_wout(..., profile_source="wout")` uses the
-finalized `wout` magnetic channels through the JAX Boozer transform and then
-hands NTX the same `B_{mn}`, `iota`, `G/I`, and VMEC half-grid metadata that a
-generated Boozer file would store. The automatic mode uses this finalized
-file-backed path only when the differentiable state path raises an unsupported
-profile-representation error. This is a physics/numerics distinction rather
-than a fitted correction: the finalized `wout` is the VMEC solution being
-validated, while unsupported profile reconstruction is an upstream state-path
-limitation.
+For file-backed work, `surface_from_vmec_jax_wout(..., profile_source="auto")`
+and `profile_source="wout"` use the finalized WOUT magnetic channels directly.
+Current `vmec_jax` intentionally removed the legacy `state_from_wout`
+reconstruction API: a WOUT is an output representation, not a complete
+differentiable equilibrium state. In-memory differentiable work instead passes
+the converged `SpectralState` and matching `SolverRuntime` to
+`surface_from_vmec_jax_state(...)`; NTX then uses the traceable
+`vmec_jax.core.boozer_tables.boozer_input_tables` bridge. Neither path applies
+a fitted correction.
 
 The finite-beta transfer artifact exercises this path on an optimized QA
 finite-beta `wout` and closes the same-coordinate transport mismatch to

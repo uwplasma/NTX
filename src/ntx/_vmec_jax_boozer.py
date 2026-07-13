@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from collections.abc import Sequence
 from pathlib import Path
+from types import SimpleNamespace
 
 import jax
 import jax.numpy as jnp
@@ -100,25 +101,43 @@ def _booz_xform_bundle_from_vmec_jax_state(
 ):
     vmec_jax = _import_vmec_jax()
     jax_api = _import_booz_xform_jax_api()
-    inputs = vmec_jax.booz_xform_inputs_from_state(
-        state=state,
-        static=static,
-        indata=indata,
-        signgs=signgs,
-        flux=flux_profiles,
-        profiles_half=profiles_half,
-    )
-    surface_indices = None
-    if s_values is not None:
-        surface_indices, _surface_values = vmec_jax.surface_indices_from_static(
-            static,
-            [float(s_value) for s_value in s_values],
+    legacy_builder = getattr(vmec_jax, "booz_xform_inputs_from_state", None)
+    if legacy_builder is not None:
+        inputs = legacy_builder(
+            state=state,
+            static=static,
+            indata=indata,
+            signgs=signgs,
+            flux=flux_profiles,
+            profiles_half=profiles_half,
         )
+        surface_indices = None
+        if s_values is not None:
+            surface_indices, _surface_values = vmec_jax.surface_indices_from_static(
+                static,
+                [float(s_value) for s_value in s_values],
+            )
+        asym = bool(static.cfg.lasym)
+    else:
+        runtime_signgs = int(static.setup.signgs)
+        if int(signgs) != runtime_signgs:
+            raise ValueError(
+                "signgs does not match the supplied vmec_jax SolverRuntime: "
+                f"{signgs} != {runtime_signgs}"
+            )
+        inputs = _core_boozer_inputs_from_state(
+            vmec_jax=vmec_jax,
+            state=state,
+            runtime=static,
+            s_values=s_values,
+        )
+        surface_indices = None
+        asym = bool(static.resolution.lasym)
     constants, grids = jax_api.prepare_booz_xform_constants_from_inputs(
         inputs=inputs,
         mboz=int(mboz),
         nboz=int(nboz),
-        asym=bool(static.cfg.lasym),
+        asym=asym,
     )
     out = jax_api.booz_xform_from_inputs(
         inputs=inputs,
@@ -130,6 +149,68 @@ def _booz_xform_bundle_from_vmec_jax_state(
         jit=True,
     )
     return inputs, out
+
+
+def _core_boozer_inputs_from_state(*, vmec_jax, state, runtime, s_values):
+    """Adapt the current vmec_jax core tables to booz_xform_jax inputs."""
+
+    try:
+        from vmec_jax.core.boozer_tables import boozer_input_tables
+    except (ImportError, ModuleNotFoundError) as exc:
+        raise RuntimeError(
+            "This NTX workflow requires the current vmec_jax core API, "
+            "including vmec_jax.core.boozer_tables.boozer_input_tables."
+        ) from exc
+
+    if not hasattr(runtime, "resolution") or not hasattr(runtime, "setup"):
+        raise TypeError(
+            "With the current vmec_jax API, `static` must be the matching "
+            "vmec_jax SolverRuntime returned by prepare_runtime() or "
+            "implicit.runtime_from_params()."
+        )
+    if bool(runtime.resolution.lasym):
+        raise NotImplementedError(
+            "The current differentiable vmec_jax Boozer table bridge supports "
+            "stellarator-symmetric equilibria only."
+        )
+
+    s_full = jnp.asarray(runtime.setup.s_full)
+    s_half = 0.5 * (s_full[:-1] + s_full[1:])
+    requested = s_half if s_values is None else jnp.asarray(s_values, dtype=s_half.dtype)
+    if requested.ndim != 1 or int(requested.size) == 0:
+        raise ValueError("s_values must contain at least one normalized-flux surface")
+    if bool(jnp.any((requested < 0.0) | (requested > 1.0))):
+        raise ValueError("s_values must lie between 0 and 1")
+
+    # boozer_input_tables uses VMEC half-mesh row j, with 1 <= j < ns.
+    rows = [int(jnp.argmin(jnp.abs(s_half - value))) + 1 for value in requested]
+    tables = [boozer_input_tables(state, runtime, row) for row in rows]
+    mode_m = tables[0]["xm"]
+    mode_n = tables[0]["xn"]
+
+    def stack(name):
+        return jnp.stack([jnp.asarray(table[name]) for table in tables])
+
+    return SimpleNamespace(
+        nfp=int(runtime.resolution.nfp),
+        xm=mode_m,
+        xn=mode_n,
+        xm_nyq=mode_m,
+        xn_nyq=mode_n,
+        rmnc=stack("rmnc"),
+        zmns=stack("zmns"),
+        lmns=stack("lmns"),
+        bmnc=stack("bmnc"),
+        bsubumnc=stack("bsubumnc"),
+        bsubvmnc=stack("bsubvmnc"),
+        iota=stack("iota"),
+        rmns=None,
+        zmnc=None,
+        lmnc=None,
+        bmns=None,
+        bsubumns=None,
+        bsubvmns=None,
+    )
 
 
 def _booz_xform_gmnc_from_inputs(*, inputs, mboz: int, nboz: int, asym: bool):

@@ -57,8 +57,9 @@ def example_neopax_profile_autodiff(
     learning_rate: float = 0.25,
     steps: int = 32,
     use_neopax_package: bool = False,
+    jacobian_chunk_size: int | str | None = None,
 ) -> NeopaxProfileAutodiffResult:
-    """Infer a low-dimensional electric-field profile on a NEOPAX-style scan."""
+    """Infer an electric-field profile with optional chunked sensitivities."""
 
     return _example_neopax_profile_autodiff(
         surfaces,
@@ -74,7 +75,9 @@ def example_neopax_profile_autodiff(
         steps=steps,
         use_neopax_package=use_neopax_package,
         maybe_import_neopax=_maybe_import_neopax,
+        jacobian_chunk_size=jacobian_chunk_size,
     )
+
 
 def _maybe_import_neopax():
     try:

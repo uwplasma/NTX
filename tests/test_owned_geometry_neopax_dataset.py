@@ -55,7 +55,7 @@ def test_owned_geometry_neopax_dataset_records_provenance_without_external_runti
     assert set(case_payload["scan_paths"]) == {"booz_xform_jax", "vmec_jax_wout_cubic"}
     assert (
         case_payload["scan_paths"]["booz_xform_jax"]["geometry_path"]
-        == "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface"
+        == "vmec_jax.read_wout -> booz_xform_jax -> NTX BoozerSurface"
     )
     responses = case_payload["scan_paths"]["booz_xform_jax"]["profile_responses"]
     assert responses["profile_model"]

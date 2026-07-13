@@ -8,17 +8,7 @@
 # NTX
 
 NTX is a JAX-native monoenergetic neoclassical transport solver for stellarator
-flux surfaces. It solves the Legendre-space formulation described in Javier
-Escoto's PhD thesis, [Fast monoenergetic neoclassical transport coefficients in
-stellarators](https://arxiv.org/abs/2510.27513).
-
-Use NTX as:
-
-- a command-line solver for file-backed transport calculations,
-- a Python/JAX library for scans, autodiff, uncertainty propagation, and
-  optimization,
-- a NEOPAX-compatible monoenergetic database builder for bootstrap-current
-  workflows.
+flux surfaces.
 
 ## Install
 
@@ -26,13 +16,8 @@ Use NTX as:
 pip install ntx
 ```
 
-For local development:
-
-```bash
-pip install -e ".[dev,docs,io]"
-```
-
-Optional geometry-coupled examples use upstream JAX geometry tools:
+Optional VMEC and Boozer geometry workflows use the upstream JAX geometry
+packages:
 
 ```bash
 pip install git+https://github.com/uwplasma/vmec_jax.git
@@ -41,22 +26,26 @@ pip install git+https://github.com/uwplasma/booz_xform_jax.git
 
 ## Quick Start
 
-Run the smallest bundled case:
+Run the built-in surface without cloning the repository:
+
+```bash
+ntx solve --example --nu-hat 1e-2 --n-theta 9 --n-zeta 9 --n-xi 8
+```
+
+From a source checkout, create NetCDF and PDF output with the bundled TOML:
 
 ```bash
 ntx examples/example_surface.toml --plot
 ```
 
-This writes `examples/outputs/example_surface.nc` plus a PDF summary panel.
-Choose the output format by filename:
+Choose NetCDF, NPZ, or HDF5 by the output suffix and plot an existing result:
 
 ```bash
-ntx examples/example_surface.toml --output examples/outputs/example_surface.npz --plot
-ntx examples/example_surface.toml --output examples/outputs/example_surface.h5 --plot
-python examples/plot_output_file.py examples/outputs/example_surface.nc
+ntx examples/example_surface.toml --output result.h5 --plot
+python examples/plot_output_file.py result.h5
 ```
 
-Use NTX from Python:
+Use the solver directly from Python:
 
 ```python
 from ntx import GridSpec, MonoenergeticCase, example_surface, solve_monoenergetic
@@ -69,197 +58,104 @@ result = solve_monoenergetic(surface, grid, case)
 print(result.D11, result.D31, result.D13, result.D33)
 ```
 
-For JAX scans:
+For repeated scans, prepare the geometry and compile once:
 
 ```python
 import jax.numpy as jnp
-from ntx import GridSpec, example_surface, solve_monoenergetic_scan
+from ntx import GridSpec, compile_prepared_scan_solver, example_surface
+from ntx import prepare_monoenergetic_system
 
-surface = example_surface()
-grid = GridSpec(17, 25, 16)
+prepared = prepare_monoenergetic_system(example_surface(), GridSpec(17, 25, 16))
+scan = compile_prepared_scan_solver(prepared)
+scan.warmup()
 nu_hat = jnp.logspace(-5, -2, 8)
-
-coefficients = solve_monoenergetic_scan(
-    surface,
-    grid,
-    nu_hat,
-    epsi_hat=jnp.zeros_like(nu_hat),
-)
+coefficients = scan(nu_hat, epsi_hat=jnp.zeros_like(nu_hat))
 ```
 
-## Outputs
+See the [performance guide](docs/performance.md) before choosing scan batching,
+CPU parallelism, or GPU execution.
 
-For each monoenergetic case, NTX computes:
+## Physics And Scope
 
-- `D11`, `D31`, `D13`, `D33`, and `D33_spitzer`,
-- residual and Onsager diagnostics,
-- resolved electric-field normalization,
-- geometry arrays and run metadata in NetCDF, NPZ, or HDF5 outputs.
+NTX solves the local monoenergetic drift-kinetic equation on one flux surface at
+fixed speed. The retained terms are parallel streaming, mirror force,
+radial-electric-field precession, and Lorentz pitch-angle scattering. A finite
+Legendre expansion in pitch angle produces the block-tridiagonal system solved
+for radial-transport and parallel-flow source terms.
 
-The input schema is documented in [docs/input-file.md](docs/input-file.md).
-
-## Physics In One Paragraph
-
-NTX solves the local monoenergetic drift-kinetic equation on one flux surface,
-keeping parallel streaming, mirror force, radial-electric-field precession, and
-Lorentz pitch-angle scattering at fixed speed. The unknown non-adiabatic
-response is projected onto Legendre polynomials in pitch angle, giving the
-block-tridiagonal system solved by the code. The two right-hand sides are the
-radial-transport drive and the parallel-flow/bootstrap-current drive; NTX
-returns the monoenergetic coefficients consumed by profile and NEOPAX workflows.
-The full equation, ordering, normalizations, and coefficient definitions are in
-[docs/physics.md](docs/physics.md).
-
-## Validation Snapshot
-
-Validation claims are tracked in the maintained
-[benchmark matrix](docs/benchmark-matrix.md) and
-[physics-gate summary](docs/physics-gates.md). The README keeps only the
-highest-signal artifacts:
-
-| Solver validation | Fixed-field current comparison |
+| Scope | What NTX provides |
 | --- | --- |
-| ![Monoenergetic validation summary](docs/_static/validation_summary.png) | ![Fixed-field SFINCS, Redl, and NTX + NEOPAX bootstrap-current comparison](docs/_static/bootstrap_current_fixed_field_validation.png) |
+| Solved directly | Monoenergetic `D11`, `D31`, `D13`, `D33`, and `D33_spitzer`, with residual and Onsager diagnostics |
+| Downstream closure | Species/profile integration, ambipolar electric field, and bootstrap-current workflows through NTX profile tools and NEOPAX |
+| Validated comparisons | Analytical limits, convergence ladders, independent fixed-field comparisons, geometry-family convergence, and derivative checks |
+| Research scope | Broader full-collision closure, implicit-equilibrium sensitivities, and additional stellarator-family promotion remain outside shipping claims |
 
-| Owned finite-beta bootstrap stress | Differentiable geometry/current path |
+The [physics model](docs/physics.md) gives the equation, ordering,
+normalizations, source projections, and coefficient definitions. The
+[convergence guide](docs/convergence.md) explains residual semantics and the
+required angular and Legendre refinement studies.
+
+## Choose A Workflow
+
+| Goal | Start here |
 | --- | --- |
-| ![Owned finite-beta Redl and NTX + NEOPAX bootstrap-current stress audit](docs/_static/owned_finite_beta_bootstrap_comparison.png) | ![Explicit-relaxed boundary current derivative benchmark](docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png) |
+| Solve one coefficient set | `ntx solve --example --nu-hat 1e-2` |
+| Run a prepared collisionality/electric-field scan | [Python API and performance](docs/performance.md) |
+| Load VMEC or Boozer geometry | [Geometry and inputs](docs/geometry.md) |
+| Export a NEOPAX database | `python examples/build_neopax_scan_from_ertilde.py --help` |
+| Calculate a bootstrap-current profile | [Profile workflows](docs/profiles.md) |
+| Differentiate or optimize | [Autodiff](docs/autodiff.md) |
+| Check resolution and validation | [Physics gates](docs/physics-gates.md) and [benchmark matrix](docs/benchmark-matrix.md) |
+| Profile CPU/GPU execution | [Performance](docs/performance.md) and [GPU notes](docs/gpu.md) |
 
-| Owned finite-beta source response | Same-grid profile-current pitch audit |
+The complete runnable catalog, including expected optional dependencies and
+outputs, is in [docs/examples.md](docs/examples.md).
+
+## Validation
+
+Each promoted claim maps to a script, test, committed artifact, acceptance
+threshold, and documentation entry in the maintained
+[benchmark matrix](docs/benchmark-matrix.md). Runtime code does not use fitted
+bridge constants to force agreement with a benchmark.
+
+| Monoenergetic convergence and identities | Fixed-field current comparison |
 | --- | --- |
-| ![Owned finite-beta profile source-response audit](docs/_static/owned_finite_beta_source_response_profile_audit.png) | ![Owned finite-beta SFINCS-JAX profile-current pitch-resolution audit](docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png) |
+| ![Monoenergetic validation summary](docs/_static/validation_summary.png) | ![Fixed-field SFINCS, Redl, and NTX plus NEOPAX bootstrap-current comparison](docs/_static/bootstrap_current_fixed_field_validation.png) |
 
-Current promoted validation includes monoenergetic convergence and identities,
-the fixed-field Redl/SFINCS comparison on the precise-QS benchmark family, the
-scoped fixed-field `NTX+NEOPAX` total-current stress gate, the integrated W7-X
-workflow transfer, and prepared derivative agreement against direct
-reverse-mode differentiation. Current comparisons use documented
-normalizations and moment-closure conventions; fitted bridge constants are not
-used in the runtime.
-
-The owned finite-beta stellarator lane now has same-grid SFINCS-JAX input
-generation, completed coefficient ladders, Redl and `NTX+NEOPAX` current
-audits, true-residual-converged RHSMode=1 SFINCS-JAX profile-current outputs,
-source-channel decompositions, and radial-interpolation diagnostics.
-That lane is closed as a reduced-closure stress benchmark: the
-monoenergetic coefficient differences are below `2.1e-2`, while the
-profile-current pitch-resolution audit accepts the high-`Nxi` even/odd
-truncation gap of `1.32e-1` under the `1.5e-1` reduced-closure stress
-tolerance. The full-collision production branch remains a non-shipping
-feasibility diagnostic. The corrected Boozer path evaluates `B00` on normalized radius
-and converts `dB00/d rho` to the physical radial derivative with the VMEC minor
-radius. The detailed reduced-closure interpretation is in
-[docs/validation.md](docs/validation.md).
-
-Run the local gate summary with:
+The fixed-field current result is a scoped reduced-closure stress comparison,
+not species-resolved or full-collision parity. Detailed assumptions, current
+normalizations, finite-beta diagnostics, and independent-reference provenance
+are in [docs/validation.md](docs/validation.md). Run the active gate summary with:
 
 ```bash
 python scripts/check_physics_gates.py
 ```
 
-## Common Workflows
+## Outputs
 
-CLI solves:
-
-```bash
-ntx examples/sample_dkes.toml
-ntx examples/sample_vmec.toml
-```
-
-Boozer-file backend validation:
-
-```bash
-python examples/boozmn_same_coordinate_roundtrip_audit.py
-```
-
-The direct Boozer loader is gated on VMEC half-grid `boozmn` metadata; the
-finite-beta finalized-`wout` transfer audit is documented in
-[`docs/geometry.md`](docs/geometry.md).
-
-NEOPAX database and bootstrap-current examples:
-
-```bash
-python examples/neopax_with_ntx.py
-python examples/build_neopax_scan_from_ertilde.py --help
-python examples/owned_geometry_neopax_dataset.py
-python examples/owned_finite_beta_bootstrap_comparison.py
-python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py
-python examples/owned_finite_beta_source_response_profile_audit.py
-python examples/bootstrap_current_with_neopax.py
-python examples/bootstrap_current_from_vmec_or_boozmn.py
-```
-
-For large finite-beta NEOPAX database exports on CPU, use
-`--scan-batch-size 32` first; it kept the QI hires `25 x 25 x 60` seven-surface
-example under 10 minutes and about `1.46 GB` peak RSS locally. On GPU, leave
-full-surface batching enabled unless device memory is the limiter. If a CPU-only
-laptop still runs too slowly, expose multiple JAX CPU devices before launch and
-shard the per-surface scan, for example
-`XLA_FLAGS=--xla_force_host_platform_device_count=4 python examples/build_neopax_scan_from_ertilde.py ... --device-backend cpu --parallel-devices 4 --scan-batch-size 32`.
-Run `python examples/build_neopax_scan_from_ertilde.py --help` and confirm both
-flags are listed; otherwise the local NTX checkout is stale.
-
-The full finite-beta validation sequence, including same-grid SFINCS-JAX input
-generation and matched-radius closure audits, is documented in
-[docs/validation.md](docs/validation.md).
-
-Autodiff and optimization examples:
-
-```bash
-python examples/derivative_audit.py
-python examples/explicit_relaxed_boundary_current_derivative_benchmark.py
-python examples/bootstrap_current_optimization.py
-```
-
-Performance examples:
-
-```bash
-python examples/prepared_geometry_reuse_profile.py --preset smoke
-python scripts/benchmark_scaling.py --help
-```
-
-Full example coverage is in [docs/examples.md](docs/examples.md).
-
-## Non-Blocking Research Lanes
-
-The current release-facing lanes are closed or explicitly scoped as stress
-diagnostics. Remaining work is intentionally kept as future research and must
-not be promoted until its acceptance gates pass:
-
-- full geometry-family reproduction on production-resolution W7-X, QI, QA/QH, and
-  additional stellarator-family inputs,
-- reusable hidden-symmetry and omnigenous benchmark families,
-- broader geometry-control autodiff with direct AD, prepared adjoints, and
-  finite-difference agreement on reusable geometry families,
-- promotion of the implicit-equilibrium derivative path only after residual
-  contraction and Boozer/NTX transport finite-difference agreement pass; the
-  current implicit artifact is a closed non-shipping diagnostic,
-- additional dedicated GPU nodes with healthy multi-GPU execution and
-  device-memory timelines,
-- broader fixed-field NTX+NEOPAX closure transfer, including species-resolved
-  current decomposition and any future default closure, without regressing the
-  integrated W7-X workflow,
-- broader profile, uncertainty, and robust-design studies before promoting
-  stellarator-design claims.
-
-The live roadmap and promotion criteria are in
-[docs/research-roadmap.md](docs/research-roadmap.md) and
-[docs/benchmark-matrix.md](docs/benchmark-matrix.md).
+NetCDF, NPZ, and HDF5 outputs contain transport coefficients, diagnostics,
+resolved electric-field normalization, geometry arrays, and run metadata. The
+format is selected by filename suffix. See [docs/input-file.md](docs/input-file.md)
+for the TOML schema, CLI options, and output variables.
 
 ## Documentation
 
-- Documentation: [ntx.readthedocs.io/en/latest/](https://ntx.readthedocs.io/en/latest/)
-- Validation: [docs/validation.md](docs/validation.md)
-- Performance: [docs/performance.md](docs/performance.md)
-- GPU notes: [docs/gpu.md](docs/gpu.md)
-- NEOPAX bridge: [docs/neopax.md](docs/neopax.md)
-- Source map: [docs/source-map.md](docs/source-map.md)
+- [Getting started](https://ntx.readthedocs.io/en/latest/)
+- [Physics and normalizations](docs/physics.md)
+- [Numerics and convergence](docs/numerics.md)
+- [API reference](docs/api.rst)
+- [Glossary](docs/glossary.md)
+- [Examples](docs/examples.md)
+- [Validation](docs/validation.md)
+- [Source map](docs/source-map.md)
+- [Authoritative development plan](plan.md)
 
-## Local Checks
+## Development
 
 ```bash
+pip install -e ".[dev,docs,io]"
 python -m ruff check .
 python -m mypy src/ntx
-python -m pytest -q
-python -m sphinx -b html docs docs/_build/html
+python scripts/test_lane_manifest.py --check
+python -m sphinx -W -b html docs docs/_build/html
 ```

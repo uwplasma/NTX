@@ -25,13 +25,11 @@ classifiers = [
 ]
 dependencies = [
   "jax",
-  "jaxlib",
   "interpax",
   "netCDF4",
   "numpy",
   "rich",
-  "scipy",
-  "typing-extensions",
+  "solvax>=0.7.3,<0.8",
   "tomli; python_version < '3.11'",
 ]
 
@@ -49,6 +47,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "ruff",
+  "scipy",
   "twine",
   "mypy",
 ]

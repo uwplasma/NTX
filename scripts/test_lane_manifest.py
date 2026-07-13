@@ -75,7 +75,10 @@ INTEGRATION_EXAMPLES: tuple[str, ...] = (
 CORE_FOUNDATION_TESTS: tuple[str, ...] = (
     "tests/test_autodiff.py",
     "tests/test_boozmn.py",
+    "tests/test_config.py",
+    "tests/test_convergence.py",
     "tests/test_database.py",
+    "tests/test_documentation_contract.py",
     "tests/test_geometry.py",
     "tests/test_grids.py",
     "tests/test_io_unit.py",
@@ -84,8 +87,12 @@ CORE_FOUNDATION_TESTS: tuple[str, ...] = (
     "tests/test_parallel.py",
     "tests/test_parallel_unit.py",
     "tests/test_profiles_unit.py",
+    "tests/test_resolution.py",
     "tests/test_source_map.py",
     "tests/test_solver.py",
+    "tests/test_solver_derivative_audit.py",
+    "tests/test_solver_residuals.py",
+    "tests/test_solvax_integration.py",
     "tests/test_vmec.py",
     "tests/test_vmec_jax_backend.py",
     "tests/test_vmec_jax_vmec.py",
@@ -95,6 +102,7 @@ CORE_FOUNDATION_TESTS: tuple[str, ...] = (
 CORE_CLI_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_cli.py",
     "tests/test_cli_unit.py",
+    "tests/test_distribution_size.py",
     "tests/test_examples.py",
     "tests/test_namespace_imports.py",
     "tests/test_packaging.py",
@@ -158,6 +166,7 @@ CORE_ROBUST_BOOTSTRAP_WORKFLOW_TESTS: tuple[str, ...] = (
 )
 
 CORE_VALIDATION_TESTS: tuple[str, ...] = (
+    "tests/test_angular_oversampling.py",
     "tests/test_benchmark_matrix.py",
     "tests/test_benchmark_scaling_script.py",
     "tests/test_boozmn_backend_validation_audit.py",

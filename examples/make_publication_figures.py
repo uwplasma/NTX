@@ -32,6 +32,7 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "angular_oversampling",
         "boozmn_same_coordinate_roundtrip",
         "boozmn_finite_beta_wout_roundtrip",
         "owned_geometry_neopax",
@@ -86,6 +87,7 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "angular_oversampling",
         "boozmn_same_coordinate_roundtrip",
         "boozmn_finite_beta_wout_roundtrip",
         "owned_geometry_neopax",
@@ -393,6 +395,23 @@ def main() -> None:
             _manifest_path(output_dir / "geometry_family_transport_convergence.png"),
             _manifest_path(output_dir / "geometry_family_transport_convergence.pdf"),
             _manifest_path(output_dir / "geometry_family_transport_convergence.json"),
+        ]
+
+    if "angular_oversampling" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "angular_oversampling_audit.py"),
+                "--preset",
+                "production",
+                "--output-prefix",
+                str(output_dir / "angular_oversampling_audit"),
+            ]
+        )
+        manifest["angular_oversampling"] = [
+            _manifest_path(output_dir / "angular_oversampling_audit.png"),
+            _manifest_path(output_dir / "angular_oversampling_audit.pdf"),
+            _manifest_path(output_dir / "angular_oversampling_audit.json"),
         ]
 
     if "boozmn_same_coordinate_roundtrip" in selected:

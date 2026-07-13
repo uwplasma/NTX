@@ -164,8 +164,11 @@ def _benchmark_size(
 
 
 def _timed(fn):
+    import jax
+
     t0 = perf_counter()
     coeffs = fn()
+    jax.block_until_ready(coeffs)
     t1 = perf_counter()
     return {"seconds": t1 - t0, "coeffs": coeffs}
 

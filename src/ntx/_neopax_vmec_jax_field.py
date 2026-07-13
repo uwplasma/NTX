@@ -22,6 +22,7 @@ from ._neopax_vmec_jax_profiles import (
     _vmec_edge_r00_from_state,
     _vmec_psia_from_indata,
     _vmec_psia_from_state,
+    _vmec_s_full,
     _vmec_volume_profiles_from_state,
 )
 from ._vmec_jax_boozer import (
@@ -60,7 +61,7 @@ def build_differentiable_neopax_field_from_vmec_jax_state(
 ) -> DifferentiableNeopaxField:
     """Build a tracer-safe NEOPAX field from an in-memory `vmec_jax` state."""
 
-    s_full = jnp.asarray(static.s)
+    s_full = _vmec_s_full(static)
     rho_half = _rho_half_mesh_from_s(s_full)
 
     volume_p, vp = _vmec_volume_profiles_from_state(
@@ -81,9 +82,7 @@ def build_differentiable_neopax_field_from_vmec_jax_state(
 
     rho_grid = jnp.linspace(0.0, 1.0, n_r_int)
     rho_grid_half0 = (
-        0.5 * (rho_grid[0] + rho_grid[1])
-        if n_r_int > 1
-        else jnp.asarray(0.0, dtype=rho_grid.dtype)
+        0.5 * (rho_grid[0] + rho_grid[1]) if n_r_int > 1 else jnp.asarray(0.0, dtype=rho_grid.dtype)
     )
     rho_grid_half = jnp.linspace(rho_grid_half0, rho_grid_half0 + rho_grid[-1], n_r_int)
     r_grid = rho_grid * a_b

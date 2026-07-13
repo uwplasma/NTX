@@ -149,6 +149,7 @@ def build_payload() -> dict:
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "angular_oversampling",
         "boozmn_same_coordinate_roundtrip",
         "boozmn_finite_beta_wout_roundtrip",
         "owned_geometry_neopax",

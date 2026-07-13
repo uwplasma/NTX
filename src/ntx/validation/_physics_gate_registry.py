@@ -6,6 +6,8 @@ from ._physics_gate_types import PhysicsGate
 
 
 def physics_gate_registry() -> tuple[PhysicsGate, ...]:
+    """Return analytical and artifact-backed physics gates in stable order."""
+
     return ANALYTICAL_GATES + ARTIFACT_GATES
 
 

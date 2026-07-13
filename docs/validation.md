@@ -35,6 +35,22 @@ NTX is validated as a standalone solver. The repository therefore emphasizes:
 Independent comparisons are useful, but they are treated as trust-building
 studies rather than as the definition of NTX itself.
 
+## Angular Resolution Evidence
+
+The retained VMEC/Boozer harmonics define a hard odd-grid Nyquist floor. They
+do not by themselves resolve products, reciprocals, and derivatives in the
+variable-coefficient collocation operator. NTX therefore keeps the operator
+unchanged, warns below a measured `2.25` oversampling ratio, and requires
+successive-grid coefficient convergence for research claims.
+
+The committed finite-beta QA, NCSX, and HSX artifact reports coefficient error,
+compiled warm runtime, and XLA temporary memory. Its worst `D11/D31/D33` error
+at the recommendation is `6.889e-3` relative to the `2.5`-times reference.
+This is a numerical stress gate, not an analytical de-aliasing theorem or an
+independent-code parity result.
+
+![Angular oversampling audit](_static/angular_oversampling_audit.png)
+
 ## Owned Dataset Discipline
 
 External reference datasets remain useful transfer checks, but they are not
@@ -101,15 +117,15 @@ Boozer-coordinate comparisons as representation audits.
 ![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
 
 The same backend issue has now been checked on the finite-beta QA `wout` used
-by the owned stellarator lane. That input uses an optimized current-profile
-form that the optional differentiable VMEC-state reconstruction path does not
-yet support. NTX therefore treats `profile_source="wout"` as the correct
-file-backed transfer route for this case: it transforms the finalized VMEC
+by the owned stellarator lane. NTX treats `profile_source="wout"` as the
+correct file-backed transfer route: current `vmec_jax` no longer reconstructs
+equilibrium states from WOUT coefficients. NTX transforms the finalized VMEC
 magnetic channels, reloads the generated Boozer file on the same half-grid
 surfaces, and compares `D11/D31/D13/D33`. The committed artifact closes the
 transport mismatch to about `8e-14`. This removes the Boozer radial-selection
-and finalized-channel ambiguity for finite-beta file-backed runs while keeping
-fully differentiable finite-beta state sensitivities out of shipping claims.
+and finalized-channel ambiguity for finite-beta file-backed runs. Differentiable
+runs use the converged state plus matching runtime through vmec_jax's traced
+core Boozer tables; broad finite-beta equilibrium sensitivities remain gated.
 
 ![Finite-beta finalized-wout Boozer round-trip audit](_static/boozmn_finite_beta_wout_roundtrip_audit.png)
 
@@ -438,11 +454,16 @@ python examples/geometry_family_transport_convergence.py --preset production
 
 It discovers local public examples from the surrounding `vmec_jax`, STELLOPT,
 and SIMSOPT checkouts and runs a production `D11/D31/D33` convergence ladder.
-The JSON also records `D13` so the Onsager quality check is visible. The current
-artifact includes tokamak, precise-QS QA/QH, QI-style, W7-X EIM/EJM, LHD, HSX,
+The JSON also records `D13` so the Onsager quality check is visible, and records
+the Schur residual under an explicit key. Current and legacy `vmec_jax` example
+layouts are supported. The current near-zero-transform vacuum NFP2 QA input is
+retained visibly as a singular-conditioning diagnostic but excluded from the
+finite-transform promotion aggregate; the finite-beta NFP2 QA and QH inputs
+remain in that aggregate. The artifact also includes W7-X EIM/EJM, LHD, HSX,
 and NCSX-family cases when those inputs are present. This is tracked as NTX
-convergence breadth; independent-code parity and a reusable W7-X KJM input
-remain explicit promotion requirements.
+convergence breadth; independent-code parity, resolution of the near-zero-iota
+diagnostic, and a reusable W7-X KJM input remain explicit promotion
+requirements.
 
 It writes:
 
