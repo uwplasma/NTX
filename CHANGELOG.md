@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- split scan orchestration, fixed-bucket compilation, and local-device sharding
+  into separate internal owners behind the unchanged solver API; removed
+  redundant direct runtime dependencies and added wheel/sdist size gates
 - condensed the README into a decision-oriented quickstart, corrected the
   normalized drift-kinetic equation on the documentation entry page, added a
   generated public API reference and normalization glossary, and separated the

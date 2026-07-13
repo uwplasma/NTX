@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import inspect
+
 import ntx
 import ntx.core as ntx_core
 import ntx.validation as ntx_validation
@@ -8,6 +10,17 @@ import ntx.workflows as ntx_workflows
 
 def test_top_level_public_exports_are_unique():
     assert len(ntx.__all__) == len(set(ntx.__all__))
+
+
+def test_top_level_public_callables_are_documented():
+    undocumented = [
+        name
+        for name in ntx.__all__
+        if (inspect.isfunction(getattr(ntx, name)) or inspect.isclass(getattr(ntx, name)))
+        and not inspect.getdoc(getattr(ntx, name))
+    ]
+
+    assert undocumented == []
 
 
 def test_core_namespace_preserves_flat_solver_api():

@@ -23,3 +23,19 @@ def test_package_version_matches_installed_metadata() -> None:
 
 def test_module_entrypoint_imports() -> None:
     assert ntx.__doc__ is not None
+
+
+def test_runtime_dependencies_have_single_owners() -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    dependencies = tuple(project["project"]["dependencies"])
+    normalized = {
+        item.split(";", 1)[0].split("<", 1)[0].split(">", 1)[0].lower()
+        for item in dependencies
+    }
+
+    assert "jax" in normalized
+    assert "netcdf4" in normalized
+    assert "jaxlib" not in normalized
+    assert "scipy" not in normalized
+    assert "typing-extensions" not in normalized
+    assert "scipy" in {item.lower() for item in project["project"]["optional-dependencies"]["dev"]}

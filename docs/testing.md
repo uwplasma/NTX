@@ -337,7 +337,9 @@ above the release threshold:
   `src/ntx/_profiles_transport.py`, and `src/ntx/_profiles_controls.py` are
   all covered by the fast unit/workflow lanes, and the split
   transport-closure owner is exercised by the same profile tests,
-- `src/ntx/_solver_scan.py`, `src/ntx/parallel.py`, `src/ntx/cli.py`,
+- the split scan owners `src/ntx/_solver_scan_core.py`,
+  `src/ntx/_solver_scan_execution.py`, and `src/ntx/_solver_scan_parallel.py`,
+  plus `src/ntx/parallel.py`, `src/ntx/cli.py`,
   `src/ntx/io.py`, and `src/ntx/database.py` are at or above `98%`.
 
 Those gains come from narrow branch tests in the unit/workflow lanes, not from

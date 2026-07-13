@@ -102,6 +102,7 @@ CORE_FOUNDATION_TESTS: tuple[str, ...] = (
 CORE_CLI_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_cli.py",
     "tests/test_cli_unit.py",
+    "tests/test_distribution_size.py",
     "tests/test_examples.py",
     "tests/test_namespace_imports.py",
     "tests/test_packaging.py",
