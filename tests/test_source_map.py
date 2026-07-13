@@ -54,6 +54,9 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_solver_factorization.py",
     "src/ntx/_solver_prepared.py",
     "src/ntx/_solver_scan.py",
+    "src/ntx/_solver_scan_core.py",
+    "src/ntx/_solver_scan_execution.py",
+    "src/ntx/_solver_scan_parallel.py",
     "src/ntx/_solver_types.py",
     "src/ntx/_vmec_jax_boundary.py",
     "src/ntx/_vmec_jax_boozer.py",
@@ -92,3 +95,13 @@ def test_source_map_mentions_split_internal_modules() -> None:
     ]
 
     assert missing == []
+
+
+def test_top_level_source_modules_stay_below_ownership_limit() -> None:
+    oversized = {
+        path.relative_to(ROOT).as_posix(): len(path.read_text(encoding="utf-8").splitlines())
+        for path in ROOT.joinpath("src", "ntx").glob("*.py")
+        if len(path.read_text(encoding="utf-8").splitlines()) > 400
+    }
+
+    assert oversized == {}
