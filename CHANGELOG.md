@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- moved generated truncated solves, reusable Schur factors, primal factor reuse,
+  exact transpose reuse, and tail-aware residuals to `solvax>=0.7.3,<0.8`
+  while retaining all physics
+  assembly and observable definitions in NTX
+- corrected the production residual to include the reconstructed mode-3
+  coupling and added an opt-in full Legendre residual audit
+- added strict Fourier geometry sampling reports and adaptive two-successive-step
+  angular/Legendre convergence gates
 - migrated WOUT loading to the current root-level `vmec_jax.read_wout` API
 - replaced removed WOUT-to-state reconstruction with separate finalized-WOUT
   and traceable `SpectralState`/`SolverRuntime` Boozer paths

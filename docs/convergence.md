@@ -9,11 +9,11 @@ drift-kinetic discretization. NTX treats three checks separately:
 
 ## Residual semantics
 
-The production solve eliminates all Legendre modes above `k=2` by Schur
-complements and retains only the three modes needed by the transport moments.
+The production solve eliminates the high Legendre tail by Schur complements
+and returns the three modes needed by the transport moments.
 `TransportResult.residual_l2` is the root-mean-square residual of that complete
-tail-eliminated system. It includes the exact high-mode Schur contribution to
-row 2; it does not incorrectly set the omitted `f_3` coupling to zero.
+tail-eliminated system, evaluated from its pivoted LU factors. It includes the
+high-mode Schur contribution to row 2 without reconstructing another mode.
 
 The test suite also factors and reconstructs every Legendre mode on a small
 system, applies every original block row independently, and requires both
