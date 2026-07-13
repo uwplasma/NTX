@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- exposed the production algebraic diagnostic as
+  `TransportResult.schur_residual_l2` while preserving `residual_l2` as a
+  compatibility alias, and added independent full-system and dense-operator
+  residual oracles through `N_xi=63`
+- refreshed geometry-family discovery for current and legacy `vmec_jax`
+  layouts, added the finite-beta NFP2 QA example, and retained the near-zero-
+  transform vacuum QA input as a visible diagnostic-only case
 - added a public prepared-derivative audit that requires independent full
   primal and transpose residual convergence and compares direct reverse mode,
   forward mode, the factor-reusing adjoint, and centered finite differences

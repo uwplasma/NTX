@@ -1,6 +1,6 @@
 # NTX Authoritative Plan
 
-Last reviewed: 2026-07-12
+Last reviewed: 2026-07-13
 
 This is the single authoritative implementation plan for NTX and its numerical
 dependency SOLVAX. Historical work belongs in git history, release notes, and
@@ -50,8 +50,8 @@ observables, convergence policy, and physics validation.
 
 ## Validated Baseline
 
-The current baseline is NTX `0.2.4` at commit `02fa393` and SOLVAX `0.7.0` at
-commit `f827cc8`.
+The current merged baseline is NTX `0.2.4` at commit `83fe546` and SOLVAX
+`0.7.3` at commit `069e957`.
 
 Already established:
 
@@ -151,19 +151,19 @@ The implementation follows established numerical requirements:
 
 These are the first implementation blockers:
 
-- [ ] Replace `TransportResult.residual_l2`. The current implementation checks
-  only modes 0-2 and omits the eliminated-tail coupling. It reports order
-  `1e-2` for solutions whose full-system residual is order `1e-15`.
-- [ ] Distinguish a cheap reduced-Schur residual from an optional full-system
-  residual. Never label the reduced diagnostic as the full DKE residual.
-- [ ] Add direct tests for both residual definitions, including `N_xi=2`, 16,
+- [x] Correct the production Schur residual to include the eliminated-tail
+  coupling. Preserve `TransportResult.residual_l2` as a compatibility alias
+  and expose the explicit `schur_residual_l2` name for new code.
+- [x] Distinguish the cheap Schur residual from the opt-in full-system residual.
+  Never label the reduced diagnostic as the full DKE residual.
+- [x] Add direct tests for both residual definitions, including `N_xi=2`, 16,
   32, and 63.
-- [ ] Enforce a geometry-spectrum sampling floor before solving:
+- [x] Enforce an opt-in geometry-spectrum sampling floor before solving:
   `N_theta >= 2*m_max+1` and `N_zeta >= 2*n_max+1`, with documented reduced
   toroidal mode convention.
 - [ ] Add an oversampling/dealiasing study for the variable-coefficient
   collocation operator and choose a policy from evidence.
-- [ ] Add two-step convergence checks. One coarse/fine comparison is not
+- [x] Add two-step convergence checks. One coarse/fine comparison is not
   sufficient because spatial and Legendre convergence can be nonmonotonic.
 
 Observed examples motivating these gates:
@@ -179,13 +179,13 @@ The order below is mandatory unless this file is revised with a reason.
 
 ### PR 0: Plan Consolidation (NTX)
 
-Status: in progress.
+Status: complete.
 
 - [x] Replace the accumulated historical plan with this authoritative plan.
-- [ ] Link this file from contributor/development documentation.
-- [ ] Mark `docs/research-roadmap.md` as a user-facing summary generated from,
-  or subordinate to, this plan.
-- [ ] Close or supersede stale NTX PR #3 after its useful changes are recovered.
+- [x] Link this file from README and development documentation.
+- [x] Mark `docs/research-roadmap.md` as a user-facing summary subordinate to
+  this plan.
+- [x] Close or supersede stale NTX PR #3 after its useful changes are recovered.
 
 Acceptance:
 
@@ -244,17 +244,24 @@ Acceptance:
 
 Repository: `uwplasma/NTX`.
 
-- [ ] Fix residual semantics and tests before changing solver ownership.
-- [ ] Add `GeometryResolutionReport` containing retained harmonic extrema,
+Status: in progress. Residual semantics, Nyquist reporting, and adaptive
+two-step convergence are complete; the variable-coefficient de-aliasing study
+remains the next acceptance item.
+
+- [x] Fix residual semantics and tests before changing solver ownership.
+- [x] Add `GeometryResolutionReport` containing retained harmonic extrema,
   Nyquist floor, selected grid, oversampling ratio, and warnings/errors.
-- [ ] Add an adaptive convergence API that refines angular and Legendre orders
+- [x] Add an adaptive convergence API that refines angular and Legendre orders
   independently and records every coefficient at every step.
-- [ ] Use both relative and scale-aware absolute tolerances for coefficients
+- [x] Use both relative and scale-aware absolute tolerances for coefficients
   close to zero, especially QI/QH D31.
-- [ ] Require two successive accepted refinements for research-grade status.
-- [ ] Return `converged`, `unresolved`, or `model-out-of-scope`; do not silently
+- [x] Require two successive accepted refinements for research-grade status.
+- [x] Return `converged`, `unresolved`, or `model-out-of-scope`; do not silently
   promote the last available grid.
-- [ ] Add small analytic gates and artifact-backed high-resolution ladders.
+- [x] Add small analytic gates and artifact-backed high-resolution ladders.
+- [ ] Complete the variable-coefficient oversampling/de-aliasing study and
+  choose a default warning or enforcement policy from measured coefficient
+  error, residual, runtime, and memory behavior.
 
 Default internal numerical target:
 
@@ -369,13 +376,13 @@ Adopt a model-aligned benchmark hierarchy.
 
 Tier A, exact/analytic:
 
-- [ ] uniform-field zero radial transport;
-- [ ] Spitzer branch and inverse-collisionality scaling;
-- [ ] Fourier derivative and quadrature identities;
-- [ ] Boozer coordinate/Jacobian identities;
-- [ ] source Legendre support, nullspace row, block coupling, and Onsager
+- [x] uniform-field zero radial transport;
+- [x] Spitzer branch and inverse-collisionality scaling;
+- [x] Fourier derivative and quadrature identities;
+- [x] Boozer coordinate/Jacobian identities;
+- [x] source Legendre support, nullspace row, block coupling, and Onsager
   convention;
-- [ ] dense small-system and full-residual oracle.
+- [x] dense small-system and full-residual oracle.
 
 Tier B, same monoenergetic physics:
 

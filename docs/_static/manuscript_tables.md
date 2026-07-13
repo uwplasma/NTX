@@ -135,11 +135,11 @@
 
 | Quantity | Value |
 | --- | ---: |
-| Solved VMEC cases | `13` |
-| Below production convergence rtol | `13` |
+| Solved VMEC cases | `11` |
+| Below production convergence rtol | `10` |
 | Max last-step relative change | `7.144e-02` |
-| Max relative change to finest grid | `8.231e-01` |
-| Solved case ids | `circular_tokamak, shaped_tokamak, precise_qs_qa_reactor, precise_qs_qh_reactor, nfp3_qi, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, li383_low_res, n3are_lowres, lhd, hsx_qhs, ncsx` |
+| Max relative change to finest grid | `1.667e-01` |
+| Solved case ids | `nfp2_qa, nfp2_qa_finite_beta, precise_qs_qh_reactor, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, li383_low_res, n3are_lowres, lhd, hsx_qhs, ncsx` |
 
 ## Owned Finite-Beta Bootstrap-Current Stress
 
@@ -256,8 +256,8 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `a64e73b63358986deda07c32be741d222b436400` |
-| Branch | `feat/prepared-adjoint-audit` |
+| Commit | `83fe5465d31c3301817828f22dce60c786a3a2d9` |
+| Branch | `feat/residual-resolution-gates` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
 | NumPy | `2.4.4` |

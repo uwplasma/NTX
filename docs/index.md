@@ -101,6 +101,7 @@ parallel-throughput workflows.
 - [GPU](gpu.md): hardware execution notes
 - [Performance](performance.md): throughput guidance and scaling figures
 - [Research Roadmap](research-roadmap.md): next research-grade development lanes
+- [Authoritative Development Plan](https://github.com/uwplasma/NTX/blob/main/plan.md): implementation order and PR acceptance gates
 - [Manuscript Figures](manuscript.md): publication-ready figure inventory
 - [Literature](literature.md): thesis and package links
 - [Release Notes 0.2.4](release-notes-0.2.4.md): current release notes

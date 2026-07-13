@@ -438,11 +438,16 @@ python examples/geometry_family_transport_convergence.py --preset production
 
 It discovers local public examples from the surrounding `vmec_jax`, STELLOPT,
 and SIMSOPT checkouts and runs a production `D11/D31/D33` convergence ladder.
-The JSON also records `D13` so the Onsager quality check is visible. The current
-artifact includes tokamak, precise-QS QA/QH, QI-style, W7-X EIM/EJM, LHD, HSX,
+The JSON also records `D13` so the Onsager quality check is visible, and records
+the Schur residual under an explicit key. Current and legacy `vmec_jax` example
+layouts are supported. The current near-zero-transform vacuum NFP2 QA input is
+retained visibly as a singular-conditioning diagnostic but excluded from the
+finite-transform promotion aggregate; the finite-beta NFP2 QA and QH inputs
+remain in that aggregate. The artifact also includes W7-X EIM/EJM, LHD, HSX,
 and NCSX-family cases when those inputs are present. This is tracked as NTX
-convergence breadth; independent-code parity and a reusable W7-X KJM input
-remain explicit promotion requirements.
+convergence breadth; independent-code parity, resolution of the near-zero-iota
+diagnostic, and a reusable W7-X KJM input remain explicit promotion
+requirements.
 
 It writes:
 
