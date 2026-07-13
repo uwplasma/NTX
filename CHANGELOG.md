@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- added reusable fixed-bucket prepared scan solvers with CPU-sequential and
+  accelerator-vectorized execution, explicit warmup timing, and executable
+  memory diagnostics
+- replaced per-call scan JIT factories with reusable module-level kernels and
+  synchronized CPU/GPU benchmark timing
+- added optional persistent JAX compilation-cache configuration and cache-miss
+  diagnostics
+- limited branch CI to pull-request runs while retaining post-merge `main`
+  validation, avoiding duplicate workflow execution
 - moved generated truncated solves, reusable Schur factors, primal factor reuse,
   exact transpose reuse, and tail-aware residuals to `solvax>=0.7.3,<0.8`
   while retaining all physics

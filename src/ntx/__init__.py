@@ -17,7 +17,7 @@ from .autodiff import (
     example_neopax_profile_uncertainty,
 )
 from .booz import BoozmnSurface, load_boozmn_surface
-from .config import enable_x64
+from .config import configure_compilation_cache, enable_x64
 from .convergence import (
     AdaptiveConvergenceResult,
     ConvergenceStep,
@@ -107,12 +107,15 @@ from .profiles import (
 )
 from .resolution import GeometryResolutionReport, geometry_resolution_report
 from .solver import (
+    CompiledPreparedScanSolver,
     CompiledPreparedSolver,
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
+    PreparedScanCompilationReport,
     ResidualAuditResult,
     TransportResult,
     audit_prepared_residuals,
+    compile_prepared_scan_solver,
     compile_prepared_solver,
     healthy_parallel_device_count,
     local_parallel_device_count,
@@ -152,6 +155,7 @@ __all__ = [
     "AmbipolarProfileFamilyResult",
     "AmbipolarProfileResult",
     "CompiledPreparedSolver",
+    "CompiledPreparedScanSolver",
     "ConvergenceStep",
     "DerivativeAuditResult",
     "DifferentiableNeopaxField",
@@ -173,6 +177,7 @@ __all__ = [
     "NeopaxMonoenergeticArrays",
     "NeopaxScan",
     "PreparedMonoenergeticSystem",
+    "PreparedScanCompilationReport",
     "ResidualAuditResult",
     "TransportResult",
     "VmecJaxBoundaryContext",
@@ -197,6 +202,8 @@ __all__ = [
     "evaluate_species_current_response",
     "evaluate_species_particle_flux",
     "compile_prepared_solver",
+    "compile_prepared_scan_solver",
+    "configure_compilation_cache",
     "enable_x64",
     "example_derivative_audit",
     "example_surface",

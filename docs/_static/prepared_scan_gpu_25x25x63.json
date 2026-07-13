@@ -1,0 +1,58 @@
+{
+  "artifact": "prepared_scan_performance",
+  "backend": "gpu",
+  "devices": [
+    "cuda:0"
+  ],
+  "grid": {
+    "n_theta": 25,
+    "n_xi": 63,
+    "n_zeta": 25
+  },
+  "max_rss_mb": 971.546875,
+  "preparation_seconds": 2.1131787539925426,
+  "results": [
+    {
+      "modes": {
+        "sequential-8": {
+          "cases_per_second": 0.09161590155959481,
+          "max_abs_delta_reference": 0.0,
+          "max_relative_delta_reference": 0.0,
+          "seconds_median": 10.915135724004358,
+          "seconds_min": 10.915135724004358
+        },
+        "vectorized-8": {
+          "cases_per_second": 0.11340935465740187,
+          "max_abs_delta_reference": 8.971619536168873e-06,
+          "max_relative_delta_reference": 3.084534275527822e-07,
+          "seconds_median": 8.817614763975143,
+          "seconds_min": 8.817614763975143
+        }
+      },
+      "num_cases": 1
+    }
+  ],
+  "surface": "dkes",
+  "warmup": {
+    "sequential-8": {
+      "argument_size_bytes": 128,
+      "compilation_seconds": 1.1154526069876738,
+      "first_execution_seconds": 10.734219346020836,
+      "generated_code_size_bytes": 22176016,
+      "lowering_seconds": 0.20971141598420218,
+      "output_size_bytes": 320,
+      "temporary_size_bytes": 38664816,
+      "warm_execution_seconds": 10.229387518018484
+    },
+    "vectorized-8": {
+      "argument_size_bytes": 128,
+      "compilation_seconds": 1.2457423220039345,
+      "first_execution_seconds": 8.699421693047043,
+      "generated_code_size_bytes": 22177080,
+      "lowering_seconds": 0.2668919169809669,
+      "output_size_bytes": 320,
+      "temporary_size_bytes": 191230816,
+      "warm_execution_seconds": 9.781507900974248
+    }
+  }
+}

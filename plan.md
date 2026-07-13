@@ -273,15 +273,19 @@ Acceptance:
 
 ### PR 3: NTX Uses SOLVAX
 
-- [ ] Add a bounded dependency such as `solvax>=0.7,<0.8`, adjusted to the
+- [x] Add a bounded dependency such as `solvax>=0.7,<0.8`, adjusted to the
   actual release containing the fused API.
-- [ ] Replace generic factorization, truncated solve, factor reuse, transpose
+- [x] Replace generic factorization, truncated solve, factor reuse, transpose
   solve, and refinement code with SOLVAX calls.
-- [ ] Keep operator assembly, nullspace row, source modes, parameter derivatives,
+- [x] Keep operator assembly, nullspace row, source modes, parameter derivatives,
   and transport moments in NTX.
-- [ ] Reduce `_solver_factorization.py` to a thin physics adapter.
-- [ ] Preserve all public result pytrees and signatures.
-- [ ] Supersede rather than merge the current stale PR #3 unchanged.
+- [x] Reduce `_solver_factorization.py` to a thin physics adapter.
+- [x] Preserve all public result pytrees and signatures.
+- [x] Supersede rather than merge the current stale PR #3 unchanged.
+
+Merged as NTX PR #8 against SOLVAX `0.7.3`. Float64 coefficient audits cover
+`N_xi=2,16,32,63,140`; CPU and GPU memory/runtime results are recorded in
+`docs/performance.md`. The stale implementation PR was closed as superseded.
 
 Acceptance:
 
@@ -294,23 +298,30 @@ Acceptance:
 
 ### PR 4: Prepared Scans, JIT, Runtime, And Memory
 
-- [ ] Add `compile_prepared_scan_solver(...)` and a reusable result object.
-- [ ] Reuse geometry, derivative matrices, compiled executables, and fixed batch
+- [x] Add `compile_prepared_scan_solver(...)` and a reusable result object.
+- [x] Reuse geometry, derivative matrices, compiled executables, and fixed batch
   shapes across calls.
-- [ ] Do not create new jitted function objects in hot public APIs.
-- [ ] Use bounded sequential `lax.map` or very small chunks on CPU unless a
+- [x] Do not create new jitted function objects in hot public APIs.
+- [x] Use bounded sequential `lax.map` or very small chunks on CPU unless a
   measured crossover justifies vmap.
-- [ ] Tune bounded vmap/device shards on GPU from memory and throughput maps.
-- [ ] Standardize a small set of batch buckets and pad the final batch.
-- [ ] Add optional persistent compilation cache configuration, cache-miss
+- [x] Tune bounded vmap/device shards on GPU from memory and throughput maps.
+- [x] Standardize a small set of batch buckets and pad the final batch.
+- [x] Add optional persistent compilation cache configuration, cache-miss
   diagnostics, and ahead-of-time warmup without making cache state necessary
   for acceptable runtime.
 - [ ] Report preparation, tracing/lowering, compilation, first execution, warm
   execution, peak RSS, executable temporary memory, and device memory
   separately.
-- [ ] Evaluate buffer donation only where an input can legally back an output.
+- [x] Evaluate buffer donation only where an input can legally back an output.
 - [ ] Use rematerialization only after measuring custom-VJP saved-state memory.
 - [ ] Keep full XLA/Perfetto/XProf capture opt-in and targeted.
+
+The synchronized CPU and two-GPU maps are recorded in `docs/performance.md`.
+Sequential bucket `8` is the parity-preserving default on every backend.
+Explicit GPU vectorization is faster at production scan widths but remains a
+non-default research mode because JAX `0.6.2` batched factorization misses the
+`1e-10` coefficient gate by up to `3.1e-7` on the larger low-collisionality
+grid. The default path is bitwise identical to the compiled scalar reference.
 
 Required maps:
 

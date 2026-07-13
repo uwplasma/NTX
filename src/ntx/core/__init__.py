@@ -5,10 +5,13 @@ helpers while the historical flat modules remain supported.
 """
 
 from ..solver import (
+    CompiledPreparedScanSolver,
     CompiledPreparedSolver,
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
+    PreparedScanCompilationReport,
     TransportResult,
+    compile_prepared_scan_solver,
     compile_prepared_solver,
     healthy_parallel_device_count,
     local_parallel_device_count,
@@ -26,11 +29,14 @@ from ..transport import coefficients_from_modes, onsager_error
 
 __all__ = [
     "CompiledPreparedSolver",
+    "CompiledPreparedScanSolver",
     "MonoenergeticCase",
     "PreparedMonoenergeticSystem",
+    "PreparedScanCompilationReport",
     "TransportResult",
     "coefficients_from_modes",
     "compile_prepared_solver",
+    "compile_prepared_scan_solver",
     "healthy_parallel_device_count",
     "local_parallel_device_count",
     "onsager_error",

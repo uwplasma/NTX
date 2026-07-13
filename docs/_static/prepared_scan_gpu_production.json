@@ -1,0 +1,153 @@
+{
+  "artifact": "prepared_scan_performance",
+  "backend": "gpu",
+  "devices": [
+    "cuda:0"
+  ],
+  "grid": {
+    "n_theta": 17,
+    "n_xi": 16,
+    "n_zeta": 25
+  },
+  "max_rss_mb": 1013.546875,
+  "preparation_seconds": 3.1942803689744323,
+  "results": [
+    {
+      "modes": {
+        "sequential-8": {
+          "cases_per_second": 1.6842510419378813,
+          "max_abs_delta_reference": 0.0,
+          "max_relative_delta_reference": 0.0,
+          "seconds_median": 0.5937432579812594,
+          "seconds_min": 0.593735717004165
+        },
+        "vectorized-32": {
+          "cases_per_second": 1.008409707355071,
+          "max_abs_delta_reference": 0.0012119990387873258,
+          "max_relative_delta_reference": 4.7449962888639185e-08,
+          "seconds_median": 0.991972021991387,
+          "seconds_min": 0.9916604260215536
+        },
+        "vectorized-8": {
+          "cases_per_second": 2.4771928937494656,
+          "max_abs_delta_reference": 0.0012119990387873258,
+          "max_relative_delta_reference": 4.7449962888639185e-08,
+          "seconds_median": 0.403725994983688,
+          "seconds_min": 0.4036827340023592
+        }
+      },
+      "num_cases": 1
+    },
+    {
+      "modes": {
+        "sequential-8": {
+          "cases_per_second": 13.413357042348538,
+          "max_abs_delta_reference": 0.0,
+          "max_relative_delta_reference": 0.0,
+          "seconds_median": 0.5967786569963209,
+          "seconds_min": 0.5964204169576988
+        },
+        "vectorized-32": {
+          "cases_per_second": 8.633424458679112,
+          "max_abs_delta_reference": 0.0012119990387873258,
+          "max_relative_delta_reference": 4.7449962888639185e-08,
+          "seconds_median": 0.926899803976994,
+          "seconds_min": 0.926631145994179
+        },
+        "vectorized-8": {
+          "cases_per_second": 19.781993920453,
+          "max_abs_delta_reference": 0.0012119990387873258,
+          "max_relative_delta_reference": 4.7449962888639185e-08,
+          "seconds_median": 0.4044299939996563,
+          "seconds_min": 0.4044081720057875
+        }
+      },
+      "num_cases": 8
+    },
+    {
+      "modes": {
+        "sequential-8": {
+          "cases_per_second": 13.336127329756454,
+          "max_abs_delta_reference": 0.0,
+          "max_relative_delta_reference": 0.0,
+          "seconds_median": 2.3998516899882816,
+          "seconds_min": 2.399497186008375
+        },
+        "vectorized-32": {
+          "cases_per_second": 34.100723147571486,
+          "max_abs_delta_reference": 0.0012119990387873258,
+          "max_relative_delta_reference": 4.7449962888639185e-08,
+          "seconds_median": 0.9384296920034103,
+          "seconds_min": 0.9383965220185928
+        },
+        "vectorized-8": {
+          "cases_per_second": 19.936809596582336,
+          "max_abs_delta_reference": 0.0012119990387873258,
+          "max_relative_delta_reference": 4.7449962888639185e-08,
+          "seconds_median": 1.6054982480127364,
+          "seconds_min": 1.605071255005896
+        }
+      },
+      "num_cases": 32
+    },
+    {
+      "modes": {
+        "sequential-8": {
+          "cases_per_second": 13.308955011267155,
+          "max_abs_delta_reference": 0.0,
+          "max_relative_delta_reference": 0.0,
+          "seconds_median": 9.617799516010564,
+          "seconds_min": 9.617584543011617
+        },
+        "vectorized-32": {
+          "cases_per_second": 33.875692557850364,
+          "max_abs_delta_reference": 0.0012119990387873258,
+          "max_relative_delta_reference": 2.396740130266477e-07,
+          "seconds_median": 3.7799337420146912,
+          "seconds_min": 3.7785205359687097
+        },
+        "vectorized-8": {
+          "cases_per_second": 19.855551797693494,
+          "max_abs_delta_reference": 0.0012119990387873258,
+          "max_relative_delta_reference": 2.396740130266477e-07,
+          "seconds_median": 6.450771952979267,
+          "seconds_min": 6.446559697971679
+        }
+      },
+      "num_cases": 128
+    }
+  ],
+  "surface": "dkes",
+  "warmup": {
+    "sequential-8": {
+      "argument_size_bytes": 128,
+      "compilation_seconds": 0.9490163860027678,
+      "first_execution_seconds": 0.6782095480011776,
+      "generated_code_size_bytes": 10359252,
+      "lowering_seconds": 0.2328079980215989,
+      "output_size_bytes": 320,
+      "temporary_size_bytes": 18860144,
+      "warm_execution_seconds": 0.5945001379586756
+    },
+    "vectorized-32": {
+      "argument_size_bytes": 512,
+      "compilation_seconds": 0.9854918259661645,
+      "first_execution_seconds": 0.9209369019954465,
+      "generated_code_size_bytes": 10369916,
+      "lowering_seconds": 0.2578593320213258,
+      "output_size_bytes": 1280,
+      "temporary_size_bytes": 377297504,
+      "warm_execution_seconds": 0.9145784869906493
+    },
+    "vectorized-8": {
+      "argument_size_bytes": 128,
+      "compilation_seconds": 1.0632176979561336,
+      "first_execution_seconds": 0.408732900978066,
+      "generated_code_size_bytes": 10370172,
+      "lowering_seconds": 0.2050426040077582,
+      "output_size_bytes": 320,
+      "temporary_size_bytes": 98675296,
+      "warm_execution_seconds": 0.3932750069652684
+    }
+  }
+}
