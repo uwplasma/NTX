@@ -449,16 +449,16 @@ Acceptance for a broader default closure:
 
 README target: concise entry page, approximately 150-220 lines.
 
-- [ ] Keep: one-sentence purpose, `pip install ntx`, one CLI quickstart, one
+- [x] Keep: one-sentence purpose, `pip install ntx`, one CLI quickstart, one
   Python quickstart, outputs, capability/scope table, two highest-ROI figures,
   current validation statement, and links to docs.
-- [ ] Remove from README: long closure history, detailed stress-radius numbers,
+- [x] Remove from README: long closure history, detailed stress-radius numbers,
   stale-command warnings, full research-lane lists, and large command catalogs.
-- [ ] Fix the displayed DKE in `docs/index.md`; the current rendered expression
+- [x] Fix the displayed DKE in `docs/index.md`; the current rendered expression
   is missing plus signs between operator terms.
-- [ ] Clearly distinguish “solves directly”, “provided by downstream closure”,
+- [x] Clearly distinguish “solves directly”, “provided by downstream closure”,
   “validated comparison”, and “planned research”.
-- [ ] Add a short “choose your workflow” table: single coefficient, scan,
+- [x] Add a short “choose your workflow” table: single coefficient, scan,
   VMEC/Boozer input, NEOPAX export, bootstrap profile, autodiff, validation, and
   performance profiling.
 
@@ -478,15 +478,15 @@ Adopt SOLVAX's decision-oriented documentation pattern:
 
 Documentation cleanup:
 
-- [ ] Make this file authoritative; reduce `docs/research-roadmap.md` to a
+- [x] Make this file authoritative; reduce `docs/research-roadmap.md` to a
   readable summary linked here.
-- [ ] Make `docs/ship-checklist.md` release-only, not another roadmap.
+- [x] Make `docs/ship-checklist.md` release-only, not another roadmap.
 - [ ] Consolidate repeated finite-beta narrative into one validation case study
   plus machine-readable artifacts.
-- [ ] Correct duplicated example numbering and stale file references.
-- [ ] Generate API documentation from docstrings.
+- [x] Correct duplicated example numbering and stale file references.
+- [x] Generate API documentation from docstrings.
 - [ ] Add cross-links from equations to source and tests.
-- [ ] Add a glossary for coordinates, normalizations, coefficients, grids, and
+- [x] Add a glossary for coordinates, normalizations, coefficients, grids, and
   closure terminology.
 - [ ] State expected runtime/memory and optional dependencies for every tutorial.
 

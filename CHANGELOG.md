@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- condensed the README into a decision-oriented quickstart, corrected the
+  normalized drift-kinetic equation on the documentation entry page, added a
+  generated public API reference and normalization glossary, and separated the
+  release checklist from the authoritative research plan
 - added a reusable angular-oversampling audit with coefficient error, compile
   and warm-runtime timing, and XLA temporary-memory reporting; the committed
   finite-beta QA/NCSX/HSX artifact supports a warning-only `2.25`-times-Nyquist
