@@ -97,6 +97,43 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             ),
         ),
         BenchmarkEntry(
+            id="angular_oversampling_audit",
+            lane="geometry-breadth",
+            maturity="stress-gate",
+            title="Variable-coefficient angular collocation oversampling audit",
+            claim_scope=(
+                "Measures D11, D31, and D33 error, compiled warm runtime, and "
+                "XLA temporary memory against a finer collocation reference. "
+                "It supports a warning-level starting-grid recommendation, not "
+                "an analytical de-aliasing theorem or independent-code claim."
+            ),
+            literature_anchors=(
+                "Orszag 1971 Fourier alias-elimination analysis",
+                "Escoto et al. 2024 monoenergetic Fourier-collocation convergence",
+                "Escoto 2025 thesis angular-resolution practice",
+            ),
+            scripts=("examples/angular_oversampling_audit.py",),
+            tests=("tests/test_angular_oversampling.py",),
+            artifacts=(
+                "docs/_static/angular_oversampling_audit.png",
+                "docs/_static/angular_oversampling_audit.pdf",
+                "docs/_static/angular_oversampling_audit.json",
+            ),
+            manuscript_figures=("angular_oversampling_audit",),
+            docs=(
+                "docs/convergence.md",
+                "docs/examples.md",
+                "docs/literature.md",
+                "docs/numerics.md",
+                "docs/testing.md",
+                "docs/validation.md",
+            ),
+            open_work=(
+                "retain two-successive-grid convergence as the research gate",
+                "extend the measured recommendation if new geometry families exceed it",
+            ),
+        ),
+        BenchmarkEntry(
             id="boozmn_same_coordinate_roundtrip",
             lane="geometry-breadth",
             maturity="positive-gate",

@@ -34,6 +34,23 @@ In code this is `fourier_derivative_matrix(...)` in
 [`src/ntx/grids.py`](../src/ntx/grids.py). It works for even and odd grid sizes
 and is easy to differentiate because it is built from JAX FFT primitives.
 
+### Variable-Coefficient Sampling
+
+The streaming and drift blocks multiply spectral derivatives by
+geometry-dependent coefficients evaluated at collocation points. The retained
+input harmonics therefore set a strict Nyquist floor, but they do not bound the
+bandwidth of reciprocal and derived coefficient fields. Classical Fourier
+de-aliasing rules are exact for projected products of band-limited fields; an
+unqualified high-mode filter here would instead change the discrete
+variable-coefficient drift-kinetic operator.
+
+NTX keeps the original collocation operator and audits angular oversampling
+directly. The public `audit_angular_oversampling(...)` helper measures
+`D11/D31/D33` error against a finer grid together with lowering, compilation,
+warm execution, and XLA temporary memory. The current warning recommendation
+is `2.25` times each retained-mode Nyquist floor. Final calculations still need
+two successive accepted angular refinements.
+
 ## Dense Spatial Blocks
 
 For each Legendre mode `k`, NTX packs the coefficient fields

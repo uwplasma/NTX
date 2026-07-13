@@ -77,6 +77,11 @@
     "docs/_static/geometry_family_transport_convergence.pdf",
     "docs/_static/geometry_family_transport_convergence.json"
   ],
+  "angular_oversampling": [
+    "docs/_static/angular_oversampling_audit.png",
+    "docs/_static/angular_oversampling_audit.pdf",
+    "docs/_static/angular_oversampling_audit.json"
+  ],
   "boozmn_same_coordinate_roundtrip": [
     "docs/_static/boozmn_same_coordinate_roundtrip_audit.png",
     "docs/_static/boozmn_same_coordinate_roundtrip_audit.pdf",

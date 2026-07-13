@@ -152,6 +152,26 @@ It writes:
 
 ![Geometry-family transport convergence](_static/geometry_family_transport_convergence.png)
 
+## Angular Collocation Oversampling Audit
+
+```bash
+python examples/angular_oversampling_audit.py --preset production
+```
+
+This artifact uses public finite-beta QA, NCSX, and HSX VMEC equilibria to
+measure `D11/D31/D33` error against a finer angular grid while separately
+reporting compiled warm runtime and XLA temporary memory. The measured `2.25`
+times Nyquist recommendation is a warning-level starting point; publication
+calculations still require two successive accepted refinements.
+
+It writes:
+
+- `docs/_static/angular_oversampling_audit.png`
+- `docs/_static/angular_oversampling_audit.pdf`
+- `docs/_static/angular_oversampling_audit.json`
+
+![Angular oversampling audit](_static/angular_oversampling_audit.png)
+
 ## Owned JAX-Native NTX+NEOPAX Dataset
 
 ```bash

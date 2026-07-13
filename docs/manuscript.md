@@ -56,6 +56,7 @@ examples.
 37. `profile_control_optimization.{png,pdf}`
 38. `profile_basis_optimization.{png,pdf,json}`
 39. `profile_transport_loop.{png,pdf}`
+40. `angular_oversampling_audit.{png,pdf,json}`
 
 ## Full Figure Inventory
 
@@ -241,6 +242,9 @@ examples.
    - explicit self-consistent transport-relaxation iteration on the same profile closure
 46. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
+47. `angular_oversampling_audit.{png,pdf,json}`
+   - finite-beta QA, NCSX, and HSX coefficient error, compiled warm runtime,
+     and XLA temporary-memory evidence for the warning-level angular grid policy
 
 Together these figures cover:
 
@@ -540,3 +544,16 @@ Use this figure when the paper needs an explicit W7-X imported-workflow
 bootstrap-current convergence panel alongside the NTX-only methods figures.
 
 ![W7-X bootstrap-current convergence](_static/bootstrap_current_reference_audit_w7x.png)
+
+## Angular Oversampling Figure
+
+```bash
+python examples/angular_oversampling_audit.py --preset production
+```
+
+This figure supports the numerical-methods discussion by separating
+coefficient convergence from compiled steady execution and temporary memory.
+The `2.25`-times-Nyquist line is a measured starting-grid recommendation;
+successive-grid convergence remains the publication acceptance gate.
+
+![Angular oversampling audit](_static/angular_oversampling_audit.png)

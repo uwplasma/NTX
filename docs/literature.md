@@ -59,6 +59,23 @@ These are the main references for:
   scalar fitted current correction
 - the required benchmark surface for `D11`, `D31`, and `D33`
 
+## Spectral Collocation And Aliasing
+
+- Orszag 1971, filtering and alias elimination for Fourier representations:
+  [Journal of the Atmospheric Sciences](https://doi.org/10.1175/1520-0469%281971%29028%3C1074%3AOTEOAI%3E2.0.CO%3B2)
+- Escoto et al. 2024, spectral spatial/velocity discretization and convergence
+  studies for fast monoenergetic neoclassical coefficients:
+  [arXiv:2312.12248](https://arxiv.org/abs/2312.12248)
+- Escoto 2025 thesis, low-collisionality angular and Legendre convergence:
+  [arXiv:2510.27513](https://arxiv.org/abs/2510.27513)
+
+The classical product rules motivate explicit aliasing checks, but NTX's
+operator contains reciprocal and geometry-derived coefficients that are not
+strictly band limited by the retained input spectrum. The implemented policy
+therefore preserves the physical collocation operator, enforces the retained-
+mode Nyquist floor, measures oversampling error on several geometries, and
+retains successive-grid convergence as the final gate.
+
 ## Differentiable And Optimization Workflows
 
 - Paul, Abel, Landreman, and Dorland 2019, adjoint derivatives for

@@ -10,6 +10,8 @@ import numpy as np
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 
+RECOMMENDED_ANGULAR_OVERSAMPLING = 2.25
+
 
 @dataclass(frozen=True)
 class GeometryResolutionReport:
@@ -48,7 +50,7 @@ def geometry_resolution_report(
     surface: BoozerSurface | VmecSurface,
     grid: GridSpec,
     *,
-    warning_oversampling: float = 1.5,
+    warning_oversampling: float = RECOMMENDED_ANGULAR_OVERSAMPLING,
 ) -> GeometryResolutionReport:
     """Return retained harmonic extrema, Nyquist floors, and sampling status.
 
@@ -107,4 +109,8 @@ def geometry_resolution_report(
     )
 
 
-__all__ = ["GeometryResolutionReport", "geometry_resolution_report"]
+__all__ = [
+    "GeometryResolutionReport",
+    "RECOMMENDED_ANGULAR_OVERSAMPLING",
+    "geometry_resolution_report",
+]

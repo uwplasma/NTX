@@ -1,5 +1,10 @@
 """Validation registries and benchmark metadata for NTX."""
 
+from ._angular_oversampling import (
+    AngularOversamplingAudit,
+    AngularOversamplingPoint,
+    audit_angular_oversampling,
+)
 from .benchmark_matrix import (
     BenchmarkEntry,
     BenchmarkEvaluation,
@@ -20,12 +25,15 @@ from .physics_gates import (
 __all__ = [
     "ANALYTICAL_GATES",
     "ARTIFACT_GATES",
+    "AngularOversamplingAudit",
+    "AngularOversamplingPoint",
     "BenchmarkEntry",
     "BenchmarkEvaluation",
     "BenchmarkPathStatus",
     "PhysicsGate",
     "PhysicsGateResult",
     "benchmark_matrix",
+    "audit_angular_oversampling",
     "evaluate_artifact_gates",
     "evaluate_benchmark_matrix",
     "physics_gate_registry",

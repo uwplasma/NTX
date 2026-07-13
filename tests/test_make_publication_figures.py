@@ -270,6 +270,15 @@ def test_geometry_family_transport_uses_production_preset(
             ),
         ),
         (
+            "angular_oversampling",
+            {"angular_oversampling"},
+            (
+                "angular_oversampling_audit.png",
+                "angular_oversampling_audit.pdf",
+                "angular_oversampling_audit.json",
+            ),
+        ),
+        (
             "boozmn_same_coordinate_roundtrip",
             {"boozmn_same_coordinate_roundtrip"},
             (

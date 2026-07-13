@@ -128,6 +128,20 @@ _GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
+        name="angular_oversampling_convergence_stress",
+        category="stress",
+        metric="max D11/D31/D33 error at recommended angular oversampling",
+        relation="<=",
+        threshold=1.0e-2,
+        source="docs/_static/angular_oversampling_audit.json",
+        rationale=(
+            "The warning-level angular grid recommendation should keep the "
+            "measured variable-coefficient coefficient error below one percent "
+            "on the committed finite-beta QA, NCSX, and HSX stress family. "
+            "Research promotion still requires two successive refinements."
+        ),
+    ),
+    PhysicsGate(
         name="boozmn_same_coordinate_roundtrip",
         category="analytical",
         metric="max same-coordinate boozmn round-trip transport mismatch",

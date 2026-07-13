@@ -105,7 +105,11 @@ from .profiles import (
     solve_primitive_profile_transport_loop,
     solve_profile_transport_loop,
 )
-from .resolution import GeometryResolutionReport, geometry_resolution_report
+from .resolution import (
+    RECOMMENDED_ANGULAR_OVERSAMPLING,
+    GeometryResolutionReport,
+    geometry_resolution_report,
+)
 from .solver import (
     CompiledPreparedScanSolver,
     CompiledPreparedSolver,
@@ -182,6 +186,7 @@ __all__ = [
     "PreparedDerivativeAuditResult",
     "PreparedScanCompilationReport",
     "ResidualAuditResult",
+    "RECOMMENDED_ANGULAR_OVERSAMPLING",
     "TransportResult",
     "VmecJaxBoundaryContext",
     "VmecSurface",
