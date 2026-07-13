@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- added a public prepared-derivative audit that requires independent full
+  primal and transpose residual convergence and compares direct reverse mode,
+  forward mode, the factor-reusing adjoint, and centered finite differences
+- measured selective recomputation against saved-factor adjoints; the committed
+  CPU artifact keeps rematerialization disabled because it does not reduce
+  temporary memory for the prepared block solve
+- added opt-in SOLVAX chunked Jacobians to profile sensitivity and uncertainty
+  workflows, preserving native JAX reverse mode as the small-control default
 - added reusable fixed-bucket prepared scan solvers with CPU-sequential and
   accelerator-vectorized execution, explicit warmup timing, and executable
   memory diagnostics

@@ -526,13 +526,18 @@ derivative implementation.
 python examples/derivative_path_benchmark.py
 ```
 
-This writes `docs/_static/derivative_path_benchmark.{png,pdf}` and times:
+This writes `docs/_static/derivative_path_benchmark.{png,pdf}` and compares:
 
 - direct reverse-mode through `solve_prepared_coefficient_vector(...)`
+- selective recomputation through `jax.checkpoint(...)`
 - the prepared custom-VJP path through
   `solve_prepared_coefficient_vector_vjp(...)`
+- forward mode and centered finite differences
 
-on the same `D33` electric-field derivative scan.
+The artifact reports synchronized runtime, XLA temporary memory, independent
+full primal/transpose residuals, and derivative agreement. A low-collisionality
+point that agrees across derivative methods but fails the primal residual gate
+is retained as an explicit non-certified case.
 
 It also writes `docs/_static/derivative_path_benchmark.json` for manuscript
 tables and reproducibility notes.

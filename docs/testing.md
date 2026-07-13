@@ -177,7 +177,15 @@ from normalization drift in the collisionality and radial-electric-field terms.
 The committed prepared-derivative benchmark is also checked as an artifact gate:
 `derivative_path_benchmark.json` must keep the prepared custom-VJP derivative
 within `1e-4` relative mismatch of direct reverse-mode. The benchmark still
-reports speedup, but CI treats agreement as the release claim.
+reports speedup and XLA temporary memory, but CI treats agreement as the release
+claim. `tests/test_solver_derivative_audit.py` separately requires independent
+full primal and algebraic-transpose residuals before the public audit marks a
+derivative valid. The committed low-collisionality probe demonstrates the
+opposite case: derivative methods agree, but the primal residual rejects the
+claim.
+The same artifact requires two successive resolution refinements below `1e-1`
+for the non-degenerate `dD33/dnu_hat` audit, with every resolution independently
+passing primal, transpose, and derivative-method gates.
 
 The committed geometry and boundary-control derivative artifacts are now also
 checked by the same physics-gate registry. The passing gates cover the owned

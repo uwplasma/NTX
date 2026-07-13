@@ -6,6 +6,12 @@ monoenergetic solve and above the radial scan builders, and it is intended for
 ambipolar electric-field studies and reduced bootstrap-current response
 analysis.
 
+For profile inverse-design and uncertainty workflows with many basis controls,
+the autodiff helpers accept `jacobian_chunk_size="auto"` or an explicit positive
+chunk width. This uses SOLVAX's shape-aware chunked Jacobians to trade warm
+runtime for bounded tangent-batch memory. Leave it unset for small profile
+bases; chunking is not assumed to be faster.
+
 ## Scope
 
 This module does **not** replace a full multi-species transport code. It uses

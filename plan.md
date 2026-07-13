@@ -313,7 +313,9 @@ Acceptance:
   execution, peak RSS, executable temporary memory, and device memory
   separately.
 - [x] Evaluate buffer donation only where an input can legally back an output.
-- [ ] Use rematerialization only after measuring custom-VJP saved-state memory.
+- [x] Measure custom-VJP saved-state memory before using rematerialization;
+  retain saved-factor adjoints because whole-solve rematerialization did not
+  reduce temporary memory on the committed workload.
 - [ ] Keep full XLA/Perfetto/XProf capture opt-in and targeted.
 
 The synchronized CPU and two-GPU maps are recorded in `docs/performance.md`.
@@ -344,14 +346,14 @@ Acceptance:
 
 ### PR 5: Autodiff And Implicit Solves
 
-- [ ] Reuse SOLVAX transpose factors in the prepared custom VJP.
-- [ ] Compare storing full factors/state against selective recomputation.
-- [ ] Use SOLVAX chunked Jacobian utilities for large geometry/profile control
+- [x] Reuse SOLVAX transpose factors in the prepared custom VJP.
+- [x] Compare storing full factors/state against selective recomputation.
+- [x] Use SOLVAX chunked Jacobian utilities for large geometry/profile control
   sets where they reduce measured memory.
-- [ ] Require primal and transpose residual convergence before returning an
+- [x] Require primal and transpose residual convergence before returning an
   implicit derivative as valid.
-- [ ] Add derivative status and residual metadata to result artifacts.
-- [ ] Keep direct AD, forward mode, prepared adjoint, and centered finite
+- [x] Add derivative status and residual metadata to result artifacts.
+- [x] Keep direct AD, forward mode, prepared adjoint, and centered finite
   differences side by side.
 
 Acceptance:
