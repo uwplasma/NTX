@@ -16,14 +16,11 @@ import jax.numpy as jnp
 import numpy as np
 from jax import Array
 
-from ._solver_context import _operator_context
 from ._solver_core import prepare_monoenergetic_system
-from ._solver_factorization import _solve_modes
-from ._solver_prepared import solve_prepared
+from ._solver_prepared import _solve_prepared_coefficient_vector_raw, solve_prepared
 from ._solver_types import MonoenergeticCase, PreparedMonoenergeticSystem, TransportResult
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
-from .transport import coefficients_from_modes
 
 ScanExecutionMode = Literal["auto", "sequential", "vectorized"]
 SUPPORTED_SCAN_BATCH_SIZES = (1, 8, 32, 128)
@@ -421,21 +418,7 @@ def _solve_scan_point(
     nu_value: Array,
     epsi_value: Array,
 ) -> Array:
-    geom = prepared.geometry
-    grid = prepared.grid
-    ctx = _operator_context(prepared.surface, geom, grid, nu_value, epsi_value)
-    from .operators import source_modes
-
-    s1, s3 = source_modes(ctx, grid.n_xi)
-    f1_modes, f3_modes = _solve_modes(
-        ctx,
-        grid.n_xi,
-        prepared.d_theta,
-        prepared.d_zeta,
-        s1,
-        s3,
-    )
-    return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
+    return _solve_prepared_coefficient_vector_raw(prepared, nu_value, epsi_value)
 
 
 @jax.jit
