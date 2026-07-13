@@ -83,9 +83,9 @@ and then for descending `k`
 X_k = \Delta_k^{-1} L_k.
 ```
 
-This is implemented in `_solve_modes(...)` in
+This is assembled by `_solve_modes(...)` in
 [`src/ntx/_solver_factorization.py`](../src/ntx/_solver_factorization.py)
-with a `jax.lax.scan`.
+and eliminated by SOLVAX's generated block-tridiagonal solver.
 
 ### Why Only Modes 0, 1, And 2 Are Stored
 
@@ -93,8 +93,9 @@ The monoenergetic coefficients need only the first three Legendre modes.
 Therefore NTX:
 
 - runs the Schur recursion through all `k = N_\xi, \dots, 0`
-- saves only `L_k`, `U_k`, and `\Delta_k` for `k = 0,1,2`
-- back-substitutes only those low-order modes
+- retains and returns only modes 0, 1, and 2 in the standard solve
+- evaluates the tail-eliminated residual directly from the retained pivoted LU
+  factors
 
 That keeps the method dense and simple while avoiding storage of the full
 Legendre spectrum in the standard transport workflow.
@@ -118,16 +119,20 @@ stacked right-hand sides for several of the LU solves.
 
 ## Linear Algebra Choices
 
-NTX uses:
+NTX uses SOLVAX's generated block-tridiagonal APIs:
 
-- `jax.scipy.linalg.lu_factor`
-- `jax.scipy.linalg.lu_solve`
+- `block_thomas_truncated_fn` for the bounded-memory transport solve
+- `block_thomas_factor_fn` for reusable full factors in custom-VJP audits
+- `block_thomas_solve(..., transpose=True)` for the exact adjoint action
 
-throughout the dense solve. It does **not** form explicit inverses.
+SOLVAX applies partial-pivoting LU solves and never forms explicit inverses.
+NTX continues to own the physics blocks, source moments, nullspace row,
+parameter derivatives, and transport observables.
 
 That choice is visible in:
 
 - `_solve_modes(...)`
+- `_factorize_prepared_modes(...)`
 - `compile_prepared_solver(...)`
 
 in [`src/ntx/_solver_factorization.py`](../src/ntx/_solver_factorization.py)

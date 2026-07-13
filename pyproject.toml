@@ -31,6 +31,7 @@ dependencies = [
   "numpy",
   "rich",
   "scipy",
+  "solvax>=0.7.3,<0.8",
   "typing-extensions",
   "tomli; python_version < '3.11'",
 ]
