@@ -1,7 +1,7 @@
 {
   "git": {
-    "commit": "b39430811a54e12da0d47ab96856ec46e9b4e174",
-    "branch": "main"
+    "commit": "a64e73b63358986deda07c32be741d222b436400",
+    "branch": "feat/prepared-adjoint-audit"
   },
   "environment": {
     "python": "3.11.14",
@@ -125,8 +125,8 @@
       "nu_hat": 0.0003,
       "er_min": 1e-06,
       "er_max": 0.003,
-      "max_relative_mismatch": 1.0511436761691851e-05,
-      "best_prepared_speedup": 3.878707921941995
+      "max_relative_mismatch": 7.450705533816983e-07,
+      "best_prepared_speedup": 2.556365498626675
     },
     "geometry_control_derivatives": {
       "grid": {
@@ -9263,8 +9263,8 @@
     "precise_qs_ntx_neopax_n_order": 2,
     "precise_qs_ntx_neopax_d33_mode": "spitzer",
     "w7x_fine_grid_max_relative_error": 0.018297079828848713,
-    "derivative_max_relative_mismatch": 1.0511436761691851e-05,
-    "best_prepared_derivative_speedup": 3.878707921941995,
+    "derivative_max_relative_mismatch": 7.450705533816983e-07,
+    "best_prepared_derivative_speedup": 2.556365498626675,
     "geometry_control_derivative_max_relative_mismatch": 0.00013455280378993353,
     "geometry_control_derivative_median_relative_mismatch": 3.66015266443814e-06,
     "file_backed_geometry_control_derivative_max_relative_mismatch": 0.0003087991250071381,

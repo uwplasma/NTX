@@ -1,5 +1,6 @@
 """Independent residual gates for retained and full Legendre systems."""
 
+import jax.numpy as jnp
 import pytest
 
 from ntx import (
@@ -14,6 +15,8 @@ from ntx._solver_context import _operator_context
 from ntx._solver_factorization import (
     _factorize_prepared_modes,
     _full_mode_residual_norm,
+    _full_mode_transpose_relative_residual_norm,
+    _solve_factorized_adjoint,
     _solve_factorized_modes,
 )
 from ntx.operators import source_modes
@@ -27,9 +30,7 @@ def _full_primary_solution():
     epsi_hat = case.resolved_epsi_hat(prepared.geometry.transport_psi_scale)
     ctx = _operator_context(surface, prepared.geometry, grid, case.nu_hat, epsi_hat)
     source, _ = source_modes(ctx, grid.n_xi)
-    factors = _factorize_prepared_modes(
-        ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta
-    )
+    factors = _factorize_prepared_modes(ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta)
     modes = _solve_factorized_modes(*factors, source)
     return prepared, case, ctx, source, modes
 
@@ -70,3 +71,38 @@ def test_full_residual_requires_the_complete_legendre_tail():
             source[:3],
             modes[:3],
         )
+
+
+def test_transpose_residual_reaches_roundoff_and_detects_perturbation():
+    prepared, _, ctx, _, _ = _full_primary_solution()
+    factors = _factorize_prepared_modes(
+        ctx,
+        prepared.grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+    )
+    source_bar = jnp.linspace(
+        -1.0,
+        1.0,
+        (prepared.grid.n_xi + 1) * prepared.grid.n_fs,
+    ).reshape((prepared.grid.n_xi + 1, prepared.grid.n_fs))
+    adjoint = _solve_factorized_adjoint(*factors, source_bar)
+
+    residual = _full_mode_transpose_relative_residual_norm(
+        ctx,
+        prepared.grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+        source_bar,
+        adjoint,
+    )
+    perturbed = _full_mode_transpose_relative_residual_norm(
+        ctx,
+        prepared.grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+        source_bar,
+        adjoint.at[-1, 0].add(1.0e-4),
+    )
+    assert float(residual) < 1.0e-11
+    assert float(perturbed) > 1.0e-7

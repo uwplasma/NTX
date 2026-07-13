@@ -65,8 +65,8 @@
 | Grid | `(7, 9, 6)` |
 | `nu_hat` | `3.000e-04` |
 | `E_r` scan | `1.000e-06` to `3.000e-03` |
-| Max relative mismatch | `1.051e-05` |
-| Best prepared speedup | `3.879x` |
+| Max relative mismatch | `7.451e-07` |
+| Best prepared speedup | `2.556x` |
 
 ## Geometry-Control Derivatives
 
@@ -256,8 +256,8 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `b39430811a54e12da0d47ab96856ec46e9b4e174` |
-| Branch | `main` |
+| Commit | `a64e73b63358986deda07c32be741d222b436400` |
+| Branch | `feat/prepared-adjoint-audit` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
 | NumPy | `2.4.4` |

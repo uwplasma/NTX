@@ -6,6 +6,10 @@ from ._solver_core import (
     solve_monoenergetic,
     solve_monoenergetic_internal,
 )
+from ._solver_derivative_audit import (
+    PreparedDerivativeAuditResult,
+    audit_prepared_coefficient_derivative,
+)
 from ._solver_prepared import (
     audit_prepared_residuals,
     compile_prepared_solver,
@@ -39,12 +43,14 @@ __all__ = [
     "CompiledPreparedScanSolver",
     "MonoenergeticCase",
     "PreparedMonoenergeticSystem",
+    "PreparedDerivativeAuditResult",
     "PreparedScanCompilationReport",
     "ResidualAuditResult",
     "TransportResult",
     "compile_prepared_solver",
     "compile_prepared_scan_solver",
     "audit_prepared_residuals",
+    "audit_prepared_coefficient_derivative",
     "healthy_parallel_device_count",
     "healthy_parallel_devices",
     "local_parallel_device_count",

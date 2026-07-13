@@ -89,18 +89,76 @@ It shows:
 
 ## Prepared-Derivative Benchmark
 
+For a parameter-dependent discrete drift-kinetic system
+
+```{math}
+A(p)f(p)=s(p),
+```
+
+the tangent equation is
+
+```{math}
+A f_p = s_p-A_p f.
+```
+
+For a scalar coefficient or objective `J(f,p)`, NTX instead reuses the primal
+block factors to solve
+
+```{math}
+A^T\lambda=J_f,
+\qquad
+\frac{\mathrm dJ}{\mathrm dp}
+=J_p+\lambda^T(s_p-A_p f).
+```
+
+The transpose action is algebraic: it is reconstructed independently from the
+conditioned Legendre blocks, including the nullspace row, rather than inferred
+from agreement with another differentiated program. This follows the standard
+discrete-adjoint structure used for neoclassical optimization in Paul et al.
+(2019).
+
+Use the opt-in validity audit before promoting a scalar prepared derivative:
+
+```python
+from ntx import audit_prepared_coefficient_derivative
+
+audit = audit_prepared_coefficient_derivative(
+    prepared,
+    case,
+    coefficient="D11",
+    parameter="er_hat",
+)
+if not bool(audit.valid):
+    raise RuntimeError(audit.as_dict())
+```
+
+`valid` requires all of the following:
+
+- finite primal, adjoint, and derivative values;
+- full-system `||Af-s||/||s||` and `||A^T lambda-g||/||g||` below the requested
+  residual tolerance;
+- prepared-adjoint, forward-mode, and centered-finite-difference gradients
+  within the requested tolerance of direct reverse mode.
+
+The default centered-difference step is
+`eps**(1/3) * max(abs(p), 1)`, which balances second-order truncation error
+against floating-point cancellation. It is an independent diagnostic, not the
+runtime derivative implementation.
+
 The script:
 
 ```bash
 python examples/derivative_path_benchmark.py
 ```
 
-keeps the same prepared surface and the same `D33` electric-field derivative,
-then times two user-visible paths:
+keeps the same prepared surface and coefficient derivatives, then compares:
 
 - direct reverse-mode through `solve_prepared_coefficient_vector(...)`,
-- and the prepared custom-VJP path through
-  `solve_prepared_coefficient_vector_vjp(...)`.
+- selective recomputation through `jax.checkpoint(...)`,
+- the factor-reusing custom VJP through
+  `solve_prepared_coefficient_vector_vjp(...)`,
+- forward mode,
+- and centered finite differences.
 
 The example is intentionally explicit. It shows how to:
 
@@ -108,7 +166,8 @@ The example is intentionally explicit. It shows how to:
 - define scalar coefficient objectives,
 - wrap them with `jax.grad(...)` and `jax.vmap(...)`,
 - JIT the resulting scan kernels,
-- and compare timing and agreement on the same `\hat E_r` scan.
+- compare synchronized timing, XLA temporary memory, and agreement on the same
+  `\hat E_r` scan.
 
 The figure is written to:
 
@@ -120,13 +179,32 @@ docs/_static/derivative_path_benchmark.pdf
 It shows:
 
 - best-of-three wall times versus scan size,
-- speedup of the prepared custom-VJP path,
-- and the max relative mismatch between the two derivative paths.
+- speedup and direct/prepared agreement,
+- independent primal and transpose residuals across collisionality,
+- and direct-reverse, prepared-adjoint, forward, and finite-difference
+  agreement.
+
+On the committed CPU artifact at scan size 32, the prepared adjoint reduces
+XLA temporary memory from about `49.2 MiB` to `13.2 MiB` and is about `2.6x`
+faster than direct reverse mode. Selective recomputation does not reduce memory
+for this block solve, so it is measured but not enabled. These timings are
+machine-specific evidence, not release gates.
+
+The lowest-collisionality audit point is intentionally marked invalid: its
+gradient methods agree, but its independently reconstructed primal residual is
+above `1e-10`. This prevents accidental promotion of an unconverged derivative.
+The separate non-degenerate `dD33/dnu_hat` resolution ladder passes all
+primal/transpose and method-agreement gates and changes by `8.0%` and `5.4%`
+over two successive `9 x 11 x 8 -> 11 x 13 x 10 -> 13 x 15 x 12`
+refinements. The near-zero `dD11/dEr` observable is not used to claim resolution
+convergence.
 
 The JSON sidecar is now checked by the physics-gate registry. The promoted
 release claim is derivative agreement, not benchmark-machine timing: the maximum
 prepared-vs-direct relative mismatch must remain below `1e-4`; the reported
 speedup is retained as performance evidence.
+
+![Prepared derivative benchmark](_static/derivative_path_benchmark.png)
 
 ## Geometry-Control Derivative Benchmark
 
@@ -421,6 +499,18 @@ controlled coefficient table. This keeps the profile inverse-design and
 uncertainty examples tied to a checked differentiable map instead of relying
 only on end-to-end objective reduction.
 
+Large profile bases may set `jacobian_chunk_size="auto"` or a positive integer
+in `example_neopax_profile_autodiff(...)` and
+`example_neopax_profile_uncertainty(...)`. NTX then delegates bounded-memory
+Jacobian assembly to SOLVAX and selects forward or reverse mode from the input
+and output dimensions. The default remains native `jax.jacrev` because chunking
+adds overhead and did not reduce memory for the small committed profile basis.
+On a separate 16-control, 96-output high-mode QH performance diagnostic,
+forward chunks of four reduced XLA temporary memory by about `3.6x` with a
+roughly `20%` warm-runtime cost; chunks of one reduced memory by about `10x`
+but approximately doubled runtime. This is execution guidance, not a promoted
+physics artifact.
+
 ![Autodiff NEOPAX profiles](_static/autodiff_neopax_profiles.png)
 
 ## Profile Uncertainty Audit
@@ -467,6 +557,8 @@ This is the current artifact-backed uncertainty-propagation benchmark for the
 autodiff lane. It is intentionally synthetic and is tracked as a monitored
 stress benchmark rather than a parity gate, but it exercises the same
 differentiable profile map used in inverse-design and profile-control studies.
+Both the profile sensitivity and Fisher/Gauss-Newton residual Jacobians honor
+the optional `jacobian_chunk_size` setting.
 
 ![Autodiff profile uncertainty](_static/autodiff_profile_uncertainty.png)
 
