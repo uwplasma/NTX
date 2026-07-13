@@ -49,6 +49,7 @@
 | `prepared_geometry_reuse_profile` | `performance` | `software-gate` | `complete` |
 | `geometry_family_breadth_summary` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_family_transport_convergence` | `geometry-breadth` | `stress-gate` | `complete` |
+| `angular_oversampling_audit` | `geometry-breadth` | `stress-gate` | `complete` |
 | `boozmn_same_coordinate_roundtrip` | `geometry-breadth` | `positive-gate` | `complete` |
 | `boozmn_finite_beta_wout_roundtrip` | `geometry-breadth` | `positive-gate` | `complete` |
 | `owned_geometry_neopax_dataset` | `geometry-breadth` | `stress-gate` | `complete` |
@@ -256,8 +257,8 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `83fe5465d31c3301817828f22dce60c786a3a2d9` |
-| Branch | `feat/residual-resolution-gates` |
+| Commit | `a88db610e947cababba0959dd86e2c357b045b47` |
+| Branch | `feat/angular-oversampling-audit` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
 | NumPy | `2.4.4` |

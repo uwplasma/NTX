@@ -83,8 +83,24 @@ arrays cannot be converted into a host report.
 
 Nyquist adequacy is necessary, not sufficient. Products, reciprocals, and
 derivatives of the magnetic field can demand angular oversampling beyond the
-retained input bandwidth. NTX therefore warns below an oversampling ratio of
-1.5 and still requires an angular convergence ladder.
+retained input bandwidth. The exact `3/2` product rule for two band-limited
+Fourier fields does not directly prove adequacy for this operator because its
+geometry coefficients include reciprocals and other non-band-limited derived
+fields. NTX therefore uses measured coefficient convergence rather than
+silently filtering the assembled operator.
+
+The committed finite-beta QA, NCSX, and HSX audit found a worst
+`D11/D31/D33` error of `6.889e-3` at `2.25` times the retained-mode Nyquist
+floor relative to the `2.5`-times reference. NTX now warns below `2.25`; this is
+a recommended starting grid, not a hard rejection or a substitute for the
+two-successive-refinement gate. The recommendation is exported as
+`RECOMMENDED_ANGULAR_OVERSAMPLING`.
+
+```bash
+python examples/angular_oversampling_audit.py --preset production
+```
+
+![Angular oversampling error, runtime, and memory](_static/angular_oversampling_audit.png)
 
 ## Adaptive coefficient gate
 

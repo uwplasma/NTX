@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- added a reusable angular-oversampling audit with coefficient error, compile
+  and warm-runtime timing, and XLA temporary-memory reporting; the committed
+  finite-beta QA/NCSX/HSX artifact supports a warning-only `2.25`-times-Nyquist
+  starting-grid recommendation while preserving successive-grid acceptance
 - exposed the production algebraic diagnostic as
   `TransportResult.schur_residual_l2` while preserving `residual_l2` as a
   compatibility alias, and added independent full-system and dense-operator

@@ -35,6 +35,22 @@ NTX is validated as a standalone solver. The repository therefore emphasizes:
 Independent comparisons are useful, but they are treated as trust-building
 studies rather than as the definition of NTX itself.
 
+## Angular Resolution Evidence
+
+The retained VMEC/Boozer harmonics define a hard odd-grid Nyquist floor. They
+do not by themselves resolve products, reciprocals, and derivatives in the
+variable-coefficient collocation operator. NTX therefore keeps the operator
+unchanged, warns below a measured `2.25` oversampling ratio, and requires
+successive-grid coefficient convergence for research claims.
+
+The committed finite-beta QA, NCSX, and HSX artifact reports coefficient error,
+compiled warm runtime, and XLA temporary memory. Its worst `D11/D31/D33` error
+at the recommendation is `6.889e-3` relative to the `2.5`-times reference.
+This is a numerical stress gate, not an analytical de-aliasing theorem or an
+independent-code parity result.
+
+![Angular oversampling audit](_static/angular_oversampling_audit.png)
+
 ## Owned Dataset Discipline
 
 External reference datasets remain useful transfer checks, but they are not

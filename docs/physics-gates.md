@@ -267,6 +267,11 @@ The active acceptance target is:
   production `D11/D31/D33` ladder must keep its maximum last-step relative
   change `<= 5e-1`; `D13` and the normalized Onsager residual remain visible in
   the artifact before any broad geometry-family parity claim is promoted.
+- **Angular oversampling recommendation:** the finite-beta QA, NCSX, and HSX
+  collocation audit must keep its maximum `D11/D31/D33` error at `2.25` times
+  the retained-mode Nyquist floor below `1e-2` relative to its finer reference.
+  This is a warning-level stress gate; two successive refinements remain the
+  research acceptance rule.
 - **W7-X rebuilt raw branch:** best observed maximum relative error
   `<= 2e-2` against the frozen reference profile.
 

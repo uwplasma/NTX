@@ -1,0 +1,607 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-07-13T06:59:40.101233+00:00",
+  "provenance": {
+    "ntx_version": "0.2.4",
+    "jax_version": "0.9.2",
+    "python_version": "3.11.14",
+    "git_commit": "a88db610e947cababba0959dd86e2c357b045b47",
+    "jax_devices": [
+      "TFRT_CPU_0"
+    ]
+  },
+  "numerical_policy": {
+    "nyquist_floor": "2 * max_abs_retained_mode + 1 in each angle",
+    "ratios": [
+      1.0,
+      1.25,
+      1.5,
+      1.75,
+      2.0,
+      2.25,
+      2.5
+    ],
+    "recommended_oversampling": 2.25,
+    "reference_ratio": 2.5,
+    "acceptance": "recommendation stress metric only; research promotion still requires two successive coefficient refinements"
+  },
+  "cases": [
+    {
+      "id": "finite_beta_qa",
+      "label": "Finite-beta QA",
+      "family": "QA",
+      "source": "vmec_jax examples",
+      "path": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_nfp2_QA_finite_beta.nc",
+      "theta_nyquist_floor": 9,
+      "zeta_nyquist_floor": 11,
+      "n_xi": 16,
+      "coefficient_atol": 1e-12,
+      "recommended_oversampling": 2.25,
+      "points": [
+        {
+          "requested_ratio": 1.0,
+          "n_theta": 9,
+          "n_zeta": 11,
+          "theta_oversampling": 1.0,
+          "zeta_oversampling": 1.0,
+          "coefficients": [
+            3.135708647659056e-05,
+            0.029687660786151374,
+            297.1474756531919
+          ],
+          "relative_errors": [
+            1.9217470162648866,
+            1.9968570366345932,
+            0.22443894451572172
+          ],
+          "max_relative_error": 1.9968570366345932,
+          "schur_residual_l2": 2.461504059827905e-16,
+          "prepare_seconds": 1.5720888329669833,
+          "lowering_seconds": 0.1530300839804113,
+          "compilation_seconds": 0.25653770798817277,
+          "first_execution_seconds": 0.004333166871219873,
+          "warm_execution_seconds": 0.002680624835193157,
+          "temporary_size_bytes": 1109880
+        },
+        {
+          "requested_ratio": 1.25,
+          "n_theta": 13,
+          "n_zeta": 15,
+          "theta_oversampling": 1.4444444444444444,
+          "zeta_oversampling": 1.3636363636363635,
+          "coefficients": [
+            7.51457863901808e-06,
+            -0.023945911005410235,
+            373.44538590980943
+          ],
+          "relative_errors": [
+            0.2998170371016511,
+            0.19594035864543224,
+            0.025299821156888017
+          ],
+          "max_relative_error": 0.2998170371016511,
+          "schur_residual_l2": 9.462477643346899e-17,
+          "prepare_seconds": 0.9598123747855425,
+          "lowering_seconds": 0.10588254174217582,
+          "compilation_seconds": 0.21946112532168627,
+          "first_execution_seconds": 0.013585207983851433,
+          "warm_execution_seconds": 0.010682541877031326,
+          "temporary_size_bytes": 4281336
+        },
+        {
+          "requested_ratio": 1.5,
+          "n_theta": 15,
+          "n_zeta": 17,
+          "theta_oversampling": 1.6666666666666667,
+          "zeta_oversampling": 1.5454545454545454,
+          "coefficients": [
+            1.0514649259656534e-05,
+            -0.02760879500189295,
+            373.3126584888236
+          ],
+          "relative_errors": [
+            0.02028062701526956,
+            0.07294745217927788,
+            0.025646242470026167
+          ],
+          "max_relative_error": 0.07294745217927788,
+          "schur_residual_l2": 1.7319729665617314e-16,
+          "prepare_seconds": 0.7279658750630915,
+          "lowering_seconds": 0.0787225840613246,
+          "compilation_seconds": 0.2326069581322372,
+          "first_execution_seconds": 0.019314249977469444,
+          "warm_execution_seconds": 0.015589750371873379,
+          "temporary_size_bytes": 7311736
+        },
+        {
+          "requested_ratio": 1.75,
+          "n_theta": 17,
+          "n_zeta": 21,
+          "theta_oversampling": 1.8888888888888888,
+          "zeta_oversampling": 1.9090909090909092,
+          "coefficients": [
+            1.0828800392064147e-05,
+            -0.030712828499081486,
+            377.32132323196026
+          ],
+          "relative_errors": [
+            0.008990910519105935,
+            0.03128028256583507,
+            0.015183544604478016
+          ],
+          "max_relative_error": 0.03128028256583507,
+          "schur_residual_l2": 1.2142978193379585e-16,
+          "prepare_seconds": 0.8481024168431759,
+          "lowering_seconds": 0.08113274956122041,
+          "compilation_seconds": 0.2542990408837795,
+          "first_execution_seconds": 0.029739834368228912,
+          "warm_execution_seconds": 0.024903499986976385,
+          "temporary_size_bytes": 14314232
+        },
+        {
+          "requested_ratio": 2.0,
+          "n_theta": 19,
+          "n_zeta": 23,
+          "theta_oversampling": 2.111111111111111,
+          "zeta_oversampling": 2.090909090909091,
+          "coefficients": [
+            1.0692336768431587e-05,
+            -0.030330293745218322,
+            378.2790478789883
+          ],
+          "relative_errors": [
+            0.0037243073145018096,
+            0.018435469231008122,
+            0.012683863473148847
+          ],
+          "max_relative_error": 0.018435469231008122,
+          "schur_residual_l2": 1.3972832480752808e-16,
+          "prepare_seconds": 1.3721324591897428,
+          "lowering_seconds": 0.12406750023365021,
+          "compilation_seconds": 0.2606835411861539,
+          "first_execution_seconds": 0.041401874739676714,
+          "warm_execution_seconds": 0.036894999910146,
+          "temporary_size_bytes": 21437112
+        },
+        {
+          "requested_ratio": 2.25,
+          "n_theta": 21,
+          "n_zeta": 25,
+          "theta_oversampling": 2.3333333333333335,
+          "zeta_oversampling": 2.272727272727273,
+          "coefficients": [
+            1.0658372051219176e-05,
+            -0.029724421780991543,
+            385.64616733694714
+          ],
+          "relative_errors": [
+            0.00688902452277081,
+            0.0019085967831395715,
+            0.006544470639848501
+          ],
+          "max_relative_error": 0.00688902452277081,
+          "schur_residual_l2": 1.4823577740551321e-16,
+          "prepare_seconds": 0.9720672080293298,
+          "lowering_seconds": 0.0801577907986939,
+          "compilation_seconds": 0.2638252917677164,
+          "first_execution_seconds": 0.061367500107735395,
+          "warm_execution_seconds": 0.05548033304512501,
+          "temporary_size_bytes": 30928120
+        },
+        {
+          "requested_ratio": 2.5,
+          "n_theta": 23,
+          "n_zeta": 29,
+          "theta_oversampling": 2.5555555555555554,
+          "zeta_oversampling": 2.6363636363636362,
+          "coefficients": [
+            1.0732307178558172e-05,
+            -0.029781262202228553,
+            383.13872718589016
+          ],
+          "relative_errors": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_relative_error": 0.0,
+          "schur_residual_l2": 1.2433906305235268e-16,
+          "prepare_seconds": 0.7255805837921798,
+          "lowering_seconds": 0.08055149996653199,
+          "compilation_seconds": 0.2727925004437566,
+          "first_execution_seconds": 0.10042079165577888,
+          "warm_execution_seconds": 0.09484924981370568,
+          "temporary_size_bytes": 49901112
+        }
+      ],
+      "recommended_max_relative_error": 0.00688902452277081
+    },
+    {
+      "id": "ncsx",
+      "label": "NCSX",
+      "family": "compact stellarator",
+      "source": "STELLOPT public benchmark",
+      "path": "/Users/rogeriojorge/local/STELLOPT/BENCHMARKS/DIAGNO_TEST/wout_ncsx.nc",
+      "theta_nyquist_floor": 21,
+      "zeta_nyquist_floor": 13,
+      "n_xi": 16,
+      "coefficient_atol": 1e-12,
+      "recommended_oversampling": 2.25,
+      "points": [
+        {
+          "requested_ratio": 1.0,
+          "n_theta": 21,
+          "n_zeta": 13,
+          "theta_oversampling": 1.0,
+          "zeta_oversampling": 1.0,
+          "coefficients": [
+            0.38810168324707045,
+            2.181229623310851,
+            388.4824818513294
+          ],
+          "relative_errors": [
+            7.217598368471194e-05,
+            0.024883689034391678,
+            0.0027677739943838034
+          ],
+          "max_relative_error": 0.024883689034391678,
+          "schur_residual_l2": 8.228310839648775e-14,
+          "prepare_seconds": 0.4219699171371758,
+          "lowering_seconds": 0.07878491701558232,
+          "compilation_seconds": 0.25206774985417724,
+          "first_execution_seconds": 0.02078595757484436,
+          "warm_execution_seconds": 0.01794087467715144,
+          "temporary_size_bytes": 8378232
+        },
+        {
+          "requested_ratio": 1.25,
+          "n_theta": 27,
+          "n_zeta": 17,
+          "theta_oversampling": 1.2857142857142858,
+          "zeta_oversampling": 1.3076923076923077,
+          "coefficients": [
+            0.39071323268777036,
+            1.3832304643229811,
+            389.01356616451756
+          ],
+          "relative_errors": [
+            0.006801695706450434,
+            0.3500682707085812,
+            0.0014044837134079588
+          ],
+          "max_relative_error": 0.3500682707085812,
+          "schur_residual_l2": 9.389528727341059e-14,
+          "prepare_seconds": 0.9724677922204137,
+          "lowering_seconds": 0.13030508300289512,
+          "compilation_seconds": 0.251526250038296,
+          "first_execution_seconds": 0.04674541670829058,
+          "warm_execution_seconds": 0.04252208303660154,
+          "temporary_size_bytes": 23647352
+        },
+        {
+          "requested_ratio": 1.5,
+          "n_theta": 33,
+          "n_zeta": 21,
+          "theta_oversampling": 1.5714285714285714,
+          "zeta_oversampling": 1.6153846153846154,
+          "coefficients": [
+            0.3880848482829796,
+            2.1250830189764716,
+            389.547846329807
+          ],
+          "relative_errors": [
+            2.8795138154589034e-05,
+            0.0014976411850413996,
+            3.298969904947211e-05
+          ],
+          "max_relative_error": 0.0014976411850413996,
+          "schur_residual_l2": 2.289485838508097e-13,
+          "prepare_seconds": 0.7588737090118229,
+          "lowering_seconds": 0.07930695824325085,
+          "compilation_seconds": 0.28346354188397527,
+          "first_execution_seconds": 0.10783712519332767,
+          "warm_execution_seconds": 0.10245458269491792,
+          "temporary_size_bytes": 53864120
+        },
+        {
+          "requested_ratio": 1.75,
+          "n_theta": 37,
+          "n_zeta": 23,
+          "theta_oversampling": 1.7619047619047619,
+          "zeta_oversampling": 1.7692307692307692,
+          "coefficients": [
+            0.38801145632906087,
+            2.1281901795740175,
+            389.562209201143
+          ],
+          "relative_errors": [
+            0.000160323472311469,
+            3.769484028129074e-05,
+            3.879706453650083e-06
+          ],
+          "max_relative_error": 0.000160323472311469,
+          "schur_residual_l2": 2.95730890062704e-13,
+          "prepare_seconds": 0.7997903754003346,
+          "lowering_seconds": 0.08224466582760215,
+          "compilation_seconds": 0.3437461657449603,
+          "first_execution_seconds": 0.1963908327743411,
+          "warm_execution_seconds": 0.18395270826295018,
+          "temporary_size_bytes": 81203896
+        },
+        {
+          "requested_ratio": 2.0,
+          "n_theta": 43,
+          "n_zeta": 27,
+          "theta_oversampling": 2.0476190476190474,
+          "zeta_oversampling": 2.076923076923077,
+          "coefficients": [
+            0.388064178505416,
+            2.1281674013128846,
+            389.5610031939209
+          ],
+          "relative_errors": [
+            2.4467370918236563e-05,
+            4.839755037202263e-05,
+            7.838930698984729e-07
+          ],
+          "max_relative_error": 4.839755037202263e-05,
+          "schur_residual_l2": 5.012585257365968e-13,
+          "prepare_seconds": 0.826561416964978,
+          "lowering_seconds": 0.08268812485039234,
+          "compilation_seconds": 0.40108424983918667,
+          "first_execution_seconds": 0.41096645779907703,
+          "warm_execution_seconds": 0.3862110832706094,
+          "temporary_size_bytes": 151093944
+        },
+        {
+          "requested_ratio": 2.25,
+          "n_theta": 49,
+          "n_zeta": 31,
+          "theta_oversampling": 2.3333333333333335,
+          "zeta_oversampling": 2.3846153846153846,
+          "coefficients": [
+            0.38807456282496317,
+            2.128227936935871,
+            389.56081593224957
+          ],
+          "relative_errors": [
+            2.291258311948618e-06,
+            1.9953973436697206e-05,
+            3.031934706409693e-07
+          ],
+          "max_relative_error": 1.9953973436697206e-05,
+          "schur_residual_l2": 6.686321224556368e-13,
+          "prepare_seconds": 1.2810171656310558,
+          "lowering_seconds": 0.08319383300840855,
+          "compilation_seconds": 0.5280328751541674,
+          "first_execution_seconds": 0.804929958190769,
+          "warm_execution_seconds": 0.7884493749588728,
+          "temporary_size_bytes": 258589880
+        },
+        {
+          "requested_ratio": 2.5,
+          "n_theta": 53,
+          "n_zeta": 33,
+          "theta_oversampling": 2.5238095238095237,
+          "zeta_oversampling": 2.5384615384615383,
+          "coefficients": [
+            0.38807367364793277,
+            2.1282704043869862,
+            389.56069781998957
+          ],
+          "relative_errors": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_relative_error": 0.0,
+          "schur_residual_l2": 9.751464730650268e-13,
+          "prepare_seconds": 0.849476583302021,
+          "lowering_seconds": 0.08616104209795594,
+          "compilation_seconds": 0.6312168752774596,
+          "first_execution_seconds": 1.1866717082448304,
+          "warm_execution_seconds": 1.1621805410832167,
+          "temporary_size_bytes": 342798392
+        }
+      ],
+      "recommended_max_relative_error": 1.9953973436697206e-05
+    },
+    {
+      "id": "hsx",
+      "label": "HSX",
+      "family": "QHS",
+      "source": "STELLOPT public benchmark",
+      "path": "/Users/rogeriojorge/local/STELLOPT/BENCHMARKS/DIAGNO_TEST/wout_hsx.nc",
+      "theta_nyquist_floor": 11,
+      "zeta_nyquist_floor": 17,
+      "n_xi": 16,
+      "coefficient_atol": 1e-12,
+      "recommended_oversampling": 2.25,
+      "points": [
+        {
+          "requested_ratio": 1.0,
+          "n_theta": 11,
+          "n_zeta": 17,
+          "theta_oversampling": 1.0,
+          "zeta_oversampling": 1.0,
+          "coefficients": [
+            659.7331500225114,
+            -164.4765155226202,
+            461.130542941299
+          ],
+          "relative_errors": [
+            0.08620914346169968,
+            0.02938742088735852,
+            0.02340515473064222
+          ],
+          "max_relative_error": 0.08620914346169968,
+          "schur_residual_l2": 9.701090905068353e-12,
+          "prepare_seconds": 0.4259374160319567,
+          "lowering_seconds": 0.0830803751014173,
+          "compilation_seconds": 0.23237258289009333,
+          "first_execution_seconds": 0.013317584060132504,
+          "warm_execution_seconds": 0.009895707946270704,
+          "temporary_size_bytes": 3938232
+        },
+        {
+          "requested_ratio": 1.25,
+          "n_theta": 15,
+          "n_zeta": 23,
+          "theta_oversampling": 1.3636363636363635,
+          "zeta_oversampling": 1.3529411764705883,
+          "coefficients": [
+            626.3479904297345,
+            -160.71769116510595,
+            449.4949177241583
+          ],
+          "relative_errors": [
+            0.031242577654956565,
+            0.005862563866551607,
+            0.002418246056868553
+          ],
+          "max_relative_error": 0.031242577654956565,
+          "schur_residual_l2": 3.076960888900772e-11,
+          "prepare_seconds": 0.3697427920997143,
+          "lowering_seconds": 0.0819372502155602,
+          "compilation_seconds": 0.2711871671490371,
+          "first_execution_seconds": 0.02972170803695917,
+          "warm_execution_seconds": 0.02593341702595353,
+          "temporary_size_bytes": 13369464
+        },
+        {
+          "requested_ratio": 1.5,
+          "n_theta": 17,
+          "n_zeta": 27,
+          "theta_oversampling": 1.5454545454545454,
+          "zeta_oversampling": 1.588235294117647,
+          "coefficients": [
+            612.8022070406533,
+            -160.04856992056688,
+            448.35672452420346
+          ],
+          "relative_errors": [
+            0.008940297146436519,
+            0.0016748232034641422,
+            0.0049442830018154955
+          ],
+          "max_relative_error": 0.008940297146436519,
+          "schur_residual_l2": 4.727480120746073e-11,
+          "prepare_seconds": 0.3759718746878207,
+          "lowering_seconds": 0.06168233323842287,
+          "compilation_seconds": 0.2727706669829786,
+          "first_execution_seconds": 0.04898562515154481,
+          "warm_execution_seconds": 0.0435076248832047,
+          "temporary_size_bytes": 23647352
+        },
+        {
+          "requested_ratio": 1.75,
+          "n_theta": 21,
+          "n_zeta": 31,
+          "theta_oversampling": 1.9090909090909092,
+          "zeta_oversampling": 1.8235294117647058,
+          "coefficients": [
+            605.5555621933152,
+            -158.51724998202536,
+            450.90658803299283
+          ],
+          "relative_errors": [
+            0.002990847881412645,
+            0.007909046427284749,
+            0.0007147293943484146
+          ],
+          "max_relative_error": 0.007909046427284749,
+          "schur_residual_l2": 7.311209037939413e-11,
+          "prepare_seconds": 0.3732282919809222,
+          "lowering_seconds": 0.15132141718640924,
+          "compilation_seconds": 0.2898445832543075,
+          "first_execution_seconds": 0.1000840412452817,
+          "warm_execution_seconds": 0.09797916701063514,
+          "temporary_size_bytes": 47537528
+        },
+        {
+          "requested_ratio": 2.0,
+          "n_theta": 23,
+          "n_zeta": 35,
+          "theta_oversampling": 2.090909090909091,
+          "zeta_oversampling": 2.0588235294117645,
+          "coefficients": [
+            608.5298662573149,
+            -160.23865955885464,
+            450.16119051871686
+          ],
+          "relative_errors": [
+            0.0019061567175552411,
+            0.002864512089276756,
+            0.0009395606328696224
+          ],
+          "max_relative_error": 0.002864512089276756,
+          "schur_residual_l2": 1.2180893553224107e-10,
+          "prepare_seconds": 0.8197265001945198,
+          "lowering_seconds": 0.08343491656705737,
+          "compilation_seconds": 0.34641883382573724,
+          "first_execution_seconds": 0.1580357919447124,
+          "warm_execution_seconds": 0.15244795801118016,
+          "temporary_size_bytes": 72667128
+        },
+        {
+          "requested_ratio": 2.25,
+          "n_theta": 25,
+          "n_zeta": 39,
+          "theta_oversampling": 2.272727272727273,
+          "zeta_oversampling": 2.2941176470588234,
+          "coefficients": [
+            606.9406164800009,
+            -159.70546034386683,
+            450.5805725781677
+          ],
+          "relative_errors": [
+            0.0007104430990584873,
+            0.00047255133884513894,
+            8.809529926201048e-06
+          ],
+          "max_relative_error": 0.0007104430990584873,
+          "schur_residual_l2": 1.9098933265655572e-10,
+          "prepare_seconds": 0.8028676249086857,
+          "lowering_seconds": 0.08154204161837697,
+          "compilation_seconds": 0.40323041705414653,
+          "first_execution_seconds": 0.27124750008806586,
+          "warm_execution_seconds": 0.26582075003534555,
+          "temporary_size_bytes": 106576696
+        },
+        {
+          "requested_ratio": 2.5,
+          "n_theta": 29,
+          "n_zeta": 43,
+          "theta_oversampling": 2.6363636363636362,
+          "zeta_oversampling": 2.5294117647058822,
+          "coefficients": [
+            607.3721198110812,
+            -159.7809650528245,
+            450.58454201617485
+          ],
+          "relative_errors": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_relative_error": 0.0,
+          "schur_residual_l2": 2.384477434272372e-10,
+          "prepare_seconds": 0.40373691683635116,
+          "lowering_seconds": 0.08250470878556371,
+          "compilation_seconds": 0.45232408307492733,
+          "first_execution_seconds": 0.5022238339297473,
+          "warm_execution_seconds": 0.48982420936226845,
+          "temporary_size_bytes": 174297080
+        }
+      ],
+      "recommended_max_relative_error": 0.0007104430990584873
+    }
+  ],
+  "summary_metrics": {
+    "case_count": 3,
+    "max_recommended_relative_error": 0.00688902452277081,
+    "recommended_error_gate": 0.01,
+    "recommended_error_gate_pass": true
+  },
+  "claim_scope": "Measured variable-coefficient collocation stress diagnostic; not an analytical de-aliasing theorem or independent-code parity claim."
+}

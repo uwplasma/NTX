@@ -177,6 +177,16 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
     )
     _append_summary_metric_gate(
         results,
+        gate_name="angular_oversampling_convergence_stress",
+        path=static_root / "angular_oversampling_audit.json",
+        metric_key="max_recommended_relative_error",
+        details=(
+            "measured D11/D31/D33 error at the warning-level angular "
+            "oversampling recommendation relative to the finest audit grid"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
         gate_name="boozmn_same_coordinate_roundtrip",
         path=static_root / "boozmn_same_coordinate_roundtrip_audit.json",
         metric_key="max_transport_relative_difference",

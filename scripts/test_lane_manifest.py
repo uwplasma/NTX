@@ -164,6 +164,7 @@ CORE_ROBUST_BOOTSTRAP_WORKFLOW_TESTS: tuple[str, ...] = (
 )
 
 CORE_VALIDATION_TESTS: tuple[str, ...] = (
+    "tests/test_angular_oversampling.py",
     "tests/test_benchmark_matrix.py",
     "tests/test_benchmark_scaling_script.py",
     "tests/test_boozmn_backend_validation_audit.py",

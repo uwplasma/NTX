@@ -161,8 +161,9 @@ These are the first implementation blockers:
 - [x] Enforce an opt-in geometry-spectrum sampling floor before solving:
   `N_theta >= 2*m_max+1` and `N_zeta >= 2*n_max+1`, with documented reduced
   toroidal mode convention.
-- [ ] Add an oversampling/dealiasing study for the variable-coefficient
-  collocation operator and choose a policy from evidence.
+- [x] Add an oversampling/dealiasing study for the variable-coefficient
+  collocation operator and choose a warning-only `2.25`-times-Nyquist starting
+  policy from measured coefficient error, residual, runtime, and memory.
 - [x] Add two-step convergence checks. One coarse/fine comparison is not
   sufficient because spatial and Legendre convergence can be nonmonotonic.
 
@@ -244,9 +245,9 @@ Acceptance:
 
 Repository: `uwplasma/NTX`.
 
-Status: in progress. Residual semantics, Nyquist reporting, and adaptive
-two-step convergence are complete; the variable-coefficient de-aliasing study
-remains the next acceptance item.
+Status: complete. Residual semantics, Nyquist reporting, adaptive two-step
+convergence, and the variable-coefficient oversampling study are implemented
+and artifact-backed.
 
 - [x] Fix residual semantics and tests before changing solver ownership.
 - [x] Add `GeometryResolutionReport` containing retained harmonic extrema,
@@ -259,9 +260,10 @@ remains the next acceptance item.
 - [x] Return `converged`, `unresolved`, or `model-out-of-scope`; do not silently
   promote the last available grid.
 - [x] Add small analytic gates and artifact-backed high-resolution ladders.
-- [ ] Complete the variable-coefficient oversampling/de-aliasing study and
-  choose a default warning or enforcement policy from measured coefficient
-  error, residual, runtime, and memory behavior.
+- [x] Complete the variable-coefficient oversampling/dealiasing study and use a
+  warning-only `2.25` recommendation from measured coefficient error, residual,
+  runtime, and memory behavior. Keep two successive refinements as the final
+  research gate.
 
 Default internal numerical target:
 

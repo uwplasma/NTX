@@ -2,6 +2,7 @@
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 import pytest
 
 from ntx import (
@@ -11,6 +12,7 @@ from ntx import (
     geometry_resolution_report,
     solve_monoenergetic,
 )
+from ntx.resolution import RECOMMENDED_ANGULAR_OVERSAMPLING
 
 
 def _surface_with_modes(m, n):
@@ -44,6 +46,24 @@ def test_resolution_report_warns_near_nyquist():
     )
     assert report.resolved
     assert len(report.warnings) == 2
+
+
+def test_resolution_recommendation_is_warning_only():
+    surface = _surface_with_modes([0, 2], [0, 2])
+    floor = 5
+    recommended = int(np.ceil(RECOMMENDED_ANGULAR_OVERSAMPLING * floor))
+    if recommended % 2 == 0:
+        recommended += 1
+    report = geometry_resolution_report(
+        surface,
+        GridSpec(recommended, recommended, 4),
+    )
+    assert report.resolved
+    assert report.warnings == ()
+
+    below = geometry_resolution_report(surface, GridSpec(9, 9, 4))
+    assert below.resolved
+    assert len(below.warnings) == 2
 
 
 def test_undersampled_geometry_fails_before_solve():
