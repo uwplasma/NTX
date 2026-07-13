@@ -441,6 +441,27 @@ compilation cache alone. The speed lane should stay focused on shape
 stability, static-argument control, and reusable compiled closure calls rather
 than on cache toggles by themselves.
 
+## SOLVAX Solver Migration
+
+The generated block-solver migration was measured against the immediately
+preceding NTX implementation on the same prepared `13 x 15 x 32` analytic
+solve, with 21 warm samples and identical float64 coefficients:
+
+| Device | Metric | Before | SOLVAX |
+|---|---|---:|---:|
+| Apple CPU | warm median | 20.54 ms | 20.30 ms |
+| Apple CPU | executable temporary memory | 4.91 MB | 4.02 MB |
+| Apple CPU | compile | 0.297 s | 0.362 s |
+| RTX A4000 | warm median | 51.02 ms | 47.43 ms |
+| RTX A4000 | executable temporary memory | 4.57 MB | 3.99 MB |
+| RTX A4000 | compile | 0.938 s | 1.123 s |
+
+The migration improves warm CPU/GPU runtime and reduces temporary memory by
+about 18% on CPU and 13% on GPU. Cold compilation is about 20--22% slower, so
+this is not presented as an across-the-board speedup. Prepared executable reuse
+remains necessary for production scans. A separate pre/post coefficient ladder
+at `N_xi = 2, 16, 32, 63, 140` agrees to approximately `1e-13` or better.
+
 ## Research-Grade Performance Plan
 
 The next performance work should stay evidence-driven:
@@ -471,11 +492,12 @@ JAX-specific rules for NTX:
   `XLA_PYTHON_CLIENT_PREALLOCATE=false` or `XLA_PYTHON_CLIENT_MEM_FRACTION`
   before launching concurrent runs.
 
-Lineax and Equinox are useful but not automatic wins:
+SOLVAX and Equinox are useful but not automatic wins:
 
-- Lineax should be evaluated first on repeated structured solve or
-  Jacobian-linear-operator workloads where reuse or memory reduction can be
-  measured against the current prepared dense solve.
+- SOLVAX owns generic generated block elimination, reusable factors, transpose
+  solves, and algebraic residuals; NTX retains the physics operator and source
+  assembly. Further abstraction is accepted only with measured runtime or
+  memory benefit.
 - Equinox should be evaluated for typed PyTree modules and filtered transforms
   only if it simplifies static-versus-dynamic argument handling or custom
   derivative APIs without destabilizing the public NTX API.
