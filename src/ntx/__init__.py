@@ -18,6 +18,11 @@ from .autodiff import (
 )
 from .booz import BoozmnSurface, load_boozmn_surface
 from .config import enable_x64
+from .convergence import (
+    AdaptiveConvergenceResult,
+    ConvergenceStep,
+    solve_monoenergetic_converged,
+)
 from .database import (
     MonoenergeticDatabaseArrays,
     build_monoenergetic_database_arrays,
@@ -100,11 +105,14 @@ from .profiles import (
     solve_primitive_profile_transport_loop,
     solve_profile_transport_loop,
 )
+from .resolution import GeometryResolutionReport, geometry_resolution_report
 from .solver import (
     CompiledPreparedSolver,
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
+    ResidualAuditResult,
     TransportResult,
+    audit_prepared_residuals,
     compile_prepared_solver,
     healthy_parallel_device_count,
     local_parallel_device_count,
@@ -139,13 +147,16 @@ __all__ = [
     "__version__",
     "BoozmnSurface",
     "BoozerSurface",
+    "AdaptiveConvergenceResult",
     "BootstrapOptimizationResult",
     "AmbipolarProfileFamilyResult",
     "AmbipolarProfileResult",
     "CompiledPreparedSolver",
+    "ConvergenceStep",
     "DerivativeAuditResult",
     "DifferentiableNeopaxField",
     "GridSpec",
+    "GeometryResolutionReport",
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
     "MonoenergeticSpeciesProfile",
@@ -162,12 +173,14 @@ __all__ = [
     "NeopaxMonoenergeticArrays",
     "NeopaxScan",
     "PreparedMonoenergeticSystem",
+    "ResidualAuditResult",
     "TransportResult",
     "VmecJaxBoundaryContext",
     "VmecSurface",
     "ANALYTICAL_GATES",
     "ARTIFACT_GATES",
     "build_differentiable_neopax_field",
+    "audit_prepared_residuals",
     "build_differentiable_neopax_field_from_vmec_booz_files",
     "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
     "build_differentiable_neopax_field_from_vmec_jax_state",
@@ -179,6 +192,7 @@ __all__ = [
     "build_ntx_neopax_scan_from_vmec_jax_state",
     "build_ntx_neopax_scan_from_surfaces",
     "get_differentiable_neopax_fluxes",
+    "geometry_resolution_report",
     "evaluate_scan_channel",
     "evaluate_species_current_response",
     "evaluate_species_particle_flux",
@@ -217,6 +231,7 @@ __all__ = [
     "save_run_output",
     "scan_to_neopax_arrays",
     "solve_monoenergetic",
+    "solve_monoenergetic_converged",
     "solve_monoenergetic_internal",
     "solve_monoenergetic_multiprocess_scan",
     "solve_monoenergetic_parallel_scan",

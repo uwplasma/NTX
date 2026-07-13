@@ -7,6 +7,7 @@ from ._solver_core import (
     solve_monoenergetic_internal,
 )
 from ._solver_prepared import (
+    audit_prepared_residuals,
     compile_prepared_solver,
     solve_prepared,
     solve_prepared_coefficient_vector,
@@ -26,6 +27,7 @@ from ._solver_types import (
     CompiledPreparedSolver,
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
+    ResidualAuditResult,
     TransportResult,
 )
 
@@ -33,8 +35,10 @@ __all__ = [
     "CompiledPreparedSolver",
     "MonoenergeticCase",
     "PreparedMonoenergeticSystem",
+    "ResidualAuditResult",
     "TransportResult",
     "compile_prepared_solver",
+    "audit_prepared_residuals",
     "healthy_parallel_device_count",
     "healthy_parallel_devices",
     "local_parallel_device_count",

@@ -86,6 +86,8 @@ parallel-throughput workflows.
 - [Geometry And Inputs](geometry.md): how surfaces are loaded and evaluated
 - [Numerics And Algorithms](numerics.md): discretization, dense solve, and
   JAX/parallel execution
+- [Resolution And Convergence](convergence.md): residual semantics, Nyquist
+  gates, and adaptive angular/Legendre ladders
 - [Source-Code Map](source-map.md): where each model component lives in `src/`
 - [Autodiff](autodiff.md): inverse problems, derivative audits, and prepared derivatives
 - [Profiles](profiles.md): ambipolar electric-field and reduced current-response workflows
@@ -115,6 +117,7 @@ physics-gates
 geometry
 algorithm
 numerics
+convergence
 source-map
 autodiff
 profiles

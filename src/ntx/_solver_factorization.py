@@ -20,6 +20,22 @@ def _solve_modes(
 ) -> tuple[Array, Array]:
     """Return source solutions for modes 0, 1, and 2."""
 
+    f1, f3, _ = _solve_modes_with_tail_residual(
+        ctx, n_xi, d_theta, d_zeta, s1, s3
+    )
+    return f1, f3
+
+
+def _solve_modes_with_tail_residual(
+    ctx: OperatorContext,
+    n_xi: int,
+    d_theta: Array,
+    d_zeta: Array,
+    s1: Array,
+    s3: Array,
+) -> tuple[Array, Array, Array]:
+    """Return retained modes and the residual of the tail-eliminated system."""
+
     lower_terminal, delta, lower_next = _terminal_delta(ctx, n_xi, d_theta, d_zeta)
     x = lu_solve(lu_factor(delta), lower_next)
 
@@ -116,7 +132,16 @@ def _solve_modes(
     f23 = lu_solve(lu2, rhs_23)
     f1.append(f23[:, 0])
     f3.append(f23[:, 1])
-    return jnp.stack(f1), jnp.stack(f3)
+    f1_modes = jnp.stack(f1)
+    f3_modes = jnp.stack(f3)
+    residuals = (
+        saved_delta[0] @ f1_modes[0] - sigma1[0],
+        saved_lower[1] @ f1_modes[0] + saved_delta[1] @ f1_modes[1] - sigma1[1],
+        saved_lower[2] @ f1_modes[1] + saved_delta[2] @ f1_modes[2] - sigma1[2],
+    )
+    residual = jnp.concatenate(residuals)
+    residual_l2 = jnp.linalg.norm(residual) / jnp.sqrt(residual.size)
+    return f1_modes, f3_modes, residual_l2
 
 
 def _factorize_prepared_modes(
@@ -215,7 +240,7 @@ def _terminal_delta(
     return lower, diagonal, lower
 
 
-def _residual_norm(
+def _full_mode_residual_norm(
     ctx: OperatorContext,
     n_xi: int,
     d_theta: Array,
@@ -223,8 +248,11 @@ def _residual_norm(
     source: Array,
     modes: Array,
 ) -> Array:
+    """Evaluate the original block equations for every retained full mode."""
+    if modes.shape[0] != n_xi + 1 or source.shape[0] != n_xi + 1:
+        raise ValueError("full residual requires n_xi + 1 source and solution modes")
     residuals = []
-    for k in range(3):
+    for k in range(n_xi + 1):
         lower, diagonal, upper = operator_blocks(ctx, k, d_theta, d_zeta)
         if k == 0:
             diagonal_fixed, upper_fixed = apply_nullspace_condition(diagonal, upper)
@@ -234,9 +262,8 @@ def _residual_norm(
         value = diagonal @ modes[k] - source[k]
         if k > 0:
             value = value + lower @ modes[k - 1]
-        if k < 2:
+        if k < n_xi:
             value = value + upper @ modes[k + 1]
         residuals.append(value)
     residual = jnp.concatenate(residuals)
-    _ = n_xi
     return jnp.linalg.norm(residual) / jnp.sqrt(residual.size)

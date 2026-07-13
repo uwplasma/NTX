@@ -75,6 +75,7 @@ INTEGRATION_EXAMPLES: tuple[str, ...] = (
 CORE_FOUNDATION_TESTS: tuple[str, ...] = (
     "tests/test_autodiff.py",
     "tests/test_boozmn.py",
+    "tests/test_convergence.py",
     "tests/test_database.py",
     "tests/test_geometry.py",
     "tests/test_grids.py",
@@ -84,8 +85,10 @@ CORE_FOUNDATION_TESTS: tuple[str, ...] = (
     "tests/test_parallel.py",
     "tests/test_parallel_unit.py",
     "tests/test_profiles_unit.py",
+    "tests/test_resolution.py",
     "tests/test_source_map.py",
     "tests/test_solver.py",
+    "tests/test_solver_residuals.py",
     "tests/test_vmec.py",
     "tests/test_vmec_jax_backend.py",
     "tests/test_vmec_jax_vmec.py",
