@@ -89,9 +89,10 @@ scan.warmup()
 coefficients = scan(nu_hat, epsi_hat=jnp.zeros_like(nu_hat))
 ```
 
-The prepared scan uses bounded sequential batches on CPU and bounded vectorized
-batches on accelerators. See [docs/performance.md](docs/performance.md) for
-memory/runtime crossover measurements and persistent-cache configuration.
+The prepared scan defaults to bounded sequential batches for scalar-solve
+parity on CPU and GPU. Explicit vectorization is available for measured
+crossover studies. See [docs/performance.md](docs/performance.md) for
+memory/runtime/accuracy maps and persistent-cache configuration.
 
 ## Outputs
 

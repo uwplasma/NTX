@@ -26,10 +26,10 @@ coefficients = scan(jnp.logspace(-5, -2, 128))
 
 The object pads only the final chunk and reuses one batch shape across scan
 lengths. Supported fixed buckets are `1`, `8`, `32`, and `128`. Automatic mode
-uses sequential `lax.map` with bucket `8` on CPU and vectorized bucket `32` on
-accelerators. Explicit `execution_mode` and `batch_size` arguments exist for
-measured crossover studies, not as claims that wider vectorization is always
-faster.
+uses sequential `lax.map` with bucket `8` on CPU and GPU. Explicit
+`execution_mode` and `batch_size` arguments exist for measured crossover
+studies, not as claims that wider vectorization is always faster or equally
+accurate.
 
 `warmup()` reports lowering, compilation, first execution, warm execution,
 argument/output size, and executable temporary memory separately. The
@@ -47,6 +47,39 @@ production grid. XLA reported both buffers as unusable for donation and kept
 temporary memory unchanged at `20,656,504` bytes. NTX therefore does not
 invalidate user-owned collisionality or electric-field arrays for a nonexistent
 memory benefit.
+
+On the office RTX A4000 with JAX `0.6.2`, vectorized width `32` is about `2.5x`
+faster than sequential width `8` at 128 cases, but differs from the canonical
+compiled scalar solve by up to `2.4e-7` relative over the production scan. The
+sequential scan is bitwise identical to that compiled scalar reference. Since
+the vectorized path fails the `1e-10` float64 parity gate, it remains explicit
+and non-default pending a stable batched-factorization/refinement result.
+
+Larger-grid GPU results keep the same conclusion:
+
+| Grid | Mode | Temporary memory | Warm fixed-batch execution | Maximum relative delta |
+| --- | --- | ---: | ---: | ---: |
+| `17 x 25 x 16` | sequential-8 | `18.0 MiB` | `0.594 s` | `0` vs compiled scalar |
+| `17 x 25 x 16` | vectorized-8 | `94.1 MiB` | `0.404 s` | `2.4e-7` over scan |
+| `25 x 31 x 24` | sequential-8 | `55.1 MiB` | `3.48 s` | `0` vs sequential reference |
+| `25 x 31 x 24` | vectorized-8 | `280.2 MiB` | `3.00 s` | `2.4e-8` |
+| `25 x 25 x 63` | sequential-8 | `36.9 MiB` | `10.23 s` | `0` vs sequential reference |
+| `25 x 25 x 63` | vectorized-8 | `182.4 MiB` | `9.78 s` | `3.1e-7` |
+| `25 x 25 x 140` | sequential-8 | `36.9 MiB` | `10.98 s` | reference mode |
+
+The `Nxi=140` first execution was `66.5 s` despite a `1.06 s` reported XLA
+compile stage, while subsequent execution was about `11 s`. This likely
+includes backend initialization/autotuning and is why the benchmark does not
+fold first execution into either compile or warm solve time. Both office GPUs
+reproduced the production-grid runtime and vectorized discrepancy. The owned
+JSON files are `prepared_scan_gpu_25x31x24.json`,
+`prepared_scan_gpu_25x25x63.json`, and
+`prepared_scan_gpu_25x25x140.json` under `docs/_static`.
+
+If JAX returns a resource-exhaustion exception, the prepared solver adds
+guidance to select sequential execution and bucket `1` or `8`. A hard driver or
+process termination cannot be intercepted in Python; production users should
+start from the documented sequential memory map before increasing vector width.
 
 The cache is optional and should be configured before compilation:
 
@@ -73,6 +106,8 @@ python examples/prepared_scan_performance.py \
   --gpu-json docs/_static/prepared_scan_gpu_production.json \
   --output-prefix docs/_static/prepared_scan_performance
 ```
+
+![Prepared scan CPU/GPU runtime, memory, and parity](_static/prepared_scan_performance.png)
 
 Both old scaling harnesses now call `jax.block_until_ready` inside the timed
 region. This is required for valid asynchronous accelerator measurements.

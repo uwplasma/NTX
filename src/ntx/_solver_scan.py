@@ -83,13 +83,23 @@ class CompiledPreparedScanSolver:
             epsi_hat,
             er_hat,
         )
-        coeffs = _run_fixed_batch_scan(
-            self.prepared,
-            nu_values.ravel(),
-            epsi_values.ravel(),
-            batch_size=self.batch_size,
-            solve_batch=self._solve_batch,
-        )
+        try:
+            coeffs = _run_fixed_batch_scan(
+                self.prepared,
+                nu_values.ravel(),
+                epsi_values.ravel(),
+                batch_size=self.batch_size,
+                solve_batch=self._solve_batch,
+            )
+        except RuntimeError as error:
+            if not _is_out_of_memory_error(error):
+                raise
+            msg = (
+                "NTX scan exhausted device memory; retry with "
+                "execution_mode='sequential' and a smaller fixed batch bucket "
+                "such as 1 or 8"
+            )
+            raise RuntimeError(msg) from error
         return _coefficients_dict(coeffs.reshape((*output_shape, 5)))
 
     def warmup(self) -> PreparedScanCompilationReport:
@@ -138,9 +148,9 @@ def compile_prepared_scan_solver(
 ) -> CompiledPreparedScanSolver:
     """Create a reusable fixed-shape scan solver for ``prepared``.
 
-    CPU execution defaults to sequential ``lax.map`` to bound memory. Other
-    accelerators default to vectorized execution. Explicit modes are useful for
-    measured crossover studies.
+    Automatic execution uses sequential ``lax.map`` on every backend to retain
+    scalar-solve parity and bound memory. Explicit vectorization is available
+    for measured crossover and accuracy studies.
     """
 
     mode = _resolve_scan_execution_mode(execution_mode)
@@ -464,7 +474,7 @@ def _resolve_scan_execution_mode(
     execution_mode: ScanExecutionMode,
 ) -> Literal["sequential", "vectorized"]:
     if execution_mode == "auto":
-        return "sequential" if jax.default_backend() == "cpu" else "vectorized"
+        return "sequential"
     if execution_mode not in ("sequential", "vectorized"):
         msg = "execution_mode must be 'auto', 'sequential', or 'vectorized'"
         raise ValueError(msg)
@@ -476,6 +486,14 @@ def _memory_stat(memory, name: str) -> int | None:
         return None
     value = getattr(memory, name, None)
     return None if value is None else int(value)
+
+
+def _is_out_of_memory_error(error: RuntimeError) -> bool:
+    message = str(error).lower()
+    return any(
+        marker in message
+        for marker in ("out of memory", "resource_exhausted", "resource exhausted")
+    )
 
 
 def _coefficients_dict(coeffs: Array) -> dict[str, Array]:

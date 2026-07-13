@@ -304,7 +304,7 @@ Acceptance:
 - [x] Do not create new jitted function objects in hot public APIs.
 - [x] Use bounded sequential `lax.map` or very small chunks on CPU unless a
   measured crossover justifies vmap.
-- [ ] Tune bounded vmap/device shards on GPU from memory and throughput maps.
+- [x] Tune bounded vmap/device shards on GPU from memory and throughput maps.
 - [x] Standardize a small set of batch buckets and pad the final batch.
 - [x] Add optional persistent compilation cache configuration, cache-miss
   diagnostics, and ahead-of-time warmup without making cache state necessary
@@ -315,6 +315,13 @@ Acceptance:
 - [x] Evaluate buffer donation only where an input can legally back an output.
 - [ ] Use rematerialization only after measuring custom-VJP saved-state memory.
 - [ ] Keep full XLA/Perfetto/XProf capture opt-in and targeted.
+
+The synchronized CPU and two-GPU maps are recorded in `docs/performance.md`.
+Sequential bucket `8` is the parity-preserving default on every backend.
+Explicit GPU vectorization is faster at production scan widths but remains a
+non-default research mode because JAX `0.6.2` batched factorization misses the
+`1e-10` coefficient gate by up to `3.1e-7` on the larger low-collisionality
+grid. The default path is bitwise identical to the compiled scalar reference.
 
 Required maps:
 

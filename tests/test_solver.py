@@ -161,6 +161,14 @@ def test_compiled_prepared_scan_reuses_fixed_bucket_across_lengths():
     assert compiled.batch_size == 8
 
 
+def test_compiled_prepared_scan_auto_defaults_to_scalar_parity_path():
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    compiled = compile_prepared_scan_solver(prepared)
+
+    assert compiled.execution_mode == "sequential"
+    assert compiled.batch_size == 8
+
+
 def test_compiled_prepared_scan_is_differentiable():
     prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
     compiled = compile_prepared_scan_solver(
@@ -196,6 +204,22 @@ def test_compiled_prepared_scan_rejects_nonstandard_bucket_and_mode():
         compile_prepared_scan_solver(prepared, batch_size=3)
     with pytest.raises(ValueError, match="execution_mode"):
         compile_prepared_scan_solver(prepared, execution_mode="threads")
+
+
+def test_compiled_prepared_scan_adds_actionable_oom_guidance():
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    compiled = compile_prepared_scan_solver(
+        prepared,
+        batch_size=1,
+        execution_mode="sequential",
+    )
+
+    def raise_oom(_nu, _epsi):
+        raise RuntimeError("RESOURCE_EXHAUSTED: out of memory")
+
+    compiled._solve_batch = raise_oom
+    with pytest.raises(RuntimeError, match="smaller fixed batch bucket"):
+        compiled(jnp.asarray([1e-2]))
 
 
 def test_spitzer_scales_inverse_with_collisionality():
