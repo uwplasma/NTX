@@ -257,7 +257,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `a88db610e947cababba0959dd86e2c357b045b47` |
+| Commit | `8d31e9c1615bbfa02fba04e086145bff70c7722d` |
 | Branch | `feat/angular-oversampling-audit` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |

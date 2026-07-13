@@ -1,6 +1,6 @@
 {
   "git": {
-    "commit": "a88db610e947cababba0959dd86e2c357b045b47",
+    "commit": "8d31e9c1615bbfa02fba04e086145bff70c7722d",
     "branch": "feat/angular-oversampling-audit"
   },
   "environment": {
@@ -12450,6 +12450,7 @@
       "boundary_explicit_relaxed",
       "geometry_family_breadth",
       "geometry_family_transport",
+      "angular_oversampling",
       "boozmn_same_coordinate_roundtrip",
       "boozmn_finite_beta_wout_roundtrip",
       "owned_geometry_neopax",
