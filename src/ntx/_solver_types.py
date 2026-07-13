@@ -67,6 +67,27 @@ tree_util.register_dataclass(TransportResult)
 
 
 @dataclass(frozen=True)
+class ResidualAuditResult:
+    """Opt-in comparison of the low-memory and full Legendre solves."""
+
+    tail_eliminated_l2: Array
+    full_system_l2: Array
+    retained_mode_max_abs_error: Array
+    n_modes: int
+
+
+tree_util.register_dataclass(
+    ResidualAuditResult,
+    data_fields=(
+        "tail_eliminated_l2",
+        "full_system_l2",
+        "retained_mode_max_abs_error",
+    ),
+    meta_fields=("n_modes",),
+)
+
+
+@dataclass(frozen=True)
 class PreparedMonoenergeticSystem:
     """Cached geometry and derivative operators for repeated solves."""
 
