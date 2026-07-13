@@ -7,6 +7,7 @@ import pytest
 from ntx import (
     GridSpec,
     MonoenergeticCase,
+    compile_prepared_scan_solver,
     compile_prepared_solver,
     example_surface,
     prepare_monoenergetic_system,
@@ -116,6 +117,87 @@ def test_batched_parameter_scan_rejects_invalid_batch_size():
         )
 
 
+@pytest.mark.parametrize("execution_mode", ["sequential", "vectorized"])
+def test_compiled_prepared_scan_matches_pointwise_and_preserves_shape(execution_mode):
+    surface = example_surface()
+    grid = GridSpec(5, 5, 4)
+    prepared = prepare_monoenergetic_system(surface, grid)
+    nu = jnp.asarray([[1e-2, 2e-2], [3e-2, 4e-2]])
+    er = jnp.asarray([[0.0, 1e-3], [2e-3, 3e-3]])
+    compiled = compile_prepared_scan_solver(
+        prepared,
+        batch_size=8,
+        execution_mode=execution_mode,
+    )
+
+    result = compiled(nu, er_hat=er)
+    for index in range(nu.size):
+        point = solve_prepared(
+            prepared,
+            MonoenergeticCase(nu.ravel()[index], er_hat=er.ravel()[index]),
+        )
+        for key in ("D11", "D31", "D13", "D33", "D33_spitzer"):
+            assert result[key].shape == nu.shape
+            assert jnp.allclose(
+                result[key].ravel()[index],
+                getattr(point, key),
+                rtol=1e-12,
+                atol=1e-12,
+            )
+
+
+def test_compiled_prepared_scan_reuses_fixed_bucket_across_lengths():
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    compiled = compile_prepared_scan_solver(
+        prepared,
+        batch_size=8,
+        execution_mode="sequential",
+    )
+
+    short = compiled(jnp.logspace(-3, -2, 3))
+    long = compiled(jnp.logspace(-3, -2, 11))
+    assert short["D11"].shape == (3,)
+    assert long["D11"].shape == (11,)
+    assert compiled.batch_size == 8
+
+
+def test_compiled_prepared_scan_is_differentiable():
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    compiled = compile_prepared_scan_solver(
+        prepared,
+        batch_size=8,
+        execution_mode="sequential",
+    )
+    nu = jnp.asarray([1e-2, 2e-2, 3e-2])
+
+    gradient = jax.grad(lambda er: jnp.sum(compiled(nu, er_hat=jnp.full_like(nu, er))["D11"]))(1e-3)
+    assert jnp.isfinite(gradient)
+
+
+def test_compiled_prepared_scan_warmup_reports_executable_costs():
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    compiled = compile_prepared_scan_solver(
+        prepared,
+        batch_size=1,
+        execution_mode="sequential",
+    )
+
+    report = compiled.warmup()
+    assert report.lowering_seconds >= 0.0
+    assert report.compilation_seconds >= 0.0
+    assert report.first_execution_seconds >= 0.0
+    assert report.warm_execution_seconds >= 0.0
+    assert report.temporary_size_bytes is None or report.temporary_size_bytes >= 0
+
+
+def test_compiled_prepared_scan_rejects_nonstandard_bucket_and_mode():
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    with pytest.raises(ValueError, match="fixed buckets"):
+        compile_prepared_scan_solver(prepared, batch_size=3)
+    with pytest.raises(ValueError, match="execution_mode"):
+        compile_prepared_scan_solver(prepared, execution_mode="threads")
+
+
 def test_spitzer_scales_inverse_with_collisionality():
     surface = example_surface()
     grid = GridSpec(5, 5, 4)
@@ -213,9 +295,9 @@ def test_jit_accepts_surface_argument_in_core_path():
     surface = example_surface()
     grid = GridSpec(5, 5, 4)
     solve_d11 = jax.jit(
-        lambda surf, er_hat: solve_monoenergetic(
-            surf, grid, MonoenergeticCase(1e-2, er_hat=er_hat)
-        ).D11
+        lambda surf, er_hat: (
+            solve_monoenergetic(surf, grid, MonoenergeticCase(1e-2, er_hat=er_hat)).D11
+        )
     )
     value = solve_d11(surface, 1e-3)
     assert jnp.isfinite(value)
@@ -227,9 +309,7 @@ def test_compiled_prepared_solver_is_differentiable_in_er_hat():
     prepared = prepare_monoenergetic_system(surface, grid)
     compiled = compile_prepared_solver(prepared)
 
-    grad = jax.grad(
-        lambda er_hat: compiled(MonoenergeticCase(1e-2, er_hat=er_hat)).D11
-    )(1e-3)
+    grad = jax.grad(lambda er_hat: compiled(MonoenergeticCase(1e-2, er_hat=er_hat)).D11)(1e-3)
     assert jnp.isfinite(grad)
 
 

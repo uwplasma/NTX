@@ -5,6 +5,78 @@ serial batched scans and the multiprocess throughput lane. It also now includes
 workflow profilers for the archive-backed fixed-field closure audit and the
 corrected integrated W7-X workflow.
 
+## Reusable Prepared Scans
+
+Repeated scans on one geometry should use a prepared fixed-shape solver:
+
+```python
+import jax.numpy as jnp
+from ntx import (
+    GridSpec,
+    compile_prepared_scan_solver,
+    example_surface,
+    prepare_monoenergetic_system,
+)
+
+prepared = prepare_monoenergetic_system(example_surface(), GridSpec(17, 25, 16))
+scan = compile_prepared_scan_solver(prepared)
+report = scan.warmup()
+coefficients = scan(jnp.logspace(-5, -2, 128))
+```
+
+The object pads only the final chunk and reuses one batch shape across scan
+lengths. Supported fixed buckets are `1`, `8`, `32`, and `128`. Automatic mode
+uses sequential `lax.map` with bucket `8` on CPU and vectorized bucket `32` on
+accelerators. Explicit `execution_mode` and `batch_size` arguments exist for
+measured crossover studies, not as claims that wider vectorization is always
+faster.
+
+`warmup()` reports lowering, compilation, first execution, warm execution,
+argument/output size, and executable temporary memory separately. The
+production CPU audit on the bundled DKES surface at `17 x 25 x 16` found about
+`20.7 MiB` of executable temporary memory for sequential width `8`, compared
+with `100.3 MiB` for vectorized width `8` and `379.1 MiB` for vectorized width
+`32`. The wider modes were only modestly faster and were not uniformly faster
+over scan sizes `1`, `8`, `32`, and `128`, so bounded sequential execution
+remains the CPU default. Coefficients agreed within `2.6e-11` absolute in that
+map; float64 acceptance remains `1e-10` relative/absolute with appropriate
+near-zero scaling.
+
+Buffer donation was evaluated for both fixed-batch input arrays on the same
+production grid. XLA reported both buffers as unusable for donation and kept
+temporary memory unchanged at `20,656,504` bytes. NTX therefore does not
+invalidate user-owned collisionality or electric-field arrays for a nonexistent
+memory benefit.
+
+The cache is optional and should be configured before compilation:
+
+```python
+from ntx import configure_compilation_cache
+
+configure_compilation_cache(
+    "~/.cache/ntx/jax",
+    minimum_compile_seconds=1.0,
+    explain_cache_misses=False,
+)
+```
+
+Generate synchronized crossover artifacts with:
+
+```bash
+python scripts/benchmark_prepared_scan.py \
+  --backend cpu --surface dkes --sizes 1,8,32,128 \
+  --n-theta 17 --n-zeta 25 --n-xi 16 \
+  --output-json docs/_static/prepared_scan_cpu_production.json
+
+python examples/prepared_scan_performance.py \
+  --cpu-json docs/_static/prepared_scan_cpu_production.json \
+  --gpu-json docs/_static/prepared_scan_gpu_production.json \
+  --output-prefix docs/_static/prepared_scan_performance
+```
+
+Both old scaling harnesses now call `jax.block_until_ready` inside the timed
+region. This is required for valid asynchronous accelerator measurements.
+
 ## File-Backed Run Path
 
 The TOML/CLI path prepares the geometry and derivative operators once, then
@@ -30,6 +102,7 @@ Collect scaling data:
 python scripts/benchmark_scaling.py --backend cpu --surface dkes --sizes 8,16,32,64
 python scripts/benchmark_scaling.py --backend gpu --surface dkes --sizes 16,32,64 --workers 2
 python scripts/benchmark_strong_scaling.py --backend cpu --surface dkes --num-cases 64
+python scripts/benchmark_prepared_scan.py --backend cpu --surface dkes --sizes 1,8,32,128
 ```
 
 Generate publication-style figures:

@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import math
+import time
 import warnings
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from functools import lru_cache
+from typing import Any, Literal, Protocol
 
 import jax
 import jax.numpy as jnp
@@ -20,6 +24,152 @@ from ._solver_types import MonoenergeticCase, PreparedMonoenergeticSystem, Trans
 from .geometry import BoozerSurface, VmecSurface, example_surface
 from .grids import GridSpec
 from .transport import coefficients_from_modes
+
+ScanExecutionMode = Literal["auto", "sequential", "vectorized"]
+SUPPORTED_SCAN_BATCH_SIZES = (1, 8, 32, 128)
+
+
+class _CompiledBatchFunction(Protocol):
+    def __call__(self, nu_values: Array, epsi_values: Array) -> Array: ...
+
+    def lower(self, nu_values: Array, epsi_values: Array) -> Any: ...
+
+
+@dataclass(frozen=True)
+class PreparedScanCompilationReport:
+    """Ahead-of-time warmup timings and executable memory estimates."""
+
+    lowering_seconds: float
+    compilation_seconds: float
+    first_execution_seconds: float
+    warm_execution_seconds: float
+    generated_code_size_bytes: int | None
+    argument_size_bytes: int | None
+    output_size_bytes: int | None
+    temporary_size_bytes: int | None
+
+
+class CompiledPreparedScanSolver:
+    """Reusable fixed-shape scan solver for one prepared geometry.
+
+    The final input chunk is padded to ``batch_size`` and trimmed after the
+    solve. Consequently, repeated calls reuse one executable instead of
+    recompiling for each scan length.
+    """
+
+    def __init__(
+        self,
+        prepared: PreparedMonoenergeticSystem,
+        *,
+        batch_size: int,
+        execution_mode: Literal["sequential", "vectorized"],
+        solve_batch: _CompiledBatchFunction,
+    ) -> None:
+        self.prepared = prepared
+        self.batch_size = batch_size
+        self.execution_mode = execution_mode
+        self._solve_batch = solve_batch
+
+    def __call__(
+        self,
+        nu_hat: Array,
+        *,
+        epsi_hat: Array | None = None,
+        er_hat: Array | None = None,
+    ) -> dict[str, Array]:
+        """Solve a scan while preserving the broadcast input shape."""
+
+        nu_values, epsi_values, output_shape = _resolved_scan_inputs(
+            self.prepared,
+            self.prepared.grid,
+            nu_hat,
+            epsi_hat,
+            er_hat,
+        )
+        coeffs = _run_fixed_batch_scan(
+            self.prepared,
+            nu_values.ravel(),
+            epsi_values.ravel(),
+            batch_size=self.batch_size,
+            solve_batch=self._solve_batch,
+        )
+        return _coefficients_dict(coeffs.reshape((*output_shape, 5)))
+
+    def warmup(self) -> PreparedScanCompilationReport:
+        """Lower, compile, and execute the fixed-shape scan once explicitly."""
+
+        dtype = self.prepared.grid.jax_dtype
+        nu = jnp.ones((self.batch_size,), dtype=dtype)
+        epsi = jnp.zeros((self.batch_size,), dtype=dtype)
+
+        started = time.perf_counter()
+        lowered = self._solve_batch.lower(nu, epsi)
+        lowering_seconds = time.perf_counter() - started
+
+        started = time.perf_counter()
+        executable = lowered.compile()
+        compilation_seconds = time.perf_counter() - started
+
+        started = time.perf_counter()
+        first = executable(nu, epsi)
+        first.block_until_ready()
+        first_execution_seconds = time.perf_counter() - started
+
+        started = time.perf_counter()
+        warm = executable(nu, epsi)
+        warm.block_until_ready()
+        warm_execution_seconds = time.perf_counter() - started
+
+        memory = executable.memory_analysis()
+        return PreparedScanCompilationReport(
+            lowering_seconds=lowering_seconds,
+            compilation_seconds=compilation_seconds,
+            first_execution_seconds=first_execution_seconds,
+            warm_execution_seconds=warm_execution_seconds,
+            generated_code_size_bytes=_memory_stat(memory, "generated_code_size_in_bytes"),
+            argument_size_bytes=_memory_stat(memory, "argument_size_in_bytes"),
+            output_size_bytes=_memory_stat(memory, "output_size_in_bytes"),
+            temporary_size_bytes=_memory_stat(memory, "temp_size_in_bytes"),
+        )
+
+
+def compile_prepared_scan_solver(
+    prepared: PreparedMonoenergeticSystem,
+    *,
+    batch_size: int | None = None,
+    execution_mode: ScanExecutionMode = "auto",
+) -> CompiledPreparedScanSolver:
+    """Create a reusable fixed-shape scan solver for ``prepared``.
+
+    CPU execution defaults to sequential ``lax.map`` to bound memory. Other
+    accelerators default to vectorized execution. Explicit modes are useful for
+    measured crossover studies.
+    """
+
+    mode = _resolve_scan_execution_mode(execution_mode)
+    resolved_batch_size = (8 if mode == "sequential" else 32) if batch_size is None else batch_size
+    if resolved_batch_size not in SUPPORTED_SCAN_BATCH_SIZES:
+        supported = ", ".join(str(value) for value in SUPPORTED_SCAN_BATCH_SIZES)
+        msg = f"batch_size must be one of the supported fixed buckets: {supported}"
+        raise ValueError(msg)
+    if mode == "sequential":
+        solve_batch = jax.jit(
+            lambda nu_values, epsi_values: _scan_coefficients_sequential_impl(
+                prepared, nu_values, epsi_values
+            )
+        )
+    else:
+        solve_batch = jax.jit(
+            lambda nu_values, epsi_values: _scan_coefficients_vectorized_impl(
+                prepared, nu_values, epsi_values
+            )
+        )
+    return CompiledPreparedScanSolver(
+        prepared,
+        batch_size=resolved_batch_size,
+        execution_mode=mode,
+        solve_batch=solve_batch,
+    )
 
 
 def solve_scan(
@@ -203,7 +353,10 @@ def _scan_coefficients_serial(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
-    return _scan_coefficients_function(prepared)(nu_values, epsi_values)
+    mode = _resolve_scan_execution_mode("auto")
+    if mode == "sequential":
+        return _scan_coefficients_sequential(prepared, nu_values, epsi_values)
+    return _scan_coefficients_vectorized(prepared, nu_values, epsi_values)
 
 
 def _scan_coefficients_batched(
@@ -220,7 +373,35 @@ def _scan_coefficients_batched(
     if case_count == 0:
         return jnp.zeros((0, 5), dtype=prepared.grid.jax_dtype)
 
-    solve_batch = _scan_coefficients_function(prepared)
+    mode = _resolve_scan_execution_mode("auto")
+    kernel = (
+        _scan_coefficients_sequential if mode == "sequential" else _scan_coefficients_vectorized
+    )
+    return _run_fixed_batch_scan(
+        prepared,
+        nu_values,
+        epsi_values,
+        batch_size=batch_size,
+        solve_batch=lambda chunk_nu, chunk_epsi: kernel(prepared, chunk_nu, chunk_epsi),
+    )
+
+
+def _run_fixed_batch_scan(
+    prepared: PreparedMonoenergeticSystem,
+    nu_values: Array,
+    epsi_values: Array,
+    *,
+    batch_size: int,
+    solve_batch: Callable[[Array, Array], Array],
+) -> Array:
+    """Execute fixed-size chunks so every call has one compiled shape."""
+
+    if batch_size < 1:
+        msg = "scan_batch_size must be a positive integer"
+        raise ValueError(msg)
+    case_count = int(nu_values.size)
+    if case_count == 0:
+        return jnp.zeros((0, 5), dtype=prepared.grid.jax_dtype)
     chunks = []
     for start in range(0, case_count, batch_size):
         stop = min(start + batch_size, case_count)
@@ -235,26 +416,83 @@ def _scan_coefficients_batched(
     return jnp.concatenate(chunks, axis=0)
 
 
-def _scan_coefficients_function(prepared: PreparedMonoenergeticSystem):
+def _solve_scan_point(
+    prepared: PreparedMonoenergeticSystem,
+    nu_value: Array,
+    epsi_value: Array,
+) -> Array:
     geom = prepared.geometry
     grid = prepared.grid
+    ctx = _operator_context(prepared.surface, geom, grid, nu_value, epsi_value)
+    from .operators import source_modes
 
-    def solve_one(nu_value, epsi_value):
-        ctx = _operator_context(prepared.surface, geom, grid, nu_value, epsi_value)
-        from .operators import source_modes
+    s1, s3 = source_modes(ctx, grid.n_xi)
+    f1_modes, f3_modes = _solve_modes(
+        ctx,
+        grid.n_xi,
+        prepared.d_theta,
+        prepared.d_zeta,
+        s1,
+        s3,
+    )
+    return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
 
-        s1, s3 = source_modes(ctx, grid.n_xi)
-        f1_modes, f3_modes = _solve_modes(
-            ctx,
-            grid.n_xi,
-            prepared.d_theta,
-            prepared.d_zeta,
-            s1,
-            s3,
-        )
-        return jnp.stack(coefficients_from_modes(geom, f1_modes, f3_modes, nu_value))
 
-    return jax.jit(jax.vmap(solve_one))
+@jax.jit
+def _scan_coefficients_sequential(
+    prepared: PreparedMonoenergeticSystem,
+    nu_values: Array,
+    epsi_values: Array,
+) -> Array:
+    return _scan_coefficients_sequential_impl(prepared, nu_values, epsi_values)
+
+
+def _scan_coefficients_sequential_impl(
+    prepared: PreparedMonoenergeticSystem,
+    nu_values: Array,
+    epsi_values: Array,
+) -> Array:
+    return jax.lax.map(
+        lambda values: _solve_scan_point(prepared, values[0], values[1]),
+        (nu_values, epsi_values),
+    )
+
+
+@jax.jit
+def _scan_coefficients_vectorized(
+    prepared: PreparedMonoenergeticSystem,
+    nu_values: Array,
+    epsi_values: Array,
+) -> Array:
+    return _scan_coefficients_vectorized_impl(prepared, nu_values, epsi_values)
+
+
+def _scan_coefficients_vectorized_impl(
+    prepared: PreparedMonoenergeticSystem,
+    nu_values: Array,
+    epsi_values: Array,
+) -> Array:
+    return jax.vmap(lambda nu_value, epsi_value: _solve_scan_point(prepared, nu_value, epsi_value))(
+        nu_values, epsi_values
+    )
+
+
+def _resolve_scan_execution_mode(
+    execution_mode: ScanExecutionMode,
+) -> Literal["sequential", "vectorized"]:
+    if execution_mode == "auto":
+        return "sequential" if jax.default_backend() == "cpu" else "vectorized"
+    if execution_mode not in ("sequential", "vectorized"):
+        msg = "execution_mode must be 'auto', 'sequential', or 'vectorized'"
+        raise ValueError(msg)
+    return execution_mode
+
+
+def _memory_stat(memory, name: str) -> int | None:
+    if memory is None:
+        return None
+    value = getattr(memory, name, None)
+    return None if value is None else int(value)
 
 
 def _coefficients_dict(coeffs: Array) -> dict[str, Array]:

@@ -60,6 +60,20 @@ case = MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3)
 result = solve_monoenergetic(surface, grid, case)
 ```
 
+### Reusable Prepared Scans
+
+For repeated fixed-geometry monoenergetic scans, use
+`compile_prepared_scan_solver(...)` as shown in the README. The prepared object
+keeps one fixed batch shape and exposes `warmup()` timing and memory metadata.
+Generate a CPU/GPU crossover figure with:
+
+```bash
+python examples/prepared_scan_performance.py \
+  --cpu-json docs/_static/prepared_scan_cpu_production.json \
+  --gpu-json docs/_static/prepared_scan_gpu_production.json \
+  --output-prefix docs/_static/prepared_scan_performance
+```
+
 ## 6. NEOPAX Mapping
 
 ```bash

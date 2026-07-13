@@ -15,7 +15,10 @@ from ._solver_prepared import (
     solve_prepared_internal,
 )
 from ._solver_scan import (
+    CompiledPreparedScanSolver,
+    PreparedScanCompilationReport,
     _resolved_scan_inputs,
+    compile_prepared_scan_solver,
     healthy_parallel_device_count,
     healthy_parallel_devices,
     local_parallel_device_count,
@@ -33,11 +36,14 @@ from ._solver_types import (
 
 __all__ = [
     "CompiledPreparedSolver",
+    "CompiledPreparedScanSolver",
     "MonoenergeticCase",
     "PreparedMonoenergeticSystem",
+    "PreparedScanCompilationReport",
     "ResidualAuditResult",
     "TransportResult",
     "compile_prepared_solver",
+    "compile_prepared_scan_solver",
     "audit_prepared_residuals",
     "healthy_parallel_device_count",
     "healthy_parallel_devices",

@@ -69,23 +69,29 @@ result = solve_monoenergetic(surface, grid, case)
 print(result.D11, result.D31, result.D13, result.D33)
 ```
 
-For JAX scans:
+For repeated JAX scans on one geometry, prepare and compile once:
 
 ```python
 import jax.numpy as jnp
-from ntx import GridSpec, example_surface, solve_monoenergetic_scan
+from ntx import (
+    GridSpec,
+    compile_prepared_scan_solver,
+    example_surface,
+    prepare_monoenergetic_system,
+)
 
 surface = example_surface()
 grid = GridSpec(17, 25, 16)
 nu_hat = jnp.logspace(-5, -2, 8)
-
-coefficients = solve_monoenergetic_scan(
-    surface,
-    grid,
-    nu_hat,
-    epsi_hat=jnp.zeros_like(nu_hat),
-)
+prepared = prepare_monoenergetic_system(surface, grid)
+scan = compile_prepared_scan_solver(prepared)
+scan.warmup()
+coefficients = scan(nu_hat, epsi_hat=jnp.zeros_like(nu_hat))
 ```
+
+The prepared scan uses bounded sequential batches on CPU and bounded vectorized
+batches on accelerators. See [docs/performance.md](docs/performance.md) for
+memory/runtime crossover measurements and persistent-cache configuration.
 
 ## Outputs
 
