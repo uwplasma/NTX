@@ -249,7 +249,8 @@ not be promoted until its acceptance gates pass:
 - broader profile, uncertainty, and robust-design studies before promoting
   stellarator-design claims.
 
-The live roadmap and promotion criteria are in
+The single authoritative implementation order is in [plan.md](plan.md). The
+user-facing roadmap and promotion matrix are in
 [docs/research-roadmap.md](docs/research-roadmap.md) and
 [docs/benchmark-matrix.md](docs/benchmark-matrix.md).
 

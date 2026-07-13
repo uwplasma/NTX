@@ -11,9 +11,11 @@ drift-kinetic discretization. NTX treats three checks separately:
 
 The production solve eliminates the high Legendre tail by Schur complements
 and returns the three modes needed by the transport moments.
-`TransportResult.residual_l2` is the root-mean-square residual of that complete
-tail-eliminated system, evaluated from its pivoted LU factors. It includes the
-high-mode Schur contribution to row 2 without reconstructing another mode.
+`TransportResult.schur_residual_l2` is the root-mean-square residual of that
+complete tail-eliminated system, evaluated from its pivoted LU factors. It
+includes the high-mode Schur contribution to row 2 without reconstructing
+another mode. `TransportResult.residual_l2` remains as a compatibility alias;
+neither name denotes the full original DKE residual.
 
 The test suite also factors and reconstructs every Legendre mode on a small
 system, applies every original block row independently, and requires both
@@ -27,10 +29,15 @@ Run that audit explicitly on a prepared system:
 from ntx import audit_prepared_residuals
 
 residuals = audit_prepared_residuals(prepared, case)
-print(residuals.tail_eliminated_l2)
-print(residuals.full_system_l2)
+print(residuals.schur_residual_l2)
+print(residuals.full_system_residual_l2)
 print(residuals.retained_mode_max_abs_error)
 ```
+
+The CI oracle checks both diagnostics at `N_xi=2,16,32,63`. A separate small
+problem materializes the complete block-tridiagonal operator, solves it with a
+dense solver, and applies every original block row. This keeps the Schur solve,
+the residual action, and the dense reference as distinct numerical paths.
 
 ## Geometry sampling
 

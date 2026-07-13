@@ -1,5 +1,11 @@
 # Research Roadmap
 
+This is the user-facing summary of the research lanes. The repository-root
+[`plan.md`](https://github.com/uwplasma/NTX/blob/main/plan.md) is authoritative
+for implementation order, ownership, and pull-request acceptance gates. When
+the two differ, update this summary from that plan rather than creating a
+second implementation order here.
+
 NTX has a strong monoenergetic transport base and a published `0.2.0` package.
 The release-facing lanes are closed or explicitly scoped as non-shipping
 diagnostics. The next step is to turn the planned research lanes into a broader
@@ -232,10 +238,12 @@ The direct VMEC transport-convergence breadth check now lives in
 It discovers local public VMEC examples from `vmec_jax`, STELLOPT, and SIMSOPT,
 then records production `D11/D31/D33` grid-ladder behavior across tokamak,
 precise-QS, QI-style, W7-X EIM/EJM, and stellarator-family inputs. `D13` and
-the normalized Onsager residual are retained in the JSON sidecar. That closes
-the NTX geometry-family stress artifact; independent-code parity,
-radial/electric-field/collisionality ladders, and owned W7-X KJM input coverage
-remain promotion requirements.
+the normalized Onsager residual are retained in the JSON sidecar. The current
+near-zero-transform NFP2 QA example is retained as a diagnostic-only case
+rather than folded into the finite-transform promotion aggregate. That closes
+the NTX geometry-family stress artifact; resolving that singular-conditioning
+case, independent-code parity, radial/electric-field/collisionality ladders,
+and owned W7-X KJM input coverage remain promotion requirements.
 
 The `Er_tilde` HDF5 export path now has one explicit geometry-backend
 validation lane before any Boozer-file-backed coefficient claim is promoted:
