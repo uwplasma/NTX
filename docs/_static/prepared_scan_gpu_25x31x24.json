@@ -1,0 +1,77 @@
+{
+  "artifact": "prepared_scan_performance",
+  "backend": "gpu",
+  "devices": [
+    "cuda:0"
+  ],
+  "grid": {
+    "n_theta": 25,
+    "n_xi": 24,
+    "n_zeta": 31
+  },
+  "max_rss_mb": 1086.3046875,
+  "preparation_seconds": 3.745335868035909,
+  "results": [
+    {
+      "modes": {
+        "sequential-8": {
+          "cases_per_second": 0.2902564040197446,
+          "max_abs_delta_reference": 0.0,
+          "max_relative_delta_reference": 0.0,
+          "seconds_median": 3.6566126630059443,
+          "seconds_min": 3.445229756005574
+        },
+        "vectorized-8": {
+          "cases_per_second": 0.3245423522971186,
+          "max_abs_delta_reference": 0.0006048001814633608,
+          "max_relative_delta_reference": 2.3993852017449536e-08,
+          "seconds_median": 3.092453320045024,
+          "seconds_min": 3.0812619460048154
+        }
+      },
+      "num_cases": 1
+    },
+    {
+      "modes": {
+        "sequential-8": {
+          "cases_per_second": 2.279042554028459,
+          "max_abs_delta_reference": 0.0,
+          "max_relative_delta_reference": 0.0,
+          "seconds_median": 3.6465656149666756,
+          "seconds_min": 3.510245996003505
+        },
+        "vectorized-8": {
+          "cases_per_second": 2.529438967108165,
+          "max_abs_delta_reference": 0.0006048001814633608,
+          "max_relative_delta_reference": 2.3993852017449536e-08,
+          "seconds_median": 4.164078778994735,
+          "seconds_min": 3.162756684003398
+        }
+      },
+      "num_cases": 8
+    }
+  ],
+  "surface": "dkes",
+  "warmup": {
+    "sequential-8": {
+      "argument_size_bytes": 128,
+      "compilation_seconds": 1.1632651229738258,
+      "first_execution_seconds": 3.507400100992527,
+      "generated_code_size_bytes": 33971460,
+      "lowering_seconds": 0.23401068500243127,
+      "output_size_bytes": 320,
+      "temporary_size_bytes": 57786992,
+      "warm_execution_seconds": 3.47906248702202
+    },
+    "vectorized-8": {
+      "argument_size_bytes": 128,
+      "compilation_seconds": 1.3333458139677532,
+      "first_execution_seconds": 3.0067654330050573,
+      "generated_code_size_bytes": 33978892,
+      "lowering_seconds": 0.20618371898308396,
+      "output_size_bytes": 320,
+      "temporary_size_bytes": 293853280,
+      "warm_execution_seconds": 3.003298067022115
+    }
+  }
+}

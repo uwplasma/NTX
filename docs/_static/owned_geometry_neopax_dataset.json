@@ -1,0 +1,929 @@
+{
+  "benchmark": "owned_geometry_neopax_dataset",
+  "classification": "owned JAX-native NTX+NEOPAX dataset and interpolation-path audit",
+  "claim_scope": "Generates self-contained NTX+NEOPAX scan artifacts from matching input/wout geometry pairs. This establishes owned normalization and interpolation provenance; it is not an external-code parity claim.",
+  "comparison_policy": "Do not compare W7-X, QA, QH, Redl, SFINCS, and NTX+NEOPAX curves unless they are generated from the same geometry, profile, collisionality, radial electric-field, interpolation, and normalization contract.",
+  "normalization_contract": {
+    "raw_scan": "D11, D13, and D33 are stored as NTX monoenergetic coefficients.",
+    "neopax_export": "D11*drds^2, D13*drds, and nu_v*D33.",
+    "booz_xform_psi_p": "The Boozer-coordinate NTX path passes abs(phi_edge)/(2*pi) from the matching VMEC wout as psi_p, so the Boozer transform and direct VMEC-harmonic audit use the same physical edge-flux scale."
+  },
+  "inputs": {
+    "rho": [
+      0.3,
+      0.5,
+      0.7
+    ],
+    "s": [
+      0.09,
+      0.25,
+      0.48999999999999994
+    ],
+    "nu_v": [
+      0.001,
+      0.01
+    ],
+    "Es": [
+      0.0
+    ],
+    "drds_definition": "dr/ds = a_b/(2*rho), with s=rho^2 and r=a_b*rho",
+    "drds_by_case": {
+      "finite_beta_qa_pressure_current": [
+        0.2805201072860412,
+        0.16831206437162471,
+        0.12022290312258908
+      ],
+      "finite_beta_nfp3_qh_stage1": [
+        3.1447921947840127,
+        1.8868753168704075,
+        1.3477680834788626
+      ]
+    },
+    "booz_xform_psi_p_by_case": {
+      "finite_beta_qa_pressure_current": 0.013346299916410087,
+      "finite_beta_nfp3_qh_stage1": 8.727192833296497
+    },
+    "grid": {
+      "n_theta": 9,
+      "n_zeta": 11,
+      "n_xi": 8
+    },
+    "mboz": 4,
+    "nboz": 4,
+    "min_bmn_to_load": 1e-05
+  },
+  "cases": [
+    {
+      "id": "finite_beta_qa_pressure_current",
+      "label": "Finite-beta QA pressure/current",
+      "family": "QA finite beta",
+      "source": "single-stage finite-beta test case",
+      "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
+      "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+      "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
+      "primary_geometry_path": "booz_xform_jax",
+      "wout_metadata": {
+        "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+        "exists": true,
+        "nfp": 2,
+        "ns": 50,
+        "mpol": 8,
+        "ntor": 8,
+        "beta_vol": 0.0002519202234664469,
+        "betatotal": 0.012648204949374074,
+        "Aminor_p": 0.16831206437162471,
+        "Rmajor_p": 1.0098736979848884,
+        "b0": 0.8705673153008565
+      },
+      "status": "complete",
+      "requested_primary_geometry_path": "booz_xform_jax",
+      "primary_scan_path": "booz_xform_jax",
+      "scan_paths": {
+        "booz_xform_jax": {
+          "geometry_path": "vmex state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+          "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
+          "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
+          "status": "complete",
+          "seconds": 2.3426049170084298,
+          "coefficients": {
+            "D11": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": 4.466290740420486,
+              "max": 25.042954309100956,
+              "first": 4.466290740420486,
+              "values": [
+                [
+                  [
+                    4.466290740420486
+                  ],
+                  [
+                    5.543005758418878
+                  ]
+                ],
+                [
+                  [
+                    6.638954043685088
+                  ],
+                  [
+                    14.126830433296844
+                  ]
+                ],
+                [
+                  [
+                    9.696387775258373
+                  ],
+                  [
+                    25.042954309100956
+                  ]
+                ]
+              ]
+            },
+            "D13": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": -46.477433742046784,
+              "max": -3.284135395048557,
+              "first": -25.58826214565633,
+              "values": [
+                [
+                  [
+                    -25.58826214565633
+                  ],
+                  [
+                    -3.284135395048557
+                  ]
+                ],
+                [
+                  [
+                    -35.821648096114345
+                  ],
+                  [
+                    -8.132630665824083
+                  ]
+                ],
+                [
+                  [
+                    -46.477433742046784
+                  ],
+                  [
+                    -13.810397381604695
+                  ]
+                ]
+              ]
+            },
+            "D33": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": 57.55079561826393,
+              "max": 499.86329673962354,
+              "first": 499.86329673962354,
+              "values": [
+                [
+                  [
+                    499.86329673962354
+                  ],
+                  [
+                    64.42340640450004
+                  ]
+                ],
+                [
+                  [
+                    438.9443188767691
+                  ],
+                  [
+                    61.20064689251623
+                  ]
+                ],
+                [
+                  [
+                    376.40537860943624
+                  ],
+                  [
+                    57.55079561826393
+                  ]
+                ]
+              ]
+            },
+            "iota": [
+              -0.516008219827834,
+              -0.506577336516036,
+              -0.49270414404883395
+            ],
+            "B00": [
+              0.9917148575686605,
+              0.9965605712760106,
+              1.0037494486157692
+            ]
+          },
+          "profile_responses": {
+            "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+            "density": [
+              1.19993439,
+              1.19609375,
+              1.14235199
+            ],
+            "temperature": [
+              1.11,
+              0.95,
+              0.71
+            ],
+            "A1": [
+              -0.0014580797205087186,
+              -0.05225342913128674,
+              -0.5767350219261225
+            ],
+            "A3": [
+              -0.5405405405405405,
+              -1.0526315789473684,
+              -1.971830985915493
+            ],
+            "electron_particle_flux_response": [
+              -13.82498084375162,
+              -37.36008988128227,
+              -86.05339758223428
+            ],
+            "ion_particle_flux_response": [
+              -6.91249042187581,
+              -18.680044940641135,
+              -43.02669879111714
+            ],
+            "ambipolar_residual_response": [
+              6.91249042187581,
+              18.680044940641135,
+              43.02669879111714
+            ],
+            "electron_current_response": [
+              -270.23368634213034,
+              -463.9184553993868,
+              -769.0129525756283
+            ],
+            "ion_current_response": [
+              135.11684317106517,
+              231.9592276996934,
+              384.50647628781417
+            ],
+            "bootstrap_current_response": [
+              -135.11684317106517,
+              -231.9592276996934,
+              -384.50647628781417
+            ],
+            "bootstrap_current_response_normalized": [
+              -0.3514032961825234,
+              -0.6032648134801902,
+              -1.0
+            ],
+            "current_response_objective": 0.18513411469345195
+          },
+          "hdf5": {
+            "status": "written",
+            "path": "docs/_static/owned_geometry_neopax_database/finite_beta_qa_pressure_current_booz_xform_jax.h5"
+          }
+        },
+        "vmex_wout_cubic": {
+          "geometry_path": "vmex read_wout -> NTX VmecSurface",
+          "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
+          "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
+          "status": "complete",
+          "seconds": 0.5485663340077735,
+          "coefficients": {
+            "D11": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": 4.199704576440841,
+              "max": 23.66420218610703,
+              "first": 4.199704576440841,
+              "values": [
+                [
+                  [
+                    4.199704576440841
+                  ],
+                  [
+                    5.1734503764392645
+                  ]
+                ],
+                [
+                  [
+                    5.987033391321631
+                  ],
+                  [
+                    13.264307140843444
+                  ]
+                ],
+                [
+                  [
+                    8.3119675187615
+                  ],
+                  [
+                    23.66420218610703
+                  ]
+                ]
+              ]
+            },
+            "D13": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": -44.90550464104208,
+              "max": -3.0785603811859277,
+              "first": -24.631821164268167,
+              "values": [
+                [
+                  [
+                    -24.631821164268167
+                  ],
+                  [
+                    -3.0785603811859277
+                  ]
+                ],
+                [
+                  [
+                    -34.18938860022609
+                  ],
+                  [
+                    -7.677297994275084
+                  ]
+                ],
+                [
+                  [
+                    -44.90550464104208
+                  ],
+                  [
+                    -13.149003014692717
+                  ]
+                ]
+              ]
+            },
+            "D33": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": 57.974374151725065,
+              "max": 501.70497769800556,
+              "first": 501.70497769800556,
+              "values": [
+                [
+                  [
+                    501.70497769800556
+                  ],
+                  [
+                    64.5428974276005
+                  ]
+                ],
+                [
+                  [
+                    443.6624931667936
+                  ],
+                  [
+                    61.48387849004368
+                  ]
+                ],
+                [
+                  [
+                    383.2709542764045
+                  ],
+                  [
+                    57.974374151725065
+                  ]
+                ]
+              ]
+            },
+            "iota": [
+              -0.5161115018904153,
+              -0.5068715457120138,
+              -0.49326096867505764
+            ],
+            "B00": [
+              0.9917582900651559,
+              0.9965086510459154,
+              1.0035666784254176
+            ]
+          },
+          "profile_responses": {
+            "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+            "density": [
+              1.19993439,
+              1.19609375,
+              1.14235199
+            ],
+            "temperature": [
+              1.11,
+              0.95,
+              0.71
+            ],
+            "A1": [
+              -0.0014580797205087186,
+              -0.05225342913128674,
+              -0.5767350219261225
+            ],
+            "A3": [
+              -0.5405405405405405,
+              -1.0526315789473684,
+              -1.971830985915493
+            ],
+            "electron_particle_flux_response": [
+              -13.308374422556403,
+              -35.67598708048107,
+              -83.75226272019661
+            ],
+            "ion_particle_flux_response": [
+              -6.6541872112782015,
+              -17.837993540240536,
+              -41.876131360098306
+            ],
+            "ambipolar_residual_response": [
+              6.6541872112782015,
+              17.837993540240536,
+              41.876131360098306
+            ],
+            "electron_current_response": [
+              -271.22779499567855,
+              -468.79966349615194,
+              -781.6441208473695
+            ],
+            "ion_current_response": [
+              135.61389749783928,
+              234.39983174807597,
+              390.8220604236848
+            ],
+            "bootstrap_current_response": [
+              -135.61389749783928,
+              -234.39983174807597,
+              -390.8220604236848
+            ],
+            "bootstrap_current_response_normalized": [
+              -0.34699652663112757,
+              -0.5997610050312062,
+              -1.0
+            ],
+            "current_response_objective": 0.18398331158061515
+          },
+          "hdf5": {
+            "status": "written",
+            "path": "docs/_static/owned_geometry_neopax_database/finite_beta_qa_pressure_current_vmex_wout_cubic.h5"
+          }
+        }
+      },
+      "interpolation_audit": {
+        "reference_path": "booz_xform_jax",
+        "candidate_path": "vmex_wout_cubic",
+        "claim_scope": "same input/wout, rho, collisionality, electric field, grid, and normalization; differences isolate geometry/interpolation-path effects and should not be mixed with external reference datasets",
+        "max_relative_difference": {
+          "D11": 0.1427769070900202,
+          "D13": 0.06259638813082183,
+          "D33": 0.018239844744865022
+        }
+      },
+      "geometry_path_blockers": [],
+      "drds": [
+        0.2805201072860412,
+        0.16831206437162471,
+        0.12022290312258908
+      ]
+    },
+    {
+      "id": "finite_beta_nfp3_qh_stage1",
+      "label": "Finite-beta optimized NFP3 QH",
+      "family": "QH finite beta",
+      "source": "single-stage finite-beta optimized case",
+      "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/input.final",
+      "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
+      "notes": "optimized finite-beta QH stellarator; direct wout-harmonic NTX path is usable, while the current vmex Boozer path reports the unresolved cubic-spline current-profile support gap",
+      "primary_geometry_path": "vmex_wout_cubic",
+      "wout_metadata": {
+        "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
+        "exists": true,
+        "nfp": 3,
+        "ns": 101,
+        "mpol": 5,
+        "ntor": 5,
+        "beta_vol": 2.6328145840101252e-05,
+        "betatotal": 0.02549438122038845,
+        "Aminor_p": 1.8868753168704075,
+        "Rmajor_p": 11.034936767634333,
+        "b0": 5.261240197954242
+      },
+      "status": "complete",
+      "requested_primary_geometry_path": "vmex_wout_cubic",
+      "primary_scan_path": "vmex_wout_cubic",
+      "scan_paths": {
+        "booz_xform_jax": {
+          "geometry_path": "vmex state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+          "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
+          "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
+          "status": "complete",
+          "seconds": 0.7902085829991847,
+          "coefficients": {
+            "D11": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": 4.090242717731959e-05,
+              "max": 0.00022450925765581036,
+              "first": 4.090242717731959e-05,
+              "values": [
+                [
+                  [
+                    4.090242717731959e-05
+                  ],
+                  [
+                    4.409681276070166e-05
+                  ]
+                ],
+                [
+                  [
+                    8.022860783562438e-05
+                  ],
+                  [
+                    0.00012160917447191026
+                  ]
+                ],
+                [
+                  [
+                    0.00011560566118956999
+                  ],
+                  [
+                    0.00022450925765581036
+                  ]
+                ]
+              ]
+            },
+            "D13": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": -0.13303195417882158,
+              "max": -0.004805023126086792,
+              "first": -0.05274520292850622,
+              "values": [
+                [
+                  [
+                    -0.05274520292850622
+                  ],
+                  [
+                    -0.004805023126086792
+                  ]
+                ],
+                [
+                  [
+                    -0.09841248114419028
+                  ],
+                  [
+                    -0.013119954954108948
+                  ]
+                ],
+                [
+                  [
+                    -0.13303195417882158
+                  ],
+                  [
+                    -0.02395535075705891
+                  ]
+                ]
+              ]
+            },
+            "D33": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": 62.69713973766938,
+              "max": 589.8722973081527,
+              "first": 589.8722973081527,
+              "values": [
+                [
+                  [
+                    589.8722973081527
+                  ],
+                  [
+                    65.86460326200005
+                  ]
+                ],
+                [
+                  [
+                    525.5166592359367
+                  ],
+                  [
+                    64.50138225444176
+                  ]
+                ],
+                [
+                  [
+                    474.9191149786878
+                  ],
+                  [
+                    62.69713973766938
+                  ]
+                ]
+              ]
+            },
+            "iota": [
+              0.915879515526694,
+              0.909202993789881,
+              0.9084627934806451
+            ],
+            "B00": [
+              5.778957587751765,
+              5.8255309869554255,
+              5.893457489448395
+            ]
+          },
+          "profile_responses": {
+            "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+            "density": [
+              1.19993439,
+              1.19609375,
+              1.14235199
+            ],
+            "temperature": [
+              1.11,
+              0.95,
+              0.71
+            ],
+            "A1": [
+              -0.0014580797205087186,
+              -0.05225342913128674,
+              -0.5767350219261225
+            ],
+            "A3": [
+              -0.5405405405405405,
+              -1.0526315789473684,
+              -1.971830985915493
+            ],
+            "electron_particle_flux_response": [
+              -0.028510860862895664,
+              -0.10358789319506329,
+              -0.26224985553314945
+            ],
+            "ion_particle_flux_response": [
+              -0.014255430431447832,
+              -0.05179394659753164,
+              -0.13112492776657472
+            ],
+            "ambipolar_residual_response": [
+              0.014255430431447832,
+              0.05179394659753164,
+              0.13112492776657472
+            ],
+            "electron_current_response": [
+              -318.84996734354996,
+              -553.1805731642793,
+              -936.5369509055495
+            ],
+            "ion_current_response": [
+              159.42498367177498,
+              276.59028658213964,
+              468.26847545277474
+            ],
+            "bootstrap_current_response": [
+              -159.42498367177498,
+              -276.59028658213964,
+              -468.26847545277474
+            ],
+            "bootstrap_current_response_normalized": [
+              -0.3404563664415482,
+              -0.5906660411310007,
+              -1.0
+            ],
+            "current_response_objective": 0.18136832817413195
+          },
+          "hdf5": {
+            "status": "written",
+            "path": "docs/_static/owned_geometry_neopax_database/finite_beta_nfp3_qh_stage1_booz_xform_jax.h5"
+          }
+        },
+        "vmex_wout_cubic": {
+          "geometry_path": "vmex read_wout -> NTX VmecSurface",
+          "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
+          "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
+          "status": "complete",
+          "seconds": 0.49991483305348083,
+          "coefficients": {
+            "D11": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": 4.2724484809186536e-05,
+              "max": 0.00022697884836742998,
+              "first": 4.2724484809186536e-05,
+              "values": [
+                [
+                  [
+                    4.2724484809186536e-05
+                  ],
+                  [
+                    4.6626079047256795e-05
+                  ]
+                ],
+                [
+                  [
+                    8.174401507196743e-05
+                  ],
+                  [
+                    0.0001238013127318547
+                  ]
+                ],
+                [
+                  [
+                    0.00011840668677871077
+                  ],
+                  [
+                    0.00022697884836742998
+                  ]
+                ]
+              ]
+            },
+            "D13": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": -0.1341456127285427,
+              "max": -0.0050800201795401225,
+              "first": -0.054828047520569995,
+              "values": [
+                [
+                  [
+                    -0.054828047520569995
+                  ],
+                  [
+                    -0.0050800201795401225
+                  ]
+                ],
+                [
+                  [
+                    -0.09959734990132432
+                  ],
+                  [
+                    -0.013391701866282673
+                  ]
+                ],
+                [
+                  [
+                    -0.1341456127285427
+                  ],
+                  [
+                    -0.02426007200964247
+                  ]
+                ]
+              ]
+            },
+            "D33": {
+              "shape": [
+                3,
+                2,
+                1
+              ],
+              "min": 63.04285381238999,
+              "max": 586.7808087927933,
+              "first": 586.7808087927933,
+              "values": [
+                [
+                  [
+                    586.7808087927933
+                  ],
+                  [
+                    65.82372146747844
+                  ]
+                ],
+                [
+                  [
+                    525.1471578123592
+                  ],
+                  [
+                    64.61507533558114
+                  ]
+                ],
+                [
+                  [
+                    476.9711135406474
+                  ],
+                  [
+                    63.04285381238999
+                  ]
+                ]
+              ]
+            },
+            "iota": [
+              0.9155366087356841,
+              0.9091503730296133,
+              0.9083556566532293
+            ],
+            "B00": [
+              5.780245857967364,
+              5.819917481002879,
+              5.8769693795516815
+            ]
+          },
+          "profile_responses": {
+            "profile_model": "dimensionless two-species response using analytic n=1-rho^8+0.2 and T=1-rho^2+0.2 gradients on the first scan collisionality and field point",
+            "density": [
+              1.19993439,
+              1.19609375,
+              1.14235199
+            ],
+            "temperature": [
+              1.11,
+              0.95,
+              0.71
+            ],
+            "A1": [
+              -0.0014580797205087186,
+              -0.05225342913128674,
+              -0.5767350219261225
+            ],
+            "A3": [
+              -0.5405405405405405,
+              -1.0526315789473684,
+              -1.971830985915493
+            ],
+            "electron_particle_flux_response": [
+              -0.029636720147846476,
+              -0.10483504428050608,
+              -0.2644441865196647
+            ],
+            "ion_particle_flux_response": [
+              -0.014818360073923238,
+              -0.05241752214025304,
+              -0.13222209325983236
+            ],
+            "ambipolar_residual_response": [
+              0.014818360073923238,
+              0.05241752214025304,
+              0.13222209325983236
+            ],
+            "electron_current_response": [
+              -317.1788955073362,
+              -552.7916862108112,
+              -940.5837875389636
+            ],
+            "ion_current_response": [
+              158.5894477536681,
+              276.3958431054056,
+              470.2918937694818
+            ],
+            "bootstrap_current_response": [
+              -158.5894477536681,
+              -276.3958431054056,
+              -470.2918937694818
+            ],
+            "bootstrap_current_response_normalized": [
+              -0.3372149293974484,
+              -0.5877112635092191,
+              -1.0
+            ],
+            "current_response_objective": 0.18045229671197313
+          },
+          "hdf5": {
+            "status": "written",
+            "path": "docs/_static/owned_geometry_neopax_database/finite_beta_nfp3_qh_stage1_vmex_wout_cubic.h5"
+          }
+        }
+      },
+      "interpolation_audit": {
+        "reference_path": "booz_xform_jax",
+        "candidate_path": "vmex_wout_cubic",
+        "claim_scope": "same input/wout, rho, collisionality, electric field, grid, and normalization; differences isolate geometry/interpolation-path effects and should not be mixed with external reference datasets",
+        "max_relative_difference": {
+          "D11": 0.05735712239069513,
+          "D13": 0.05723116127378301,
+          "D33": 0.005514032636370825
+        }
+      },
+      "geometry_path_blockers": [],
+      "drds": [
+        3.1447921947840127,
+        1.8868753168704075,
+        1.3477680834788626
+      ]
+    }
+  ],
+  "summary_metrics": {
+    "case_count": 2,
+    "complete_case_count": 2,
+    "usable_case_count": 2,
+    "skipped_case_count": 0,
+    "max_geometry_path_relative_difference": 0.1427769070900202
+  },
+  "downstream_interpolation_mode_audit": {
+    "status": "blocked_pending_stable_api",
+    "required_modes": [
+      "general",
+      "legacy_ntss"
+    ],
+    "reason": "The downstream NEOPAX interpolation-mode selector is not yet exposed through a stable public interface. Once it is, this same owned finite-beta dataset should run both modes on the same geometry/profile grids and store the difference here."
+  },
+  "open_work": [
+    "run SFINCS and the analytic bootstrap-current formula on these same owned geometry/profile grids before promoting new parity figures",
+    "add the NEOPAX general and legacy interpolation modes to this audit once both are available through a stable public interface",
+    "extend vmex input reconstruction to optimized finite-beta cubic-spline current profiles so those cases can use the same JAX Boozer path as the power-series finite-beta QA case",
+    "expand the default case set to production-resolution QA, QH, QI, and W7-X inputs after owned SFINCS-generation scripts have completed runs"
+  ],
+  "figure_png": "docs/_static/owned_geometry_neopax_dataset.png",
+  "figure_pdf": "docs/_static/owned_geometry_neopax_dataset.pdf",
+  "database_dir": "docs/_static/owned_geometry_neopax_database"
+}

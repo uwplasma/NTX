@@ -22,19 +22,22 @@ from ntx import GridSpec, MonoenergeticCase, load_vmec_surface  # noqa: E402
 from ntx._checkout_paths import (  # noqa: E402
     find_simsopt_root,
     find_stellopt_root,
-    find_vmec_jax_root,
+    find_vmex_root,
     fixture_path,
 )
+from ntx.config import enable_x64  # noqa: E402
 from ntx.solver import prepare_monoenergetic_system, solve_prepared  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "geometry_family_transport_convergence"
 COEFFICIENTS = ("D11", "D31", "D33")
+REPORTED_COEFFICIENTS = ("D11", "D31", "D13", "D33")
 EPS = 1.0e-30
 DEFAULT_NU_HAT = 1.0e-3
 DEFAULT_ER_HAT = 0.0
 DEFAULT_PSI_N = 0.25
 DEFAULT_MIN_BMN_TO_LOAD = 1.0e-4
 DEFAULT_CONVERGENCE_RTOL = 5.0e-1
+DEFAULT_ONSAGER_RELATIVE_RTOL = 5.0e-1
 
 GRID_PRESETS: dict[str, tuple[GridSpec, ...]] = {
     "smoke": (
@@ -46,6 +49,11 @@ GRID_PRESETS: dict[str, tuple[GridSpec, ...]] = {
         GridSpec(7, 9, 6),
         GridSpec(9, 11, 8),
         GridSpec(11, 13, 10),
+    ),
+    "production": (
+        GridSpec(29, 31, 28),
+        GridSpec(35, 37, 32),
+        GridSpec(41, 43, 36),
     ),
 }
 
@@ -60,6 +68,7 @@ class GeometryTransportCase:
     psi_n: float = DEFAULT_PSI_N
     min_bmn_to_load: float = DEFAULT_MIN_BMN_TO_LOAD
     notes: str = ""
+    promotion_eligible: bool = True
 
     def as_payload(self) -> dict[str, object]:
         payload = asdict(self)
@@ -101,6 +110,7 @@ def _add_case(
     family: str,
     source: str,
     notes: str,
+    promotion_eligible: bool = True,
 ) -> None:
     if root is None:
         return
@@ -114,90 +124,141 @@ def _add_case(
                 source=source,
                 path=path.resolve(),
                 notes=notes,
+                promotion_eligible=promotion_eligible,
             )
         )
+
+
+def _add_first_case(
+    cases: list[GeometryTransportCase],
+    *,
+    root: Path | None,
+    relative_paths: tuple[str, ...],
+    case_id: str,
+    label: str,
+    family: str,
+    source: str,
+    notes: str,
+    promotion_eligible: bool = True,
+) -> None:
+    """Add the first available path across supported upstream layouts."""
+    if root is None:
+        return
+    for relative_path in relative_paths:
+        if (root / relative_path).exists():
+            _add_case(
+                cases,
+                root=root,
+                relative_path=relative_path,
+                case_id=case_id,
+                label=label,
+                family=family,
+                source=source,
+                notes=notes,
+                promotion_eligible=promotion_eligible,
+            )
+            return
 
 
 def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTransportCase, ...]:
     """Return reusable local VMEC inputs from the surrounding research stack."""
 
     cases: list[GeometryTransportCase] = []
-    vmec_jax_root = find_vmec_jax_root()
+    vmex_root = find_vmex_root()
     simsopt_root = find_simsopt_root()
     stellopt_root = find_stellopt_root()
 
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_circular_tokamak.nc",
         case_id="circular_tokamak",
         label="Circular tokamak",
         family="tokamak",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes="axisymmetric tokamak baseline",
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_shaped_tokamak_pressure.nc",
         case_id="shaped_tokamak",
         label="Shaped tokamak",
         family="tokamak",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes="axisymmetric shaped-pressure tokamak baseline",
     )
-    _add_case(
+    _add_first_case(
         cases,
-        root=vmec_jax_root,
-        relative_path=(
-            "examples_single_grid/data/"
-            "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
+        root=vmex_root,
+        relative_paths=(
+            "examples/data/wout_nfp2_QA.nc",
+            (
+                "examples_single_grid/data/"
+                "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
+            ),
         ),
-        case_id="precise_qs_qa_reactor",
-        label="Precise-QS QA",
+        case_id="nfp2_qa",
+        label="NFP2 QA",
         family="QA",
-        source="vmec_jax examples",
-        notes="precise-QS QA reactor-scale low-resolution reference",
+        source="vmex examples",
+        notes=(
+            "near-zero-transform vacuum QA example from the installed vmex "
+            "suite; retained as a singular-conditioning diagnostic"
+        ),
+        promotion_eligible=False,
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
-        relative_path=(
-            "examples_single_grid/data/"
-            "wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc"
+        root=vmex_root,
+        relative_path="examples/data/wout_nfp2_QA_finite_beta.nc",
+        case_id="nfp2_qa_finite_beta",
+        label="NFP2 QA finite beta",
+        family="QA",
+        source="vmex examples",
+        notes="finite-beta QA example from the installed vmex example suite",
+    )
+    _add_first_case(
+        cases,
+        root=vmex_root,
+        relative_paths=(
+            "examples/data/wout_LandremanPaul2021_QH_reactorScale_lowres.nc",
+            (
+                "examples_single_grid/data/"
+                "wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc"
+            ),
         ),
         case_id="precise_qs_qh_reactor",
         label="Precise-QS QH",
         family="QH",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes="precise-QS QH reactor-scale low-resolution reference",
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_nfp3_QI_fixed_resolution_final.nc",
         case_id="nfp3_qi",
         label="NFP3 QI",
         family="QI",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes="fixed-resolution quasi-isodynamic-style example",
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_basic_non_stellsym_simsopt.nc",
         case_id="basic_non_stellsym",
         label="Non-stellsym",
         family="non-stellarator-symmetric",
-        source="vmec_jax examples",
-        notes="non-stellarator-symmetric public example from the local VMEC-JAX suite",
+        source="vmex examples",
+        notes="non-stellarator-symmetric public example from the local VMEX suite",
     )
     _add_case(
         cases,
         root=simsopt_root,
         relative_path=(
-            "tests/test_files/"
-            "wout_W7-X_without_coil_ripple_beta0p05_d23p4_tm_reference.nc"
+            "tests/test_files/wout_W7-X_without_coil_ripple_beta0p05_d23p4_tm_reference.nc"
         ),
         case_id="w7x_eim_ejm_standard",
         label="W7-X EIM/EJM",
@@ -226,8 +287,7 @@ def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTrans
         cases,
         root=simsopt_root,
         relative_path=(
-            "tests/test_files/"
-            "wout_LandremanSengupta2019_section5.4_B2_A80_reference.nc"
+            "tests/test_files/wout_LandremanSengupta2019_section5.4_B2_A80_reference.nc"
         ),
         case_id="high_aspect_qs",
         label="High-aspect QS",
@@ -238,10 +298,7 @@ def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTrans
     _add_case(
         cases,
         root=simsopt_root,
-        relative_path=(
-            "tests/test_files/"
-            "wout_LandremanSenguptaPlunk_section5p3_reference.nc"
-        ),
+        relative_path=("tests/test_files/wout_LandremanSenguptaPlunk_section5p3_reference.nc"),
         case_id="landreman_sengupta_plunk_non_stellsym",
         label="LSP non-stellsym",
         family="non-stellarator-symmetric",
@@ -259,10 +316,7 @@ def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTrans
         label="LI383",
         family="NCSX/QS",
         source="SIMSOPT test files",
-        notes=(
-            "low-resolution LI383 configuration used in public quasisymmetry "
-            "diagnostic tests"
-        ),
+        notes=("low-resolution LI383 configuration used in public quasisymmetry diagnostic tests"),
     )
     _add_case(
         cases,
@@ -353,8 +407,18 @@ def _relative_change(coarse: float, fine: float) -> float:
     return float(abs(coarse - fine) / max(abs(fine), EPS))
 
 
+def _absolute_change(coarse: float, fine: float) -> float:
+    return float(abs(coarse - fine))
+
+
 def _coefficient_payload(result) -> dict[str, float]:
-    return {name: float(getattr(result, name)) for name in COEFFICIENTS}
+    return {name: float(getattr(result, name)) for name in REPORTED_COEFFICIENTS}
+
+
+def _relative_onsager(coefficients: dict[str, float]) -> float:
+    d31 = float(coefficients["D31"])
+    d13 = float(coefficients["D13"])
+    return float(abs(d31 + d13) / max(abs(d31), abs(d13), EPS))
 
 
 def _solve_case(
@@ -389,14 +453,19 @@ def _solve_case(
         result = solve_prepared(prepared, MonoenergeticCase(nu_hat=nu_hat, er_hat=er_hat))
         coefficients = _coefficient_payload(result)
         solve_seconds = time.perf_counter() - solve_start
-        finite = bool(np.all(np.isfinite([*coefficients.values(), float(result.residual_l2)])))
+        finite = bool(
+            np.all(np.isfinite([*coefficients.values(), float(result.schur_residual_l2)]))
+        )
+        relative_onsager = _relative_onsager(coefficients)
         grid_results.append(
             {
                 "grid": _grid_payload(grid),
                 "grid_label": _grid_label(grid),
                 "coefficients": coefficients,
+                "schur_residual_l2": float(result.schur_residual_l2),
                 "residual_l2": float(result.residual_l2),
                 "onsager_residual": float(result.onsager_residual),
+                "relative_onsager_residual": float(relative_onsager),
                 "D33_spitzer": float(result.D33_spitzer),
                 "prepare_seconds": float(prepare_seconds),
                 "solve_seconds": float(solve_seconds),
@@ -427,6 +496,13 @@ def _solve_case(
         )
         for name in COEFFICIENTS
     }
+    last_absolute_change = {
+        name: _absolute_change(
+            float(grid_results[-2]["coefficients"][name]),
+            float(grid_results[-1]["coefficients"][name]),
+        )
+        for name in COEFFICIENTS
+    }
     max_last_step = max(last_relative_change.values())
     max_to_finest = max(
         (
@@ -436,15 +512,19 @@ def _solve_case(
         default=0.0,
     )
     all_finite = all(bool(item["finite"]) for item in grid_results)
+    max_relative_onsager = max(float(item["relative_onsager_residual"]) for item in grid_results)
+    finest_relative_onsager = float(grid_results[-1]["relative_onsager_residual"])
     return {
         **case.as_payload(),
-        "status": "stress-pass"
-        if all_finite and max_last_step <= convergence_rtol
+        "status": "stress-pass" if all_finite and max_last_step <= convergence_rtol else "monitor",
+        "quality_status": "stress-pass"
+        if all_finite and finest_relative_onsager <= DEFAULT_ONSAGER_RELATIVE_RTOL
         else "monitor",
         "surface": {
             "nfp": int(surface.nfp),
             "iota": float(surface.iota),
             "psi_n": float(surface.psi_n),
+            "dtype": str(surface.b_cos.dtype),
             "loaded_mode_count": int(surface.loaded_mode_count),
             "total_mode_count": int(surface.total_mode_count),
             "b0": float(surface.b0),
@@ -453,8 +533,11 @@ def _solve_case(
         "grid_results": grid_results,
         "relative_to_finest": relative_to_finest,
         "last_step_relative_change": last_relative_change,
+        "last_step_absolute_change": last_absolute_change,
         "max_last_step_relative_change": float(max_last_step),
         "max_relative_change_to_finest": float(max_to_finest),
+        "max_relative_onsager_residual": float(max_relative_onsager),
+        "finest_relative_onsager_residual": float(finest_relative_onsager),
     }
 
 
@@ -473,6 +556,9 @@ def build_payload(
     selected_grids = grids if grids is not None else GRID_PRESETS["smoke"]
     if len(selected_grids) < 2:
         raise ValueError("at least two grids are required for convergence diagnostics")
+    if any(grid.x64 != selected_grids[0].x64 for grid in selected_grids):
+        raise ValueError("all convergence grids must use the same x64 policy")
+    enable_x64(selected_grids[0].x64)
 
     cases = [
         _solve_case(
@@ -485,22 +571,37 @@ def build_payload(
         for case in selected_cases
     ]
     successful_cases = [case for case in cases if case["status"] != "skipped"]
+    promotion_cases = [case for case in successful_cases if case["promotion_eligible"]]
     stress_pass_cases = [case for case in successful_cases if case["status"] == "stress-pass"]
     monitored_cases = [case for case in successful_cases if case["status"] == "monitor"]
+    quality_pass_cases = [
+        case for case in successful_cases if case.get("quality_status") == "stress-pass"
+    ]
+    quality_monitored_cases = [
+        case for case in successful_cases if case.get("quality_status") == "monitor"
+    ]
     skipped_cases = [case for case in cases if case["status"] == "skipped"]
     max_last_step = max(
-        (float(case["max_last_step_relative_change"]) for case in successful_cases),
+        (float(case["max_last_step_relative_change"]) for case in promotion_cases),
         default=float("nan"),
     )
     max_to_finest = max(
-        (float(case["max_relative_change_to_finest"]) for case in successful_cases),
+        (float(case["max_relative_change_to_finest"]) for case in promotion_cases),
         default=float("nan"),
     )
     max_residual = max(
         (
-            max(float(item["residual_l2"]) for item in case["grid_results"])
-            for case in successful_cases
+            max(float(item["schur_residual_l2"]) for item in case["grid_results"])
+            for case in promotion_cases
         ),
+        default=float("nan"),
+    )
+    max_relative_onsager = max(
+        (float(case["max_relative_onsager_residual"]) for case in promotion_cases),
+        default=float("nan"),
+    )
+    max_finest_relative_onsager = max(
+        (float(case["finest_relative_onsager_residual"]) for case in promotion_cases),
         default=float("nan"),
     )
     return {
@@ -508,8 +609,9 @@ def build_payload(
         "classification": "geometry-family monoenergetic transport convergence stress diagnostic",
         "claim_scope": (
             "Runs reusable public VMEC inputs through NTX and reports D11, D31, "
-            "and D33 coarse-to-fine changes. This is a reduced NTX convergence "
-            "stress diagnostic, not an independent-code parity claim."
+            "and D33 coarse-to-fine changes, with D13 retained for the Onsager "
+            "quality check. This is a reduced NTX convergence stress diagnostic, "
+            "not an independent-code parity claim."
         ),
         "literature_anchors": [
             "W7-X standard-configuration benchmark workflows",
@@ -522,22 +624,34 @@ def build_payload(
             "er_hat": float(er_hat),
             "grids": [_grid_payload(grid) for grid in selected_grids],
             "convergence_rtol": float(convergence_rtol),
+            "onsager_relative_rtol": float(DEFAULT_ONSAGER_RELATIVE_RTOL),
             "min_bmn_to_load_default": DEFAULT_MIN_BMN_TO_LOAD,
         },
         "cases": cases,
         "summary_metrics": {
             "case_count": len(cases),
             "successful_case_count": len(successful_cases),
+            "promotion_case_count": len(promotion_cases),
+            "diagnostic_only_case_count": len(successful_cases) - len(promotion_cases),
             "stress_pass_case_count": len(stress_pass_cases),
             "monitored_case_count": len(monitored_cases),
+            "quality_pass_case_count": len(quality_pass_cases),
+            "quality_monitored_case_count": len(quality_monitored_cases),
             "skipped_case_count": len(skipped_cases),
             "max_successful_last_step_relative_change": float(max_last_step),
             "max_successful_relative_change_to_finest": float(max_to_finest),
+            "max_successful_schur_residual_l2": float(max_residual),
             "max_successful_residual_l2": float(max_residual),
+            "max_successful_relative_onsager_residual": float(max_relative_onsager),
+            "max_successful_finest_relative_onsager_residual": float(max_finest_relative_onsager),
         },
         "open_work": [
             (
-                "promote only after paper-resolution sweeps with independent "
+                "resolve the near-zero-transform NFP2 QA conditioning diagnostic "
+                "before treating that input as a promoted transport benchmark"
+            ),
+            (
+                "promote only after production-resolution sweeps with independent "
                 "reference parity on each family"
             ),
             (
@@ -564,7 +678,8 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
     if not cases:
         raise ValueError("no successful geometry-family transport cases to plot")
 
-    labels = [_case_short_label(case) for case in cases]
+    bar_labels = [str(case["label"]) for case in cases]
+    heatmap_labels = [_case_short_label(case) for case in cases]
     max_last_step = np.asarray(
         [max(float(case["max_last_step_relative_change"]), 1.0e-16) for case in cases],
         dtype=float,
@@ -588,14 +703,14 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
     fig, (ax_bar, ax_heat) = plt.subplots(
         1,
         2,
-        figsize=(13.4, 7.6),
+        figsize=(14.2, 7.6),
         gridspec_kw={"width_ratios": [1.35, 1.0]},
     )
     positions = np.arange(len(cases))
     bars = ax_bar.bar(positions, max_last_step, color=colors, alpha=0.88, width=0.74)
     ax_bar.set_yscale("log")
     ax_bar.set_xticks(positions)
-    ax_bar.set_xticklabels(labels, rotation=35, ha="right")
+    ax_bar.set_xticklabels(bar_labels, rotation=52, ha="right", fontsize=7.8)
     ax_bar.set_ylabel("max last-step relative change")
     ax_bar.set_title("(a) D11/D31/D33 convergence stress")
     y_min = max(min(max_last_step) * 0.25, 1.0e-6)
@@ -629,7 +744,7 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
     ax_heat.set_xticks(np.arange(len(COEFFICIENTS)))
     ax_heat.set_xticklabels([f"${name}$" for name in COEFFICIENTS])
     ax_heat.set_yticks(np.arange(len(cases)))
-    ax_heat.set_yticklabels(labels)
+    ax_heat.set_yticklabels(heatmap_labels)
     ax_heat.set_title("(b) last-step coefficient changes")
     for row in range(heatmap.shape[0]):
         for col in range(heatmap.shape[1]):
@@ -656,8 +771,8 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
     fig.text(
         0.5,
         0.01,
-        "This figure monitors reduced-grid convergence across public VMEC examples; "
-        "independent-code parity and paper-resolution sweeps remain separate gates.",
+        "This figure monitors production-grid convergence across public VMEC examples; "
+        "independent-code parity and profile ladders remain separate gates.",
         ha="center",
         va="bottom",
         fontsize=9.3,

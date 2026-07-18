@@ -28,8 +28,8 @@ from ntx.vmec import (
     _select_mode_set,
     load_vmec_surface,
 )
-from ntx.vmec_jax_vmec import _interp_mode_columns as _vmec_jax_interp_mode_columns
-from ntx.vmec_jax_vmec import surface_from_vmec_jax_vmec_wout
+from ntx.vmex_vmec import _interp_mode_columns as _vmex_interp_mode_columns
+from ntx.vmex_vmec import surface_from_vmex_vmec_wout
 
 
 def _import_blocker(name: str):
@@ -67,9 +67,10 @@ def _fake_booz_module(fake_class):
 
 
 def _fake_vmec_module(wout):
-    vmec_api = ModuleType("vmec_jax.api")
+    vmec_api = ModuleType("vmex.api")
     vmec_api.read_wout = lambda path: wout
-    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg = ModuleType("vmex")
+    vmec_pkg.read_wout = vmec_api.read_wout
     vmec_pkg.api = vmec_api
     return vmec_pkg, vmec_api
 
@@ -193,7 +194,7 @@ def test_packed_surface_grid_success_and_shape_branches(monkeypatch, tmp_path):
         def __init__(self, _path, mode="r"):
             assert mode == "r"
             self.variables = {
-                "jlist": np.asarray([1, 3], dtype=np.int64),
+                "jlist": np.asarray([2, 4], dtype=np.int64),
                 "buco_b": np.zeros((5,), dtype=np.float64),
             }
 
@@ -207,7 +208,7 @@ def test_packed_surface_grid_success_and_shape_branches(monkeypatch, tmp_path):
     module.Dataset = _FakeDataset
     monkeypatch.setitem(sys.modules, "netCDF4", module)
     grid = _packed_surface_grid(fixture, 2)
-    assert np.allclose(grid, np.asarray([0.0, 0.5]))
+    assert np.allclose(grid, np.asarray([0.125, 0.625]))
 
 
 def test_packed_surface_grid_ns_b_and_error_paths(monkeypatch, tmp_path):
@@ -232,13 +233,13 @@ def test_packed_surface_grid_ns_b_and_error_paths(monkeypatch, tmp_path):
 
     module.Dataset = _dataset_factory(
         {
-            "jlist": np.asarray([1, 2], dtype=np.int64),
+            "jlist": np.asarray([2, 3], dtype=np.int64),
             "ns_b": np.asarray([4], dtype=np.int64),
         }
     )
     monkeypatch.setitem(sys.modules, "netCDF4", module)
     grid = _packed_surface_grid(fixture, 2)
-    assert np.allclose(grid, np.asarray([0.0, 1.0 / 3.0]))
+    assert np.allclose(grid, np.asarray([1.0 / 6.0, 0.5]))
 
     module.Dataset = _dataset_factory({})
     with pytest.raises(ValueError, match="radial grid length does not match"):
@@ -391,8 +392,8 @@ def test_vmec_loader_error_branches(monkeypatch, tmp_path):
 
     fixture = tmp_path / "wout.nc"
     fixture.write_text("", encoding="utf-8")
-    monkeypatch.setattr(builtins, "__import__", _import_blocker("vmec_jax"))
-    with pytest.raises(ModuleNotFoundError, match="vmec_jax"):
+    monkeypatch.setattr(builtins, "__import__", _import_blocker("vmex"))
+    with pytest.raises(ModuleNotFoundError, match="vmex"):
         load_vmec_surface(fixture, psi_n=0.25)
     monkeypatch.undo()
 
@@ -403,8 +404,8 @@ def test_vmec_loader_error_branches(monkeypatch, tmp_path):
         ({"Aminor_p": np.asarray(0.0)}, 0.25, "nonzero Aminor_p"),
     ):
         pkg, api = _fake_vmec_module(_base_wout(**override))
-        monkeypatch.setitem(sys.modules, "vmec_jax", pkg)
-        monkeypatch.setitem(sys.modules, "vmec_jax.api", api)
+        monkeypatch.setitem(sys.modules, "vmex", pkg)
+        monkeypatch.setitem(sys.modules, "vmex.api", api)
         expected = NotImplementedError if match == "lasym=true" else ValueError
         with pytest.raises(expected, match=match):
             load_vmec_surface(fixture, psi_n=psi_n_value)
@@ -414,8 +415,8 @@ def test_vmec_loader_covers_mode_and_transport_error_branches(monkeypatch, tmp_p
     fixture = tmp_path / "wout.nc"
     fixture.write_text("", encoding="utf-8")
     pkg, api = _fake_vmec_module(_base_wout())
-    monkeypatch.setitem(sys.modules, "vmec_jax", pkg)
-    monkeypatch.setitem(sys.modules, "vmec_jax.api", api)
+    monkeypatch.setitem(sys.modules, "vmex", pkg)
+    monkeypatch.setitem(sys.modules, "vmex.api", api)
 
     original_interp = load_vmec_surface.__globals__["_interp_mode_columns"]
     original_select = load_vmec_surface.__globals__["_select_mode_set"]
@@ -461,8 +462,8 @@ def test_vmec_loader_covers_mode_and_transport_error_branches(monkeypatch, tmp_p
         zero_phi_pkg, zero_phi_api = _fake_vmec_module(
             _base_wout(phi=np.asarray([0.0, 0.0, 0.0], dtype=np.float64))
         )
-        monkeypatch.setitem(sys.modules, "vmec_jax", zero_phi_pkg)
-        monkeypatch.setitem(sys.modules, "vmec_jax.api", zero_phi_api)
+        monkeypatch.setitem(sys.modules, "vmex", zero_phi_pkg)
+        monkeypatch.setitem(sys.modules, "vmex.api", zero_phi_api)
         monkeypatch.setitem(
             load_vmec_surface.__globals__,
             "_resolve_psi_n",
@@ -476,15 +477,15 @@ def test_vmec_loader_covers_mode_and_transport_error_branches(monkeypatch, tmp_p
         monkeypatch.setitem(load_vmec_surface.__globals__, "_resolve_psi_n", original_resolve)
 
 
-def test_vmec_jax_vmec_error_branches():
+def test_vmex_vmec_error_branches():
     with pytest.raises(ValueError, match="s must be between 0 and 1"):
-        surface_from_vmec_jax_vmec_wout(_base_wout(), s=2.0)
+        surface_from_vmex_vmec_wout(_base_wout(), s=2.0)
     with pytest.raises(ValueError, match="at least two radial surfaces"):
-        surface_from_vmec_jax_vmec_wout(_base_wout(ns=1), s=0.25)
+        surface_from_vmex_vmec_wout(_base_wout(ns=1), s=0.25)
     with pytest.raises(ValueError, match="2D"):
-        _vmec_jax_interp_mode_columns(np.asarray([0.0, 1.0]), np.asarray([1.0, 2.0]), 0.5)
+        _vmex_interp_mode_columns(np.asarray([0.0, 1.0]), np.asarray([1.0, 2.0]), 0.5)
     with pytest.raises(ValueError, match="zero magnetic-field strength"):
-        surface_from_vmec_jax_vmec_wout(
+        surface_from_vmex_vmec_wout(
             _base_wout(bmnc=np.asarray([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], dtype=np.float64)),
             s=0.25,
         )

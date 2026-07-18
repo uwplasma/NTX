@@ -6,7 +6,7 @@ The finite-beta current stress artifact has already separated coefficient
 normalization, profile/current conditioning, and velocity-quadrature aliasing.
 This diagnostic freezes that same owned finite-beta contract and decomposes the
 momentum-restoring linear system into density/electric, temperature-gradient,
-and parallel-electric source channels at the inner stress radius.
+and parallel-electric source channels at the profile-current stress radius.
 
 It is a closure-localization audit, not a fitted correction and not a parity
 claim.
@@ -44,6 +44,7 @@ from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
     _drds_from_minor_radius,
     _evaluate_neopax_currents,
     _interp,
+    _read_neopax_field,
     _require_external_stacks,
     _to_jsonable,
     _write_boozmn,
@@ -616,11 +617,7 @@ def build_payload(
     mboz = int(inputs.get("mboz", DEFAULT_MBOZ))
     nboz = int(inputs.get("nboz", DEFAULT_NBOZ))
     boozmn_path = _write_boozmn(case, output_dir, mboz=mboz, nboz=nboz)
-    field = NEOPAX.Field.read_vmec_booz(
-        int(inputs.get("field_radial_points", 15)),
-        str(case.wout_path),
-        str(boozmn_path),
-    )
+    field = _read_neopax_field(int(inputs.get("field_radial_points", 15)), case, boozmn_path)
     species = _build_species(NEOPAX, field, contract)
     scan_grid = _grid_from_payload(bootstrap_payload)
     scan, scan_metadata = _load_or_build_scan(

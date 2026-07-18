@@ -20,7 +20,7 @@ import numpy as np  # noqa: E402
 from ntx import (  # noqa: E402
     GridSpec,
     example_bootstrap_current_robust_optimization,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 from ntx._checkout_paths import find_neopax_root  # noqa: E402
 from ntx.config import enable_x64  # noqa: E402
@@ -97,7 +97,7 @@ def main(
     Es = jnp.zeros_like(Er)
     drds = jnp.ones_like(rho)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(wout_path, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(wout_path, s=float(rho_value**2))
         for rho_value in rho
     )
     result = example_bootstrap_current_robust_optimization(

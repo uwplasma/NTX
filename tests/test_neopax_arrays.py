@@ -137,7 +137,7 @@ def test_build_ntx_neopax_scan_validates_basic_shapes():
         )
 
 
-def test_build_ntx_neopax_scan_from_vmec_jax_state_forwards_owned_surfaces(monkeypatch):
+def test_build_ntx_neopax_scan_from_vmex_state_forwards_owned_surfaces(monkeypatch):
     surfaces = (example_surface(), example_surface())
     calls: dict[str, object] = {}
 
@@ -152,7 +152,7 @@ def test_build_ntx_neopax_scan_from_vmec_jax_state_forwards_owned_surfaces(monke
 
     monkeypatch.setattr(
         neopax_scan_module,
-        "surfaces_from_vmec_jax_state",
+        "surfaces_from_vmex_state",
         fake_surfaces_from_state,
     )
     monkeypatch.setattr(
@@ -162,7 +162,7 @@ def test_build_ntx_neopax_scan_from_vmec_jax_state_forwards_owned_surfaces(monke
     )
 
     rho = jnp.asarray([0.25, 0.5])
-    result = neopax_module.build_ntx_neopax_scan_from_vmec_jax_state(
+    result = neopax_module.build_ntx_neopax_scan_from_vmex_state(
         state="state",
         static="static",
         indata="indata",
@@ -189,7 +189,7 @@ def test_build_ntx_neopax_scan_from_vmec_jax_state_forwards_owned_surfaces(monke
     assert jnp.allclose(calls["build_kwargs"]["rho"], rho)
 
 
-def test_build_ntx_neopax_scan_from_vmec_jax_boundary_params_forwards_owned_surfaces(monkeypatch):
+def test_build_ntx_neopax_scan_from_vmex_boundary_params_forwards_owned_surfaces(monkeypatch):
     surfaces = (example_surface(),)
     context = SimpleNamespace(static="static", indata="indata", signgs=1)
     calls: dict[str, object] = {}
@@ -207,7 +207,7 @@ def test_build_ntx_neopax_scan_from_vmec_jax_boundary_params_forwards_owned_surf
 
     monkeypatch.setattr(
         neopax_scan_module,
-        "surfaces_from_vmec_jax_boundary_params",
+        "surfaces_from_vmex_boundary_params",
         fake_surfaces_from_boundary,
     )
     monkeypatch.setattr(
@@ -218,7 +218,7 @@ def test_build_ntx_neopax_scan_from_vmec_jax_boundary_params_forwards_owned_surf
 
     rho = jnp.asarray([0.4])
     params = jnp.asarray([0.01, -0.02])
-    result = neopax_module.build_ntx_neopax_scan_from_vmec_jax_boundary_params(
+    result = neopax_module.build_ntx_neopax_scan_from_vmex_boundary_params(
         context,
         params,
         rho=rho,
@@ -810,7 +810,7 @@ def test_build_neopax_scan_from_ertilde_helpers_are_validated_and_plot(tmp_path:
         wout_path=wout_path,
         boozmn_path=booz_path,
     )
-    assert backend_name == "vmec_jax"
+    assert backend_name == "vmex"
 
     with pytest.raises(ValueError, match="positive"):
         module._parse_float_grid("0.0", default=(), name="nu_v", positive=True)
@@ -820,3 +820,19 @@ def test_build_neopax_scan_from_ertilde_helpers_are_validated_and_plot(tmp_path:
             wout_path=tmp_path / "missing_wout.nc",
             boozmn_path=tmp_path / "missing_booz.nc",
         )
+
+
+def test_build_neopax_scan_from_ertilde_reports_missing_device_backend(monkeypatch):
+    module = _load_ertilde_example()
+
+    class FakeDevice:
+        platform = "cpu"
+
+    def fake_devices(backend=None):
+        if backend == "gpu":
+            raise RuntimeError("no gpu")
+        return [FakeDevice()]
+
+    monkeypatch.setattr(module.jax, "devices", fake_devices)
+    with pytest.raises(RuntimeError, match="available platforms: cpu"):
+        module._select_jax_device(backend="gpu", device_index=0)

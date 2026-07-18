@@ -8,7 +8,7 @@ PyPI publication.
 This release keeps the public package surface compatible with `0.2.0` while
 refreshing the research artifacts used by the README, docs, benchmark matrix,
 and manuscript notes. Optional geometry-coupled workflows still require local
-`vmec_jax`, `booz_xform_jax`, and imported workflow checkouts.
+`vmex`, `booz_xform_jax`, and imported workflow checkouts.
 
 ## Validation Claims
 

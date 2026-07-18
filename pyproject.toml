@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ntx"
-version = "0.2.3"
+version = "0.2.4"
 description = "JAX-native monoenergetic neoclassical transport solver"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,13 +25,11 @@ classifiers = [
 ]
 dependencies = [
   "jax",
-  "jaxlib",
   "interpax",
   "netCDF4",
   "numpy",
   "rich",
-  "scipy",
-  "typing-extensions",
+  "solvax",
   "tomli; python_version < '3.11'",
 ]
 
@@ -39,7 +37,6 @@ dependencies = [
 Homepage = "https://github.com/uwplasma/NTX"
 Repository = "https://github.com/uwplasma/NTX"
 Documentation = "https://ntx.readthedocs.io/en/latest/"
-Changelog = "https://github.com/uwplasma/NTX/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
@@ -49,6 +46,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "ruff",
+  "scipy",
   "twine",
   "mypy",
 ]
@@ -70,6 +68,7 @@ ntx = "ntx.cli:main"
 exclude = [
   "/.github",
   "/docs/_build",
+  "/docs/_static",
   "/.mypy_cache",
   "/.pytest_cache",
   "/.ruff_cache",

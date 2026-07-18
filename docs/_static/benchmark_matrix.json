@@ -1,0 +1,2972 @@
+{
+  "entries": [
+    {
+      "entry": {
+        "id": "monoenergetic_validation_summary",
+        "lane": "monoenergetic",
+        "maturity": "positive-gate",
+        "title": "Monoenergetic coefficient convergence and symmetry",
+        "claim_scope": "NTX reproduces the expected monoenergetic coefficient behavior, Onsager residual control, and Legendre convergence on owned DKES-style and VMEC surfaces.",
+        "literature_anchors": [
+          "Escoto et al. 2024 monoenergetic convergence and benchmarking",
+          "Escoto PhD thesis monoenergetic formulation",
+          "Helander, Parra, and Newton 2017 low-collisionality scaling"
+        ],
+        "scripts": [
+          "examples/validation_summary.py"
+        ],
+        "tests": [
+          "tests/test_validation_summary_example.py",
+          "tests/test_make_publication_figures.py"
+        ],
+        "artifacts": [
+          "docs/_static/validation_summary.png",
+          "docs/_static/validation_summary.pdf",
+          "docs/_static/validation_summary.json"
+        ],
+        "manuscript_figures": [
+          "validation_summary"
+        ],
+        "docs": [
+          "docs/validation.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": []
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/validation_summary.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_validation_summary_example.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_make_publication_figures.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/validation_summary.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/validation_summary.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/validation_summary.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "precise_qs_redl_sfincs",
+        "lane": "bootstrap-current",
+        "maturity": "positive-gate",
+        "title": "Precise-QS Redl current against archived fixed-field reference",
+        "claim_scope": "The Redl path closes the archived precise-QS fixed-field interior-window gate and is separated from the reduced closure stress metric.",
+        "literature_anchors": [
+          "Landreman and Paul 2022 precise-QS benchmark family",
+          "Redl et al. bootstrap-current fit",
+          "SFINCS fixed-field archive used by the benchmark"
+        ],
+        "scripts": [
+          "examples/precise_qs_redl_sfincs_audit.py",
+          "examples/bootstrap_current_fixed_field_validation.py",
+          "scripts/build_closure_validation_report.py"
+        ],
+        "tests": [
+          "tests/test_precise_qs_redl_sfincs_audit.py",
+          "tests/test_fixed_field_parallel_flow_audit.py"
+        ],
+        "artifacts": [
+          "docs/_static/bootstrap_current_fixed_field_validation.png",
+          "docs/_static/bootstrap_current_fixed_field_validation.pdf",
+          "docs/_static/bootstrap_current_fixed_field_validation.json",
+          "docs/_static/closure_validation_report.png",
+          "docs/_static/closure_validation_report.pdf",
+          "docs/_static/closure_validation_report.json",
+          "docs/_static/closure_validation_report.txt"
+        ],
+        "manuscript_figures": [
+          "closure_validation_report"
+        ],
+        "docs": [
+          "docs/physics-gates.md",
+          "docs/validation.md"
+        ],
+        "open_work": []
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/precise_qs_redl_sfincs_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/bootstrap_current_fixed_field_validation.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "scripts/build_closure_validation_report.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_precise_qs_redl_sfincs_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_fixed_field_parallel_flow_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_fixed_field_validation.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_fixed_field_validation.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_fixed_field_validation.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.txt",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/physics-gates.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "fixed_field_ntx_neopax_closure_stress",
+        "lane": "bootstrap-current",
+        "maturity": "stress-gate",
+        "title": "Fixed-field current closure stress test",
+        "claim_scope": "The fixed-field NTX+NEOPAX total-current comparison passes the documented reduced-closure stress gate with the low-order Spitzer-conductivity branch; species-current parity and broader closure defaults remain separate claims.",
+        "literature_anchors": [
+          "Landreman and Paul 2022 precise-QS benchmark family",
+          "momentum-restoring closure literature for parallel-flow models"
+        ],
+        "scripts": [
+          "examples/bootstrap_current_fixed_field_validation.py",
+          "examples/fixed_field_momentum_correction_diagnostic.py",
+          "examples/momentum_correction_mapping_audit.py",
+          "scripts/build_closure_validation_report.py"
+        ],
+        "tests": [
+          "tests/test_fixed_field_momentum_correction_diagnostic.py",
+          "tests/test_momentum_correction_mapping_audit.py"
+        ],
+        "artifacts": [
+          "docs/_static/bootstrap_current_fixed_field_validation.png",
+          "docs/_static/bootstrap_current_fixed_field_validation.pdf",
+          "docs/_static/bootstrap_current_fixed_field_validation.json",
+          "docs/_static/closure_validation_report.png",
+          "docs/_static/closure_validation_report.pdf",
+          "docs/_static/closure_validation_report.json",
+          "docs/_static/closure_validation_report.txt",
+          "docs/_static/closure_pmax_convergence.png",
+          "docs/_static/closure_pmax_convergence.pdf",
+          "docs/_static/closure_pmax_convergence.json"
+        ],
+        "manuscript_figures": [
+          "closure_validation_report"
+        ],
+        "docs": [
+          "docs/physics-gates.md",
+          "docs/validation.md"
+        ],
+        "open_work": [
+          "derive any broader default from the same moment-equation closure",
+          "keep the integrated W7-X raw-branch transfer regression separate"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/bootstrap_current_fixed_field_validation.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/fixed_field_momentum_correction_diagnostic.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/momentum_correction_mapping_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "scripts/build_closure_validation_report.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_fixed_field_momentum_correction_diagnostic.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_momentum_correction_mapping_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_fixed_field_validation.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_fixed_field_validation.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_fixed_field_validation.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_validation_report.txt",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_pmax_convergence.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_pmax_convergence.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/closure_pmax_convergence.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/physics-gates.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "w7x_integrated_transfer",
+        "lane": "integrated-workflow",
+        "maturity": "positive-gate",
+        "title": "Imported W7-X workflow transfer",
+        "claim_scope": "The rebuilt raw-branch NTX database transfers through the imported W7-X workflow without exceeding the current release gate.",
+        "literature_anchors": [
+          "W7-X benchmark profile used by the imported workflow",
+          "neoclassical bootstrap-current profile validation practice"
+        ],
+        "scripts": [
+          "examples/bootstrap_current_reference_audit_w7x.py"
+        ],
+        "tests": [
+          "tests/test_bootstrap_current_reference_audit_w7x.py",
+          "tests/test_w7x_reference_benchmark.py"
+        ],
+        "artifacts": [
+          "docs/_static/bootstrap_current_reference_audit_w7x.png",
+          "docs/_static/bootstrap_current_reference_audit_w7x.pdf",
+          "docs/_static/bootstrap_current_reference_audit_w7x.json"
+        ],
+        "manuscript_figures": [
+          "bootstrap_current_reference_audit_w7x"
+        ],
+        "docs": [
+          "docs/physics-gates.md",
+          "docs/validation.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": []
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/bootstrap_current_reference_audit_w7x.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_bootstrap_current_reference_audit_w7x.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_w7x_reference_benchmark.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_reference_audit_w7x.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_reference_audit_w7x.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_reference_audit_w7x.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/physics-gates.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "prepared_derivative_path",
+        "lane": "autodiff",
+        "maturity": "positive-gate",
+        "title": "Prepared implicit-adjoint derivative path",
+        "claim_scope": "Prepared derivatives agree with direct reverse-mode and give a measured speedup on the committed electric-field scan.",
+        "literature_anchors": [
+          "Paul et al. 2019 adjoint neoclassical optimization",
+          "McGreivy 2024 differentiable programming for plasma workflows"
+        ],
+        "scripts": [
+          "examples/derivative_path_benchmark.py"
+        ],
+        "tests": [
+          "tests/test_derivative_path_benchmark_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/derivative_path_benchmark.png",
+          "docs/_static/derivative_path_benchmark.pdf",
+          "docs/_static/derivative_path_benchmark.json"
+        ],
+        "manuscript_figures": [
+          "derivative_path_benchmark"
+        ],
+        "docs": [
+          "docs/autodiff.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "reduce memory and factorization overhead on larger geometry-control scans"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/derivative_path_benchmark.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_derivative_path_benchmark_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/derivative_path_benchmark.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/derivative_path_benchmark.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/derivative_path_benchmark.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "geometry_control_derivative_benchmark",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "Three-harmonic geometry-control derivative audit",
+        "claim_scope": "Direct geometry-control autodiff agrees with centered finite differences for three controlled Boozer harmonics on an owned analytic surface.",
+        "literature_anchors": [
+          "Paul et al. 2019 adjoint neoclassical optimization",
+          "McGreivy 2024 differentiable programming for plasma workflows",
+          "Escoto thesis monoenergetic formulation"
+        ],
+        "scripts": [
+          "examples/geometry_control_derivative_benchmark.py"
+        ],
+        "tests": [
+          "tests/test_geometry_control_derivative_benchmark_example.py",
+          "tests/test_make_publication_figures.py"
+        ],
+        "artifacts": [
+          "docs/_static/geometry_control_derivative_benchmark.png",
+          "docs/_static/geometry_control_derivative_benchmark.pdf",
+          "docs/_static/geometry_control_derivative_benchmark.json"
+        ],
+        "manuscript_figures": [
+          "geometry_control_derivative_benchmark"
+        ],
+        "docs": [
+          "docs/autodiff.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "transfer this audit to reusable VMEC/Boozer geometry-control families",
+          "compare geometry pullbacks with an implicit-adjoint path once implemented"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/geometry_control_derivative_benchmark.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_geometry_control_derivative_benchmark_example.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_make_publication_figures.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_control_derivative_benchmark.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_control_derivative_benchmark.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_control_derivative_benchmark.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "file_backed_geometry_control_derivative_benchmark",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "File-backed geometry-control derivative audit",
+        "claim_scope": "Direct geometry-control autodiff agrees with centered finite differences on repository-owned Boozer and VMEC sample surfaces.",
+        "literature_anchors": [
+          "Paul et al. 2019 adjoint neoclassical optimization",
+          "McGreivy 2024 differentiable programming for plasma workflows",
+          "Escoto thesis monoenergetic formulation"
+        ],
+        "scripts": [
+          "examples/file_backed_geometry_control_derivative_benchmark.py"
+        ],
+        "tests": [
+          "tests/test_file_backed_geometry_control_derivative_benchmark_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/file_backed_geometry_control_derivative_benchmark.png",
+          "docs/_static/file_backed_geometry_control_derivative_benchmark.pdf",
+          "docs/_static/file_backed_geometry_control_derivative_benchmark.json"
+        ],
+        "manuscript_figures": [
+          "file_backed_geometry_control_derivative_benchmark"
+        ],
+        "docs": [
+          "docs/autodiff.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "extend from repository sample files to broader reusable geometry families",
+          "compare geometry pullbacks with an implicit-adjoint path once implemented",
+          "measure memory and factorization reuse on larger geometry-control scans"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/file_backed_geometry_control_derivative_benchmark.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_file_backed_geometry_control_derivative_benchmark_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/file_backed_geometry_control_derivative_benchmark.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/file_backed_geometry_control_derivative_benchmark.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/file_backed_geometry_control_derivative_benchmark.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "boundary_forward_mode_current_derivative_benchmark",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "Boundary-to-output forward-mode derivative audit",
+        "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmex geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
+        "literature_anchors": [
+          "vmex explicit differentiable boundary workflows",
+          "booz_xform_jax JAX-native Boozer transform",
+          "McGreivy 2024 differentiable programming for plasma workflows"
+        ],
+        "scripts": [
+          "examples/boundary_forward_mode_current_derivative_benchmark.py"
+        ],
+        "tests": [
+          "tests/test_boundary_forward_mode_current_derivative_benchmark_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
+          "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
+          "docs/_static/boundary_forward_mode_current_derivative_benchmark.json"
+        ],
+        "manuscript_figures": [
+          "boundary_forward_mode_current_derivative_benchmark"
+        ],
+        "docs": [
+          "docs/autodiff.md",
+          "docs/research-roadmap.md"
+        ],
+        "open_work": [
+          "keep this fast projected-geometry lane as a low-cost precursor to the equilibrium-relaxed benchmark",
+          "validate broader non-axisymmetric benchmark families beyond the repository sample input",
+          "determine whether reverse-mode can be repaired or whether the boundary-control lane should stay forward-mode only"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/boundary_forward_mode_current_derivative_benchmark.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_boundary_forward_mode_current_derivative_benchmark_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boundary_forward_mode_current_derivative_benchmark.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boundary_forward_mode_current_derivative_benchmark.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boundary_forward_mode_current_derivative_benchmark.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/research-roadmap.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "implicit_equilibrium_forward_mode_derivative_benchmark",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "Implicit-equilibrium non-shipping derivative diagnostic",
+        "claim_scope": "The implicit fixed-boundary residual-forward path is retained as an artifact-backed diagnostic, but it is closed as non-shipping because residual contraction and Boozer/NTX surface-transport tangent parity do not pass on the committed QA case. The explicit-relaxed lane is the supported differentiable equilibrium path.",
+        "literature_anchors": [
+          "vmex implicit fixed-boundary differentiation",
+          "booz_xform_jax JAX-native Boozer transform",
+          "McGreivy 2024 differentiable programming for plasma workflows"
+        ],
+        "scripts": [
+          "examples/implicit_equilibrium_forward_mode_derivative_benchmark.py"
+        ],
+        "tests": [
+          "tests/test_implicit_equilibrium_forward_mode_derivative_benchmark_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.png",
+          "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf",
+          "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json"
+        ],
+        "manuscript_figures": [
+          "implicit_equilibrium_forward_mode_derivative_benchmark"
+        ],
+        "docs": [
+          "docs/autodiff.md",
+          "docs/research-roadmap.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "restore an implicit-equilibrium derivative lane only after residual contraction and Boozer/NTX tangent parity pass",
+          "broaden beyond the committed QA case to additional geometry families",
+          "keep explicit-relaxed derivatives as the shipping equilibrium route"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/implicit_equilibrium_forward_mode_derivative_benchmark.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_implicit_equilibrium_forward_mode_derivative_benchmark_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/research-roadmap.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "explicit_relaxed_boundary_current_derivative_benchmark",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "Explicit-relaxed boundary-to-current derivative audit",
+        "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmex solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
+        "literature_anchors": [
+          "vmex explicit differentiable boundary workflows",
+          "booz_xform_jax JAX-native Boozer transform",
+          "McGreivy 2024 differentiable programming for plasma workflows",
+          "Landreman and Paul 2022 precise-QS benchmark family"
+        ],
+        "scripts": [
+          "examples/explicit_relaxed_boundary_current_derivative_benchmark.py"
+        ],
+        "tests": [
+          "tests/test_explicit_relaxed_boundary_current_derivative_benchmark_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png",
+          "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf",
+          "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json"
+        ],
+        "manuscript_figures": [
+          "explicit_relaxed_boundary_current_derivative_benchmark"
+        ],
+        "docs": [
+          "docs/autodiff.md",
+          "docs/research-roadmap.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "widen beyond the committed QA and QH cases to additional geometry families",
+          "establish whether the implicit-equilibrium path can recover the same boundary sensitivities",
+          "determine whether reverse-mode can be repaired on the equilibrium-relaxed boundary-control lane"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/explicit_relaxed_boundary_current_derivative_benchmark.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_explicit_relaxed_boundary_current_derivative_benchmark_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/research-roadmap.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "autodiff_inverse_problem",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "Synthetic inverse-design recovery",
+        "claim_scope": "A differentiable profile/geometry control can recover a generated target on a small owned inverse problem.",
+        "literature_anchors": [
+          "adjoint stellarator-optimization validation practice",
+          "differentiable programming verification by generated targets"
+        ],
+        "scripts": [
+          "examples/autodiff_inverse_problem.py"
+        ],
+        "tests": [
+          "tests/test_autodiff.py",
+          "tests/test_make_publication_figures.py"
+        ],
+        "artifacts": [
+          "docs/_static/autodiff_inverse_problem.png",
+          "docs/_static/autodiff_inverse_problem.pdf"
+        ],
+        "manuscript_figures": [
+          "autodiff_inverse_problem"
+        ],
+        "docs": [
+          "docs/autodiff.md"
+        ],
+        "open_work": [
+          "extend from scalar controls to larger geometry-control families"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/autodiff_inverse_problem.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_autodiff.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_make_publication_figures.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/autodiff_inverse_problem.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/autodiff_inverse_problem.pdf",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "autodiff_profile_uncertainty",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "Radial-basis profile uncertainty and Fisher/HVP audit",
+        "claim_scope": "Linearized covariance propagation, Monte Carlo sampling, and a Fisher/Gauss-Newton versus Hessian-vector-product probe are checked on the same differentiable radial-basis profile map.",
+        "literature_anchors": [
+          "differentiable programming uncertainty propagation",
+          "profile-level neoclassical workflow sensitivity analysis"
+        ],
+        "scripts": [
+          "examples/autodiff_profile_uncertainty.py"
+        ],
+        "tests": [
+          "tests/test_autodiff.py",
+          "tests/test_autodiff_profile_uncertainty_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/autodiff_profile_uncertainty.png",
+          "docs/_static/autodiff_profile_uncertainty.pdf",
+          "docs/_static/autodiff_profile_uncertainty.json"
+        ],
+        "manuscript_figures": [
+          "autodiff_profile_uncertainty"
+        ],
+        "docs": [
+          "docs/autodiff.md"
+        ],
+        "open_work": [
+          "broaden from the committed radial-basis audit to cross-geometry profile families"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/autodiff_profile_uncertainty.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_autodiff.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_autodiff_profile_uncertainty_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/autodiff_profile_uncertainty.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/autodiff_profile_uncertainty.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/autodiff_profile_uncertainty.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "bootstrap_current_optimization",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "Differentiable bootstrap-current optimization",
+        "claim_scope": "The differentiable bootstrap-current objective improves a weighted reduced current response on the committed W7-X study while remaining scoped below a broad stellarator-design claim.",
+        "literature_anchors": [
+          "Paul et al. 2019 adjoint neoclassical optimization",
+          "direct neoclassical ion-transport optimization literature",
+          "differentiable programming verification by generated objectives"
+        ],
+        "scripts": [
+          "examples/bootstrap_current_optimization.py"
+        ],
+        "tests": [
+          "tests/test_autodiff.py",
+          "tests/test_bootstrap_current_optimization_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/bootstrap_current_optimization.png",
+          "docs/_static/bootstrap_current_optimization.pdf",
+          "docs/_static/bootstrap_current_optimization.json"
+        ],
+        "manuscript_figures": [
+          "bootstrap_current_optimization"
+        ],
+        "docs": [
+          "docs/autodiff.md",
+          "docs/examples.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "promote only after broader geometry-family controls are added",
+          "tie future optimization claims to reusable derivative-audit gates"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/bootstrap_current_optimization.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_autodiff.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_bootstrap_current_optimization_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_optimization.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_optimization.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_optimization.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/examples.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "robust_bootstrap_current_optimization",
+        "lane": "autodiff",
+        "maturity": "stress-gate",
+        "title": "Robust bootstrap-current optimization under control uncertainty",
+        "claim_scope": "The robust-design objective improves under a prescribed Gaussian control uncertainty on a deterministic owned benchmark.",
+        "literature_anchors": [
+          "adjoint stellarator optimization",
+          "direct neoclassical ion-transport optimization",
+          "robust optimization under parameter uncertainty"
+        ],
+        "scripts": [
+          "examples/bootstrap_current_robust_optimization.py"
+        ],
+        "tests": [
+          "tests/test_autodiff.py",
+          "tests/test_bootstrap_current_robust_optimization_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/bootstrap_current_robust_optimization.png",
+          "docs/_static/bootstrap_current_robust_optimization.pdf",
+          "docs/_static/bootstrap_current_robust_optimization.json"
+        ],
+        "manuscript_figures": [
+          "bootstrap_current_robust_optimization"
+        ],
+        "docs": [
+          "docs/autodiff.md"
+        ],
+        "open_work": [
+          "promote only after testing on broader geometry controls and profile families"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/bootstrap_current_robust_optimization.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_autodiff.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_bootstrap_current_robust_optimization_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_robust_optimization.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_robust_optimization.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/bootstrap_current_robust_optimization.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "profile_force_reconstruction",
+        "lane": "profile-workflow",
+        "maturity": "stress-gate",
+        "title": "Primitive profile to force reconstruction",
+        "claim_scope": "The primitive-profile builder is audited on the precise-QS profile family and kept as a monitored profile stress benchmark.",
+        "literature_anchors": [
+          "Landreman and Paul 2022 precise-QS density and temperature profiles",
+          "thermodynamic-force formulation of neoclassical transport"
+        ],
+        "scripts": [
+          "examples/profile_force_reconstruction_audit.py"
+        ],
+        "tests": [
+          "tests/test_profile_force_reconstruction_audit_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/profile_force_reconstruction_audit.png",
+          "docs/_static/profile_force_reconstruction_audit.pdf",
+          "docs/_static/profile_force_reconstruction_audit.json"
+        ],
+        "manuscript_figures": [
+          "profile_force_reconstruction_audit"
+        ],
+        "docs": [
+          "docs/profiles.md"
+        ],
+        "open_work": [
+          "tighten profile-level physical diagnostics for long-radius studies"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/profile_force_reconstruction_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_profile_force_reconstruction_audit_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_force_reconstruction_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_force_reconstruction_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_force_reconstruction_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/profiles.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "profile_basis_optimization",
+        "lane": "profile-workflow",
+        "maturity": "stress-gate",
+        "title": "Radial-basis profile-control optimization",
+        "claim_scope": "A three-function radial basis control is optimized through the profile closure, with objective, residual, and control metrics stored as a monitored workflow artifact.",
+        "literature_anchors": [
+          "profile-level neoclassical transport sensitivity workflows",
+          "differentiable programming verification by controlled objectives"
+        ],
+        "scripts": [
+          "examples/profile_basis_optimization.py"
+        ],
+        "tests": [
+          "tests/test_profile_basis_optimization_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/profile_basis_optimization.png",
+          "docs/_static/profile_basis_optimization.pdf",
+          "docs/_static/profile_basis_optimization.json"
+        ],
+        "manuscript_figures": [
+          "profile_basis_optimization"
+        ],
+        "docs": [
+          "docs/profiles.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "broaden the radial basis to reusable physics-motivated profile families",
+          "promote only after cross-geometry profile/current validation"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/profile_basis_optimization.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_profile_basis_optimization_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_basis_optimization.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_basis_optimization.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/profile_basis_optimization.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/profiles.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "performance_scaling",
+        "lane": "performance",
+        "maturity": "software-gate",
+        "title": "CPU/GPU throughput characterization",
+        "claim_scope": "Serial, multiprocess, CPU, and GPU execution modes are characterized on committed smoke, heavier-grid, and production-grid cases, with a separate fixed-workload strong-scaling artifact.",
+        "literature_anchors": [
+          "JAX performance practice for compiled scientific workloads",
+          "multi-process scan execution for independent monoenergetic cases"
+        ],
+        "scripts": [
+          "examples/performance_scaling.py",
+          "examples/performance_strong_scaling.py",
+          "scripts/benchmark_scaling.py",
+          "scripts/benchmark_strong_scaling.py"
+        ],
+        "tests": [
+          "tests/test_performance_scaling_example.py",
+          "tests/test_benchmark_scaling_script.py"
+        ],
+        "artifacts": [
+          "docs/_static/performance_scaling_smoke.png",
+          "docs/_static/performance_scaling_smoke.pdf",
+          "docs/_static/performance_scaling_smoke.json",
+          "docs/_static/performance_scaling_cpu_smoke.json",
+          "docs/_static/performance_scaling_gpu_smoke.json",
+          "docs/_static/performance_scaling_heavy.png",
+          "docs/_static/performance_scaling_heavy.pdf",
+          "docs/_static/performance_scaling_heavy.json",
+          "docs/_static/performance_scaling_cpu_heavy.json",
+          "docs/_static/performance_scaling_gpu_heavy.json",
+          "docs/_static/performance_scaling_production.png",
+          "docs/_static/performance_scaling_production.pdf",
+          "docs/_static/performance_scaling_production.json",
+          "docs/_static/performance_scaling_cpu_production.json",
+          "docs/_static/performance_scaling_gpu_production.json",
+          "docs/_static/performance_strong_scaling_production.png",
+          "docs/_static/performance_strong_scaling_production.pdf",
+          "docs/_static/performance_strong_scaling_production.json",
+          "docs/_static/performance_strong_scaling_cpu_production.json",
+          "docs/_static/performance_strong_scaling_gpu_production.json"
+        ],
+        "manuscript_figures": [
+          "performance_scaling_production",
+          "performance_strong_scaling_production"
+        ],
+        "docs": [
+          "docs/performance.md",
+          "docs/gpu.md"
+        ],
+        "open_work": [
+          "repeat the production and strong-scaling matrices on additional GPU nodes",
+          "add device-memory timelines for larger VMEC-family workloads"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/performance_scaling.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/performance_strong_scaling.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "scripts/benchmark_scaling.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "scripts/benchmark_strong_scaling.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_performance_scaling_example.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_benchmark_scaling_script.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_smoke.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_smoke.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_smoke.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_cpu_smoke.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_gpu_smoke.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_heavy.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_heavy.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_heavy.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_cpu_heavy.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_gpu_heavy.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_production.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_production.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_cpu_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_scaling_gpu_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_production.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_production.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_cpu_production.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/performance_strong_scaling_gpu_production.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/performance.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/gpu.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "prepared_geometry_reuse_profile",
+        "lane": "performance",
+        "maturity": "software-gate",
+        "title": "Prepared-geometry and compiled-solver reuse profile",
+        "claim_scope": "Measures repeated monoenergetic solves with direct calls, prepared geometry reuse, and a compiled prepared solver on one fixed geometry. This is a performance and reproducibility gate, not a physics-validation claim.",
+        "literature_anchors": [
+          "JAX performance practice for compiled scientific workloads",
+          "reuse of fixed-geometry DKE operators across monoenergetic scans"
+        ],
+        "scripts": [
+          "examples/prepared_geometry_reuse_profile.py"
+        ],
+        "tests": [
+          "tests/test_prepared_geometry_reuse_profile_example.py"
+        ],
+        "artifacts": [
+          "docs/_static/prepared_geometry_reuse_profile.png",
+          "docs/_static/prepared_geometry_reuse_profile.pdf",
+          "docs/_static/prepared_geometry_reuse_profile.json"
+        ],
+        "manuscript_figures": [
+          "prepared_geometry_reuse_profile"
+        ],
+        "docs": [
+          "docs/performance.md",
+          "docs/numerics.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "repeat the profile on larger production VMEC-family scans",
+          "evaluate reusable factorization or linear-operator approaches after profiling"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/prepared_geometry_reuse_profile.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_prepared_geometry_reuse_profile_example.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/prepared_geometry_reuse_profile.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/prepared_geometry_reuse_profile.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/prepared_geometry_reuse_profile.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/performance.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/numerics.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "geometry_family_breadth_summary",
+        "lane": "geometry-breadth",
+        "maturity": "stress-gate",
+        "title": "Artifact-backed geometry-family derivative breadth summary",
+        "claim_scope": "Summarizes committed analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-equilibrium diagnostic artifacts without promoting a full hidden-symmetry, omnigenous, or broad W7-X/QI validation claim.",
+        "literature_anchors": [
+          "Paul et al. 2019 adjoint neoclassical optimization",
+          "McGreivy 2024 differentiable programming for plasma workflows",
+          "Landreman and Paul 2022 precise-QS benchmark family",
+          "omnigenous and quasi-isodynamic geometry-breadth literature"
+        ],
+        "scripts": [
+          "examples/geometry_family_breadth_summary.py"
+        ],
+        "tests": [
+          "tests/test_geometry_family_breadth_summary.py"
+        ],
+        "artifacts": [
+          "docs/_static/geometry_family_breadth_summary.png",
+          "docs/_static/geometry_family_breadth_summary.pdf",
+          "docs/_static/geometry_family_breadth_summary.json"
+        ],
+        "manuscript_figures": [
+          "geometry_family_breadth_summary"
+        ],
+        "docs": [
+          "docs/benchmark-matrix.md",
+          "docs/autodiff.md",
+          "docs/manuscript.md",
+          "docs/research-roadmap.md"
+        ],
+        "open_work": [
+          "broaden committed cases to reusable W7-X EIM/KJM, QI, and omnigenous inputs",
+          "add D11/D31/D33 parity and convergence ladders before full geometry-family promotion",
+          "restore implicit-equilibrium derivatives only after residual contraction and surface/transport tangent parity pass"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/geometry_family_breadth_summary.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_geometry_family_breadth_summary.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_breadth_summary.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_breadth_summary.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_breadth_summary.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/research-roadmap.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "geometry_family_transport_convergence",
+        "lane": "geometry-breadth",
+        "maturity": "stress-gate",
+        "title": "VMEC geometry-family D11/D31/D33 convergence stress diagnostic",
+        "claim_scope": "Runs reusable public VMEC examples through NTX and reports D11, D31, and D33 coarse-to-fine changes. This closes a broad reduced-grid NTX stress diagnostic, not an independent-code parity claim.",
+        "literature_anchors": [
+          "W7-X standard-configuration benchmark workflows",
+          "Landreman and Paul 2022 precise-QS benchmark family",
+          "quasi-isodynamic and omnigenous geometry-family validation literature",
+          "VMEC, STELLOPT, and SIMSOPT public equilibrium example suites"
+        ],
+        "scripts": [
+          "examples/geometry_family_transport_convergence.py"
+        ],
+        "tests": [
+          "tests/test_geometry_family_transport_convergence.py"
+        ],
+        "artifacts": [
+          "docs/_static/geometry_family_transport_convergence.png",
+          "docs/_static/geometry_family_transport_convergence.pdf",
+          "docs/_static/geometry_family_transport_convergence.json"
+        ],
+        "manuscript_figures": [
+          "geometry_family_transport_convergence"
+        ],
+        "docs": [
+          "README.md",
+          "docs/benchmark-matrix.md",
+          "docs/manuscript.md",
+          "docs/research-roadmap.md",
+          "docs/validation.md"
+        ],
+        "open_work": [
+          "promote only after production-resolution sweeps with independent reference parity on each family",
+          "add an owned W7-X KJM input once a reusable public reference input is identified or regenerated",
+          "add radial and collisionality ladders before claiming broad bootstrap-current-profile validation"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/geometry_family_transport_convergence.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_geometry_family_transport_convergence.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_transport_convergence.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_transport_convergence.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/geometry_family_transport_convergence.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "README.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/research-roadmap.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "angular_oversampling_audit",
+        "lane": "geometry-breadth",
+        "maturity": "stress-gate",
+        "title": "Variable-coefficient angular collocation oversampling audit",
+        "claim_scope": "Measures D11, D31, and D33 error, compiled warm runtime, and XLA temporary memory against a finer collocation reference. It supports a warning-level starting-grid recommendation, not an analytical de-aliasing theorem or independent-code claim.",
+        "literature_anchors": [
+          "Orszag 1971 Fourier alias-elimination analysis",
+          "Escoto et al. 2024 monoenergetic Fourier-collocation convergence",
+          "Escoto 2025 thesis angular-resolution practice"
+        ],
+        "scripts": [
+          "examples/angular_oversampling_audit.py"
+        ],
+        "tests": [
+          "tests/test_angular_oversampling.py"
+        ],
+        "artifacts": [
+          "docs/_static/angular_oversampling_audit.png",
+          "docs/_static/angular_oversampling_audit.pdf",
+          "docs/_static/angular_oversampling_audit.json"
+        ],
+        "manuscript_figures": [
+          "angular_oversampling_audit"
+        ],
+        "docs": [
+          "docs/convergence.md",
+          "docs/examples.md",
+          "docs/literature.md",
+          "docs/numerics.md",
+          "docs/testing.md",
+          "docs/validation.md"
+        ],
+        "open_work": [
+          "retain two-successive-grid convergence as the research gate",
+          "extend the measured recommendation if new geometry families exceed it"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/angular_oversampling_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_angular_oversampling.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/angular_oversampling_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/angular_oversampling_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/angular_oversampling_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/convergence.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/examples.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/literature.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/numerics.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/testing.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "boozmn_same_coordinate_roundtrip",
+        "lane": "geometry-breadth",
+        "maturity": "positive-gate",
+        "title": "Same-coordinate Boozer-file round-trip validation",
+        "claim_scope": "Generates a Boozer file from a VMEC wout, reloads the same VMEC half-grid surfaces through the direct boozmn backend, and requires geometry metadata plus D11/D31/D13/D33 to match the in-memory vmex/booz_xform_jax path. This validates the direct loader radial coordinate and normalization conventions; it does not equate VMEC-harmonic and Boozer-coordinate representations.",
+        "literature_anchors": [
+          "Boozer-coordinate flux-surface representation",
+          "VMEC half-grid placement of magnetic-field spectra",
+          "Boozer-transform boozmn jlist and packed-surface convention"
+        ],
+        "scripts": [
+          "examples/boozmn_same_coordinate_roundtrip_audit.py"
+        ],
+        "tests": [
+          "tests/test_boozmn.py",
+          "tests/test_boozmn_same_coordinate_roundtrip_audit.py"
+        ],
+        "artifacts": [
+          "docs/_static/boozmn_same_coordinate_roundtrip_audit.png",
+          "docs/_static/boozmn_same_coordinate_roundtrip_audit.pdf",
+          "docs/_static/boozmn_same_coordinate_roundtrip_audit.json"
+        ],
+        "manuscript_figures": [
+          "boozmn_same_coordinate_roundtrip_audit"
+        ],
+        "docs": [
+          "docs/geometry.md",
+          "docs/neopax.md",
+          "docs/validation.md",
+          "docs/benchmark-matrix.md"
+        ],
+        "open_work": [
+          "keep VMEC-harmonic versus Boozer-file comparisons scoped as representation audits unless their source channels are shown to be mathematically identical",
+          "repeat the round-trip gate on larger finite-beta family inputs when those artifacts are promoted"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/boozmn_same_coordinate_roundtrip_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_boozmn.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boozmn_same_coordinate_roundtrip_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boozmn_same_coordinate_roundtrip_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boozmn_same_coordinate_roundtrip_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/geometry.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/neopax.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "boozmn_finite_beta_wout_roundtrip",
+        "lane": "geometry-breadth",
+        "maturity": "positive-gate",
+        "title": "Finite-beta finalized-wout Boozer-file transfer validation",
+        "claim_scope": "Transforms an optimized finite-beta QA VMEC wout through finalized magnetic channels, reloads the generated Boozer file on the same half-grid surfaces, and requires D11/D31/D13/D33 to match the reference transform to roundoff. This validates the file-backed finite-beta Boozer path for input profile representations that the differentiable VMEC-state reconstruction path does not yet support; it is not a claim of differentiable finite-beta state sensitivities.",
+        "literature_anchors": [
+          "VMEC finite-beta wout magnetic-field representation",
+          "Boozer-coordinate flux-surface representation",
+          "VMEC half-grid placement of Boozer spectra and radial profiles",
+          "finite-beta quasi-symmetric benchmark input families"
+        ],
+        "scripts": [
+          "examples/boozmn_same_coordinate_roundtrip_audit.py"
+        ],
+        "tests": [
+          "tests/test_boozmn.py",
+          "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
+          "tests/test_vmex_backend.py"
+        ],
+        "artifacts": [
+          "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.png",
+          "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.pdf",
+          "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.json"
+        ],
+        "manuscript_figures": [
+          "boozmn_finite_beta_wout_roundtrip_audit"
+        ],
+        "docs": [
+          "docs/geometry.md",
+          "docs/validation.md",
+          "docs/testing.md",
+          "docs/physics-gates.md",
+          "docs/benchmark-matrix.md"
+        ],
+        "open_work": [
+          "promote fully differentiable finite-beta state sensitivities only after the optional VMEC stack supports the optimized current-profile representation or exposes solver-consistent finalized magnetic channels in differentiable form",
+          "extend the same finalized-wout transfer gate to QH, QI, and W7-X-owned finite-beta cases when those owned inputs are promoted"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/boozmn_same_coordinate_roundtrip_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_boozmn.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_vmex_backend.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/geometry.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/testing.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/physics-gates.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "owned_geometry_neopax_dataset",
+        "lane": "geometry-breadth",
+        "maturity": "stress-gate",
+        "title": "Owned finite-beta JAX-native NTX+NEOPAX dataset provenance",
+        "claim_scope": "Builds self-contained NTX+NEOPAX scan artifacts from matching finite-beta VMEC input/wout pairs. The power-series finite-beta QA case runs through the JAX-native Boozer path, optimized finite-beta QH/QI cases are retained as direct wout-harmonic stress cases until their current-profile representation is supported by the JAX geometry stack, and all outputs store compact profile flux/current proxies from the same tables. The Boozer-coordinate path passes the physical VMEC edge toroidal flux divided by 2*pi as psi_p, closing the previous unit-flux path-normalization ambiguity. This controls geometry, interpolation, and normalization provenance; it is not an independent-code parity claim.",
+        "literature_anchors": [
+          "VMEC equilibrium representation",
+          "Boozer-coordinate transport-database workflows",
+          "monoenergetic coefficient database normalization used by profile solvers",
+          "precise-QS and QI public VMEC example families"
+        ],
+        "scripts": [
+          "examples/owned_geometry_neopax_dataset.py"
+        ],
+        "tests": [
+          "tests/test_owned_geometry_neopax_dataset.py"
+        ],
+        "artifacts": [
+          "docs/_static/owned_geometry_neopax_dataset.png",
+          "docs/_static/owned_geometry_neopax_dataset.pdf",
+          "docs/_static/owned_geometry_neopax_dataset.json"
+        ],
+        "manuscript_figures": [
+          "owned_geometry_neopax_dataset"
+        ],
+        "docs": [
+          "README.md",
+          "docs/benchmark-matrix.md",
+          "docs/examples.md",
+          "docs/neopax.md",
+          "docs/validation.md"
+        ],
+        "open_work": [
+          "compare completed same-grid SFINCS-JAX outputs across radius and collisionality before promoting new parity figures",
+          "add stable downstream interpolation-mode audits when those modes are exposed through a public interface",
+          "extend JAX geometry input reconstruction to optimized finite-beta cubic-spline current profiles",
+          "expand to production-resolution QA, QH, QI, and W7-X families after owned independent-code generation scripts have completed runs"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/owned_geometry_neopax_dataset.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_geometry_neopax_dataset.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_geometry_neopax_dataset.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_geometry_neopax_dataset.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_geometry_neopax_dataset.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "README.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/examples.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/neopax.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "owned_finite_beta_sfincs_jax_inputs",
+        "lane": "geometry-breadth",
+        "maturity": "stress-gate",
+        "title": "Owned finite-beta SFINCS-JAX generation contract",
+        "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. This is the owned independent-code generation contract, a stress-radius smoke-resolution coefficient ladder, an isolated production-grid stress-radius resolution/harmonic-cutoff probe, and a completed production radial/collisionality coefficient ladder with the exact radial interpolation, pitch-angle-scattering frequency, and RHSMode=3 flow-row normalizations recorded. It also writes a bounded RHSMode=1 profile-current diagnostic on the same finite-beta profile contract; this is not a bootstrap-current parity claim until production-resolution profile-current outputs are converged and compared against the same NTX, Redl, and profile artifacts.",
+        "literature_anchors": [
+          "SFINCS monoenergetic RHSMode=3 transport-matrix convention",
+          "VMEC geometryScheme=5 finite-beta wout geometry loading",
+          "same-grid independent-code validation discipline"
+        ],
+        "scripts": [
+          "examples/owned_finite_beta_sfincs_jax_inputs.py",
+          "examples/owned_finite_beta_sfincs_jax_resolution_audit.py",
+          "examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py",
+          "examples/owned_finite_beta_sfincs_jax_profile_current_audit.py",
+          "examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py"
+        ],
+        "tests": [
+          "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
+          "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py",
+          "tests/test_owned_finite_beta_sfincs_jax_production_ladder_audit.py",
+          "tests/test_owned_finite_beta_sfincs_jax_profile_current_audit.py",
+          "tests/test_owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py"
+        ],
+        "artifacts": [
+          "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
+          "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
+          "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_probe.png",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_probe.pdf",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.png",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.pdf",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_ladder.png",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_ladder.pdf",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_ladder.json",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
+          "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json",
+          "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+          "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+          "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json",
+          "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png",
+          "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf",
+          "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json",
+          "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png",
+          "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf",
+          "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
+        ],
+        "manuscript_figures": [
+          "owned_finite_beta_sfincs_jax_inputs",
+          "owned_finite_beta_sfincs_jax_resolution_audit",
+          "owned_finite_beta_sfincs_jax_production_ladder",
+          "owned_finite_beta_sfincs_jax_profile_current_audit",
+          "owned_finite_beta_sfincs_jax_profile_current_resolution_audit"
+        ],
+        "docs": [
+          "docs/benchmark-matrix.md",
+          "docs/examples.md",
+          "docs/validation.md"
+        ],
+        "open_work": [
+          "keep the accepted finite-beta profile-current stress diagnostics artifact-backed as SFINCS-JAX and downstream interpolation modes evolve",
+          "promote only after geometry, profile, normalization, and interpolation sidecars are complete",
+          "treat the full-collision RHSMode=1 branch as a non-shipping feasibility diagnostic until it is practical at production resolution"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_sfincs_jax_inputs.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_sfincs_jax_resolution_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_sfincs_jax_profile_current_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_sfincs_jax_production_ladder_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_sfincs_jax_profile_current_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/examples.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "owned_finite_beta_bootstrap_comparison",
+        "lane": "geometry-breadth",
+        "maturity": "stress-gate",
+        "title": "Owned finite-beta Redl and NTX+NEOPAX bootstrap-current stress audit",
+        "claim_scope": "Runs Redl and NTX+NEOPAX on the same finite-beta VMEC wout, Boozer transform, analytic profile contract, radial grid, production radial/collisionality ladder, adaptive physical nu/v support, explicit D33_spitzer audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure quadrature sidecar, source-channel closure sidecar, profile source-response sidecar, radial interpolation sensitivity sidecar, field-radius-matched closure quadrature sidecar, field-radius-matched source-channel sidecar, and current normalization. The current reduced-closure result has the correct sign, some radii near the 1e-1 target, and an accepted high-Nxi RHSMode=1 pitch stress gap below 1.5e-1; it is reported as a closed reduced-closure stress benchmark rather than a broad full-collision SFINCS parity claim.",
+        "literature_anchors": [
+          "Redl bootstrap-current formula and geometry-factor normalization",
+          "finite-beta VMEC and Boozer-coordinate profile workflows",
+          "monoenergetic database coupling to multi-species profile closures",
+          "same-grid independent-code validation discipline"
+        ],
+        "scripts": [
+          "examples/owned_finite_beta_bootstrap_comparison.py",
+          "examples/owned_finite_beta_closure_localization.py",
+          "examples/owned_finite_beta_profile_current_observable_audit.py",
+          "examples/owned_finite_beta_current_conditioning_audit.py",
+          "examples/owned_finite_beta_closure_quadrature_audit.py",
+          "examples/owned_finite_beta_source_channel_audit.py",
+          "examples/owned_finite_beta_source_response_profile_audit.py",
+          "examples/owned_finite_beta_closure_target_audit.py",
+          "examples/owned_finite_beta_radial_interpolation_audit.py"
+        ],
+        "tests": [
+          "tests/test_owned_finite_beta_bootstrap_comparison.py",
+          "tests/test_owned_finite_beta_closure_localization.py",
+          "tests/test_owned_finite_beta_profile_current_observable_audit.py",
+          "tests/test_owned_finite_beta_current_conditioning_audit.py",
+          "tests/test_owned_finite_beta_closure_quadrature_audit.py",
+          "tests/test_owned_finite_beta_source_channel_audit.py",
+          "tests/test_owned_finite_beta_source_response_profile_audit.py",
+          "tests/test_owned_finite_beta_closure_target_audit.py",
+          "tests/test_owned_finite_beta_radial_interpolation_audit.py"
+        ],
+        "artifacts": [
+          "docs/_static/owned_finite_beta_bootstrap_comparison.png",
+          "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
+          "docs/_static/owned_finite_beta_bootstrap_comparison.json",
+          "docs/_static/owned_finite_beta_closure_localization.png",
+          "docs/_static/owned_finite_beta_closure_localization.pdf",
+          "docs/_static/owned_finite_beta_closure_localization.json",
+          "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+          "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
+          "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+          "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+          "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+          "docs/_static/owned_finite_beta_current_conditioning_audit.json",
+          "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+          "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+          "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
+          "docs/_static/owned_finite_beta_source_channel_audit.png",
+          "docs/_static/owned_finite_beta_source_channel_audit.pdf",
+          "docs/_static/owned_finite_beta_source_channel_audit.json",
+          "docs/_static/owned_finite_beta_source_response_profile_audit.png",
+          "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
+          "docs/_static/owned_finite_beta_source_response_profile_audit.json",
+          "docs/_static/owned_finite_beta_closure_target_audit.png",
+          "docs/_static/owned_finite_beta_closure_target_audit.pdf",
+          "docs/_static/owned_finite_beta_closure_target_audit.json",
+          "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+          "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+          "docs/_static/owned_finite_beta_radial_interpolation_audit.json",
+          "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json",
+          "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+          "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+          "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json",
+          "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.png",
+          "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.pdf",
+          "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json"
+        ],
+        "manuscript_figures": [
+          "owned_finite_beta_bootstrap_comparison",
+          "owned_finite_beta_closure_localization",
+          "owned_finite_beta_profile_current_observable_audit",
+          "owned_finite_beta_current_conditioning_audit",
+          "owned_finite_beta_closure_quadrature_audit",
+          "owned_finite_beta_source_channel_audit",
+          "owned_finite_beta_source_response_profile_audit",
+          "owned_finite_beta_closure_target_audit",
+          "owned_finite_beta_radial_interpolation_audit",
+          "owned_finite_beta_field_radius_matched_closure_quadrature_audit",
+          "owned_finite_beta_field_radius_matched_source_channel_audit"
+        ],
+        "docs": [
+          "README.md",
+          "docs/benchmark-matrix.md",
+          "docs/examples.md",
+          "docs/neopax.md",
+          "docs/validation.md",
+          "docs/manuscript.md"
+        ],
+        "open_work": [
+          "derive or import a quadrature-converged higher-order closure before accepting any apparent finite-beta current gate pass at X < Pmax",
+          "close the reduced-closure profile-current stress using the same physical profile, source-channel decomposition, normalization, and interpolation contract",
+          "use the radial source-response map to distinguish a physics-derived closure term from an empirical profile-local multiplier",
+          "repeat the field-radius-matched interpolation audit with a dense production radial scan before changing any runtime interpolation policy",
+          "derive a quadrature-stable finite-beta reduced-closure improvement; the current field-radius-matched sweep still has zero quadrature-stable current-gate passes",
+          "run the production same-grid coefficient ladder to the current-conditioned precision threshold before assigning the finite-beta net-current gap to the reduced closure",
+          "extend the production-resolution QA ladder to QH/QI and W7-X-owned families before promoting broad finite-beta current-profile claims",
+          "add downstream general-vs-legacy interpolation comparison once NEOPAX exposes a stable mode selector"
+        ]
+      },
+      "status": "complete",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_bootstrap_comparison.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_closure_localization.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_profile_current_observable_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_current_conditioning_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_closure_quadrature_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_source_channel_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_source_response_profile_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_closure_target_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "script",
+          "path": "examples/owned_finite_beta_radial_interpolation_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_bootstrap_comparison.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_closure_localization.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_profile_current_observable_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_current_conditioning_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_closure_quadrature_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_source_channel_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_source_response_profile_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_closure_target_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "test",
+          "path": "tests/test_owned_finite_beta_radial_interpolation_audit.py",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_bootstrap_comparison.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_bootstrap_comparison.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_bootstrap_comparison.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_localization.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_localization.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_localization.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_profile_current_observable_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_profile_current_observable_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_current_conditioning_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_current_conditioning_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_current_conditioning_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_quadrature_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_source_channel_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_source_channel_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_source_channel_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_source_response_profile_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_source_response_profile_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_source_response_profile_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_target_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_target_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_closure_target_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_radial_interpolation_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_radial_interpolation_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_radial_interpolation_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_field_radius_matched_bootstrap_comparison.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.png",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.pdf",
+          "exists": true
+        },
+        {
+          "kind": "artifact",
+          "path": "docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "README.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/examples.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/neopax.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/manuscript.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "geometry_breadth_hidden_symmetry",
+        "lane": "geometry-breadth",
+        "maturity": "planned-lane",
+        "title": "Hidden-symmetry and omnigenous geometry families",
+        "claim_scope": "Future research workflows should broaden validation beyond the current W7-X-centered set.",
+        "literature_anchors": [
+          "near-axis quasi-isodynamic construction and verification",
+          "hidden-symmetry optimization literature",
+          "piecewise-omnigenous optimization literature"
+        ],
+        "scripts": [],
+        "tests": [],
+        "artifacts": [],
+        "manuscript_figures": [],
+        "docs": [
+          "docs/research-roadmap.md"
+        ],
+        "open_work": [
+          "identify reusable public inputs for hidden-symmetry studies",
+          "add VMEC/Boozer family examples once inputs are owned",
+          "define convergence gates before promoting figures"
+        ]
+      },
+      "status": "planned",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "doc",
+          "path": "docs/research-roadmap.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "full_monoenergetic_geometry_family",
+        "lane": "monoenergetic",
+        "maturity": "planned-lane",
+        "title": "Full literature monoenergetic geometry-family reproduction",
+        "claim_scope": "The compact validation summary should be broadened into the full literature geometry-family reproduction before claiming coverage of all benchmark cases.",
+        "literature_anchors": [
+          "Escoto et al. 2024 W7-X EIM, W7-X KJM, and CIEMAT-QI benchmarks",
+          "Escoto thesis convergence ladders for D11, D31, and D33"
+        ],
+        "scripts": [],
+        "tests": [],
+        "artifacts": [],
+        "manuscript_figures": [],
+        "docs": [
+          "docs/benchmark-matrix.md",
+          "docs/validation.md"
+        ],
+        "open_work": [
+          "own or regenerate reusable inputs for W7-X EIM, W7-X KJM, and CIEMAT-QI",
+          "add D11, D31, and D33 parity plots for those families",
+          "add N_xi, N_theta, and N_zeta convergence ladders",
+          "include zero and finite radial-electric-field cases where applicable"
+        ]
+      },
+      "status": "planned",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "doc",
+          "path": "docs/benchmark-matrix.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/validation.md",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "entry": {
+        "id": "large_geometry_control_autodiff",
+        "lane": "autodiff",
+        "maturity": "planned-lane",
+        "title": "Large geometry-control autodiff validation",
+        "claim_scope": "The scalar derivative and optimization examples should be extended to larger geometry-control families before promoting optimization-grade stellarator-design claims.",
+        "literature_anchors": [
+          "Paul et al. 2019 adjoint neoclassical optimization",
+          "McGreivy 2024 differentiable programming for plasma workflows",
+          "direct neoclassical transport optimization literature"
+        ],
+        "scripts": [],
+        "tests": [],
+        "artifacts": [],
+        "manuscript_figures": [],
+        "docs": [
+          "docs/autodiff.md",
+          "docs/research-roadmap.md"
+        ],
+        "open_work": [
+          "broaden the current analytic and file-backed audits into reusable geometry families",
+          "compare direct autodiff, implicit-adjoint, and finite-difference probes",
+          "measure memory and factorization reuse under real scan workloads",
+          "add publication-ready derivative and optimization figures"
+        ]
+      },
+      "status": "planned",
+      "missing_required_paths": [],
+      "path_status": [
+        {
+          "kind": "doc",
+          "path": "docs/autodiff.md",
+          "exists": true
+        },
+        {
+          "kind": "doc",
+          "path": "docs/research-roadmap.md",
+          "exists": true
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "complete": 26,
+    "incomplete": 0,
+    "planned": 3
+  }
+}

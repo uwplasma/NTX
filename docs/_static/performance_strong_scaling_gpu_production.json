@@ -1,0 +1,68 @@
+{
+  "artifact": "strong_scaling_benchmark",
+  "backend": "gpu",
+  "device_counts": [
+    1,
+    2
+  ],
+  "device_parallel": [
+    {
+      "cases_per_second": 26.267952983251615,
+      "effective_device_count": 1,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 0.9198222042510561,
+      "requested_device_count": 1,
+      "seconds": 4.872857815818861,
+      "speedup_vs_serial": 0.9198222042510561
+    },
+    {
+      "cases_per_second": 23.76362788946518,
+      "effective_device_count": 1,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 0.832128510364951,
+      "requested_device_count": 2,
+      "seconds": 5.386382946046069,
+      "speedup_vs_serial": 0.832128510364951
+    }
+  ],
+  "devices": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "grid": {
+    "n_theta": 17,
+    "n_xi": 16,
+    "n_zeta": 25
+  },
+  "healthy_parallel_device_count": 1,
+  "local_device_count": 2,
+  "max_rss_mb": 1370.73046875,
+  "multiprocess": [
+    {
+      "cases_per_second": 13.90475108213282,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 0.4869012365784452,
+      "seconds": 9.205486617051065,
+      "speedup_vs_serial": 0.4869012365784452,
+      "workers": 1
+    },
+    {
+      "cases_per_second": 16.100567783158503,
+      "max_abs_delta_serial_d11": 2.3378703417620272e-08,
+      "parallel_efficiency_vs_serial": 0.28189596192442173,
+      "seconds": 7.950030192965642,
+      "speedup_vs_serial": 0.5637919238488435,
+      "workers": 2
+    }
+  ],
+  "num_cases": 128,
+  "serial": {
+    "cases_per_second": 28.557641750602972,
+    "seconds": 4.482162817148492
+  },
+  "surface": "dkes",
+  "worker_counts": [
+    1,
+    2
+  ]
+}

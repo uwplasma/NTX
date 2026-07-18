@@ -32,10 +32,15 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "angular_oversampling",
+        "boozmn_same_coordinate_roundtrip",
+        "boozmn_finite_beta_wout_roundtrip",
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
         "owned_finite_beta_sfincs_jax_production_ladder",
+        "owned_finite_beta_sfincs_jax_profile_current",
+        "owned_finite_beta_sfincs_jax_profile_current_resolution",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
@@ -82,10 +87,15 @@ FIGURE_PRESETS = {
         "boundary_explicit_relaxed",
         "geometry_family_breadth",
         "geometry_family_transport",
+        "angular_oversampling",
+        "boozmn_same_coordinate_roundtrip",
+        "boozmn_finite_beta_wout_roundtrip",
         "owned_geometry_neopax",
         "owned_finite_beta_sfincs_jax_inputs",
         "owned_finite_beta_sfincs_jax_resolution_audit",
         "owned_finite_beta_sfincs_jax_production_ladder",
+        "owned_finite_beta_sfincs_jax_profile_current",
+        "owned_finite_beta_sfincs_jax_profile_current_resolution",
         "owned_finite_beta_bootstrap_comparison",
         "owned_finite_beta_closure_localization",
         "owned_finite_beta_profile_current_observable",
@@ -376,7 +386,7 @@ def main() -> None:
                 sys.executable,
                 str(ROOT / "examples" / "geometry_family_transport_convergence.py"),
                 "--preset",
-                "paper",
+                "production",
                 "--output-prefix",
                 str(output_dir / "geometry_family_transport_convergence"),
             ]
@@ -386,6 +396,37 @@ def main() -> None:
             _manifest_path(output_dir / "geometry_family_transport_convergence.pdf"),
             _manifest_path(output_dir / "geometry_family_transport_convergence.json"),
         ]
+
+    if "angular_oversampling" in selected:
+        _run(
+            [
+                sys.executable,
+                str(ROOT / "examples" / "angular_oversampling_audit.py"),
+                "--preset",
+                "production",
+                "--output-prefix",
+                str(output_dir / "angular_oversampling_audit"),
+            ]
+        )
+        manifest["angular_oversampling"] = [
+            _manifest_path(output_dir / "angular_oversampling_audit.png"),
+            _manifest_path(output_dir / "angular_oversampling_audit.pdf"),
+            _manifest_path(output_dir / "angular_oversampling_audit.json"),
+        ]
+
+    if "boozmn_same_coordinate_roundtrip" in selected:
+        manifest["boozmn_same_coordinate_roundtrip"] = _copy_existing_static(
+            "boozmn_same_coordinate_roundtrip_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "boozmn_finite_beta_wout_roundtrip" in selected:
+        manifest["boozmn_finite_beta_wout_roundtrip"] = _copy_existing_static(
+            "boozmn_finite_beta_wout_roundtrip_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
 
     if "owned_geometry_neopax" in selected:
         manifest["owned_geometry_neopax"] = _copy_existing_static(
@@ -413,6 +454,22 @@ def main() -> None:
             "owned_finite_beta_sfincs_jax_production_ladder_audit",
             output_dir,
             (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_sfincs_jax_profile_current" in selected:
+        manifest["owned_finite_beta_sfincs_jax_profile_current"] = _copy_existing_static(
+            "owned_finite_beta_sfincs_jax_profile_current_audit",
+            output_dir,
+            (".png", ".pdf", ".json"),
+        )
+
+    if "owned_finite_beta_sfincs_jax_profile_current_resolution" in selected:
+        manifest["owned_finite_beta_sfincs_jax_profile_current_resolution"] = (
+            _copy_existing_static(
+                "owned_finite_beta_sfincs_jax_profile_current_resolution_audit",
+                output_dir,
+                (".png", ".pdf", ".json"),
+            )
         )
 
     if "owned_finite_beta_bootstrap_comparison" in selected:

@@ -1,0 +1,77 @@
+{
+  "backend": "gpu",
+  "devices": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "grid": {
+    "n_theta": 17,
+    "n_xi": 16,
+    "n_zeta": 25
+  },
+  "healthy_parallel_device_count": 1,
+  "local_device_count": 2,
+  "max_rss_mb": 1500.265625,
+  "results": [
+    {
+      "device_parallel_cases_per_second": 8.023580754825279,
+      "device_parallel_seconds": 1.99412213684991,
+      "device_parallel_speedup_vs_serial": 0.9142056965591556,
+      "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+      "max_abs_delta_serial_vs_multiprocess_d11": 2.463835357957578e-09,
+      "multiprocess_cases_per_second": 2.500647038105152,
+      "multiprocess_seconds": 6.398344011045992,
+      "multiprocess_speedup_vs_serial": 0.28492338236200526,
+      "num_cases": 16,
+      "serial_cases_per_second": 8.776559569716154,
+      "serial_seconds": 1.8230378171429038
+    },
+    {
+      "device_parallel_cases_per_second": 13.770665282276235,
+      "device_parallel_seconds": 2.3237802491057664,
+      "device_parallel_speedup_vs_serial": 1.0620348799333872,
+      "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+      "max_abs_delta_serial_vs_multiprocess_d11": 1.314273845309799e-08,
+      "multiprocess_cases_per_second": 4.661748181539884,
+      "multiprocess_seconds": 6.864377644145861,
+      "multiprocess_speedup_vs_serial": 0.3595279580742976,
+      "num_cases": 32,
+      "serial_cases_per_second": 12.966302277322528,
+      "serial_seconds": 2.467935677850619
+    },
+    {
+      "device_parallel_cases_per_second": 16.603721948056847,
+      "device_parallel_seconds": 3.8545574420131743,
+      "device_parallel_speedup_vs_serial": 1.1344259736004607,
+      "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+      "max_abs_delta_serial_vs_multiprocess_d11": 3.3123299658655014e-08,
+      "multiprocess_cases_per_second": 9.356939742811132,
+      "multiprocess_seconds": 6.839843128109351,
+      "multiprocess_speedup_vs_serial": 0.6392997612744064,
+      "num_cases": 64,
+      "serial_cases_per_second": 14.63623218653895,
+      "serial_seconds": 4.372710078954697
+    },
+    {
+      "device_parallel_cases_per_second": 27.186299165887746,
+      "device_parallel_seconds": 4.708253934048116,
+      "device_parallel_speedup_vs_serial": 0.9852370124721699,
+      "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+      "max_abs_delta_serial_vs_multiprocess_d11": 2.3378703417620272e-08,
+      "multiprocess_cases_per_second": 16.539735591215056,
+      "multiprocess_seconds": 7.738938708789647,
+      "multiprocess_speedup_vs_serial": 0.5994033826205863,
+      "num_cases": 128,
+      "serial_cases_per_second": 27.593664084616066,
+      "serial_seconds": 4.638746039941907
+    }
+  ],
+  "sizes": [
+    16,
+    32,
+    64,
+    128
+  ],
+  "surface": "dkes",
+  "workers": 2
+}

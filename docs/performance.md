@@ -5,6 +5,113 @@ serial batched scans and the multiprocess throughput lane. It also now includes
 workflow profilers for the archive-backed fixed-field closure audit and the
 corrected integrated W7-X workflow.
 
+## Reusable Prepared Scans
+
+Repeated scans on one geometry should use a prepared fixed-shape solver:
+
+```python
+import jax.numpy as jnp
+from ntx import (
+    GridSpec,
+    compile_prepared_scan_solver,
+    example_surface,
+    prepare_monoenergetic_system,
+)
+
+prepared = prepare_monoenergetic_system(example_surface(), GridSpec(17, 25, 16))
+scan = compile_prepared_scan_solver(prepared)
+report = scan.warmup()
+coefficients = scan(jnp.logspace(-5, -2, 128))
+```
+
+The object pads only the final chunk and reuses one batch shape across scan
+lengths. Supported fixed buckets are `1`, `8`, `32`, and `128`. Automatic mode
+uses sequential `lax.map` with bucket `8` on CPU and GPU. Explicit
+`execution_mode` and `batch_size` arguments exist for measured crossover
+studies, not as claims that wider vectorization is always faster or equally
+accurate.
+
+`warmup()` reports lowering, compilation, first execution, warm execution,
+argument/output size, and executable temporary memory separately. The
+production CPU audit on the bundled DKES surface at `17 x 25 x 16` found about
+`20.7 MiB` of executable temporary memory for sequential width `8`, compared
+with `100.3 MiB` for vectorized width `8` and `379.1 MiB` for vectorized width
+`32`. The wider modes were only modestly faster and were not uniformly faster
+over scan sizes `1`, `8`, `32`, and `128`, so bounded sequential execution
+remains the CPU default. Coefficients agreed within `2.6e-11` absolute in that
+map; float64 acceptance remains `1e-10` relative/absolute with appropriate
+near-zero scaling.
+
+Buffer donation was evaluated for both fixed-batch input arrays on the same
+production grid. XLA reported both buffers as unusable for donation and kept
+temporary memory unchanged at `20,656,504` bytes. NTX therefore does not
+invalidate user-owned collisionality or electric-field arrays for a nonexistent
+memory benefit.
+
+On the office RTX A4000 with JAX `0.6.2`, vectorized width `32` is about `2.5x`
+faster than sequential width `8` at 128 cases, but differs from the canonical
+compiled scalar solve by up to `2.4e-7` relative over the production scan. The
+sequential scan is bitwise identical to that compiled scalar reference. Since
+the vectorized path fails the `1e-10` float64 parity gate, it remains explicit
+and non-default pending a stable batched-factorization/refinement result.
+
+Larger-grid GPU results keep the same conclusion:
+
+| Grid | Mode | Temporary memory | Warm fixed-batch execution | Maximum relative delta |
+| --- | --- | ---: | ---: | ---: |
+| `17 x 25 x 16` | sequential-8 | `18.0 MiB` | `0.594 s` | `0` vs compiled scalar |
+| `17 x 25 x 16` | vectorized-8 | `94.1 MiB` | `0.404 s` | `2.4e-7` over scan |
+| `25 x 31 x 24` | sequential-8 | `55.1 MiB` | `3.48 s` | `0` vs sequential reference |
+| `25 x 31 x 24` | vectorized-8 | `280.2 MiB` | `3.00 s` | `2.4e-8` |
+| `25 x 25 x 63` | sequential-8 | `36.9 MiB` | `10.23 s` | `0` vs sequential reference |
+| `25 x 25 x 63` | vectorized-8 | `182.4 MiB` | `9.78 s` | `3.1e-7` |
+| `25 x 25 x 140` | sequential-8 | `36.9 MiB` | `10.98 s` | reference mode |
+
+The `Nxi=140` first execution was `66.5 s` despite a `1.06 s` reported XLA
+compile stage, while subsequent execution was about `11 s`. This likely
+includes backend initialization/autotuning and is why the benchmark does not
+fold first execution into either compile or warm solve time. Both office GPUs
+reproduced the production-grid runtime and vectorized discrepancy. The owned
+JSON files are `prepared_scan_gpu_25x31x24.json`,
+`prepared_scan_gpu_25x25x63.json`, and
+`prepared_scan_gpu_25x25x140.json` under `docs/_static`.
+
+If JAX returns a resource-exhaustion exception, the prepared solver adds
+guidance to select sequential execution and bucket `1` or `8`. A hard driver or
+process termination cannot be intercepted in Python; production users should
+start from the documented sequential memory map before increasing vector width.
+
+The cache is optional and should be configured before compilation:
+
+```python
+from ntx import configure_compilation_cache
+
+configure_compilation_cache(
+    "~/.cache/ntx/jax",
+    minimum_compile_seconds=1.0,
+    explain_cache_misses=False,
+)
+```
+
+Generate synchronized crossover artifacts with:
+
+```bash
+python scripts/benchmark_prepared_scan.py \
+  --backend cpu --surface dkes --sizes 1,8,32,128 \
+  --n-theta 17 --n-zeta 25 --n-xi 16 \
+  --output-json docs/_static/prepared_scan_cpu_production.json
+
+python examples/prepared_scan_performance.py \
+  --cpu-json docs/_static/prepared_scan_cpu_production.json \
+  --gpu-json docs/_static/prepared_scan_gpu_production.json \
+  --output-prefix docs/_static/prepared_scan_performance
+```
+
+![Prepared scan CPU/GPU runtime, memory, and parity](_static/prepared_scan_performance.png)
+
+Both old scaling harnesses now call `jax.block_until_ready` inside the timed
+region. This is required for valid asynchronous accelerator measurements.
+
 ## File-Backed Run Path
 
 The TOML/CLI path prepares the geometry and derivative operators once, then
@@ -30,6 +137,7 @@ Collect scaling data:
 python scripts/benchmark_scaling.py --backend cpu --surface dkes --sizes 8,16,32,64
 python scripts/benchmark_scaling.py --backend gpu --surface dkes --sizes 16,32,64 --workers 2
 python scripts/benchmark_strong_scaling.py --backend cpu --surface dkes --num-cases 64
+python scripts/benchmark_prepared_scan.py --backend cpu --surface dkes --sizes 1,8,32,128
 ```
 
 Generate publication-style figures:
@@ -238,6 +346,16 @@ path from the multiprocess throughput lane:
 python examples/prepared_geometry_reuse_profile.py --preset paper
 ```
 
+For targeted trace capture:
+
+```bash
+python examples/prepared_geometry_reuse_profile.py \
+  --preset smoke --case-counts 3 \
+  --trace-dir examples/outputs/ntx_prepared_geometry_profile/cpu_smoke_trace \
+  --perfetto \
+  --device-memory-profile examples/outputs/ntx_prepared_geometry_profile/cpu_smoke_trace/device_memory.prof
+```
+
 Figure assets:
 
 ```text
@@ -264,6 +382,82 @@ Current local CPU interpretation:
 This turns the speed lane into a concrete engineering target: stabilize and
 reuse prepared compiled closures before deeper linear-algebra rewrites or
 multi-process orchestration.
+
+## Finite-Beta RHSMode=1 Profile-Current Profiling
+
+The finite-beta profile-current lane now has a dedicated handoff note for the
+same-contract SFINCS-JAX RHSMode=1 bottleneck:
+
+```text
+docs/sfincs-jax-rhsmode1-profile-current-handoff.md
+```
+
+The current profiling result is:
+
+- SFINCS-JAX `1.1.0` at `df0c70d` completes the `13 x 15 x 8, Nx=5`
+  three-radius smoke profile-current artifact in `24.7 s` total on local CPU;
+  all three HDF5 outputs pass the true-residual metadata gate
+- the same checkout completes the `17 x 21 x 12, Nx=5` inner-radius HDF5 output
+  in `9.90 s` wall time with `1.55 GB` max RSS, `sparse_pc_gmres`, and
+  true-residual/target `8.45e-7`
+- a three-radius `25 x 31 x 17, Nx=11` production ladder completes in
+  `383.16 s` with about `9.46 GB` max RSS and true-residual gates passing at
+  every radius
+- the pitch-resolution audit shows the remaining RHSMode=1 profile-current
+  discrepancy is not a residual failure: the accepted high-`Nxi` even/odd
+  Legendre stress gap is `1.323e-1`, below the current `1.5e-1`
+  reduced-closure tolerance
+- a same-grid `collisionOperator=0` full-collision probe timed out after
+  `901.76 s` and about `9.97 GB` max RSS without a completed current output
+
+The old sparse-solver runtime lane and the reduced-closure pitch stress lane
+are closed under the documented tolerances. The full-collision branch remains a
+non-shipping feasibility diagnostic rather than a release blocker.
+
+## QI Hires NEOPAX-Database Export
+
+The downstream QI finite-beta hires database-generation command exercises the
+largest public `examples/build_neopax_scan_from_ertilde.py` path used so far:
+`25 x 25 x 60`, seven radial surfaces, and the default `16 x 12`
+`(nu_v, Er_tilde)` scan per surface. The current script reports per-surface
+timing and accepts `--scan-batch-size` to split that flattened scan into
+fixed-size chunks.
+
+Measured on the local CPU for one radial surface with the same QI hires
+VMEC/Boozer files:
+
+- full-surface batching: `64.7 s`, about `5.0 GB` peak RSS
+- `--scan-batch-size 32`: `55.9 s`, about `1.46 GB` peak RSS
+- `--scan-batch-size 16`: `75.3 s`, about `1.27 GB` peak RSS
+- `XLA_FLAGS=--xla_force_host_platform_device_count=4` with
+  `--parallel-devices 4 --scan-batch-size 32`: `47.7 s` for the same one-surface
+  workload on the local CPU, with coefficient differences from the serial
+  batched run at roundoff
+
+For CPU runs of that example, start with `--scan-batch-size 32`. For GPU runs,
+leave full-surface batching enabled when memory permits; add a batch size only
+when the device runs out of memory at higher resolution.
+
+`--scan-batch-size` primarily reduces peak memory; it is not a CPU parallelism
+switch. For CPU-only laptops that are still too slow, expose multiple JAX host
+devices before launch and request per-surface scan sharding:
+
+```bash
+XLA_FLAGS=--xla_force_host_platform_device_count=4 \
+python examples/build_neopax_scan_from_ertilde.py \
+  --wout examples/inputs/wout_QI_nfp2_newNT_opt_hires.nc \
+  --booz examples/inputs/boozermn_wout_QI_nfp2_newNT_opt_hires.nc \
+  --surface-backend vmec \
+  --device-backend cpu \
+  --parallel-devices 4 \
+  --scan-batch-size 32 \
+  --output examples/input/Dij_NTX.h5
+```
+
+The script reports the resolved batch size, requested parallel device count,
+and visible backend. If the collaborator command still includes
+`--device-backend gpu` on a CPU-only machine, it will fail before solving; use
+`--device-backend cpu` or omit the flag on laptops without a configured JAX GPU.
 
 ## Reproducibility
 
@@ -355,6 +549,27 @@ compilation cache alone. The speed lane should stay focused on shape
 stability, static-argument control, and reusable compiled closure calls rather
 than on cache toggles by themselves.
 
+## SOLVAX Solver Migration
+
+The generated block-solver migration was measured against the immediately
+preceding NTX implementation on the same prepared `13 x 15 x 32` analytic
+solve, with 21 warm samples and identical float64 coefficients:
+
+| Device | Metric | Before | SOLVAX |
+|---|---|---:|---:|
+| Apple CPU | warm median | 20.54 ms | 20.30 ms |
+| Apple CPU | executable temporary memory | 4.91 MB | 4.02 MB |
+| Apple CPU | compile | 0.297 s | 0.362 s |
+| RTX A4000 | warm median | 51.02 ms | 47.43 ms |
+| RTX A4000 | executable temporary memory | 4.57 MB | 3.99 MB |
+| RTX A4000 | compile | 0.938 s | 1.123 s |
+
+The migration improves warm CPU/GPU runtime and reduces temporary memory by
+about 18% on CPU and 13% on GPU. Cold compilation is about 20--22% slower, so
+this is not presented as an across-the-board speedup. Prepared executable reuse
+remains necessary for production scans. A separate pre/post coefficient ladder
+at `N_xi = 2, 16, 32, 63, 140` agrees to approximately `1e-13` or better.
+
 ## Research-Grade Performance Plan
 
 The next performance work should stay evidence-driven:
@@ -385,11 +600,12 @@ JAX-specific rules for NTX:
   `XLA_PYTHON_CLIENT_PREALLOCATE=false` or `XLA_PYTHON_CLIENT_MEM_FRACTION`
   before launching concurrent runs.
 
-Lineax and Equinox are useful but not automatic wins:
+SOLVAX and Equinox are useful but not automatic wins:
 
-- Lineax should be evaluated first on repeated structured solve or
-  Jacobian-linear-operator workloads where reuse or memory reduction can be
-  measured against the current prepared dense solve.
+- SOLVAX owns generic generated block elimination, reusable factors, transpose
+  solves, and algebraic residuals; NTX retains the physics operator and source
+  assembly. Further abstraction is accepted only with measured runtime or
+  memory benefit.
 - Equinox should be evaluated for typed PyTree modules and filtered transforms
   only if it simplifies static-versus-dynamic argument handling or custom
   derivative APIs without destabilizing the public NTX API.

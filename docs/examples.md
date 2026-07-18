@@ -60,6 +60,20 @@ case = MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3)
 result = solve_monoenergetic(surface, grid, case)
 ```
 
+### Reusable Prepared Scans
+
+For repeated fixed-geometry monoenergetic scans, use
+`compile_prepared_scan_solver(...)` as shown in the README. The prepared object
+keeps one fixed batch shape and exposes `warmup()` timing and memory metadata.
+Generate a CPU/GPU crossover figure with:
+
+```bash
+python examples/prepared_scan_performance.py \
+  --cpu-json docs/_static/prepared_scan_cpu_production.json \
+  --gpu-json docs/_static/prepared_scan_gpu_production.json \
+  --output-prefix docs/_static/prepared_scan_performance
+```
+
 ## 6. NEOPAX Mapping
 
 ```bash
@@ -82,7 +96,7 @@ python examples/bootstrap_current_from_vmec_or_boozmn.py
 
 This example is the shortest NTX-only workflow:
 
-- start from a VMEC `wout` file and use `vmec_jax`
+- start from a VMEC `wout` file and use `vmex`
 - or, if a Boozer `boozmn` file already exists, use `booz_xform_jax` output directly
 - solve a fixed-collisionality NTX radial family
 - plot magnetic geometry, radial profile inputs, `D11`, `nu_hat * D33`, and a compact
@@ -121,13 +135,14 @@ imported workflow, and writes a convergence figure:
 ## 9. VMEC Geometry-Family Transport Convergence
 
 ```bash
-python examples/geometry_family_transport_convergence.py --preset paper
+python examples/geometry_family_transport_convergence.py --preset production
 ```
 
-This optional artifact discovers local public VMEC examples from `vmec_jax`,
-STELLOPT, and SIMSOPT checkouts, then runs a `D11/D31/D33` convergence ladder.
-It is a reduced NTX stress diagnostic across available geometry families, not
-an independent-code parity claim.
+This optional artifact discovers local public VMEC examples from `vmex`,
+STELLOPT, and SIMSOPT checkouts, then runs a production `D11/D31/D33`
+convergence ladder and stores `D13` for the Onsager quality check. It is an NTX
+stress diagnostic across available geometry families, not an independent-code
+parity claim.
 
 It writes:
 
@@ -137,13 +152,35 @@ It writes:
 
 ![Geometry-family transport convergence](_static/geometry_family_transport_convergence.png)
 
-## Owned JAX-Native NTX+NEOPAX Dataset
+## 10. Angular Collocation Oversampling Audit
+
+```bash
+python examples/angular_oversampling_audit.py --preset production
+```
+
+This artifact uses public finite-beta QA, NCSX, and HSX VMEC equilibria to
+measure `D11/D31/D33` error against a finer angular grid while separately
+reporting compiled warm runtime and XLA temporary memory. The measured `2.25`
+times Nyquist recommendation is a warning-level starting point; publication
+calculations still require two successive accepted refinements.
+
+It writes:
+
+- `docs/_static/angular_oversampling_audit.png`
+- `docs/_static/angular_oversampling_audit.pdf`
+- `docs/_static/angular_oversampling_audit.json`
+
+![Angular oversampling audit](_static/angular_oversampling_audit.png)
+
+## 11. Owned JAX-Native NTX+NEOPAX Dataset
 
 ```bash
 python examples/owned_geometry_neopax_dataset.py
 python examples/owned_finite_beta_sfincs_jax_inputs.py
 python examples/owned_finite_beta_sfincs_jax_resolution_audit.py
 python examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py
+python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py
+python examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py
 python examples/owned_finite_beta_bootstrap_comparison.py
 python examples/owned_finite_beta_closure_localization.py
 python examples/owned_finite_beta_profile_current_observable_audit.py
@@ -166,7 +203,7 @@ python examples/owned_finite_beta_source_channel_audit.py \
 
 These optional provenance artifacts prioritize local finite-beta stellarator
 input/wout pairs. The NTX/NEOPAX script builds finite-beta QA surfaces through
-`vmec_jax -> booz_xform_jax` with the physical VMEC edge-flux scale passed
+`vmex -> booz_xform_jax` with the physical VMEC edge-flux scale passed
 explicitly as `psi_p`, writes NEOPAX-style HDF5 scan tables, stores compact
 profile flux/current proxies from those same tables, and compares that path
 with the direct VMEC-harmonic interpolation path on the same radial and
@@ -182,18 +219,26 @@ outputs are ingested into the JSON sidecar with the SFINCS-reported
 comparison. The committed artifact now contains a six-point same-grid
 finite-beta QA ladder; use it as a smoke-resolution transport-coefficient
 localization tool, not as a bootstrap-current parity claim.
+The RHSMode=1 profile-current diagnostic uses the same finite-beta VMEC wout,
+analytic profiles, current observable, and Redl/`NTX+NEOPAX` comparison
+contract. The committed low-resolution artifact is a direct-profile
+normalization and convergence diagnostic. Its high-`Nxi` even/odd pitch gap is
+accepted at `1.32e-1` under the `1.5e-1` reduced-closure stress tolerance.
 
 The finite-beta bootstrap-current script runs Redl and `NTX+NEOPAX` on the
 same QA pressure/current `wout`, Boozer transform, analytic profile contract,
 radial grid, adaptive physical `nu/v` support, and current normalization. It
-is a production-resolution reduced-closure stress audit for this QA case; the
-current JSON sidecar records the remaining inner-radius Redl/`NTX+NEOPAX` gap
-and a Sonine-order convergence scan instead of promoting the figure as parity.
+uses the normalized-radius Boozer `B00(rho)` convention, including
+`dB00/dr = (dB00/d rho)/a_b`, so the file-backed field object and the profile
+closure use the same radial coordinate. It is a production-resolution
+reduced-closure stress audit for this QA case; the current JSON sidecar records
+the remaining profile-wide Redl/`NTX+NEOPAX` residual and a Sonine-order
+convergence scan instead of promoting the figure as parity.
 The closure-localization script then overlays these two committed sidecars. It
-shows that the inner-radius same-grid `L13/L31/L33` coefficient difference is
-about `2.1e-2`, while the profile-current difference at the same radius remains
-about `3.1e-1`; the open lane is therefore the reduced profile-current
-observable rather than the monoenergetic coefficient bridge.
+shows that the same-grid `L13/L31/L33` coefficient ladder remains below the
+coefficient gate, while the profile-current residual is still larger than the
+`1e-1` current gate; the non-promoted follow-up is therefore the reduced
+profile-current observable rather than the monoenergetic coefficient bridge.
 The profile-current observable audit decomposes the same stress radius into the
 no-momentum current, applied momentum correction, correction needed to match the
 Redl target, Pmax trend, species-current cancellation scale, and local
@@ -202,9 +247,10 @@ The current-conditioning audit then asks a stricter question: given the observed
 electron/ion cancellation, how accurate must the same-grid coefficient ladder be
 before coefficient uncertainty can be ruled out for a `1e-1` net-current gate?
 For the current finite-beta QA artifact, the stress radius needs about
-`1.3e-3` coefficient precision, while the completed smoke ladder is about
-`2.1e-2`. That keeps the next step focused on production-resolution same-grid
-coefficient/profile-current diagnostics before any closure change is promoted.
+`1.1e-3` coefficient precision, while the completed coefficient ladder is still
+order `2e-2`. That keeps the next step focused on production-resolution
+same-grid coefficient/profile-current diagnostics before any closure change is
+promoted.
 The resolution audit adds the first production stress probe: increasing the
 same point to `35 x 43 x 48` and tightening the VMEC harmonic cutoff leaves the
 coefficient floor near `2.05e-2`, so the remaining finite-beta current gap is
@@ -212,19 +258,18 @@ not explained by those numerical knobs.
 The production-ladder audit then reads the six production same-grid
 SFINCS-JAX points across the owned finite-beta QA radii and collisionalities.
 All completed coefficient differences stay below `2.07e-2`; the
-current-conditioned precision gap remains largest at the inner stress radius,
-so the next open item is the profile-current closure observable.
+current-conditioned precision gap remains larger than the coefficient floor, so
+the next open item is the profile-current closure observable.
 The closure-quadrature audit holds the same scan, Redl observable, profiles, and
 normalization fixed while varying only Sonine order and velocity quadrature.
-It records that the only stress-radius current-gate pass occurs at `P=14,
-X=10`, where the velocity quadrature is lower than the Sonine truncation. That
-apparent pass does not transfer to `X=14` or `X=18`, so the example treats it as
-under-integrated closure aliasing rather than a valid finite-beta parity result.
+After the Boozer-field normalization fix, it records no stress-radius current
+gate pass; the best stress point remains above `1e-1` and the full-profile
+maximum remains a monitored reduced-closure residual.
 The source-channel audit then freezes the same momentum-restoring matrix and
 solves one physical source channel at a time. The one-channel solves reconstruct
-the corrected current to roundoff, and the quadrature-stable high-order result
-is dominated by the effective temperature-gradient drive with no parallel-
-electric drive for this profile contract.
+the corrected current to roundoff. The corrected high-order stress is a mixed
+density/electric and temperature-gradient response with no parallel-electric
+drive for this profile contract.
 The profile source-response audit extends that decomposition from the single
 stress radius to the full finite-beta profile at `X=18, P=18`. It plots the
 Redl and corrected current profiles, the Redl/NTX effective source-response
@@ -236,21 +281,19 @@ drivers before a runtime model is proposed. The current sidecar selects the
 Redl geometry factor `epsilon` as the strongest single driver and records that
 the best diagnostic model is not applied to the code.
 The radial-interpolation audit rebuilds the same current observable on the
-field radii. It removes most of the old `rho=0.143` stress, but the
-matched-radius quadrature rerun still finds zero quadrature-stable current-gate
-passes; its only apparent matched stress pass is at `P=18, X=10`, where
-velocity quadrature is lower than the Sonine truncation.
+field radii. It changes individual radii but does not improve the full-profile
+maximum; the matched-radius quadrature rerun still finds zero quadrature-stable
+current-gate passes.
 The matched-radius source-channel rerun reconstructs the corrected current to
-roundoff and shows the same pattern: the only current-gate pass is the
-under-integrated `X=10`, `P=18` setting, while `X=18`, `P=18` remains a
-quadrature-stable source-response stress diagnostic.
+roundoff and shows the same pattern: `X=18`, `P=18` remains a quadrature-stable
+source-response stress diagnostic rather than a finite-beta parity claim.
 
 It writes:
 
 - `docs/_static/owned_geometry_neopax_dataset.png`
 - `docs/_static/owned_geometry_neopax_dataset.pdf`
 - `docs/_static/owned_geometry_neopax_dataset.json`
-- `examples/outputs/owned_geometry_neopax_dataset/*.h5`
+- `docs/_static/owned_geometry_neopax_database/*.h5`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_inputs.json`
@@ -263,6 +306,12 @@ It writes:
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png`
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf`
 - `docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf`
+- `docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json`
 - `examples/outputs/owned_finite_beta_sfincs_jax_inputs/**/input.namelist`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.png`
 - `docs/_static/owned_finite_beta_bootstrap_comparison.pdf`
@@ -308,6 +357,10 @@ It writes:
 
 ![Owned finite-beta SFINCS-JAX production ladder audit](_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png)
 
+![Owned finite-beta SFINCS-JAX profile-current diagnostic](_static/owned_finite_beta_sfincs_jax_profile_current_audit.png)
+
+![Owned finite-beta SFINCS-JAX profile-current pitch-resolution audit](_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png)
+
 ![Owned finite-beta bootstrap-current stress audit](_static/owned_finite_beta_bootstrap_comparison.png)
 
 ![Owned finite-beta closure localization](_static/owned_finite_beta_closure_localization.png)
@@ -322,14 +375,14 @@ It writes:
 
 The source-channel panel overlays the Redl density and temperature target terms
 on the same current observable. The current artifact reconstructs the corrected
-NTX+NEOPAX current to roundoff and records that the high-order Redl temperature
-target is `0.717` of the frozen corrected temperature-channel response.
+NTX+NEOPAX current to roundoff and records a mixed density/electric and
+temperature-gradient high-order stress response.
 
 ![Owned finite-beta profile source-response audit](_static/owned_finite_beta_source_response_profile_audit.png)
 
 The profile source-response panel shows that the temperature response multiplier
 is not a single hidden constant: it spans the profile while preserving source
-sign agreement and keeping the largest current stress at the inner radius.
+sign agreement, with the high-order stress largest at the inner radius.
 
 ![Owned finite-beta closure-target driver audit](_static/owned_finite_beta_closure_target_audit.png)
 
@@ -339,21 +392,21 @@ the runtime closure remains unchanged until a physics-derived term passes the
 fixed-field, W7-X transfer, source reconstruction, and same-grid finite-beta
 coefficient gates. Its JSON sidecar also cross-links the field-radius-matched
 source-channel and quadrature artifacts, confirming that the matched audit uses
-the same stress radius, reconstructs the source response, and rejects the only
-apparent current-gate pass as under-integrated.
+the same stress radius, reconstructs the source response, and still has no
+quadrature-stable current-gate pass.
 
 ![Owned finite-beta radial interpolation audit](_static/owned_finite_beta_radial_interpolation_audit.png)
 
 The radial-interpolation panel rebuilds the same finite-beta current audit with
 the monoenergetic database placed on the exact profile-current field radii. It
-substantially reduces the previous inner stress point, but it does not clear
-the full-profile current gate, so no runtime interpolation policy is promoted.
+changes individual radii but does not clear the full-profile current gate, so
+no runtime interpolation policy is promoted.
 
 ![Owned finite-beta field-radius-matched closure quadrature audit](_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.png)
 
 The matched closure-quadrature panel repeats the Sonine/quadrature sweep after
-removing the sparse-radius interpolation layer. It still rejects the apparent
-current-gate pass as under-integrated, so the open lane remains a
+removing the sparse-radius interpolation layer. It still has zero
+quadrature-stable current-gate passes, so the non-promoted follow-up remains a
 quadrature-stable reduced profile-current closure.
 
 ![Owned finite-beta field-radius-matched source-channel audit](_static/owned_finite_beta_field_radius_matched_source_channel_audit.png)
@@ -361,9 +414,9 @@ quadrature-stable reduced profile-current closure.
 The matched source-channel panel repeats the physical RHS decomposition on the
 same field-radius-matched contract. It reconstructs the corrected current to
 roundoff and keeps the remaining finite-beta mismatch localized to a
-quadrature-stable effective-temperature source response.
+quadrature-stable source-response stress.
 
-## 10. Bootstrap Current With NEOPAX
+## 12. Bootstrap Current With NEOPAX
 
 ```bash
 python examples/bootstrap_current_with_neopax.py
@@ -385,7 +438,7 @@ It writes:
 
 ![NTX + NEOPAX bootstrap-current profile](_static/bootstrap_current_with_neopax.png)
 
-## 10. Fixed-Field Bootstrap-Current Validation
+## 13. Fixed-Field Bootstrap-Current Validation
 
 ```bash
 python examples/bootstrap_current_fixed_field_validation.py
@@ -413,7 +466,7 @@ the `1e-1` gate.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
-## 11. Autodiff Inverse Problem
+## 14. Autodiff Inverse Problem
 
 ```bash
 python examples/autodiff_inverse_problem.py
@@ -423,7 +476,7 @@ This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
 recovery of a Boozer harmonic from synthetic transport data using JAX
 gradients.
 
-## 12. Precise-QS Redl Versus SFINCS Audit
+## 15. Precise-QS Redl Versus SFINCS Audit
 
 ```bash
 python examples/precise_qs_redl_sfincs_audit.py
@@ -447,7 +500,7 @@ the integrated `NTX+NEOPAX` workflow. The plot is an overlay-only
 bootstrap-current comparison; the relative-error metrics remain in the JSON
 artifact.
 
-## 13. Fixed-Field Transport-Matrix Audit
+## 16. Fixed-Field Transport-Matrix Audit
 
 ```bash
 python examples/fixed_field_transport_matrix_audit.py
@@ -472,7 +525,7 @@ This audit now:
 This is still the coefficient-side gate for the public `NTX+NEOPAX`
 bootstrap-current validation figure.
 
-## 14. Autodiff Derivative Audit
+## 17. Autodiff Derivative Audit
 
 ```bash
 python examples/derivative_audit.py
@@ -487,24 +540,29 @@ gradients of the dense solve against centered finite differences for:
 This is the validation baseline for the current prepared implicit-adjoint
 derivative implementation.
 
-## 15. Prepared-Derivative Benchmark
+## 18. Prepared-Derivative Benchmark
 
 ```bash
 python examples/derivative_path_benchmark.py
 ```
 
-This writes `docs/_static/derivative_path_benchmark.{png,pdf}` and times:
+This writes `docs/_static/derivative_path_benchmark.{png,pdf}` and compares:
 
 - direct reverse-mode through `solve_prepared_coefficient_vector(...)`
+- selective recomputation through `jax.checkpoint(...)`
 - the prepared custom-VJP path through
   `solve_prepared_coefficient_vector_vjp(...)`
+- forward mode and centered finite differences
 
-on the same `D33` electric-field derivative scan.
+The artifact reports synchronized runtime, XLA temporary memory, independent
+full primal/transpose residuals, and derivative agreement. A low-collisionality
+point that agrees across derivative methods but fails the primal residual gate
+is retained as an explicit non-certified case.
 
 It also writes `docs/_static/derivative_path_benchmark.json` for manuscript
 tables and reproducibility notes.
 
-## 16. Autodiff NEOPAX Profiles
+## 19. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py
@@ -514,7 +572,7 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 17. Autodiff Profile Uncertainty
+## 20. Autodiff Profile Uncertainty
 
 ```bash
 python examples/autodiff_profile_uncertainty.py
@@ -525,7 +583,7 @@ compares linearized covariance propagation against a small Monte Carlo ensemble
 for the differentiable NEOPAX-style profile fit under a prescribed Gaussian
 parameter perturbation.
 
-## 18. Robust Bootstrap-Current Optimization
+## 21. Robust Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_robust_optimization.py
@@ -535,7 +593,7 @@ This writes `docs/_static/bootstrap_current_robust_optimization.{png,pdf,json}`
 and compares deterministic versus robust optimization of the scalar
 bootstrap-current response under a prescribed Gaussian control uncertainty.
 
-## 19. Ambipolar Profile
+## 22. Ambipolar Profile
 
 ```bash
 python examples/ambipolar_profile.py
@@ -554,7 +612,7 @@ and demonstrates:
 - solving a smooth ambipolar `E_r(r)` profile with radial regularization
 - evaluating the resulting reduced bootstrap-current response profile
 
-## 20. Ambipolar Profile Family
+## 23. Ambipolar Profile Family
 
 ```bash
 python examples/ambipolar_profile_family.py
@@ -572,7 +630,7 @@ and demonstrates:
 - evaluating a bootstrap-current objective across that family
 - selecting the best control point from a scalar objective landscape
 
-## 19. Science Case: Bootstrap-Current Optimization
+## 24. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py
@@ -592,7 +650,7 @@ on bootstrap-current analysis and optimization.
 It also writes `docs/_static/bootstrap_current_optimization.json` for the
 manuscript table builder.
 
-## 20. Profile-Control Optimization
+## 25. Profile-Control Optimization
 
 ```bash
 python examples/profile_control_optimization.py
@@ -609,7 +667,7 @@ and demonstrates:
 - optimizing that control directly against a bootstrap-current objective
 - reusing the ambipolar solve inside a JAX optimization loop
 
-## 21. Profile-Basis Optimization
+## 26. Profile-Basis Optimization
 
 ```bash
 python examples/profile_basis_optimization.py
@@ -627,7 +685,7 @@ and demonstrates:
 - retaining a compact, publication-grade figure for a higher-dimensional
   optimization workflow
 
-## 22. Profile Transport Loop
+## 27. Profile Transport Loop
 
 ```bash
 python examples/profile_transport_loop.py
@@ -646,7 +704,7 @@ and demonstrates:
 - tracking accepted-step transport-loss descent together with the ambipolar closure
 - smoothing the updated force profiles radially before the next ambipolar solve
 
-## 23. Primitive Profile Transport
+## 28. Primitive Profile Transport
 
 ```bash
 python examples/primitive_profile_transport.py
@@ -667,7 +725,7 @@ and demonstrates:
   to the transport mismatch
 - exposing the derived monoenergetic force profiles alongside the final primitive state
 
-## 24. Performance Scaling
+## 29. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -676,7 +734,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 25. Prepared-Geometry Reuse Profile
+## 30. Prepared-Geometry Reuse Profile
 
 ```bash
 python examples/prepared_geometry_reuse_profile.py --preset paper
@@ -692,7 +750,7 @@ and profiles direct repeated solves, prepared geometry reuse, and a compiled
 prepared solver on one fixed geometry. It is a performance artifact for
 optimization workflows, not a physics-parity claim.
 
-## 26. Profile Force Reconstruction Audit
+## 31. Profile Force Reconstruction Audit
 
 ```bash
 python examples/profile_force_reconstruction_audit.py
@@ -711,7 +769,7 @@ temperature, and normalized electric-field inputs. This is a monitored
 benchmark-family stress test for the current primitive-profile builder, not a
 parity claim.
 
-## 26. Validation Summary
+## 32. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -733,7 +791,7 @@ The JSON sidecar freezes the plotted curves, low-collisionality tail slopes,
 and convergence metrics so the benchmark can be reused in tests and manuscript
 artifacts without scraping the figure.
 
-## 27. Full Publication Bundle
+## 33. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py

@@ -31,14 +31,14 @@ import numpy as np  # noqa: E402
 from ntx import (  # noqa: E402
     GridSpec,
     build_ntx_neopax_scan_from_surfaces,
-    surface_from_vmec_jax_vmec_wout_file,
-    surface_from_vmec_jax_wout,
+    surface_from_vmex_vmec_wout_file,
+    surface_from_vmex_wout,
     write_neopax_scan_hdf5,
 )
-from ntx._checkout_paths import find_vmec_jax_root  # noqa: E402
+from ntx._checkout_paths import find_vmex_root  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_geometry_neopax_dataset"
-DATABASE_DIR = ROOT / "examples" / "outputs" / "owned_geometry_neopax_dataset"
+DATABASE_DIR = ROOT / "docs" / "_static" / "owned_geometry_neopax_database"
 DEFAULT_RHO = (0.30, 0.50, 0.70)
 DEFAULT_NU_V = (1.0e-3, 1.0e-2)
 DEFAULT_ES = (0.0,)
@@ -50,6 +50,14 @@ FINITE_BETA_ROOT_CANDIDATES = (
     Path("/Users/rogeriojorge/local/single_stage_optimization_finite_beta"),
     Path("/Users/rogeriojorge/local/tests/single_stage_optimization_finite_beta"),
 )
+
+
+def _display_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(ROOT))
+    except ValueError:
+        return str(resolved)
 
 
 @dataclass(frozen=True)
@@ -161,7 +169,7 @@ def _add_case(
                 id=case_id,
                 label=label,
                 family=family,
-                source="vmec_jax examples/data",
+                source="vmex examples/data",
                 input_path=input_path.resolve(),
                 wout_path=wout_path.resolve(),
                 notes=notes,
@@ -204,7 +212,7 @@ def _add_local_case(
 def discover_owned_case_specs() -> tuple[OwnedJaxGeometryCase, ...]:
     """Return local input/wout pairs suitable for JAX-native scan generation."""
 
-    vmec_jax_root = find_vmec_jax_root()
+    vmex_root = find_vmex_root()
     finite_beta_root = find_single_stage_finite_beta_root()
     cases: list[OwnedJaxGeometryCase] = []
     _add_local_case(
@@ -218,7 +226,7 @@ def discover_owned_case_specs() -> tuple[OwnedJaxGeometryCase, ...]:
         source="single-stage finite-beta test case",
         notes=(
             "finite-beta QA stellarator with pressure and toroidal current profiles "
-            "representable by the current vmec_jax input reader"
+            "representable by the current vmex input reader"
         ),
     )
     _add_local_case(
@@ -232,10 +240,10 @@ def discover_owned_case_specs() -> tuple[OwnedJaxGeometryCase, ...]:
         source="single-stage finite-beta optimized case",
         notes=(
             "optimized finite-beta QH stellarator; direct wout-harmonic NTX path is "
-            "usable, while the current vmec_jax Boozer path reports the unresolved "
+            "usable, while the current vmex Boozer path reports the unresolved "
             "cubic-spline current-profile support gap"
         ),
-        primary_geometry_path="vmec_jax_wout_cubic",
+        primary_geometry_path="vmex_wout_cubic",
     )
     _add_local_case(
         cases,
@@ -250,11 +258,11 @@ def discover_owned_case_specs() -> tuple[OwnedJaxGeometryCase, ...]:
             "optimized finite-beta QI stellarator for broader family sweeps; same "
             "current-profile support limitation as the optimized QH case"
         ),
-        primary_geometry_path="vmec_jax_wout_cubic",
+        primary_geometry_path="vmex_wout_cubic",
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         input_name="input.circular_tokamak",
         wout_name="wout_circular_tokamak.nc",
         case_id="circular_tokamak",
@@ -264,7 +272,7 @@ def discover_owned_case_specs() -> tuple[OwnedJaxGeometryCase, ...]:
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         input_name="input.shaped_tokamak_pressure",
         wout_name="wout_shaped_tokamak_pressure.nc",
         case_id="shaped_tokamak_pressure",
@@ -274,7 +282,7 @@ def discover_owned_case_specs() -> tuple[OwnedJaxGeometryCase, ...]:
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         input_name="input.LandremanPaul2021_QA_lowres",
         wout_name="wout_LandremanPaul2021_QA_lowres.nc",
         case_id="precise_qs_qa_lowres",
@@ -284,7 +292,7 @@ def discover_owned_case_specs() -> tuple[OwnedJaxGeometryCase, ...]:
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         input_name="input.nfp4_QH_warm_start",
         wout_name="wout_nfp4_QH_warm_start.nc",
         case_id="nfp4_qh_warm_start",
@@ -294,7 +302,7 @@ def discover_owned_case_specs() -> tuple[OwnedJaxGeometryCase, ...]:
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         input_name="input.nfp3_QI_fixed_resolution_final",
         wout_name="wout_nfp3_QI_fixed_resolution_final.nc",
         case_id="nfp3_qi_fixed_resolution",
@@ -390,7 +398,7 @@ def _max_relative_difference(reference, candidate) -> float:
 def _scan_path_metadata(path_key: str) -> dict[str, str]:
     if path_key == "booz_xform_jax":
         return {
-            "geometry_path": "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+            "geometry_path": ("vmex.read_wout -> booz_xform_jax -> NTX BoozerSurface"),
             "interpolation_owner": (
                 "The requested radial points are transformed directly from the matching "
                 "VMEC input/wout pair; no external profile or database interpolation is used."
@@ -401,7 +409,7 @@ def _scan_path_metadata(path_key: str) -> dict[str, str]:
             ),
         }
     return {
-        "geometry_path": "vmec_jax read_wout -> NTX VmecSurface",
+        "geometry_path": "vmex read_wout -> NTX VmecSurface",
         "interpolation_owner": (
             "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic "
             "tables; this is an interpolation-path audit, not the promoted Boozer path."
@@ -425,7 +433,7 @@ def _build_surfaces_for_path(
     for rho_value in rho:
         s_value = float(rho_value**2)
         if path_key == "booz_xform_jax":
-            surface = surface_from_vmec_jax_wout(
+            surface = surface_from_vmex_wout(
                 input_path=case.input_path,
                 wout_path=case.wout_path,
                 s=s_value,
@@ -434,8 +442,8 @@ def _build_surfaces_for_path(
                 psi_p=_case_psi_p_for_boozer(case),
                 min_bmn_to_load=min_bmn_to_load,
             )
-        elif path_key == "vmec_jax_wout_cubic":
-            surface = surface_from_vmec_jax_vmec_wout_file(
+        elif path_key == "vmex_wout_cubic":
+            surface = surface_from_vmex_vmec_wout_file(
                 case.wout_path,
                 s=s_value,
                 min_bmn_to_load=min_bmn_to_load,
@@ -490,7 +498,7 @@ def _write_scan_file(scan, output_dir: Path, case_id: str, path_key: str) -> dic
         }
     return {
         "status": "written",
-        "path": str(written),
+        "path": _display_path(Path(written)),
     }
 
 
@@ -511,7 +519,7 @@ def _solve_case(
 ) -> dict[str, object]:
     paths = ["booz_xform_jax"]
     if compare_vmec_harmonic:
-        paths.append("vmec_jax_wout_cubic")
+        paths.append("vmex_wout_cubic")
 
     case_payload: dict[str, object] = {
         **case.as_payload(),
@@ -574,15 +582,15 @@ def _solve_case(
         case_payload["primary_scan_path"] = case.primary_geometry_path
     elif "booz_xform_jax" in scans:
         case_payload["primary_scan_path"] = "booz_xform_jax"
-    elif "vmec_jax_wout_cubic" in scans:
-        case_payload["primary_scan_path"] = "vmec_jax_wout_cubic"
+    elif "vmex_wout_cubic" in scans:
+        case_payload["primary_scan_path"] = "vmex_wout_cubic"
 
-    if "booz_xform_jax" in scans and "vmec_jax_wout_cubic" in scans:
+    if "booz_xform_jax" in scans and "vmex_wout_cubic" in scans:
         reference = scans["booz_xform_jax"]
-        candidate = scans["vmec_jax_wout_cubic"]
+        candidate = scans["vmex_wout_cubic"]
         case_payload["interpolation_audit"] = {
             "reference_path": "booz_xform_jax",
-            "candidate_path": "vmec_jax_wout_cubic",
+            "candidate_path": "vmex_wout_cubic",
             "claim_scope": (
                 "same input/wout, rho, collisionality, electric field, grid, and "
                 "normalization; differences isolate geometry/interpolation-path effects "
@@ -593,11 +601,11 @@ def _solve_case(
                 for name in COEFFICIENTS
             },
         }
-    elif "booz_xform_jax" not in scans and "vmec_jax_wout_cubic" in scans:
+    elif "booz_xform_jax" not in scans and "vmex_wout_cubic" in scans:
         case_payload["interpolation_audit"] = {
             "status": "blocked",
             "reference_path": "booz_xform_jax",
-            "candidate_path": "vmec_jax_wout_cubic",
+            "candidate_path": "vmex_wout_cubic",
             "claim_scope": (
                 "direct VMEC-harmonic NTX scan completed, but the JAX Boozer "
                 "reference path did not; this is a geometry-backend support lane, "
@@ -741,18 +749,18 @@ def build_payload(
                 "once both are available through a stable public interface"
             ),
             (
-                "extend vmec_jax input reconstruction to optimized finite-beta "
+                "extend vmex input reconstruction to optimized finite-beta "
                 "cubic-spline current profiles so those cases can use the same "
                 "JAX Boozer path as the power-series finite-beta QA case"
             ),
             (
-                "expand the default case set to paper-resolution QA, QH, QI, and W7-X "
+                "expand the default case set to production-resolution QA, QH, QI, and W7-X "
                 "inputs after owned SFINCS-generation scripts have completed runs"
             ),
         ],
         "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
-        "database_dir": str(output_dir),
+        "database_dir": _display_path(output_dir),
     }
 
 
@@ -849,9 +857,7 @@ def build_figure(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX
             max(
                 float(
                     np.nanmax(
-                        np.abs(
-                            np.asarray(path_payload["coefficients"]["D11"]["values"])[:, 0, 0]
-                        )
+                        np.abs(np.asarray(path_payload["coefficients"]["D11"]["values"])[:, 0, 0])
                     )
                 ),
                 EPS,

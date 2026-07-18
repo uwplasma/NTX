@@ -30,9 +30,9 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_neopax_scan_coefficients.py",
     "src/ntx/_neopax_scan_fields.py",
     "src/ntx/_neopax_types.py",
-    "src/ntx/_neopax_vmec_jax_boozer.py",
-    "src/ntx/_neopax_vmec_jax_field.py",
-    "src/ntx/_neopax_vmec_jax_profiles.py",
+    "src/ntx/_neopax_vmex_boozer.py",
+    "src/ntx/_neopax_vmex_field.py",
+    "src/ntx/_neopax_vmex_profiles.py",
     "src/ntx/_profiles_controls.py",
     "src/ntx/_profiles_ambipolar_types.py",
     "src/ntx/_profiles_channels.py",
@@ -54,10 +54,13 @@ INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
     "src/ntx/_solver_factorization.py",
     "src/ntx/_solver_prepared.py",
     "src/ntx/_solver_scan.py",
+    "src/ntx/_solver_scan_core.py",
+    "src/ntx/_solver_scan_execution.py",
+    "src/ntx/_solver_scan_parallel.py",
     "src/ntx/_solver_types.py",
-    "src/ntx/_vmec_jax_boundary.py",
-    "src/ntx/_vmec_jax_boozer.py",
-    "src/ntx/_vmec_jax_surfaces.py",
+    "src/ntx/_vmex_boundary.py",
+    "src/ntx/_vmex_boozer.py",
+    "src/ntx/_vmex_surfaces.py",
     "src/ntx/validation/_benchmark_matrix_autodiff.py",
     "src/ntx/validation/_benchmark_matrix_autodiff_derivatives.py",
     "src/ntx/validation/_benchmark_matrix_autodiff_design.py",
@@ -92,3 +95,13 @@ def test_source_map_mentions_split_internal_modules() -> None:
     ]
 
     assert missing == []
+
+
+def test_top_level_source_modules_stay_below_ownership_limit() -> None:
+    oversized = {
+        path.relative_to(ROOT).as_posix(): len(path.read_text(encoding="utf-8").splitlines())
+        for path in ROOT.joinpath("src", "ntx").glob("*.py")
+        if len(path.read_text(encoding="utf-8").splitlines()) > 400
+    }
+
+    assert oversized == {}

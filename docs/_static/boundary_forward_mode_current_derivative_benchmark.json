@@ -1,0 +1,70 @@
+{
+  "benchmark": "boundary_forward_mode_current_derivative_benchmark",
+  "classification": "artifact-backed boundary-to-output forward-mode stress benchmark",
+  "case": {
+    "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.circular_tokamak",
+    "geometry_path": "boundary_projected_initial_guess",
+    "parameter_names": [
+      "rc10",
+      "zs10"
+    ]
+  },
+  "grid": {
+    "n_theta": 5,
+    "n_zeta": 5,
+    "n_xi": 4
+  },
+  "fd_step": 0.0001,
+  "objectives": [
+    {
+      "id": "ntx_transport_response",
+      "value": 8257.752387437193,
+      "parameter_names": [
+        "rc10",
+        "zs10"
+      ],
+      "direct_forward_mode": [
+        -156.7535911804582,
+        -488.4856996350101
+      ],
+      "finite_difference": [
+        -156.75369823838992,
+        -488.486050053325
+      ],
+      "relative_mismatch": [
+        6.82969096944633e-07,
+        7.17355827984326e-07
+      ]
+    },
+    {
+      "id": "ntx_neopax_integrated_current",
+      "value": 6643.858685761079,
+      "parameter_names": [
+        "rc10",
+        "zs10"
+      ],
+      "direct_forward_mode": [
+        2344.8439922994958,
+        19811.392893283242
+      ],
+      "finite_difference": [
+        2344.8439313733616,
+        19811.39233286285
+      ],
+      "relative_mismatch": [
+        2.5983023174987894e-08,
+        2.8287784183373136e-08
+      ]
+    }
+  ],
+  "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmex geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
+  "summary_metrics": {
+    "max_relative_mismatch": 7.17355827984326e-07,
+    "median_relative_mismatch": 3.556284405640031e-07
+  },
+  "open_work": [
+    "transfer from boundary-projected geometry to a self-consistent equilibrium sensitivity workflow",
+    "validate broader non-axisymmetric benchmark families beyond the repository sample input",
+    "establish whether reverse-mode can be repaired or whether the boundary-control lane should stay forward-mode only"
+  ]
+}

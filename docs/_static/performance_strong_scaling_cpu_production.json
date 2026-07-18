@@ -1,0 +1,89 @@
+{
+  "artifact": "strong_scaling_benchmark",
+  "backend": "cpu",
+  "device_counts": [
+    1,
+    2,
+    4
+  ],
+  "device_parallel": [
+    {
+      "cases_per_second": 28.552145777859412,
+      "effective_device_count": 1,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 1.007228395734618,
+      "requested_device_count": 1,
+      "seconds": 4.483025583991548,
+      "speedup_vs_serial": 1.007228395734618
+    },
+    {
+      "cases_per_second": 40.04381878698969,
+      "effective_device_count": 2,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 0.7063089350570557,
+      "requested_device_count": 2,
+      "seconds": 3.1964983330108225,
+      "speedup_vs_serial": 1.4126178701141114
+    },
+    {
+      "cases_per_second": 49.20484915680906,
+      "effective_device_count": 4,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 0.4339474313433919,
+      "requested_device_count": 4,
+      "seconds": 2.60136962501565,
+      "speedup_vs_serial": 1.7357897253735677
+    }
+  ],
+  "devices": [
+    "TFRT_CPU_0",
+    "TFRT_CPU_1",
+    "TFRT_CPU_2",
+    "TFRT_CPU_3"
+  ],
+  "grid": {
+    "n_theta": 17,
+    "n_xi": 16,
+    "n_zeta": 25
+  },
+  "healthy_parallel_device_count": 4,
+  "local_device_count": 4,
+  "max_rss_mb": 2834.84375,
+  "multiprocess": [
+    {
+      "cases_per_second": 19.69788585475517,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 0.6948784208097484,
+      "seconds": 6.498159292008495,
+      "speedup_vs_serial": 0.6948784208097484,
+      "workers": 1
+    },
+    {
+      "cases_per_second": 22.521849989715644,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 0.39724942234827904,
+      "seconds": 5.683369708014652,
+      "speedup_vs_serial": 0.7944988446965581,
+      "workers": 2
+    },
+    {
+      "cases_per_second": 26.39953885189286,
+      "max_abs_delta_serial_d11": 0.0,
+      "parallel_efficiency_vs_serial": 0.23282282680961497,
+      "seconds": 4.848569541994948,
+      "speedup_vs_serial": 0.9312913072384599,
+      "workers": 4
+    }
+  ],
+  "num_cases": 128,
+  "serial": {
+    "cases_per_second": 28.347240704065953,
+    "seconds": 4.5154306670010556
+  },
+  "surface": "dkes",
+  "worker_counts": [
+    1,
+    2,
+    4
+  ]
+}

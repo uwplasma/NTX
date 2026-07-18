@@ -19,7 +19,7 @@ from ntx import (  # noqa: E402
     GridSpec,
     example_neopax_profile_autodiff,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 from ntx.config import enable_x64  # noqa: E402
 
@@ -62,7 +62,7 @@ def main() -> None:
     scan = load_neopax_reference_scan(ROOT / "tests" / "fixtures" / "sample_neopax_scan.h5")
     wout = ROOT / "tests" / "fixtures" / "sample_wout.nc"
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(wout, s=float(rho_value**2)) for rho_value in scan.rho
+        surface_from_vmex_vmec_wout_file(wout, s=float(rho_value**2)) for rho_value in scan.rho
     )
     result = example_neopax_profile_autodiff(
         surfaces,

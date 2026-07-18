@@ -20,20 +20,20 @@ import numpy as np  # noqa: E402
 
 from ntx import (  # noqa: E402
     GridSpec,
-    build_differentiable_neopax_field_from_vmec_jax_state,
-    build_ntx_neopax_scan_from_vmec_jax_state,
-    build_vmec_jax_boundary_context,
+    build_differentiable_neopax_field_from_vmex_state,
+    build_ntx_neopax_scan_from_vmex_state,
+    build_vmex_boundary_context,
     get_differentiable_neopax_fluxes,
-    initial_guess_vmec_jax_boundary_state,
-    relax_vmec_jax_boundary_state_explicit,
+    initial_guess_vmex_boundary_state,
+    relax_vmex_boundary_state_explicit,
     solve_monoenergetic_scan,
-    surface_from_vmec_jax_state,
+    surface_from_vmex_state,
     to_neopax_monoenergetic,
 )
 from ntx._checkout_paths import (  # noqa: E402
     find_booz_xform_jax_root,
     find_neopax_root,
-    find_vmec_jax_root,
+    find_vmex_root,
 )
 from ntx.config import enable_x64  # noqa: E402
 
@@ -85,12 +85,12 @@ def _configure_style() -> None:
 
 
 def _input_path(name: str) -> Path:
-    root = find_vmec_jax_root()
+    root = find_vmex_root()
     if root is None:
-        raise RuntimeError("requires local vmec_jax checkout")
+        raise RuntimeError("requires local vmex checkout")
     path = root / "examples" / "data" / name
     if not path.exists():
-        raise RuntimeError(f"missing vmec_jax example input: {path}")
+        raise RuntimeError(f"missing vmex example input: {path}")
     return path
 
 
@@ -100,20 +100,20 @@ def _has_boundary_stack() -> bool:
     except RuntimeError:
         inputs_exist = False
     return (
-        find_vmec_jax_root() is not None
+        find_vmex_root() is not None
         and find_booz_xform_jax_root() is not None
         and find_neopax_root() is not None
         and inputs_exist
     )
 
 
-def _import_vmec_jax():
-    root = find_vmec_jax_root()
+def _import_vmex():
+    root = find_vmex_root()
     if root is not None and str(root) not in sys.path:
         sys.path.insert(0, str(root))
-    import vmec_jax
+    import vmex
 
-    return vmec_jax
+    return vmex
 
 
 def _import_neopax():
@@ -174,9 +174,9 @@ def _finite_difference_gradient(objective, params, *, fd_step: float) -> jnp.nda
     return jnp.asarray(columns)
 
 
-def _volume_from_state(vmec_jax, context, state) -> float:
-    geom = vmec_jax.eval_geom(state, context.static)
-    _dvds, volume = vmec_jax.volume_from_sqrtg(
+def _volume_from_state(vmex, context, state) -> float:
+    geom = vmex.eval_geom(state, context.static)
+    _dvds, volume = vmex.volume_from_sqrtg(
         geom.sqrtg,
         context.static.s,
         context.static.grid.theta,
@@ -191,11 +191,11 @@ def _build_case_payload(
     *,
     fd_step: float,
     grid: GridSpec,
-    vmec_jax,
+    vmex,
     NEOPAX,
 ) -> dict[str, object]:
     input_path = _input_path(case_spec["input_name"])
-    context = build_vmec_jax_boundary_context(
+    context = build_vmex_boundary_context(
         input_path,
         max_mode=1,
         include=("rc", "zs"),
@@ -212,7 +212,7 @@ def _build_case_payload(
     er = jnp.tile(er_row[None, :], (rho.shape[0], 1))
 
     def _state_from_params(params, *, differentiable: bool):
-        return relax_vmec_jax_boundary_state_explicit(
+        return relax_vmex_boundary_state_explicit(
             context,
             params,
             vmec_project=False,
@@ -223,12 +223,12 @@ def _build_case_payload(
             verbose=False,
         )
 
-    initial_state = initial_guess_vmec_jax_boundary_state(context, params0, vmec_project=False)
+    initial_state = initial_guess_vmex_boundary_state(context, params0, vmec_project=False)
     ordinary_state = _state_from_params(params0, differentiable=False)
     explicit_relaxed_state = _state_from_params(params0, differentiable=True)
-    initial_volume = _volume_from_state(vmec_jax, context, initial_state)
-    ordinary_volume = _volume_from_state(vmec_jax, context, ordinary_state)
-    explicit_relaxed_volume = _volume_from_state(vmec_jax, context, explicit_relaxed_state)
+    initial_volume = _volume_from_state(vmex, context, initial_state)
+    ordinary_volume = _volume_from_state(vmex, context, ordinary_state)
+    explicit_relaxed_volume = _volume_from_state(vmex, context, explicit_relaxed_state)
     ordinary_explicit_relative_difference = abs(ordinary_volume - explicit_relaxed_volume) / max(
         abs(ordinary_volume),
         1.0e-30,
@@ -236,7 +236,7 @@ def _build_case_payload(
 
     def booz_xform_scalar(params):
         state = _state_from_params(params, differentiable=True)
-        surface = surface_from_vmec_jax_state(
+        surface = surface_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -250,7 +250,7 @@ def _build_case_payload(
 
     def ntx_transport_response(params):
         state = _state_from_params(params, differentiable=True)
-        surface = surface_from_vmec_jax_state(
+        surface = surface_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -270,7 +270,7 @@ def _build_case_payload(
 
     def integrated_current(params):
         state = _state_from_params(params, differentiable=True)
-        field = build_differentiable_neopax_field_from_vmec_jax_state(
+        field = build_differentiable_neopax_field_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -280,7 +280,7 @@ def _build_case_payload(
             nboz=DEFAULT_NBOZ,
         )
         drds = field.a_b * 0.5 / jnp.clip(rho, 0.05, None)
-        scan = build_ntx_neopax_scan_from_vmec_jax_state(
+        scan = build_ntx_neopax_scan_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -360,13 +360,13 @@ def _build_case_payload(
 
 def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
     if not _has_boundary_stack():
-        raise RuntimeError("requires local vmec_jax, booz_xform_jax, and NEOPAX checkouts")
+        raise RuntimeError("requires local vmex, booz_xform_jax, and NEOPAX checkouts")
 
     enable_x64(True)
-    vmec_jax = _import_vmec_jax()
+    vmex = _import_vmex()
     NEOPAX = _import_neopax()
     case_payloads = [
-        _build_case_payload(case_spec, fd_step=fd_step, grid=grid, vmec_jax=vmec_jax, NEOPAX=NEOPAX)
+        _build_case_payload(case_spec, fd_step=fd_step, grid=grid, vmex=vmex, NEOPAX=NEOPAX)
         for case_spec in DEFAULT_CASE_SPECS
     ]
     summary_max = max(
@@ -401,7 +401,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
         "cases": case_payloads,
         "claim_scope": (
             "Low-dimensional boundary controls propagate through an explicitly "
-            "relaxed fixed-boundary vmec_jax solve, booz_xform_jax, NTX "
+            "relaxed fixed-boundary vmex solve, booz_xform_jax, NTX "
             "coefficients, and an NTX+NEOPAX integrated-current objective "
             "under forward-mode autodiff on committed QA and QH family cases, "
             "while preserving the ordinary primal volume."

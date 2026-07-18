@@ -6,6 +6,8 @@ open stellarator transport and optimization problems.
 
 This page summarizes the active development lanes, why they matter, and where
 they map onto the current source tree.
+Implementation order, file ownership, and pull-request acceptance gates are
+tracked in a private planning document.
 
 ## Research Goal
 
@@ -133,7 +135,7 @@ That transfer is now started on repository-owned file-backed inputs:
 The next imported boundary-control slice is now also benchmarked:
 
 - [`examples/boundary_forward_mode_current_derivative_benchmark.py`](../examples/boundary_forward_mode_current_derivative_benchmark.py)
-  uses repository-owned `vmec_jax` boundary controls, a boundary-projected
+  uses repository-owned `vmex` boundary controls, a boundary-projected
   VMEC state, `booz_xform_jax`, NTX, and NEOPAX to audit two scalar outputs
   against centered finite differences,
 - the current validated contract is forward-mode on this low-dimensional
@@ -145,7 +147,7 @@ That implicit-equilibrium transfer is now closed as a non-shipping diagnostic on
 the committed QA case:
 
 - [`examples/implicit_equilibrium_forward_mode_derivative_benchmark.py`](../examples/implicit_equilibrium_forward_mode_derivative_benchmark.py)
-  uses the implicit fixed-boundary `vmec_jax` residual solve with
+  uses the implicit fixed-boundary `vmex` residual solve with
   `residual_tangent_mode="auto"`,
 - it records AD versus centered-finite-difference behavior for equilibrium
   volume, a Boozer scalar, and an NTX monoenergetic transport observable,
@@ -162,7 +164,7 @@ That self-consistent forward-mode transfer is now in place on committed QA and
 QH family cases:
 
 - [`examples/explicit_relaxed_boundary_current_derivative_benchmark.py`](../examples/explicit_relaxed_boundary_current_derivative_benchmark.py)
-  uses an explicitly relaxed fixed-boundary `vmec_jax` solve, `booz_xform_jax`,
+  uses an explicitly relaxed fixed-boundary `vmex` solve, `booz_xform_jax`,
   NTX, and NEOPAX on the low-resolution QA input and the lighter QH warm-start
   input,
 - its JSON artifact records ordinary-versus-explicit primal-volume agreement in
@@ -215,8 +217,8 @@ more than trusted loading:
 That pushes on:
 
 - [`src/ntx/geometry.py`](../src/ntx/geometry.py)
-- [`src/ntx/vmec_jax_vmec.py`](../src/ntx/vmec_jax_vmec.py)
-- [`src/ntx/vmec_jax_backend.py`](../src/ntx/vmec_jax_backend.py)
+- [`src/ntx/vmex_vmec.py`](../src/ntx/vmex_vmec.py)
+- [`src/ntx/vmex_backend.py`](../src/ntx/vmex_backend.py)
 
 The committed artifact-backed status is summarized in
 [`examples/geometry_family_breadth_summary.py`](../examples/geometry_family_breadth_summary.py).
@@ -228,7 +230,7 @@ excluded from promoted claims.
 
 The direct VMEC transport-convergence breadth check now lives in
 [`examples/geometry_family_transport_convergence.py`](../examples/geometry_family_transport_convergence.py).
-It discovers local public VMEC examples from `vmec_jax`, STELLOPT, and SIMSOPT,
+It discovers local public VMEC examples from `vmex`, STELLOPT, and SIMSOPT,
 then records `D11/D31/D33` grid-ladder behavior across tokamak, precise-QS,
 QI-style, W7-X EIM/EJM, and stellarator-family inputs. That closes the
 reduced-grid NTX geometry-family stress artifact; independent-code parity,

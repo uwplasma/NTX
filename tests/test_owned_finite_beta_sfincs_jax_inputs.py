@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -60,6 +61,9 @@ def test_owned_finite_beta_sfincs_jax_inputs_write_same_grid_decks(tmp_path: Pat
     assert output_prefix.with_suffix(".json").exists()
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()
+    written = json.loads(output_prefix.with_suffix(".json").read_text())
+    assert written["figure_png"] == str(output_prefix.with_suffix(".png"))
+    assert written["figure_pdf"] == str(output_prefix.with_suffix(".pdf"))
 
 
 def test_owned_finite_beta_sfincs_jax_inputs_resolves_relative_output_dir(
@@ -96,6 +100,93 @@ def test_owned_finite_beta_sfincs_jax_inputs_resolves_relative_output_dir(
     assert Path(deck["output_path"]).is_absolute()
     assert Path(deck["input_path"]).is_file()
     assert str(Path(deck["input_path"])).startswith(str(tmp_path))
+
+
+def test_owned_finite_beta_sfincs_jax_inputs_can_write_rhsmode2_decks(tmp_path: Path):
+    input_path = tmp_path / "input.finite_beta"
+    wout_path = tmp_path / "wout_finite_beta.nc"
+    input_path.write_text("&INDATA\n/\n")
+    wout_path.write_text("placeholder")
+    case = OwnedJaxGeometryCase(
+        id="finite_beta_fake",
+        label="Finite-beta fake",
+        family="QA finite beta",
+        source="unit test",
+        input_path=input_path,
+        wout_path=wout_path,
+    )
+
+    payload = sfincs_inputs.build_payload(
+        case_specs=(case,),
+        case_limit=None,
+        rho=(0.25,),
+        nu_v=(1.0e-3,),
+        es_values=(0.0,),
+        grid=GridSpec(5, 7, 9),
+        output_dir=tmp_path / "sfincs_decks",
+        run_sfincs_jax=False,
+        rhs_mode=2,
+        rhsmode2_species="electron",
+        rhs2_nl=3,
+        rhs2_nx=5,
+    )
+
+    deck = payload["decks"][0]
+    input_text = Path(deck["input_path"]).read_text()
+    assert payload["inputs"]["rhs_mode"] == 2
+    assert payload["inputs"]["rhsmode2_species"] == "electron"
+    assert deck["rhs_mode"] == 2
+    assert deck["species"] == "electron"
+    assert "rhsMode_2_electron_unit" in str(deck["input_path"])
+    assert "RHSMode = 2" in input_text
+    assert "Zs = -1" in input_text
+    assert "nHats = 1" in input_text
+    assert "THats = 1" in input_text
+    assert "nu_n = 0.001" in input_text
+    assert "NL = 3" in input_text
+    assert "Nx = 5" in input_text
+    assert "Nxi_for_x_option = 0" in input_text
+
+
+def test_owned_finite_beta_sfincs_jax_inputs_rhsmode2_profile_contract(tmp_path: Path):
+    input_path = tmp_path / "input.finite_beta"
+    wout_path = tmp_path / "wout_finite_beta.nc"
+    input_path.write_text("&INDATA\n/\n")
+    wout_path.write_text("placeholder")
+    case = OwnedJaxGeometryCase(
+        id="finite_beta_fake",
+        label="Finite-beta fake",
+        family="QA finite beta",
+        source="unit test",
+        input_path=input_path,
+        wout_path=wout_path,
+    )
+
+    payload = sfincs_inputs.build_payload(
+        case_specs=(case,),
+        case_limit=None,
+        rho=(0.5,),
+        nu_v=(1.0e-3,),
+        es_values=(0.0,),
+        grid=GridSpec(5, 7, 9),
+        output_dir=tmp_path / "sfincs_decks",
+        run_sfincs_jax=False,
+        rhs_mode=2,
+        rhsmode2_species="ion",
+        rhsmode2_use_profile_contract=True,
+    )
+
+    deck = payload["decks"][0]
+    input_text = Path(deck["input_path"]).read_text()
+    assert payload["inputs"]["rhsmode2_use_profile_contract"] is True
+    assert deck["species"] == "ion"
+    assert deck["n_hat"] == pytest.approx(3.996484375)
+    assert deck["t_hat"] == pytest.approx(9.125)
+    assert "rhsMode_2_ion_profile" in str(deck["input_path"])
+    assert "Zs = 1" in input_text
+    assert "mHats = 2" in input_text
+    assert "nHats = 3.996484375" in input_text
+    assert "THats = 9.125" in input_text
 
 
 def test_owned_finite_beta_sfincs_jax_inputs_summarizes_completed_h5(tmp_path: Path):
@@ -139,7 +230,7 @@ def test_owned_finite_beta_sfincs_jax_inputs_compares_ntx_same_grid(
     )
     monkeypatch.setattr(
         sfincs_inputs,
-        "surface_from_vmec_jax_vmec_wout_file",
+        "surface_from_vmex_vmec_wout_file",
         lambda *args, **kwargs: SimpleNamespace(b0=2.0, psi_a_hat=0.25),
     )
     monkeypatch.setattr(

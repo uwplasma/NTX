@@ -1,0 +1,26 @@
+{
+  "pmax_levels": [
+    3,
+    4
+  ],
+  "tail_factor": 1.0,
+  "tail_power": 1.0,
+  "precise_qs": {
+    "3": {
+      "qa": 1.1571902916712908,
+      "qh": 1.1620140338095981
+    },
+    "4": {
+      "qa": 1.152457631911886,
+      "qh": 1.1577049117956955
+    }
+  },
+  "precise_qs_max_successive_change": 0.11084249103141489,
+  "w7x_max_relative_error": 0.49423424778953606,
+  "w7x_errors": {
+    "3": 1.1670174968393047e-12,
+    "4": 0.49423424778953606
+  },
+  "figure_png": "/Users/rogeriojorge/local/NTX/docs/_static/closure_pmax_convergence.png",
+  "figure_pdf": "/Users/rogeriojorge/local/NTX/docs/_static/closure_pmax_convergence.pdf"
+}

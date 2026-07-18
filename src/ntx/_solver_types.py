@@ -41,6 +41,14 @@ tree_util.register_dataclass(MonoenergeticCase)
 
 @dataclass(frozen=True)
 class TransportResult:
+    """Monoenergetic coefficients, retained modes, and solver diagnostics.
+
+    ``residual_l2`` is retained for API compatibility. It is the RMS residual
+    of the tail-eliminated Schur system, not the residual of every original
+    Legendre block row. Use ``schur_residual_l2`` for explicit new code and
+    :func:`ntx.audit_prepared_residuals` when a full-system residual is needed.
+    """
+
     D11: Array
     D31: Array
     D13: Array
@@ -50,6 +58,12 @@ class TransportResult:
     f3_modes: Array
     residual_l2: Array
     onsager_residual: Array
+
+    @property
+    def schur_residual_l2(self) -> Array:
+        """RMS algebraic residual of the complete tail-eliminated system."""
+
+        return self.residual_l2
 
     def as_dict(self) -> dict[str, float]:
         return {
@@ -64,6 +78,39 @@ class TransportResult:
 
 
 tree_util.register_dataclass(TransportResult)
+
+
+@dataclass(frozen=True)
+class ResidualAuditResult:
+    """Opt-in comparison of the low-memory and full Legendre solves."""
+
+    tail_eliminated_l2: Array
+    full_system_l2: Array
+    retained_mode_max_abs_error: Array
+    n_modes: int
+
+    @property
+    def schur_residual_l2(self) -> Array:
+        """RMS residual of the tail-eliminated Schur system."""
+
+        return self.tail_eliminated_l2
+
+    @property
+    def full_system_residual_l2(self) -> Array:
+        """RMS residual obtained by applying every original Legendre row."""
+
+        return self.full_system_l2
+
+
+tree_util.register_dataclass(
+    ResidualAuditResult,
+    data_fields=(
+        "tail_eliminated_l2",
+        "full_system_l2",
+        "retained_mode_max_abs_error",
+    ),
+    meta_fields=("n_modes",),
+)
 
 
 @dataclass(frozen=True)

@@ -26,7 +26,7 @@ from ntx import (
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
     neopax_scan_requires_rebuild,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
@@ -112,7 +112,7 @@ J_FINAL_REFERENCE = np.array(
 
 
 def _surface_loader(rho_value: float):
-    return surface_from_vmec_jax_vmec_wout_file(WOUT_PATH, s=float(rho_value**2))
+    return surface_from_vmex_vmec_wout_file(WOUT_PATH, s=float(rho_value**2))
 
 
 def _max_relative_error(a: np.ndarray, b: np.ndarray) -> float:

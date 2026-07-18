@@ -48,7 +48,7 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
     PhysicsGate(
         name="owned_finite_beta_current_conditioning_stress",
         category="stress",
-        metric="stress-radius coefficient precision gap for the 1e-1 current gate",
+        metric="max coefficient precision gap for the 1e-1 current gate",
         relation="monitor",
         threshold=None,
         source="docs/_static/owned_finite_beta_current_conditioning_audit.json",
@@ -86,6 +86,42 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
             "show whether the coefficient floor is localized or a whole-profile "
             "resolution failure before the remaining current residual is assigned "
             "to the profile-current closure."
+        ),
+    ),
+    PhysicsGate(
+        name="owned_finite_beta_sfincs_jax_profile_current_stress",
+        category="stress",
+        metric="max RHSMode=1 SFINCS-JAX finite-beta profile-current difference",
+        relation="monitor",
+        threshold=None,
+        source=(
+            "docs/_static/"
+            "owned_finite_beta_sfincs_jax_profile_current_audit.json"
+        ),
+        rationale=(
+            "The owned finite-beta SFINCS-JAX profile-current diagnostic runs "
+            "RHSMode=1 on the same VMEC/profile contract as Redl and "
+            "NTX+NEOPAX. It remains a monitored stress lane, not a parity gate, "
+            "until pitch, velocity, radial, and collisionality-normalization "
+            "ladders are complete."
+        ),
+    ),
+    PhysicsGate(
+        name="owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress",
+        category="stress",
+        metric="RHSMode=1 profile-current high-Nxi even/odd accepted stress gap",
+        relation="<=",
+        threshold=1.5e-1,
+        source=(
+            "docs/_static/"
+            "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
+        ),
+        rationale=(
+            "The RHSMode=1 current observable is sensitive to the terminal "
+            "Legendre pitch moment. The current finite-beta benchmark accepts "
+            "the adjacent high-Nxi even/odd gap below 1.5e-1 as a closed "
+            "reduced-closure stress diagnostic, not as a broader full-collision "
+            "profile-current parity claim."
         ),
     ),
     PhysicsGate(

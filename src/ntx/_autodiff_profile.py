@@ -8,6 +8,7 @@ from typing import Any
 import jax
 import jax.numpy as jnp
 from jax import Array
+from solvax import chunked_jacobian
 
 from ._autodiff_helpers import (
     er_profile,
@@ -20,6 +21,25 @@ from .neopax import (
     build_ntx_neopax_scan_from_surfaces,
     scan_to_neopax_arrays,
 )
+
+JacobianChunkSize = int | str | None
+
+
+def _profile_jacobian(
+    function: Callable[[Array], Array],
+    parameters: Array,
+    *,
+    chunk_size: JacobianChunkSize,
+) -> Array:
+    """Evaluate a profile Jacobian, optionally bounding tangent-batch memory."""
+
+    if chunk_size is None:
+        return jax.jacrev(function)(parameters)
+    return chunked_jacobian(
+        function,
+        mode="auto",
+        chunk_size=chunk_size,
+    )(parameters)
 
 
 def example_neopax_profile_autodiff(
@@ -39,8 +59,14 @@ def example_neopax_profile_autodiff(
     initial_params: Array | None = None,
     use_neopax_package: bool = False,
     maybe_import_neopax: Callable[[], Any] | None = None,
+    jacobian_chunk_size: JacobianChunkSize = None,
 ) -> NeopaxProfileAutodiffResult:
-    """Infer a low-dimensional electric-field profile on a NEOPAX-style scan."""
+    """Infer a low-dimensional electric-field profile on a NEOPAX-style scan.
+
+    Set ``jacobian_chunk_size`` to a positive integer or ``"auto"`` to use
+    SOLVAX's bounded-memory Jacobian assembly for a large profile basis. The
+    default preserves native JAX reverse mode for small control sets.
+    """
 
     scan = build_ntx_neopax_scan_from_surfaces(
         surfaces,
@@ -75,9 +101,8 @@ def example_neopax_profile_autodiff(
         trial_er = er_profile(rho_grid, params)
         fitted_d11 = evaluate_d11_profile(arrays, rho_grid, nu_value, trial_er)
         fitted = evaluate_d33_profile(arrays, rho_grid, nu_value, trial_er)
-        d11_residual = (
-            jnp.log10(jnp.maximum(fitted_d11, 1e-30))
-            - jnp.log10(jnp.maximum(target_d11_profile, 1e-30))
+        d11_residual = jnp.log10(jnp.maximum(fitted_d11, 1e-30)) - jnp.log10(
+            jnp.maximum(target_d11_profile, 1e-30)
         )
         d33_residual = (fitted - target_d33_profile) / jnp.maximum(
             jnp.abs(target_d33_profile),
@@ -95,14 +120,16 @@ def example_neopax_profile_autodiff(
     fitted_er_profile = er_profile(rho_grid, fitted_params)
     fitted_d11_profile = evaluate_d11_profile(arrays, rho_grid, nu_value, fitted_er_profile)
     fitted_d33_profile = evaluate_d33_profile(arrays, rho_grid, nu_value, fitted_er_profile)
-    sensitivity_matrix = jax.jacrev(
-        lambda params: evaluate_d33_profile(
+    sensitivity_matrix = _profile_jacobian(
+        lambda parameters: evaluate_d33_profile(
             arrays,
             rho_grid,
             nu_value,
-            er_profile(rho_grid, params),
-        )
-    )(fitted_params)
+            er_profile(rho_grid, parameters),
+        ),
+        fitted_params,
+        chunk_size=jacobian_chunk_size,
+    )
     if use_neopax_package:
         if maybe_import_neopax is None:
             raise RuntimeError("use_neopax_package=True requires a NEOPAX importer callback")
@@ -142,8 +169,14 @@ def example_neopax_profile_uncertainty(
     hessian_probe: Array | None = None,
     monte_carlo_samples: int = 64,
     random_seed: int = 0,
+    jacobian_chunk_size: JacobianChunkSize = None,
 ) -> NeopaxProfileUncertaintyResult:
-    """Compare linearized covariance propagation against Monte Carlo on a profile fit."""
+    """Compare linearized covariance propagation against Monte Carlo on a profile fit.
+
+    ``jacobian_chunk_size`` controls both the profile sensitivity and local
+    residual Jacobians. Use it for large profile bases after measuring the
+    runtime-memory tradeoff on the target workload.
+    """
 
     fit = example_neopax_profile_autodiff(
         surfaces,
@@ -159,6 +192,7 @@ def example_neopax_profile_uncertainty(
         steps=steps,
         target_params=target_params,
         initial_params=initial_params,
+        jacobian_chunk_size=jacobian_chunk_size,
     )
     scan = build_ntx_neopax_scan_from_surfaces(
         surfaces,
@@ -229,14 +263,17 @@ def example_neopax_profile_uncertainty(
         trial_er_profile = er_profile(rho_grid, trial_params)
         trial_d11 = evaluate_d11_profile(arrays, rho_grid, nu_value, trial_er_profile)
         trial_d33 = evaluate_d33_profile(arrays, rho_grid, nu_value, trial_er_profile)
-        d11_residual = (
-            jnp.log10(jnp.maximum(trial_d11, 1e-30))
-            - jnp.log10(jnp.maximum(fit.fitted_d11_profile, 1e-30))
+        d11_residual = jnp.log10(jnp.maximum(trial_d11, 1e-30)) - jnp.log10(
+            jnp.maximum(fit.fitted_d11_profile, 1e-30)
         )
         d33_residual = (trial_d33 - fit.fitted_d33_profile) / d33_sensitivity_scale
         return jnp.concatenate((d11_residual, d33_residual))
 
-    residual_jacobian = jax.jacrev(local_profile_residual)(params)
+    residual_jacobian = _profile_jacobian(
+        local_profile_residual,
+        params,
+        chunk_size=jacobian_chunk_size,
+    )
     fisher_matrix = residual_jacobian.T @ residual_jacobian / residual_jacobian.shape[0]
     fisher_eigenvalues = jnp.linalg.eigvalsh(fisher_matrix)
     hessian_probe = (

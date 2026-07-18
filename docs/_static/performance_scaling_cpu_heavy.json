@@ -1,0 +1,65 @@
+{
+  "backend": "cpu",
+  "devices": [
+    "TFRT_CPU_0",
+    "TFRT_CPU_1",
+    "TFRT_CPU_2",
+    "TFRT_CPU_3"
+  ],
+  "grid": {
+    "n_theta": 17,
+    "n_xi": 16,
+    "n_zeta": 25
+  },
+  "healthy_parallel_device_count": 4,
+  "local_device_count": 4,
+  "max_rss_mb": 2696.59375,
+  "results": [
+    {
+      "device_parallel_cases_per_second": 15.578876985003545,
+      "device_parallel_seconds": 1.0270316670066677,
+      "device_parallel_speedup_vs_serial": 0.9008372835182226,
+      "max_abs_delta_serial_vs_device_parallel_d11": 3.082750499316944e-09,
+      "max_abs_delta_serial_vs_multiprocess_d11": 3.082750499316944e-09,
+      "multiprocess_cases_per_second": 3.751346454960522,
+      "multiprocess_seconds": 4.265135249996092,
+      "multiprocess_speedup_vs_serial": 0.21691889301618889,
+      "num_cases": 16,
+      "serial_cases_per_second": 17.29377465834917,
+      "serial_seconds": 0.9251884169934783
+    },
+    {
+      "device_parallel_cases_per_second": 19.10477463128963,
+      "device_parallel_seconds": 1.6749739590013633,
+      "device_parallel_speedup_vs_serial": 1.0546930138922628,
+      "max_abs_delta_serial_vs_device_parallel_d11": 2.7755575615628914e-17,
+      "max_abs_delta_serial_vs_multiprocess_d11": 2.7755575615628914e-17,
+      "multiprocess_cases_per_second": 7.196330389813231,
+      "multiprocess_seconds": 4.4467107910022605,
+      "multiprocess_speedup_vs_serial": 0.3972786664212148,
+      "num_cases": 32,
+      "serial_cases_per_second": 18.11406198736914,
+      "serial_seconds": 1.7665833330102032
+    },
+    {
+      "device_parallel_cases_per_second": 33.33012834651174,
+      "device_parallel_seconds": 1.9201846249925438,
+      "device_parallel_speedup_vs_serial": 1.3374300531170502,
+      "max_abs_delta_serial_vs_device_parallel_d11": 4.85722573273506e-17,
+      "max_abs_delta_serial_vs_multiprocess_d11": 4.85722573273506e-17,
+      "multiprocess_cases_per_second": 14.740283403815388,
+      "multiprocess_seconds": 4.341843250003876,
+      "multiprocess_speedup_vs_serial": 0.5914798110217425,
+      "num_cases": 64,
+      "serial_cases_per_second": 24.921025416493112,
+      "serial_seconds": 2.568112624998321
+    }
+  ],
+  "sizes": [
+    16,
+    32,
+    64
+  ],
+  "surface": "dkes",
+  "workers": 4
+}

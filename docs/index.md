@@ -8,7 +8,7 @@ NTX provides:
 
 - built-in analytic sample surfaces
 - DKES-style Boozer inputs
-- VMEC `wout` inputs through `vmec_jax`
+- VMEC `wout` inputs through `vmex`
 - Boozer `boozmn` inputs through `booz_xform_jax`
 - direct NEOPAX-style scan and HDF5 mapping helpers
 - CPU and GPU execution through the same JAX solver path
@@ -44,22 +44,25 @@ ntx input.toml
 
 ## What The Code Solves
 
-NTX starts from the local monoenergetic drift-kinetic equation on a single flux
-surface,
+NTX solves the normalized local monoenergetic drift-kinetic equation for the
+non-adiabatic response on a single flux surface,
 
 ```{math}
-\left(
-v_\parallel \mathbf b\cdot\nabla
-\mathbf v_E\cdot\nabla
-\dot{\xi}\partial_\xi
+\left[
+\xi \frac{1}{B}\left(B^\theta\partial_\theta+B^\zeta\partial_\zeta\right)
++ \frac{\hat E_\psi}{\mathcal J\langle B^2\rangle}
+\left(-B_\zeta\partial_\theta+B_\theta\partial_\zeta\right)
+- \frac{1-\xi^2}{2B^2}
+\left(B^\theta\partial_\theta B+B^\zeta\partial_\zeta B\right)\partial_\xi
 - C_L
-\right) f = s,
+\right] f = s,
 ```
 
-with fixed speed, Lorentz pitch-angle scattering, and two source terms: the
-radial-transport drive and the parallel-flow/bootstrap-current drive. Projecting
-that equation onto Legendre polynomials in pitch angle gives the system actually
-solved by the code,
+where `\xi=v_\parallel/v`, `\mathcal J` is the Boozer-coordinate Jacobian, and
+`C_L` is the Lorentz pitch-angle-scattering operator. Speed is fixed. The two
+source systems are the radial-transport drive and the parallel-flow drive used
+by downstream bootstrap-current closures. Projecting this equation onto
+Legendre polynomials in pitch angle gives the system solved by the code,
 
 ```{math}
 L_k f^{(k-1)} + D_k f^{(k)} + U_k f^{(k+1)} = s^{(k)}
@@ -86,7 +89,11 @@ parallel-throughput workflows.
 - [Geometry And Inputs](geometry.md): how surfaces are loaded and evaluated
 - [Numerics And Algorithms](numerics.md): discretization, dense solve, and
   JAX/parallel execution
+- [Resolution And Convergence](convergence.md): residual semantics, Nyquist
+  gates, and adaptive angular/Legendre ladders
 - [Source-Code Map](source-map.md): where each model component lives in `src/`
+- [API Reference](api.rst): generated public module, class, and function docs
+- [Glossary](glossary.md): coordinates, normalizations, grids, and workflow terms
 - [Autodiff](autodiff.md): inverse problems, derivative audits, and prepared derivatives
 - [Profiles](profiles.md): ambipolar electric-field and reduced current-response workflows
 - [Examples](examples.md): runnable workflows and figure generators
@@ -101,7 +108,7 @@ parallel-throughput workflows.
 - [Research Roadmap](research-roadmap.md): next research-grade development lanes
 - [Manuscript Figures](manuscript.md): publication-ready figure inventory
 - [Literature](literature.md): thesis and package links
-- [Release Notes 0.2.3](release-notes-0.2.3.md): current release notes
+- [Release Notes 0.2.4](release-notes-0.2.4.md): current release notes
 
 ## Contents
 
@@ -115,11 +122,15 @@ physics-gates
 geometry
 algorithm
 numerics
+convergence
 source-map
+api
+glossary
 autodiff
 profiles
 examples
 validation
+sfincs-jax-rhsmode1-profile-current-handoff
 testing
 benchmark-matrix
 repo-hygiene
@@ -131,6 +142,7 @@ research-roadmap
 manuscript
 literature
 release
+release-notes-0.2.4
 release-notes-0.2.3
 release-notes-0.2.2
 release-notes-0.2.1

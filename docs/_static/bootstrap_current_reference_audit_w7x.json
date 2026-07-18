@@ -1,0 +1,46 @@
+{
+  "wout": "wout_W7-X_standard_configuration.nc",
+  "boozmn": "boozmn_wout_W7-X_standard_configuration.nc",
+  "reference_database": "Dij_NEOPAX_FULL_S_NEW_W7X.h5",
+  "nu_indices": [
+    0,
+    3,
+    7,
+    11
+  ],
+  "er_indices": [
+    0,
+    3,
+    7,
+    11
+  ],
+  "bootstrap_current_reference_scale": 31386372.43497639,
+  "bootstrap_current_errors": [
+    {
+      "grid": [
+        13,
+        17,
+        17
+      ],
+      "max_relative_error": 103.79730848200063
+    },
+    {
+      "grid": [
+        17,
+        25,
+        33
+      ],
+      "max_relative_error": 29.65084550836358
+    },
+    {
+      "grid": [
+        25,
+        25,
+        64
+      ],
+      "max_relative_error": 0.018297079828848713
+    }
+  ],
+  "figure_png": "docs/_static/bootstrap_current_reference_audit_w7x.png",
+  "figure_pdf": "docs/_static/bootstrap_current_reference_audit_w7x.pdf"
+}

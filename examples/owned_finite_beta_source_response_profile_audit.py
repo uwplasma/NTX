@@ -3,12 +3,13 @@
 """Map finite-beta source-channel response across the radial profile.
 
 The stress-radius source-channel audit localizes the remaining finite-beta
-bootstrap-current gap to the effective temperature-gradient source response.
-This diagnostic keeps the same owned finite-beta contract and extends that
-measurement across the profile.  It is deliberately a physics-localization
-artifact: it records how the Redl target response relates to the frozen
-momentum-restoring source response as a function of radius, collisionality, and
-geometry factors, without applying a fitted runtime correction.
+bootstrap-current gap to the physical source response inside the reduced
+profile-current closure. This diagnostic keeps the same owned finite-beta
+contract and extends that measurement across the profile. It is deliberately a
+physics-localization artifact: it records how the Redl target response relates
+to the frozen momentum-restoring source response as a function of radius,
+collisionality, and geometry factors, without applying a fitted runtime
+correction.
 """
 
 from __future__ import annotations
@@ -39,6 +40,7 @@ from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
     _case_by_id,
     _evaluate_neopax_currents,
     _interp,
+    _read_neopax_field,
     _require_external_stacks,
     _to_jsonable,
     _write_boozmn,
@@ -252,11 +254,7 @@ def build_payload(
     mboz = int(inputs.get("mboz", DEFAULT_MBOZ))
     nboz = int(inputs.get("nboz", DEFAULT_NBOZ))
     boozmn_path = _write_boozmn(case, output_dir, mboz=mboz, nboz=nboz)
-    field = NEOPAX.Field.read_vmec_booz(
-        int(inputs.get("field_radial_points", 15)),
-        str(case.wout_path),
-        str(boozmn_path),
-    )
+    field = _read_neopax_field(int(inputs.get("field_radial_points", 15)), case, boozmn_path)
     species = _build_species(NEOPAX, field, contract)
     scan_grid = _grid_from_payload(bootstrap_payload)
     scan, scan_metadata = _load_or_build_scan(

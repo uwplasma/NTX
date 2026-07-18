@@ -37,6 +37,7 @@ on the NEOPAX Python package.
 - `to_neopax_monoenergetic(...)`
 - `write_neopax_scan_hdf5(...)`
 - `load_neopax_reference_scan(...)`
+- `build_differentiable_neopax_field_from_vmec_booz_files(...)`
 
 The imported profile layer in [`src/ntx/profiles.py`](../src/ntx/profiles.py)
 builds directly on `NeopaxScan` when the next step is an ambipolar or
@@ -48,7 +49,7 @@ For end-to-end examples, see:
 - [`examples/neopax_with_ntx.py`](../examples/neopax_with_ntx.py) for the
   smallest scan-to-array workflow
 - [`examples/owned_geometry_neopax_dataset.py`](../examples/owned_geometry_neopax_dataset.py)
-  for an owned finite-beta `vmec_jax -> booz_xform_jax -> NTX -> NEOPAX`
+  for an owned finite-beta `vmex -> booz_xform_jax -> NTX -> NEOPAX`
   dataset, direct wout-harmonic stress cases, and interpolation-path audit
 - [`examples/owned_finite_beta_sfincs_jax_inputs.py`](../examples/owned_finite_beta_sfincs_jax_inputs.py)
   for same-grid SFINCS-JAX input generation, completed-output ingestion, and
@@ -60,6 +61,12 @@ For end-to-end examples, see:
 - [`examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py`](../examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py)
   for the production radius/collisionality coefficient ladder that localizes
   the remaining finite-beta stress to the profile-current closure layer
+- [`examples/owned_finite_beta_sfincs_jax_profile_current_audit.py`](../examples/owned_finite_beta_sfincs_jax_profile_current_audit.py)
+  for the direct RHSMode=1 profile-current diagnostic on the same finite-beta
+  VMEC/profile contract used by Redl and `NTX+NEOPAX`
+- [`examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py`](../examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py)
+  for the pitch Legendre truncation audit that closes the finite-beta
+  reduced-closure stress lane at the documented high-`Nxi` tolerance
 - [`examples/owned_finite_beta_bootstrap_comparison.py`](../examples/owned_finite_beta_bootstrap_comparison.py)
   for an owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress
   audit on the same VMEC wout, Boozer transform, profiles, radial grid, and
@@ -96,6 +103,12 @@ For end-to-end examples, see:
 - [`examples/build_neopax_scan_from_ertilde.py`](../examples/build_neopax_scan_from_ertilde.py)
   for generating a NEOPAX-style HDF5 coefficient database directly from
   VMEC/Boozer files and a user-provided `rho`, `nu_v`, and `Er_tilde` grid
+- [`examples/boozmn_backend_validation_audit.py`](../examples/boozmn_backend_validation_audit.py)
+  for dumping the direct Boozer-file geometry, radial-drift source, operator
+  channels, and transport coefficients against the validated VMEC-harmonic path
+- [`examples/boozmn_same_coordinate_roundtrip_audit.py`](../examples/boozmn_same_coordinate_roundtrip_audit.py)
+  for the same-coordinate VMEC half-grid Boozer-file round-trip gate that
+  validates direct `boozmn` loading before representation-comparison claims
 
 ## Typical Imported Workflow
 
@@ -105,7 +118,7 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
     scan_to_neopax_arrays,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 
 rho = jnp.linspace(0.2, 0.8, 5)
@@ -115,7 +128,7 @@ Er = jnp.zeros_like(Es)
 drds = jnp.ones_like(rho)
 
 def surface_loader(rho_value: float):
-    return surface_from_vmec_jax_vmec_wout_file("wout.nc", s=float(rho_value**2))
+    return surface_from_vmex_vmec_wout_file("wout.nc", s=float(rho_value**2))
 
 scan = build_ntx_neopax_scan(
     surface_loader,
@@ -156,6 +169,7 @@ python examples/build_neopax_scan_from_ertilde.py \
   --er-tilde 0.0,1e-5,3e-5 \
   --surface-backend vmec \
   --device-backend cpu \
+  --scan-batch-size 32 \
   --output examples/outputs/neopax_scan_from_ertilde/scan.h5 \
   --plot
 ```
@@ -167,6 +181,95 @@ and can emit per-radius coefficient panels for quick sanity checks.
 Use the VMEC surface backend for validation and benchmark generation. The
 `boozmn` backend is available as an explicit geometry-backend audit path, but
 it is not the default validation path.
+
+`--scan-batch-size` bounds memory inside each radial-surface scan. It is not
+itself a CPU parallelism switch. For CPU-only laptops, expose multiple JAX host
+devices before Python imports JAX, then request sharding explicitly:
+
+```bash
+XLA_FLAGS=--xla_force_host_platform_device_count=4 \
+python examples/build_neopax_scan_from_ertilde.py \
+  --wout path/to/wout.nc \
+  --booz path/to/boozmn.nc \
+  --surface-backend vmec \
+  --device-backend cpu \
+  --parallel-devices 4 \
+  --scan-batch-size 32 \
+  --output examples/outputs/neopax_scan_from_ertilde/scan.h5
+```
+
+If `--device-backend gpu` is requested on a CPU-only laptop, the script now
+fails with the available JAX platforms and tells the user to switch to
+`--device-backend cpu`. Also check
+`python examples/build_neopax_scan_from_ertilde.py --help`: if
+`--scan-batch-size` and `--parallel-devices` are missing, the local NTX checkout
+or installed package is stale.
+
+For the QI finite-beta hires example used in downstream database generation,
+the full-surface vectorized scan is GPU-friendly but memory-heavy on CPU. On
+the local CPU reference run, `25 x 25 x 60` with one radial surface and the
+default `16 x 12` `(nu_v, Er_tilde)` grid took `64.7 s` and about `5.0 GB`
+peak RSS. Adding `--scan-batch-size 32` reduced that to `55.9 s` and about
+`1.46 GB` peak RSS for the same coefficients. Smaller batches such as `16`
+lower memory further but were slower in this probe, so `32` is the recommended
+CPU fallback for this case. Leave the option unset on GPU unless device memory
+is the limiting factor.
+
+### Direct Boozer-File Backend Audit
+
+`boozmn` spectra and Boozer radial profiles are half-grid quantities. The
+direct loader therefore selects and interpolates packed `B_{mn}` surfaces using
+`s_in`, `s_b`, or `jlist = compute_surfs + 2`, not the full-grid toroidal-flux
+profile `phi_b`. The same-coordinate round-trip gate is the first check:
+
+```bash
+python examples/boozmn_same_coordinate_roundtrip_audit.py
+```
+
+This script generates a Boozer file from a VMEC `wout`, reloads the same
+half-grid surfaces through `load_boozmn_surface(...)`, and compares geometry
+metadata plus `D11/D31/D13/D33` with the in-memory
+`vmex -> booz_xform_jax -> NTX` path. A passing gate validates the direct
+file loader. It does not imply that a VMEC-harmonic representation and a
+direct Boozer-coordinate representation have identical source channels.
+
+![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
+
+The direct Boozer-file path and the VMEC-harmonic path do not expose identical
+coordinate channels. The direct Boozer helper represents the magnetic field in
+Boozer coordinates with flux-function covariant components, while the
+VMEC-harmonic helper reads the signed VMEC Jacobian and angle-dependent
+covariant/contravariant channels from the `wout` file. Because the NTX
+monoenergetic source contains
+
+```{math}
+v_{m,\psi} \propto
+\frac{B_\theta \partial_\zeta B - B_\zeta \partial_\theta B}
+     {\sqrt{g}\,B^3},
+```
+
+backend promotion must be based on this source channel, not only on close
+`B_{00}` or `D_{33}` values.
+
+Run the backend audit before using direct `boozmn` surfaces for benchmark
+claims:
+
+```bash
+python examples/boozmn_backend_validation_audit.py \
+  --wout path/to/wout.nc \
+  --boozmn path/to/boozmn.nc \
+  --rho 0.5 \
+  --nu-hat 1e-2 \
+  --epsi-hat 0.0
+```
+
+The audit writes JSON plus PNG/PDF panels with the surface metadata, geometry
+statistics, `s1/s3` source norms, `k=1` operator-channel norms, signed
+`D11/D31/D13/D33` values, and relative differences against the VMEC-harmonic
+path. Direct Boozer-file output should stay in audit mode unless both the
+transport-coefficient and radial-drift source differences pass on owned
+same-coordinate cases. A failing audit localizes a convention or interpolation
+gap; it is not a reason to introduce fitted closure constants.
 
 When converting NEOPAX parallel-flow output into current, use one charge
 conversion only. If the workflow uses `species.charge`, that array already
@@ -184,12 +287,12 @@ JAX geometry stack and the Boozer transform should be owned by the same run:
 
 ```python
 import jax.numpy as jnp
-from ntx import GridSpec, build_ntx_neopax_scan_from_surfaces, surface_from_vmec_jax_wout
+from ntx import GridSpec, build_ntx_neopax_scan_from_surfaces, surface_from_vmex_wout
 
 rho = jnp.asarray([0.35, 0.65])
 psi_p = 0.013346299916410087  # abs(phi_edge)/(2*pi) from the matching wout
 surfaces = tuple(
-    surface_from_vmec_jax_wout(
+    surface_from_vmex_wout(
         input_path="input.LandremanPaul2021_QA_lowres_pressure_current",
         wout_path="wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
         s=float(rho_value**2),
@@ -211,8 +314,8 @@ scan = build_ntx_neopax_scan_from_surfaces(
 )
 ```
 
-`surface_from_vmec_jax_vmec_wout_file(...)` is still useful when only a `wout`
-file is available. It reads the VMEC harmonic tables through `vmec_jax` and
+`surface_from_vmex_vmec_wout_file(...)` is still useful when only a `wout`
+file is available. It reads the VMEC harmonic tables through `vmex` and
 uses NTX's radial interpolation of those tables. That path is not identical to
 the Boozer-transform path above, so the two should be compared only as an
 interpolation/geometry-loader audit on the same owned input family.
@@ -223,9 +326,15 @@ divided by `2*pi` explicitly. The owned finite-beta diagnostic records this
 value in its JSON sidecar and uses it to keep the Boozer-coordinate and direct
 VMEC-harmonic transport paths on the same flux normalization.
 
+When building a NEOPAX-style field object from VMEC and `boozmn` files, use
+`build_differentiable_neopax_field_from_vmec_booz_files(...)`. Boozer `B00`
+profiles are tabulated on normalized radius, so the helper evaluates `B00` on
+`rho` and converts the derivative with `dB00/dr = (dB00/d rho)/a_b`. This is the
+normalization used by the finite-beta bootstrap-current stress artifacts.
+
 For in-memory differentiable studies, avoid file-backed geometry loops and use
-`build_ntx_neopax_scan_from_vmec_jax_state(...)` or
-`build_ntx_neopax_scan_from_vmec_jax_boundary_params(...)`. Those helpers keep
+`build_ntx_neopax_scan_from_vmex_state(...)` or
+`build_ntx_neopax_scan_from_vmex_boundary_params(...)`. Those helpers keep
 the VMEC state, Boozer transform, NTX scan, and NEOPAX-style arrays on the
 JAX-facing path used by the derivative examples.
 

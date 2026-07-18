@@ -1,0 +1,391 @@
+{
+  "benchmark": "explicit_relaxed_boundary_current_derivative_benchmark",
+  "classification": "artifact-backed explicit-relaxed equilibrium forward-mode family stress benchmark",
+  "equilibrium_relaxation": {
+    "max_iter": 10,
+    "step_size": 1e-08,
+    "vmec_project": false,
+    "case_ids": [
+      "qa_lowres",
+      "qh_warm_start"
+    ]
+  },
+  "grid": {
+    "n_theta": 5,
+    "n_zeta": 5,
+    "n_xi": 4
+  },
+  "fd_step": 1e-05,
+  "objective_ids": [
+    "booz_xform_scalar",
+    "ntx_transport_response",
+    "ntx_neopax_integrated_current"
+  ],
+  "cases": [
+    {
+      "id": "qa_lowres",
+      "label": "QA low-res",
+      "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
+      "geometry_path": "explicit_relaxed_fixed_boundary",
+      "parameter_names": [
+        "rc01",
+        "zs01",
+        "rc1-1",
+        "zs1-1",
+        "rc10",
+        "zs10",
+        "rc11",
+        "zs11"
+      ],
+      "volume_metrics": {
+        "initial_volume": 0.28235442765400015,
+        "ordinary_volume": 0.282354427640087,
+        "explicit_relaxed_volume": 0.282354427640087,
+        "ordinary_explicit_relative_difference": 0.0
+      },
+      "objectives": [
+        {
+          "id": "booz_xform_scalar",
+          "value": 0.6376681850781121,
+          "parameter_names": [
+            "rc01",
+            "zs01",
+            "rc1-1",
+            "zs1-1",
+            "rc10",
+            "zs10",
+            "rc11",
+            "zs11"
+          ],
+          "direct_forward_mode": [
+            -0.003974602114810058,
+            -0.5466739751980465,
+            -8.806661991962777,
+            -0.8857488067927544,
+            -7.4902468452062685,
+            0.1987848234310734,
+            -6.7622601481604505,
+            -6.198273071873663
+          ],
+          "finite_difference": [
+            -0.003974599593892236,
+            -0.5466739913140284,
+            -8.806662248145303,
+            -0.885748798062913,
+            -7.490247058361542,
+            0.1987847659978836,
+            -6.762260465698055,
+            -6.198273058211078
+          ],
+          "relative_mismatch": [
+            6.342570521033785e-07,
+            2.948005966700335e-08,
+            2.9089627675175605e-08,
+            9.85588851422787e-09,
+            2.8457709367282822e-08,
+            2.8892148499930624e-07,
+            4.69573163916939e-08,
+            2.2042566877812927e-09
+          ]
+        },
+        {
+          "id": "ntx_transport_response",
+          "value": 30.74405302577114,
+          "parameter_names": [
+            "rc01",
+            "zs01",
+            "rc1-1",
+            "zs1-1",
+            "rc10",
+            "zs10",
+            "rc11",
+            "zs11"
+          ],
+          "direct_forward_mode": [
+            -17.70186696016797,
+            217.98554536179586,
+            1466.4775276986313,
+            -2571.255507317621,
+            560.1121182190545,
+            -825.7199199390025,
+            910.6507393237671,
+            2313.413684593457
+          ],
+          "finite_difference": [
+            -17.701880244125334,
+            217.9855313414691,
+            1466.4744721631705,
+            -2571.2558155618126,
+            560.1121057006608,
+            -825.7197496774892,
+            910.6502849972386,
+            2313.4114885531076
+          ],
+          "relative_mismatch": [
+            7.504263491798396e-07,
+            6.431769420030853e-08,
+            2.0835926699151202e-06,
+            1.1988079515971458e-07,
+            2.2349800392476462e-08,
+            2.06197700074894e-07,
+            4.989034055868541e-07,
+            9.492649105060551e-07
+          ]
+        },
+        {
+          "id": "ntx_neopax_integrated_current",
+          "value": -2991.040747328036,
+          "parameter_names": [
+            "rc01",
+            "zs01",
+            "rc1-1",
+            "zs1-1",
+            "rc10",
+            "zs10",
+            "rc11",
+            "zs11"
+          ],
+          "direct_forward_mode": [
+            55922.6546383833,
+            -6382.079934530805,
+            -762725.7419974133,
+            -437150.13584775955,
+            -385429.919977383,
+            4245.499011560658,
+            -553297.6490723075,
+            -164730.23772831477
+          ],
+          "finite_difference": [
+            55922.65384518668,
+            -6382.083756716383,
+            -762722.9860435135,
+            -437148.9985630887,
+            -385429.8805733606,
+            4245.387526634659,
+            -553296.7109866831,
+            -164729.2326342267
+          ],
+          "relative_mismatch": [
+            1.4183815733188814e-08,
+            5.988930454722921e-07,
+            3.6133090915661922e-06,
+            2.6015950501505866e-06,
+            1.0223395843710216e-07,
+            2.6260247221222558e-05,
+            1.6954476788651023e-06,
+            6.101491957367258e-06
+          ]
+        }
+      ],
+      "objective_summaries": [
+        {
+          "id": "booz_xform_scalar",
+          "max_relative_mismatch": 6.342570521033785e-07,
+          "median_relative_mismatch": 2.9284843671089477e-08
+        },
+        {
+          "id": "ntx_transport_response",
+          "max_relative_mismatch": 2.0835926699151202e-06,
+          "median_relative_mismatch": 3.5255055283087405e-07
+        },
+        {
+          "id": "ntx_neopax_integrated_current",
+          "max_relative_mismatch": 2.6260247221222558e-05,
+          "median_relative_mismatch": 2.1485213645078444e-06
+        }
+      ],
+      "summary_metrics": {
+        "max_relative_mismatch": 2.6260247221222558e-05,
+        "median_relative_mismatch": 2.4755959253710013e-07
+      }
+    },
+    {
+      "id": "qh_warm_start",
+      "label": "QH warm-start",
+      "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.nfp4_QH_warm_start",
+      "geometry_path": "explicit_relaxed_fixed_boundary",
+      "parameter_names": [
+        "rc01",
+        "zs01",
+        "rc1-1",
+        "zs1-1",
+        "rc10",
+        "zs10",
+        "rc11",
+        "zs11"
+      ],
+      "volume_metrics": {
+        "initial_volume": 0.09972302858936753,
+        "ordinary_volume": 0.09972302858830169,
+        "explicit_relaxed_volume": 0.09972302858830169,
+        "ordinary_explicit_relative_difference": 0.0
+      },
+      "objectives": [
+        {
+          "id": "booz_xform_scalar",
+          "value": 1.693347436968211,
+          "parameter_names": [
+            "rc01",
+            "zs01",
+            "rc1-1",
+            "zs1-1",
+            "rc10",
+            "zs10",
+            "rc11",
+            "zs11"
+          ],
+          "direct_forward_mode": [
+            -0.6138527629420887,
+            0.9651269645271745,
+            -20.494924344254446,
+            3.2737083953795767,
+            -16.328678775978766,
+            -6.712313789473916,
+            -10.736729085847996,
+            -2.7882137729523024
+          ],
+          "finite_difference": [
+            -0.613852844943974,
+            0.9651268837007619,
+            -20.494924452696406,
+            3.273708386730689,
+            -16.32867898403445,
+            -6.712313791090717,
+            -10.736729328109096,
+            -2.7882137822787807
+          ],
+          "relative_mismatch": [
+            1.3358557504046815e-07,
+            8.374692895609656e-08,
+            5.2911617050585605e-09,
+            2.641923716602503e-09,
+            1.274173403029474e-08,
+            2.4087087786593467e-10,
+            2.2563770834326003e-08,
+            3.344965266161438e-09
+          ]
+        },
+        {
+          "id": "ntx_transport_response",
+          "value": 17.753467905446442,
+          "parameter_names": [
+            "rc01",
+            "zs01",
+            "rc1-1",
+            "zs1-1",
+            "rc10",
+            "zs10",
+            "rc11",
+            "zs11"
+          ],
+          "direct_forward_mode": [
+            -41.57540519707769,
+            -139.1395723375996,
+            229.17336499680803,
+            -80.1950587253155,
+            75.22578649613833,
+            -74.57203066448744,
+            44.29493113131538,
+            435.1283239640104
+          ],
+          "finite_difference": [
+            -41.575400812732255,
+            -139.1395934156492,
+            229.17213619333407,
+            -80.1963934367933,
+            75.2255777680233,
+            -74.57191313360312,
+            44.295138714822706,
+            435.1268609827485
+          ],
+          "relative_mismatch": [
+            1.0545527769081001e-07,
+            1.514885093568494e-07,
+            5.361923549586293e-06,
+            1.6643036184011035e-05,
+            2.7746960704026306e-06,
+            1.5760744144226978e-06,
+            4.68637221484019e-06,
+            3.362194782930531e-06
+          ]
+        },
+        {
+          "id": "ntx_neopax_integrated_current",
+          "value": -8608.412543002123,
+          "parameter_names": [
+            "rc01",
+            "zs01",
+            "rc1-1",
+            "zs1-1",
+            "rc10",
+            "zs10",
+            "rc11",
+            "zs11"
+          ],
+          "direct_forward_mode": [
+            -6643.951028976779,
+            10082.34916966577,
+            231057.38912276062,
+            551747.4158714402,
+            70628.74476500836,
+            -310641.6431065631,
+            474759.57915301004,
+            381410.1928876351
+          ],
+          "finite_difference": [
+            -6643.998430718056,
+            10082.364354184392,
+            231055.9363838365,
+            551745.8475798776,
+            70628.54894529664,
+            -310641.5064956309,
+            474759.1859706517,
+            381410.0892727765
+          ],
+          "relative_mismatch": [
+            7.134520239791219e-06,
+            1.506047400136234e-06,
+            6.287390607066145e-06,
+            2.8424166117214488e-06,
+            2.7725291634091467e-06,
+            4.3977037622447285e-07,
+            8.281721975561034e-07,
+            2.716626054178009e-07
+          ]
+        }
+      ],
+      "objective_summaries": [
+        {
+          "id": "booz_xform_scalar",
+          "max_relative_mismatch": 1.3358557504046815e-07,
+          "median_relative_mismatch": 9.01644786767665e-09
+        },
+        {
+          "id": "ntx_transport_response",
+          "max_relative_mismatch": 1.6643036184011035e-05,
+          "median_relative_mismatch": 3.0684454266665806e-06
+        },
+        {
+          "id": "ntx_neopax_integrated_current",
+          "max_relative_mismatch": 7.134520239791219e-06,
+          "median_relative_mismatch": 2.1392882817726903e-06
+        }
+      ],
+      "summary_metrics": {
+        "max_relative_mismatch": 1.6643036184011035e-05,
+        "median_relative_mismatch": 6.339712868902882e-07
+      }
+    }
+  ],
+  "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmex solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
+  "summary_metrics": {
+    "max_relative_mismatch": 2.6260247221222558e-05,
+    "median_relative_mismatch": 4.4076543971369415e-07,
+    "max_ordinary_explicit_volume_relative_difference": 0.0
+  },
+  "open_work": [
+    "widen from the committed QA and QH cases to additional geometry families",
+    "recover the same sensitivities on the implicit-equilibrium path",
+    "repair reverse mode on the equilibrium-relaxed boundary-control lane"
+  ]
+}

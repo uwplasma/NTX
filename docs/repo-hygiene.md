@@ -8,6 +8,22 @@ preserving benchmark reproducibility.
 The tracked worktree is clean after the latest ship-readiness commits. No
 tracked benchmark artifact was removed during the cleanup pass.
 
+The canonical local checkout for commits, pushes, and collaborator-facing
+relative paths is:
+
+```text
+/Users/rogeriojorge/local/NTX
+```
+
+Do not maintain a second writable NTX checkout under nearby code directories.
+If a sibling project needs `../NTX/...`, use a symlink to the canonical checkout
+rather than a stale clone. The local NEOPAX sibling path currently follows that
+policy:
+
+```text
+/Users/rogeriojorge/local/several_codes/NTX -> /Users/rogeriojorge/local/NTX
+```
+
 The following reproducible local artifacts were removed from the NTX worktree:
 
 - Python bytecode caches,
@@ -41,6 +57,58 @@ artifact surface.
 
 Do not commit local caches, profiling scratch directories, generated docs HTML,
 wheel/sdist build directories, or external reference-code checkouts.
+
+## Size Policy
+
+The current tracked tree is intentionally small:
+
+- no tracked file in `HEAD` is larger than `2 MiB`,
+- the tracked logical tree size is about `19.5 MiB`,
+- `docs/_static` is about `17 MiB`,
+- `tests/fixtures` is about `68 KiB`.
+
+`tests/test_repository_size.py` enforces the current policy:
+
+- every tracked file must stay `<= 2 MiB`,
+- the tracked tree must stay `<= 25 MiB`,
+- `docs/_static` must stay `<= 20 MiB`.
+
+If a new validation input, profile, trace, figure, or database would exceed
+those limits, do not commit it directly. Prefer one of:
+
+- regenerate it from a script and store only the compact JSON summary and a
+  small PNG,
+- keep it as an ignored local artifact under `examples/outputs/`,
+- attach it to a GitHub release or external archive and link it from docs,
+- or add a tiny fixture that exercises the same code path.
+
+`pyproject.toml` excludes `docs/_static` from built distributions. Those
+figures are useful in the repository and hosted docs, but they are not needed
+for `pip install ntx`.
+
+The local working directory can still grow much larger because ignored
+profiling traces and rerun outputs are useful during development. They are safe
+to remove with:
+
+```bash
+git clean -fdX
+```
+
+The public history was rewritten on 2026-05-26 with `git filter-repo` to remove
+older NetCDF fixtures larger than `2 MiB` and repeated historical
+`docs/_static` generated-artifact blobs. The current documentation artifacts
+were then restored once on top of the rewritten history. This keeps the current
+README/docs figures available while avoiding repeated generated-figure history
+in fresh clones.
+
+After a history rewrite, existing local clones should be replaced with a fresh
+clone or reset deliberately against the new `origin/main`. Users who only need
+the latest source can still use a shallow or partial clone:
+
+```bash
+git clone --depth 1 https://github.com/uwplasma/NTX.git
+git clone --filter=blob:none https://github.com/uwplasma/NTX.git
+```
 
 ## CI Lane Manifest
 

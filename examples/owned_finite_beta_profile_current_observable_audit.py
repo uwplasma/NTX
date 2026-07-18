@@ -365,12 +365,12 @@ def build_payload(
         },
         "conclusion": (
             "At the finite-beta stress radius the correction has the right sign "
-            "but applies less momentum correction than the Redl target would "
-            "require. Increasing Pmax reduces the stress error monotonically, "
-            "but the P=12 reduced closure remains above the 1e-1 current gate. "
-            "The stress-radius current is also a cancellation-dominated "
-            "species-current observable, so small species-flow imbalances are "
-            "amplified in the net current."
+            "but its amplitude does not match the Redl target. The finite-Pmax "
+            "trend is not yet a quadrature-stable convergence claim, and the "
+            "default reduced closure remains above the 1e-1 current gate. The "
+            "stress-radius current is also a cancellation-dominated species-"
+            "current observable, so small species-flow imbalances are amplified "
+            "in the net current."
         ),
         "open_work": [
             (

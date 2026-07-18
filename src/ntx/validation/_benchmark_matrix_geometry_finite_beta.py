@@ -57,7 +57,7 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
                 "finite-beta cubic-spline current profiles"
             ),
             (
-                "expand to paper-resolution QA, QH, QI, and W7-X families "
+                "expand to production-resolution QA, QH, QI, and W7-X families "
                 "after owned independent-code generation scripts have "
                 "completed runs"
             ),
@@ -75,14 +75,17 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "Completed outputs are ingested with the reported nu_n "
             "normalization and compared against NTX on the same geometry "
             "and grid. This is the owned independent-code generation "
-            "contract, an inner-radius smoke-resolution coefficient "
+            "contract, a stress-radius smoke-resolution coefficient "
             "ladder, an isolated production-grid stress-radius "
             "resolution/harmonic-cutoff probe, and a completed production "
             "radial/collisionality coefficient ladder with the exact radial "
             "interpolation, pitch-angle-scattering frequency, and RHSMode=3 "
-            "flow-row normalizations recorded; it is not a bootstrap-current "
-            "parity claim until production-resolution profile-current outputs "
-            "are compared against the same NTX, Redl, and profile artifacts."
+            "flow-row normalizations recorded. It also writes a bounded "
+            "RHSMode=1 profile-current diagnostic on the same finite-beta "
+            "profile contract; this is not a bootstrap-current parity claim "
+            "until production-resolution profile-current outputs are "
+            "converged and compared against the same NTX, Redl, and profile "
+            "artifacts."
         ),
         literature_anchors=(
             "SFINCS monoenergetic RHSMode=3 transport-matrix convention",
@@ -93,11 +96,15 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "examples/owned_finite_beta_sfincs_jax_inputs.py",
             "examples/owned_finite_beta_sfincs_jax_resolution_audit.py",
             "examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py",
+            "examples/owned_finite_beta_sfincs_jax_profile_current_audit.py",
+            "examples/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py",
         ),
         tests=(
             "tests/test_owned_finite_beta_sfincs_jax_inputs.py",
             "tests/test_owned_finite_beta_sfincs_jax_resolution_audit.py",
             "tests/test_owned_finite_beta_sfincs_jax_production_ladder_audit.py",
+            "tests/test_owned_finite_beta_sfincs_jax_profile_current_audit.py",
+            "tests/test_owned_finite_beta_sfincs_jax_profile_current_resolution_audit.py",
         ),
         artifacts=(
             "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
@@ -118,11 +125,19 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
             "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
             "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.json",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf",
+            "docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json",
         ),
         manuscript_figures=(
             "owned_finite_beta_sfincs_jax_inputs",
             "owned_finite_beta_sfincs_jax_resolution_audit",
             "owned_finite_beta_sfincs_jax_production_ladder",
+            "owned_finite_beta_sfincs_jax_profile_current_audit",
+            "owned_finite_beta_sfincs_jax_profile_current_resolution_audit",
         ),
         docs=(
             "docs/benchmark-matrix.md",
@@ -131,13 +146,18 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
         ),
         open_work=(
             (
-                "run production SFINCS-JAX profile-current closure "
-                "diagnostics against the owned finite-beta Redl and "
-                "NTX+NEOPAX bootstrap-current stress audit"
+                "keep the accepted finite-beta profile-current stress "
+                "diagnostics artifact-backed as SFINCS-JAX and downstream "
+                "interpolation modes evolve"
             ),
             (
                 "promote only after geometry, profile, normalization, and "
                 "interpolation sidecars are complete"
+            ),
+            (
+                "treat the full-collision RHSMode=1 branch as a non-shipping "
+                "feasibility diagnostic until it is practical at production "
+                "resolution"
             ),
         ),
     ),
@@ -160,11 +180,11 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             "field-radius-matched closure quadrature sidecar, "
             "field-radius-matched source-channel sidecar, "
             "and current normalization. "
-            "The current reduced-closure result has the correct sign and "
-            "outer-radius errors near the 1e-1 target, but explicitly records "
-            "the remaining inner-radius gap; "
-            "it is not promoted as SFINCS parity until same-grid SFINCS-JAX "
-            "profile-current closure diagnostics are complete."
+            "The current reduced-closure result has the correct sign, "
+            "some radii near the 1e-1 target, and an accepted high-Nxi "
+            "RHSMode=1 pitch stress gap below 1.5e-1; it is reported as "
+            "a closed reduced-closure stress benchmark rather than a broad "
+            "full-collision SFINCS parity claim."
         ),
         literature_anchors=(
             "Redl bootstrap-current formula and geometry-factor normalization",
@@ -258,7 +278,7 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
                 "gate pass at X < Pmax"
             ),
             (
-                "close the inner-radius reduced-closure gap using the same "
+                "close the reduced-closure profile-current stress using the same "
                 "physical profile, source-channel decomposition, normalization, "
                 "and interpolation contract"
             ),
@@ -274,8 +294,8 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
             ),
             (
                 "derive a quadrature-stable finite-beta reduced-closure "
-                "improvement; the current field-radius-matched apparent "
-                "pass remains under-integrated"
+                "improvement; the current field-radius-matched sweep still "
+                "has zero quadrature-stable current-gate passes"
             ),
             (
                 "run the production same-grid coefficient ladder to the "

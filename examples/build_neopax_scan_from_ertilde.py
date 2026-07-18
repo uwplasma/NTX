@@ -9,9 +9,13 @@ conversion metadata from scratch before writing a NEOPAX-style HDF5 file.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
+import time
 from collections.abc import Sequence
 from pathlib import Path
+
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
 import interpax
 import jax
@@ -30,8 +34,9 @@ from ntx import (  # noqa: E402
     GridSpec,
     NeopaxScan,
     load_boozmn_surface,
+    solve_monoenergetic_parallel_scan,
     solve_monoenergetic_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
     write_neopax_scan_hdf5,
 )
 from ntx._checkout_paths import find_neopax_root  # noqa: E402
@@ -158,10 +163,39 @@ def _parse_args() -> argparse.Namespace:
         help="Pitch-angle / Legendre resolution.",
     )
     parser.add_argument(
+        "--scan-batch-size",
+        type=int,
+        default=None,
+        help=(
+            "Optional fixed batch size for the flattened (nu_v, Er_tilde) "
+            "scan on each surface. Leave unset for full-surface batching; "
+            "use smaller values to reduce CPU/GPU peak memory."
+        ),
+    )
+    parser.add_argument(
+        "--parallel-devices",
+        type=int,
+        default=None,
+        help=(
+            "Optional number of local JAX devices used to shard each surface "
+            "scan. For CPU runs, expose host devices before launch, for example "
+            "XLA_FLAGS=--xla_force_host_platform_device_count=4."
+        ),
+    )
+    parser.add_argument(
         "--rho",
         type=str,
         default=None,
         help="Comma-separated rho grid. Default is the W7-X reference grid.",
+    )
+    parser.add_argument(
+        "--rho-linspace",
+        type=str,
+        default=None,
+        help=(
+            "Convenience alternative to --rho: specify 'start,stop,count' to "
+            "generate a uniform rho grid. Example: --rho-linspace 0.1,0.9,15"
+        ),
     )
     parser.add_argument(
         "--nu-v",
@@ -174,6 +208,24 @@ def _parse_args() -> argparse.Namespace:
         type=str,
         default=None,
         help="Comma-separated Er_tilde grid.",
+    )
+    parser.add_argument(
+        "--er-tilde-logspace",
+        type=str,
+        default=None,
+        help=(
+            "Convenience alternative to --er-tilde: specify "
+            "'start,stop,count' to generate a geometric Er_tilde grid over "
+            "positive values. Example: --er-tilde-logspace 1e-6,1e-1,16"
+        ),
+    )
+    parser.add_argument(
+        "--er-tilde-include-zero",
+        action="store_true",
+        help=(
+            "When used with --er-tilde-logspace, prepend 0.0 to the generated "
+            "positive Er_tilde grid."
+        ),
     )
     parser.add_argument(
         "--onsager-warn-threshold",
@@ -204,6 +256,11 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help="Optional rho index to plot. If omitted, plots all rho surfaces.",
     )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress per-surface progress and timing output.",
+    )
     return parser.parse_args()
 
 
@@ -229,6 +286,75 @@ def _parse_float_grid(
     if positive and not bool(jnp.all(array > 0.0)):
         raise ValueError(f"{name} values must be positive")
     return array
+
+
+def _parse_rho_linspace(text: str | None) -> jnp.ndarray | None:
+    if text is None:
+        return None
+    parts = [piece.strip() for piece in str(text).split(",")]
+    if len(parts) != 3:
+        raise ValueError("rho-linspace must be in 'start,stop,count' format")
+    try:
+        start = float(parts[0])
+        stop = float(parts[1])
+        count = int(parts[2])
+    except ValueError as exc:
+        raise ValueError("rho-linspace must be in 'start,stop,count' format") from exc
+    if count < 2:
+        raise ValueError("rho-linspace count must be at least 2")
+    grid = jnp.linspace(start, stop, count, dtype=jnp.float64)
+    if not bool(jnp.all(jnp.isfinite(grid))):
+        raise ValueError("rho-linspace produced non-finite values")
+    return grid
+
+
+def _resolve_rho_grid(args: argparse.Namespace) -> jnp.ndarray:
+    if args.rho is not None and args.rho_linspace is not None:
+        raise ValueError("set only one of --rho or --rho-linspace")
+    if args.rho is not None:
+        return _parse_float_grid(args.rho, default=DEFAULT_RHO, name="rho")
+    rho_linspace = _parse_rho_linspace(args.rho_linspace)
+    if rho_linspace is not None:
+        return rho_linspace
+    return _parse_float_grid(None, default=DEFAULT_RHO, name="rho")
+
+
+def _parse_er_tilde_logspace(text: str | None, *, include_zero: bool) -> jnp.ndarray | None:
+    if text is None:
+        return None
+    parts = [piece.strip() for piece in str(text).split(",")]
+    if len(parts) != 3:
+        raise ValueError("er-tilde-logspace must be in 'start,stop,count' format")
+    try:
+        start = float(parts[0])
+        stop = float(parts[1])
+        count = int(parts[2])
+    except ValueError as exc:
+        raise ValueError("er-tilde-logspace must be in 'start,stop,count' format") from exc
+    if start <= 0.0 or stop <= 0.0:
+        raise ValueError("er-tilde-logspace start and stop must be positive")
+    if count < 2:
+        raise ValueError("er-tilde-logspace count must be at least 2")
+    grid = jnp.geomspace(start, stop, count, dtype=jnp.float64)
+    if include_zero:
+        grid = jnp.concatenate((jnp.asarray([0.0], dtype=jnp.float64), grid))
+    if not bool(jnp.all(jnp.isfinite(grid))):
+        raise ValueError("er-tilde-logspace produced non-finite values")
+    return grid
+
+
+def _resolve_er_tilde_grid(args: argparse.Namespace) -> jnp.ndarray:
+    if args.er_tilde is not None and args.er_tilde_logspace is not None:
+        raise ValueError("set only one of --er-tilde or --er-tilde-logspace")
+    if args.er_tilde is not None:
+        return _parse_float_grid(args.er_tilde, default=DEFAULT_ER_TILDE, name="er_tilde")
+    er_tilde_logspace = _parse_er_tilde_logspace(
+        args.er_tilde_logspace,
+        include_zero=bool(args.er_tilde_include_zero),
+    )
+    if er_tilde_logspace is not None:
+        return er_tilde_logspace
+    return _parse_float_grid(None, default=DEFAULT_ER_TILDE, name="er_tilde")
 
 
 def _validate_scan_axes(rho: jnp.ndarray, nu_v: jnp.ndarray, er_tilde: jnp.ndarray) -> None:
@@ -375,7 +501,7 @@ def _build_field_channels(
 
 
 def _surface_loader(wout_path: Path, rho_value: float):
-    return surface_from_vmec_jax_vmec_wout_file(wout_path, s=float(rho_value**2))
+    return surface_from_vmex_vmec_wout_file(wout_path, s=float(rho_value**2))
 
 
 def _select_surface_loader(*, backend: str, wout_path: Path, boozmn_path: Path):
@@ -391,12 +517,12 @@ def _select_surface_loader(*, backend: str, wout_path: Path, boozmn_path: Path):
         _require_file(wout_path, "VMEC wout")
         return (
             lambda rho_value: _surface_loader(wout_path, float(rho_value)),
-            "vmec_jax",
+            "vmex",
         )
     if wout_path.exists():
         return (
             lambda rho_value: _surface_loader(wout_path, float(rho_value)),
-            "vmec_jax",
+            "vmex",
         )
     if boozmn_path.exists():
         return (
@@ -410,7 +536,15 @@ def _select_jax_device(*, backend: str, device_index: int):
     if backend == "auto":
         devices = list(jax.devices())
     else:
-        devices = list(jax.devices(backend))
+        try:
+            devices = list(jax.devices(backend))
+        except RuntimeError as exc:
+            available = ", ".join(sorted({device.platform for device in jax.devices()}))
+            raise RuntimeError(
+                f"JAX backend {backend!r} is not available; available platforms: "
+                f"{available or 'none'}. Use --device-backend cpu on CPU-only laptops "
+                "or run on a machine with a configured JAX GPU backend."
+            ) from exc
     if not devices:
         raise RuntimeError(f"no JAX devices available for backend {backend!r}")
     if device_index < 0 or device_index >= len(devices):
@@ -585,8 +719,15 @@ def build_scan(
     nu_v: jnp.ndarray,
     er_tilde: jnp.ndarray,
     source_name: str | None = None,
+    scan_batch_size: int | None = None,
+    parallel_devices: int | None = None,
+    progress: bool = False,
 ) -> NeopaxScan:
     _validate_scan_axes(rho, nu_v, er_tilde)
+    if scan_batch_size is not None and scan_batch_size < 1:
+        raise ValueError("scan_batch_size must be a positive integer")
+    if parallel_devices is not None and parallel_devices < 1:
+        raise ValueError("parallel_devices must be a positive integer")
     channels = _load_vmec_boozer_channels(wout_path, boozmn_path, rho)
     load_surface, backend_name = _select_surface_loader(
         backend=backend,
@@ -609,11 +750,45 @@ def build_scan(
     d31 = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     d33 = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
     d33_spitzer = jnp.zeros((n_r, n_nu, n_er), dtype=jnp.float64)
+    case_count = n_nu * n_er
+    batch_label = "full-surface" if scan_batch_size is None else str(scan_batch_size)
+    parallel_label = "serial" if parallel_devices is None else str(parallel_devices)
 
     for idx, rho_value in enumerate(np.asarray(rho)):
+        t0 = time.perf_counter()
+        if progress:
+            print(
+                f"[{idx + 1}/{n_r}] rho={float(rho_value):.5f}: "
+                f"{case_count} cases, grid={grid.n_theta}x{grid.n_zeta}x{grid.n_xi}, "
+                f"scan_batch_size={batch_label}, parallel_devices_requested={parallel_label}",
+                flush=True,
+            )
         surface = load_surface(float(rho_value))
         nu_grid, es_grid = jnp.meshgrid(nu_v, es[idx], indexing="ij")
-        coeffs = solve_monoenergetic_scan(surface, grid, nu_grid, epsi_hat=es_grid)
+        if parallel_devices is None:
+            coeffs = solve_monoenergetic_scan(
+                surface,
+                grid,
+                nu_grid,
+                epsi_hat=es_grid,
+                scan_batch_size=scan_batch_size,
+            )
+        else:
+            coeffs = solve_monoenergetic_parallel_scan(
+                surface,
+                grid,
+                nu_grid,
+                epsi_hat=es_grid,
+                num_devices=parallel_devices,
+                scan_batch_size=scan_batch_size,
+            )
+        if progress:
+            jax.block_until_ready(tuple(coeffs.values()))
+            print(
+                f"[{idx + 1}/{n_r}] rho={float(rho_value):.5f}: "
+                f"solved in {time.perf_counter() - t0:.2f} s",
+                flush=True,
+            )
         d11 = d11.at[idx].set(coeffs["D11"])
         d13 = d13.at[idx].set(coeffs["D13"])
         d31 = d31.at[idx].set(coeffs["D31"])
@@ -660,17 +835,32 @@ def build_scan(
 
 def main() -> None:
     args = _parse_args()
+    t0 = time.perf_counter()
     wout_path = args.wout.expanduser().resolve()
     boozmn_path = args.booz.expanduser().resolve()
     output_path = args.output.expanduser().resolve()
-    rho = _parse_float_grid(args.rho, default=DEFAULT_RHO, name="rho")
+    rho = _resolve_rho_grid(args)
     nu_v = _parse_float_grid(args.nu_v, default=DEFAULT_NU_V, name="nu_v", positive=True)
-    er_tilde = _parse_float_grid(args.er_tilde, default=DEFAULT_ER_TILDE, name="er_tilde")
+    er_tilde = _resolve_er_tilde_grid(args)
     _validate_scan_axes(rho, nu_v, er_tilde)
     _require_file(wout_path, "VMEC wout")
     _require_file(boozmn_path, "Boozer")
     grid = GridSpec(n_theta=args.n_theta, n_zeta=args.n_zeta, n_xi=args.n_xi)
     device = _select_jax_device(backend=args.device_backend, device_index=args.device_index)
+    if args.parallel_devices is not None:
+        available_devices = sum(
+            1 for candidate in jax.devices() if candidate.platform == device.platform
+        )
+        if available_devices < args.parallel_devices:
+            print(
+                "warning: requested "
+                f"{args.parallel_devices} parallel device(s), but only "
+                f"{available_devices} {device.platform} device(s) are visible. "
+                "For CPU runs, set "
+                "XLA_FLAGS=--xla_force_host_platform_device_count=N before launch.",
+                file=sys.stderr,
+                flush=True,
+            )
 
     with jax.default_device(device):
         scan = build_scan(
@@ -682,6 +872,9 @@ def main() -> None:
             nu_v=nu_v,
             er_tilde=er_tilde,
             source_name=args.source_name,
+            scan_batch_size=args.scan_batch_size,
+            parallel_devices=args.parallel_devices,
+            progress=not args.quiet,
         )
     _report_scan_warnings(scan, onsager_warn_threshold=args.onsager_warn_threshold)
     output = write_neopax_scan_hdf5(scan, output_path)
@@ -690,6 +883,14 @@ def main() -> None:
     print(f"requested surface backend: {args.surface_backend}")
     print(f"device backend: {args.device_backend}")
     print(f"device: {device}")
+    print(
+        "scan batch size: "
+        f"{args.scan_batch_size if args.scan_batch_size is not None else 'full-surface'}"
+    )
+    print(
+        "parallel devices requested: "
+        f"{args.parallel_devices if args.parallel_devices is not None else 'serial'}"
+    )
     print(f"wout: {wout_path}")
     print(f"booz: {boozmn_path}")
     print(f"grid: n_theta={grid.n_theta}, n_zeta={grid.n_zeta}, n_xi={grid.n_xi}")
@@ -698,6 +899,7 @@ def main() -> None:
     print(f"Er_tilde points: {scan.Er_tilde.shape[0] if scan.Er_tilde is not None else 0}")
     print(f"D11 shape: {scan.D11.shape}")
     print(f"D31 shape: {scan.D31.shape if scan.D31 is not None else None}")
+    print(f"total runtime: {time.perf_counter() - t0:.2f} s")
     if args.plot:
         plot_paths = _plot_scan_coefficients(
             scan,

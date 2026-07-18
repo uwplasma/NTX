@@ -99,12 +99,12 @@ def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             title="Boundary-to-output forward-mode derivative audit",
             claim_scope=(
                 "Low-dimensional boundary controls propagate through "
-                "boundary-projected vmec_jax geometry, booz_xform_jax, NTX "
+                "boundary-projected vmex geometry, booz_xform_jax, NTX "
                 "coefficients, and an NTX+NEOPAX integrated-current objective "
                 "under forward-mode autodiff."
             ),
             literature_anchors=(
-                "vmec_jax explicit differentiable boundary workflows",
+                "vmex explicit differentiable boundary workflows",
                 "booz_xform_jax JAX-native Boozer transform",
                 "McGreivy 2024 differentiable programming for plasma workflows",
             ),
@@ -146,7 +146,7 @@ def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "differentiable equilibrium path."
             ),
             literature_anchors=(
-                "vmec_jax implicit fixed-boundary differentiation",
+                "vmex implicit fixed-boundary differentiation",
                 "booz_xform_jax JAX-native Boozer transform",
                 "McGreivy 2024 differentiable programming for plasma workflows",
             ),
@@ -175,14 +175,14 @@ def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             title="Explicit-relaxed boundary-to-current derivative audit",
             claim_scope=(
                 "Low-dimensional boundary controls propagate through an "
-                "explicitly relaxed fixed-boundary vmec_jax solve, "
+                "explicitly relaxed fixed-boundary vmex solve, "
                 "booz_xform_jax, NTX coefficients, and an NTX+NEOPAX "
                 "integrated-current objective under forward-mode autodiff on "
                 "committed QA and QH family cases, while preserving the "
                 "ordinary primal volume."
             ),
             literature_anchors=(
-                "vmec_jax explicit differentiable boundary workflows",
+                "vmex explicit differentiable boundary workflows",
                 "booz_xform_jax JAX-native Boozer transform",
                 "McGreivy 2024 differentiable programming for plasma workflows",
                 "Landreman and Paul 2022 precise-QS benchmark family",

@@ -1,0 +1,52 @@
+{
+  "artifact": "performance_scaling_summary",
+  "claim_scope": "Summarizes serial, single-process device-parallel, and multiprocess throughput timing, resident-memory, and correctness metadata from committed scaling benchmark JSON files.",
+  "cpu": {
+    "backend": "cpu",
+    "best_device_parallel_speedup_vs_serial": 1.720133460169384,
+    "best_multiprocess_speedup_vs_serial": 0.9175853319894747,
+    "device_parallel_crossover_cases": 32,
+    "grid": {
+      "n_theta": 17,
+      "n_xi": 16,
+      "n_zeta": 25
+    },
+    "healthy_parallel_device_count": 4,
+    "local_device_count": 4,
+    "max_abs_delta_serial_vs_device_parallel_d11": 3.082750499316944e-09,
+    "max_abs_delta_serial_vs_multiprocess_d11": 3.082750499316944e-09,
+    "max_rss_mb": 4386.890625,
+    "multiprocess_crossover_cases": null,
+    "sizes": [
+      16,
+      32,
+      64,
+      128
+    ],
+    "surface": "dkes"
+  },
+  "gpu": {
+    "backend": "gpu",
+    "best_device_parallel_speedup_vs_serial": 1.1344259736004607,
+    "best_multiprocess_speedup_vs_serial": 0.6392997612744064,
+    "device_parallel_crossover_cases": 32,
+    "grid": {
+      "n_theta": 17,
+      "n_xi": 16,
+      "n_zeta": 25
+    },
+    "healthy_parallel_device_count": 1,
+    "local_device_count": 2,
+    "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+    "max_abs_delta_serial_vs_multiprocess_d11": 3.3123299658655014e-08,
+    "max_rss_mb": 1500.265625,
+    "multiprocess_crossover_cases": null,
+    "sizes": [
+      16,
+      32,
+      64,
+      128
+    ],
+    "surface": "dkes"
+  }
+}

@@ -14,25 +14,26 @@ from ._neopax_field_utils import (
     _surface_bsqav,
 )
 from ._neopax_types import DifferentiableNeopaxField
-from ._neopax_vmec_jax_field import (
+from ._neopax_vmex_field import (
     _apply_boozer_sign_convention_profiles,
-    _booz_xform_bundle_with_gmnc_from_vmec_jax_state,
+    _booz_xform_bundle_with_gmnc_from_vmex_state,
     _booz_xform_gmnc_from_inputs,
     _rho_half_mesh_from_s,
     _vmec_edge_r00_from_state,
     _vmec_psia_from_indata,
     _vmec_psia_from_state,
     _vmec_volume_profiles_from_state,
-    build_differentiable_neopax_field_from_vmec_jax_boundary_params,
-    build_differentiable_neopax_field_from_vmec_jax_state,
+    build_differentiable_neopax_field_from_vmex_boundary_params,
+    build_differentiable_neopax_field_from_vmex_state,
 )
 
 __all__ = [
     "build_differentiable_neopax_field",
-    "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
-    "build_differentiable_neopax_field_from_vmec_jax_state",
+    "build_differentiable_neopax_field_from_vmec_booz_files",
+    "build_differentiable_neopax_field_from_vmex_boundary_params",
+    "build_differentiable_neopax_field_from_vmex_state",
     "_apply_boozer_sign_convention_profiles",
-    "_booz_xform_bundle_with_gmnc_from_vmec_jax_state",
+    "_booz_xform_bundle_with_gmnc_from_vmex_state",
     "_booz_xform_gmnc_from_inputs",
     "_find_mode_index",
     "_rho_half_mesh_from_s",
@@ -130,8 +131,11 @@ def build_differentiable_neopax_field(
     b00_rho = b00(rho_grid)
     b10_rho = b10_eval(rho_grid)
     b_10 = _safe_divide(b10_rho, b00_rho)
-    b0 = b00(r_grid)
-    b0prime = jax.lax.stop_gradient(jax.vmap(jax.grad(lambda r: b00(r)), in_axes=0)(r_grid))
+    b0 = b00_rho
+    d_b0_d_rho = jax.vmap(jax.grad(lambda rho_value: b00(rho_value)), in_axes=0)(
+        rho_grid
+    )
+    b0prime = jax.lax.stop_gradient(_safe_divide(d_b0_d_rho, a_b))
 
     curvature = _safe_divide(jnp.abs(b_10), epsilon_t)
     curvature = jax.lax.stop_gradient(curvature.at[0].set(0.0))
@@ -191,3 +195,48 @@ def build_differentiable_neopax_field(
         I_value=i_value,
         G_value=g_value,
     )
+
+
+def _filled_dataset_array(handle, name: str):
+    values = handle.variables[name][:]
+    if hasattr(values, "filled"):
+        values = values.filled()
+    return values
+
+
+def build_differentiable_neopax_field_from_vmec_booz_files(
+    n_r: int,
+    vmec_path,
+    booz_path,
+) -> DifferentiableNeopaxField:
+    """Build the NTX Boozer field object directly from VMEC and Boozer files.
+
+    The Boozer coefficients are tabulated in normalized radius.  This reader uses
+    `build_differentiable_neopax_field`, whose `B0` and `Bsqav` normalization is
+    evaluated on that same normalized-radius support.
+    """
+
+    from netCDF4 import Dataset
+
+    with Dataset(vmec_path, mode="r") as vmec, Dataset(booz_path, mode="r") as booz:
+        ns = int(jnp.asarray(_filled_dataset_array(vmec, "ns")).reshape(()))
+        s_full = jnp.linspace(0.0, 1.0, ns)
+        s_half = jnp.asarray([(index - 0.5) / (ns - 1) for index in range(ns)])
+        phi = jnp.asarray(_filled_dataset_array(vmec, "phi"))
+        gmnc_name = "gmn_b" if "gmn_b" in booz.variables else "gmnc_b"
+        return build_differentiable_neopax_field(
+            n_r=n_r,
+            rho_half=jnp.sqrt(jnp.clip(s_half, 0.0, None)),
+            rho_full=jnp.sqrt(s_full),
+            volume_p=jnp.asarray(_filled_dataset_array(vmec, "volume_p")),
+            vp=jnp.asarray(_filled_dataset_array(vmec, "vp")),
+            iotaf=jnp.asarray(_filled_dataset_array(vmec, "iotaf")),
+            Psia=jnp.abs(phi[-1]),
+            bmnc_b=jnp.asarray(_filled_dataset_array(booz, "bmnc_b")),
+            rmnc_b=jnp.asarray(_filled_dataset_array(booz, "rmnc_b")),
+            gmnc_b=jnp.asarray(_filled_dataset_array(booz, gmnc_name)),
+            xm_b=jnp.asarray(_filled_dataset_array(booz, "ixm_b"), dtype=jnp.int32),
+            xn_b=jnp.asarray(_filled_dataset_array(booz, "ixn_b"), dtype=jnp.int32),
+            bvco=jnp.asarray(_filled_dataset_array(booz, "bvco_b")),
+            buco=jnp.asarray(_filled_dataset_array(booz, "buco_b")),
+        )

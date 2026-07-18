@@ -1,0 +1,319 @@
+{
+  "benchmark": "owned_finite_beta_closure_localization",
+  "classification": "owned finite-beta coefficient/profile-current mismatch localization",
+  "claim_scope": "Compares the completed same-grid finite-beta SFINCS-JAX transport-matrix coefficient ladder with the finite-beta Redl and NTX+NEOPAX profile-current stress artifact. It is a localization diagnostic: coefficient errors below the 1e-1 gate at the profile-current stress radius do not by themselves promote bootstrap-current parity.",
+  "inputs": {
+    "sfincs_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+    "bootstrap_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_bootstrap_comparison.json",
+    "raw_coefficient_channels": [
+      "L13_bridge_vs_sfincs",
+      "L31_bridge_vs_sfincs",
+      "L33_bridge_vs_sfincs"
+    ],
+    "excluded_sidecar_channels": [
+      "L33_spitzer_bridge_vs_sfincs"
+    ]
+  },
+  "coefficient_rows": [
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "rho": 0.14285714285714285,
+      "nu_prime": 0.001,
+      "e_star": 0.0,
+      "raw_channel_relative_difference": {
+        "L13_bridge_vs_sfincs": 0.015500813070526073,
+        "L31_bridge_vs_sfincs": 0.015572152661195883,
+        "L33_bridge_vs_sfincs": 0.013530855916041635
+      },
+      "sidecar_channel_relative_difference": {
+        "L33_spitzer_bridge_vs_sfincs": 0.05685488724370346
+      },
+      "max_raw_relative_difference": 0.015572152661195883,
+      "max_sidecar_relative_difference": 0.05685488724370346
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "rho": 0.14285714285714285,
+      "nu_prime": 0.01,
+      "e_star": 0.0,
+      "raw_channel_relative_difference": {
+        "L13_bridge_vs_sfincs": 0.020293376803271736,
+        "L31_bridge_vs_sfincs": 0.02054783993495091,
+        "L33_bridge_vs_sfincs": 0.012517276278425539
+      },
+      "sidecar_channel_relative_difference": {
+        "L33_spitzer_bridge_vs_sfincs": 0.0036278025605098792
+      },
+      "max_raw_relative_difference": 0.02054783993495091,
+      "max_sidecar_relative_difference": 0.0036278025605098792
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "rho": 0.3,
+      "nu_prime": 0.001,
+      "e_star": 0.0,
+      "raw_channel_relative_difference": {
+        "L13_bridge_vs_sfincs": 0.0036458462861180215,
+        "L31_bridge_vs_sfincs": 0.0013636305047481534,
+        "L33_bridge_vs_sfincs": 0.012547172467539508
+      },
+      "sidecar_channel_relative_difference": {
+        "L33_spitzer_bridge_vs_sfincs": 0.1753584898932992
+      },
+      "max_raw_relative_difference": 0.012547172467539508,
+      "max_sidecar_relative_difference": 0.1753584898932992
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "rho": 0.3,
+      "nu_prime": 0.01,
+      "e_star": 0.0,
+      "raw_channel_relative_difference": {
+        "L13_bridge_vs_sfincs": 0.014072815428719222,
+        "L31_bridge_vs_sfincs": 0.0007692234427162705,
+        "L33_bridge_vs_sfincs": 0.012337176654005178
+      },
+      "sidecar_channel_relative_difference": {
+        "L33_spitzer_bridge_vs_sfincs": 0.02607349350478572
+      },
+      "max_raw_relative_difference": 0.014072815428719222,
+      "max_sidecar_relative_difference": 0.02607349350478572
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "rho": 0.5,
+      "nu_prime": 0.001,
+      "e_star": 0.0,
+      "raw_channel_relative_difference": {
+        "L13_bridge_vs_sfincs": 0.00018248827284859245,
+        "L31_bridge_vs_sfincs": 0.0008903720478646459,
+        "L33_bridge_vs_sfincs": 0.012535349439094555
+      },
+      "sidecar_channel_relative_difference": {
+        "L33_spitzer_bridge_vs_sfincs": 0.30271458425786035
+      },
+      "max_raw_relative_difference": 0.012535349439094555,
+      "max_sidecar_relative_difference": 0.30271458425786035
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "rho": 0.5,
+      "nu_prime": 0.01,
+      "e_star": 0.0,
+      "raw_channel_relative_difference": {
+        "L13_bridge_vs_sfincs": 0.0008966940097664823,
+        "L31_bridge_vs_sfincs": 0.0010484123970917836,
+        "L33_bridge_vs_sfincs": 0.012280032502483489
+      },
+      "sidecar_channel_relative_difference": {
+        "L33_spitzer_bridge_vs_sfincs": 0.08362012593554706
+      },
+      "max_raw_relative_difference": 0.012280032502483489,
+      "max_sidecar_relative_difference": 0.08362012593554706
+    }
+  ],
+  "coefficient_by_rho": [
+    {
+      "rho": 0.14285714285714285,
+      "count": 2,
+      "max_raw_relative_difference": 0.02054783993495091,
+      "max_sidecar_relative_difference": 0.05685488724370346,
+      "raw_channel_max": {
+        "L13_bridge_vs_sfincs": 0.020293376803271736,
+        "L31_bridge_vs_sfincs": 0.02054783993495091,
+        "L33_bridge_vs_sfincs": 0.013530855916041635
+      },
+      "sidecar_channel_max": {
+        "L33_spitzer_bridge_vs_sfincs": 0.05685488724370346
+      }
+    },
+    {
+      "rho": 0.3,
+      "count": 2,
+      "max_raw_relative_difference": 0.014072815428719222,
+      "max_sidecar_relative_difference": 0.1753584898932992,
+      "raw_channel_max": {
+        "L13_bridge_vs_sfincs": 0.014072815428719222,
+        "L31_bridge_vs_sfincs": 0.0013636305047481534,
+        "L33_bridge_vs_sfincs": 0.012547172467539508
+      },
+      "sidecar_channel_max": {
+        "L33_spitzer_bridge_vs_sfincs": 0.1753584898932992
+      }
+    },
+    {
+      "rho": 0.5,
+      "count": 2,
+      "max_raw_relative_difference": 0.012535349439094555,
+      "max_sidecar_relative_difference": 0.30271458425786035,
+      "raw_channel_max": {
+        "L13_bridge_vs_sfincs": 0.0008966940097664823,
+        "L31_bridge_vs_sfincs": 0.0010484123970917836,
+        "L33_bridge_vs_sfincs": 0.012535349439094555
+      },
+      "sidecar_channel_max": {
+        "L33_spitzer_bridge_vs_sfincs": 0.30271458425786035
+      }
+    }
+  ],
+  "bootstrap_profile": {
+    "rho": [
+      0.07142857142857142,
+      0.14285714285714285,
+      0.21428571428571427,
+      0.2857142857142857,
+      0.3571428571428571,
+      0.42857142857142855,
+      0.5,
+      0.5714285714285714,
+      0.6428571428571428,
+      0.7142857142857142,
+      0.7857142857142857,
+      0.8571428571428571,
+      0.9285714285714285
+    ],
+    "relative_error_total_vs_redl": [
+      0.05316839277264408,
+      0.20828178269124106,
+      0.019001576918804365,
+      0.058829515645841664,
+      0.04923916100012784,
+      0.013937436855022887,
+      0.06422549700888262,
+      0.11270051557314703,
+      0.15559777715116915,
+      0.1922010743271779,
+      0.211630071475585,
+      0.21731107462831223,
+      0.21926076611238907
+    ],
+    "relative_error_nomom_vs_redl": [
+      0.9749771922262153,
+      1.5316033430852463,
+      1.3343983093571208,
+      1.5994942342570222,
+      1.6079300236030252,
+      1.4618603546124977,
+      1.3269494708523064,
+      1.1450471846302983,
+      0.9302217469844971,
+      0.7006751573807642,
+      0.48977835893632066,
+      0.31972159822505175,
+      0.19934220199466085
+    ],
+    "redl_current_over_root_fsab2": [
+      -17253883.115752343,
+      -20549817.57810125,
+      -25591534.488937475,
+      -29736965.13256633,
+      -33767621.081322536,
+      -37995551.99079884,
+      -42873282.35260753,
+      -49126823.71681437,
+      -57761701.195756,
+      -69545224.37032287,
+      -83472283.37932375,
+      -93292514.68632331,
+      -81499165.87162043
+    ],
+    "ntx_neopax_total_over_root_fsab2": [
+      -18171244.350103956,
+      -24829970.21724798,
+      -25105254.977875695,
+      -31486376.388092488,
+      -35430310.41233709,
+      -37465991.38415534,
+      -40119724.48510916,
+      -43590205.35545828,
+      -48774108.88522634,
+      -56178557.53202218,
+      -65807038.08152718,
+      -73019018.0650608,
+      -63629596.32508826
+    ]
+  },
+  "matched_radii": [
+    {
+      "rho": 0.14285714285714285,
+      "max_raw_coefficient_relative_difference": 0.02054783993495091,
+      "interpolated_profile_current_relative_difference": 0.20828178269124106,
+      "current_to_coefficient_error_ratio": 10.136432021594812
+    },
+    {
+      "rho": 0.3,
+      "max_raw_coefficient_relative_difference": 0.014072815428719222,
+      "interpolated_profile_current_relative_difference": 0.0569114447166989,
+      "current_to_coefficient_error_ratio": 4.044069575484971
+    },
+    {
+      "rho": 0.5,
+      "max_raw_coefficient_relative_difference": 0.012535349439094555,
+      "interpolated_profile_current_relative_difference": 0.06422549700888262,
+      "current_to_coefficient_error_ratio": 5.123550589549557
+    }
+  ],
+  "momentum_order_scan": {
+    "entries": [
+      {
+        "n_order": 2,
+        "max_relative_error_total_vs_redl": 1.0374175039391136,
+        "rms_relative_error_total_vs_redl": 0.6185756660503684
+      },
+      {
+        "n_order": 4,
+        "max_relative_error_total_vs_redl": 0.43149651920833715,
+        "rms_relative_error_total_vs_redl": 0.20857545165793526
+      },
+      {
+        "n_order": 6,
+        "max_relative_error_total_vs_redl": 0.32523253553558085,
+        "rms_relative_error_total_vs_redl": 0.14026307977045432
+      },
+      {
+        "n_order": 8,
+        "max_relative_error_total_vs_redl": 0.29498516877149517,
+        "rms_relative_error_total_vs_redl": 0.13411699818864636
+      },
+      {
+        "n_order": 10,
+        "max_relative_error_total_vs_redl": 0.25857689827671976,
+        "rms_relative_error_total_vs_redl": 0.13538971231867789
+      },
+      {
+        "n_order": 12,
+        "max_relative_error_total_vs_redl": 0.21926076611238907,
+        "rms_relative_error_total_vs_redl": 0.1443057154681684
+      }
+    ]
+  },
+  "summary_metrics": {
+    "max_same_grid_coefficient_relative_difference": 0.02054783993495091,
+    "max_bootstrap_total_relative_difference": 0.21926076611238907,
+    "rms_bootstrap_total_relative_difference": 0.1443057154681684,
+    "stress_gap_rho": 0.9285714285714285,
+    "stress_gap_bootstrap_relative_difference": 0.21926076611238907,
+    "stress_gap_nearest_coefficient_rho": 0.5,
+    "stress_gap_nearest_coefficient_distance": 0.4285714285714285,
+    "stress_gap_coefficient_relative_difference": 0.012535349439094555,
+    "stress_gap_current_to_coefficient_error_ratio": 17.491396404839797,
+    "coefficient_gate": 0.1,
+    "coefficient_gate_pass": true,
+    "profile_current_gate": 0.1,
+    "profile_current_gate_pass": false
+  },
+  "conclusion": "The same-grid finite-beta coefficient ladder passes below 1e-1 at the profile-current stress radius; the remaining current-profile gap is therefore tracked as a reduced momentum/profile-closure observable lane rather than a monoenergetic coefficient normalization failure.",
+  "open_work": [
+    "derive and test the remaining reduced momentum/profile-current observable term at the finite-beta stress radius",
+    "rerun the profile-current closure with production SFINCS-JAX radial and collisionality ladders before any parity promotion",
+    "add a stable downstream interpolation-mode audit when the profile-coupling interface exposes that selector"
+  ],
+  "figure_png": "docs/_static/owned_finite_beta_closure_localization.png",
+  "figure_pdf": "docs/_static/owned_finite_beta_closure_localization.pdf"
+}

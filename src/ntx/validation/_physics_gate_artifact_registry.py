@@ -118,13 +118,59 @@ _GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         name="geometry_family_transport_convergence_stress",
         category="stress",
         metric="max last-step relative D11/D31/D33 change across solved VMEC families",
-        relation="monitor",
-        threshold=None,
+        relation="<=",
+        threshold=5.0e-1,
         source="docs/_static/geometry_family_transport_convergence.json",
         rationale=(
-            "Broad VMEC example families should at least produce finite "
-            "transport coefficients with visible grid-convergence behavior "
+            "Broad VMEC example families should produce finite transport "
+            "coefficients with resolved production-grid convergence behavior "
             "before they are promoted to independent-code parity claims."
+        ),
+    ),
+    PhysicsGate(
+        name="angular_oversampling_convergence_stress",
+        category="stress",
+        metric="max D11/D31/D33 error at recommended angular oversampling",
+        relation="<=",
+        threshold=1.0e-2,
+        source="docs/_static/angular_oversampling_audit.json",
+        rationale=(
+            "The warning-level angular grid recommendation should keep the "
+            "measured variable-coefficient coefficient error below one percent "
+            "on the committed finite-beta QA, NCSX, and HSX stress family. "
+            "Research promotion still requires two successive refinements."
+        ),
+    ),
+    PhysicsGate(
+        name="boozmn_same_coordinate_roundtrip",
+        category="analytical",
+        metric="max same-coordinate boozmn round-trip transport mismatch",
+        relation="<=",
+        threshold=1.0e-6,
+        source="docs/_static/boozmn_same_coordinate_roundtrip_audit.json",
+        rationale=(
+            "Boozer spectra and Boozer radial profiles are defined on VMEC "
+            "half-grid surfaces. A same-coordinate VMEC-to-Boozer-file "
+            "round trip must preserve selected surfaces and transport "
+            "coefficients before the direct boozmn backend is used for "
+            "benchmark claims."
+        ),
+    ),
+    PhysicsGate(
+        name="boozmn_finite_beta_wout_roundtrip",
+        category="transfer",
+        metric="max finite-beta finalized-wout Boozer transport mismatch",
+        relation="<=",
+        threshold=1.0e-6,
+        source="docs/_static/boozmn_finite_beta_wout_roundtrip_audit.json",
+        rationale=(
+            "Optimized finite-beta inputs can use VMEC profile representations "
+            "that the differentiable VMEC-state path cannot yet re-evaluate. "
+            "For those cases the physically controlled file-backed route is "
+            "to transform the finalized VMEC wout magnetic channels, then "
+            "reload the generated Boozer spectra on the same half-grid "
+            "surfaces. The round trip must preserve D11/D31/D13/D33 before "
+            "finite-beta Boozer-file artifacts are used as validation inputs."
         ),
     ),
     PhysicsGate(

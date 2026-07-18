@@ -6,7 +6,7 @@ from pathlib import Path
 from examples import owned_finite_beta_closure_localization as example
 
 
-def test_closure_localization_excludes_sidecar_and_matches_inner_gap(tmp_path: Path):
+def test_closure_localization_excludes_sidecar_and_matches_stress_gap(tmp_path: Path):
     sfincs_json = tmp_path / "sfincs.json"
     bootstrap_json = tmp_path / "bootstrap.json"
 
@@ -92,9 +92,9 @@ def test_closure_localization_excludes_sidecar_and_matches_inner_gap(tmp_path: P
     metrics = payload["summary_metrics"]
     assert metrics["max_same_grid_coefficient_relative_difference"] == 0.04
     assert metrics["max_bootstrap_total_relative_difference"] == 0.30
-    assert metrics["inner_gap_rho"] == 0.25
-    assert metrics["inner_gap_coefficient_relative_difference"] == 0.03
-    assert metrics["inner_gap_current_to_coefficient_error_ratio"] == 10.0
+    assert metrics["stress_gap_rho"] == 0.25
+    assert metrics["stress_gap_coefficient_relative_difference"] == 0.03
+    assert metrics["stress_gap_current_to_coefficient_error_ratio"] == 10.0
     assert metrics["coefficient_gate_pass"] is True
     assert metrics["profile_current_gate_pass"] is False
     assert payload["coefficient_by_rho"][0]["max_sidecar_relative_difference"] == 0.50

@@ -1,0 +1,30 @@
+# Closure Validation Report
+
+## Precise-QS fixed-field interior max relative error vs archived SFINCS
+
+| Case | Redl | NTX+NEOPAX |
+| --- | ---: | ---: |
+| QA | `6.857e-02` | `8.305e-02` |
+| QH | `4.063e-02` | `9.954e-02` |
+
+## W7-X integrated transfer
+
+| Metric | Value |
+| --- | ---: |
+| Rebuilt raw-branch max relative error | `1.830e-02` |
+| `Pmax=4` transfer error | `4.942e-01` |
+
+## Fixed-field closure diagnostics
+
+The NTX+NEOPAX current column below is a reduced-closure total-current stress diagnostic. It now passes the fixed-field interior gate, but it is still not an independent species-current parity claim.
+
+Decision: `fixed-field-stress-gate-passed`. The fixed-field branch uses `d33_mode=spitzer` and `n_order=2`. No fitted bridge constants or benchmark-specific scale factors are used.
+
+| Case | Current | Raw thermal fit | Effective thermal fit |
+| --- | ---: | ---: | ---: |
+| QA | `8.305e-02` | `2.360e-01` | `1.962e-01` |
+| QH | `9.954e-02` | `3.127e-01` | `2.802e-01` |
+
+## Higher-order closure stress
+
+| Max successive precise-QS change across `Pmax` | `1.108e-01` |

@@ -1,0 +1,279 @@
+{
+  "benchmark": "owned_finite_beta_sfincs_jax_profile_current_audit",
+  "classification": "owned finite-beta RHSMode=1 profile-current diagnostic",
+  "claim_scope": "Writes and optionally runs SFINCS-JAX RHSMode=1 profile-current decks on the same owned finite-beta VMEC wout and analytic profiles used by the NTX+NEOPAX and Redl current audits.  This is a diagnostic for profile-current normalization and convergence; it is not a promoted parity claim until pitch/velocity/radial ladders pass.",
+  "case": {
+    "id": "finite_beta_qa_pressure_current",
+    "label": "Finite-beta QA pressure/current",
+    "family": "QA finite beta",
+    "source": "single-stage finite-beta test case",
+    "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
+    "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+    "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
+    "primary_geometry_path": "booz_xform_jax",
+    "wout_metadata": {
+      "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+      "exists": true,
+      "nfp": 2,
+      "ns": 50,
+      "mpol": 8,
+      "ntor": 8,
+      "beta_vol": 0.0002519202234664469,
+      "betatotal": 0.012648204949374074,
+      "Aminor_p": 0.16831206437162471,
+      "Rmajor_p": 1.0098736979848884,
+      "b0": 0.8705673153008565
+    }
+  },
+  "profile_contract": {
+    "density_core_m3": 4e+20,
+    "density_edge_m3": 4e+19,
+    "temperature_core_ev": 12000.0,
+    "temperature_edge_ev": 500.0,
+    "density_power": 5,
+    "temperature_power": 1,
+    "zeff": 1.0
+  },
+  "normalization_contract": {
+    "rho_to_s": "s=rho^2",
+    "species_order": "ion,electron to match the archived SFINCS profile-current convention",
+    "profile_gradients": "dNHatdrNs and dTHatdrNs are derivatives with respect to rN=r/a=rho; SFINCS-JAX converts them internally to d/d psiHat.",
+    "current_observable": "FSABjHatOverRootFSAB2 * e * 1e20 * sqrt(2*1keV/m_p)",
+    "current_scale_am2": 7012642.439557152,
+    "trajectory": "includeXDotTerm=.true., includeElectricFieldTermInXiDot=.true., useDKESExBDrift=.false., includePhi1=.false."
+  },
+  "sfincs_jax_contract": {
+    "root": "/Users/rogeriojorge/local/tests/sfincs_jax",
+    "jax_enable_x64": "True unless explicitly overridden in the subprocess environment",
+    "rhs_mode_1_solve_policy": "write-output --compute-solution with SFINCS-JAX auto solver selection and a JSON solver-trace sidecar",
+    "solver_convergence_gate": "linearSolverAccepted=1, linearSolverTrueResidualConverged=1, and linearSolverResidualNorm <= linearSolverResidualTarget"
+  },
+  "inputs": {
+    "rho": [
+      0.14285714285714285,
+      0.5,
+      0.9285714285714286
+    ],
+    "nu_n": [
+      0.00831565
+    ],
+    "grid": {
+      "n_theta": 13,
+      "n_zeta": 15,
+      "n_xi": 8,
+      "nx": 5
+    },
+    "solver_tolerance": 1e-07,
+    "min_bmn_to_load": 1e-05,
+    "collision_operator": 1,
+    "bootstrap_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_bootstrap_comparison.json"
+  },
+  "decks": [
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "family": "QA finite beta",
+      "rho": 0.14285714285714285,
+      "s": 0.02040816326530612,
+      "nu_n": 0.00831565,
+      "n_hat": 3.9999999872555208,
+      "t_hat": 11.76530612244898,
+      "dn_hat_dr_n": -8.921135600096414e-07,
+      "dt_hat_dr_n": -3.285714285714285,
+      "input_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p142857/nu_n_0p00831565/input.namelist",
+      "output_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p142857/nu_n_0p00831565/sfincsOutput.h5",
+      "solver_trace_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p142857/nu_n_0p00831565/sfincsOutput.solver_trace.json",
+      "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+      "status": "complete",
+      "seconds": 4.85839991690591,
+      "error": null,
+      "current_summary": {
+        "status": "complete",
+        "fsab_jhat": -0.44127035079410704,
+        "fsab_jhat_over_root_fsab2": -0.44600080476476633,
+        "current_over_root_fsab2_am2": -3127644.171570044,
+        "jhat_to_am2_scale": 7012642.439557152,
+        "scalars": {
+          "RHSMode": 1,
+          "collisionOperator": 1,
+          "constraintScheme": 2,
+          "Ntheta": 13,
+          "Nzeta": 15,
+          "Nxi": 8,
+          "Nx": 5,
+          "nu_n": 0.00831565,
+          "Delta": 0.0045694,
+          "alpha": 1.0,
+          "B0OverBBar": 0.9895751457171212,
+          "FSABHat2": 0.978899735496276,
+          "rN": 0.14285714285714285,
+          "psiN": 0.02040816326530612
+        },
+        "solver": {
+          "linearSolverMethod": "auto",
+          "linearSolverAcceptanceCriterion": "true_residual",
+          "linearSolverConverged": 1,
+          "linearSolverTrueResidualConverged": 1,
+          "linearSolverAccepted": 1,
+          "linearSolverResidualNorm": 1.0069028483272639e-13,
+          "linearSolverResidualTarget": 8.037689514541334e-10,
+          "linearSolverResidualTargetRatio": 0.00012527267276319048,
+          "true_residual_over_target": 0.00012527267276319048,
+          "true_residual_gate_pass": true
+        },
+        "comparison": {
+          "redl_current_over_root_fsab2": -20549817.57810125,
+          "ntx_neopax_current_over_root_fsab2": -24829970.21724798,
+          "sfincs_jax_relative_error_vs_redl": 0.8478018522703096,
+          "sfincs_jax_relative_error_vs_ntx_neopax": 0.8740375383375432,
+          "ntx_neopax_relative_error_vs_redl": 0.20828178269124106
+        }
+      }
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "family": "QA finite beta",
+      "rho": 0.5,
+      "s": 0.25,
+      "nu_n": 0.00831565,
+      "n_hat": 3.996484375,
+      "t_hat": 9.125,
+      "dn_hat_dr_n": -0.0703125,
+      "dt_hat_dr_n": -11.5,
+      "input_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p5/nu_n_0p00831565/input.namelist",
+      "output_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p5/nu_n_0p00831565/sfincsOutput.h5",
+      "solver_trace_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p5/nu_n_0p00831565/sfincsOutput.solver_trace.json",
+      "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+      "status": "complete",
+      "seconds": 4.510626540984958,
+      "error": null,
+      "current_summary": {
+        "status": "complete",
+        "fsab_jhat": -4.3046205511658755,
+        "fsab_jhat_over_root_fsab2": -4.330312102910173,
+        "current_over_root_fsab2_am2": -30366930.429395854,
+        "jhat_to_am2_scale": 7012642.439557152,
+        "scalars": {
+          "RHSMode": 1,
+          "collisionOperator": 1,
+          "constraintScheme": 2,
+          "Ntheta": 13,
+          "Nzeta": 15,
+          "Nxi": 8,
+          "Nx": 5,
+          "nu_n": 0.00831565,
+          "Delta": 0.0045694,
+          "alpha": 1.0,
+          "B0OverBBar": 0.9964082810065447,
+          "FSABHat2": 0.9881692877045272,
+          "rN": 0.5,
+          "psiN": 0.25
+        },
+        "solver": {
+          "linearSolverMethod": "auto",
+          "linearSolverAcceptanceCriterion": "true_residual",
+          "linearSolverConverged": 1,
+          "linearSolverTrueResidualConverged": 1,
+          "linearSolverAccepted": 1,
+          "linearSolverResidualNorm": 1.9103197113237737e-14,
+          "linearSolverResidualTarget": 4.194529787332913e-09,
+          "linearSolverResidualTargetRatio": 4.554311944792382e-06,
+          "true_residual_over_target": 4.554311944792382e-06,
+          "true_residual_gate_pass": true
+        },
+        "comparison": {
+          "redl_current_over_root_fsab2": -42873282.35260753,
+          "ntx_neopax_current_over_root_fsab2": -40119724.48510916,
+          "sfincs_jax_relative_error_vs_redl": 0.29170502552975275,
+          "sfincs_jax_relative_error_vs_ntx_neopax": 0.24309224903409174,
+          "ntx_neopax_relative_error_vs_redl": 0.06422549700888262
+        }
+      }
+    },
+    {
+      "case_id": "finite_beta_qa_pressure_current",
+      "case_label": "Finite-beta QA pressure/current",
+      "family": "QA finite beta",
+      "rho": 0.9285714285714286,
+      "s": 0.8622448979591837,
+      "nu_n": 0.00831565,
+      "n_hat": 2.284243443903856,
+      "t_hat": 2.0841836734693873,
+      "dn_hat_dr_n": -18.47737829642001,
+      "dt_hat_dr_n": -21.357142857142858,
+      "input_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p928571/nu_n_0p00831565/input.namelist",
+      "output_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p928571/nu_n_0p00831565/sfincsOutput.h5",
+      "solver_trace_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_profile_current_audit/finite_beta_qa_pressure_current/rho_0p928571/nu_n_0p00831565/sfincsOutput.solver_trace.json",
+      "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+      "status": "complete",
+      "seconds": 13.834320959053002,
+      "error": null,
+      "current_summary": {
+        "status": "complete",
+        "fsab_jhat": -9.085879668506164,
+        "fsab_jhat_over_root_fsab2": -9.028055187073603,
+        "current_over_root_fsab2_am2": -63310522.95153643,
+        "jhat_to_am2_scale": 7012642.439557152,
+        "scalars": {
+          "RHSMode": 1,
+          "collisionOperator": 1,
+          "constraintScheme": 2,
+          "Ntheta": 13,
+          "Nzeta": 15,
+          "Nxi": 8,
+          "Nx": 5,
+          "nu_n": 0.00831565,
+          "Delta": 0.0045694,
+          "alpha": 1.0,
+          "B0OverBBar": 1.0142115610277005,
+          "FSABHat2": 1.012850976750419,
+          "rN": 0.9285714285714285,
+          "psiN": 0.8622448979591836
+        },
+        "solver": {
+          "linearSolverMethod": "auto",
+          "linearSolverAcceptanceCriterion": "true_residual",
+          "linearSolverConverged": 1,
+          "linearSolverTrueResidualConverged": 1,
+          "linearSolverAccepted": 1,
+          "linearSolverResidualNorm": 1.4728691099735512e-15,
+          "linearSolverResidualTarget": 4.254038346322792e-08,
+          "linearSolverResidualTargetRatio": 3.4622845166562854e-08,
+          "true_residual_over_target": 3.4622845166562854e-08,
+          "true_residual_gate_pass": true
+        },
+        "comparison": {
+          "redl_current_over_root_fsab2": -81499165.87162043,
+          "ntx_neopax_current_over_root_fsab2": -63629596.32508826,
+          "sfincs_jax_relative_error_vs_redl": 0.22317581690020258,
+          "sfincs_jax_relative_error_vs_ntx_neopax": 0.005014543419726592,
+          "ntx_neopax_relative_error_vs_redl": 0.21926076611238907
+        }
+      }
+    }
+  ],
+  "summary_metrics": {
+    "deck_count": 3,
+    "completed_current_count": 3,
+    "failed_run_count": 0,
+    "input_written_count": 0,
+    "max_sfincs_jax_relative_error_vs_redl": 0.8478018522703096,
+    "max_sfincs_jax_relative_error_vs_ntx_neopax": 0.8740375383375432,
+    "max_ntx_neopax_relative_error_vs_redl": 0.21926076611238907,
+    "solver_methods": [
+      "auto"
+    ],
+    "completed_solver_converged_count": 3,
+    "max_solver_true_residual_over_target": 0.00012527267276319048,
+    "all_completed_solver_converged": true
+  },
+  "conclusion": "RHSMode=1 profile-current output is now generated from the same owned finite-beta profile and geometry contract.  It remains a diagnostic until resolution and collisionality-normalization ladders are complete; the existing finite-beta NTX+NEOPAX current stress is therefore not hidden as a promoted parity claim.",
+  "open_work": [
+    "run a pitch/velocity/radial convergence ladder before using RHSMode=1 SFINCS-JAX current as a finite-beta reference",
+    "align the profile-current collisionality normalization with the Redl and NTX+NEOPAX profile contract before comparing absolute current amplitudes",
+    "only promote a finite-beta current figure if RHSMode=1, Redl, and NTX+NEOPAX share the same geometry, profile, normalization, and converged numerical contract"
+  ],
+  "figure_png": "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.png",
+  "figure_pdf": "docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.pdf"
+}

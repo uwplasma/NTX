@@ -1,0 +1,107 @@
+{
+  "backend": "cpu",
+  "devices": [
+    "TFRT_CPU_0",
+    "TFRT_CPU_1",
+    "TFRT_CPU_2",
+    "TFRT_CPU_3"
+  ],
+  "grid": {
+    "n_theta": 9,
+    "n_xi": 6,
+    "n_zeta": 11
+  },
+  "healthy_parallel_device_count": 4,
+  "local_device_count": 4,
+  "max_rss_mb": 1761.53125,
+  "results": [
+    {
+      "device_parallel_cases_per_second": 10.858029180849064,
+      "device_parallel_seconds": 0.7367819580103969,
+      "device_parallel_speedup_vs_serial": 0.4412406729893811,
+      "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+      "max_abs_delta_serial_vs_multiprocess_d11": 0.0,
+      "multiprocess_cases_per_second": 3.2645193066579647,
+      "multiprocess_seconds": 2.450590500011458,
+      "multiprocess_speedup_vs_serial": 0.13266115534089495,
+      "num_cases": 8,
+      "serial_cases_per_second": 24.607951726858087,
+      "serial_seconds": 0.32509816699894145
+    },
+    {
+      "device_parallel_cases_per_second": 23.061261110134822,
+      "device_parallel_seconds": 0.6938042080000741,
+      "device_parallel_speedup_vs_serial": 0.4295135854819522,
+      "max_abs_delta_serial_vs_device_parallel_d11": 4.85722573273506e-17,
+      "max_abs_delta_serial_vs_multiprocess_d11": 4.85722573273506e-17,
+      "multiprocess_cases_per_second": 6.477618496370653,
+      "multiprocess_seconds": 2.470043582987273,
+      "multiprocess_speedup_vs_serial": 0.12064496960826032,
+      "num_cases": 16,
+      "serial_cases_per_second": 53.69157551619246,
+      "serial_seconds": 0.297998333000578
+    },
+    {
+      "device_parallel_cases_per_second": 41.29643935535699,
+      "device_parallel_seconds": 0.7748852080112556,
+      "device_parallel_speedup_vs_serial": 0.36283782952583915,
+      "max_abs_delta_serial_vs_device_parallel_d11": 1.7208456881689926e-15,
+      "max_abs_delta_serial_vs_multiprocess_d11": 1.7208456881689926e-15,
+      "multiprocess_cases_per_second": 12.725267471650731,
+      "multiprocess_seconds": 2.5146819170040544,
+      "multiprocess_speedup_vs_serial": 0.11180645357383745,
+      "num_cases": 32,
+      "serial_cases_per_second": 113.81514273008322,
+      "serial_seconds": 0.28115766700648237
+    },
+    {
+      "device_parallel_cases_per_second": 79.4913546944548,
+      "device_parallel_seconds": 0.805118999996921,
+      "device_parallel_speedup_vs_serial": 0.3927460835075695,
+      "max_abs_delta_serial_vs_device_parallel_d11": 1.3877787807814457e-16,
+      "max_abs_delta_serial_vs_multiprocess_d11": 1.3877787807814457e-16,
+      "multiprocess_cases_per_second": 25.147968613909274,
+      "multiprocess_seconds": 2.544937166996533,
+      "multiprocess_speedup_vs_serial": 0.12424956423560786,
+      "num_cases": 64,
+      "serial_cases_per_second": 202.39884758245523,
+      "serial_seconds": 0.3162073340063216
+    },
+    {
+      "device_parallel_cases_per_second": 157.7729443689885,
+      "device_parallel_seconds": 0.8112924589950126,
+      "device_parallel_speedup_vs_serial": 0.46234791269309283,
+      "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+      "max_abs_delta_serial_vs_multiprocess_d11": 0.0,
+      "multiprocess_cases_per_second": 51.39158439365365,
+      "multiprocess_seconds": 2.4906801670003915,
+      "multiprocess_speedup_vs_serial": 0.15060118114311533,
+      "num_cases": 128,
+      "serial_cases_per_second": 341.2429039637914,
+      "serial_seconds": 0.3750993749999907
+    },
+    {
+      "device_parallel_cases_per_second": 273.4172970087502,
+      "device_parallel_seconds": 0.93629774999863,
+      "device_parallel_speedup_vs_serial": 0.5028731949953092,
+      "max_abs_delta_serial_vs_device_parallel_d11": 0.0,
+      "max_abs_delta_serial_vs_multiprocess_d11": 0.0,
+      "multiprocess_cases_per_second": 87.97159284010337,
+      "multiprocess_seconds": 2.9100302919978276,
+      "multiprocess_speedup_vs_serial": 0.16179867347204985,
+      "num_cases": 256,
+      "serial_cases_per_second": 543.7102230340605,
+      "serial_seconds": 0.4708390410087304
+    }
+  ],
+  "sizes": [
+    8,
+    16,
+    32,
+    64,
+    128,
+    256
+  ],
+  "surface": "dkes",
+  "workers": 4
+}

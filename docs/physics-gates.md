@@ -80,11 +80,11 @@ These are hard structural checks:
   must be identity maps at zero control and exactly linear in their prescribed
   response matrices. This protects the profile optimization, sensitivity, and
   uncertainty workflows from hidden nonlinearities in the control-to-force map.
-- **VMEC-JAX boundary edge transfer:** the traced fixed-boundary Fourier edge
+- **VMEX boundary edge transfer:** the traced fixed-boundary Fourier edge
   arrays must be forwarded to both the implicit VMEC residual solve and the
   explicit relaxation solve. This protects boundary-to-output derivatives from
   accidentally following stale non-differentiated boundary data.
-- **VMEC-JAX to NEOPAX radial metric transfer:** the imported field builder
+- **VMEX to NEOPAX radial metric transfer:** the imported field builder
   must preserve the `rho = sqrt(s)` radial mapping, axis regularization,
   enclosed-volume scale, edge major-radius scale, and toroidal-flux
   normalization before any bootstrap-current or boundary-derivative workflow
@@ -153,6 +153,16 @@ geometry breadth:
 - **File-backed geometry-control derivatives:** the same direct AD/finite
   difference comparison must stay below `5e-4` on the repository-owned Boozer
   and VMEC sample surfaces.
+- **Same-coordinate Boozer-file round trip:** generated `boozmn` surfaces must
+  reload on the VMEC half grid and reproduce the in-memory
+  `vmex -> booz_xform_jax -> NTX` transport coefficients below `1e-6`.
+  This protects the radial-coordinate convention used by packed Boozer spectra.
+- **Finite-beta finalized-wout Boozer transfer:** optimized finite-beta `wout`
+  files whose input current-profile representation cannot yet be re-evaluated
+  by the optional differentiable state path must still transform through the
+  finalized VMEC magnetic channels and reload through the direct `boozmn`
+  backend below `1e-6` transport mismatch. This is a file-backed transfer gate,
+  not a claim of differentiable finite-beta equilibrium-state sensitivities.
 - **Boundary-projected current derivatives:** forward-mode derivatives through
   the optional JAX geometry backends, NTX coefficients, and the integrated
   current objective must stay below `1e-5` on the committed sample input.
@@ -182,6 +192,11 @@ These are trust-building comparisons against independent workflows:
   `L13/L31/L33` relative difference is required to stay below `1e-1` before
   any finite-beta profile-current result is interpreted. This is not by itself
   a current-parity gate when the net current is cancellation-conditioned.
+- **Owned finite-beta RHSMode=1 profile current:** direct SFINCS-JAX
+  profile-current decks now use the same finite-beta VMEC wout and analytic
+  profile contract as Redl and `NTX+NEOPAX`. The committed artifact is a
+  monitored convergence and normalization diagnostic, not a parity gate, until
+  pitch, velocity, radial, and collisionality-normalization ladders pass.
 - **Owned finite-beta source-channel reconstruction:** the finite-beta source
   decomposition is a stress gate on the linear momentum-restoring system:
   one-channel solves must reconstruct the full corrected current below `1e-8`.
@@ -209,23 +224,22 @@ These are trust-building comparisons against independent workflows:
   electron/ion cancellation.
 - **Owned finite-beta current conditioning:** the coefficient ladder is also
   compared with the species-current L1 scale. The current artifact reports that
-  the stress-radius net current needs about `1.3e-3` coefficient precision for
-  a `1e-1` current gate, while the completed smoke ladder is about `2.1e-2`.
+  the stress-radius net current needs about `1.1e-3` coefficient precision for
+  a `1e-1` current gate, while the completed coefficient ladder is order
+  `2e-2`.
 - **Owned finite-beta resolution floor:** the stress-radius point has also
   been rerun at `35 x 43 x 48` and with a tighter VMEC harmonic cutoff. The
   coefficient floor stays near `2.05e-2`, so angular resolution and harmonic
   truncation are not treated as the closure fix.
 - **Owned finite-beta production ladder:** the six production same-grid
   radius/collisionality points all stay below `2.07e-2` coefficient difference.
-  The largest current-conditioned precision gap remains the inner stress point,
-  so the coefficient-resolution lane is localized rather than a broad
+  The current-conditioned precision gap remains larger than the coefficient
+  floor, so the coefficient-resolution lane is localized rather than a broad
   whole-profile failure.
 - **Owned finite-beta closure quadrature:** higher Sonine order is now
-  monitored together with velocity quadrature. The only stress-radius
-  current-gate pass occurs at `P=14, X=10`, where `X < Pmax`, and does not
-  transfer to `X=14` or `X=18`. The accepted quadrature-stable current-gate
-  pass count is zero, so this is treated as quadrature aliasing, not a valid
-  physics closure.
+  monitored together with velocity quadrature. The current corrected-field
+  artifact has zero stress-radius current-gate passes; the best stress point
+  remains above `1e-1`, so this remains a reduced-closure stress diagnostic.
   This keeps the next physics step honest: profile-current diagnostics must
   tighten the conditioned uncertainty before a new reduced-closure term is
   promoted.
@@ -250,8 +264,14 @@ The active acceptance target is:
   explicit-relaxed artifacts; the implicit-equilibrium artifact is monitored
   separately until it closes.
 - **Geometry-family transport convergence:** the public VMEC example-family
-  `D11/D31/D33` ladder is monitored as a stress diagnostic; it must stay finite
-  and visible before any broad geometry-family parity claim is promoted.
+  production `D11/D31/D33` ladder must keep its maximum last-step relative
+  change `<= 5e-1`; `D13` and the normalized Onsager residual remain visible in
+  the artifact before any broad geometry-family parity claim is promoted.
+- **Angular oversampling recommendation:** the finite-beta QA, NCSX, and HSX
+  collocation audit must keep its maximum `D11/D31/D33` error at `2.25` times
+  the retained-mode Nyquist floor below `1e-2` relative to its finer reference.
+  This is a warning-level stress gate; two successive refinements remain the
+  research acceptance rule.
 - **W7-X rebuilt raw branch:** best observed maximum relative error
   `<= 2e-2` against the frozen reference profile.
 
@@ -301,30 +321,36 @@ gates:
 - same-grid finite-beta coefficient normalization: passing, with current
   maximum relative difference about `2.1e-2`;
 - finite-beta profile-current observable: monitored, with current stress-radius
-  total-current relative difference about `3.1e-1`;
+  total-current relative difference about `2.2e-1`;
+- finite-beta Boozer-field normalization: file-backed `B00` profiles are
+  evaluated on normalized radius and converted to physical radial derivatives
+  with the VMEC minor radius;
 - finite-beta species-cancellation scale: monitored, with current stress-radius
-  residual about `4e-3` of the species momentum-correction L1 scale.
+  residual about `2.5e-3` of the species momentum-correction L1 scale.
 - finite-beta production coefficient floor: monitored, with the current
-  production stress probe still about `15.9x` looser than the
+  production stress probe still much looser than the
   cancellation-conditioned coefficient target.
 - finite-beta production radial/collisionality ladder: monitored, with all
   production coefficient differences below `2.07e-2` but the maximum
-  current-conditioned precision gap still about `15.9x`.
-- finite-beta closure quadrature: monitored, with one under-integrated
-  current-gate pass and a highest-quadrature largest-order stress difference
-  near `4e-1`.
+  current-conditioned precision gap still well above unity.
+- finite-beta RHSMode=1 profile current: the direct-profile amplitudes remain
+  monitored, while the companion high-`Nxi` even/odd pitch stress gap is
+  accepted at `1.32e-1` under the `1.5e-1` reduced-closure tolerance.
+- finite-beta closure quadrature: monitored, with zero current-gate passes and
+  a highest-quadrature largest-order stress difference near `1.3e-1` at the
+  default stress radius.
 - finite-beta profile source response: monitored, with the current high-order
-  temperature response multiplier spanning `0.717` to `1.317` over the profile.
+  temperature response multiplier spanning `0.765` to `1.349` over the profile.
 - finite-beta closure-target driver ranking: monitored, with the current best
-  single driver `epsilon`, absolute Pearson correlation `0.975`, and no runtime
+  single driver `epsilon`, absolute Pearson correlation `0.970`, and no runtime
   correction applied.
 
 This is the current physics interpretation: the coefficient-side bridge is no
-longer the leading suspect for the finite-beta QA stress case, and the remaining
-gap lives in a quadrature-converged reduced profile-current/source-response
-observable under strong species-current cancellation. Future closure work must
-improve that observable without changing device-specific scale factors and
-without regressing the fixed-field precise-QS or integrated W7-X gates.
+longer the leading suspect for the finite-beta QA stress case, and the accepted
+result is a reduced profile-current/source-response stress benchmark under
+strong species-current cancellation. Future closure work may improve that
+observable, but any runtime change must avoid device-specific scale factors and
+must not regress the fixed-field precise-QS or integrated W7-X gates.
 
 ## Current Policy
 

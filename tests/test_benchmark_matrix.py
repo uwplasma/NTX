@@ -34,6 +34,7 @@ def test_benchmark_matrix_has_unique_ids_and_expected_lanes():
     assert "explicit_relaxed_boundary_current_derivative_benchmark" in ids
     assert "geometry_family_breadth_summary" in ids
     assert "geometry_family_transport_convergence" in ids
+    assert "boozmn_finite_beta_wout_roundtrip" in ids
     assert "owned_geometry_neopax_dataset" in ids
     assert "owned_finite_beta_sfincs_jax_inputs" in ids
     assert "owned_finite_beta_bootstrap_comparison" in ids
@@ -146,6 +147,29 @@ def test_build_benchmark_matrix_script_writes_machine_readable_artifact(tmp_path
     assert any(
         entry["entry"]["id"] == "prepared_derivative_path" for entry in payload["entries"]
     )
+
+
+def test_release_facing_docs_scope_future_work_without_open_blocker_language():
+    release_docs = (
+        ROOT / "README.md",
+        ROOT / "docs" / "ship-checklist.md",
+        ROOT / "docs" / "benchmark-matrix.md",
+        ROOT / "docs" / "repo-hygiene.md",
+    )
+    forbidden = (
+        "Current Open Research Lanes",
+        "Blocking Lanes",
+        "Do not merge",
+        "Partly closed",
+        "In progress",
+        "open lane",
+        "open work",
+        "stays open",
+    )
+    for path in release_docs:
+        text = path.read_text(encoding="utf-8")
+        for phrase in forbidden:
+            assert phrase not in text, (path, phrase)
 
 
 def test_benchmark_evaluation_status_and_payload_branches(tmp_path):

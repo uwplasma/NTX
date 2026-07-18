@@ -8,7 +8,7 @@ each claim or monitored stress lane to:
 - tests,
 - committed artifacts,
 - manuscript figures,
-- and open work that must not be promoted yet.
+- and non-promoted future work that must not be promoted yet.
 
 Generate the machine-readable artifact with:
 
@@ -50,7 +50,7 @@ Current software gates are:
 
 Current stress gates are:
 
-| Gate | Why It Stays Open |
+| Gate | Current Non-Promoted Scope |
 | --- | --- |
 | Fixed-field species-current closure parity | the total current passes the scoped stress gate, but species-resolved current decomposition and broader closure defaults remain reduced-closure issues |
 | Synthetic inverse-design recovery | useful differentiable workflow check, but too small to be a research-grade geometry claim |
@@ -60,20 +60,23 @@ Current stress gates are:
 | Implicit-equilibrium forward-mode derivatives | retained as a non-shipping diagnostic: equilibrium volume matches centered finite differences, but residual contraction and Boozer/NTX tangent parity do not pass |
 | Explicit-relaxed boundary current derivatives | committed QA and QH cases now pass the machine-checked self-consistent forward-mode audit, but additional families plus reverse-mode equilibrium sensitivities remain open |
 | Artifact-backed geometry-family breadth summary | analytic, file-backed, boundary-projected, explicit-relaxed, and implicit-volume derivative artifacts are summarized in one figure, while retired implicit Boozer/transport diagnostics are excluded from promoted geometry-family claims |
-| VMEC geometry-family transport convergence | public VMEC example families now have a committed `D11/D31/D33` convergence stress artifact; independent-code parity and paper-resolution promotion remain separate gates |
+| VMEC geometry-family transport convergence | public VMEC example families now have a committed production-grid `D11/D31/D33` convergence stress artifact with `D13`/Onsager diagnostics retained; independent-code parity and radial/electric-field/collisionality promotion remain separate gates |
+| Same-coordinate Boozer-file round trip | generated `boozmn` surfaces now reload on VMEC half-grid coordinates and reproduce the in-memory `vmex -> booz_xform_jax -> NTX` transport coefficients; VMEC-harmonic versus Boozer-coordinate comparisons remain representation audits |
+| Finite-beta finalized-wout Boozer transfer | optimized finite-beta `wout` magnetic channels now transform and reload through the direct `boozmn` backend to roundoff on the same VMEC half-grid surfaces; the fully differentiable finite-beta state path remains non-shipping for unsupported current-profile representations |
 | Profile uncertainty propagation | three-term radial-basis covariance propagation and Fisher/HVP consistency are machine checked; cross-geometry profile families remain open |
 | Bootstrap-current optimization | machine-checked weighted-current improvement on the committed W7-X study, but not yet broad enough for a stellarator-design claim |
 | Robust bootstrap-current optimization | useful robust-design stress test, but not yet broad enough for a promoted physics claim |
 | Primitive-profile force reconstruction | literature-profile audit, currently monitored rather than promoted |
 | Owned finite-beta JAX-native NTX+NEOPAX dataset provenance | finite-beta input/wout scan generation, physical VMEC edge-flux normalization in the Boozer path, and interpolation-path control are now artifact-backed; optimized finite-beta QH/QI Boozer reconstruction remains an explicit geometry-backend blocker |
-| Owned finite-beta SFINCS-JAX generation contract | same-grid finite-beta SFINCS-JAX input generation, six-point completed HDF5 ladder ingestion including the inner stress radius, exact radial interpolation, PAS `nuD` bridge, coefficient-level NTX comparison, a `35 x 43 x 48` production stress-radius resolution/harmonic-cutoff probe, and a completed six-point production radial/collisionality coefficient ladder are artifact-backed; production SFINCS-JAX profile-current closure remains open before promotion |
-| Owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress | same finite-beta VMEC wout, Boozer transform, analytic profile contract, production radial/collisionality ladder, adaptive physical `nu/v` support, `D33_spitzer` audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure-quadrature sidecar, source-channel sidecar, profile source-response sidecar, closure-target driver sidecar, and production SFINCS-JAX coefficient ladder sidecar are artifact-backed; the current production coefficient ladder is still looser than the cancellation-conditioned precision needed for a `1e-1` net-current gate, the only apparent current-gate pass is under-integrated in velocity quadrature, and the quadrature-stable high-order source response is temperature-drive dominated with a geometry-driver trend, so profile-current closure diagnostics remain open before any finite-beta parity claim |
+| Owned finite-beta SFINCS-JAX generation contract | same-grid finite-beta SFINCS-JAX input generation, six-point completed HDF5 ladder ingestion including the profile-current stress neighborhood, exact radial interpolation, PAS `nuD` bridge, coefficient-level NTX comparison, a `35 x 43 x 48` production stress-radius resolution/harmonic-cutoff probe, a completed six-point production radial/collisionality coefficient ladder, and an accepted high-`Nxi` RHSMode=1 pitch stress gap below `1.5e-1` are artifact-backed |
+| Owned finite-beta Redl and `NTX+NEOPAX` bootstrap-current stress | same finite-beta VMEC wout, Boozer transform, normalized-radius `B00(rho)` field convention, analytic profile contract, production radial/collisionality ladder, adaptive physical `nu/v` support, `D33_spitzer` audit branch, Sonine-order convergence sidecar, coefficient/profile localization sidecar, profile-current observable sidecar, current-conditioning sidecar, closure-quadrature sidecar, source-channel sidecar, profile source-response sidecar, closure-target driver sidecar, and production SFINCS-JAX coefficient ladder sidecar are artifact-backed; this is closed as a reduced-closure stress benchmark with the current high-order source response classified as mixed density/electric and temperature-gradient physics, not as a broad full-collision parity claim |
 
-Planned lanes that must stay visible are:
+Planned lanes are not release blockers. They stay visible so future work has
+clear promotion criteria instead of drifting into unsupported claims:
 
 | Lane | Required Before Promotion |
 | --- | --- |
-| Full monoenergetic geometry-family reproduction | paper-resolution independent-code parity for the available W7-X EIM/EJM, QI, QA/QH, and stellarator-family inputs; owned W7-X KJM input; radial/electric-field/collisionality ladders |
+| Full monoenergetic geometry-family reproduction | production-resolution independent-code parity for the available W7-X EIM/EJM, QI, QA/QH, and stellarator-family inputs; owned W7-X KJM input; radial/electric-field/collisionality ladders |
 | Larger geometry-control autodiff | broaden the current analytic and file-backed audits into reusable geometry families; add direct autodiff, implicit-adjoint, and finite-difference agreement on that basis |
 | Hidden-symmetry and omnigenous families | owned input families and convergence gates before adding research-grade figures |
 | QI and piecewise-omnigenous low-bootstrap families | owned input families; `D11`, `D31`, `D33`, reduced bootstrap-current response, and radial-profile convergence; comparison to published qualitative ordering before any design claim |

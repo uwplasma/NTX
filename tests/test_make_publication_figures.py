@@ -130,7 +130,7 @@ def test_make_publication_figures_bootstrap_subset_writes_manifest(
     assert output_dir.joinpath("bootstrap_current_from_vmec_or_boozmn.json").exists()
 
 
-def test_geometry_family_transport_uses_paper_preset(
+def test_geometry_family_transport_uses_production_preset(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ):
@@ -147,7 +147,7 @@ def test_geometry_family_transport_uses_paper_preset(
 
     assert commands
     command = commands[0]
-    assert command[command.index("--preset") + 1] == "paper"
+    assert command[command.index("--preset") + 1] == "production"
 
 
 @pytest.mark.parametrize(
@@ -270,6 +270,33 @@ def test_geometry_family_transport_uses_paper_preset(
             ),
         ),
         (
+            "angular_oversampling",
+            {"angular_oversampling"},
+            (
+                "angular_oversampling_audit.png",
+                "angular_oversampling_audit.pdf",
+                "angular_oversampling_audit.json",
+            ),
+        ),
+        (
+            "boozmn_same_coordinate_roundtrip",
+            {"boozmn_same_coordinate_roundtrip"},
+            (
+                "boozmn_same_coordinate_roundtrip_audit.png",
+                "boozmn_same_coordinate_roundtrip_audit.pdf",
+                "boozmn_same_coordinate_roundtrip_audit.json",
+            ),
+        ),
+        (
+            "boozmn_finite_beta_wout_roundtrip",
+            {"boozmn_finite_beta_wout_roundtrip"},
+            (
+                "boozmn_finite_beta_wout_roundtrip_audit.png",
+                "boozmn_finite_beta_wout_roundtrip_audit.pdf",
+                "boozmn_finite_beta_wout_roundtrip_audit.json",
+            ),
+        ),
+        (
             "owned_finite_beta_sfincs_jax_inputs",
             {"owned_finite_beta_sfincs_jax_inputs"},
             (
@@ -294,6 +321,24 @@ def test_geometry_family_transport_uses_paper_preset(
                 "owned_finite_beta_sfincs_jax_production_ladder_audit.png",
                 "owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
                 "owned_finite_beta_sfincs_jax_production_ladder_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_sfincs_jax_profile_current",
+            {"owned_finite_beta_sfincs_jax_profile_current"},
+            (
+                "owned_finite_beta_sfincs_jax_profile_current_audit.png",
+                "owned_finite_beta_sfincs_jax_profile_current_audit.pdf",
+                "owned_finite_beta_sfincs_jax_profile_current_audit.json",
+            ),
+        ),
+        (
+            "owned_finite_beta_sfincs_jax_profile_current_resolution",
+            {"owned_finite_beta_sfincs_jax_profile_current_resolution"},
+            (
+                "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.png",
+                "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.pdf",
+                "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json",
             ),
         ),
         (

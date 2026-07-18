@@ -1,0 +1,247 @@
+{
+  "grid": {
+    "n_theta": 7,
+    "n_zeta": 9,
+    "n_xi": 6
+  },
+  "nu_hat": 0.0003,
+  "er_min": 1e-06,
+  "er_max": 0.003,
+  "nu_min": 3e-05,
+  "nu_max": 0.003,
+  "scan_sizes": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "direct_times_seconds": [
+    0.003549416083842516,
+    0.005647124722599983,
+    0.011431458871811628,
+    0.018930125050246716,
+    0.03276770794764161,
+    0.05196070810779929
+  ],
+  "prepared_times_seconds": [
+    0.0014759576879441738,
+    0.0023047919385135174,
+    0.004815875086933374,
+    0.007679333910346031,
+    0.012818084098398685,
+    0.02118495898321271
+  ],
+  "speedup_prepared_vs_direct": [
+    2.404822382670341,
+    2.4501668147286706,
+    2.3737033592976533,
+    2.4650738294818755,
+    2.556365498626675,
+    2.4527169558824147
+  ],
+  "max_relative_mismatch": [
+    3.84541208315802e-07,
+    3.763564157100082e-07,
+    3.763564157100082e-07,
+    3.763564157100082e-07,
+    4.508465520265662e-07,
+    7.450705533816983e-07
+  ],
+  "gradient_channels": {
+    "dD33_dEr": {
+      "fixed_nu_hat": 0.0003,
+      "er_min": 1e-06,
+      "er_max": 0.003,
+      "max_relative_mismatch": [
+        3.84541208315802e-07,
+        3.763564157100082e-07,
+        3.763564157100082e-07,
+        3.763564157100082e-07,
+        4.508465520265662e-07,
+        7.450705533816983e-07
+      ]
+    },
+    "dD11_dnu": {
+      "fixed_er_hat": 1e-06,
+      "nu_min": 3e-05,
+      "nu_max": 0.003,
+      "max_relative_mismatch": [
+        2.431349734339442e-10,
+        2.1317413997211557e-10,
+        2.1317413997211557e-10,
+        2.1317413997211557e-10,
+        2.1317413997211557e-10,
+        2.1317413997211557e-10
+      ]
+    }
+  },
+  "derivative_memory": {
+    "scan_size": 32,
+    "channel": "dD33_dEr",
+    "direct_reverse": {
+      "argument_size_in_bytes": 256,
+      "output_size_in_bytes": 256,
+      "temp_size_in_bytes": 51629896,
+      "generated_code_size_in_bytes": 0,
+      "warm_seconds_min": 0.028212083969265223,
+      "max_relative_mismatch_direct": 0.0
+    },
+    "selective_recomputation": {
+      "argument_size_in_bytes": 256,
+      "output_size_in_bytes": 256,
+      "temp_size_in_bytes": 51695248,
+      "generated_code_size_in_bytes": 0,
+      "warm_seconds_min": 0.026704167015850544,
+      "max_relative_mismatch_direct": 8.400986448350888e-07
+    },
+    "prepared_adjoint": {
+      "argument_size_in_bytes": 256,
+      "output_size_in_bytes": 256,
+      "temp_size_in_bytes": 13888624,
+      "generated_code_size_in_bytes": 0,
+      "warm_seconds_min": 0.01696108328178525,
+      "max_relative_mismatch_direct": 7.450705533816983e-07
+    }
+  },
+  "validity_audit": {
+    "coefficient": "D11",
+    "parameter": "er_hat",
+    "fixed_er_hat": 0.001,
+    "entries": [
+      {
+        "coefficient": "D11",
+        "parameter": "er_hat",
+        "primal_relative_residual": 2.9187059131764364e-10,
+        "transpose_relative_residual": 4.905816987450599e-12,
+        "direct_reverse_gradient": -1.391769604716673,
+        "prepared_adjoint_gradient": -1.391769604718435,
+        "forward_gradient": -1.391769604716039,
+        "finite_difference_gradient": -1.3917647396030521,
+        "prepared_adjoint_relative_error": 1.2659594907855266e-12,
+        "forward_relative_error": 4.554901507494964e-13,
+        "finite_difference_relative_error": 3.4956314639777733e-06,
+        "finite_difference_step": 6.055454452393343e-06,
+        "valid": false,
+        "residual_tolerance": 1e-10,
+        "gradient_tolerance": 0.0001
+      },
+      {
+        "coefficient": "D11",
+        "parameter": "er_hat",
+        "primal_relative_residual": 3.739618545483113e-11,
+        "transpose_relative_residual": 8.977523314075566e-13,
+        "direct_reverse_gradient": -0.06990543519286893,
+        "prepared_adjoint_gradient": -0.06990543519284706,
+        "forward_gradient": -0.06990543519267228,
+        "finite_difference_gradient": -0.0699054036505051,
+        "prepared_adjoint_relative_error": 3.128711454949456e-13,
+        "forward_relative_error": 2.8130609972483367e-12,
+        "finite_difference_relative_error": 4.5121475526094313e-07,
+        "finite_difference_step": 6.055454452393343e-06,
+        "valid": true,
+        "residual_tolerance": 1e-10,
+        "gradient_tolerance": 0.0001
+      },
+      {
+        "coefficient": "D11",
+        "parameter": "er_hat",
+        "primal_relative_residual": 5.424306714800356e-12,
+        "transpose_relative_residual": 9.960380419807572e-14,
+        "direct_reverse_gradient": -0.0024909387595511427,
+        "prepared_adjoint_gradient": -0.0024909387595525643,
+        "forward_gradient": -0.0024909387595510213,
+        "finite_difference_gradient": -0.002490938668641007,
+        "prepared_adjoint_relative_error": 5.707108948829998e-13,
+        "forward_relative_error": 4.874894770205343e-14,
+        "finite_difference_relative_error": 3.649633512970731e-08,
+        "finite_difference_step": 6.055454452393343e-06,
+        "valid": true,
+        "residual_tolerance": 1e-10,
+        "gradient_tolerance": 0.0001
+      }
+    ]
+  },
+  "resolution_audit": {
+    "coefficient": "D33",
+    "parameter": "nu_hat",
+    "fixed_nu_hat": 0.01,
+    "fixed_er_hat": 0.001,
+    "relative_change_tolerance": 0.1,
+    "two_successive_refinements_pass": true,
+    "entries": [
+      {
+        "coefficient": "D33",
+        "parameter": "nu_hat",
+        "primal_relative_residual": 4.177954597611569e-12,
+        "transpose_relative_residual": 3.5238359073330936e-12,
+        "direct_reverse_gradient": -3736.6602223139253,
+        "prepared_adjoint_gradient": -3736.660222317578,
+        "forward_gradient": -3736.660222318448,
+        "finite_difference_gradient": -3736.6613139274577,
+        "prepared_adjoint_relative_error": 9.774853759795911e-13,
+        "forward_relative_error": 1.2104170255840074e-12,
+        "finite_difference_relative_error": 2.921360649978734e-07,
+        "finite_difference_step": 6.055454452393343e-06,
+        "valid": true,
+        "residual_tolerance": 1e-10,
+        "gradient_tolerance": 0.0001,
+        "grid": {
+          "n_theta": 9,
+          "n_zeta": 11,
+          "n_xi": 8
+        },
+        "relative_change_previous": null
+      },
+      {
+        "coefficient": "D33",
+        "parameter": "nu_hat",
+        "primal_relative_residual": 3.769683656195531e-12,
+        "transpose_relative_residual": 3.135029736245059e-12,
+        "direct_reverse_gradient": -4061.8926773978947,
+        "prepared_adjoint_gradient": -4061.8926773985395,
+        "forward_gradient": -4061.892677399613,
+        "finite_difference_gradient": -4061.8939119712263,
+        "prepared_adjoint_relative_error": 1.5875154632839584e-13,
+        "forward_relative_error": 4.2307622960144524e-13,
+        "finite_difference_relative_error": 3.0394031907612015e-07,
+        "finite_difference_step": 6.055454452393343e-06,
+        "valid": true,
+        "residual_tolerance": 1e-10,
+        "gradient_tolerance": 0.0001,
+        "grid": {
+          "n_theta": 11,
+          "n_zeta": 13,
+          "n_xi": 10
+        },
+        "relative_change_previous": 0.08006918964001725
+      },
+      {
+        "coefficient": "D33",
+        "parameter": "nu_hat",
+        "primal_relative_residual": 4.34343642567671e-12,
+        "transpose_relative_residual": 2.8629316911040085e-12,
+        "direct_reverse_gradient": -4294.714143808853,
+        "prepared_adjoint_gradient": -4294.714143808054,
+        "forward_gradient": -4294.7141438072185,
+        "finite_difference_gradient": -4294.715490747063,
+        "prepared_adjoint_relative_error": 1.8593469120821e-13,
+        "forward_relative_error": 3.805519818919742e-13,
+        "finite_difference_relative_error": 3.136268777506318e-07,
+        "finite_difference_step": 6.055454452393343e-06,
+        "valid": true,
+        "residual_tolerance": 1e-10,
+        "gradient_tolerance": 0.0001,
+        "grid": {
+          "n_theta": 13,
+          "n_zeta": 15,
+          "n_xi": 12
+        },
+        "relative_change_previous": 0.05421116717316042
+      }
+    ]
+  },
+  "figure_png": "/Users/rogeriojorge/local/NTX/docs/_static/derivative_path_benchmark.png",
+  "figure_pdf": "/Users/rogeriojorge/local/NTX/docs/_static/derivative_path_benchmark.pdf"
+}

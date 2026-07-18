@@ -63,8 +63,8 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "primitive_profile_force_reconstruction" in names
     assert "charge_symmetric_ambipolar_cancellation" in names
     assert "primitive_transport_positivity_floor" in names
-    assert "vmec_jax_boundary_edge_transfer" in names
-    assert "vmec_jax_neopax_radial_metric_transfer" in names
+    assert "vmex_boundary_edge_transfer" in names
+    assert "vmex_neopax_radial_metric_transfer" in names
     assert "ntx_neopax_field_channel_normalization" in names
     assert "imported_boozer_handedness" in names
     assert "prepared_derivative_path_consistency" in names
@@ -74,6 +74,9 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "explicit_relaxed_boundary_current_derivative_stress" in names
     assert "implicit_equilibrium_derivative_nonshipping_diagnostic" in names
     assert "geometry_family_transport_convergence_stress" in names
+    assert "angular_oversampling_convergence_stress" in names
+    assert "boozmn_same_coordinate_roundtrip" in names
+    assert "boozmn_finite_beta_wout_roundtrip" in names
     assert "bootstrap_current_optimization_gain" in names
     assert "w7x_integrated_rebuild_raw" in names
     assert "precise_qs_redl_vs_sfincs" in names
@@ -86,6 +89,11 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "owned_finite_beta_current_conditioning_stress" in names
     assert "owned_finite_beta_resolution_floor_stress" in names
     assert "owned_finite_beta_production_ladder_stress" in names
+    assert "owned_finite_beta_sfincs_jax_profile_current_stress" in names
+    assert (
+        "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        in names
+    )
     assert "owned_finite_beta_closure_quadrature_stress" in names
     assert "owned_finite_beta_source_channel_reconstruction" in names
     assert "owned_finite_beta_temperature_source_response_stress" in names
@@ -162,6 +170,17 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             }
         )
     )
+    (static_root / "angular_oversampling_audit.json").write_text(
+        json.dumps(
+            {"summary_metrics": {"max_recommended_relative_error": 6.0e-3}}
+        )
+    )
+    (static_root / "boozmn_same_coordinate_roundtrip_audit.json").write_text(
+        json.dumps({"summary_metrics": {"max_transport_relative_difference": 2.0e-8}})
+    )
+    (static_root / "boozmn_finite_beta_wout_roundtrip_audit.json").write_text(
+        json.dumps({"summary_metrics": {"max_transport_relative_difference": 8.0e-14}})
+    )
     (static_root / "bootstrap_current_optimization.json").write_text(
         json.dumps({"weighted_gain": 1.08})
     )
@@ -211,6 +230,7 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             {
                 "summary_metrics": {
                     "stress_coefficient_precision_gap_to_current_gate": 4.0,
+                    "max_coefficient_precision_gap_to_current_gate": 4.0,
                 }
             }
         )
@@ -231,6 +251,29 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
             {
                 "summary_metrics": {
                     "max_production_precision_gap_to_current_gate": 6.0,
+                }
+            }
+        )
+    )
+    (
+        static_root / "owned_finite_beta_sfincs_jax_profile_current_audit.json"
+    ).write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "max_sfincs_jax_relative_error_vs_redl": 0.85,
+                }
+            }
+        )
+    )
+    (
+        static_root
+        / "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
+    ).write_text(
+        json.dumps(
+            {
+                "summary_metrics": {
+                    "tail_even_odd_relative_gap": 0.132,
                 }
             }
         )
@@ -315,10 +358,18 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["implicit_equilibrium_derivative_nonshipping_diagnostic"].value == (
         pytest.approx(6.0)
     )
-    assert results["geometry_family_transport_convergence_stress"].status == "monitor"
+    assert results["geometry_family_transport_convergence_stress"].status == "pass"
     assert results["geometry_family_transport_convergence_stress"].value == (
         pytest.approx(0.22)
     )
+    assert results["angular_oversampling_convergence_stress"].status == "pass"
+    assert results["angular_oversampling_convergence_stress"].value == pytest.approx(
+        6.0e-3
+    )
+    assert results["boozmn_same_coordinate_roundtrip"].status == "pass"
+    assert results["boozmn_same_coordinate_roundtrip"].value == pytest.approx(2.0e-8)
+    assert results["boozmn_finite_beta_wout_roundtrip"].status == "pass"
+    assert results["boozmn_finite_beta_wout_roundtrip"].value == pytest.approx(8.0e-14)
     assert results["bootstrap_current_optimization_gain"].status == "pass"
     assert results["bootstrap_current_optimization_gain"].value == pytest.approx(1.08)
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
@@ -341,6 +392,26 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["owned_finite_beta_resolution_floor_stress"].value == 5.0
     assert results["owned_finite_beta_production_ladder_stress"].status == "monitor"
     assert results["owned_finite_beta_production_ladder_stress"].value == 6.0
+    assert (
+        results["owned_finite_beta_sfincs_jax_profile_current_stress"].status
+        == "monitor"
+    )
+    assert (
+        results["owned_finite_beta_sfincs_jax_profile_current_stress"].value
+        == pytest.approx(0.85)
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].status
+        == "pass"
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].value
+        == pytest.approx(0.132)
+    )
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "monitor"
     assert results["owned_finite_beta_closure_quadrature_stress"].value == 1.0
     assert results["owned_finite_beta_source_channel_reconstruction"].status == "pass"
@@ -441,6 +512,9 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
         == "missing"
     )
     assert results["geometry_family_transport_convergence_stress"].status == "missing"
+    assert results["angular_oversampling_convergence_stress"].status == "missing"
+    assert results["boozmn_same_coordinate_roundtrip"].status == "missing"
+    assert results["boozmn_finite_beta_wout_roundtrip"].status == "missing"
     assert results["bootstrap_current_optimization_gain"].status == "missing"
     assert "bootstrap_current_reference_audit_w7x.json" in results[
         "w7x_integrated_rebuild_raw"
@@ -460,6 +534,16 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
     assert results["owned_finite_beta_current_conditioning_stress"].status == "missing"
     assert results["owned_finite_beta_resolution_floor_stress"].status == "missing"
     assert results["owned_finite_beta_production_ladder_stress"].status == "missing"
+    assert (
+        results["owned_finite_beta_sfincs_jax_profile_current_stress"].status
+        == "missing"
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].status
+        == "missing"
+    )
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "missing"
     assert results["owned_finite_beta_closure_target_driver_stress"].status == "missing"
     assert (
@@ -500,6 +584,12 @@ def test_repository_artifact_gates_match_current_claim_statuses():
         results["implicit_equilibrium_derivative_nonshipping_diagnostic"].status
         == "monitor"
     )
+    assert results["angular_oversampling_convergence_stress"].status == "pass"
+    assert results["angular_oversampling_convergence_stress"].value <= 1.0e-2
+    assert results["boozmn_same_coordinate_roundtrip"].status == "pass"
+    assert results["boozmn_same_coordinate_roundtrip"].value <= 1.0e-6
+    assert results["boozmn_finite_beta_wout_roundtrip"].status == "pass"
+    assert results["boozmn_finite_beta_wout_roundtrip"].value <= 1.0e-6
     assert results["bootstrap_current_optimization_gain"].status == "pass"
     assert results["bootstrap_current_optimization_gain"].value >= 1.0
     assert results["precise_qs_redl_vs_sfincs"].status == "pass"
@@ -523,8 +613,28 @@ def test_repository_artifact_gates_match_current_claim_statuses():
     assert results["owned_finite_beta_resolution_floor_stress"].value > 1.0
     assert results["owned_finite_beta_production_ladder_stress"].status == "monitor"
     assert results["owned_finite_beta_production_ladder_stress"].value > 1.0
+    assert (
+        results["owned_finite_beta_sfincs_jax_profile_current_stress"].status
+        == "monitor"
+    )
+    assert (
+        results["owned_finite_beta_sfincs_jax_profile_current_stress"].value
+        > 1.0e-1
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].status
+        == "pass"
+    )
+    assert (
+        results[
+            "owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress"
+        ].value
+        <= 1.5e-1
+    )
     assert results["owned_finite_beta_closure_quadrature_stress"].status == "monitor"
-    assert results["owned_finite_beta_closure_quadrature_stress"].value >= 1.0
+    assert results["owned_finite_beta_closure_quadrature_stress"].value == 0.0
     assert results["owned_finite_beta_closure_target_driver_stress"].status == "monitor"
     assert results["owned_finite_beta_closure_target_driver_stress"].value > 0.0
     assert (
