@@ -63,8 +63,8 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "primitive_profile_force_reconstruction" in names
     assert "charge_symmetric_ambipolar_cancellation" in names
     assert "primitive_transport_positivity_floor" in names
-    assert "vmec_jax_boundary_edge_transfer" in names
-    assert "vmec_jax_neopax_radial_metric_transfer" in names
+    assert "vmex_boundary_edge_transfer" in names
+    assert "vmex_neopax_radial_metric_transfer" in names
     assert "ntx_neopax_field_channel_normalization" in names
     assert "imported_boozer_handedness" in names
     assert "prepared_derivative_path_consistency" in names
@@ -74,6 +74,7 @@ def test_physics_gate_registry_contains_expected_gate_families():
     assert "explicit_relaxed_boundary_current_derivative_stress" in names
     assert "implicit_equilibrium_derivative_nonshipping_diagnostic" in names
     assert "geometry_family_transport_convergence_stress" in names
+    assert "angular_oversampling_convergence_stress" in names
     assert "boozmn_same_coordinate_roundtrip" in names
     assert "boozmn_finite_beta_wout_roundtrip" in names
     assert "bootstrap_current_optimization_gain" in names
@@ -167,6 +168,11 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
                     "max_successful_last_step_relative_change": 0.22,
                 }
             }
+        )
+    )
+    (static_root / "angular_oversampling_audit.json").write_text(
+        json.dumps(
+            {"summary_metrics": {"max_recommended_relative_error": 6.0e-3}}
         )
     )
     (static_root / "boozmn_same_coordinate_roundtrip_audit.json").write_text(
@@ -356,6 +362,10 @@ def test_evaluate_artifact_gates_reports_pass_fail_and_monitor(tmp_path):
     assert results["geometry_family_transport_convergence_stress"].value == (
         pytest.approx(0.22)
     )
+    assert results["angular_oversampling_convergence_stress"].status == "pass"
+    assert results["angular_oversampling_convergence_stress"].value == pytest.approx(
+        6.0e-3
+    )
     assert results["boozmn_same_coordinate_roundtrip"].status == "pass"
     assert results["boozmn_same_coordinate_roundtrip"].value == pytest.approx(2.0e-8)
     assert results["boozmn_finite_beta_wout_roundtrip"].status == "pass"
@@ -502,6 +512,7 @@ def test_evaluate_artifact_gates_reports_missing_and_convergence_monitor(tmp_pat
         == "missing"
     )
     assert results["geometry_family_transport_convergence_stress"].status == "missing"
+    assert results["angular_oversampling_convergence_stress"].status == "missing"
     assert results["boozmn_same_coordinate_roundtrip"].status == "missing"
     assert results["boozmn_finite_beta_wout_roundtrip"].status == "missing"
     assert results["bootstrap_current_optimization_gain"].status == "missing"
@@ -573,6 +584,8 @@ def test_repository_artifact_gates_match_current_claim_statuses():
         results["implicit_equilibrium_derivative_nonshipping_diagnostic"].status
         == "monitor"
     )
+    assert results["angular_oversampling_convergence_stress"].status == "pass"
+    assert results["angular_oversampling_convergence_stress"].value <= 1.0e-2
     assert results["boozmn_same_coordinate_roundtrip"].status == "pass"
     assert results["boozmn_same_coordinate_roundtrip"].value <= 1.0e-6
     assert results["boozmn_finite_beta_wout_roundtrip"].status == "pass"

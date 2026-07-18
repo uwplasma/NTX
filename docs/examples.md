@@ -60,6 +60,20 @@ case = MonoenergeticCase(nu_hat=1e-3, er_hat=1e-3)
 result = solve_monoenergetic(surface, grid, case)
 ```
 
+### Reusable Prepared Scans
+
+For repeated fixed-geometry monoenergetic scans, use
+`compile_prepared_scan_solver(...)` as shown in the README. The prepared object
+keeps one fixed batch shape and exposes `warmup()` timing and memory metadata.
+Generate a CPU/GPU crossover figure with:
+
+```bash
+python examples/prepared_scan_performance.py \
+  --cpu-json docs/_static/prepared_scan_cpu_production.json \
+  --gpu-json docs/_static/prepared_scan_gpu_production.json \
+  --output-prefix docs/_static/prepared_scan_performance
+```
+
 ## 6. NEOPAX Mapping
 
 ```bash
@@ -82,7 +96,7 @@ python examples/bootstrap_current_from_vmec_or_boozmn.py
 
 This example is the shortest NTX-only workflow:
 
-- start from a VMEC `wout` file and use `vmec_jax`
+- start from a VMEC `wout` file and use `vmex`
 - or, if a Boozer `boozmn` file already exists, use `booz_xform_jax` output directly
 - solve a fixed-collisionality NTX radial family
 - plot magnetic geometry, radial profile inputs, `D11`, `nu_hat * D33`, and a compact
@@ -124,7 +138,7 @@ imported workflow, and writes a convergence figure:
 python examples/geometry_family_transport_convergence.py --preset production
 ```
 
-This optional artifact discovers local public VMEC examples from `vmec_jax`,
+This optional artifact discovers local public VMEC examples from `vmex`,
 STELLOPT, and SIMSOPT checkouts, then runs a production `D11/D31/D33`
 convergence ladder and stores `D13` for the Onsager quality check. It is an NTX
 stress diagnostic across available geometry families, not an independent-code
@@ -138,7 +152,27 @@ It writes:
 
 ![Geometry-family transport convergence](_static/geometry_family_transport_convergence.png)
 
-## Owned JAX-Native NTX+NEOPAX Dataset
+## 10. Angular Collocation Oversampling Audit
+
+```bash
+python examples/angular_oversampling_audit.py --preset production
+```
+
+This artifact uses public finite-beta QA, NCSX, and HSX VMEC equilibria to
+measure `D11/D31/D33` error against a finer angular grid while separately
+reporting compiled warm runtime and XLA temporary memory. The measured `2.25`
+times Nyquist recommendation is a warning-level starting point; publication
+calculations still require two successive accepted refinements.
+
+It writes:
+
+- `docs/_static/angular_oversampling_audit.png`
+- `docs/_static/angular_oversampling_audit.pdf`
+- `docs/_static/angular_oversampling_audit.json`
+
+![Angular oversampling audit](_static/angular_oversampling_audit.png)
+
+## 11. Owned JAX-Native NTX+NEOPAX Dataset
 
 ```bash
 python examples/owned_geometry_neopax_dataset.py
@@ -169,7 +203,7 @@ python examples/owned_finite_beta_source_channel_audit.py \
 
 These optional provenance artifacts prioritize local finite-beta stellarator
 input/wout pairs. The NTX/NEOPAX script builds finite-beta QA surfaces through
-`vmec_jax -> booz_xform_jax` with the physical VMEC edge-flux scale passed
+`vmex -> booz_xform_jax` with the physical VMEC edge-flux scale passed
 explicitly as `psi_p`, writes NEOPAX-style HDF5 scan tables, stores compact
 profile flux/current proxies from those same tables, and compares that path
 with the direct VMEC-harmonic interpolation path on the same radial and
@@ -382,7 +416,7 @@ same field-radius-matched contract. It reconstructs the corrected current to
 roundoff and keeps the remaining finite-beta mismatch localized to a
 quadrature-stable source-response stress.
 
-## 10. Bootstrap Current With NEOPAX
+## 12. Bootstrap Current With NEOPAX
 
 ```bash
 python examples/bootstrap_current_with_neopax.py
@@ -404,7 +438,7 @@ It writes:
 
 ![NTX + NEOPAX bootstrap-current profile](_static/bootstrap_current_with_neopax.png)
 
-## 10. Fixed-Field Bootstrap-Current Validation
+## 13. Fixed-Field Bootstrap-Current Validation
 
 ```bash
 python examples/bootstrap_current_fixed_field_validation.py
@@ -432,7 +466,7 @@ the `1e-1` gate.
 
 ![Fixed-field precise-QS bootstrap-current benchmark](_static/bootstrap_current_fixed_field_validation.png)
 
-## 11. Autodiff Inverse Problem
+## 14. Autodiff Inverse Problem
 
 ```bash
 python examples/autodiff_inverse_problem.py
@@ -442,7 +476,7 @@ This writes `docs/_static/autodiff_inverse_problem.{png,pdf}` and demonstrates
 recovery of a Boozer harmonic from synthetic transport data using JAX
 gradients.
 
-## 12. Precise-QS Redl Versus SFINCS Audit
+## 15. Precise-QS Redl Versus SFINCS Audit
 
 ```bash
 python examples/precise_qs_redl_sfincs_audit.py
@@ -466,7 +500,7 @@ the integrated `NTX+NEOPAX` workflow. The plot is an overlay-only
 bootstrap-current comparison; the relative-error metrics remain in the JSON
 artifact.
 
-## 13. Fixed-Field Transport-Matrix Audit
+## 16. Fixed-Field Transport-Matrix Audit
 
 ```bash
 python examples/fixed_field_transport_matrix_audit.py
@@ -491,7 +525,7 @@ This audit now:
 This is still the coefficient-side gate for the public `NTX+NEOPAX`
 bootstrap-current validation figure.
 
-## 14. Autodiff Derivative Audit
+## 17. Autodiff Derivative Audit
 
 ```bash
 python examples/derivative_audit.py
@@ -506,24 +540,29 @@ gradients of the dense solve against centered finite differences for:
 This is the validation baseline for the current prepared implicit-adjoint
 derivative implementation.
 
-## 15. Prepared-Derivative Benchmark
+## 18. Prepared-Derivative Benchmark
 
 ```bash
 python examples/derivative_path_benchmark.py
 ```
 
-This writes `docs/_static/derivative_path_benchmark.{png,pdf}` and times:
+This writes `docs/_static/derivative_path_benchmark.{png,pdf}` and compares:
 
 - direct reverse-mode through `solve_prepared_coefficient_vector(...)`
+- selective recomputation through `jax.checkpoint(...)`
 - the prepared custom-VJP path through
   `solve_prepared_coefficient_vector_vjp(...)`
+- forward mode and centered finite differences
 
-on the same `D33` electric-field derivative scan.
+The artifact reports synchronized runtime, XLA temporary memory, independent
+full primal/transpose residuals, and derivative agreement. A low-collisionality
+point that agrees across derivative methods but fails the primal residual gate
+is retained as an explicit non-certified case.
 
 It also writes `docs/_static/derivative_path_benchmark.json` for manuscript
 tables and reproducibility notes.
 
-## 16. Autodiff NEOPAX Profiles
+## 19. Autodiff NEOPAX Profiles
 
 ```bash
 python examples/neopax_autodiff_profiles.py
@@ -533,7 +572,7 @@ This writes `docs/_static/autodiff_neopax_profiles.{png,pdf}` and demonstrates
 a low-dimensional electric-field profile inversion on NEOPAX-style
 monoenergetic arrays.
 
-## 17. Autodiff Profile Uncertainty
+## 20. Autodiff Profile Uncertainty
 
 ```bash
 python examples/autodiff_profile_uncertainty.py
@@ -544,7 +583,7 @@ compares linearized covariance propagation against a small Monte Carlo ensemble
 for the differentiable NEOPAX-style profile fit under a prescribed Gaussian
 parameter perturbation.
 
-## 18. Robust Bootstrap-Current Optimization
+## 21. Robust Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_robust_optimization.py
@@ -554,7 +593,7 @@ This writes `docs/_static/bootstrap_current_robust_optimization.{png,pdf,json}`
 and compares deterministic versus robust optimization of the scalar
 bootstrap-current response under a prescribed Gaussian control uncertainty.
 
-## 19. Ambipolar Profile
+## 22. Ambipolar Profile
 
 ```bash
 python examples/ambipolar_profile.py
@@ -573,7 +612,7 @@ and demonstrates:
 - solving a smooth ambipolar `E_r(r)` profile with radial regularization
 - evaluating the resulting reduced bootstrap-current response profile
 
-## 20. Ambipolar Profile Family
+## 23. Ambipolar Profile Family
 
 ```bash
 python examples/ambipolar_profile_family.py
@@ -591,7 +630,7 @@ and demonstrates:
 - evaluating a bootstrap-current objective across that family
 - selecting the best control point from a scalar objective landscape
 
-## 19. Science Case: Bootstrap-Current Optimization
+## 24. Science Case: Bootstrap-Current Optimization
 
 ```bash
 python examples/bootstrap_current_optimization.py
@@ -611,7 +650,7 @@ on bootstrap-current analysis and optimization.
 It also writes `docs/_static/bootstrap_current_optimization.json` for the
 manuscript table builder.
 
-## 20. Profile-Control Optimization
+## 25. Profile-Control Optimization
 
 ```bash
 python examples/profile_control_optimization.py
@@ -628,7 +667,7 @@ and demonstrates:
 - optimizing that control directly against a bootstrap-current objective
 - reusing the ambipolar solve inside a JAX optimization loop
 
-## 21. Profile-Basis Optimization
+## 26. Profile-Basis Optimization
 
 ```bash
 python examples/profile_basis_optimization.py
@@ -646,7 +685,7 @@ and demonstrates:
 - retaining a compact, publication-grade figure for a higher-dimensional
   optimization workflow
 
-## 22. Profile Transport Loop
+## 27. Profile Transport Loop
 
 ```bash
 python examples/profile_transport_loop.py
@@ -665,7 +704,7 @@ and demonstrates:
 - tracking accepted-step transport-loss descent together with the ambipolar closure
 - smoothing the updated force profiles radially before the next ambipolar solve
 
-## 23. Primitive Profile Transport
+## 28. Primitive Profile Transport
 
 ```bash
 python examples/primitive_profile_transport.py
@@ -686,7 +725,7 @@ and demonstrates:
   to the transport mismatch
 - exposing the derived monoenergetic force profiles alongside the final primitive state
 
-## 24. Performance Scaling
+## 29. Performance Scaling
 
 ```bash
 python examples/performance_scaling.py --cpu-json ... --gpu-json ...
@@ -695,7 +734,7 @@ python examples/performance_scaling.py --cpu-json ... --gpu-json ...
 This writes publication-style CPU/GPU scaling figures from benchmark JSON
 payloads.
 
-## 25. Prepared-Geometry Reuse Profile
+## 30. Prepared-Geometry Reuse Profile
 
 ```bash
 python examples/prepared_geometry_reuse_profile.py --preset paper
@@ -711,7 +750,7 @@ and profiles direct repeated solves, prepared geometry reuse, and a compiled
 prepared solver on one fixed geometry. It is a performance artifact for
 optimization workflows, not a physics-parity claim.
 
-## 26. Profile Force Reconstruction Audit
+## 31. Profile Force Reconstruction Audit
 
 ```bash
 python examples/profile_force_reconstruction_audit.py
@@ -730,7 +769,7 @@ temperature, and normalized electric-field inputs. This is a monitored
 benchmark-family stress test for the current primitive-profile builder, not a
 parity claim.
 
-## 26. Validation Summary
+## 32. Validation Summary
 
 ```bash
 python examples/validation_summary.py
@@ -752,7 +791,7 @@ The JSON sidecar freezes the plotted curves, low-collisionality tail slopes,
 and convergence metrics so the benchmark can be reused in tests and manuscript
 artifacts without scraping the figure.
 
-## 27. Full Publication Bundle
+## 33. Full Publication Bundle
 
 ```bash
 python examples/make_publication_figures.py

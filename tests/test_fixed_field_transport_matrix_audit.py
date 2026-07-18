@@ -24,7 +24,7 @@ def test_bridge_from_scalars_matches_expected_formulas():
 
 
 def test_fixed_field_case_discovery(monkeypatch, tmp_path):
-    vmec_root = tmp_path / "vmec_jax"
+    vmec_root = tmp_path / "vmex"
     data = vmec_root / "examples" / "data"
     data.mkdir(parents=True)
     qa = data / "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
@@ -32,7 +32,7 @@ def test_fixed_field_case_discovery(monkeypatch, tmp_path):
     qa.write_text("", encoding="utf-8")
     qh.write_text("", encoding="utf-8")
 
-    monkeypatch.setattr(audit, "find_vmec_jax_root", lambda: vmec_root)
+    monkeypatch.setattr(audit, "find_vmex_root", lambda: vmec_root)
     monkeypatch.setattr(audit, "find_qs_zenodo_root", lambda: None)
     cases = audit._fixed_field_cases()
 
@@ -41,7 +41,7 @@ def test_fixed_field_case_discovery(monkeypatch, tmp_path):
     assert cases["qh"].wout_path == qh
     assert cases["qa"].helicity_n == 0
     assert cases["qh"].helicity_n == -1
-    assert cases["qa"].source_family == "vmec_jax_examples"
+    assert cases["qa"].source_family == "vmex_examples"
 
 
 def test_fixed_field_case_discovery_prefers_zenodo(monkeypatch, tmp_path):

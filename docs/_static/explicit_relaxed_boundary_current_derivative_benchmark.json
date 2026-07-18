@@ -25,7 +25,7 @@
     {
       "id": "qa_lowres",
       "label": "QA low-res",
-      "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
+      "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
       "geometry_path": "explicit_relaxed_fixed_boundary",
       "parameter_names": [
         "rc01",
@@ -202,7 +202,7 @@
     {
       "id": "qh_warm_start",
       "label": "QH warm-start",
-      "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.nfp4_QH_warm_start",
+      "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.nfp4_QH_warm_start",
       "geometry_path": "explicit_relaxed_fixed_boundary",
       "parameter_names": [
         "rc01",
@@ -377,7 +377,7 @@
       }
     }
   ],
-  "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmec_jax solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
+  "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmex solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
   "summary_metrics": {
     "max_relative_mismatch": 2.6260247221222558e-05,
     "median_relative_mismatch": 4.4076543971369415e-07,

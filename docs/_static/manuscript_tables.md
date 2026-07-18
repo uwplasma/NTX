@@ -49,6 +49,7 @@
 | `prepared_geometry_reuse_profile` | `performance` | `software-gate` | `complete` |
 | `geometry_family_breadth_summary` | `geometry-breadth` | `stress-gate` | `complete` |
 | `geometry_family_transport_convergence` | `geometry-breadth` | `stress-gate` | `complete` |
+| `angular_oversampling_audit` | `geometry-breadth` | `stress-gate` | `complete` |
 | `boozmn_same_coordinate_roundtrip` | `geometry-breadth` | `positive-gate` | `complete` |
 | `boozmn_finite_beta_wout_roundtrip` | `geometry-breadth` | `positive-gate` | `complete` |
 | `owned_geometry_neopax_dataset` | `geometry-breadth` | `stress-gate` | `complete` |
@@ -65,8 +66,8 @@
 | Grid | `(7, 9, 6)` |
 | `nu_hat` | `3.000e-04` |
 | `E_r` scan | `1.000e-06` to `3.000e-03` |
-| Max relative mismatch | `1.051e-05` |
-| Best prepared speedup | `3.879x` |
+| Max relative mismatch | `7.451e-07` |
+| Best prepared speedup | `2.556x` |
 
 ## Geometry-Control Derivatives
 
@@ -135,11 +136,11 @@
 
 | Quantity | Value |
 | --- | ---: |
-| Solved VMEC cases | `13` |
-| Below production convergence rtol | `13` |
+| Solved VMEC cases | `11` |
+| Below production convergence rtol | `10` |
 | Max last-step relative change | `7.144e-02` |
-| Max relative change to finest grid | `8.231e-01` |
-| Solved case ids | `circular_tokamak, shaped_tokamak, precise_qs_qa_reactor, precise_qs_qh_reactor, nfp3_qi, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, li383_low_res, n3are_lowres, lhd, hsx_qhs, ncsx` |
+| Max relative change to finest grid | `1.667e-01` |
+| Solved case ids | `nfp2_qa, nfp2_qa_finite_beta, precise_qs_qh_reactor, w7x_eim_ejm_standard, nfp4_qh_reference, high_aspect_qs, li383_low_res, n3are_lowres, lhd, hsx_qhs, ncsx` |
 
 ## Owned Finite-Beta Bootstrap-Current Stress
 
@@ -256,8 +257,8 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `b39430811a54e12da0d47ab96856ec46e9b4e174` |
-| Branch | `main` |
+| Commit | `8d31e9c1615bbfa02fba04e086145bff70c7722d` |
+| Branch | `feat/angular-oversampling-audit` |
 | Python | `3.11.14` |
 | JAX | `0.9.2` |
 | NumPy | `2.4.4` |

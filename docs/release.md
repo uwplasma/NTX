@@ -27,8 +27,7 @@ research checkout.
    python -m ntx --help
    ```
 
-3. Update
-   [CHANGELOG.md](https://github.com/uwplasma/NTX/blob/main/CHANGELOG.md).
+3. Update the versioned release notes.
 
 4. Push `main` and confirm the `tests` and `package` workflows are green.
 

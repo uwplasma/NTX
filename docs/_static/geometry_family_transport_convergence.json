@@ -34,261 +34,150 @@
   },
   "cases": [
     {
-      "id": "circular_tokamak",
-      "label": "Circular tokamak",
-      "family": "tokamak",
-      "source": "vmec_jax examples",
-      "path": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_circular_tokamak.nc",
-      "psi_n": 0.25,
-      "min_bmn_to_load": 0.0001,
-      "notes": "axisymmetric tokamak baseline",
-      "status": "stress-pass",
-      "quality_status": "stress-pass",
-      "surface": {
-        "nfp": 1,
-        "iota": -0.7375,
-        "psi_n": 0.25,
-        "loaded_mode_count": 4,
-        "total_mode_count": 8,
-        "b0": 5.27942830702492
-      },
-      "load_seconds": 0.1323105419287458,
-      "grid_results": [
-        {
-          "grid": {
-            "n_theta": 29,
-            "n_zeta": 31,
-            "n_xi": 28
-          },
-          "grid_label": "29x31x28",
-          "coefficients": {
-            "D11": 0.00015830346060217597,
-            "D31": 0.1913502591621578,
-            "D13": -0.19134971189852293,
-            "D33": 403.3618355716606
-          },
-          "residual_l2": 0.003500215330810824,
-          "onsager_residual": 5.472636348813342e-07,
-          "relative_onsager_residual": 2.8600098963940326e-06,
-          "D33_spitzer": 663.1553654697733,
-          "prepare_seconds": 0.2179916249588132,
-          "solve_seconds": 0.6112232910236344,
-          "finite": true
-        },
-        {
-          "grid": {
-            "n_theta": 35,
-            "n_zeta": 37,
-            "n_xi": 32
-          },
-          "grid_label": "35x37x32",
-          "coefficients": {
-            "D11": 0.00015830338138240956,
-            "D31": 0.1913501516062863,
-            "D13": -0.1913496043502323,
-            "D33": 403.3619815889301
-          },
-          "residual_l2": 0.003500216661027405,
-          "onsager_residual": 5.472560540009663e-07,
-          "relative_onsager_residual": 2.8599718861314333e-06,
-          "D33_spitzer": 663.1553654697683,
-          "prepare_seconds": 0.23304791597183794,
-          "solve_seconds": 1.2489415000891313,
-          "finite": true
-        },
-        {
-          "grid": {
-            "n_theta": 41,
-            "n_zeta": 43,
-            "n_xi": 36
-          },
-          "grid_label": "41x43x36",
-          "coefficients": {
-            "D11": 0.00015830337899887397,
-            "D31": 0.19135014837017708,
-            "D13": -0.19134960111457106,
-            "D33": 403.36198598193533
-          },
-          "residual_l2": 0.0035002167010563423,
-          "onsager_residual": 5.472556060259759e-07,
-          "relative_onsager_residual": 2.8599695933722543e-06,
-          "D33_spitzer": 663.1553654697664,
-          "prepare_seconds": 0.2108672499889508,
-          "solve_seconds": 2.8044021249515936,
-          "finite": true
-        }
-      ],
-      "relative_to_finest": [
-        {
-          "grid_label": "29x31x28",
-          "relative_change": {
-            "D11": 5.154867982769402e-07,
-            "D31": 5.790012794464909e-07,
-            "D33": 3.728915464392706e-07
-          }
-        },
-        {
-          "grid_label": "35x37x32",
-          "relative_change": {
-            "D11": 1.5056757499599864e-08,
-            "D31": 1.6911976507448643e-08,
-            "D33": 1.0890974771056793e-08
-          }
-        }
-      ],
-      "last_step_relative_change": {
-        "D11": 1.5056757499599864e-08,
-        "D31": 1.6911976507448643e-08,
-        "D33": 1.0890974771056793e-08
-      },
-      "last_step_absolute_change": {
-        "D11": 2.383535588953295e-12,
-        "D31": 3.236109213933247e-09,
-        "D33": 4.393005212932621e-06
-      },
-      "max_last_step_relative_change": 1.6911976507448643e-08,
-      "max_relative_change_to_finest": 5.790012794464909e-07,
-      "max_relative_onsager_residual": 2.8600098963940326e-06,
-      "finest_relative_onsager_residual": 2.8599695933722543e-06
-    },
-    {
-      "id": "shaped_tokamak",
-      "label": "Shaped tokamak",
-      "family": "tokamak",
-      "source": "vmec_jax examples",
-      "path": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_shaped_tokamak_pressure.nc",
-      "psi_n": 0.25,
-      "min_bmn_to_load": 0.0001,
-      "notes": "axisymmetric shaped-pressure tokamak baseline",
-      "status": "stress-pass",
-      "quality_status": "stress-pass",
-      "surface": {
-        "nfp": 1,
-        "iota": -0.9625000000000001,
-        "psi_n": 0.25,
-        "loaded_mode_count": 6,
-        "total_mode_count": 12,
-        "b0": 4.128900458307188
-      },
-      "load_seconds": 0.0051206250209361315,
-      "grid_results": [
-        {
-          "grid": {
-            "n_theta": 29,
-            "n_zeta": 31,
-            "n_xi": 28
-          },
-          "grid_label": "29x31x28",
-          "coefficients": {
-            "D11": 0.00010765697178001053,
-            "D31": 0.16300157159770678,
-            "D13": -0.1630018985661082,
-            "D33": 379.6749511044359
-          },
-          "residual_l2": 0.0036074516960676196,
-          "onsager_residual": 3.269684014095553e-07,
-          "relative_onsager_residual": 2.0059177487245504e-06,
-          "D33_spitzer": 660.9893149624111,
-          "prepare_seconds": 0.039424416958354414,
-          "solve_seconds": 0.3930491670034826,
-          "finite": true
-        },
-        {
-          "grid": {
-            "n_theta": 35,
-            "n_zeta": 37,
-            "n_xi": 32
-          },
-          "grid_label": "35x37x32",
-          "coefficients": {
-            "D11": 0.00010765643187875921,
-            "D31": 0.1630006398172863,
-            "D13": -0.16300096701232117,
-            "D33": 379.67655881248254
-          },
-          "residual_l2": 0.0036074673891513032,
-          "onsager_residual": 3.2719503487155244e-07,
-          "relative_onsager_residual": 2.007319593673453e-06,
-          "D33_spitzer": 660.9893149624114,
-          "prepare_seconds": 0.033853790955618024,
-          "solve_seconds": 1.0468559169676155,
-          "finite": true
-        },
-        {
-          "grid": {
-            "n_theta": 41,
-            "n_zeta": 43,
-            "n_xi": 36
-          },
-          "grid_label": "41x43x36",
-          "coefficients": {
-            "D11": 0.00010765639992662438,
-            "D31": 0.16300058467316866,
-            "D13": -0.16300091187195248,
-            "D33": 379.6766539756521
-          },
-          "residual_l2": 0.0036074683180395244,
-          "onsager_residual": 3.2719878381715084e-07,
-          "relative_onsager_residual": 2.0073432722522812e-06,
-          "D33_spitzer": 660.989314962411,
-          "prepare_seconds": 0.03666429198347032,
-          "solve_seconds": 2.574726999970153,
-          "finite": true
-        }
-      ],
-      "relative_to_finest": [
-        {
-          "grid_label": "29x31x28",
-          "relative_change": {
-            "D11": 5.311838279378887e-06,
-            "D31": 6.054730049588343e-06,
-            "D33": 4.485056424631119e-06
-          }
-        },
-        {
-          "grid_label": "35x37x32",
-          "relative_change": {
-            "D11": 2.967973557364842e-07,
-            "D31": 3.3830625665464973e-07,
-            "D33": 2.5064266800838135e-07
-          }
-        }
-      ],
-      "last_step_relative_change": {
-        "D11": 2.967973557364842e-07,
-        "D31": 3.3830625665464973e-07,
-        "D33": 2.5064266800838135e-07
-      },
-      "last_step_absolute_change": {
-        "D11": 3.1952134826331545e-11,
-        "D31": 5.514411763329896e-08,
-        "D33": 9.516316953295245e-05
-      },
-      "max_last_step_relative_change": 3.3830625665464973e-07,
-      "max_relative_change_to_finest": 6.054730049588343e-06,
-      "max_relative_onsager_residual": 2.0073432722522812e-06,
-      "finest_relative_onsager_residual": 2.0073432722522812e-06
-    },
-    {
-      "id": "precise_qs_qa_reactor",
-      "label": "Precise-QS QA",
+      "id": "nfp2_qa",
+      "label": "NFP2 QA",
       "family": "QA",
-      "source": "vmec_jax examples",
-      "path": "/Users/rogeriojorge/local/vmec_jax/examples_single_grid/data/wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc",
+      "source": "vmex examples",
+      "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_nfp2_QA.nc",
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
-      "notes": "precise-QS QA reactor-scale low-resolution reference",
+      "notes": "near-zero-transform vacuum QA example from the installed vmex suite; retained as a singular-conditioning diagnostic",
+      "promotion_eligible": false,
+      "status": "monitor",
+      "quality_status": "monitor",
+      "surface": {
+        "nfp": 2,
+        "iota": 2.2706260217326793e-10,
+        "psi_n": 0.25,
+        "dtype": "float64",
+        "loaded_mode_count": 5,
+        "total_mode_count": 50,
+        "b0": 0.6617274664994418
+      },
+      "load_seconds": 0.033357125241309404,
+      "grid_results": [
+        {
+          "grid": {
+            "n_theta": 29,
+            "n_zeta": 31,
+            "n_xi": 28
+          },
+          "grid_label": "29x31x28",
+          "coefficients": {
+            "D11": -11660.641702405323,
+            "D31": 5068.659197093991,
+            "D13": -8.917825008283218,
+            "D33": 349.730967871109
+          },
+          "schur_residual_l2": 0.0003790516111879204,
+          "residual_l2": 0.0003790516111879204,
+          "onsager_residual": 5059.741372085708,
+          "relative_onsager_residual": 0.9982405948671009,
+          "D33_spitzer": 660.6543645555296,
+          "prepare_seconds": 1.1947973342612386,
+          "solve_seconds": 2.258527333382517,
+          "finite": true
+        },
+        {
+          "grid": {
+            "n_theta": 35,
+            "n_zeta": 37,
+            "n_xi": 32
+          },
+          "grid_label": "35x37x32",
+          "coefficients": {
+            "D11": -9784.934436011601,
+            "D31": 4397.133599609922,
+            "D13": 1.9288353469376178,
+            "D33": 355.56491677013497
+          },
+          "schur_residual_l2": 0.00026581115894171425,
+          "residual_l2": 0.00026581115894171425,
+          "onsager_residual": 4399.06243495686,
+          "relative_onsager_residual": 1.0004386574351773,
+          "D33_spitzer": 660.6543645555307,
+          "prepare_seconds": 1.2023640829138458,
+          "solve_seconds": 2.7453498751856387,
+          "finite": true
+        },
+        {
+          "grid": {
+            "n_theta": 41,
+            "n_zeta": 43,
+            "n_xi": 36
+          },
+          "grid_label": "41x43x36",
+          "coefficients": {
+            "D11": -21031.442014540396,
+            "D31": 9680.9033406936,
+            "D13": 56.996808010315256,
+            "D33": 338.97219831319666
+          },
+          "schur_residual_l2": 0.00020589182666342525,
+          "residual_l2": 0.00020589182666342525,
+          "onsager_residual": 9737.900148703915,
+          "relative_onsager_residual": 1.0058875505729645,
+          "D33_spitzer": 660.6543645555313,
+          "prepare_seconds": 1.1916246246546507,
+          "solve_seconds": 4.340371124912053,
+          "finite": true
+        }
+      ],
+      "relative_to_finest": [
+        {
+          "grid_label": "29x31x28",
+          "relative_change": {
+            "D11": 0.4455614743704418,
+            "D31": 0.47642704211414627,
+            "D33": 0.03173938633153525
+          }
+        },
+        {
+          "grid_label": "35x37x32",
+          "relative_change": {
+            "D11": 0.5347473354776794,
+            "D31": 0.5457930479352473,
+            "D33": 0.04895008658381863
+          }
+        }
+      ],
+      "last_step_relative_change": {
+        "D11": 0.5347473354776794,
+        "D31": 0.5457930479352473,
+        "D33": 0.04895008658381863
+      },
+      "last_step_absolute_change": {
+        "D11": 11246.507578528795,
+        "D31": 5283.769741083677,
+        "D33": 16.592718456938314
+      },
+      "max_last_step_relative_change": 0.5457930479352473,
+      "max_relative_change_to_finest": 0.5457930479352473,
+      "max_relative_onsager_residual": 1.0058875505729645,
+      "finest_relative_onsager_residual": 1.0058875505729645
+    },
+    {
+      "id": "nfp2_qa_finite_beta",
+      "label": "NFP2 QA finite beta",
+      "family": "QA",
+      "source": "vmex examples",
+      "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_nfp2_QA_finite_beta.nc",
+      "psi_n": 0.25,
+      "min_bmn_to_load": 0.0001,
+      "notes": "finite-beta QA example from the installed vmex example suite",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 2,
-        "iota": -0.42117831594762367,
+        "iota": -0.3770475974510517,
         "psi_n": 0.25,
-        "loaded_mode_count": 11,
-        "total_mode_count": 128,
-        "b0": 5.916615445901494
+        "dtype": "float64",
+        "loaded_mode_count": 12,
+        "total_mode_count": 50,
+        "b0": 5.472830038637246
       },
-      "load_seconds": 0.011304124956950545,
+      "load_seconds": 0.007673999760299921,
       "grid_results": [
         {
           "grid": {
@@ -298,17 +187,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 7.824379379320024e-06,
-            "D31": -0.029345349492961362,
-            "D13": 0.028298780377600277,
-            "D33": 499.81597434878074
+            "D11": 1.0358384675518637e-05,
+            "D31": -0.02922300478055361,
+            "D13": 0.034397814815300666,
+            "D33": 397.27312750609127
           },
-          "residual_l2": 0.0021397227181988196,
-          "onsager_residual": 0.001046569115361086,
-          "relative_onsager_residual": 0.03566388315164251,
-          "D33_spitzer": 660.2037951803566,
-          "prepare_seconds": 0.040129374945536256,
-          "solve_seconds": 0.39698225003667176,
+          "schur_residual_l2": 1.4037776725653246e-16,
+          "residual_l2": 1.4037776725653246e-16,
+          "onsager_residual": 0.005174810034747054,
+          "relative_onsager_residual": 0.15044008064271633,
+          "D33_spitzer": 700.3263861775056,
+          "prepare_seconds": 0.19528758293017745,
+          "solve_seconds": 0.7460971656255424,
           "finite": true
         },
         {
@@ -319,17 +209,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 7.804513233519393e-06,
-            "D31": -0.02921386773125809,
-            "D13": 0.028211710133654484,
-            "D33": 501.2523202347755
+            "D11": 1.0356127278239037e-05,
+            "D31": -0.029405359555462862,
+            "D13": 0.03359619791340202,
+            "D33": 405.42320341263945
           },
-          "residual_l2": 0.002142776507209745,
-          "onsager_residual": 0.0010021575976036055,
-          "relative_onsager_residual": 0.03430417385409473,
-          "D33_spitzer": 660.2037951803554,
-          "prepare_seconds": 0.0345994170056656,
-          "solve_seconds": 1.0508114580297843,
+          "schur_residual_l2": 1.8059415700899582e-16,
+          "residual_l2": 1.8059415700899582e-16,
+          "onsager_residual": 0.00419083835793916,
+          "relative_onsager_residual": 0.12474144749181193,
+          "D33_spitzer": 700.3263861775049,
+          "prepare_seconds": 0.15376775013282895,
+          "solve_seconds": 1.386301249731332,
           "finite": true
         },
         {
@@ -340,17 +231,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 7.7992342329901e-06,
-            "D31": -0.029188080527805985,
-            "D13": 0.028194142436732766,
-            "D33": 501.50527433695976
+            "D11": 1.033425445049605e-05,
+            "D31": -0.02935627016515628,
+            "D13": 0.033247548245882656,
+            "D33": 408.63064970069433
           },
-          "residual_l2": 0.0021433759903729415,
-          "onsager_residual": 0.0009939380910732182,
-          "relative_onsager_residual": 0.03405287614327172,
-          "D33_spitzer": 660.2037951803552,
-          "prepare_seconds": 0.03719995799474418,
-          "solve_seconds": 2.592956249951385,
+          "schur_residual_l2": 3.841929632560053e-16,
+          "residual_l2": 3.841929632560053e-16,
+          "onsager_residual": 0.003891278080726375,
+          "relative_onsager_residual": 0.11703954986239526,
+          "D33_spitzer": 700.3263861775054,
+          "prepare_seconds": 0.1520425002090633,
+          "solve_seconds": 3.036228333134204,
           "finite": true
         }
       ],
@@ -358,55 +250,57 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.0032240532312214237,
-            "D31": 0.00538812290193443,
-            "D33": 0.003368459066382582
+            "D11": 0.0023349749261717557,
+            "D31": 0.004539588437254736,
+            "D33": 0.02779410257875173
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.0006768613906943832,
-            "D31": 0.000883484045055277,
-            "D33": 0.0005043897145821781
+            "D11": 0.002116536596593795,
+            "D31": 0.001672194390854406,
+            "D33": 0.007849255288129289
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.0006768613906943832,
-        "D31": 0.000883484045055277,
-        "D33": 0.0005043897145821781
+        "D11": 0.002116536596593795,
+        "D31": 0.001672194390854406,
+        "D33": 0.007849255288129289
       },
       "last_step_absolute_change": {
-        "D11": 5.2790005292929196e-09,
-        "D31": 2.5787203452105195e-05,
-        "D33": 0.25295410218427605
+        "D11": 2.1872827742987186e-08,
+        "D31": 4.908939030658088e-05,
+        "D33": 3.207446288054882
       },
-      "max_last_step_relative_change": 0.000883484045055277,
-      "max_relative_change_to_finest": 0.00538812290193443,
-      "max_relative_onsager_residual": 0.03566388315164251,
-      "finest_relative_onsager_residual": 0.03405287614327172
+      "max_last_step_relative_change": 0.007849255288129289,
+      "max_relative_change_to_finest": 0.02779410257875173,
+      "max_relative_onsager_residual": 0.15044008064271633,
+      "finest_relative_onsager_residual": 0.11703954986239526
     },
     {
       "id": "precise_qs_qh_reactor",
       "label": "Precise-QS QH",
       "family": "QH",
-      "source": "vmec_jax examples",
-      "path": "/Users/rogeriojorge/local/vmec_jax/examples_single_grid/data/wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc",
+      "source": "vmex examples",
+      "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_LandremanPaul2021_QH_reactorScale_lowres.nc",
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "precise-QS QH reactor-scale low-resolution reference",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 4,
-        "iota": 1.2427290108043656,
+        "iota": 1.242729010674676,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 17,
         "total_mode_count": 128,
-        "b0": 5.897972336082095
+        "b0": 5.897972335857061
       },
-      "load_seconds": 0.011957000009715557,
+      "load_seconds": 0.010858791880309582,
       "grid_results": [
         {
           "grid": {
@@ -416,17 +310,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 2.3518819122408754e-05,
-            "D31": -0.054180492067555895,
-            "D13": 0.051469902015212614,
-            "D33": 447.75064580860857
+            "D11": 2.3518819921346466e-05,
+            "D31": -0.05418049208777849,
+            "D13": 0.051469901841843774,
+            "D33": 447.75064592182974
           },
-          "residual_l2": 0.003644705116147681,
-          "onsager_residual": 0.0027105900523432813,
-          "relative_onsager_residual": 0.050028893221632884,
-          "D33_spitzer": 661.4831688140831,
-          "prepare_seconds": 0.04184937500394881,
-          "solve_seconds": 0.41895816603209823,
+          "schur_residual_l2": 1.120449368939826e-16,
+          "residual_l2": 1.120449368939826e-16,
+          "onsager_residual": 0.002710590245934716,
+          "relative_onsager_residual": 0.05002889677604358,
+          "D33_spitzer": 661.4831688624494,
+          "prepare_seconds": 0.2050818749703467,
+          "solve_seconds": 0.7069582082331181,
           "finite": true
         },
         {
@@ -437,17 +332,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 2.3337770522339394e-05,
-            "D31": -0.053755086880334084,
-            "D13": 0.05108685829165989,
-            "D33": 448.8106415838908
+            "D11": 2.33377713296758e-05,
+            "D31": -0.05375508691785373,
+            "D13": 0.05108685813544939,
+            "D33": 448.81064166126987
           },
-          "residual_l2": 0.0036588267069828425,
-          "onsager_residual": 0.0026682285886741944,
-          "relative_onsager_residual": 0.04963676450963651,
-          "D33_spitzer": 661.4831688140836,
-          "prepare_seconds": 0.0357554170768708,
-          "solve_seconds": 1.047047375002876,
+          "schur_residual_l2": 1.443116444348197e-16,
+          "residual_l2": 1.443116444348197e-16,
+          "onsager_residual": 0.0026682287824043444,
+          "relative_onsager_residual": 0.04963676807893213,
+          "D33_spitzer": 661.4831688624494,
+          "prepare_seconds": 0.1597879589535296,
+          "solve_seconds": 1.437586875166744,
           "finite": true
         },
         {
@@ -458,17 +354,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 2.3265997189125593e-05,
-            "D31": -0.053583162087158846,
-            "D13": 0.05093303965460751,
-            "D33": 449.21148867434164
+            "D11": 2.3265997998673518e-05,
+            "D31": -0.0535831621298717,
+            "D13": 0.05093303950422441,
+            "D33": 449.2114887364843
           },
-          "residual_l2": 0.0036645443898763587,
-          "onsager_residual": 0.002650122432551333,
-          "relative_onsager_residual": 0.049458119478664214,
-          "D33_spitzer": 661.4831688140833,
-          "prepare_seconds": 0.03737816703505814,
-          "solve_seconds": 2.586522958939895,
+          "schur_residual_l2": 1.599161024027621e-16,
+          "residual_l2": 1.599161024027621e-16,
+          "onsager_residual": 0.0026501226256472887,
+          "relative_onsager_residual": 0.04945812304290811,
+          "D33_spitzer": 661.483168862449,
+          "prepare_seconds": 0.16315741697326303,
+          "solve_seconds": 3.0130475000478327,
           "finite": true
         }
       ],
@@ -476,164 +373,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.01086658488041632,
-            "D31": 0.01114771799815447,
-            "D33": 0.0032520158156331496
+            "D11": 0.010866584046270552,
+            "D31": 0.011147717569542017,
+            "D33": 0.003252015701476188
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.003084902513757174,
-            "D31": 0.003208560049061369,
-            "D33": 0.0008923349036191612
+            "D11": 0.003084902311363331,
+            "D31": 0.0032085599495850874,
+            "D33": 0.0008923348695775658
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.003084902513757174,
-        "D31": 0.003208560049061369,
-        "D33": 0.0008923349036191612
+        "D11": 0.003084902311363331,
+        "D31": 0.0032085599495850874,
+        "D33": 0.0008923348695775658
       },
       "last_step_absolute_change": {
-        "D11": 7.177333321380089e-08,
-        "D31": 0.00017192479317523768,
-        "D33": 0.40084709045083855
+        "D11": 7.177333100228257e-08,
+        "D31": 0.0001719247879820307,
+        "D33": 0.40084707521441487
       },
-      "max_last_step_relative_change": 0.003208560049061369,
-      "max_relative_change_to_finest": 0.01114771799815447,
-      "max_relative_onsager_residual": 0.050028893221632884,
-      "finest_relative_onsager_residual": 0.049458119478664214
-    },
-    {
-      "id": "nfp3_qi",
-      "label": "NFP3 QI",
-      "family": "QI",
-      "source": "vmec_jax examples",
-      "path": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_nfp3_QI_fixed_resolution_final.nc",
-      "psi_n": 0.25,
-      "min_bmn_to_load": 0.0001,
-      "notes": "fixed-resolution quasi-isodynamic-style example",
-      "status": "stress-pass",
-      "quality_status": "stress-pass",
-      "surface": {
-        "nfp": 3,
-        "iota": 1.0956750048899846,
-        "psi_n": 0.25,
-        "loaded_mode_count": 70,
-        "total_mode_count": 72,
-        "b0": 0.21419643785443465
-      },
-      "load_seconds": 0.01153595803771168,
-      "grid_results": [
-        {
-          "grid": {
-            "n_theta": 29,
-            "n_zeta": 31,
-            "n_xi": 28
-          },
-          "grid_label": "29x31x28",
-          "coefficients": {
-            "D11": 2362.0251532238913,
-            "D31": 5.151207059808734,
-            "D13": -8.391019929154526,
-            "D33": 199.22404895849778
-          },
-          "residual_l2": 15.762920553294514,
-          "onsager_residual": 3.2398128693457915,
-          "relative_onsager_residual": 0.38610477590323555,
-          "D33_spitzer": 658.9929258320823,
-          "prepare_seconds": 0.04462525004055351,
-          "solve_seconds": 0.39760341693181545,
-          "finite": true
-        },
-        {
-          "grid": {
-            "n_theta": 35,
-            "n_zeta": 37,
-            "n_xi": 32
-          },
-          "grid_label": "35x37x32",
-          "coefficients": {
-            "D11": 2292.8457129178823,
-            "D31": 28.980647118391826,
-            "D13": -41.82632901023787,
-            "D33": 211.95444999029766
-          },
-          "residual_l2": 28.72387419829001,
-          "onsager_residual": 12.845681891846045,
-          "relative_onsager_residual": 0.30711951528669407,
-          "D33_spitzer": 658.9929258320817,
-          "prepare_seconds": 0.03791345900390297,
-          "solve_seconds": 1.057509999955073,
-          "finite": true
-        },
-        {
-          "grid": {
-            "n_theta": 41,
-            "n_zeta": 43,
-            "n_xi": 36
-          },
-          "grid_label": "41x43x36",
-          "coefficients": {
-            "D11": 2170.61340658128,
-            "D31": 29.11841440166452,
-            "D13": -48.76902154051101,
-            "D33": 217.02425235217552
-          },
-          "residual_l2": 39.95792866348703,
-          "onsager_residual": 19.650607138846492,
-          "relative_onsager_residual": 0.4029321589428097,
-          "D33_spitzer": 658.9929258320819,
-          "prepare_seconds": 0.04077562503516674,
-          "solve_seconds": 2.5875473329797387,
-          "finite": true
-        }
-      ],
-      "relative_to_finest": [
-        {
-          "grid_label": "29x31x28",
-          "relative_change": {
-            "D11": 0.08818325090145153,
-            "D31": 0.8230945205754654,
-            "D33": 0.08201942041386469
-          }
-        },
-        {
-          "grid_label": "35x37x32",
-          "relative_change": {
-            "D11": 0.056312333631587864,
-            "D31": 0.004731276963515537,
-            "D33": 0.023360533705011243
-          }
-        }
-      ],
-      "last_step_relative_change": {
-        "D11": 0.056312333631587864,
-        "D31": 0.004731276963515537,
-        "D33": 0.023360533705011243
-      },
-      "last_step_absolute_change": {
-        "D11": 122.2323063366025,
-        "D31": 0.13776728327269439,
-        "D33": 5.069802361877862
-      },
-      "max_last_step_relative_change": 0.056312333631587864,
-      "max_relative_change_to_finest": 0.8230945205754654,
-      "max_relative_onsager_residual": 0.4029321589428097,
-      "finest_relative_onsager_residual": 0.4029321589428097
-    },
-    {
-      "id": "basic_non_stellsym",
-      "label": "Non-stellsym",
-      "family": "non-stellarator-symmetric",
-      "source": "vmec_jax examples",
-      "path": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_basic_non_stellsym_simsopt.nc",
-      "psi_n": 0.25,
-      "min_bmn_to_load": 0.0001,
-      "notes": "non-stellarator-symmetric public example from the local VMEC-JAX suite",
-      "status": "skipped",
-      "error": "NotImplementedError: VMEC lasym=true inputs are not supported yet"
+      "max_last_step_relative_change": 0.0032085599495850874,
+      "max_relative_change_to_finest": 0.011147717569542017,
+      "max_relative_onsager_residual": 0.05002889677604358,
+      "finest_relative_onsager_residual": 0.04945812304290811
     },
     {
       "id": "w7x_eim_ejm_standard",
@@ -644,17 +411,19 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "public W7-X standard-configuration reference; local input comments identify this as EIM geometry corresponding to EJM flux surfaces",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 5,
         "iota": -0.8562290681557614,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 27,
         "total_mode_count": 200,
         "b0": 2.589847827955348
       },
-      "load_seconds": 0.01912904204800725,
+      "load_seconds": 0.016728457994759083,
       "grid_results": [
         {
           "grid": {
@@ -664,17 +433,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 0.3657460904893238,
-            "D31": 2.0186235452870798,
-            "D13": -1.702306865265799,
-            "D33": 370.13195571438456
+            "D11": 0.36574609048932394,
+            "D31": 2.018623545287133,
+            "D13": -1.7023068652658486,
+            "D33": 370.13195571437706
           },
-          "residual_l2": 0.13414360125181626,
-          "onsager_residual": 0.31631668002128066,
-          "relative_onsager_residual": 0.15669919275428618,
+          "schur_residual_l2": 2.2260213368023947e-14,
+          "residual_l2": 2.2260213368023947e-14,
+          "onsager_residual": 0.31631668002128444,
+          "relative_onsager_residual": 0.15669919275428393,
           "D33_spitzer": 665.5987799459316,
-          "prepare_seconds": 0.041024375008419156,
-          "solve_seconds": 0.390889500034973,
+          "prepare_seconds": 0.21797029208391905,
+          "solve_seconds": 0.6977530419826508,
           "finite": true
         },
         {
@@ -685,17 +455,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 0.3606633835440592,
-            "D31": 2.0199043378548884,
-            "D13": -1.7018311714108005,
-            "D33": 372.04870780839684
+            "D11": 0.3606633835440595,
+            "D31": 2.019904337855021,
+            "D13": -1.7018311714108534,
+            "D33": 372.0487078084036
           },
-          "residual_l2": 0.1353843992756973,
-          "onsager_residual": 0.3180731664440879,
-          "relative_onsager_residual": 0.1574694209439034,
+          "schur_residual_l2": 2.6557298043011322e-14,
+          "residual_l2": 2.6557298043011322e-14,
+          "onsager_residual": 0.31807316644416783,
+          "relative_onsager_residual": 0.15746942094393263,
           "D33_spitzer": 665.5987799459325,
-          "prepare_seconds": 0.0333509580232203,
-          "solve_seconds": 1.0457203750265762,
+          "prepare_seconds": 0.17003499995917082,
+          "solve_seconds": 1.3617337075993419,
           "finite": true
         },
         {
@@ -706,17 +477,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 0.3596448286555241,
-            "D31": 2.008613573154731,
-            "D13": -1.7028749027057102,
-            "D33": 372.89220032454733
+            "D11": 0.3596448286555243,
+            "D31": 2.0086135731546513,
+            "D13": -1.7028749027053476,
+            "D33": 372.89220032454944
           },
-          "residual_l2": 0.13390342783695736,
-          "onsager_residual": 0.30573867044902103,
-          "relative_onsager_residual": 0.15221378294722337,
+          "schur_residual_l2": 2.88722726760115e-14,
+          "residual_l2": 2.88722726760115e-14,
+          "onsager_residual": 0.3057386704493037,
+          "relative_onsager_residual": 0.15221378294737015,
           "D33_spitzer": 665.5987799459322,
-          "prepare_seconds": 0.03987670794595033,
-          "solve_seconds": 2.5924360000062734,
+          "prepare_seconds": 0.17216429207473993,
+          "solve_seconds": 2.9961187089793384,
           "finite": true
         }
       ],
@@ -724,34 +496,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.016964686678822363,
-            "D31": 0.004983523095797306,
-            "D33": 0.007402258904209819
+            "D11": 0.0169646866788222,
+            "D31": 0.004983523095863832,
+            "D33": 0.007402258904235539
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.0028321132611381947,
-            "D31": 0.005621173156977093,
-            "D33": 0.0022620277801905096
+            "D11": 0.0028321132611386565,
+            "D31": 0.00562117315708322,
+            "D33": 0.002262027780177997
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.0028321132611381947,
-        "D31": 0.005621173156977093,
-        "D33": 0.0022620277801905096
+        "D11": 0.0028321132611386565,
+        "D31": 0.00562117315708322,
+        "D33": 0.002262027780177997
       },
       "last_step_absolute_change": {
-        "D11": 0.0010185548885350837,
-        "D31": 0.011290764700157219,
-        "D33": 0.8434925161504907
+        "D11": 0.0010185548885352502,
+        "D31": 0.011290764700369937,
+        "D33": 0.8434925161458295
       },
-      "max_last_step_relative_change": 0.005621173156977093,
-      "max_relative_change_to_finest": 0.016964686678822363,
-      "max_relative_onsager_residual": 0.1574694209439034,
-      "finest_relative_onsager_residual": 0.15221378294722337
+      "max_last_step_relative_change": 0.00562117315708322,
+      "max_relative_change_to_finest": 0.0169646866788222,
+      "max_relative_onsager_residual": 0.15746942094393263,
+      "finest_relative_onsager_residual": 0.15221378294737015
     },
     {
       "id": "nfp4_qh_reference",
@@ -762,17 +534,19 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "finite-beta QH reference used in public optimization examples",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 4,
         "iota": 1.1598489515459296,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 22,
         "total_mode_count": 128,
         "b0": 5.792319690897234
       },
-      "load_seconds": 0.014316166052594781,
+      "load_seconds": 0.012839458882808685,
       "grid_results": [
         {
           "grid": {
@@ -782,17 +556,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 4.110620560797155e-05,
-            "D31": -0.05297610483076169,
-            "D13": 0.04967163962135993,
-            "D33": 425.0760919429572
+            "D11": 4.110620560797156e-05,
+            "D31": -0.05297610483076201,
+            "D13": 0.04967163962136063,
+            "D33": 425.0760919429568
           },
-          "residual_l2": 0.004131558594062419,
-          "onsager_residual": 0.0033044652094017593,
-          "relative_onsager_residual": 0.062376522773017314,
+          "schur_residual_l2": 1.9736086971498668e-16,
+          "residual_l2": 1.9736086971498668e-16,
+          "onsager_residual": 0.0033044652094013777,
+          "relative_onsager_residual": 0.062376522773009736,
           "D33_spitzer": 661.6248628646956,
-          "prepare_seconds": 0.04445966694038361,
-          "solve_seconds": 0.38927187502849847,
+          "prepare_seconds": 0.21470262482762337,
+          "solve_seconds": 0.6950246663764119,
           "finite": true
         },
         {
@@ -803,17 +578,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 4.08122065262845e-05,
-            "D31": -0.0523767022549339,
-            "D13": 0.04913791220337066,
-            "D33": 427.0165386991542
+            "D11": 4.081220652628453e-05,
+            "D31": -0.052376702254933745,
+            "D13": 0.049137912203370784,
+            "D33": 427.01653869915157
           },
-          "residual_l2": 0.004156780067052537,
-          "onsager_residual": 0.003238790051563238,
-          "relative_onsager_residual": 0.06183646377351188,
+          "schur_residual_l2": 1.3618240865726841e-15,
+          "residual_l2": 1.3618240865726841e-15,
+          "onsager_residual": 0.0032387900515629606,
+          "relative_onsager_residual": 0.06183646377350677,
           "D33_spitzer": 661.6248628646953,
-          "prepare_seconds": 0.041528958012349904,
-          "solve_seconds": 1.05223729100544,
+          "prepare_seconds": 0.15941954078152776,
+          "solve_seconds": 1.3829314592294395,
           "finite": true
         },
         {
@@ -824,17 +600,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 4.067553633962959e-05,
-            "D31": -0.052041100853048625,
-            "D13": 0.04882812712047284,
-            "D33": 427.77614935880706
+            "D11": 4.067553633962957e-05,
+            "D31": -0.05204110085304876,
+            "D13": 0.04882812712047317,
+            "D33": 427.77614935880797
           },
-          "residual_l2": 0.00417091904992819,
-          "onsager_residual": 0.0032129737325757857,
-          "relative_onsager_residual": 0.061739157702455985,
+          "schur_residual_l2": 3.2917390344110896e-16,
+          "residual_l2": 3.2917390344110896e-16,
+          "onsager_residual": 0.0032129737325755914,
+          "relative_onsager_residual": 0.061739157702452085,
           "D33_spitzer": 661.6248628646963,
-          "prepare_seconds": 0.037556582945398986,
-          "solve_seconds": 2.5742847920628265,
+          "prepare_seconds": 0.173076749779284,
+          "solve_seconds": 2.9855933748185635,
           "finite": true
         }
       ],
@@ -842,34 +619,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.010587918613930233,
-            "D31": 0.017966644870816437,
-            "D33": 0.00631184655782465
+            "D11": 0.010587918613931073,
+            "D31": 0.017966644870819858,
+            "D33": 0.006311846557827692
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.0033600094541778613,
-            "D31": 0.006448775994053804,
-            "D33": 0.001775719989979473
+            "D11": 0.0033600094541791957,
+            "D31": 0.006448775994048187,
+            "D33": 0.001775719989987708
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.0033600094541778613,
-        "D31": 0.006448775994053804,
-        "D33": 0.001775719989979473
+        "D11": 0.0033600094541791957,
+        "D31": 0.006448775994048187,
+        "D33": 0.001775719989987708
       },
       "last_step_absolute_change": {
-        "D11": 1.3667018665491058e-07,
-        "D31": 0.00033560140188527293,
-        "D33": 0.7596106596528784
+        "D11": 1.366701866549648e-07,
+        "D31": 0.0003356014018849815,
+        "D33": 0.7596106596564027
       },
-      "max_last_step_relative_change": 0.006448775994053804,
-      "max_relative_change_to_finest": 0.017966644870816437,
-      "max_relative_onsager_residual": 0.062376522773017314,
-      "finest_relative_onsager_residual": 0.061739157702455985
+      "max_last_step_relative_change": 0.006448775994048187,
+      "max_relative_change_to_finest": 0.017966644870819858,
+      "max_relative_onsager_residual": 0.062376522773009736,
+      "finest_relative_onsager_residual": 0.061739157702452085
     },
     {
       "id": "high_aspect_qs",
@@ -880,17 +657,19 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "high-aspect-ratio quasi-symmetric reference",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 4,
         "iota": -1.1440364590022454,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 4,
         "total_mode_count": 72,
         "b0": 1.999958041378207
       },
-      "load_seconds": 0.008922250010073185,
+      "load_seconds": 0.009197792038321495,
       "grid_results": [
         {
           "grid": {
@@ -900,17 +679,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 18.17172120395014,
-            "D31": -41.06471670391106,
-            "D13": 41.16362361957355,
-            "D33": 559.0226283534059
+            "D11": 18.171721203950053,
+            "D31": -41.064716703912985,
+            "D13": 41.16362361957573,
+            "D33": 559.0226283533981
           },
-          "residual_l2": 20.998820348232385,
-          "onsager_residual": 0.09890691566248933,
-          "relative_onsager_residual": 0.0024027747551228335,
+          "schur_residual_l2": 6.9009596682556006e-12,
+          "residual_l2": 6.9009596682556006e-12,
+          "onsager_residual": 0.09890691566274512,
+          "relative_onsager_residual": 0.00240277475512892,
           "D33_spitzer": 666.6731179893849,
-          "prepare_seconds": 0.01067720795981586,
-          "solve_seconds": 0.3847597079584375,
+          "prepare_seconds": 0.17743520764634013,
+          "solve_seconds": 0.7177228340879083,
           "finite": true
         },
         {
@@ -921,17 +701,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 16.688279416469403,
-            "D31": -37.872344504312196,
-            "D13": 37.9468383442398,
-            "D33": 568.3451593404453
+            "D11": 16.688279416469385,
+            "D31": -37.87234450431285,
+            "D13": 37.9468383442371,
+            "D33": 568.3451593404551
           },
-          "residual_l2": 21.295015678723544,
-          "onsager_residual": 0.07449383992760517,
-          "relative_onsager_residual": 0.00196311058254246,
+          "schur_residual_l2": 6.739875982395294e-12,
+          "residual_l2": 6.739875982395294e-12,
+          "onsager_residual": 0.0744938399242514,
+          "relative_onsager_residual": 0.0019631105824542195,
           "D33_spitzer": 666.6731179893865,
-          "prepare_seconds": 0.012106665992178023,
-          "solve_seconds": 1.0473506660200655,
+          "prepare_seconds": 0.13108945777639747,
+          "solve_seconds": 1.460730291903019,
           "finite": true
         },
         {
@@ -942,17 +723,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 15.575509256679817,
-            "D31": -35.395566669991645,
-            "D13": 35.4549422254738,
-            "D33": 575.3356912995057
+            "D11": 15.575509256679851,
+            "D31": -35.3955666699912,
+            "D13": 35.454942225477886,
+            "D33": 575.3356912994943
           },
-          "residual_l2": 21.524822051594988,
-          "onsager_residual": 0.05937555548215556,
-          "relative_onsager_residual": 0.0016746764133631895,
+          "schur_residual_l2": 7.087209683890113e-12,
+          "residual_l2": 7.087209683890113e-12,
+          "onsager_residual": 0.059375555486688825,
+          "relative_onsager_residual": 0.0016746764134908563,
           "D33_spitzer": 666.6731179893859,
-          "prepare_seconds": 0.014281833078712225,
-          "solve_seconds": 2.714621791965328,
+          "prepare_seconds": 0.1360494582913816,
+          "solve_seconds": 3.0206484580412507,
           "finite": true
         }
       ],
@@ -960,34 +742,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.16668552562137848,
-            "D31": 0.16016553956531848,
-            "D33": 0.02835399088357197
+            "D11": 0.16668552562137046,
+            "D31": 0.16016553956538757,
+            "D33": 0.028353990883566407
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.07144358116652624,
-            "D31": 0.06997423879133323,
-            "D33": 0.012150353375906375
+            "D11": 0.07144358116652279,
+            "D31": 0.06997423879136522,
+            "D33": 0.01215035337586986
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.07144358116652624,
-        "D31": 0.06997423879133323,
-        "D33": 0.012150353375906375
+        "D11": 0.07144358116652279,
+        "D31": 0.06997423879136522,
+        "D33": 0.01215035337586986
       },
       "last_step_absolute_change": {
-        "D11": 1.1127701597895854,
-        "D31": 2.4767778343205507,
-        "D33": 6.990531959060377
+        "D11": 1.1127701597895339,
+        "D31": 2.476777834321652,
+        "D33": 6.990531959039231
       },
-      "max_last_step_relative_change": 0.07144358116652624,
-      "max_relative_change_to_finest": 0.16668552562137848,
-      "max_relative_onsager_residual": 0.0024027747551228335,
-      "finest_relative_onsager_residual": 0.0016746764133631895
+      "max_last_step_relative_change": 0.07144358116652279,
+      "max_relative_change_to_finest": 0.16668552562137046,
+      "max_relative_onsager_residual": 0.00240277475512892,
+      "finest_relative_onsager_residual": 0.0016746764134908563
     },
     {
       "id": "landreman_sengupta_plunk_non_stellsym",
@@ -998,6 +780,7 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "section 5.3 Landreman-Sengupta-Plunk public reference; local README identifies this case as not stellarator symmetric",
+      "promotion_eligible": true,
       "status": "skipped",
       "error": "NotImplementedError: VMEC lasym=true inputs are not supported yet"
     },
@@ -1010,17 +793,19 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "low-resolution LI383 configuration used in public quasisymmetry diagnostic tests",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 3,
         "iota": -0.4856226204308346,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 23,
         "total_mode_count": 25,
         "b0": 1.5621389256812848
       },
-      "load_seconds": 0.005763709079474211,
+      "load_seconds": 0.007005167193710804,
       "grid_results": [
         {
           "grid": {
@@ -1030,17 +815,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 0.9320237540328964,
-            "D31": 0.623747352578096,
-            "D13": -0.5283788112879766,
-            "D33": 403.4427092174409
+            "D11": 0.9320237540329208,
+            "D31": 0.6237473525770085,
+            "D13": -0.5283788112856004,
+            "D33": 403.44270921740997
           },
-          "residual_l2": 0.5085790615849645,
-          "onsager_residual": 0.0953685412901194,
-          "relative_onsager_residual": 0.15289610592484051,
+          "schur_residual_l2": 4.3589823114632583e-13,
+          "residual_l2": 4.3589823114632583e-13,
+          "onsager_residual": 0.09536854129140815,
+          "relative_onsager_residual": 0.1528961059271732,
           "D33_spitzer": 662.5542567354145,
-          "prepare_seconds": 0.049906125059351325,
-          "solve_seconds": 0.3926336249569431,
+          "prepare_seconds": 0.21463108295574784,
+          "solve_seconds": 0.7038727919571102,
           "finite": true
         },
         {
@@ -1051,17 +837,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 0.8943200940862526,
-            "D31": 0.5463489447333055,
-            "D13": -0.45226457708402124,
-            "D33": 411.37210573434703
+            "D11": 0.8943200940862502,
+            "D31": 0.5463489447342962,
+            "D13": -0.4522645770829244,
+            "D33": 411.3721057344047
           },
-          "residual_l2": 0.5274774610003587,
-          "onsager_residual": 0.0940843676492843,
-          "relative_onsager_residual": 0.1722056362627562,
+          "schur_residual_l2": 2.855548896145759e-13,
+          "residual_l2": 2.855548896145759e-13,
+          "onsager_residual": 0.09408436765137179,
+          "relative_onsager_residual": 0.17220563626626476,
           "D33_spitzer": 662.5542567354141,
-          "prepare_seconds": 0.036693333997391164,
-          "solve_seconds": 1.0576739590615034,
+          "prepare_seconds": 0.16584591707214713,
+          "solve_seconds": 1.4019040842540562,
           "finite": true
         },
         {
@@ -1072,17 +859,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 0.8604001262482798,
-            "D31": 0.5639436107593675,
-            "D13": -0.47049410627392313,
-            "D33": 415.92989875378555
+            "D11": 0.8604001262482879,
+            "D31": 0.5639436107595599,
+            "D13": -0.4704941062732574,
+            "D33": 415.9298987537388
           },
-          "residual_l2": 0.5233637182557196,
-          "onsager_residual": 0.09344950448544437,
-          "relative_onsager_residual": 0.16570717834645157,
+          "schur_residual_l2": 2.8514014934009856e-13,
+          "residual_l2": 2.8514014934009856e-13,
+          "onsager_residual": 0.09344950448630251,
+          "relative_onsager_residual": 0.1657071783479167,
           "D33_spitzer": 662.5542567354139,
-          "prepare_seconds": 0.038030666997656226,
-          "solve_seconds": 2.6071394169703126,
+          "prepare_seconds": 0.1716990410350263,
+          "solve_seconds": 3.008213208988309,
           "finite": true
         }
       ],
@@ -1090,34 +878,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.08324455750248075,
-            "D31": 0.1060456057622515,
-            "D33": 0.030022341682478068
+            "D11": 0.08324455750249893,
+            "D31": 0.10604560575994582,
+            "D33": 0.030022341682443447
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.03942348077734329,
-            "D31": 0.031199335696649184,
-            "D33": 0.010958079794442856
+            "D11": 0.03942348077733079,
+            "D31": 0.03119933569522306,
+            "D33": 0.010958079794193032
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.03942348077734329,
-        "D31": 0.031199335696649184,
-        "D33": 0.010958079794442856
+        "D11": 0.03942348077733079,
+        "D31": 0.03119933569522306,
+        "D33": 0.010958079794193032
       },
       "last_step_absolute_change": {
-        "D11": 0.0339199678379728,
-        "D31": 0.017594666026061967,
-        "D33": 4.55779301943852
+        "D11": 0.03391996783796236,
+        "D31": 0.017594666025263717,
+        "D33": 4.557793019334099
       },
-      "max_last_step_relative_change": 0.03942348077734329,
-      "max_relative_change_to_finest": 0.1060456057622515,
-      "max_relative_onsager_residual": 0.1722056362627562,
-      "finest_relative_onsager_residual": 0.16570717834645157
+      "max_last_step_relative_change": 0.03942348077733079,
+      "max_relative_change_to_finest": 0.10604560575994582,
+      "max_relative_onsager_residual": 0.17220563626626476,
+      "finest_relative_onsager_residual": 0.1657071783479167
     },
     {
       "id": "n3are_lowres",
@@ -1128,17 +916,19 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "public low-resolution three-field-period stellarator-family equilibrium",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 3,
         "iota": -0.525024845544443,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 34,
         "total_mode_count": 72,
         "b0": 5.756575778000947
       },
-      "load_seconds": 0.0091197919100523,
+      "load_seconds": 0.009047625120729208,
       "grid_results": [
         {
           "grid": {
@@ -1148,17 +938,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 2.5612607380907716e-05,
-            "D31": -0.015749637880396027,
-            "D13": 0.018508595220366998,
-            "D33": 438.02721431330934
+            "D11": 2.5612607380907713e-05,
+            "D31": -0.015749637880395035,
+            "D13": 0.018508595220366676,
+            "D33": 438.0272143133087
           },
-          "residual_l2": 0.0031787632190465043,
-          "onsager_residual": 0.002758957339970971,
-          "relative_onsager_residual": 0.14906357328161748,
+          "schur_residual_l2": 1.0448277063119797e-16,
+          "residual_l2": 1.0448277063119797e-16,
+          "onsager_residual": 0.0027589573399716405,
+          "relative_onsager_residual": 0.14906357328165626,
           "D33_spitzer": 661.3942384101009,
-          "prepare_seconds": 0.042990332935005426,
-          "solve_seconds": 0.385648165945895,
+          "prepare_seconds": 0.2304515838623047,
+          "solve_seconds": 0.719113209284842,
           "finite": true
         },
         {
@@ -1169,17 +960,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 2.4975341705245883e-05,
-            "D31": -0.01588884533281337,
-            "D13": 0.018683583807177735,
-            "D33": 445.1235515932723
+            "D11": 2.4975341705245866e-05,
+            "D31": -0.015888845332813428,
+            "D13": 0.018683583807177225,
+            "D33": 445.1235515932722
           },
-          "residual_l2": 0.0031750746087717005,
-          "onsager_residual": 0.0027947384743643652,
-          "relative_onsager_residual": 0.14958256955449314,
+          "schur_residual_l2": 1.351917683514708e-16,
+          "residual_l2": 1.351917683514708e-16,
+          "onsager_residual": 0.0027947384743637962,
+          "relative_onsager_residual": 0.14958256955446678,
           "D33_spitzer": 661.3942384101022,
-          "prepare_seconds": 0.03647620801348239,
-          "solve_seconds": 1.0475960000185296,
+          "prepare_seconds": 0.1832426660694182,
+          "solve_seconds": 1.4027802078053355,
           "finite": true
         },
         {
@@ -1190,17 +982,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 2.4884119498250577e-05,
-            "D31": -0.015494745483187768,
-            "D13": 0.018400888887794568,
-            "D33": 446.2251606951739
+            "D11": 2.4884119498250587e-05,
+            "D31": -0.015494745483187874,
+            "D13": 0.018400888887794557,
+            "D33": 446.2251606951754
           },
-          "residual_l2": 0.0031872588871729723,
-          "onsager_residual": 0.0029061434046067994,
-          "relative_onsager_residual": 0.15793494663915197,
+          "schur_residual_l2": 1.6799047723622923e-16,
+          "residual_l2": 1.6799047723622923e-16,
+          "onsager_residual": 0.002906143404606683,
+          "relative_onsager_residual": 0.15793494663914573,
           "D33_spitzer": 661.3942384101023,
-          "prepare_seconds": 0.04201400000602007,
-          "solve_seconds": 2.585511040990241,
+          "prepare_seconds": 0.19848895817995071,
+          "solve_seconds": 3.056313666049391,
           "finite": true
         }
       ],
@@ -1208,34 +1001,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.029275212358160975,
-            "D31": 0.016450247439354478,
-            "D33": 0.018371770809814857
+            "D11": 0.02927521235816042,
+            "D31": 0.0164502474392835,
+            "D33": 0.018371770809819634
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.0036658804424130665,
-            "D31": 0.025434419045682957,
-            "D33": 0.00246872924015626
+            "D11": 0.003665880442411976,
+            "D31": 0.025434419045679762,
+            "D33": 0.0024687292401598185
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.0036658804424130665,
-        "D31": 0.025434419045682957,
-        "D33": 0.00246872924015626
+        "D11": 0.003665880442411976,
+        "D31": 0.025434419045679762,
+        "D33": 0.0024687292401598185
       },
       "last_step_absolute_change": {
-        "D11": 9.122220699530644e-08,
-        "D31": 0.00039409984962560096,
-        "D33": 1.1016091019016017
+        "D11": 9.122220699527933e-08,
+        "D31": 0.0003940998496255541,
+        "D33": 1.1016091019031933
       },
-      "max_last_step_relative_change": 0.025434419045682957,
-      "max_relative_change_to_finest": 0.029275212358160975,
-      "max_relative_onsager_residual": 0.15793494663915197,
-      "finest_relative_onsager_residual": 0.15793494663915197
+      "max_last_step_relative_change": 0.025434419045679762,
+      "max_relative_change_to_finest": 0.02927521235816042,
+      "max_relative_onsager_residual": 0.15793494663914573,
+      "finest_relative_onsager_residual": 0.15793494663914573
     },
     {
       "id": "lhd",
@@ -1246,17 +1039,19 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "public LHD diagnostic benchmark equilibrium",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 10,
         "iota": 0.6120093208652118,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 14,
         "total_mode_count": 162,
         "b0": 2.876840683478192
       },
-      "load_seconds": 0.014150124974548817,
+      "load_seconds": 0.013886250089854002,
       "grid_results": [
         {
           "grid": {
@@ -1266,17 +1061,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 0.010054050087605853,
-            "D31": 0.46005572925854393,
-            "D13": -0.4895435818983657,
-            "D33": 308.1668154265506
+            "D11": 0.010054050087605834,
+            "D31": 0.46005572925857996,
+            "D13": -0.48954358189845226,
+            "D33": 308.1668154265692
           },
-          "residual_l2": 0.10192026957262953,
-          "onsager_residual": 0.029487852639821788,
-          "relative_onsager_residual": 0.060235398297885906,
+          "schur_residual_l2": 6.6917036699231e-14,
+          "residual_l2": 6.6917036699231e-14,
+          "onsager_residual": 0.029487852639872303,
+          "relative_onsager_residual": 0.06023539829797844,
           "D33_spitzer": 663.3425366899353,
-          "prepare_seconds": 0.04521691706031561,
-          "solve_seconds": 0.43889879202470183,
+          "prepare_seconds": 0.1969845830462873,
+          "solve_seconds": 0.7070590411312878,
           "finite": true
         },
         {
@@ -1287,17 +1083,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 0.009377807302617492,
+            "D11": 0.00937780730261749,
             "D31": 0.4571126187564295,
-            "D13": -0.4859609484876581,
-            "D33": 314.49877751788296
+            "D13": -0.4859609484876674,
+            "D33": 314.4987775178792
           },
-          "residual_l2": 0.10278457739642069,
-          "onsager_residual": 0.028848329731228584,
-          "relative_onsager_residual": 0.059363473178259386,
+          "schur_residual_l2": 6.300056337073811e-14,
+          "residual_l2": 6.300056337073811e-14,
+          "onsager_residual": 0.02884832973123791,
+          "relative_onsager_residual": 0.05936347317827744,
           "D33_spitzer": 663.3425366899352,
-          "prepare_seconds": 0.035391334095038474,
-          "solve_seconds": 1.0566852079937235,
+          "prepare_seconds": 0.1512022907845676,
+          "solve_seconds": 1.5090662920847535,
           "finite": true
         },
         {
@@ -1308,17 +1105,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 0.008949885219762694,
-            "D31": 0.4553787785367437,
-            "D13": -0.48395730473750476,
-            "D33": 318.17643990904946
+            "D11": 0.008949885219762659,
+            "D31": 0.45537877853667375,
+            "D13": -0.48395730473731646,
+            "D33": 318.17643990906487
           },
-          "residual_l2": 0.10329496712106534,
-          "onsager_residual": 0.028578526200761067,
-          "relative_onsager_residual": 0.05905175089001265,
+          "schur_residual_l2": 7.884180191441022e-14,
+          "residual_l2": 7.884180191441022e-14,
+          "onsager_residual": 0.028578526200642718,
+          "relative_onsager_residual": 0.059051750889791074,
           "D33_spitzer": 663.3425366899351,
-          "prepare_seconds": 0.0378809169633314,
-          "solve_seconds": 2.579490334028378,
+          "prepare_seconds": 0.15845737513154745,
+          "solve_seconds": 3.0811105840839446,
           "finite": true
         }
       ],
@@ -1326,34 +1124,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.12337195849227177,
-            "D31": 0.01027046261757863,
-            "D33": 0.03145935156405702
+            "D11": 0.123371958492274,
+            "D31": 0.010270462617812916,
+            "D33": 0.031459351564045494
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.04781313640870857,
-            "D31": 0.0038074682031892515,
-            "D33": 0.011558562891136014
+            "D11": 0.047813136408712445,
+            "D31": 0.0038074682033434316,
+            "D33": 0.01155856289119566
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.04781313640870857,
-        "D31": 0.0038074682031892515,
-        "D33": 0.011558562891136014
+        "D11": 0.047813136408712445,
+        "D31": 0.0038074682033434316,
+        "D33": 0.01155856289119566
       },
       "last_step_absolute_change": {
-        "D11": 0.0004279220828547984,
-        "D31": 0.0017338402196858116,
-        "D33": 3.677662391166507
+        "D11": 0.00042792208285483135,
+        "D31": 0.0017338402197557556,
+        "D33": 3.677662391185663
       },
-      "max_last_step_relative_change": 0.04781313640870857,
-      "max_relative_change_to_finest": 0.12337195849227177,
-      "max_relative_onsager_residual": 0.060235398297885906,
-      "finest_relative_onsager_residual": 0.05905175089001265
+      "max_last_step_relative_change": 0.047813136408712445,
+      "max_relative_change_to_finest": 0.123371958492274,
+      "max_relative_onsager_residual": 0.06023539829797844,
+      "finest_relative_onsager_residual": 0.059051750889791074
     },
     {
       "id": "hsx_qhs",
@@ -1364,17 +1162,19 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "public HSX quasi-helically symmetric benchmark equilibrium",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 4,
         "iota": -1.0285537539872105,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 25,
         "total_mode_count": 94,
         "b0": 1.0322353686491774
       },
-      "load_seconds": 0.010566042037680745,
+      "load_seconds": 0.010128166060894728,
       "grid_results": [
         {
           "grid": {
@@ -1384,17 +1184,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 295.41381874751437,
-            "D31": -143.75764822112666,
-            "D13": 129.56132558844627,
-            "D33": 482.56817952498307
+            "D11": 295.4138187475139,
+            "D31": -143.7576482211233,
+            "D13": 129.5613255884503,
+            "D33": 482.568179524985
           },
-          "residual_l2": 10.820528982853558,
-          "onsager_residual": 14.196322632680392,
-          "relative_onsager_residual": 0.09875177292023964,
+          "schur_residual_l2": 1.6504163514019316e-11,
+          "residual_l2": 1.6504163514019316e-11,
+          "onsager_residual": 14.196322632673002,
+          "relative_onsager_residual": 0.09875177292019054,
           "D33_spitzer": 666.4479149763006,
-          "prepare_seconds": 0.04552875005174428,
-          "solve_seconds": 0.3853883749106899,
+          "prepare_seconds": 0.22274012491106987,
+          "solve_seconds": 0.7177275409922004,
           "finite": true
         },
         {
@@ -1405,17 +1206,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 283.2786440016465,
-            "D31": -141.38557280397416,
-            "D13": 127.96581712837131,
-            "D33": 485.79526889398176
+            "D11": 283.2786440016471,
+            "D31": -141.38557280397052,
+            "D13": 127.9658171283663,
+            "D33": 485.79526889398153
           },
-          "residual_l2": 10.83206872421504,
-          "onsager_residual": 13.419755675602843,
-          "relative_onsager_residual": 0.09491601872426429,
+          "schur_residual_l2": 2.2982243904363598e-11,
+          "residual_l2": 2.2982243904363598e-11,
+          "onsager_residual": 13.419755675604222,
+          "relative_onsager_residual": 0.09491601872427649,
           "D33_spitzer": 666.4479149763007,
-          "prepare_seconds": 0.03671283298172057,
-          "solve_seconds": 1.0521294170757756,
+          "prepare_seconds": 0.1657726252451539,
+          "solve_seconds": 1.4247575826011598,
           "finite": true
         },
         {
@@ -1426,17 +1228,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 269.4069691943387,
-            "D31": -140.82037068573277,
-            "D13": 127.49666115290741,
-            "D33": 487.6984916608154
+            "D11": 269.4069691943391,
+            "D31": -140.82037068573192,
+            "D13": 127.4966611529073,
+            "D33": 487.6984916608143
           },
-          "residual_l2": 10.83700720277526,
-          "onsager_residual": 13.323709532825362,
-          "relative_onsager_residual": 0.09461493012654919,
+          "schur_residual_l2": 2.0079161709934404e-11,
+          "residual_l2": 2.0079161709934404e-11,
+          "onsager_residual": 13.323709532824623,
+          "relative_onsager_residual": 0.09461493012654451,
           "D33_spitzer": 666.447914976301,
-          "prepare_seconds": 0.03992641600780189,
-          "solve_seconds": 2.5848847499582916,
+          "prepare_seconds": 0.17512804176658392,
+          "solve_seconds": 3.0635196659713984,
           "finite": true
         }
       ],
@@ -1444,34 +1247,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.0965336926173406,
-            "D31": 0.020858328387367894,
-            "D33": 0.010519434083877349
+            "D11": 0.09653369261733728,
+            "D31": 0.02085832838735026,
+            "D33": 0.01051943408387108
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.05148966579740314,
-            "D31": 0.004013638903868125,
-            "D33": 0.0039024577672003916
+            "D11": 0.051489665797403696,
+            "D31": 0.00401363890384837,
+            "D33": 0.003902457767198536
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.05148966579740314,
-        "D31": 0.004013638903868125,
-        "D33": 0.0039024577672003916
+        "D11": 0.051489665797403696,
+        "D31": 0.00401363890384837,
+        "D33": 0.003902457767198536
       },
       "last_step_absolute_change": {
-        "D11": 13.871674807307784,
-        "D31": 0.5652021182413876,
-        "D33": 1.9032227668336645
+        "D11": 13.871674807307954,
+        "D31": 0.5652021182386022,
+        "D33": 1.903222766832755
       },
-      "max_last_step_relative_change": 0.05148966579740314,
-      "max_relative_change_to_finest": 0.0965336926173406,
-      "max_relative_onsager_residual": 0.09875177292023964,
-      "finest_relative_onsager_residual": 0.09461493012654919
+      "max_last_step_relative_change": 0.051489665797403696,
+      "max_relative_change_to_finest": 0.09653369261733728,
+      "max_relative_onsager_residual": 0.09875177292019054,
+      "finest_relative_onsager_residual": 0.09461493012654451
     },
     {
       "id": "ncsx",
@@ -1482,17 +1285,19 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "public compact-stellarator benchmark equilibrium",
+      "promotion_eligible": true,
       "status": "stress-pass",
       "quality_status": "stress-pass",
       "surface": {
         "nfp": 3,
         "iota": -0.46526011020329583,
         "psi_n": 0.25,
+        "dtype": "float64",
         "loaded_mode_count": 59,
         "total_mode_count": 137,
         "b0": 1.5427802655526683
       },
-      "load_seconds": 0.012662583962082863,
+      "load_seconds": 0.012202209327369928,
       "grid_results": [
         {
           "grid": {
@@ -1502,17 +1307,18 @@
           },
           "grid_label": "29x31x28",
           "coefficients": {
-            "D11": 0.3200884836075256,
-            "D31": 1.9496716536711785,
-            "D13": -1.7809165441767452,
-            "D33": 437.4334025409931
+            "D11": 0.3200884836075264,
+            "D31": 1.9496716536713197,
+            "D13": -1.7809165441769708,
+            "D33": 437.4334025409769
           },
-          "residual_l2": 0.5140637099591889,
-          "onsager_residual": 0.1687551094944333,
-          "relative_onsager_residual": 0.08655565626995296,
+          "schur_residual_l2": 9.256180902822502e-14,
+          "residual_l2": 9.256180902822502e-14,
+          "onsager_residual": 0.1687551094943489,
+          "relative_onsager_residual": 0.08655565626990341,
           "D33_spitzer": 664.0435490408188,
-          "prepare_seconds": 0.045351749984547496,
-          "solve_seconds": 0.3884522080188617,
+          "prepare_seconds": 0.24032366601750255,
+          "solve_seconds": 0.6964027909561992,
           "finite": true
         },
         {
@@ -1523,17 +1329,18 @@
           },
           "grid_label": "35x37x32",
           "coefficients": {
-            "D11": 0.31601127272601587,
-            "D31": 1.9222663393807047,
-            "D13": -1.7445608497054073,
-            "D33": 443.90914138848564
+            "D11": 0.31601127272601603,
+            "D31": 1.9222663393807604,
+            "D13": -1.7445608497052236,
+            "D33": 443.9091413884928
           },
-          "residual_l2": 0.5169055914590344,
-          "onsager_residual": 0.17770548967529742,
-          "relative_onsager_residual": 0.09244582087024876,
+          "schur_residual_l2": 1.162840231715399e-13,
+          "residual_l2": 1.162840231715399e-13,
+          "onsager_residual": 0.1777054896755368,
+          "relative_onsager_residual": 0.09244582087037059,
           "D33_spitzer": 664.0435490408181,
-          "prepare_seconds": 0.038090167101472616,
-          "solve_seconds": 1.0445837080478668,
+          "prepare_seconds": 0.1965551250614226,
+          "solve_seconds": 1.4614397501572967,
           "finite": true
         },
         {
@@ -1544,17 +1351,18 @@
           },
           "grid_label": "41x43x36",
           "coefficients": {
-            "D11": 0.31321290241466737,
-            "D31": 1.9039766892073426,
-            "D13": -1.7227192154203128,
-            "D33": 447.5803232418628
+            "D11": 0.31321290241466804,
+            "D31": 1.9039766892076047,
+            "D13": -1.7227192154208417,
+            "D33": 447.5803232418545
           },
-          "residual_l2": 0.5188667010289173,
-          "onsager_residual": 0.18125747378702983,
-          "relative_onsager_residual": 0.09519941857192084,
+          "schur_residual_l2": 1.428935373083115e-13,
+          "residual_l2": 1.428935373083115e-13,
+          "onsager_residual": 0.18125747378676293,
+          "relative_onsager_residual": 0.09519941857176756,
           "D33_spitzer": 664.043549040819,
-          "prepare_seconds": 0.04396879207342863,
-          "solve_seconds": 2.5938052920391783,
+          "prepare_seconds": 0.22065637493506074,
+          "solve_seconds": 3.0873539578169584,
           "finite": true
         }
       ],
@@ -1562,34 +1370,34 @@
         {
           "grid_label": "29x31x28",
           "relative_change": {
-            "D11": 0.021951781487454695,
-            "D31": 0.023999749956423778,
-            "D33": 0.0226706139076327
+            "D11": 0.021951781487455004,
+            "D31": 0.023999749956357033,
+            "D33": 0.022670613907650773
           }
         },
         {
           "grid_label": "35x37x32",
           "relative_change": {
-            "D11": 0.008934403052284517,
-            "D31": 0.009606026311685742,
-            "D33": 0.008202286076354915
+            "D11": 0.008934403052282904,
+            "D31": 0.009606026311576078,
+            "D33": 0.008202286076320522
           }
         }
       ],
       "last_step_relative_change": {
-        "D11": 0.008934403052284517,
-        "D31": 0.009606026311685742,
-        "D33": 0.008202286076354915
+        "D11": 0.008934403052282904,
+        "D31": 0.009606026311576078,
+        "D33": 0.008202286076320522
       },
       "last_step_absolute_change": {
-        "D11": 0.002798370311348497,
-        "D31": 0.018289650173362038,
-        "D33": 3.6711818533771634
+        "D11": 0.0027983703113479974,
+        "D31": 0.018289650173155758,
+        "D33": 3.671181853361702
       },
-      "max_last_step_relative_change": 0.009606026311685742,
-      "max_relative_change_to_finest": 0.023999749956423778,
-      "max_relative_onsager_residual": 0.09519941857192084,
-      "finest_relative_onsager_residual": 0.09519941857192084
+      "max_last_step_relative_change": 0.009606026311576078,
+      "max_relative_change_to_finest": 0.023999749956357033,
+      "max_relative_onsager_residual": 0.09519941857176756,
+      "finest_relative_onsager_residual": 0.09519941857176756
     },
     {
       "id": "diiid_tokamak",
@@ -1600,25 +1408,30 @@
       "psi_n": 0.25,
       "min_bmn_to_load": 0.0001,
       "notes": "public axisymmetric DIII-D diagnostic benchmark equilibrium",
+      "promotion_eligible": true,
       "status": "skipped",
       "error": "NotImplementedError: VMEC lasym=true inputs are not supported yet"
     }
   ],
   "summary_metrics": {
-    "case_count": 16,
-    "successful_case_count": 13,
-    "stress_pass_case_count": 13,
-    "monitored_case_count": 0,
-    "quality_pass_case_count": 13,
-    "quality_monitored_case_count": 0,
-    "skipped_case_count": 3,
-    "max_successful_last_step_relative_change": 0.07144358116652624,
-    "max_successful_relative_change_to_finest": 0.8230945205754654,
-    "max_successful_residual_l2": 39.95792866348703,
-    "max_successful_relative_onsager_residual": 0.4029321589428097,
-    "max_successful_finest_relative_onsager_residual": 0.4029321589428097
+    "case_count": 13,
+    "successful_case_count": 11,
+    "promotion_case_count": 10,
+    "diagnostic_only_case_count": 1,
+    "stress_pass_case_count": 10,
+    "monitored_case_count": 1,
+    "quality_pass_case_count": 10,
+    "quality_monitored_case_count": 1,
+    "skipped_case_count": 2,
+    "max_successful_last_step_relative_change": 0.07144358116652279,
+    "max_successful_relative_change_to_finest": 0.16668552562137046,
+    "max_successful_schur_residual_l2": 2.2982243904363598e-11,
+    "max_successful_residual_l2": 2.2982243904363598e-11,
+    "max_successful_relative_onsager_residual": 0.17220563626626476,
+    "max_successful_finest_relative_onsager_residual": 0.1657071783479167
   },
   "open_work": [
+    "resolve the near-zero-transform NFP2 QA conditioning diagnostic before treating that input as a promoted transport benchmark",
     "promote only after production-resolution sweeps with independent reference parity on each family",
     "add an owned W7-X KJM input once a reusable public reference input is identified or regenerated",
     "add radial and collisionality ladders before claiming broad bootstrap-current-profile validation"

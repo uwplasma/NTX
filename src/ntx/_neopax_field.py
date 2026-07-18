@@ -14,26 +14,26 @@ from ._neopax_field_utils import (
     _surface_bsqav,
 )
 from ._neopax_types import DifferentiableNeopaxField
-from ._neopax_vmec_jax_field import (
+from ._neopax_vmex_field import (
     _apply_boozer_sign_convention_profiles,
-    _booz_xform_bundle_with_gmnc_from_vmec_jax_state,
+    _booz_xform_bundle_with_gmnc_from_vmex_state,
     _booz_xform_gmnc_from_inputs,
     _rho_half_mesh_from_s,
     _vmec_edge_r00_from_state,
     _vmec_psia_from_indata,
     _vmec_psia_from_state,
     _vmec_volume_profiles_from_state,
-    build_differentiable_neopax_field_from_vmec_jax_boundary_params,
-    build_differentiable_neopax_field_from_vmec_jax_state,
+    build_differentiable_neopax_field_from_vmex_boundary_params,
+    build_differentiable_neopax_field_from_vmex_state,
 )
 
 __all__ = [
     "build_differentiable_neopax_field",
     "build_differentiable_neopax_field_from_vmec_booz_files",
-    "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
-    "build_differentiable_neopax_field_from_vmec_jax_state",
+    "build_differentiable_neopax_field_from_vmex_boundary_params",
+    "build_differentiable_neopax_field_from_vmex_state",
     "_apply_boozer_sign_convention_profiles",
-    "_booz_xform_bundle_with_gmnc_from_vmec_jax_state",
+    "_booz_xform_bundle_with_gmnc_from_vmex_state",
     "_booz_xform_gmnc_from_inputs",
     "_find_mode_index",
     "_rho_half_mesh_from_s",

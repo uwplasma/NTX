@@ -17,7 +17,7 @@ from ntx import (  # noqa: E402
     GridSpec,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
     to_neopax_monoenergetic,
 )
 
@@ -33,7 +33,7 @@ def main() -> None:
     drds = reference.drds
 
     def surface_loader(rho_value: float):
-        return surface_from_vmec_jax_vmec_wout_file(
+        return surface_from_vmex_vmec_wout_file(
             wout,
             s=float(rho_value**2),
         )

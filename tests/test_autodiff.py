@@ -19,7 +19,7 @@ from ntx import (
     example_neopax_profile_autodiff,
     example_neopax_profile_uncertainty,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 from ntx._autodiff_workflows import (
     _er_profile,
@@ -91,7 +91,7 @@ def test_inverse_problem_recovers_scalar_amplitude():
 def test_neopax_profile_autodiff_reduces_profile_misfit():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     result = example_neopax_profile_autodiff(
@@ -104,6 +104,7 @@ def test_neopax_profile_autodiff_reduces_profile_misfit():
         grid=GridSpec(7, 9, 6),
         steps=18,
         learning_rate=0.2,
+        jacobian_chunk_size=1,
     )
     assert float(result.loss_history[-1]) < float(result.loss_history[0])
     assert result.sensitivity_matrix.shape[1] == 2
@@ -113,7 +114,7 @@ def test_neopax_profile_autodiff_reduces_profile_misfit():
 def test_neopax_profile_uncertainty_matches_linearized_and_monte_carlo_scales():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     result = example_neopax_profile_uncertainty(
@@ -128,6 +129,7 @@ def test_neopax_profile_uncertainty_matches_linearized_and_monte_carlo_scales():
         learning_rate=0.2,
         monte_carlo_samples=32,
         random_seed=7,
+        jacobian_chunk_size=1,
     )
     assert result.parameter_covariance.shape == (2, 2)
     assert result.fisher_matrix.shape == (2, 2)
@@ -154,7 +156,7 @@ def test_neopax_profile_uncertainty_matches_linearized_and_monte_carlo_scales():
 def test_neopax_profile_autodiff_optional_import_paths():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     with pytest.raises(RuntimeError, match="requires a NEOPAX importer callback"):
@@ -194,7 +196,7 @@ def test_neopax_profile_autodiff_optional_import_paths():
 def test_bootstrap_current_optimization_improves_weighted_objective():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     result = example_bootstrap_current_optimization(
@@ -218,7 +220,7 @@ def test_bootstrap_current_optimization_improves_weighted_objective():
 def test_bootstrap_current_robust_optimization_improves_robust_objective():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     result = example_bootstrap_current_robust_optimization(
@@ -345,8 +347,7 @@ def test_autodiff_profile_interpolant_gradient_matches_finite_difference():
     autodiff_jacobian = jax.jacrev(response)(params)
     finite_difference_jacobian = jnp.stack(
         [
-            (response(params + direction) - response(params - direction))
-            / (2.0 * fd_step)
+            (response(params + direction) - response(params - direction)) / (2.0 * fd_step)
             for direction in fd_step * jnp.eye(params.size)
         ],
         axis=1,

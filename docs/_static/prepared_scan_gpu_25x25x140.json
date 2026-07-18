@@ -1,0 +1,41 @@
+{
+  "artifact": "prepared_scan_performance",
+  "backend": "gpu",
+  "devices": [
+    "cuda:0"
+  ],
+  "grid": {
+    "n_theta": 25,
+    "n_xi": 140,
+    "n_zeta": 25
+  },
+  "max_rss_mb": 852.21875,
+  "preparation_seconds": 3.0638114460161887,
+  "results": [
+    {
+      "modes": {
+        "sequential-8": {
+          "cases_per_second": 0.08948380805907288,
+          "max_abs_delta_reference": 0.0,
+          "max_relative_delta_reference": 0.0,
+          "seconds_median": 11.175206126004923,
+          "seconds_min": 11.175206126004923
+        }
+      },
+      "num_cases": 1
+    }
+  ],
+  "surface": "dkes",
+  "warmup": {
+    "sequential-8": {
+      "argument_size_bytes": 128,
+      "compilation_seconds": 1.0583963289973326,
+      "first_execution_seconds": 66.50843522604555,
+      "generated_code_size_bytes": 22176324,
+      "lowering_seconds": 0.7342976109939627,
+      "output_size_bytes": 320,
+      "temporary_size_bytes": 38664816,
+      "warm_execution_seconds": 10.983965360966977
+    }
+  }
+}

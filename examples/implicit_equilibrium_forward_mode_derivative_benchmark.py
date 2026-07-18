@@ -21,13 +21,13 @@ import numpy as np  # noqa: E402
 
 from ntx import (  # noqa: E402
     GridSpec,
-    build_vmec_jax_boundary_context,
-    initial_guess_vmec_jax_boundary_state,
+    build_vmex_boundary_context,
+    initial_guess_vmex_boundary_state,
     solve_monoenergetic_scan,
-    solve_vmec_jax_boundary_state,
-    surface_from_vmec_jax_state,
+    solve_vmex_boundary_state,
+    surface_from_vmex_state,
 )
-from ntx._checkout_paths import find_booz_xform_jax_root, find_vmec_jax_root  # noqa: E402
+from ntx._checkout_paths import find_booz_xform_jax_root, find_vmex_root  # noqa: E402
 from ntx.config import enable_x64  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "implicit_equilibrium_forward_mode_derivative_benchmark"
@@ -68,12 +68,12 @@ def _configure_style() -> None:
 
 
 def _input_path(name: str) -> Path:
-    root = find_vmec_jax_root()
+    root = find_vmex_root()
     if root is None:
-        raise RuntimeError("requires local vmec_jax checkout")
+        raise RuntimeError("requires local vmex checkout")
     path = root / "examples" / "data" / name
     if not path.exists():
-        raise RuntimeError(f"missing vmec_jax example input: {path}")
+        raise RuntimeError(f"missing vmex example input: {path}")
     return path
 
 
@@ -83,19 +83,19 @@ def _has_boundary_stack() -> bool:
     except RuntimeError:
         input_exists = False
     return (
-        find_vmec_jax_root() is not None
+        find_vmex_root() is not None
         and find_booz_xform_jax_root() is not None
         and input_exists
     )
 
 
-def _import_vmec_jax():
-    root = find_vmec_jax_root()
+def _import_vmex():
+    root = find_vmex_root()
     if root is not None and str(root) not in sys.path:
         sys.path.insert(0, str(root))
-    import vmec_jax
+    import vmex
 
-    return vmec_jax
+    return vmex
 
 
 def _relative_error(reference: np.ndarray, candidate: np.ndarray) -> np.ndarray:
@@ -110,22 +110,22 @@ def _finite_difference_gradient(objective, params, *, fd_step: float) -> jnp.nda
     return jnp.asarray(columns)
 
 
-def _infer_signgs(vmec_jax, context, params) -> int:
-    state = initial_guess_vmec_jax_boundary_state(context, params, vmec_project=True)
-    geom = vmec_jax.eval_geom(state, context.static)
-    return int(vmec_jax.signgs_from_sqrtg(np.asarray(geom.sqrtg), axis_index=1))
+def _infer_signgs(vmex, context, params) -> int:
+    state = initial_guess_vmex_boundary_state(context, params, vmec_project=True)
+    geom = vmex.eval_geom(state, context.static)
+    return int(vmex.signgs_from_sqrtg(np.asarray(geom.sqrtg), axis_index=1))
 
 
-def _residual_history(vmec_jax, context, params) -> list[dict[str, object]]:
+def _residual_history(vmex, context, params) -> list[dict[str, object]]:
     """Return a compact residual-contraction diagnostic for the implicit solver."""
 
-    state_init = initial_guess_vmec_jax_boundary_state(context, params, vmec_project=True)
-    geom = vmec_jax.eval_geom(state_init, context.static)
-    signgs = int(vmec_jax.signgs_from_sqrtg(np.asarray(geom.sqrtg), axis_index=1))
+    state_init = initial_guess_vmex_boundary_state(context, params, vmec_project=True)
+    geom = vmex.eval_geom(state_init, context.static)
+    signgs = int(vmex.signgs_from_sqrtg(np.asarray(geom.sqrtg), axis_index=1))
     rows: list[dict[str, object]] = []
     for max_iter in (5, 20, 50):
         try:
-            result = vmec_jax.solve_fixed_boundary_residual_iter(
+            result = vmex.solve_fixed_boundary_residual_iter(
                 state_init,
                 context.static,
                 indata=context.indata,
@@ -175,14 +175,14 @@ def _residual_history(vmec_jax, context, params) -> list[dict[str, object]]:
 
 def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
     if not _has_boundary_stack():
-        raise RuntimeError("requires local vmec_jax and booz_xform_jax checkouts")
+        raise RuntimeError("requires local vmex and booz_xform_jax checkouts")
 
     enable_x64(True)
-    vmec_jax = _import_vmec_jax()
-    from vmec_jax.implicit import ImplicitFixedBoundaryOptions
+    vmex = _import_vmex()
+    from vmex.implicit import ImplicitFixedBoundaryOptions
 
     input_path = _input_path(DEFAULT_INPUT)
-    context = build_vmec_jax_boundary_context(
+    context = build_vmex_boundary_context(
         input_path,
         max_mode=1,
         include=("rc", "zs"),
@@ -194,13 +194,13 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
 
     params0 = jnp.zeros((len(context.specs),), dtype=jnp.float64)
     parameter_names = [spec.name for spec in context.specs]
-    inferred_signgs = _infer_signgs(vmec_jax, context, params0)
+    inferred_signgs = _infer_signgs(vmex, context, params0)
     if inferred_signgs != context.signgs:
         context = dataclasses.replace(context, signgs=inferred_signgs)
     implicit = ImplicitFixedBoundaryOptions(residual_tangent_mode="auto")
 
     def _state_from_params(params):
-        return solve_vmec_jax_boundary_state(
+        return solve_vmex_boundary_state(
             context,
             params,
             vmec_project=False,
@@ -211,8 +211,8 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
 
     def equilibrium_volume(params):
         state = _state_from_params(params)
-        geom = vmec_jax.eval_geom(state, context.static)
-        _dvds, volume = vmec_jax.volume_from_sqrtg(
+        geom = vmex.eval_geom(state, context.static)
+        _dvds, volume = vmex.volume_from_sqrtg(
             geom.sqrtg,
             context.static.s,
             context.static.grid.theta,
@@ -223,7 +223,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
 
     def booz_xform_scalar(params):
         state = _state_from_params(params)
-        surface = surface_from_vmec_jax_state(
+        surface = surface_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -237,7 +237,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
 
     def ntx_transport_response(params):
         state = _state_from_params(params)
-        surface = surface_from_vmec_jax_state(
+        surface = surface_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -318,7 +318,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
             "error_message": None,
         }
 
-    residual_history = _residual_history(vmec_jax, context, params0)
+    residual_history = _residual_history(vmex, context, params0)
     residual_contracts = all(
         bool(row.get("contracts", False))
         for row in residual_history

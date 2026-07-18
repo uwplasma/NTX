@@ -100,7 +100,7 @@
         },
         "ntx_same_grid": {
           "status": "complete",
-          "geometry_path": "vmec_jax wout harmonics -> NTX VmecSurface",
+          "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
           "comparison_scope": "Coefficient-level finite-beta diagnostic only; bootstrap-current parity requires profile closure and production-resolution scans.",
           "ntx": {
             "D11_raw": 1.1398055656575254,

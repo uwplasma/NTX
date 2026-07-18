@@ -27,7 +27,7 @@ from ntx import (  # noqa: E402
     solve_monoenergetic,
 )
 from ntx._checkout_paths import find_neopax_root, fixture_path  # noqa: E402
-from ntx.vmec_jax_vmec import surface_from_vmec_jax_vmec_wout_file  # noqa: E402
+from ntx.vmex_vmec import surface_from_vmex_vmec_wout_file  # noqa: E402
 
 
 NEOPAX_ROOT = find_neopax_root()
@@ -65,11 +65,11 @@ def select_surface_loader():
         )
     if WOUT_PATH.exists():
         return (
-            lambda rho_value: surface_from_vmec_jax_vmec_wout_file(
+            lambda rho_value: surface_from_vmex_vmec_wout_file(
                 WOUT_PATH,
                 s=float(rho_value**2),
             ),
-            "vmec_jax",
+            "vmex",
         )
     raise FileNotFoundError("no usable VMEC or Boozer input file was found")
 

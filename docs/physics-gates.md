@@ -80,11 +80,11 @@ These are hard structural checks:
   must be identity maps at zero control and exactly linear in their prescribed
   response matrices. This protects the profile optimization, sensitivity, and
   uncertainty workflows from hidden nonlinearities in the control-to-force map.
-- **VMEC-JAX boundary edge transfer:** the traced fixed-boundary Fourier edge
+- **VMEX boundary edge transfer:** the traced fixed-boundary Fourier edge
   arrays must be forwarded to both the implicit VMEC residual solve and the
   explicit relaxation solve. This protects boundary-to-output derivatives from
   accidentally following stale non-differentiated boundary data.
-- **VMEC-JAX to NEOPAX radial metric transfer:** the imported field builder
+- **VMEX to NEOPAX radial metric transfer:** the imported field builder
   must preserve the `rho = sqrt(s)` radial mapping, axis regularization,
   enclosed-volume scale, edge major-radius scale, and toroidal-flux
   normalization before any bootstrap-current or boundary-derivative workflow
@@ -155,7 +155,7 @@ geometry breadth:
   and VMEC sample surfaces.
 - **Same-coordinate Boozer-file round trip:** generated `boozmn` surfaces must
   reload on the VMEC half grid and reproduce the in-memory
-  `vmec_jax -> booz_xform_jax -> NTX` transport coefficients below `1e-6`.
+  `vmex -> booz_xform_jax -> NTX` transport coefficients below `1e-6`.
   This protects the radial-coordinate convention used by packed Boozer spectra.
 - **Finite-beta finalized-wout Boozer transfer:** optimized finite-beta `wout`
   files whose input current-profile representation cannot yet be re-evaluated
@@ -267,6 +267,11 @@ The active acceptance target is:
   production `D11/D31/D33` ladder must keep its maximum last-step relative
   change `<= 5e-1`; `D13` and the normalized Onsager residual remain visible in
   the artifact before any broad geometry-family parity claim is promoted.
+- **Angular oversampling recommendation:** the finite-beta QA, NCSX, and HSX
+  collocation audit must keep its maximum `D11/D31/D33` error at `2.25` times
+  the retained-mode Nyquist floor below `1e-2` relative to its finer reference.
+  This is a warning-level stress gate; two successive refinements remain the
+  research acceptance rule.
 - **W7-X rebuilt raw branch:** best observed maximum relative error
   `<= 2e-2` against the frozen reference profile.
 

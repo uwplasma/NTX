@@ -14,6 +14,12 @@ from ._physics_gate_types import PhysicsGateResult
 
 
 def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
+    """Evaluate committed artifact-backed gates below a repository root.
+
+    Missing artifacts produce ``missing`` results rather than exceptions so
+    validation reports can distinguish absent evidence from failed thresholds.
+    """
+
     root = Path(root)
     static_root = root / "docs" / "_static"
     results: list[PhysicsGateResult] = []
@@ -177,12 +183,22 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
     )
     _append_summary_metric_gate(
         results,
+        gate_name="angular_oversampling_convergence_stress",
+        path=static_root / "angular_oversampling_audit.json",
+        metric_key="max_recommended_relative_error",
+        details=(
+            "measured D11/D31/D33 error at the warning-level angular "
+            "oversampling recommendation relative to the finest audit grid"
+        ),
+    )
+    _append_summary_metric_gate(
+        results,
         gate_name="boozmn_same_coordinate_roundtrip",
         path=static_root / "boozmn_same_coordinate_roundtrip_audit.json",
         metric_key="max_transport_relative_difference",
         details=(
             "same-coordinate VMEC half-grid Boozer-file round trip compared "
-            "with the in-memory vmec_jax/booz_xform_jax path"
+            "with the in-memory vmex/booz_xform_jax path"
         ),
     )
     _append_summary_metric_gate(

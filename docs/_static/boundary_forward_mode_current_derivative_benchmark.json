@@ -2,7 +2,7 @@
   "benchmark": "boundary_forward_mode_current_derivative_benchmark",
   "classification": "artifact-backed boundary-to-output forward-mode stress benchmark",
   "case": {
-    "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak",
+    "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.circular_tokamak",
     "geometry_path": "boundary_projected_initial_guess",
     "parameter_names": [
       "rc10",
@@ -57,7 +57,7 @@
       ]
     }
   ],
-  "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmec_jax geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
+  "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmex geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
   "summary_metrics": {
     "max_relative_mismatch": 7.17355827984326e-07,
     "median_relative_mismatch": 3.556284405640031e-07

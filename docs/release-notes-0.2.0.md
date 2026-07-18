@@ -8,7 +8,7 @@ tag.
 This release ships the repository-owned monoenergetic NTX package, CLI,
 file-backed inputs, NEOPAX array/database bridge, validation artifacts,
 autodiff examples, and documentation. Optional geometry-coupled workflows using
-`vmec_jax` and `booz_xform_jax` remain documented external installs until those
+`vmex` and `booz_xform_jax` remain documented external installs until those
 upstream packages are available from standard package indexes under stable
 constraints.
 

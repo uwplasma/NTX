@@ -297,7 +297,7 @@
     {
       "id": "vmec_sample",
       "label": "Sample VMEC-backed surface",
-      "source_kind": "vmec_jax",
+      "source_kind": "vmex",
       "source_path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_wout.nc",
       "rho": 0.5,
       "s": 0.25,

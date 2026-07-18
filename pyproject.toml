@@ -25,13 +25,11 @@ classifiers = [
 ]
 dependencies = [
   "jax",
-  "jaxlib",
   "interpax",
   "netCDF4",
   "numpy",
   "rich",
   "scipy",
-  # Not yet on PyPI: install from git+https://github.com/uwplasma/SOLVAX until released.
   "solvax",
   "typing-extensions",
   "tomli; python_version < '3.11'",
@@ -41,7 +39,6 @@ dependencies = [
 Homepage = "https://github.com/uwplasma/NTX"
 Repository = "https://github.com/uwplasma/NTX"
 Documentation = "https://ntx.readthedocs.io/en/latest/"
-Changelog = "https://github.com/uwplasma/NTX/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
@@ -51,6 +48,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "ruff",
+  "scipy",
   "twine",
   "mypy",
 ]

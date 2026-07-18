@@ -8,13 +8,13 @@ from pathlib import Path
 
 import pytest
 
-from ntx._checkout_paths import find_booz_xform_jax_root, find_vmec_jax_root
+from ntx._checkout_paths import find_booz_xform_jax_root, find_vmex_root
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def _has_boundary_stack() -> bool:
-    vmec_root = find_vmec_jax_root()
+    vmec_root = find_vmex_root()
     if vmec_root is None:
         return False
     return (
@@ -25,7 +25,7 @@ def _has_boundary_stack() -> bool:
 
 @pytest.mark.skipif(
     os.environ.get("NTX_RUN_HEAVY_BOUNDARY_EXAMPLES") != "1" or not _has_boundary_stack(),
-    reason="requires NTX_RUN_HEAVY_BOUNDARY_EXAMPLES=1 and local vmec_jax/booz_xform_jax",
+    reason="requires NTX_RUN_HEAVY_BOUNDARY_EXAMPLES=1 and local vmex/booz_xform_jax",
 )
 def test_implicit_equilibrium_forward_mode_derivative_benchmark_writes_outputs(tmp_path):
     example_path = ROOT / "examples" / "implicit_equilibrium_forward_mode_derivative_benchmark.py"

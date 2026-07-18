@@ -93,8 +93,13 @@ def find_stellopt_root() -> Path | None:
     return _discover("STELLOPT_ROOT", "STELLOPT", "tests/STELLOPT")
 
 
-def find_vmec_jax_root() -> Path | None:
-    return _discover("VMEC_JAX_ROOT", "vmec_jax", "tests/vmec_jax")
+def find_vmex_root() -> Path | None:
+    # VMEX checkouts commonly still live under the historical vmec_jax
+    # directory name (and env var); prefer the new names but fall back.
+    root = _discover("VMEX_ROOT", "VMEX", "vmex", "tests/vmex")
+    if root is None:
+        root = _discover("VMEC_JAX_ROOT", "vmec_jax", "tests/vmec_jax")
+    return root
 
 
 def find_qs_zenodo_root() -> Path | None:
@@ -120,8 +125,8 @@ def find_qs_zenodo_root() -> Path | None:
     return None
 
 
-def find_vmec_jax_example_input(name: str = "input.circular_tokamak") -> Path | None:
-    root = find_vmec_jax_root()
+def find_vmex_example_input(name: str = "input.circular_tokamak") -> Path | None:
+    root = find_vmex_root()
     if root is None:
         return None
     candidate = root / "examples" / "data" / name

@@ -1,4 +1,4 @@
-"""Differentiable NEOPAX field builders backed by vmec_jax states."""
+"""Differentiable NEOPAX field builders backed by vmex states."""
 
 from __future__ import annotations
 
@@ -13,31 +13,32 @@ from ._neopax_field_utils import (
     _surface_bsqav,
 )
 from ._neopax_types import DifferentiableNeopaxField
-from ._neopax_vmec_jax_boozer import (
-    _booz_xform_bundle_with_gmnc_from_vmec_jax_state,
+from ._neopax_vmex_boozer import (
+    _booz_xform_bundle_with_gmnc_from_vmex_state,
     _booz_xform_gmnc_from_inputs,
 )
-from ._neopax_vmec_jax_profiles import (
+from ._neopax_vmex_profiles import (
     _rho_half_mesh_from_s,
     _vmec_edge_r00_from_state,
     _vmec_psia_from_indata,
     _vmec_psia_from_state,
+    _vmec_s_full,
     _vmec_volume_profiles_from_state,
 )
-from ._vmec_jax_boozer import (
+from ._vmex_boozer import (
     _apply_boozer_sign_convention_profiles,
 )
-from .vmec_jax_backend import (
+from .vmex_backend import (
     VmecJaxBoundaryContext,
-    solve_vmec_jax_boundary_state,
-    surfaces_from_vmec_jax_state,
+    solve_vmex_boundary_state,
+    surfaces_from_vmex_state,
 )
 
 __all__ = [
-    "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
-    "build_differentiable_neopax_field_from_vmec_jax_state",
+    "build_differentiable_neopax_field_from_vmex_boundary_params",
+    "build_differentiable_neopax_field_from_vmex_state",
     "_apply_boozer_sign_convention_profiles",
-    "_booz_xform_bundle_with_gmnc_from_vmec_jax_state",
+    "_booz_xform_bundle_with_gmnc_from_vmex_state",
     "_booz_xform_gmnc_from_inputs",
     "_rho_half_mesh_from_s",
     "_vmec_edge_r00_from_state",
@@ -47,7 +48,7 @@ __all__ = [
 ]
 
 
-def build_differentiable_neopax_field_from_vmec_jax_state(
+def build_differentiable_neopax_field_from_vmex_state(
     *,
     state,
     static,
@@ -58,9 +59,9 @@ def build_differentiable_neopax_field_from_vmec_jax_state(
     nboz: int = 12,
     apply_boozer_sign_convention: bool = True,
 ) -> DifferentiableNeopaxField:
-    """Build a tracer-safe NEOPAX field from an in-memory `vmec_jax` state."""
+    """Build a tracer-safe NEOPAX field from an in-memory `vmex` state."""
 
-    s_full = jnp.asarray(static.s)
+    s_full = _vmec_s_full(static)
     rho_half = _rho_half_mesh_from_s(s_full)
 
     volume_p, vp = _vmec_volume_profiles_from_state(
@@ -81,9 +82,7 @@ def build_differentiable_neopax_field_from_vmec_jax_state(
 
     rho_grid = jnp.linspace(0.0, 1.0, n_r_int)
     rho_grid_half0 = (
-        0.5 * (rho_grid[0] + rho_grid[1])
-        if n_r_int > 1
-        else jnp.asarray(0.0, dtype=rho_grid.dtype)
+        0.5 * (rho_grid[0] + rho_grid[1]) if n_r_int > 1 else jnp.asarray(0.0, dtype=rho_grid.dtype)
     )
     rho_grid_half = jnp.linspace(rho_grid_half0, rho_grid_half0 + rho_grid[-1], n_r_int)
     r_grid = rho_grid * a_b
@@ -99,7 +98,7 @@ def build_differentiable_neopax_field_from_vmec_jax_state(
     over_vprime = over_vprime.at[0].set(0.0)
 
     sample_rho = rho_grid[1:-1]
-    sample_surfaces = surfaces_from_vmec_jax_state(
+    sample_surfaces = surfaces_from_vmex_state(
         state=state,
         static=static,
         indata=indata,
@@ -217,7 +216,7 @@ def build_differentiable_neopax_field_from_vmec_jax_state(
     )
 
 
-def build_differentiable_neopax_field_from_vmec_jax_boundary_params(
+def build_differentiable_neopax_field_from_vmex_boundary_params(
     context: VmecJaxBoundaryContext,
     params,
     *,
@@ -233,7 +232,7 @@ def build_differentiable_neopax_field_from_vmec_jax_boundary_params(
 ) -> DifferentiableNeopaxField:
     """Solve a fixed boundary and build a tracer-safe NEOPAX field."""
 
-    state = solve_vmec_jax_boundary_state(
+    state = solve_vmex_boundary_state(
         context,
         params,
         vmec_project=vmec_project,
@@ -242,7 +241,7 @@ def build_differentiable_neopax_field_from_vmec_jax_boundary_params(
         ftol=ftol,
         implicit=implicit,
     )
-    return build_differentiable_neopax_field_from_vmec_jax_state(
+    return build_differentiable_neopax_field_from_vmex_state(
         state=state,
         static=context.static,
         indata=context.indata,

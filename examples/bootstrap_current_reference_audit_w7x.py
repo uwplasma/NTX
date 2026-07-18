@@ -20,7 +20,7 @@ from ntx import (  # noqa: E402
     GridSpec,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
     to_neopax_monoenergetic,
 )
 from ntx._checkout_paths import find_neopax_root  # noqa: E402
@@ -44,7 +44,7 @@ ER_INDICES = np.array([0, 3, 7, 11], dtype=int)
 
 
 def _surface_loader(rho_value: float):
-    return surface_from_vmec_jax_vmec_wout_file(WOUT_PATH, s=float(rho_value**2))
+    return surface_from_vmex_vmec_wout_file(WOUT_PATH, s=float(rho_value**2))
 
 
 def _max_relative_error(a: np.ndarray, b: np.ndarray) -> float:

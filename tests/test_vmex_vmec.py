@@ -1,23 +1,23 @@
 from __future__ import annotations
 
 import jax.numpy as jnp
-from vmec_jax.api import read_wout
+from vmex import read_wout
 
 from ntx import (
     GridSpec,
     MonoenergeticCase,
     solve_monoenergetic,
-    surface_from_vmec_jax_vmec_wout,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout,
+    surface_from_vmex_vmec_wout_file,
 )
 
 from .fixture_data import SAMPLE_WOUT
 
 
-def test_surface_from_vmec_jax_vmec_wout_file_matches_in_memory_builder():
+def test_surface_from_vmex_vmec_wout_file_matches_in_memory_builder():
     wout = read_wout(SAMPLE_WOUT)
-    direct = surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=0.25)
-    in_memory = surface_from_vmec_jax_vmec_wout(wout, s=0.25, source_path=SAMPLE_WOUT)
+    direct = surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=0.25)
+    in_memory = surface_from_vmex_vmec_wout(wout, s=0.25, source_path=SAMPLE_WOUT)
 
     result_direct = solve_monoenergetic(
         direct,
@@ -38,8 +38,8 @@ def test_surface_from_vmec_jax_vmec_wout_file_matches_in_memory_builder():
     assert jnp.max(jnp.abs(direct_values - memory_values)) < 1.0e-12
 
 
-def test_surface_from_vmec_jax_vmec_wout_file_preserves_metadata():
-    direct = surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=0.25)
+def test_surface_from_vmex_vmec_wout_file_preserves_metadata():
+    direct = surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=0.25)
     assert direct.nfp == 2
     assert direct.ns == 5
     assert direct.total_mode_count == 4

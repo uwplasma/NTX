@@ -56,6 +56,7 @@ examples.
 37. `profile_control_optimization.{png,pdf}`
 38. `profile_basis_optimization.{png,pdf,json}`
 39. `profile_transport_loop.{png,pdf}`
+40. `angular_oversampling_audit.{png,pdf,json}`
 
 ## Full Figure Inventory
 
@@ -84,16 +85,16 @@ examples.
      but still below a reusable geometry-family claim
 8. `boundary_forward_mode_current_derivative_benchmark.{png,pdf,json}`
    - low-dimensional boundary controls propagated through boundary-projected
-     `vmec_jax -> booz_xform_jax -> NTX` and an `NTX+NEOPAX` integrated-current
+     `vmex -> booz_xform_jax -> NTX` and an `NTX+NEOPAX` integrated-current
      objective under forward mode
 9. `implicit_equilibrium_forward_mode_derivative_benchmark.{png,pdf,json}`
    - low-dimensional boundary controls propagated through the implicit
-     fixed-boundary `vmec_jax` residual solve, `booz_xform_jax`, and an NTX
+     fixed-boundary `vmex` residual solve, `booz_xform_jax`, and an NTX
      monoenergetic transport response under forward mode, with the reverse-mode
      Boozer failure recorded in the JSON artifact
 10. `explicit_relaxed_boundary_current_derivative_benchmark.{png,pdf,json}`
    - low-dimensional boundary controls propagated through an explicitly relaxed
-     fixed-boundary `vmec_jax -> booz_xform_jax -> NTX` path and an
+     fixed-boundary `vmex -> booz_xform_jax -> NTX` path and an
      `NTX+NEOPAX` integrated-current objective, with ordinary-versus-explicit
      primal-volume agreement recorded on committed QA and QH family cases
 11. `geometry_family_breadth_summary.{png,pdf,json}`
@@ -241,6 +242,9 @@ examples.
    - explicit self-consistent transport-relaxation iteration on the same profile closure
 46. `primitive_profile_transport.{png,pdf}`
    - primitive density/temperature transport iteration mapped back to ambipolar-field and bootstrap-current evolution
+47. `angular_oversampling_audit.{png,pdf,json}`
+   - finite-beta QA, NCSX, and HSX coefficient error, compiled warm runtime,
+     and XLA temporary-memory evidence for the warning-level angular grid policy
 
 Together these figures cover:
 
@@ -252,7 +256,7 @@ Together these figures cover:
 - differentiable uncertainty propagation on the same profile map
 - multi-parameter geometry-control derivative auditing
 - file-backed Boozer and VMEC geometry-control derivative auditing
-- boundary-to-output forward-mode auditing on projected `vmec_jax` geometry
+- boundary-to-output forward-mode auditing on projected `vmex` geometry
 - implicit-equilibrium derivative diagnostics that isolate where parity is lost:
   equilibrium volume matches, but Boozer geometry and NTX transport are closed
   as non-shipping diagnostics
@@ -540,3 +544,16 @@ Use this figure when the paper needs an explicit W7-X imported-workflow
 bootstrap-current convergence panel alongside the NTX-only methods figures.
 
 ![W7-X bootstrap-current convergence](_static/bootstrap_current_reference_audit_w7x.png)
+
+## Angular Oversampling Figure
+
+```bash
+python examples/angular_oversampling_audit.py --preset production
+```
+
+This figure supports the numerical-methods discussion by separating
+coefficient convergence from compiled steady execution and temporary memory.
+The `2.25`-times-Nyquist line is a measured starting-grid recommendation;
+successive-grid convergence remains the publication acceptance gate.
+
+![Angular oversampling audit](_static/angular_oversampling_audit.png)

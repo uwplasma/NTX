@@ -1,4 +1,4 @@
-"""Direct VMEC-surface builders backed by `vmec_jax`."""
+"""Direct VMEC-surface builders backed by `vmex`."""
 
 from __future__ import annotations
 
@@ -10,14 +10,14 @@ import numpy as np
 from .geometry import VmecSurface
 
 
-def surface_from_vmec_jax_vmec_wout(
+def surface_from_vmex_vmec_wout(
     wout,
     *,
     s: float,
     source_path: str | Path | None = None,
     min_bmn_to_load: float = 0.0,
 ) -> VmecSurface:
-    """Build a VMEC harmonic surface from an in-memory `vmec_jax` wout object."""
+    """Build a VMEC harmonic surface from an in-memory `vmex` wout object."""
 
     if not 0.0 <= float(s) <= 1.0:
         raise ValueError("s must be between 0 and 1")
@@ -36,18 +36,10 @@ def surface_from_vmec_jax_vmec_wout(
 
     bmnc = _interp_mode_columns(s_half, np.asarray(wout.bmnc, dtype=np.float64)[1:, :], s)
     gmnc = _interp_mode_columns(s_half, np.asarray(wout.gmnc, dtype=np.float64)[1:, :], s)
-    bsupumnc = _interp_mode_columns(
-        s_half, np.asarray(wout.bsupumnc, dtype=np.float64)[1:, :], s
-    )
-    bsupvmnc = _interp_mode_columns(
-        s_half, np.asarray(wout.bsupvmnc, dtype=np.float64)[1:, :], s
-    )
-    bsubumnc = _interp_mode_columns(
-        s_half, np.asarray(wout.bsubumnc, dtype=np.float64)[1:, :], s
-    )
-    bsubvmnc = _interp_mode_columns(
-        s_half, np.asarray(wout.bsubvmnc, dtype=np.float64)[1:, :], s
-    )
+    bsupumnc = _interp_mode_columns(s_half, np.asarray(wout.bsupumnc, dtype=np.float64)[1:, :], s)
+    bsupvmnc = _interp_mode_columns(s_half, np.asarray(wout.bsupvmnc, dtype=np.float64)[1:, :], s)
+    bsubumnc = _interp_mode_columns(s_half, np.asarray(wout.bsubumnc, dtype=np.float64)[1:, :], s)
+    bsubvmnc = _interp_mode_columns(s_half, np.asarray(wout.bsubvmnc, dtype=np.float64)[1:, :], s)
     iota = -float(_interp_profile(s_full, np.asarray(wout.iotaf, dtype=np.float64), s))
 
     b0 = float(np.max(np.abs(bmnc)))
@@ -60,11 +52,17 @@ def surface_from_vmec_jax_vmec_wout(
         include[np.argmax(zero_mode)] = True
 
     aminor_p = float(np.asarray(wout.Aminor_p, dtype=np.float64).reshape(()))
+    if aminor_p == 0.0:
+        raise ValueError("VMEC input must provide a nonzero Aminor_p for transport normalization")
     r_n = float(np.sqrt(float(s)))
     r_hat = float(aminor_p * r_n)
+    psi_a_hat = float(phi[-1]) / (2.0 * np.pi)
+    dpsi_hat_dr_hat = float(2.0 * psi_a_hat * r_n / aminor_p)
+    if dpsi_hat_dr_hat == 0.0:
+        raise ValueError("VMEC transport normalization produced dpsi_hat/dr_hat = 0")
 
     resolved_path = Path(
-        source_path if source_path is not None else getattr(wout, "path", "vmec_jax_wout")
+        source_path if source_path is not None else getattr(wout, "path", "vmex_wout")
     ).expanduser()
 
     return VmecSurface(
@@ -87,31 +85,40 @@ def surface_from_vmec_jax_vmec_wout(
         b_sup_theta_cos=jnp.asarray(bsupumnc[include], dtype=jnp.float64),
         b_sup_zeta_cos=jnp.asarray(bsupvmnc[include], dtype=jnp.float64),
         b0=b0,
-        psi_a_hat=float(abs(phi[-1]) / (2.0 * np.pi)),
+        psi_a_hat=psi_a_hat,
         phi_edge=float(phi[-1]),
         r_n=r_n,
         r_hat=r_hat,
-        dpsi_hat_dr_hat=1.0,
-        dr_hat_dpsi_hat=1.0,
+        dpsi_hat_dr_hat=dpsi_hat_dr_hat,
+        dr_hat_dpsi_hat=float(1.0 / dpsi_hat_dr_hat),
         aminor_p=aminor_p,
         psi_p=None,
-        transport_psi_scale=1.0,
+        transport_psi_scale=dpsi_hat_dr_hat,
     )
 
 
-def surface_from_vmec_jax_vmec_wout_file(
+def surface_from_vmex_vmec_wout_file(
     path: str | Path,
     *,
     s: float,
     min_bmn_to_load: float = 0.0,
 ) -> VmecSurface:
-    """Build a VMEC harmonic surface from a `wout` file through `vmec_jax`."""
+    """Build a VMEC harmonic surface from a `wout` file through `vmex`."""
 
-    from vmec_jax.api import read_wout
+    try:
+        from vmex import read_wout
+    except (ImportError, ModuleNotFoundError):
+        try:
+            from vmex.api import read_wout
+        except (ImportError, ModuleNotFoundError) as exc:
+            raise ModuleNotFoundError(
+                "surface_from_vmex_vmec_wout_file requires vmex. "
+                "Install it with `pip install vmex`."
+            ) from exc
 
     wout_path = Path(path).expanduser().resolve()
     wout = read_wout(wout_path)
-    return surface_from_vmec_jax_vmec_wout(
+    return surface_from_vmex_vmec_wout(
         wout,
         s=s,
         source_path=wout_path,

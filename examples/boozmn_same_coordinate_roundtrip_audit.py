@@ -3,7 +3,7 @@
 
 This audit generates a Boozer file from a VMEC `wout`, reloads the selected
 surfaces through `load_boozmn_surface`, and compares them with the in-memory
-`vmec_jax -> booz_xform_jax -> NTX` path on the same VMEC half-grid surfaces.
+`vmex -> booz_xform_jax -> NTX` path on the same VMEC half-grid surfaces.
 It is a geometry/backend round trip, not a fitted correction.
 """
 
@@ -34,14 +34,14 @@ from ntx import (  # noqa: E402
     load_boozmn_surface,
     prepare_monoenergetic_system,
     solve_prepared,
-    surface_from_vmec_jax_wout,
+    surface_from_vmex_wout,
 )
 
 DEFAULT_INPUT = Path(
-    "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres"
+    "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres"
 )
 DEFAULT_WOUT = Path(
-    "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_LandremanPaul2021_QA_lowres.nc"
+    "/Users/rogeriojorge/local/vmex/examples/data/wout_LandremanPaul2021_QA_lowres.nc"
 )
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "boozmn_same_coordinate_roundtrip_audit"
 
@@ -202,9 +202,7 @@ def build_roundtrip_audit(
 
     resolved_psi_p = _read_vmec_edge_psi(wout_path) if psi_p is None else float(psi_p)
     temp_context = (
-        tempfile.TemporaryDirectory(prefix="ntx_boozmn_roundtrip_")
-        if output_dir is None
-        else None
+        tempfile.TemporaryDirectory(prefix="ntx_boozmn_roundtrip_") if output_dir is None else None
     )
     try:
         if temp_context is not None:
@@ -225,7 +223,7 @@ def build_roundtrip_audit(
         for packed_index, (surface_index, s_value) in enumerate(
             zip(surface_indices, s_values, strict=True)
         ):
-            reference_surface = surface_from_vmec_jax_wout(
+            reference_surface = surface_from_vmex_wout(
                 input_path=input_path,
                 wout_path=wout_path,
                 s=float(s_value),
@@ -456,10 +454,8 @@ def build_figure(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) -
                 "same VMEC state, Boozer transform,",
                 "half-grid surfaces, and flux scale",
                 "",
-                "max geometry rdiff: "
-                f"{summary['max_geometry_relative_difference']:.3e}",
-                "max coefficient rdiff: "
-                f"{summary['max_transport_relative_difference']:.3e}",
+                f"max geometry rdiff: {summary['max_geometry_relative_difference']:.3e}",
+                f"max coefficient rdiff: {summary['max_transport_relative_difference']:.3e}",
                 f"closed: {summary['roundtrip_closed']}",
                 "",
                 "The tested radial coordinate is the VMEC",
@@ -499,12 +495,11 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--psi-p", type=float, default=None)
     parser.add_argument(
         "--profile-source",
-        choices=("auto", "input", "wout", "state_wout_profiles"),
+        choices=("auto", "wout"),
         default="auto",
         help=(
-            "Reference VMEC-to-Boozer path. Use 'wout' for finalized finite-beta "
-            "wout magnetic channels when the differentiable state path cannot "
-            "re-evaluate the VMEC input profile representation."
+            "Reference VMEC-to-Boozer file path. Both choices use finalized "
+            "WOUT magnetic channels with the current vmex API."
         ),
     )
     parser.add_argument("--nu-hat", type=float, default=1.0e-2)

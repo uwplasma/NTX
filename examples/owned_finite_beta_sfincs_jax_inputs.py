@@ -45,7 +45,7 @@ from ntx import (  # noqa: E402
     GridSpec,
     MonoenergeticCase,
     solve_monoenergetic,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_inputs"
@@ -397,7 +397,7 @@ def _ntx_same_grid_transport_summary(
             "status": "skipped",
             "reason": f"SFINCS-JAX output is missing required scalars: {missing}",
         }
-    surface = surface_from_vmec_jax_vmec_wout_file(
+    surface = surface_from_vmex_vmec_wout_file(
         case.wout_path,
         s=float(rho) ** 2,
         min_bmn_to_load=min_bmn_to_load,
@@ -441,7 +441,7 @@ def _ntx_same_grid_transport_summary(
     }
     return {
         "status": "complete",
-        "geometry_path": "vmec_jax wout harmonics -> NTX VmecSurface",
+        "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
         "comparison_scope": (
             "Coefficient-level finite-beta diagnostic only; bootstrap-current "
             "parity requires profile closure and production-resolution scans."

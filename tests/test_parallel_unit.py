@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 import ntx._solver_scan as solver_scan
+import ntx._solver_scan_parallel as solver_scan_parallel
 import ntx.parallel as parallel_mod
 from ntx import GridSpec, example_surface, solve_monoenergetic_multiprocess_scan
 from ntx.geometry import VmecSurface
@@ -199,7 +200,7 @@ def test_parallel_scan_handles_zero_devices_empty_inputs_and_single_device(monke
     grid = GridSpec(5, 5, 4)
     fake_prepared = SimpleNamespace(grid=grid)
     monkeypatch.setattr(
-        solver_scan,
+        solver_scan_parallel,
         "prepare_monoenergetic_system",
         lambda *args, **kwargs: fake_prepared,
     )
@@ -207,17 +208,21 @@ def test_parallel_scan_handles_zero_devices_empty_inputs_and_single_device(monke
     def fake_resolved(*args, **kwargs):
         return jnp.asarray([]), jnp.asarray([]), (0,)
 
-    monkeypatch.setattr(solver_scan, "_resolved_scan_inputs", fake_resolved)
-    monkeypatch.setattr(solver_scan, "healthy_parallel_devices", lambda: ())
+    monkeypatch.setattr(solver_scan_parallel, "_resolved_scan_inputs", fake_resolved)
+    monkeypatch.setattr(solver_scan_parallel, "healthy_parallel_devices", lambda: ())
     with pytest.raises(ValueError, match="no healthy local JAX devices"):
-        solver_scan.solve_monoenergetic_parallel_scan(example_surface(), grid, jnp.asarray([]))
+        solver_scan_parallel.solve_monoenergetic_parallel_scan(
+            example_surface(), grid, jnp.asarray([])
+        )
 
-    monkeypatch.setattr(solver_scan, "healthy_parallel_devices", lambda: (object(),))
-    zeros = solver_scan.solve_monoenergetic_parallel_scan(example_surface(), grid, jnp.asarray([]))
+    monkeypatch.setattr(solver_scan_parallel, "healthy_parallel_devices", lambda: (object(),))
+    zeros = solver_scan_parallel.solve_monoenergetic_parallel_scan(
+        example_surface(), grid, jnp.asarray([])
+    )
     assert all(value.shape == (0,) for value in zeros.values())
 
     monkeypatch.setattr(
-        solver_scan,
+        solver_scan_parallel,
         "_resolved_scan_inputs",
         lambda *args, **kwargs: (
             jnp.asarray([1.0e-3, 2.0e-3]),
@@ -226,7 +231,7 @@ def test_parallel_scan_handles_zero_devices_empty_inputs_and_single_device(monke
         ),
     )
     monkeypatch.setattr(
-        solver_scan,
+        solver_scan_parallel,
         "_scan_coefficients_serial",
         lambda prepared, nu_values, epsi_values: jnp.asarray(
             [
@@ -235,7 +240,7 @@ def test_parallel_scan_handles_zero_devices_empty_inputs_and_single_device(monke
             ]
         ),
     )
-    serial = solver_scan.solve_monoenergetic_parallel_scan(
+    serial = solver_scan_parallel.solve_monoenergetic_parallel_scan(
         example_surface(),
         grid,
         jnp.asarray([1.0e-3, 2.0e-3]),
@@ -245,7 +250,7 @@ def test_parallel_scan_handles_zero_devices_empty_inputs_and_single_device(monke
 
     batched_calls = []
     monkeypatch.setattr(
-        solver_scan,
+        solver_scan_parallel,
         "_scan_coefficients_batched",
         lambda prepared, nu_values, epsi_values, *, batch_size: (
             batched_calls.append(batch_size)
@@ -257,7 +262,7 @@ def test_parallel_scan_handles_zero_devices_empty_inputs_and_single_device(monke
             )
         ),
     )
-    serial_batched = solver_scan.solve_monoenergetic_parallel_scan(
+    serial_batched = solver_scan_parallel.solve_monoenergetic_parallel_scan(
         example_surface(),
         grid,
         jnp.asarray([1.0e-3, 2.0e-3]),
@@ -272,12 +277,12 @@ def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
     grid = GridSpec(5, 5, 4)
     fake_prepared = SimpleNamespace(grid=grid)
     monkeypatch.setattr(
-        solver_scan,
+        solver_scan_parallel,
         "prepare_monoenergetic_system",
         lambda *args, **kwargs: fake_prepared,
     )
     monkeypatch.setattr(
-        solver_scan,
+        solver_scan_parallel,
         "_resolved_scan_inputs",
         lambda *args, **kwargs: (
             jnp.asarray([1.0e-3, 2.0e-3, 3.0e-3]),
@@ -286,8 +291,8 @@ def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
         ),
     )
     devices = ("d0", "d1")
-    monkeypatch.setattr(solver_scan, "healthy_parallel_devices", lambda: devices)
-    monkeypatch.setattr(solver_scan.jax, "local_device_count", lambda: 3)
+    monkeypatch.setattr(solver_scan_parallel, "healthy_parallel_devices", lambda: devices)
+    monkeypatch.setattr(solver_scan_parallel.jax, "local_device_count", lambda: 3)
 
     class DummyContext:
         def __enter__(self):
@@ -296,8 +301,10 @@ def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
         def __exit__(self, exc_type, exc, tb):
             return False
 
-    monkeypatch.setattr(solver_scan.jax, "default_device", lambda device: DummyContext())
-    monkeypatch.setattr(solver_scan.jax, "device_get", lambda value: value)
+    monkeypatch.setattr(
+        solver_scan_parallel.jax, "default_device", lambda device: DummyContext()
+    )
+    monkeypatch.setattr(solver_scan_parallel.jax, "device_get", lambda value: value)
 
     seen_batch_sizes = []
 
@@ -313,9 +320,9 @@ def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
             "D33_spitzer": base + 40.0,
         }
 
-    monkeypatch.setattr(solver_scan, "solve_monoenergetic_scan", fake_scan)
+    monkeypatch.setattr(solver_scan_parallel, "solve_monoenergetic_scan", fake_scan)
     with pytest.warns(RuntimeWarning, match="failed the NTX smoke solve"):
-        result = solver_scan.solve_monoenergetic_parallel_scan(
+        result = solver_scan_parallel.solve_monoenergetic_parallel_scan(
             example_surface(),
             grid,
             jnp.asarray([1.0e-3, 2.0e-3, 3.0e-3]),
@@ -327,8 +334,8 @@ def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
 
 
 def test_healthy_parallel_helpers_cover_count_and_exception_branch(monkeypatch):
-    solver_scan._healthy_parallel_devices_cached.cache_clear()
-    monkeypatch.setattr(solver_scan.jax, "local_devices", lambda: ("good", "bad"))
+    solver_scan_parallel._healthy_parallel_devices_cached.cache_clear()
+    monkeypatch.setattr(solver_scan_parallel.jax, "local_devices", lambda: ("good", "bad"))
 
     class DummyContext:
         def __enter__(self):
@@ -337,7 +344,9 @@ def test_healthy_parallel_helpers_cover_count_and_exception_branch(monkeypatch):
         def __exit__(self, exc_type, exc, tb):
             return False
 
-    monkeypatch.setattr(solver_scan.jax, "default_device", lambda device: DummyContext())
+    monkeypatch.setattr(
+        solver_scan_parallel.jax, "default_device", lambda device: DummyContext()
+    )
 
     def fake_scan(surface, grid, nu, *, er_hat=None, epsi_hat=None):
         if nu is None:  # pragma: no cover - defensive
@@ -350,11 +359,11 @@ def test_healthy_parallel_helpers_cover_count_and_exception_branch(monkeypatch):
         raise RuntimeError("device failed")
 
     fake_scan.calls = []
-    monkeypatch.setattr(solver_scan, "solve_monoenergetic_scan", fake_scan)
-    healthy = solver_scan.healthy_parallel_devices()
+    monkeypatch.setattr(solver_scan_parallel, "solve_monoenergetic_scan", fake_scan)
+    healthy = solver_scan_parallel.healthy_parallel_devices()
     assert healthy == ("good",)
-    assert solver_scan.healthy_parallel_device_count() == 1
-    solver_scan._healthy_parallel_devices_cached.cache_clear()
+    assert solver_scan_parallel.healthy_parallel_device_count() == 1
+    solver_scan_parallel._healthy_parallel_devices_cached.cache_clear()
 
 
 def test_solve_scan_worker_sets_gpu_environment(monkeypatch):
