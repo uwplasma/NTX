@@ -22,7 +22,7 @@ from ntx import GridSpec, MonoenergeticCase, load_vmec_surface  # noqa: E402
 from ntx._checkout_paths import (  # noqa: E402
     find_simsopt_root,
     find_stellopt_root,
-    find_vmec_jax_root,
+    find_vmex_root,
     fixture_path,
 )
 from ntx.config import enable_x64  # noqa: E402
@@ -164,33 +164,33 @@ def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTrans
     """Return reusable local VMEC inputs from the surrounding research stack."""
 
     cases: list[GeometryTransportCase] = []
-    vmec_jax_root = find_vmec_jax_root()
+    vmex_root = find_vmex_root()
     simsopt_root = find_simsopt_root()
     stellopt_root = find_stellopt_root()
 
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_circular_tokamak.nc",
         case_id="circular_tokamak",
         label="Circular tokamak",
         family="tokamak",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes="axisymmetric tokamak baseline",
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_shaped_tokamak_pressure.nc",
         case_id="shaped_tokamak",
         label="Shaped tokamak",
         family="tokamak",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes="axisymmetric shaped-pressure tokamak baseline",
     )
     _add_first_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_paths=(
             "examples/data/wout_nfp2_QA.nc",
             (
@@ -201,26 +201,26 @@ def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTrans
         case_id="nfp2_qa",
         label="NFP2 QA",
         family="QA",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes=(
-            "near-zero-transform vacuum QA example from the installed vmec_jax "
+            "near-zero-transform vacuum QA example from the installed vmex "
             "suite; retained as a singular-conditioning diagnostic"
         ),
         promotion_eligible=False,
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_nfp2_QA_finite_beta.nc",
         case_id="nfp2_qa_finite_beta",
         label="NFP2 QA finite beta",
         family="QA",
-        source="vmec_jax examples",
-        notes="finite-beta QA example from the installed vmec_jax example suite",
+        source="vmex examples",
+        notes="finite-beta QA example from the installed vmex example suite",
     )
     _add_first_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_paths=(
             "examples/data/wout_LandremanPaul2021_QH_reactorScale_lowres.nc",
             (
@@ -231,28 +231,28 @@ def discover_case_specs(*, include_fixture: bool = False) -> tuple[GeometryTrans
         case_id="precise_qs_qh_reactor",
         label="Precise-QS QH",
         family="QH",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes="precise-QS QH reactor-scale low-resolution reference",
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_nfp3_QI_fixed_resolution_final.nc",
         case_id="nfp3_qi",
         label="NFP3 QI",
         family="QI",
-        source="vmec_jax examples",
+        source="vmex examples",
         notes="fixed-resolution quasi-isodynamic-style example",
     )
     _add_case(
         cases,
-        root=vmec_jax_root,
+        root=vmex_root,
         relative_path="examples/data/wout_basic_non_stellsym_simsopt.nc",
         case_id="basic_non_stellsym",
         label="Non-stellsym",
         family="non-stellarator-symmetric",
-        source="vmec_jax examples",
-        notes="non-stellarator-symmetric public example from the local VMEC-JAX suite",
+        source="vmex examples",
+        notes="non-stellarator-symmetric public example from the local VMEX suite",
     )
     _add_case(
         cases,

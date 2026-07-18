@@ -151,7 +151,7 @@ These references matter for:
 - [JAX gradient checkpointing](https://docs.jax.dev/en/latest/gradient-checkpointing.html),
   including the warning that checkpointing an entire function can add
   recomputation without reducing saved state
-- [vmec_jax](https://github.com/uwplasma/vmec_jax)
+- [vmex](https://github.com/uwplasma/VMEX)
 - [booz_xform_jax](https://github.com/uwplasma/booz_xform_jax)
 - [NEOPAX](https://github.com/uwplasma/NEOPAX)
 - [Lineax](https://docs.kidger.site/lineax/) for possible structured linear

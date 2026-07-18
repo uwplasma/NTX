@@ -52,17 +52,17 @@ def test_owned_geometry_neopax_dataset_records_provenance_without_external_runti
 
     case_payload = payload["cases"][0]
     assert case_payload["status"] == "complete"
-    assert set(case_payload["scan_paths"]) == {"booz_xform_jax", "vmec_jax_wout_cubic"}
+    assert set(case_payload["scan_paths"]) == {"booz_xform_jax", "vmex_wout_cubic"}
     assert (
         case_payload["scan_paths"]["booz_xform_jax"]["geometry_path"]
-        == "vmec_jax.read_wout -> booz_xform_jax -> NTX BoozerSurface"
+        == "vmex.read_wout -> booz_xform_jax -> NTX BoozerSurface"
     )
     responses = case_payload["scan_paths"]["booz_xform_jax"]["profile_responses"]
     assert responses["profile_model"]
     assert len(responses["bootstrap_current_response_normalized"]) == 2
     assert np_is_finite_scalar(responses["current_response_objective"])
     assert case_payload["interpolation_audit"]["reference_path"] == "booz_xform_jax"
-    assert case_payload["interpolation_audit"]["candidate_path"] == "vmec_jax_wout_cubic"
+    assert case_payload["interpolation_audit"]["candidate_path"] == "vmex_wout_cubic"
     assert max(
         case_payload["interpolation_audit"]["max_relative_difference"].values()
     ) == pytest.approx(0.0)

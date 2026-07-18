@@ -2,8 +2,8 @@
   "benchmark": "boozmn_same_coordinate_roundtrip_audit",
   "classification": "same-coordinate VMEC half-grid Boozer-file round trip",
   "inputs": {
-    "input": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
-    "wout": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_LandremanPaul2021_QA_lowres.nc",
+    "input": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
+    "wout": "/Users/rogeriojorge/local/vmex/examples/data/wout_LandremanPaul2021_QA_lowres.nc",
     "generated_boozmn": "/var/folders/bg/ksp0y7qn2rl1jj667080mw080000gn/T/ntx_boozmn_roundtrip_gvekwioq/boozmn_roundtrip_m4_n4.nc",
     "generated_boozmn_retained": false,
     "surface_indices": [

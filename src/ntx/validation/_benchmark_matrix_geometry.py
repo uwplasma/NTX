@@ -142,7 +142,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
                 "Generates a Boozer file from a VMEC wout, reloads the same "
                 "VMEC half-grid surfaces through the direct boozmn backend, "
                 "and requires geometry metadata plus D11/D31/D13/D33 to match "
-                "the in-memory vmec_jax/booz_xform_jax path. This validates "
+                "the in-memory vmex/booz_xform_jax path. This validates "
                 "the direct loader radial coordinate and normalization "
                 "conventions; it does not equate VMEC-harmonic and "
                 "Boozer-coordinate representations."
@@ -207,7 +207,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             tests=(
                 "tests/test_boozmn.py",
                 "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
-                "tests/test_vmec_jax_backend.py",
+                "tests/test_vmex_backend.py",
             ),
             artifacts=(
                 "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.png",

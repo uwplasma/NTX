@@ -198,7 +198,7 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
         metric_key="max_transport_relative_difference",
         details=(
             "same-coordinate VMEC half-grid Boozer-file round trip compared "
-            "with the in-memory vmec_jax/booz_xform_jax path"
+            "with the in-memory vmex/booz_xform_jax path"
         ),
     )
     _append_summary_metric_gate(

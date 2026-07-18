@@ -23,7 +23,7 @@ from ntx import (  # noqa: E402
     example_bootstrap_current_optimization,
     solve_monoenergetic_multiprocess_scan,
     solve_monoenergetic_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 from ntx._checkout_paths import find_neopax_root  # noqa: E402
 from ntx.config import enable_x64  # noqa: E402
@@ -91,7 +91,7 @@ def main() -> None:
     drds = jnp.ones_like(rho)
     grid = GridSpec(7, 9, 6)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(wout_path, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(wout_path, s=float(rho_value**2))
         for rho_value in rho
     )
 

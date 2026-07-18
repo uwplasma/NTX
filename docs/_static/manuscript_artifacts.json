@@ -446,7 +446,7 @@
         {
           "id": "vmec_sample",
           "label": "Sample VMEC-backed surface",
-          "source_kind": "vmec_jax",
+          "source_kind": "vmex",
           "source_path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_wout.nc",
           "rho": 0.5,
           "s": 0.25,
@@ -782,7 +782,7 @@
     },
     "boundary_forward_mode_current_derivatives": {
       "case": {
-        "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.circular_tokamak",
+        "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.circular_tokamak",
         "geometry_path": "boundary_projected_initial_guess",
         "parameter_names": [
           "rc10",
@@ -793,7 +793,7 @@
         "max_relative_mismatch": 7.17355827984326e-07,
         "median_relative_mismatch": 3.556284405640031e-07
       },
-      "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmec_jax geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
+      "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmex geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
       "objectives": [
         {
           "id": "ntx_transport_response",
@@ -841,7 +841,7 @@
       "case": {
         "id": "qa_lowres",
         "label": "QA low-res",
-        "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
+        "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
         "geometry_path": "implicit_fixed_boundary_residual_solve",
         "parameter_names": [
           "rc01"
@@ -932,7 +932,7 @@
         {
           "id": "qa_lowres",
           "label": "QA low-res",
-          "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
+          "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
           "geometry_path": "explicit_relaxed_fixed_boundary",
           "parameter_names": [
             "rc01",
@@ -1109,7 +1109,7 @@
         {
           "id": "qh_warm_start",
           "label": "QH warm-start",
-          "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.nfp4_QH_warm_start",
+          "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.nfp4_QH_warm_start",
           "geometry_path": "explicit_relaxed_fixed_boundary",
           "parameter_names": [
             "rc01",
@@ -1298,7 +1298,7 @@
         "median_relative_mismatch": 4.4076543971369415e-07,
         "max_ordinary_explicit_volume_relative_difference": 0.0
       },
-      "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmec_jax solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
+      "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmex solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
       "objective_ids": [
         "booz_xform_scalar",
         "ntx_transport_response",
@@ -1332,7 +1332,7 @@
         {
           "id": "file_backed_vmec_sample",
           "label": "Sample VMEC-backed surface",
-          "geometry_path": "file-backed vmec_jax surface",
+          "geometry_path": "file-backed vmex surface",
           "observable_scope": "D11, D31, D33",
           "max_relative_mismatch": 8.768426399388515e-05,
           "median_relative_mismatch": 2.230457449866678e-08,
@@ -1435,11 +1435,11 @@
           "id": "nfp2_qa",
           "label": "NFP2 QA",
           "family": "QA",
-          "source": "vmec_jax examples",
-          "path": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_nfp2_QA.nc",
+          "source": "vmex examples",
+          "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_nfp2_QA.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
-          "notes": "near-zero-transform vacuum QA example from the installed vmec_jax suite; retained as a singular-conditioning diagnostic",
+          "notes": "near-zero-transform vacuum QA example from the installed vmex suite; retained as a singular-conditioning diagnostic",
           "promotion_eligible": false,
           "status": "monitor",
           "quality_status": "monitor",
@@ -1558,11 +1558,11 @@
           "id": "nfp2_qa_finite_beta",
           "label": "NFP2 QA finite beta",
           "family": "QA",
-          "source": "vmec_jax examples",
-          "path": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_nfp2_QA_finite_beta.nc",
+          "source": "vmex examples",
+          "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_nfp2_QA_finite_beta.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
-          "notes": "finite-beta QA example from the installed vmec_jax example suite",
+          "notes": "finite-beta QA example from the installed vmex example suite",
           "promotion_eligible": true,
           "status": "stress-pass",
           "quality_status": "stress-pass",
@@ -1681,8 +1681,8 @@
           "id": "precise_qs_qh_reactor",
           "label": "Precise-QS QH",
           "family": "QH",
-          "source": "vmec_jax examples",
-          "path": "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_LandremanPaul2021_QH_reactorScale_lowres.nc",
+          "source": "vmex examples",
+          "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_LandremanPaul2021_QH_reactorScale_lowres.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "precise-QS QH reactor-scale low-resolution reference",
@@ -2869,7 +2869,7 @@
           "source": "single-stage finite-beta test case",
           "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
           "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
-          "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmec_jax input reader",
+          "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
           "primary_geometry_path": "booz_xform_jax",
           "wout_metadata": {
             "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
@@ -2889,7 +2889,7 @@
           "primary_scan_path": "booz_xform_jax",
           "scan_paths": {
             "booz_xform_jax": {
-              "geometry_path": "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+              "geometry_path": "vmex state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
               "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
               "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
               "status": "complete",
@@ -3078,8 +3078,8 @@
                 "path": "docs/_static/owned_geometry_neopax_database/finite_beta_qa_pressure_current_booz_xform_jax.h5"
               }
             },
-            "vmec_jax_wout_cubic": {
-              "geometry_path": "vmec_jax read_wout -> NTX VmecSurface",
+            "vmex_wout_cubic": {
+              "geometry_path": "vmex read_wout -> NTX VmecSurface",
               "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
               "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
               "status": "complete",
@@ -3265,13 +3265,13 @@
               },
               "hdf5": {
                 "status": "written",
-                "path": "docs/_static/owned_geometry_neopax_database/finite_beta_qa_pressure_current_vmec_jax_wout_cubic.h5"
+                "path": "docs/_static/owned_geometry_neopax_database/finite_beta_qa_pressure_current_vmex_wout_cubic.h5"
               }
             }
           },
           "interpolation_audit": {
             "reference_path": "booz_xform_jax",
-            "candidate_path": "vmec_jax_wout_cubic",
+            "candidate_path": "vmex_wout_cubic",
             "claim_scope": "same input/wout, rho, collisionality, electric field, grid, and normalization; differences isolate geometry/interpolation-path effects and should not be mixed with external reference datasets",
             "max_relative_difference": {
               "D11": 0.1427769070900202,
@@ -3293,8 +3293,8 @@
           "source": "single-stage finite-beta optimized case",
           "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/input.final",
           "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
-          "notes": "optimized finite-beta QH stellarator; direct wout-harmonic NTX path is usable, while the current vmec_jax Boozer path reports the unresolved cubic-spline current-profile support gap",
-          "primary_geometry_path": "vmec_jax_wout_cubic",
+          "notes": "optimized finite-beta QH stellarator; direct wout-harmonic NTX path is usable, while the current vmex Boozer path reports the unresolved cubic-spline current-profile support gap",
+          "primary_geometry_path": "vmex_wout_cubic",
           "wout_metadata": {
             "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
             "exists": true,
@@ -3309,11 +3309,11 @@
             "b0": 5.261240197954242
           },
           "status": "complete",
-          "requested_primary_geometry_path": "vmec_jax_wout_cubic",
-          "primary_scan_path": "vmec_jax_wout_cubic",
+          "requested_primary_geometry_path": "vmex_wout_cubic",
+          "primary_scan_path": "vmex_wout_cubic",
           "scan_paths": {
             "booz_xform_jax": {
-              "geometry_path": "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+              "geometry_path": "vmex state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
               "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
               "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
               "status": "complete",
@@ -3502,8 +3502,8 @@
                 "path": "docs/_static/owned_geometry_neopax_database/finite_beta_nfp3_qh_stage1_booz_xform_jax.h5"
               }
             },
-            "vmec_jax_wout_cubic": {
-              "geometry_path": "vmec_jax read_wout -> NTX VmecSurface",
+            "vmex_wout_cubic": {
+              "geometry_path": "vmex read_wout -> NTX VmecSurface",
               "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
               "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
               "status": "complete",
@@ -3689,13 +3689,13 @@
               },
               "hdf5": {
                 "status": "written",
-                "path": "docs/_static/owned_geometry_neopax_database/finite_beta_nfp3_qh_stage1_vmec_jax_wout_cubic.h5"
+                "path": "docs/_static/owned_geometry_neopax_database/finite_beta_nfp3_qh_stage1_vmex_wout_cubic.h5"
               }
             }
           },
           "interpolation_audit": {
             "reference_path": "booz_xform_jax",
-            "candidate_path": "vmec_jax_wout_cubic",
+            "candidate_path": "vmex_wout_cubic",
             "claim_scope": "same input/wout, rho, collisionality, electric field, grid, and normalization; differences isolate geometry/interpolation-path effects and should not be mixed with external reference datasets",
             "max_relative_difference": {
               "D11": 0.05735712239069513,
@@ -3728,7 +3728,7 @@
       "open_work": [
         "run SFINCS and the analytic bootstrap-current formula on these same owned geometry/profile grids before promoting new parity figures",
         "add the NEOPAX general and legacy interpolation modes to this audit once both are available through a stable public interface",
-        "extend vmec_jax input reconstruction to optimized finite-beta cubic-spline current profiles so those cases can use the same JAX Boozer path as the power-series finite-beta QA case",
+        "extend vmex input reconstruction to optimized finite-beta cubic-spline current profiles so those cases can use the same JAX Boozer path as the power-series finite-beta QA case",
         "expand the default case set to production-resolution QA, QH, QI, and W7-X inputs after owned SFINCS-generation scripts have completed runs"
       ]
     },
@@ -4331,7 +4331,7 @@
         "source": "single-stage finite-beta test case",
         "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
         "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
-        "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmec_jax input reader",
+        "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
         "primary_geometry_path": "booz_xform_jax",
         "wout_metadata": {
           "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
@@ -10110,9 +10110,9 @@
           "lane": "autodiff",
           "maturity": "stress-gate",
           "title": "Boundary-to-output forward-mode derivative audit",
-          "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmec_jax geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
+          "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmex geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
           "literature_anchors": [
-            "vmec_jax explicit differentiable boundary workflows",
+            "vmex explicit differentiable boundary workflows",
             "booz_xform_jax JAX-native Boozer transform",
             "McGreivy 2024 differentiable programming for plasma workflows"
           ],
@@ -10188,7 +10188,7 @@
           "title": "Implicit-equilibrium non-shipping derivative diagnostic",
           "claim_scope": "The implicit fixed-boundary residual-forward path is retained as an artifact-backed diagnostic, but it is closed as non-shipping because residual contraction and Boozer/NTX surface-transport tangent parity do not pass on the committed QA case. The explicit-relaxed lane is the supported differentiable equilibrium path.",
           "literature_anchors": [
-            "vmec_jax implicit fixed-boundary differentiation",
+            "vmex implicit fixed-boundary differentiation",
             "booz_xform_jax JAX-native Boozer transform",
             "McGreivy 2024 differentiable programming for plasma workflows"
           ],
@@ -10268,9 +10268,9 @@
           "lane": "autodiff",
           "maturity": "stress-gate",
           "title": "Explicit-relaxed boundary-to-current derivative audit",
-          "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmec_jax solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
+          "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmex solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
           "literature_anchors": [
-            "vmec_jax explicit differentiable boundary workflows",
+            "vmex explicit differentiable boundary workflows",
             "booz_xform_jax JAX-native Boozer transform",
             "McGreivy 2024 differentiable programming for plasma workflows",
             "Landreman and Paul 2022 precise-QS benchmark family"
@@ -11357,7 +11357,7 @@
           "lane": "geometry-breadth",
           "maturity": "positive-gate",
           "title": "Same-coordinate Boozer-file round-trip validation",
-          "claim_scope": "Generates a Boozer file from a VMEC wout, reloads the same VMEC half-grid surfaces through the direct boozmn backend, and requires geometry metadata plus D11/D31/D13/D33 to match the in-memory vmec_jax/booz_xform_jax path. This validates the direct loader radial coordinate and normalization conventions; it does not equate VMEC-harmonic and Boozer-coordinate representations.",
+          "claim_scope": "Generates a Boozer file from a VMEC wout, reloads the same VMEC half-grid surfaces through the direct boozmn backend, and requires geometry metadata plus D11/D31/D13/D33 to match the in-memory vmex/booz_xform_jax path. This validates the direct loader radial coordinate and normalization conventions; it does not equate VMEC-harmonic and Boozer-coordinate representations.",
           "literature_anchors": [
             "Boozer-coordinate flux-surface representation",
             "VMEC half-grid placement of magnetic-field spectra",
@@ -11463,7 +11463,7 @@
           "tests": [
             "tests/test_boozmn.py",
             "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
-            "tests/test_vmec_jax_backend.py"
+            "tests/test_vmex_backend.py"
           ],
           "artifacts": [
             "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.png",
@@ -11505,7 +11505,7 @@
           },
           {
             "kind": "test",
-            "path": "tests/test_vmec_jax_backend.py",
+            "path": "tests/test_vmex_backend.py",
             "exists": true
           },
           {

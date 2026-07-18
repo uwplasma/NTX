@@ -1,4 +1,4 @@
-"""Boozer-transform helpers for in-memory ``vmec_jax`` workflows."""
+"""Boozer-transform helpers for in-memory ``vmex`` workflows."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from types import SimpleNamespace
 import jax
 import jax.numpy as jnp
 
-from ._checkout_paths import find_booz_xform_jax_root, find_vmec_jax_root
+from ._checkout_paths import find_booz_xform_jax_root, find_vmex_root
 
 
 def _apply_boozer_sign_convention(
@@ -63,16 +63,16 @@ def _prepend_checkout(root: Path | None) -> None:
         sys.path.insert(0, root_str)
 
 
-def _import_vmec_jax():
-    if "vmec_jax" in sys.modules:
-        return sys.modules["vmec_jax"]
+def _import_vmex():
+    if "vmex" in sys.modules:
+        return sys.modules["vmex"]
     try:
-        import vmec_jax
+        import vmex
     except ModuleNotFoundError:
-        _prepend_checkout(find_vmec_jax_root())
-        import vmec_jax
+        _prepend_checkout(find_vmex_root())
+        import vmex
 
-    return vmec_jax
+    return vmex
 
 
 def _import_booz_xform_jax_api():
@@ -87,7 +87,7 @@ def _import_booz_xform_jax_api():
     return jax_api
 
 
-def _booz_xform_bundle_from_vmec_jax_state(
+def _booz_xform_bundle_from_vmex_state(
     *,
     state,
     static,
@@ -99,9 +99,9 @@ def _booz_xform_bundle_from_vmec_jax_state(
     flux_profiles=None,
     profiles_half=None,
 ):
-    vmec_jax = _import_vmec_jax()
+    vmex = _import_vmex()
     jax_api = _import_booz_xform_jax_api()
-    legacy_builder = getattr(vmec_jax, "booz_xform_inputs_from_state", None)
+    legacy_builder = getattr(vmex, "booz_xform_inputs_from_state", None)
     if legacy_builder is not None:
         inputs = legacy_builder(
             state=state,
@@ -113,7 +113,7 @@ def _booz_xform_bundle_from_vmec_jax_state(
         )
         surface_indices = None
         if s_values is not None:
-            surface_indices, _surface_values = vmec_jax.surface_indices_from_static(
+            surface_indices, _surface_values = vmex.surface_indices_from_static(
                 static,
                 [float(s_value) for s_value in s_values],
             )
@@ -122,11 +122,11 @@ def _booz_xform_bundle_from_vmec_jax_state(
         runtime_signgs = int(static.setup.signgs)
         if int(signgs) != runtime_signgs:
             raise ValueError(
-                "signgs does not match the supplied vmec_jax SolverRuntime: "
+                "signgs does not match the supplied vmex SolverRuntime: "
                 f"{signgs} != {runtime_signgs}"
             )
         inputs = _core_boozer_inputs_from_state(
-            vmec_jax=vmec_jax,
+            vmex=vmex,
             state=state,
             runtime=static,
             s_values=s_values,
@@ -151,26 +151,26 @@ def _booz_xform_bundle_from_vmec_jax_state(
     return inputs, out
 
 
-def _core_boozer_inputs_from_state(*, vmec_jax, state, runtime, s_values):
-    """Adapt the current vmec_jax core tables to booz_xform_jax inputs."""
+def _core_boozer_inputs_from_state(*, vmex, state, runtime, s_values):
+    """Adapt the current vmex core tables to booz_xform_jax inputs."""
 
     try:
-        from vmec_jax.core.boozer_tables import boozer_input_tables
+        from vmex.core.boozer_tables import boozer_input_tables
     except (ImportError, ModuleNotFoundError) as exc:
         raise RuntimeError(
-            "This NTX workflow requires the current vmec_jax core API, "
-            "including vmec_jax.core.boozer_tables.boozer_input_tables."
+            "This NTX workflow requires the current vmex core API, "
+            "including vmex.core.boozer_tables.boozer_input_tables."
         ) from exc
 
     if not hasattr(runtime, "resolution") or not hasattr(runtime, "setup"):
         raise TypeError(
-            "With the current vmec_jax API, `static` must be the matching "
-            "vmec_jax SolverRuntime returned by prepare_runtime() or "
+            "With the current vmex API, `static` must be the matching "
+            "vmex SolverRuntime returned by prepare_runtime() or "
             "implicit.runtime_from_params()."
         )
     if bool(runtime.resolution.lasym):
         raise NotImplementedError(
-            "The current differentiable vmec_jax Boozer table bridge supports "
+            "The current differentiable vmex Boozer table bridge supports "
             "stellarator-symmetric equilibria only."
         )
 

@@ -1,4 +1,4 @@
-"""VMEC-JAX scalar and radial-profile helpers for NEOPAX field builders."""
+"""VMEX scalar and radial-profile helpers for NEOPAX field builders."""
 
 from __future__ import annotations
 
@@ -33,12 +33,12 @@ def _vmec_psia_from_state(state, static):
 
     phipf_out = getattr(state, "phipf_out", None)
     if phipf_out is None:
-        raise AttributeError("vmec_jax state does not expose `phipf_out`")
+        raise AttributeError("vmex state does not expose `phipf_out`")
 
     try:
-        from vmec_jax.integrals import cumrect_s_halfmesh
+        from vmex.integrals import cumrect_s_halfmesh
     except ModuleNotFoundError as exc:  # pragma: no cover - local checkout fallback
-        raise ImportError("vmec_jax is required for differentiable field builders") from exc
+        raise ImportError("vmex is required for differentiable field builders") from exc
 
     phi = cumrect_s_halfmesh(jnp.asarray(phipf_out), jnp.asarray(static.s))
     return jnp.abs(phi[-1])
@@ -47,7 +47,7 @@ def _vmec_psia_from_state(state, static):
 def _vmec_edge_r00_from_state(state):
     rcos = getattr(state, "R_cos", getattr(state, "Rcos", None))
     if rcos is None:
-        raise AttributeError("vmec_jax state does not expose `R_cos` or `Rcos`")
+        raise AttributeError("vmex state does not expose `R_cos` or `Rcos`")
     return jnp.asarray(rcos)[-1, 0]
 
 
@@ -56,10 +56,10 @@ def _vmec_psia_from_indata(*, indata, static, signgs: int):
         return jnp.abs(jnp.asarray(indata.phiedge) / (2.0 * jnp.pi))
 
     try:
-        from vmec_jax.energy import flux_profiles_from_indata
-        from vmec_jax.integrals import cumrect_s_halfmesh
+        from vmex.energy import flux_profiles_from_indata
+        from vmex.integrals import cumrect_s_halfmesh
     except ModuleNotFoundError as exc:  # pragma: no cover - local checkout fallback
-        raise ImportError("vmec_jax is required for differentiable field builders") from exc
+        raise ImportError("vmex is required for differentiable field builders") from exc
 
     flux = flux_profiles_from_indata(indata, jnp.asarray(static.s), signgs=int(signgs))
     phipf_out = jnp.asarray(flux.phipf)
@@ -69,13 +69,13 @@ def _vmec_psia_from_indata(*, indata, static, signgs: int):
 
 def _vmec_volume_profiles_from_state(*, state, static, indata, signgs: int):
     if hasattr(static, "setup") and hasattr(state, "R_cos"):
-        from vmec_jax.core.fields import (
+        from vmex.core.fields import (
             energies_and_force_norms,
             magnetic_fields,
             metric_elements,
         )
-        from vmec_jax.core.geometry import half_mesh_jacobian
-        from vmec_jax.core.solver import _geometry
+        from vmex.core.geometry import half_mesh_jacobian
+        from vmex.core.solver import _geometry
 
         setup = static.setup
         _, geometry = _geometry(state, static)
@@ -112,10 +112,10 @@ def _vmec_volume_profiles_from_state(*, state, static, indata, signgs: int):
     from types import SimpleNamespace
 
     try:
-        from vmec_jax.vmec_forces import vmec_forces_rz_from_wout
-        from vmec_jax.vmec_residue import vmec_force_norms_from_bcovar_dynamic
+        from vmex.vmec_forces import vmec_forces_rz_from_wout
+        from vmex.vmec_residue import vmec_force_norms_from_bcovar_dynamic
     except ModuleNotFoundError as exc:  # pragma: no cover - local checkout fallback
-        raise ImportError("vmec_jax is required for differentiable field builders") from exc
+        raise ImportError("vmex is required for differentiable field builders") from exc
 
     wout_like = SimpleNamespace(
         nfp=int(static.cfg.nfp),

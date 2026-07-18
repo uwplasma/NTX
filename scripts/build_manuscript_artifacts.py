@@ -2270,7 +2270,7 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['file_backed_geometry_control_derivative_median_relative_mismatch']:.3e}`."
             ),
             (
-                "- The boundary-projected `vmec_jax -> booz_xform_jax -> NTX` "
+                "- The boundary-projected `vmex -> booz_xform_jax -> NTX` "
                 "and `NTX+NEOPAX` forward-mode stress benchmark matches centered "
                 "finite differences with a maximum relative mismatch of "
                 f"`{claims['boundary_forward_mode_current_derivative_max_relative_mismatch']:.3e}` "
@@ -2278,7 +2278,7 @@ def build_claims_markdown(payload: dict) -> str:
                 f"`{claims['boundary_forward_mode_current_derivative_median_relative_mismatch']:.3e}`."
             ),
             (
-                "- The implicit fixed-boundary `vmec_jax -> booz_xform_jax -> NTX` "
+                "- The implicit fixed-boundary `vmex -> booz_xform_jax -> NTX` "
                 "diagnostic is closed as non-shipping on the committed QA case: "
                 "the equilibrium-volume "
                 "derivative matches centered finite differences with relative mismatch "
@@ -2295,7 +2295,7 @@ def build_claims_markdown(payload: dict) -> str:
                 "on that path."
             ),
             (
-                "- The explicit-relaxed `vmec_jax -> booz_xform_jax -> NTX` "
+                "- The explicit-relaxed `vmex -> booz_xform_jax -> NTX` "
                 "and `NTX+NEOPAX` boundary-to-current QA/QH stress benchmark matches "
                 "centered finite differences with a maximum relative mismatch of "
                 f"`{explicit_relaxed_max_mismatch:.3e}` "

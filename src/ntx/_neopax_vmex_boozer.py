@@ -1,14 +1,14 @@
-"""Boozer-transform helpers for VMEC-JAX-backed NEOPAX field builders."""
+"""Boozer-transform helpers for VMEX-backed NEOPAX field builders."""
 
 from __future__ import annotations
 
-from ._vmec_jax_boozer import (
-    _booz_xform_bundle_from_vmec_jax_state,
+from ._vmex_boozer import (
+    _booz_xform_bundle_from_vmex_state,
     _booz_xform_gmnc_from_inputs,
 )
 
 
-def _booz_xform_bundle_with_gmnc_from_vmec_jax_state(
+def _booz_xform_bundle_with_gmnc_from_vmex_state(
     *,
     state,
     static,
@@ -17,7 +17,7 @@ def _booz_xform_bundle_with_gmnc_from_vmec_jax_state(
     mboz: int,
     nboz: int,
 ):
-    inputs, out = _booz_xform_bundle_from_vmec_jax_state(
+    inputs, out = _booz_xform_bundle_from_vmex_state(
         state=state,
         static=static,
         indata=indata,
@@ -42,6 +42,6 @@ def _booz_xform_bundle_with_gmnc_from_vmec_jax_state(
 
 
 __all__ = [
-    "_booz_xform_bundle_with_gmnc_from_vmec_jax_state",
+    "_booz_xform_bundle_with_gmnc_from_vmex_state",
     "_booz_xform_gmnc_from_inputs",
 ]

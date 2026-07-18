@@ -8,7 +8,7 @@ NTX provides:
 
 - built-in analytic sample surfaces
 - DKES-style Boozer inputs
-- VMEC `wout` inputs through `vmec_jax`
+- VMEC `wout` inputs through `vmex`
 - Boozer `boozmn` inputs through `booz_xform_jax`
 - direct NEOPAX-style scan and HDF5 mapping helpers
 - CPU and GPU execution through the same JAX solver path

@@ -4,7 +4,7 @@
   "case": {
     "id": "qa_lowres",
     "label": "QA low-res",
-    "input_path": "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres",
+    "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
     "geometry_path": "implicit_fixed_boundary_residual_solve",
     "parameter_names": [
       "rc01"

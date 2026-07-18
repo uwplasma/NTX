@@ -96,7 +96,7 @@ python examples/bootstrap_current_from_vmec_or_boozmn.py
 
 This example is the shortest NTX-only workflow:
 
-- start from a VMEC `wout` file and use `vmec_jax`
+- start from a VMEC `wout` file and use `vmex`
 - or, if a Boozer `boozmn` file already exists, use `booz_xform_jax` output directly
 - solve a fixed-collisionality NTX radial family
 - plot magnetic geometry, radial profile inputs, `D11`, `nu_hat * D33`, and a compact
@@ -138,7 +138,7 @@ imported workflow, and writes a convergence figure:
 python examples/geometry_family_transport_convergence.py --preset production
 ```
 
-This optional artifact discovers local public VMEC examples from `vmec_jax`,
+This optional artifact discovers local public VMEC examples from `vmex`,
 STELLOPT, and SIMSOPT checkouts, then runs a production `D11/D31/D33`
 convergence ladder and stores `D13` for the Onsager quality check. It is an NTX
 stress diagnostic across available geometry families, not an independent-code
@@ -203,7 +203,7 @@ python examples/owned_finite_beta_source_channel_audit.py \
 
 These optional provenance artifacts prioritize local finite-beta stellarator
 input/wout pairs. The NTX/NEOPAX script builds finite-beta QA surfaces through
-`vmec_jax -> booz_xform_jax` with the physical VMEC edge-flux scale passed
+`vmex -> booz_xform_jax` with the physical VMEC edge-flux scale passed
 explicitly as `psi_p`, writes NEOPAX-style HDF5 scan tables, stores compact
 profile flux/current proxies from those same tables, and compares that path
 with the direct VMEC-harmonic interpolation path on the same radial and

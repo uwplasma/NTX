@@ -284,7 +284,7 @@ python examples/boundary_forward_mode_current_derivative_benchmark.py
 ```
 
 checks the next imported differentiable lane built on the upstream
-`vmec_jax` and `booz_xform_jax` packages. It treats two low-order boundary
+`vmex` and `booz_xform_jax` packages. It treats two low-order boundary
 controls from the repository-owned sample input as independent variables,
 builds the boundary-projected VMEC state, transforms it to Boozer
 coordinates, and then differentiates two scalar outputs with respect to those
@@ -321,7 +321,7 @@ python examples/implicit_equilibrium_forward_mode_derivative_benchmark.py
 
 adds the next implicit-equilibrium diagnostic on the committed QA case. It uses
 the same low-order boundary controls, but now routes them through the implicit
-fixed-boundary `vmec_jax` residual solve with
+fixed-boundary `vmex` residual solve with
 `residual_tangent_mode="auto"`. The benchmark then differentiates three scalar
 outputs with respect to those controls:
 
@@ -368,7 +368,7 @@ closes the next imported lane on two repository-owned non-axisymmetric cases:
 a low-resolution QA family input and a lighter QH warm-start input. It uses
 the same low-order boundary controls, but instead of stopping at the
 boundary-projected VMEC state it runs an explicitly relaxed fixed-boundary
-`vmec_jax` solve in a stable forward-mode regime and then differentiates three
+`vmex` solve in a stable forward-mode regime and then differentiates three
 scalar outputs on each case:
 
 - a Boozer-space scalar built from the relaxed surface,
@@ -448,7 +448,7 @@ The script:
 python examples/geometry_family_transport_convergence.py --preset production
 ```
 
-discovers reusable VMEC `wout` examples from local `vmec_jax`, STELLOPT, and
+discovers reusable VMEC `wout` examples from local `vmex`, STELLOPT, and
 SIMSOPT checkouts, loads each surface through the NTX VMEC path, and runs a
 production `D11/D31/D33` grid ladder. The JSON also stores `D13` and the
 normalized Onsager residual so coefficient convergence and reciprocity quality

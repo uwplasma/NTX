@@ -117,7 +117,7 @@
         },
         "ntx_same_grid": {
           "status": "complete",
-          "geometry_path": "vmec_jax wout harmonics -> NTX VmecSurface",
+          "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
           "comparison_scope": "Coefficient-level finite-beta diagnostic only; bootstrap-current parity requires profile closure and production-resolution scans.",
           "ntx": {
             "D11_raw": 0.8116434035663163,
@@ -219,7 +219,7 @@
         },
         "ntx_same_grid": {
           "status": "complete",
-          "geometry_path": "vmec_jax wout harmonics -> NTX VmecSurface",
+          "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
           "comparison_scope": "Coefficient-level finite-beta diagnostic only; bootstrap-current parity requires profile closure and production-resolution scans.",
           "ntx": {
             "D11_raw": 1.1397551500029757,
@@ -321,7 +321,7 @@
         },
         "ntx_same_grid": {
           "status": "complete",
-          "geometry_path": "vmec_jax wout harmonics -> NTX VmecSurface",
+          "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
           "comparison_scope": "Coefficient-level finite-beta diagnostic only; bootstrap-current parity requires profile closure and production-resolution scans.",
           "ntx": {
             "D11_raw": 2.028331601516625,
@@ -423,7 +423,7 @@
         },
         "ntx_same_grid": {
           "status": "complete",
-          "geometry_path": "vmec_jax wout harmonics -> NTX VmecSurface",
+          "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
           "comparison_scope": "Coefficient-level finite-beta diagnostic only; bootstrap-current parity requires profile closure and production-resolution scans.",
           "ntx": {
             "D11_raw": 4.9759030036544285,
@@ -525,7 +525,7 @@
         },
         "ntx_same_grid": {
           "status": "complete",
-          "geometry_path": "vmec_jax wout harmonics -> NTX VmecSurface",
+          "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
           "comparison_scope": "Coefficient-level finite-beta diagnostic only; bootstrap-current parity requires profile closure and production-resolution scans.",
           "ntx": {
             "D11_raw": 3.245284665625156,
@@ -627,7 +627,7 @@
         },
         "ntx_same_grid": {
           "status": "complete",
-          "geometry_path": "vmec_jax wout harmonics -> NTX VmecSurface",
+          "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
           "comparison_scope": "Coefficient-level finite-beta diagnostic only; bootstrap-current parity requires profile closure and production-resolution scans.",
           "ntx": {
             "D11_raw": 12.371085419699773,

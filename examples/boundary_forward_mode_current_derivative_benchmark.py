@@ -20,19 +20,19 @@ import numpy as np  # noqa: E402
 
 from ntx import (  # noqa: E402
     GridSpec,
-    build_differentiable_neopax_field_from_vmec_jax_state,
-    build_ntx_neopax_scan_from_vmec_jax_state,
-    build_vmec_jax_boundary_context,
+    build_differentiable_neopax_field_from_vmex_state,
+    build_ntx_neopax_scan_from_vmex_state,
+    build_vmex_boundary_context,
     get_differentiable_neopax_fluxes,
-    initial_guess_vmec_jax_boundary_state,
+    initial_guess_vmex_boundary_state,
     solve_monoenergetic_scan,
-    surface_from_vmec_jax_state,
+    surface_from_vmex_state,
     to_neopax_monoenergetic,
 )
 from ntx._checkout_paths import (  # noqa: E402
     find_booz_xform_jax_root,
     find_neopax_root,
-    find_vmec_jax_example_input,
+    find_vmex_example_input,
 )
 from ntx.config import enable_x64  # noqa: E402
 
@@ -67,7 +67,7 @@ def _configure_style() -> None:
 
 def _has_boundary_stack() -> bool:
     return (
-        find_vmec_jax_example_input() is not None
+        find_vmex_example_input() is not None
         and find_booz_xform_jax_root() is not None
         and find_neopax_root() is not None
     )
@@ -133,18 +133,18 @@ def _finite_difference_gradient(objective, params, *, fd_step: float) -> jnp.nda
 
 def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
     if not _has_boundary_stack():
-        raise RuntimeError("requires local vmec_jax, booz_xform_jax, and NEOPAX checkouts")
+        raise RuntimeError("requires local vmex, booz_xform_jax, and NEOPAX checkouts")
 
     enable_x64(True)
     NEOPAX = _import_neopax()
-    context = build_vmec_jax_boundary_context(
-        find_vmec_jax_example_input(),
+    context = build_vmex_boundary_context(
+        find_vmex_example_input(),
         max_mode=1,
         include=("rc", "zs"),
         fix=("rc00",),
     )
     if len(context.specs) == 0:
-        raise RuntimeError("vmec_jax example input did not expose boundary parameters")
+        raise RuntimeError("vmex example input did not expose boundary parameters")
 
     params0 = jnp.zeros((len(context.specs),), dtype=jnp.float64)
     rho = jnp.asarray([0.25, 0.45, 0.65, 0.85])
@@ -153,11 +153,11 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
     er = jnp.tile(er_row[None, :], (rho.shape[0], 1))
 
     def _state_from_params(params):
-        return initial_guess_vmec_jax_boundary_state(context, params, vmec_project=False)
+        return initial_guess_vmex_boundary_state(context, params, vmec_project=False)
 
     def ntx_transport_response(params):
         state = _state_from_params(params)
-        surface = surface_from_vmec_jax_state(
+        surface = surface_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -177,7 +177,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
 
     def integrated_current(params):
         state = _state_from_params(params)
-        field = build_differentiable_neopax_field_from_vmec_jax_state(
+        field = build_differentiable_neopax_field_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -187,7 +187,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
             nboz=12,
         )
         drds = field.a_b * 0.5 / jnp.clip(rho, 0.05, None)
-        scan = build_ntx_neopax_scan_from_vmec_jax_state(
+        scan = build_ntx_neopax_scan_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -241,7 +241,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
         "benchmark": "boundary_forward_mode_current_derivative_benchmark",
         "classification": "artifact-backed boundary-to-output forward-mode stress benchmark",
         "case": {
-            "input_path": str(find_vmec_jax_example_input()),
+            "input_path": str(find_vmex_example_input()),
             "geometry_path": "boundary_projected_initial_guess",
             "parameter_names": parameter_names,
         },
@@ -254,7 +254,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
         "objectives": objective_payloads,
         "claim_scope": (
             "Low-dimensional boundary controls propagate through boundary-projected "
-            "vmec_jax geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX "
+            "vmex geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX "
             "integrated-current objective under forward-mode autodiff."
         ),
         "summary_metrics": {

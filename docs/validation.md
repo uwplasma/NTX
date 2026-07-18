@@ -91,7 +91,7 @@ python examples/owned_finite_beta_source_channel_audit.py \
 
 The NTX/NEOPAX script now prioritizes local finite-beta stellarator input/wout
 pairs from the single-stage finite-beta checkout. The finite-beta QA
-pressure/current case runs through the `vmec_jax -> booz_xform_jax -> NTX`
+pressure/current case runs through the `vmex -> booz_xform_jax -> NTX`
 path, passes the physical VMEC edge toroidal flux divided by `2*pi` as the
 Boozer-surface `psi_p`, writes NEOPAX-style scan tables, stores compact profile
 flux/current proxies from those same scan tables, and audits the direct
@@ -110,7 +110,7 @@ The loader uses VMEC half-grid metadata (`s_in`, `s_b`, or
 not use the full-grid `phi_b` profile as the packed-mode interpolation grid.
 The artifact below generates a Boozer file from a VMEC `wout`, reloads the same
 half-grid surfaces, and compares geometry metadata plus `D11/D31/D13/D33` with
-the in-memory `vmec_jax -> booz_xform_jax -> NTX` path. This closes the direct
+the in-memory `vmex -> booz_xform_jax -> NTX` path. This closes the direct
 loader radial-coordinate mismatch while leaving VMEC-harmonic versus
 Boozer-coordinate comparisons as representation audits.
 
@@ -118,13 +118,13 @@ Boozer-coordinate comparisons as representation audits.
 
 The same backend issue has now been checked on the finite-beta QA `wout` used
 by the owned stellarator lane. NTX treats `profile_source="wout"` as the
-correct file-backed transfer route: current `vmec_jax` no longer reconstructs
+correct file-backed transfer route: current `vmex` no longer reconstructs
 equilibrium states from WOUT coefficients. NTX transforms the finalized VMEC
 magnetic channels, reloads the generated Boozer file on the same half-grid
 surfaces, and compares `D11/D31/D13/D33`. The committed artifact closes the
 transport mismatch to about `8e-14`. This removes the Boozer radial-selection
 and finalized-channel ambiguity for finite-beta file-backed runs. Differentiable
-runs use the converged state plus matching runtime through vmec_jax's traced
+runs use the converged state plus matching runtime through vmex's traced
 core Boozer tables; broad finite-beta equilibrium sensitivities remain gated.
 
 ![Finite-beta finalized-wout Boozer round-trip audit](_static/boozmn_finite_beta_wout_roundtrip_audit.png)
@@ -386,7 +386,7 @@ The maintained suite covers:
 - DKES-style, VMEC, and Boozer file loaders
 - TOML input parsing and NetCDF/NPZ/HDF5 output writing
 - imported NEOPAX-array and HDF5 mapping helpers
-- `vmec_jax` and `booz_xform_jax` integration points
+- `vmex` and `booz_xform_jax` integration points
 - serial versus parallel-scan equivalence
 - example and publication-figure regeneration
 
@@ -452,10 +452,10 @@ The broader VMEC geometry-family transport stress diagnostic is:
 python examples/geometry_family_transport_convergence.py --preset production
 ```
 
-It discovers local public examples from the surrounding `vmec_jax`, STELLOPT,
+It discovers local public examples from the surrounding `vmex`, STELLOPT,
 and SIMSOPT checkouts and runs a production `D11/D31/D33` convergence ladder.
 The JSON also records `D13` so the Onsager quality check is visible, and records
-the Schur residual under an explicit key. Current and legacy `vmec_jax` example
+the Schur residual under an explicit key. Current and legacy `vmex` example
 layouts are supported. The current near-zero-transform vacuum NFP2 QA input is
 retained visibly as a singular-conditioning diagnostic but excluded from the
 finite-transform promotion aggregate; the finite-beta NFP2 QA and QH inputs

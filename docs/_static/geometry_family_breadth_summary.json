@@ -43,7 +43,7 @@
     {
       "id": "file_backed_vmec_sample",
       "label": "Sample VMEC-backed surface",
-      "geometry_path": "file-backed vmec_jax surface",
+      "geometry_path": "file-backed vmex surface",
       "observable_scope": "D11, D31, D33",
       "max_relative_mismatch": 8.768426399388515e-05,
       "median_relative_mismatch": 2.230457449866678e-08,

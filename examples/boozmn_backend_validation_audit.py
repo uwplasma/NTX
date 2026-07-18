@@ -35,7 +35,7 @@ from ntx import (  # noqa: E402
     load_boozmn_surface,
     prepare_monoenergetic_system,
     solve_prepared,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 from ntx.operators import OperatorContext, coefficients_for_k, source_modes  # noqa: E402
 
@@ -268,7 +268,7 @@ def build_audit(
         raise ValueError("nu_hat must be positive")
 
     psia = _read_vmec_edge_psi(wout_path)
-    vmec_surface = surface_from_vmec_jax_vmec_wout_file(wout_path, s=rho**2)
+    vmec_surface = surface_from_vmex_vmec_wout_file(wout_path, s=rho**2)
     boozmn_unit = load_boozmn_surface(boozmn_path, rho=rho, psi_p=1.0).surface
     boozmn_vmec_flux = load_boozmn_surface(boozmn_path, rho=rho, psi_p=psia).surface
 

@@ -28,7 +28,7 @@ To use VMEC `wout` files and Boozer `boozmn` files through the JAX geometry
 helpers, install the optional upstream geometry packages directly:
 
 ```bash
-pip install git+https://github.com/uwplasma/vmec_jax.git
+pip install git+https://github.com/uwplasma/VMEX.git
 pip install git+https://github.com/uwplasma/booz_xform_jax.git
 ```
 

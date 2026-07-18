@@ -59,7 +59,7 @@ This is implemented in:
 - [`src/ntx/booz.py`](../src/ntx/booz.py):
   Boozer-file loading
 - [`src/ntx/vmec.py`](../src/ntx/vmec.py):
-  VMEC `wout` loading through `vmec_jax`
+  VMEC `wout` loading through `vmex`
 
 The spatial geometry object stored on the angular grid is
 `GeometryOnGrid`, defined in [`src/ntx/geometry.py`](../src/ntx/geometry.py).

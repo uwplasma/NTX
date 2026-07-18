@@ -4,7 +4,7 @@ NTX can solve the monoenergetic problem from four geometry families:
 
 1. the built-in analytic sample surface
 2. DKES-style Boozer harmonic files
-3. VMEC `wout` files through [`vmec_jax`](https://github.com/uwplasma/vmec_jax)
+3. VMEC `wout` files through [`vmex`](https://github.com/uwplasma/VMEX)
 4. Boozer `boozmn` files through
    [`booz_xform_jax`](https://github.com/uwplasma/booz_xform_jax)
 
@@ -57,7 +57,7 @@ Use this path when:
 ## VMEC `wout` Files
 
 `load_vmec_surface(...)` in [`src/ntx/vmec.py`](../src/ntx/vmec.py) reads
-VMEC equilibria through `vmec_jax` and extracts a single surface.
+VMEC equilibria through `vmex` and extracts a single surface.
 
 The loader resolves:
 
@@ -137,21 +137,21 @@ python examples/boozmn_same_coordinate_roundtrip_audit.py
 It generates a `boozmn` file from a VMEC `wout`, reloads the same VMEC
 half-grid surfaces through `load_boozmn_surface(...)`, and compares the loaded
 geometry and `D11/D31/D13/D33` against the in-memory
-`vmec_jax -> booz_xform_jax -> NTX` path. That audit validates the direct
+`vmex -> booz_xform_jax -> NTX` path. That audit validates the direct
 loader on the same coordinate representation. It is separate from audits that
 compare VMEC-harmonic and Boozer-coordinate representations, since those expose
 different geometry channels.
 
 ![Same-coordinate Boozer-file round-trip audit](_static/boozmn_same_coordinate_roundtrip_audit.png)
 
-For file-backed work, `surface_from_vmec_jax_wout(..., profile_source="auto")`
+For file-backed work, `surface_from_vmex_wout(..., profile_source="auto")`
 and `profile_source="wout"` use the finalized WOUT magnetic channels directly.
-Current `vmec_jax` intentionally removed the legacy `state_from_wout`
+Current `vmex` intentionally removed the legacy `state_from_wout`
 reconstruction API: a WOUT is an output representation, not a complete
 differentiable equilibrium state. In-memory differentiable work instead passes
 the converged `SpectralState` and matching `SolverRuntime` to
-`surface_from_vmec_jax_state(...)`; NTX then uses the traceable
-`vmec_jax.core.boozer_tables.boozer_input_tables` bridge. Neither path applies
+`surface_from_vmex_state(...)`; NTX then uses the traceable
+`vmex.core.boozer_tables.boozer_input_tables` bridge. Neither path applies
 a fitted correction.
 
 The finite-beta transfer artifact exercises this path on an optimized QA
@@ -237,5 +237,5 @@ These are written in `save_run_output(...)` in
   available and fixed.
 - Use VMEC inputs when the workflow begins from equilibrium data and radial
   interpolation matters.
-- Use the imported `vmec_jax` lane when NTX needs to sit inside a larger JAX
+- Use the imported `vmex` lane when NTX needs to sit inside a larger JAX
   analysis or optimization loop.
