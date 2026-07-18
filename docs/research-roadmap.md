@@ -1,9 +1,8 @@
 # Research Roadmap
 
-This page summarizes research directions and promotion criteria for users. The
-repository-root
-[`plan.md`](https://github.com/uwplasma/NTX/blob/main/plan.md) is authoritative
-for implementation order, file ownership, and pull-request acceptance gates.
+This page summarizes research directions and promotion criteria for users.
+Implementation order, file ownership, and pull-request acceptance gates are
+tracked in a private planning document.
 
 ## Current Foundation
 
@@ -113,7 +112,7 @@ areas.
 ## Next Milestone
 
 The next milestone is not a single larger claim. It is a sequence of bounded
-pull requests from `plan.md`: finish user-facing documentation hygiene, continue
+pull requests from the private plan: finish user-facing documentation hygiene, continue
 stable source ownership, strengthen reusable geometry and profile derivative
 families, and promote only the independent geometry/current comparisons that
 pass their full convergence gates.

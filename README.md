@@ -148,7 +148,6 @@ for the TOML schema, CLI options, and output variables.
 - [Examples](docs/examples.md)
 - [Validation](docs/validation.md)
 - [Source map](docs/source-map.md)
-- [Authoritative development plan](plan.md)
 
 ## Development
 
