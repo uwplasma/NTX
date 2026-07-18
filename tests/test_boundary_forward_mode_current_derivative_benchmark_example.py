@@ -11,7 +11,7 @@ import pytest
 from ntx._checkout_paths import (
     find_booz_xform_jax_root,
     find_neopax_root,
-    find_vmec_jax_example_input,
+    find_vmex_example_input,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _has_boundary_stack() -> bool:
     return (
-        find_vmec_jax_example_input() is not None
+        find_vmex_example_input() is not None
         and find_booz_xform_jax_root() is not None
         and find_neopax_root() is not None
     )
@@ -27,7 +27,7 @@ def _has_boundary_stack() -> bool:
 
 @pytest.mark.skipif(
     os.environ.get("NTX_RUN_HEAVY_BOUNDARY_EXAMPLES") != "1" or not _has_boundary_stack(),
-    reason="requires NTX_RUN_HEAVY_BOUNDARY_EXAMPLES=1 and local vmec_jax/booz_xform_jax/NEOPAX",
+    reason="requires NTX_RUN_HEAVY_BOUNDARY_EXAMPLES=1 and local vmex/booz_xform_jax/NEOPAX",
 )
 def test_boundary_forward_mode_current_derivative_benchmark_writes_outputs(tmp_path):
     example_path = ROOT / "examples" / "boundary_forward_mode_current_derivative_benchmark.py"

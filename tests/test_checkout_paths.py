@@ -17,7 +17,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
         tmp_path
         / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
     )
-    vmec_root = tmp_path / "vmec_jax"
+    vmec_root = tmp_path / "vmex"
     example_input = vmec_root / "examples" / "data" / "input.circular_tokamak"
     example_input.parent.mkdir(parents=True)
     sfincs_executable.parent.mkdir(parents=True)
@@ -42,7 +42,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
     monkeypatch.setenv("SINGLE_STAGE_FINITE_BETA_ROOT", str(finite_beta_root))
     monkeypatch.setenv("STELLOPT_ROOT", str(stellopt_root))
     monkeypatch.setenv("QS_ZENODO_ROOT", str(zenodo_root))
-    monkeypatch.setenv("VMEC_JAX_ROOT", str(vmec_root))
+    monkeypatch.setenv("VMEX_ROOT", str(vmec_root))
 
     assert cp.find_booz_xform_jax_root() == booz_root.resolve()
     assert cp.find_neopax_root() == neopax_root.resolve()
@@ -52,15 +52,15 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
     assert cp.find_single_stage_finite_beta_root() == finite_beta_root.resolve()
     assert cp.find_stellopt_root() == stellopt_root.resolve()
     assert cp.find_qs_zenodo_root() == zenodo_root.resolve()
-    assert cp.find_vmec_jax_root() == vmec_root.resolve()
-    assert cp.find_vmec_jax_example_input() == example_input
+    assert cp.find_vmex_root() == vmec_root.resolve()
+    assert cp.find_vmex_example_input() == example_input
 
 
 def test_fixture_path_and_workspace_helpers():
     fixture = cp.fixture_path("sample_surface.ddkes2.data")
     assert fixture.name == "sample_surface.ddkes2.data"
     assert isinstance(cp.workspace_root(), Path)
-    assert cp.find_vmec_jax_example_input("does-not-exist") is None
+    assert cp.find_vmex_example_input("does-not-exist") is None
 
 
 def test_workspace_checkout_candidates_and_missing_optional_roots(monkeypatch, tmp_path):
@@ -86,7 +86,7 @@ def test_workspace_checkout_candidates_and_missing_optional_roots(monkeypatch, t
     assert cp.find_sfincs_executable() is None
     assert cp.find_single_stage_finite_beta_root() is None
     assert cp.find_qs_zenodo_root() is None
-    assert cp.find_vmec_jax_example_input() is None
+    assert cp.find_vmex_example_input() is None
 
 
 def test_qs_zenodo_root_prefers_repo_local_copy(monkeypatch, tmp_path):

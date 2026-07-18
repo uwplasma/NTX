@@ -651,9 +651,9 @@
         "lane": "autodiff",
         "maturity": "stress-gate",
         "title": "Boundary-to-output forward-mode derivative audit",
-        "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmec_jax geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
+        "claim_scope": "Low-dimensional boundary controls propagate through boundary-projected vmex geometry, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff.",
         "literature_anchors": [
-          "vmec_jax explicit differentiable boundary workflows",
+          "vmex explicit differentiable boundary workflows",
           "booz_xform_jax JAX-native Boozer transform",
           "McGreivy 2024 differentiable programming for plasma workflows"
         ],
@@ -729,7 +729,7 @@
         "title": "Implicit-equilibrium non-shipping derivative diagnostic",
         "claim_scope": "The implicit fixed-boundary residual-forward path is retained as an artifact-backed diagnostic, but it is closed as non-shipping because residual contraction and Boozer/NTX surface-transport tangent parity do not pass on the committed QA case. The explicit-relaxed lane is the supported differentiable equilibrium path.",
         "literature_anchors": [
-          "vmec_jax implicit fixed-boundary differentiation",
+          "vmex implicit fixed-boundary differentiation",
           "booz_xform_jax JAX-native Boozer transform",
           "McGreivy 2024 differentiable programming for plasma workflows"
         ],
@@ -809,9 +809,9 @@
         "lane": "autodiff",
         "maturity": "stress-gate",
         "title": "Explicit-relaxed boundary-to-current derivative audit",
-        "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmec_jax solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
+        "claim_scope": "Low-dimensional boundary controls propagate through an explicitly relaxed fixed-boundary vmex solve, booz_xform_jax, NTX coefficients, and an NTX+NEOPAX integrated-current objective under forward-mode autodiff on committed QA and QH family cases, while preserving the ordinary primal volume.",
         "literature_anchors": [
-          "vmec_jax explicit differentiable boundary workflows",
+          "vmex explicit differentiable boundary workflows",
           "booz_xform_jax JAX-native Boozer transform",
           "McGreivy 2024 differentiable programming for plasma workflows",
           "Landreman and Paul 2022 precise-QS benchmark family"
@@ -1898,7 +1898,7 @@
         "lane": "geometry-breadth",
         "maturity": "positive-gate",
         "title": "Same-coordinate Boozer-file round-trip validation",
-        "claim_scope": "Generates a Boozer file from a VMEC wout, reloads the same VMEC half-grid surfaces through the direct boozmn backend, and requires geometry metadata plus D11/D31/D13/D33 to match the in-memory vmec_jax/booz_xform_jax path. This validates the direct loader radial coordinate and normalization conventions; it does not equate VMEC-harmonic and Boozer-coordinate representations.",
+        "claim_scope": "Generates a Boozer file from a VMEC wout, reloads the same VMEC half-grid surfaces through the direct boozmn backend, and requires geometry metadata plus D11/D31/D13/D33 to match the in-memory vmex/booz_xform_jax path. This validates the direct loader radial coordinate and normalization conventions; it does not equate VMEC-harmonic and Boozer-coordinate representations.",
         "literature_anchors": [
           "Boozer-coordinate flux-surface representation",
           "VMEC half-grid placement of magnetic-field spectra",
@@ -2004,7 +2004,7 @@
         "tests": [
           "tests/test_boozmn.py",
           "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
-          "tests/test_vmec_jax_backend.py"
+          "tests/test_vmex_backend.py"
         ],
         "artifacts": [
           "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.png",
@@ -2046,7 +2046,7 @@
         },
         {
           "kind": "test",
-          "path": "tests/test_vmec_jax_backend.py",
+          "path": "tests/test_vmex_backend.py",
           "exists": true
         },
         {

@@ -1,4 +1,4 @@
-"""NEOPAX scan assembly from NTX surfaces and imported VMEC-JAX states."""
+"""NEOPAX scan assembly from NTX surfaces and imported VMEX states."""
 
 from __future__ import annotations
 
@@ -12,10 +12,10 @@ from ._neopax_scan_fields import normalize_neopax_scan_field_channels
 from ._neopax_types import NeopaxScan
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
-from .vmec_jax_backend import (
+from .vmex_backend import (
     VmecJaxBoundaryContext,
-    surfaces_from_vmec_jax_boundary_params,
-    surfaces_from_vmec_jax_state,
+    surfaces_from_vmex_boundary_params,
+    surfaces_from_vmex_state,
 )
 
 
@@ -120,7 +120,7 @@ def build_ntx_neopax_scan_from_surfaces(
     )
 
 
-def build_ntx_neopax_scan_from_vmec_jax_state(
+def build_ntx_neopax_scan_from_vmex_state(
     *,
     state,
     static,
@@ -138,11 +138,11 @@ def build_ntx_neopax_scan_from_vmec_jax_state(
     psi_p: float = 1.0,
     min_bmn_to_load: float = 0.0,
 ) -> NeopaxScan:
-    """Build a NEOPAX-style scan directly from an in-memory `vmec_jax` state."""
+    """Build a NEOPAX-style scan directly from an in-memory `vmex` state."""
 
     rho_arr = jnp.asarray(rho)
     s_values = tuple(float(rho_value**2) for rho_value in rho_arr)
-    surfaces = surfaces_from_vmec_jax_state(
+    surfaces = surfaces_from_vmex_state(
         state=state,
         static=static,
         indata=indata,
@@ -165,7 +165,7 @@ def build_ntx_neopax_scan_from_vmec_jax_state(
     )
 
 
-def build_ntx_neopax_scan_from_vmec_jax_boundary_params(
+def build_ntx_neopax_scan_from_vmex_boundary_params(
     context: VmecJaxBoundaryContext,
     params,
     *,
@@ -190,7 +190,7 @@ def build_ntx_neopax_scan_from_vmec_jax_boundary_params(
 
     rho_arr = jnp.asarray(rho)
     s_values = tuple(float(rho_value**2) for rho_value in rho_arr)
-    surfaces = surfaces_from_vmec_jax_boundary_params(
+    surfaces = surfaces_from_vmex_boundary_params(
         context,
         params,
         s_values=s_values,

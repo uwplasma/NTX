@@ -20,7 +20,7 @@ Optional VMEC and Boozer geometry workflows use the upstream JAX geometry
 packages:
 
 ```bash
-pip install git+https://github.com/uwplasma/vmec_jax.git
+pip install git+https://github.com/uwplasma/VMEX.git
 pip install git+https://github.com/uwplasma/booz_xform_jax.git
 ```
 
@@ -148,7 +148,6 @@ for the TOML schema, CLI options, and output variables.
 - [Examples](docs/examples.md)
 - [Validation](docs/validation.md)
 - [Source map](docs/source-map.md)
-- [Authoritative development plan](plan.md)
 
 ## Development
 

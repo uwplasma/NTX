@@ -51,8 +51,7 @@ def test_plan_owns_roadmap_and_release_checklist_is_release_only():
     roadmap = _read("docs/research-roadmap.md")
     checklist = _read("docs/ship-checklist.md")
 
-    assert "`plan.md`" in roadmap
-    assert "is authoritative" in roadmap
+    assert "private planning document" in roadmap
     assert "Current Audit Notes" not in checklist
     assert "Immediate Next Order" not in checklist
     assert "## Tag And Publish" in checklist

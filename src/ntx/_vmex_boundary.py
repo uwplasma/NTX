@@ -1,4 +1,4 @@
-"""Boundary-state helpers for optional ``vmec_jax`` workflows."""
+"""Boundary-state helpers for optional ``vmex`` workflows."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import Any
 
 import jax.numpy as jnp
 
-from ._vmec_jax_boozer import _import_vmec_jax
+from ._vmex_boozer import _import_vmex
 
 
 @dataclasses.dataclass(frozen=True)
@@ -28,7 +28,7 @@ class VmecJaxBoundaryContext:
 
 @dataclasses.dataclass(frozen=True)
 class _CoreBoundaryParamSpec:
-    """One additive boundary coefficient in the current vmec_jax basis."""
+    """One additive boundary coefficient in the current vmex basis."""
 
     name: str
     field: str
@@ -36,7 +36,7 @@ class _CoreBoundaryParamSpec:
     m_index: int
 
 
-def build_vmec_jax_boundary_context(
+def build_vmex_boundary_context(
     input_path: str | Path,
     *,
     signgs: int = 1,
@@ -51,13 +51,13 @@ def build_vmec_jax_boundary_context(
     only the boundary-parameter vector is traced.
     """
 
-    vmec_jax = _import_vmec_jax()
+    vmex = _import_vmex()
     vmec_input = Path(input_path).expanduser().resolve()
-    if hasattr(vmec_jax, "VmecInput"):
-        indata = vmec_jax.VmecInput.from_file(str(vmec_input))
-        cfg = vmec_jax.implicit.make_config(indata)
-        boundary = vmec_jax.implicit.params_from_input(indata)
-        static = vmec_jax.implicit.runtime_from_params(boundary, cfg)
+    if hasattr(vmex, "VmecInput"):
+        indata = vmex.VmecInput.from_file(str(vmec_input))
+        cfg = vmex.implicit.make_config(indata)
+        boundary = vmex.implicit.params_from_input(indata)
+        static = vmex.implicit.runtime_from_params(boundary, cfg)
         specs = _core_boundary_param_specs(
             indata,
             max_mode=max_mode,
@@ -68,10 +68,10 @@ def build_vmec_jax_boundary_context(
         backend = "core"
         signgs = int(static.setup.signgs)
     else:
-        cfg, indata = vmec_jax.load_config(vmec_input)
-        static = vmec_jax.build_static(cfg)
-        boundary = vmec_jax.boundary_input_from_indata(indata, static.modes)
-        specs = vmec_jax.boundary_param_specs(
+        cfg, indata = vmex.load_config(vmec_input)
+        static = vmex.build_static(cfg)
+        boundary = vmex.boundary_input_from_indata(indata, static.modes)
+        specs = vmex.boundary_param_specs(
             boundary,
             static.modes,
             max_mode=max_mode,
@@ -139,7 +139,7 @@ def _core_params_with_updates(context: VmecJaxBoundaryContext, params):
     return dataclasses.replace(context.boundary, **arrays)
 
 
-def initial_guess_vmec_jax_boundary_state(
+def initial_guess_vmex_boundary_state(
     context: VmecJaxBoundaryContext,
     params,
     *,
@@ -153,15 +153,15 @@ def initial_guess_vmec_jax_boundary_state(
     without invoking the implicit equilibrium solve.
     """
 
-    vmec_jax = _import_vmec_jax()
+    vmex = _import_vmex()
     if context.backend == "core":
-        from vmec_jax.core.solver import _initial_state
+        from vmex.core.solver import _initial_state
 
         updated = _core_params_with_updates(context, params)
-        runtime = vmec_jax.implicit.runtime_from_params(updated, context.cfg)
+        runtime = vmex.implicit.runtime_from_params(updated, context.cfg)
         return _initial_state(runtime.setup)
-    boundary = vmec_jax.apply_boundary_params(context.boundary, context.specs, params)
-    return vmec_jax.initial_guess_from_boundary(
+    boundary = vmex.apply_boundary_params(context.boundary, context.specs, params)
+    return vmex.initial_guess_from_boundary(
         context.static,
         boundary,
         context.indata,
@@ -169,7 +169,7 @@ def initial_guess_vmec_jax_boundary_state(
     )
 
 
-def solve_vmec_jax_boundary_state(
+def solve_vmex_boundary_state(
     context: VmecJaxBoundaryContext,
     params,
     *,
@@ -179,14 +179,14 @@ def solve_vmec_jax_boundary_state(
     ftol: float | None = None,
     implicit=None,
 ):
-    """Solve a fixed-boundary `vmec_jax` state from traced boundary parameters.
+    """Solve a fixed-boundary `vmex` state from traced boundary parameters.
 
     The explicit edge arrays are passed into the implicit VMEC residual solve so
     the boundary dependence is preserved through the stop-gradient initial guess
-    used inside `vmec_jax`.
+    used inside `vmex`.
     """
 
-    vmec_jax = _import_vmec_jax()
+    vmex = _import_vmex()
     if context.backend == "core":
         updated = _core_params_with_updates(context, params)
         cfg = context.cfg
@@ -200,13 +200,13 @@ def solve_vmec_jax_boundary_state(
             replacements["ftol"] = float(ftol)
         if replacements:
             cfg = dataclasses.replace(cfg, **replacements)
-        return vmec_jax.implicit.solve_implicit(updated, cfg)
-    state0 = initial_guess_vmec_jax_boundary_state(
+        return vmex.implicit.solve_implicit(updated, cfg)
+    state0 = initial_guess_vmex_boundary_state(
         context,
         params,
         vmec_project=vmec_project,
     )
-    return vmec_jax.implicit.solve_fixed_boundary_state_implicit_vmec_residual(
+    return vmex.implicit.solve_fixed_boundary_state_implicit_vmec_residual(
         state0,
         context.static,
         indata=context.indata,
@@ -222,7 +222,7 @@ def solve_vmec_jax_boundary_state(
     )
 
 
-def relax_vmec_jax_boundary_state_explicit(
+def relax_vmex_boundary_state_explicit(
     context: VmecJaxBoundaryContext,
     params,
     *,
@@ -238,7 +238,7 @@ def relax_vmec_jax_boundary_state_explicit(
     differentiable: bool = True,
     verbose: bool = False,
 ):
-    """Run the explicit fixed-step `vmec_jax` boundary relaxation.
+    """Run the explicit fixed-step `vmex` boundary relaxation.
 
     This is the forward-mode boundary-to-output lane that keeps the equilibrium
     dependence inside an unrolled JAX-compatible solve. It is intentionally
@@ -247,20 +247,20 @@ def relax_vmec_jax_boundary_state_explicit(
     while the implicit helper exposes the upstream custom-VJP solve.
     """
 
-    vmec_jax = _import_vmec_jax()
+    vmex = _import_vmex()
     if context.backend == "core":
         raise NotImplementedError(
-            "The current vmec_jax API removed the experimental explicit "
-            "fixed-step relaxation. Use solve_vmec_jax_boundary_state(), "
-            "which uses vmec_jax.implicit.solve_implicit and its validated "
+            "The current vmex API removed the experimental explicit "
+            "fixed-step relaxation. Use solve_vmex_boundary_state(), "
+            "which uses vmex.implicit.solve_implicit and its validated "
             "custom-VJP equilibrium derivative."
         )
-    state0 = initial_guess_vmec_jax_boundary_state(
+    state0 = initial_guess_vmex_boundary_state(
         context,
         params,
         vmec_project=vmec_project,
     )
-    flux = vmec_jax.flux_profiles_from_indata(
+    flux = vmex.flux_profiles_from_indata(
         context.indata,
         context.static.s,
         signgs=context.signgs,
@@ -268,7 +268,7 @@ def relax_vmec_jax_boundary_state_explicit(
     pressure_value = (
         jnp.zeros_like(jnp.asarray(context.static.s)) if pressure is None else jnp.asarray(pressure)
     )
-    result = vmec_jax.solve_fixed_boundary_gd(
+    result = vmex.solve_fixed_boundary_gd(
         state0,
         context.static,
         phipf=flux.phipf,
@@ -296,8 +296,8 @@ def relax_vmec_jax_boundary_state_explicit(
 
 __all__ = [
     "VmecJaxBoundaryContext",
-    "build_vmec_jax_boundary_context",
-    "initial_guess_vmec_jax_boundary_state",
-    "relax_vmec_jax_boundary_state_explicit",
-    "solve_vmec_jax_boundary_state",
+    "build_vmex_boundary_context",
+    "initial_guess_vmex_boundary_state",
+    "relax_vmex_boundary_state_explicit",
+    "solve_vmex_boundary_state",
 ]

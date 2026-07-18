@@ -53,7 +53,7 @@ def test_boozmn_same_coordinate_roundtrip_audit_writes_artifacts(monkeypatch, tm
 
     monkeypatch.setattr(module, "_write_boozmn_from_wout", fake_write_boozmn_from_wout)
     monkeypatch.setattr(module, "load_boozmn_surface", fake_load_boozmn)
-    monkeypatch.setattr(module, "surface_from_vmec_jax_wout", lambda **_kwargs: example_surface())
+    monkeypatch.setattr(module, "surface_from_vmex_wout", lambda **_kwargs: example_surface())
 
     payload = module.build_roundtrip_audit(
         input_path=input_path,

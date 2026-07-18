@@ -49,7 +49,7 @@ For end-to-end examples, see:
 - [`examples/neopax_with_ntx.py`](../examples/neopax_with_ntx.py) for the
   smallest scan-to-array workflow
 - [`examples/owned_geometry_neopax_dataset.py`](../examples/owned_geometry_neopax_dataset.py)
-  for an owned finite-beta `vmec_jax -> booz_xform_jax -> NTX -> NEOPAX`
+  for an owned finite-beta `vmex -> booz_xform_jax -> NTX -> NEOPAX`
   dataset, direct wout-harmonic stress cases, and interpolation-path audit
 - [`examples/owned_finite_beta_sfincs_jax_inputs.py`](../examples/owned_finite_beta_sfincs_jax_inputs.py)
   for same-grid SFINCS-JAX input generation, completed-output ingestion, and
@@ -118,7 +118,7 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
     scan_to_neopax_arrays,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 
 rho = jnp.linspace(0.2, 0.8, 5)
@@ -128,7 +128,7 @@ Er = jnp.zeros_like(Es)
 drds = jnp.ones_like(rho)
 
 def surface_loader(rho_value: float):
-    return surface_from_vmec_jax_vmec_wout_file("wout.nc", s=float(rho_value**2))
+    return surface_from_vmex_vmec_wout_file("wout.nc", s=float(rho_value**2))
 
 scan = build_ntx_neopax_scan(
     surface_loader,
@@ -229,7 +229,7 @@ python examples/boozmn_same_coordinate_roundtrip_audit.py
 This script generates a Boozer file from a VMEC `wout`, reloads the same
 half-grid surfaces through `load_boozmn_surface(...)`, and compares geometry
 metadata plus `D11/D31/D13/D33` with the in-memory
-`vmec_jax -> booz_xform_jax -> NTX` path. A passing gate validates the direct
+`vmex -> booz_xform_jax -> NTX` path. A passing gate validates the direct
 file loader. It does not imply that a VMEC-harmonic representation and a
 direct Boozer-coordinate representation have identical source channels.
 
@@ -287,12 +287,12 @@ JAX geometry stack and the Boozer transform should be owned by the same run:
 
 ```python
 import jax.numpy as jnp
-from ntx import GridSpec, build_ntx_neopax_scan_from_surfaces, surface_from_vmec_jax_wout
+from ntx import GridSpec, build_ntx_neopax_scan_from_surfaces, surface_from_vmex_wout
 
 rho = jnp.asarray([0.35, 0.65])
 psi_p = 0.013346299916410087  # abs(phi_edge)/(2*pi) from the matching wout
 surfaces = tuple(
-    surface_from_vmec_jax_wout(
+    surface_from_vmex_wout(
         input_path="input.LandremanPaul2021_QA_lowres_pressure_current",
         wout_path="wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
         s=float(rho_value**2),
@@ -314,8 +314,8 @@ scan = build_ntx_neopax_scan_from_surfaces(
 )
 ```
 
-`surface_from_vmec_jax_vmec_wout_file(...)` is still useful when only a `wout`
-file is available. It reads the VMEC harmonic tables through `vmec_jax` and
+`surface_from_vmex_vmec_wout_file(...)` is still useful when only a `wout`
+file is available. It reads the VMEC harmonic tables through `vmex` and
 uses NTX's radial interpolation of those tables. That path is not identical to
 the Boozer-transform path above, so the two should be compared only as an
 interpolation/geometry-loader audit on the same owned input family.
@@ -333,8 +333,8 @@ profiles are tabulated on normalized radius, so the helper evaluates `B00` on
 normalization used by the finite-beta bootstrap-current stress artifacts.
 
 For in-memory differentiable studies, avoid file-backed geometry loops and use
-`build_ntx_neopax_scan_from_vmec_jax_state(...)` or
-`build_ntx_neopax_scan_from_vmec_jax_boundary_params(...)`. Those helpers keep
+`build_ntx_neopax_scan_from_vmex_state(...)` or
+`build_ntx_neopax_scan_from_vmex_boundary_params(...)`. Those helpers keep
 the VMEC state, Boozer transform, NTX scan, and NEOPAX-style arrays on the
 JAX-facing path used by the derivative examples.
 

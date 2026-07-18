@@ -25,7 +25,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
-from ntx._checkout_paths import find_qs_zenodo_root, find_sfincs_jax_root, find_vmec_jax_root
+from ntx._checkout_paths import find_qs_zenodo_root, find_sfincs_jax_root, find_vmex_root
 
 OUTPUT_DIR = ROOT / "examples" / "outputs" / "fixed_field_transport_matrix_audit"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -105,11 +105,11 @@ def _fixed_field_cases() -> dict[str, FixedFieldCase]:
         if all(case.wout_path.exists() for case in cases.values()):
             return cases
 
-    vmec_root = find_vmec_jax_root()
+    vmec_root = find_vmex_root()
     if vmec_root is None:
         raise RuntimeError(
             "fixed-field audit requires either the local precise-QS Zenodo archive "
-            "or a vmec_jax checkout"
+            "or a vmex checkout"
         )
     data = vmec_root / "examples" / "data"
     cases = {
@@ -118,14 +118,14 @@ def _fixed_field_cases() -> dict[str, FixedFieldCase]:
             label="QA fixed-field reference",
             helicity_n=0,
             wout_path=data / "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc",
-            source_family="vmec_jax_examples",
+            source_family="vmex_examples",
         ),
         "qh": FixedFieldCase(
             name="qh",
             label="QH fixed-field reference",
             helicity_n=-1,
             wout_path=data / "wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc",
-            source_family="vmec_jax_examples",
+            source_family="vmex_examples",
         ),
     }
     missing = [case.wout_path for case in cases.values() if not case.wout_path.exists()]

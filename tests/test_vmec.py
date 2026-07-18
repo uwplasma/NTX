@@ -9,7 +9,7 @@ from ntx import (
     MonoenergeticCase,
     load_vmec_surface,
     solve_monoenergetic,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 from ntx.geometry import VmecSurface, geometry_on_grid
 
@@ -73,7 +73,7 @@ def test_vmec_filtered_nyquist_convention_uses_filtered_coefficients():
 
 
 def test_vmec_filtered_nyquist_matches_direct_vmec_harmonics_sign_convention():
-    direct = surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=0.25)
+    direct = surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=0.25)
     filtered = load_vmec_surface(
         SAMPLE_WOUT,
         psi_n=0.25,

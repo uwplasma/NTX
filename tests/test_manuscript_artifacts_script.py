@@ -200,9 +200,9 @@ def test_build_manuscript_artifacts_script_writes_outputs():
     assert "W7-X imported-workflow bootstrap-current convergence" in claims
     assert "three-harmonic geometry-control derivative stress benchmark" in claims
     assert "file-backed Boozer and VMEC geometry-control derivative stress benchmark" in claims
-    assert "boundary-projected `vmec_jax -> booz_xform_jax -> NTX`" in claims
-    assert "implicit fixed-boundary `vmec_jax -> booz_xform_jax -> NTX`" in claims
-    assert "explicit-relaxed `vmec_jax -> booz_xform_jax -> NTX`" in claims
+    assert "boundary-projected `vmex -> booz_xform_jax -> NTX`" in claims
+    assert "implicit fixed-boundary `vmex -> booz_xform_jax -> NTX`" in claims
+    assert "explicit-relaxed `vmex -> booz_xform_jax -> NTX`" in claims
     assert "artifact-backed geometry-family breadth summary" in claims
     assert "geometry-family transport convergence stress diagnostic" in claims
     assert "owned finite-beta bootstrap-current stress audit" in claims

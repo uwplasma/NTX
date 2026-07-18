@@ -9,7 +9,7 @@
     "source": "single-stage finite-beta test case",
     "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
     "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
-    "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmec_jax input reader",
+    "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
     "primary_geometry_path": "booz_xform_jax",
     "wout_metadata": {
       "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",

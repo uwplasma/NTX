@@ -10,8 +10,8 @@ from ._neopax_bridge import (
 from ._neopax_field import (
     build_differentiable_neopax_field,
     build_differentiable_neopax_field_from_vmec_booz_files,
-    build_differentiable_neopax_field_from_vmec_jax_boundary_params,
-    build_differentiable_neopax_field_from_vmec_jax_state,
+    build_differentiable_neopax_field_from_vmex_boundary_params,
+    build_differentiable_neopax_field_from_vmex_state,
 )
 from ._neopax_fluxes import get_differentiable_neopax_fluxes
 from ._neopax_io import (
@@ -22,8 +22,8 @@ from ._neopax_io import (
 from ._neopax_scan import (
     build_ntx_neopax_scan,
     build_ntx_neopax_scan_from_surfaces,
-    build_ntx_neopax_scan_from_vmec_jax_boundary_params,
-    build_ntx_neopax_scan_from_vmec_jax_state,
+    build_ntx_neopax_scan_from_vmex_boundary_params,
+    build_ntx_neopax_scan_from_vmex_state,
 )
 from ._neopax_types import DifferentiableNeopaxField, NeopaxMonoenergeticArrays, NeopaxScan
 
@@ -33,11 +33,11 @@ __all__ = [
     "NeopaxScan",
     "build_differentiable_neopax_field",
     "build_differentiable_neopax_field_from_vmec_booz_files",
-    "build_differentiable_neopax_field_from_vmec_jax_boundary_params",
-    "build_differentiable_neopax_field_from_vmec_jax_state",
+    "build_differentiable_neopax_field_from_vmex_boundary_params",
+    "build_differentiable_neopax_field_from_vmex_state",
     "build_ntx_neopax_scan",
-    "build_ntx_neopax_scan_from_vmec_jax_boundary_params",
-    "build_ntx_neopax_scan_from_vmec_jax_state",
+    "build_ntx_neopax_scan_from_vmex_boundary_params",
+    "build_ntx_neopax_scan_from_vmex_state",
     "build_ntx_neopax_scan_from_surfaces",
     "get_differentiable_neopax_fluxes",
     "load_neopax_reference_scan",

@@ -8,20 +8,20 @@ from types import ModuleType, SimpleNamespace
 import jax.numpy as jnp
 import pytest
 
-from ntx import surface_from_vmec_jax_state, surface_from_vmec_jax_wout
-from ntx._vmec_jax_boozer import _apply_boozer_sign_convention_profiles
+from ntx import surface_from_vmex_state, surface_from_vmex_wout
+from ntx._vmex_boozer import _apply_boozer_sign_convention_profiles
 from ntx.geometry import BoozerSurface
-from ntx.vmec_jax_backend import (
+from ntx.vmex_backend import (
     _apply_boozer_sign_convention,
-    _booz_xform_bundle_from_vmec_jax_state,
+    _booz_xform_bundle_from_vmex_state,
     _import_booz_xform_jax_api,
-    _import_vmec_jax,
+    _import_vmex,
     _prepend_checkout,
-    build_vmec_jax_boundary_context,
-    initial_guess_vmec_jax_boundary_state,
-    relax_vmec_jax_boundary_state_explicit,
-    solve_vmec_jax_boundary_state,
-    surfaces_from_vmec_jax_boundary_params,
+    build_vmex_boundary_context,
+    initial_guess_vmex_boundary_state,
+    relax_vmex_boundary_state_explicit,
+    solve_vmex_boundary_state,
+    surfaces_from_vmex_boundary_params,
 )
 
 
@@ -61,7 +61,7 @@ def test_apply_boozer_sign_convention_profiles_keeps_positive_jacobian():
     assert jnp.allclose(gmnc[1], jnp.asarray([3.0, 0.2]))
 
 
-def test_surface_from_vmec_jax_state_builds_boozer_surface(monkeypatch):
+def test_surface_from_vmex_state_builds_boozer_surface(monkeypatch):
     jax_api = ModuleType("booz_xform_jax.jax_api")
     jax_api.prepare_booz_xform_constants_from_inputs = lambda **kwargs: ("constants", "grids")
     jax_api.booz_xform_from_inputs = lambda **kwargs: {
@@ -72,13 +72,13 @@ def test_surface_from_vmec_jax_state_builds_boozer_surface(monkeypatch):
         "buco_b": jnp.asarray([0.2]),
         "bvco_b": jnp.asarray([1.2]),
     }
-    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg = ModuleType("vmex")
     vmec_pkg.booz_xform_inputs_from_state = lambda **kwargs: SimpleNamespace(nfp=2)
     vmec_pkg.surface_indices_from_static = lambda static, s_values: ([0], s_values)
     monkeypatch.setitem(sys.modules, "booz_xform_jax.jax_api", jax_api)
-    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmex", vmec_pkg)
 
-    surface = surface_from_vmec_jax_state(
+    surface = surface_from_vmex_state(
         state="state",
         static=SimpleNamespace(cfg=SimpleNamespace(lasym=False)),
         indata=SimpleNamespace(input_filename="sample.vmec"),
@@ -90,11 +90,11 @@ def test_surface_from_vmec_jax_state_builds_boozer_surface(monkeypatch):
     assert surface.b0 == 2.0
 
 
-def test_surface_from_current_vmec_jax_state_uses_core_boozer_tables(monkeypatch):
+def test_surface_from_current_vmex_state_uses_core_boozer_tables(monkeypatch):
     requested_rows = []
-    vmec_pkg = ModuleType("vmec_jax")
-    vmec_core = ModuleType("vmec_jax.core")
-    boozer_tables = ModuleType("vmec_jax.core.boozer_tables")
+    vmec_pkg = ModuleType("vmex")
+    vmec_core = ModuleType("vmex.core")
+    boozer_tables = ModuleType("vmex.core.boozer_tables")
 
     def fake_tables(state, runtime, row):
         requested_rows.append(row)
@@ -128,16 +128,16 @@ def test_surface_from_current_vmec_jax_state_uses_core_boozer_tables(monkeypatch
         }
 
     jax_api.booz_xform_from_inputs = fake_transform
-    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
-    monkeypatch.setitem(sys.modules, "vmec_jax.core", vmec_core)
-    monkeypatch.setitem(sys.modules, "vmec_jax.core.boozer_tables", boozer_tables)
+    monkeypatch.setitem(sys.modules, "vmex", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmex.core", vmec_core)
+    monkeypatch.setitem(sys.modules, "vmex.core.boozer_tables", boozer_tables)
     monkeypatch.setitem(sys.modules, "booz_xform_jax.jax_api", jax_api)
 
     runtime = SimpleNamespace(
         resolution=SimpleNamespace(nfp=2, lasym=False),
         setup=SimpleNamespace(signgs=1, s_full=jnp.asarray([0.0, 0.5, 1.0])),
     )
-    surface = surface_from_vmec_jax_state(
+    surface = surface_from_vmex_state(
         state=SimpleNamespace(R_cos=jnp.ones((3, 2))),
         static=runtime,
         indata=SimpleNamespace(source_path="sample.vmec"),
@@ -150,11 +150,11 @@ def test_surface_from_current_vmec_jax_state_uses_core_boozer_tables(monkeypatch
     assert surface.b0 == 2.0
 
 
-def test_surface_from_vmec_jax_wout_uses_current_root_api(monkeypatch, tmp_path):
+def test_surface_from_vmex_wout_uses_current_root_api(monkeypatch, tmp_path):
     wout = SimpleNamespace(ns=3, mpol=2, ntor=1, signgs=1)
-    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg = ModuleType("vmex")
     vmec_pkg.read_wout = lambda path: wout
-    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmex", vmec_pkg)
 
     fallback = {}
 
@@ -164,7 +164,7 @@ def test_surface_from_vmec_jax_wout_uses_current_root_api(monkeypatch, tmp_path)
         return "surface"
 
     monkeypatch.setattr(
-        "ntx._vmec_jax_surfaces._surface_from_booz_xform_wout_data",
+        "ntx._vmex_surfaces._surface_from_booz_xform_wout_data",
         fake_wout_fallback,
     )
 
@@ -172,7 +172,7 @@ def test_surface_from_vmec_jax_wout_uses_current_root_api(monkeypatch, tmp_path)
     wout_path = tmp_path / "wout.nc"
     input_path.touch()
     wout_path.touch()
-    result = surface_from_vmec_jax_wout(
+    result = surface_from_vmex_wout(
         input_path=input_path,
         wout_path=wout_path,
         s=0.5,
@@ -187,17 +187,17 @@ def test_surface_from_vmec_jax_wout_uses_current_root_api(monkeypatch, tmp_path)
     assert fallback["kwargs"]["nboz"] == 4
 
 
-def test_surface_from_vmec_jax_wout_rejects_removed_state_reconstruction(monkeypatch, tmp_path):
-    vmec_pkg = ModuleType("vmec_jax")
+def test_surface_from_vmex_wout_rejects_removed_state_reconstruction(monkeypatch, tmp_path):
+    vmec_pkg = ModuleType("vmex")
     vmec_pkg.read_wout = lambda path: object()
-    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmex", vmec_pkg)
     input_path = tmp_path / "input.vmec"
     wout_path = tmp_path / "wout.nc"
     input_path.touch()
     wout_path.touch()
 
     with pytest.raises(NotImplementedError, match="removed legacy"):
-        surface_from_vmec_jax_wout(
+        surface_from_vmex_wout(
             input_path=input_path,
             wout_path=wout_path,
             s=0.5,
@@ -205,9 +205,9 @@ def test_surface_from_vmec_jax_wout_rejects_removed_state_reconstruction(monkeyp
         )
 
 
-def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
+def test_vmex_boundary_context_and_state_helpers(monkeypatch, tmp_path):
     calls = {}
-    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg = ModuleType("vmex")
     cfg = SimpleNamespace()
     indata = SimpleNamespace(get_float=lambda key, default: 1.5)
     static = SimpleNamespace(
@@ -256,16 +256,16 @@ def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
         return SimpleNamespace(state=relaxed_state)
 
     vmec_pkg.solve_fixed_boundary_gd = fake_relax
-    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmex", vmec_pkg)
 
-    context = build_vmec_jax_boundary_context(tmp_path / "input.vmec", signgs=-1)
+    context = build_vmex_boundary_context(tmp_path / "input.vmec", signgs=-1)
     assert context.specs == specs
     assert context.signgs == -1
 
-    guess = initial_guess_vmec_jax_boundary_state(context, jnp.asarray([0.0, 1.0]))
+    guess = initial_guess_vmex_boundary_state(context, jnp.asarray([0.0, 1.0]))
     assert guess is state0
 
-    solved = solve_vmec_jax_boundary_state(
+    solved = solve_vmex_boundary_state(
         context,
         jnp.asarray([0.0, 1.0]),
         vmec_project=False,
@@ -281,7 +281,7 @@ def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
     assert jnp.allclose(calls["implicit"]["edge_Zcos"], jnp.asarray([5.0, 6.0]))
     assert jnp.allclose(calls["implicit"]["edge_Zsin"], jnp.asarray([7.0, 8.0]))
 
-    relaxed = relax_vmec_jax_boundary_state_explicit(
+    relaxed = relax_vmex_boundary_state_explicit(
         context,
         jnp.asarray([0.0, 1.0]),
         pressure=jnp.asarray([1.0, 2.0, 3.0]),
@@ -298,7 +298,7 @@ def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
     assert jnp.allclose(calls["relax"]["edge_Zcos"], jnp.asarray([5.0, 6.0]))
     assert jnp.allclose(calls["relax"]["edge_Zsin"], jnp.asarray([7.0, 8.0]))
 
-    relaxed_zero_pressure = relax_vmec_jax_boundary_state_explicit(
+    relaxed_zero_pressure = relax_vmex_boundary_state_explicit(
         context,
         jnp.asarray([0.0, 1.0]),
         pressure=None,
@@ -307,7 +307,7 @@ def test_vmec_jax_boundary_context_and_state_helpers(monkeypatch, tmp_path):
     assert jnp.allclose(calls["relax"]["pressure"], jnp.asarray([0.0, 0.0, 0.0]))
 
 
-def test_current_vmec_jax_boundary_context_uses_implicit_params(monkeypatch, tmp_path):
+def test_current_vmex_boundary_context_uses_implicit_params(monkeypatch, tmp_path):
     @dataclasses.dataclass(frozen=True)
     class FakeParams:
         rbc: object
@@ -344,7 +344,7 @@ def test_current_vmec_jax_boundary_context_uses_implicit_params(monkeypatch, tmp
         calls["cfg"] = cfg
         return "solved"
 
-    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg = ModuleType("vmex")
     vmec_pkg.VmecInput = FakeVmecInput
     vmec_pkg.implicit = SimpleNamespace(
         make_config=lambda value: FakeConfig(),
@@ -352,11 +352,11 @@ def test_current_vmec_jax_boundary_context_uses_implicit_params(monkeypatch, tmp
         runtime_from_params=lambda params, cfg: runtime,
         solve_implicit=solve_implicit,
     )
-    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmex", vmec_pkg)
     input_path = tmp_path / "input.vmec"
     input_path.touch()
 
-    context = build_vmec_jax_boundary_context(
+    context = build_vmex_boundary_context(
         input_path,
         max_mode=1,
         include=("rc",),
@@ -367,17 +367,17 @@ def test_current_vmec_jax_boundary_context_uses_implicit_params(monkeypatch, tmp
     assert [spec.name for spec in context.specs] == ["rc01", "rc1-1", "rc10", "rc11"]
 
     updates = jnp.asarray([0.1, 0.2, 0.3, 0.4])
-    assert solve_vmec_jax_boundary_state(context, updates, max_iter=3) == "solved"
+    assert solve_vmex_boundary_state(context, updates, max_iter=3) == "solved"
     assert calls["cfg"].max_iterations == 20
     assert jnp.allclose(calls["params"].rbc[:, 0], jnp.asarray([0.0, 0.0, 0.1]))
     assert jnp.allclose(calls["params"].rbc[:, 1], jnp.asarray([0.2, 0.3, 0.4]))
 
     with pytest.raises(NotImplementedError, match="removed the experimental explicit"):
-        relax_vmec_jax_boundary_state_explicit(context, updates)
+        relax_vmex_boundary_state_explicit(context, updates)
 
 
 def test_surfaces_from_boundary_params_delegates(monkeypatch):
-    import ntx._vmec_jax_surfaces as surfaces
+    import ntx._vmex_surfaces as surfaces
 
     context = SimpleNamespace(static="static", indata="indata", signgs=1)
     calls = {}
@@ -390,10 +390,10 @@ def test_surfaces_from_boundary_params_delegates(monkeypatch):
         calls["surfaces"] = kwargs
         return ("surface",)
 
-    monkeypatch.setattr(surfaces, "solve_vmec_jax_boundary_state", fake_solve)
-    monkeypatch.setattr(surfaces, "surfaces_from_vmec_jax_state", fake_surfaces)
+    monkeypatch.setattr(surfaces, "solve_vmex_boundary_state", fake_solve)
+    monkeypatch.setattr(surfaces, "surfaces_from_vmex_state", fake_surfaces)
 
-    result = surfaces_from_vmec_jax_boundary_params(
+    result = surfaces_from_vmex_boundary_params(
         context,
         jnp.asarray([0.0]),
         s_values=(0.25,),
@@ -408,7 +408,7 @@ def test_surfaces_from_boundary_params_delegates(monkeypatch):
 
 
 def test_booz_xform_bundle_accepts_all_surfaces(monkeypatch):
-    vmec_pkg = ModuleType("vmec_jax")
+    vmec_pkg = ModuleType("vmex")
     vmec_pkg.booz_xform_inputs_from_state = lambda **kwargs: SimpleNamespace(nfp=2)
     jax_api = ModuleType("booz_xform_jax.jax_api")
     jax_api.prepare_booz_xform_constants_from_inputs = lambda **kwargs: ("constants", "grids")
@@ -418,10 +418,10 @@ def test_booz_xform_bundle_accepts_all_surfaces(monkeypatch):
         return {"bmnc_b": jnp.asarray([[2.0]])}
 
     jax_api.booz_xform_from_inputs = fake_booz_xform_from_inputs
-    monkeypatch.setitem(sys.modules, "vmec_jax", vmec_pkg)
+    monkeypatch.setitem(sys.modules, "vmex", vmec_pkg)
     monkeypatch.setitem(sys.modules, "booz_xform_jax.jax_api", jax_api)
 
-    inputs, out = _booz_xform_bundle_from_vmec_jax_state(
+    inputs, out = _booz_xform_bundle_from_vmex_state(
         state="state",
         static=SimpleNamespace(cfg=SimpleNamespace(lasym=False)),
         indata="indata",
@@ -452,17 +452,17 @@ def test_prepend_checkout_adds_existing_root_once(tmp_path):
 
 
 def test_import_helpers_use_checkout_fallback(monkeypatch, tmp_path):
-    import ntx._vmec_jax_boozer as boozer_backend
+    import ntx._vmex_boozer as boozer_backend
 
     real_import = builtins.__import__
-    fake_vmec = ModuleType("vmec_jax")
+    fake_vmec = ModuleType("vmex")
     fake_jax_api = ModuleType("booz_xform_jax.jax_api")
     fake_booz_pkg = ModuleType("booz_xform_jax")
     fake_booz_pkg.jax_api = fake_jax_api
     attempts = {"vmec": 0, "booz": 0}
 
     def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "vmec_jax":
+        if name == "vmex":
             attempts["vmec"] += 1
             if attempts["vmec"] == 1:
                 raise ModuleNotFoundError(name)
@@ -474,9 +474,9 @@ def test_import_helpers_use_checkout_fallback(monkeypatch, tmp_path):
             return fake_booz_pkg
         return real_import(name, globals, locals, fromlist, level)
 
-    monkeypatch.delitem(sys.modules, "vmec_jax", raising=False)
+    monkeypatch.delitem(sys.modules, "vmex", raising=False)
     monkeypatch.delitem(sys.modules, "booz_xform_jax.jax_api", raising=False)
-    monkeypatch.setattr(boozer_backend, "find_vmec_jax_root", lambda: tmp_path / "vmec_jax")
+    monkeypatch.setattr(boozer_backend, "find_vmex_root", lambda: tmp_path / "vmex")
     monkeypatch.setattr(
         boozer_backend,
         "find_booz_xform_jax_root",
@@ -485,11 +485,11 @@ def test_import_helpers_use_checkout_fallback(monkeypatch, tmp_path):
     monkeypatch.setattr(builtins, "__import__", fake_import)
 
     try:
-        assert _import_vmec_jax() is fake_vmec
+        assert _import_vmex() is fake_vmec
         assert _import_booz_xform_jax_api() is fake_jax_api
         assert attempts == {"vmec": 2, "booz": 2}
     finally:
-        for path in (tmp_path / "vmec_jax", tmp_path / "booz_xform_jax"):
+        for path in (tmp_path / "vmex", tmp_path / "booz_xform_jax"):
             path_str = str(path)
             while path_str in sys.path:
                 sys.path.remove(path_str)

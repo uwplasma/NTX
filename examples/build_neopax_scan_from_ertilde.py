@@ -36,7 +36,7 @@ from ntx import (  # noqa: E402
     load_boozmn_surface,
     solve_monoenergetic_parallel_scan,
     solve_monoenergetic_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
     write_neopax_scan_hdf5,
 )
 from ntx._checkout_paths import find_neopax_root  # noqa: E402
@@ -501,7 +501,7 @@ def _build_field_channels(
 
 
 def _surface_loader(wout_path: Path, rho_value: float):
-    return surface_from_vmec_jax_vmec_wout_file(wout_path, s=float(rho_value**2))
+    return surface_from_vmex_vmec_wout_file(wout_path, s=float(rho_value**2))
 
 
 def _select_surface_loader(*, backend: str, wout_path: Path, boozmn_path: Path):
@@ -517,12 +517,12 @@ def _select_surface_loader(*, backend: str, wout_path: Path, boozmn_path: Path):
         _require_file(wout_path, "VMEC wout")
         return (
             lambda rho_value: _surface_loader(wout_path, float(rho_value)),
-            "vmec_jax",
+            "vmex",
         )
     if wout_path.exists():
         return (
             lambda rho_value: _surface_loader(wout_path, float(rho_value)),
-            "vmec_jax",
+            "vmex",
         )
     if boozmn_path.exists():
         return (

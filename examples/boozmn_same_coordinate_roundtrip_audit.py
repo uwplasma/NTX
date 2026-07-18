@@ -3,7 +3,7 @@
 
 This audit generates a Boozer file from a VMEC `wout`, reloads the selected
 surfaces through `load_boozmn_surface`, and compares them with the in-memory
-`vmec_jax -> booz_xform_jax -> NTX` path on the same VMEC half-grid surfaces.
+`vmex -> booz_xform_jax -> NTX` path on the same VMEC half-grid surfaces.
 It is a geometry/backend round trip, not a fitted correction.
 """
 
@@ -34,14 +34,14 @@ from ntx import (  # noqa: E402
     load_boozmn_surface,
     prepare_monoenergetic_system,
     solve_prepared,
-    surface_from_vmec_jax_wout,
+    surface_from_vmex_wout,
 )
 
 DEFAULT_INPUT = Path(
-    "/Users/rogeriojorge/local/vmec_jax/examples/data/input.LandremanPaul2021_QA_lowres"
+    "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres"
 )
 DEFAULT_WOUT = Path(
-    "/Users/rogeriojorge/local/vmec_jax/examples/data/wout_LandremanPaul2021_QA_lowres.nc"
+    "/Users/rogeriojorge/local/vmex/examples/data/wout_LandremanPaul2021_QA_lowres.nc"
 )
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "boozmn_same_coordinate_roundtrip_audit"
 
@@ -223,7 +223,7 @@ def build_roundtrip_audit(
         for packed_index, (surface_index, s_value) in enumerate(
             zip(surface_indices, s_values, strict=True)
         ):
-            reference_surface = surface_from_vmec_jax_wout(
+            reference_surface = surface_from_vmex_wout(
                 input_path=input_path,
                 wout_path=wout_path,
                 s=float(s_value),
@@ -499,7 +499,7 @@ def _parse_args() -> argparse.Namespace:
         default="auto",
         help=(
             "Reference VMEC-to-Boozer file path. Both choices use finalized "
-            "WOUT magnetic channels with the current vmec_jax API."
+            "WOUT magnetic channels with the current vmex API."
         ),
     )
     parser.add_argument("--nu-hat", type=float, default=1.0e-2)

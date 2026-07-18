@@ -230,7 +230,7 @@ def test_owned_finite_beta_sfincs_jax_inputs_compares_ntx_same_grid(
     )
     monkeypatch.setattr(
         sfincs_inputs,
-        "surface_from_vmec_jax_vmec_wout_file",
+        "surface_from_vmex_vmec_wout_file",
         lambda *args, **kwargs: SimpleNamespace(b0=2.0, psi_a_hat=0.25),
     )
     monkeypatch.setattr(

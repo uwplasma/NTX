@@ -1,4 +1,4 @@
-"""Direct VMEC-surface builders backed by `vmec_jax`."""
+"""Direct VMEC-surface builders backed by `vmex`."""
 
 from __future__ import annotations
 
@@ -10,14 +10,14 @@ import numpy as np
 from .geometry import VmecSurface
 
 
-def surface_from_vmec_jax_vmec_wout(
+def surface_from_vmex_vmec_wout(
     wout,
     *,
     s: float,
     source_path: str | Path | None = None,
     min_bmn_to_load: float = 0.0,
 ) -> VmecSurface:
-    """Build a VMEC harmonic surface from an in-memory `vmec_jax` wout object."""
+    """Build a VMEC harmonic surface from an in-memory `vmex` wout object."""
 
     if not 0.0 <= float(s) <= 1.0:
         raise ValueError("s must be between 0 and 1")
@@ -62,7 +62,7 @@ def surface_from_vmec_jax_vmec_wout(
         raise ValueError("VMEC transport normalization produced dpsi_hat/dr_hat = 0")
 
     resolved_path = Path(
-        source_path if source_path is not None else getattr(wout, "path", "vmec_jax_wout")
+        source_path if source_path is not None else getattr(wout, "path", "vmex_wout")
     ).expanduser()
 
     return VmecSurface(
@@ -97,28 +97,28 @@ def surface_from_vmec_jax_vmec_wout(
     )
 
 
-def surface_from_vmec_jax_vmec_wout_file(
+def surface_from_vmex_vmec_wout_file(
     path: str | Path,
     *,
     s: float,
     min_bmn_to_load: float = 0.0,
 ) -> VmecSurface:
-    """Build a VMEC harmonic surface from a `wout` file through `vmec_jax`."""
+    """Build a VMEC harmonic surface from a `wout` file through `vmex`."""
 
     try:
-        from vmec_jax import read_wout
+        from vmex import read_wout
     except (ImportError, ModuleNotFoundError):
         try:
-            from vmec_jax.api import read_wout
+            from vmex.api import read_wout
         except (ImportError, ModuleNotFoundError) as exc:
             raise ModuleNotFoundError(
-                "surface_from_vmec_jax_vmec_wout_file requires vmec_jax. "
-                "Install it with `pip install vmec_jax`."
+                "surface_from_vmex_vmec_wout_file requires vmex. "
+                "Install it with `pip install vmex`."
             ) from exc
 
     wout_path = Path(path).expanduser().resolve()
     wout = read_wout(wout_path)
-    return surface_from_vmec_jax_vmec_wout(
+    return surface_from_vmex_vmec_wout(
         wout,
         s=s,
         source_path=wout_path,

@@ -11,17 +11,17 @@ import pytest
 from ntx import (
     GridSpec,
     build_differentiable_neopax_field,
-    build_differentiable_neopax_field_from_vmec_jax_state,
-    build_ntx_neopax_scan_from_vmec_jax_state,
-    build_vmec_jax_boundary_context,
+    build_differentiable_neopax_field_from_vmex_state,
+    build_ntx_neopax_scan_from_vmex_state,
+    build_vmex_boundary_context,
     get_differentiable_neopax_fluxes,
-    solve_vmec_jax_boundary_state,
+    solve_vmex_boundary_state,
     to_neopax_monoenergetic,
 )
 from ntx._checkout_paths import (
     find_booz_xform_jax_root,
     find_neopax_root,
-    find_vmec_jax_example_input,
+    find_vmex_example_input,
 )
 from ntx._geometry_types import BoozerSurface
 from ntx._neopax_field import (
@@ -31,16 +31,16 @@ from ntx._neopax_field import (
     _surface_b10,
     _surface_bsqav,
 )
-from ntx._neopax_vmec_jax_field import (
+from ntx._neopax_vmex_field import (
     _apply_boozer_sign_convention_profiles,
-    _booz_xform_bundle_with_gmnc_from_vmec_jax_state,
+    _booz_xform_bundle_with_gmnc_from_vmex_state,
     _booz_xform_gmnc_from_inputs,
     _rho_half_mesh_from_s,
     _vmec_edge_r00_from_state,
     _vmec_psia_from_indata,
     _vmec_psia_from_state,
     _vmec_volume_profiles_from_state,
-    build_differentiable_neopax_field_from_vmec_jax_boundary_params,
+    build_differentiable_neopax_field_from_vmex_boundary_params,
 )
 
 
@@ -83,7 +83,7 @@ def _import_neopax():
 def _has_local_boundary_stack() -> bool:
     return (
         find_neopax_root() is not None
-        and find_vmec_jax_example_input() is not None
+        and find_vmex_example_input() is not None
         and find_booz_xform_jax_root() is not None
     )
 
@@ -335,23 +335,23 @@ def test_surface_helpers_use_b10_fallbacks():
 
 
 def test_vmec_scalar_profile_helpers_with_fake_modules(monkeypatch):
-    integrals = ModuleType("vmec_jax.integrals")
+    integrals = ModuleType("vmex.integrals")
     integrals.cumrect_s_halfmesh = lambda values, s: jnp.cumsum(jnp.asarray(values))
-    energy = ModuleType("vmec_jax.energy")
+    energy = ModuleType("vmex.energy")
     energy.flux_profiles_from_indata = lambda indata, s, signgs: SimpleNamespace(
         phipf=jnp.asarray([0.0, -0.2, -0.3])
     )
-    forces = ModuleType("vmec_jax.vmec_forces")
+    forces = ModuleType("vmex.vmec_forces")
     forces.vmec_forces_rz_from_wout = lambda **kwargs: SimpleNamespace(bc="bc")
-    residue = ModuleType("vmec_jax.vmec_residue")
+    residue = ModuleType("vmex.vmec_residue")
     residue.vmec_force_norms_from_bcovar_dynamic = lambda **kwargs: SimpleNamespace(
         volume=jnp.asarray(-2.0),
         vp=jnp.asarray([0.0, -1.0, -2.0]),
     )
-    monkeypatch.setitem(sys.modules, "vmec_jax.integrals", integrals)
-    monkeypatch.setitem(sys.modules, "vmec_jax.energy", energy)
-    monkeypatch.setitem(sys.modules, "vmec_jax.vmec_forces", forces)
-    monkeypatch.setitem(sys.modules, "vmec_jax.vmec_residue", residue)
+    monkeypatch.setitem(sys.modules, "vmex.integrals", integrals)
+    monkeypatch.setitem(sys.modules, "vmex.energy", energy)
+    monkeypatch.setitem(sys.modules, "vmex.vmec_forces", forces)
+    monkeypatch.setitem(sys.modules, "vmex.vmec_residue", residue)
 
     static = SimpleNamespace(
         s=jnp.asarray([0.0, 0.5, 1.0]),
@@ -382,7 +382,7 @@ def test_vmec_scalar_profile_helpers_with_fake_modules(monkeypatch):
 
 
 def test_differentiable_neopax_field_from_vmec_state_uses_axis_safe_profiles(monkeypatch):
-    import ntx._neopax_vmec_jax_field as neopax_field_module
+    import ntx._neopax_vmex_field as neopax_field_module
 
     static = SimpleNamespace(s=jnp.asarray([0.0, 0.25, 0.5, 0.75, 1.0]))
     state = SimpleNamespace(
@@ -418,11 +418,11 @@ def test_differentiable_neopax_field_from_vmec_state_uses_axis_safe_profiles(mon
     )
     monkeypatch.setattr(
         neopax_field_module,
-        "surfaces_from_vmec_jax_state",
+        "surfaces_from_vmex_state",
         fake_surfaces_from_state,
     )
 
-    field = build_differentiable_neopax_field_from_vmec_jax_state(
+    field = build_differentiable_neopax_field_from_vmex_state(
         state=state,
         static=static,
         indata=object(),
@@ -445,7 +445,7 @@ def test_differentiable_neopax_field_from_vmec_state_uses_axis_safe_profiles(mon
 
 
 def test_differentiable_neopax_field_from_vmec_state_falls_back_to_indata_psia(monkeypatch):
-    import ntx._neopax_vmec_jax_field as neopax_field_module
+    import ntx._neopax_vmex_field as neopax_field_module
 
     monkeypatch.setattr(
         neopax_field_module,
@@ -467,11 +467,11 @@ def test_differentiable_neopax_field_from_vmec_state_falls_back_to_indata_psia(m
     )
     monkeypatch.setattr(
         neopax_field_module,
-        "surfaces_from_vmec_jax_state",
+        "surfaces_from_vmex_state",
         lambda **kwargs: (_synthetic_imported_surface(),),
     )
 
-    field = build_differentiable_neopax_field_from_vmec_jax_state(
+    field = build_differentiable_neopax_field_from_vmex_state(
         state=SimpleNamespace(Rcos=jnp.asarray([[0.0], [5.0]])),
         static=SimpleNamespace(s=jnp.asarray([0.0, 0.5, 1.0])),
         indata=object(),
@@ -544,7 +544,7 @@ def test_differentiable_neopax_fluxes_copy_axis_block_and_apply_lij_forces(monke
 
 
 def test_boundary_params_field_builder_delegates_to_state_builder(monkeypatch):
-    import ntx._neopax_vmec_jax_field as neopax_field_module
+    import ntx._neopax_vmex_field as neopax_field_module
 
     context = SimpleNamespace(static="static", indata="indata", signgs=-1)
     calls = {}
@@ -557,14 +557,14 @@ def test_boundary_params_field_builder_delegates_to_state_builder(monkeypatch):
         calls["build"] = kwargs
         return "field"
 
-    monkeypatch.setattr(neopax_field_module, "solve_vmec_jax_boundary_state", fake_solve)
+    monkeypatch.setattr(neopax_field_module, "solve_vmex_boundary_state", fake_solve)
     monkeypatch.setattr(
         neopax_field_module,
-        "build_differentiable_neopax_field_from_vmec_jax_state",
+        "build_differentiable_neopax_field_from_vmex_state",
         fake_build,
     )
 
-    result = build_differentiable_neopax_field_from_vmec_jax_boundary_params(
+    result = build_differentiable_neopax_field_from_vmex_boundary_params(
         context,
         jnp.asarray([0.0]),
         n_r=7,
@@ -586,7 +586,7 @@ def test_boundary_params_field_builder_delegates_to_state_builder(monkeypatch):
 
 
 def test_booz_xform_gmnc_helpers_with_fake_internal_api(monkeypatch):
-    import ntx._neopax_vmec_jax_boozer as vmec_jax_boozer_module
+    import ntx._neopax_vmex_boozer as vmex_boozer_module
 
     jax_api = ModuleType("booz_xform_jax.jax_api")
 
@@ -645,11 +645,11 @@ def test_booz_xform_gmnc_helpers_with_fake_internal_api(monkeypatch):
     assert jnp.allclose(gmnc, jnp.asarray([[2.3, 0.6]]))
 
     monkeypatch.setattr(
-        vmec_jax_boozer_module,
-        "_booz_xform_bundle_from_vmec_jax_state",
+        vmex_boozer_module,
+        "_booz_xform_bundle_from_vmex_state",
         lambda **kwargs: (inputs, {"bmnc_b": jnp.asarray([[2.0, 0.2]])}),
     )
-    bundle_inputs, out = _booz_xform_bundle_with_gmnc_from_vmec_jax_state(
+    bundle_inputs, out = _booz_xform_bundle_with_gmnc_from_vmex_state(
         state="state",
         static=SimpleNamespace(cfg=SimpleNamespace(lasym=False)),
         indata="indata",
@@ -670,21 +670,21 @@ def test_booz_xform_gmnc_helpers_with_fake_internal_api(monkeypatch):
 @pytest.mark.skipif(
     not _has_local_boundary_stack() or os.environ.get("NTX_RUN_BOUNDARY_AUTODIFF") != "1",
     reason=(
-        "requires local vmec_jax, booz_xform_jax, and NEOPAX checkouts plus "
+        "requires local vmex, booz_xform_jax, and NEOPAX checkouts plus "
         "NTX_RUN_BOUNDARY_AUTODIFF=1; the full reverse-mode compile is memory intensive"
     ),
 )
 def test_boundary_to_neopax_current_objective_is_differentiable():
     NEOPAX = _import_neopax()
 
-    context = build_vmec_jax_boundary_context(
-        find_vmec_jax_example_input(),
+    context = build_vmex_boundary_context(
+        find_vmex_example_input(),
         max_mode=1,
         include=("rc", "zs"),
         fix=("rc00",),
     )
     if len(context.specs) == 0:
-        pytest.skip("vmec_jax example did not expose any boundary parameters")
+        pytest.skip("vmex example did not expose any boundary parameters")
 
     rho = jnp.asarray([0.25, 0.45, 0.65, 0.85])
     nu_v = jnp.logspace(-4, -2, 4)
@@ -693,8 +693,8 @@ def test_boundary_to_neopax_current_objective_is_differentiable():
     grid = GridSpec(5, 5, 4)
 
     def objective(params):
-        state = solve_vmec_jax_boundary_state(context, params, max_iter=3)
-        field = build_differentiable_neopax_field_from_vmec_jax_state(
+        state = solve_vmex_boundary_state(context, params, max_iter=3)
+        field = build_differentiable_neopax_field_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -704,7 +704,7 @@ def test_boundary_to_neopax_current_objective_is_differentiable():
             nboz=12,
         )
         drds = field.a_b * 0.5 / jnp.clip(rho, 0.05, None)
-        scan = build_ntx_neopax_scan_from_vmec_jax_state(
+        scan = build_ntx_neopax_scan_from_vmex_state(
             state=state,
             static=context.static,
             indata=context.indata,
@@ -716,7 +716,7 @@ def test_boundary_to_neopax_current_objective_is_differentiable():
             drds=drds,
             grid=grid,
             psi_p=field.Psia_value,
-            source_name="vmec_jax_boundary_autodiff_smoke",
+            source_name="vmex_boundary_autodiff_smoke",
         )
         database = to_neopax_monoenergetic(scan, a_b=field.a_b)
         species = _make_species(NEOPAX, field)

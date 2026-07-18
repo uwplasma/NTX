@@ -218,12 +218,12 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
-        name="vmec_jax_boundary_edge_transfer",
+        name="vmex_boundary_edge_transfer",
         category="analytical",
         metric="traced boundary edge arrays forwarded to implicit and explicit VMEC solves",
         relation="test",
         threshold=None,
-        source="tests/test_vmec_jax_backend.py",
+        source="tests/test_vmex_backend.py",
         rationale=(
             "Boundary-to-output derivatives require the traced fixed-boundary "
             "Fourier edge arrays to reach both the implicit residual solve and "
@@ -232,14 +232,14 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         ),
     ),
     PhysicsGate(
-        name="vmec_jax_neopax_radial_metric_transfer",
+        name="vmex_neopax_radial_metric_transfer",
         category="analytical",
         metric="VMEC psi, volume, edge radius, and rho=sqrt(s) map into NEOPAX field metrics",
         relation="test",
         threshold=None,
         source="tests/test_differentiable_neopax_field.py",
         rationale=(
-            "The imported VMEC-JAX to NEOPAX field path must preserve the "
+            "The imported VMEX to NEOPAX field path must preserve the "
             "radial coordinate mapping, axis regularization, enclosed-volume "
             "scale, edge major-radius scale, and toroidal-flux normalization "
             "before bootstrap-current or boundary-derivative workflows use it."
@@ -265,7 +265,7 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
         metric="B_zeta + iota B_theta >= 0 after imported Boozer sign mapping",
         relation="test",
         threshold=None,
-        source="tests/test_vmec_jax_backend.py",
+        source="tests/test_vmex_backend.py",
         rationale=(
             "The in-memory VMEC-to-Boozer path must use the same right-handed "
             "Boozer convention as the file-backed loader before NTX consumes "

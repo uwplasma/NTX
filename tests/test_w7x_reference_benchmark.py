@@ -9,7 +9,7 @@ from ntx import (
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
     solve_monoenergetic,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 from ntx._checkout_paths import find_neopax_root
 
@@ -31,7 +31,7 @@ def test_w7x_direct_vmec_point_matches_reference_database():
     assert wout is not None and ref_path is not None
     ref = load_neopax_reference_scan(ref_path)
     rho = float(ref.rho[3])
-    surface = surface_from_vmec_jax_vmec_wout_file(wout, s=float(rho**2))
+    surface = surface_from_vmex_vmec_wout_file(wout, s=float(rho**2))
     result = solve_monoenergetic(
         surface,
         GridSpec(n_theta=25, n_zeta=25, n_xi=63),
@@ -54,7 +54,7 @@ def test_w7x_subset_scan_matches_reference_database():
     nu_idx = np.array([0, 3], dtype=int)
     er_idx = np.array([0, 3], dtype=int)
     scan = build_ntx_neopax_scan(
-        lambda rho_value: surface_from_vmec_jax_vmec_wout_file(wout, s=float(rho_value**2)),
+        lambda rho_value: surface_from_vmex_vmec_wout_file(wout, s=float(rho_value**2)),
         rho=np.asarray(ref.rho)[rho_idx],
         nu_v=np.asarray(ref.nu_v)[nu_idx],
         Es=np.asarray(ref.Es)[rho_idx][:, er_idx],

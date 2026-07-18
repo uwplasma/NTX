@@ -1,8 +1,7 @@
 # Ship Checklist
 
-This page contains release decisions only. Research priorities and implementation
-order belong in the repository-root
-[`plan.md`](https://github.com/uwplasma/NTX/blob/main/plan.md); promoted and
+This page contains release decisions only. Research priorities and
+implementation order are tracked in a private planning document; promoted and
 planned scientific claims belong in the [benchmark matrix](benchmark-matrix.md).
 
 ## Release Scope
@@ -71,7 +70,7 @@ must not enter the installed wheel.
 
 1. Update the version in `pyproject.toml` and the fallback version in
    `src/ntx/__init__.py`.
-2. Update `CHANGELOG.md` and the versioned release notes.
+2. Update the versioned release notes.
 3. Merge only after required checks pass on the release commit.
 4. Create and push an annotated `vX.Y.Z` tag.
 5. Confirm that `release.yml` publishes the exact tested distributions to the

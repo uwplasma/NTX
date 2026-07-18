@@ -24,7 +24,7 @@ from ntx import GridSpec, load_boozmn_surface, solve_monoenergetic_scan  # noqa:
 from ntx._checkout_paths import fixture_path  # noqa: E402
 from ntx.config import enable_x64  # noqa: E402
 from ntx.geometry import BoozerSurface  # noqa: E402
-from ntx.vmec_jax_vmec import surface_from_vmec_jax_vmec_wout_file  # noqa: E402
+from ntx.vmex_vmec import surface_from_vmex_vmec_wout_file  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "file_backed_geometry_control_derivative_benchmark"
 DEFAULT_GRID = GridSpec(7, 9, 6)
@@ -56,7 +56,7 @@ CASE_SPECS = (
     FileBackedCase(
         id="vmec_sample",
         label="Sample VMEC-backed surface",
-        source_kind="vmec_jax",
+        source_kind="vmex",
         path=fixture_path("sample_wout.nc"),
         s=0.25,
     ),
@@ -101,7 +101,7 @@ def _load_surface(case: FileBackedCase) -> tuple[BoozerSurface, dict[str, float 
             "s": float(payload.s),
         }
 
-    surface = surface_from_vmec_jax_vmec_wout_file(case.path, s=float(case.s))
+    surface = surface_from_vmex_vmec_wout_file(case.path, s=float(case.s))
     s_value = float(case.s if case.s is not None else 0.0)
     return surface, {
         "source_kind": case.source_kind,

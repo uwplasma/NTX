@@ -155,7 +155,7 @@ the magnetic-drift drive must enter only the `k=0` and `k=2` rows with the
 `2/3` and `1/3` weights used by the monoenergetic moment equations, while the
 parallel-conductivity drive must enter only the `k=1` row as the physical `B`.
 
-The `vmec_jax`/`booz_xform_jax` backend unit tests now also protect the
+The `vmex`/`booz_xform_jax` backend unit tests now also protect the
 imported Boozer handedness convention directly. Scalar and profile forms must
 leave `B_\zeta + \iota B_\theta >= 0`, matching the file-backed loader before
 the solver evaluates the Boozer Jacobian and drift source terms.
@@ -170,7 +170,7 @@ provides the artifact-backed VMEC-to-Boozer-file round trip.
 The same audit is also committed on an optimized finite-beta QA `wout`. The
 accepted file-backed path is the finalized `wout` magnetic-channel transform,
 not reconstruction of an equilibrium state from output coefficients.
-`tests/test_vmec_jax_backend.py` protects the current root-level `read_wout`
+`tests/test_vmex_backend.py` protects the current root-level `read_wout`
 API, the `profile_source="wout"`/automatic routes, and the traceable core
 Boozer-table adapter, while
 `boozmn_finite_beta_wout_roundtrip_audit.json` keeps the resulting
@@ -272,7 +272,7 @@ Representative test groups:
 - geometry and Fourier series:
   - `tests/test_geometry.py`
   - `tests/test_vmec.py`
-  - `tests/test_vmec_jax_vmec.py`
+  - `tests/test_vmex_vmec.py`
 - operator assembly:
   - `tests/test_operators.py`
 - dense solver and scans:
@@ -329,7 +329,7 @@ above the release threshold:
 - overall repository-owned coverage is `99.0%`,
 - `src/ntx/neopax.py`, `src/ntx/_neopax_io.py`, `src/ntx/_neopax_types.py`,
   and `src/ntx/_neopax_bridge.py` are now at or above `97%`,
-- `src/ntx/_neopax_field.py`, the imported `vmec_jax`/`booz_xform_jax` field
+- `src/ntx/_neopax_field.py`, the imported `vmex`/`booz_xform_jax` field
   bridge, is now at `98.1%`,
 - the split autodiff workflow owners (`src/ntx/_autodiff_workflows.py`,
   `src/ntx/_autodiff_inverse.py`, `src/ntx/_autodiff_derivatives.py`, and

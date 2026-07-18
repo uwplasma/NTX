@@ -60,7 +60,7 @@
       "source": "single-stage finite-beta test case",
       "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
       "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
-      "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmec_jax input reader",
+      "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
       "primary_geometry_path": "booz_xform_jax",
       "wout_metadata": {
         "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
@@ -80,7 +80,7 @@
       "primary_scan_path": "booz_xform_jax",
       "scan_paths": {
         "booz_xform_jax": {
-          "geometry_path": "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+          "geometry_path": "vmex state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
           "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
           "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
           "status": "complete",
@@ -269,8 +269,8 @@
             "path": "docs/_static/owned_geometry_neopax_database/finite_beta_qa_pressure_current_booz_xform_jax.h5"
           }
         },
-        "vmec_jax_wout_cubic": {
-          "geometry_path": "vmec_jax read_wout -> NTX VmecSurface",
+        "vmex_wout_cubic": {
+          "geometry_path": "vmex read_wout -> NTX VmecSurface",
           "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
           "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
           "status": "complete",
@@ -456,13 +456,13 @@
           },
           "hdf5": {
             "status": "written",
-            "path": "docs/_static/owned_geometry_neopax_database/finite_beta_qa_pressure_current_vmec_jax_wout_cubic.h5"
+            "path": "docs/_static/owned_geometry_neopax_database/finite_beta_qa_pressure_current_vmex_wout_cubic.h5"
           }
         }
       },
       "interpolation_audit": {
         "reference_path": "booz_xform_jax",
-        "candidate_path": "vmec_jax_wout_cubic",
+        "candidate_path": "vmex_wout_cubic",
         "claim_scope": "same input/wout, rho, collisionality, electric field, grid, and normalization; differences isolate geometry/interpolation-path effects and should not be mixed with external reference datasets",
         "max_relative_difference": {
           "D11": 0.1427769070900202,
@@ -484,8 +484,8 @@
       "source": "single-stage finite-beta optimized case",
       "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/input.final",
       "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
-      "notes": "optimized finite-beta QH stellarator; direct wout-harmonic NTX path is usable, while the current vmec_jax Boozer path reports the unresolved cubic-spline current-profile support gap",
-      "primary_geometry_path": "vmec_jax_wout_cubic",
+      "notes": "optimized finite-beta QH stellarator; direct wout-harmonic NTX path is usable, while the current vmex Boozer path reports the unresolved cubic-spline current-profile support gap",
+      "primary_geometry_path": "vmex_wout_cubic",
       "wout_metadata": {
         "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
         "exists": true,
@@ -500,11 +500,11 @@
         "b0": 5.261240197954242
       },
       "status": "complete",
-      "requested_primary_geometry_path": "vmec_jax_wout_cubic",
-      "primary_scan_path": "vmec_jax_wout_cubic",
+      "requested_primary_geometry_path": "vmex_wout_cubic",
+      "primary_scan_path": "vmex_wout_cubic",
       "scan_paths": {
         "booz_xform_jax": {
-          "geometry_path": "vmec_jax state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
+          "geometry_path": "vmex state_from_wout -> booz_xform_jax -> NTX BoozerSurface",
           "interpolation_owner": "The requested radial points are transformed directly from the matching VMEC input/wout pair; no external profile or database interpolation is used.",
           "normalization_owner": "NTX owns the raw monoenergetic coefficients; NEOPAX export uses D11*drds^2, D13*drds, and nu_v*D33.",
           "status": "complete",
@@ -693,8 +693,8 @@
             "path": "docs/_static/owned_geometry_neopax_database/finite_beta_nfp3_qh_stage1_booz_xform_jax.h5"
           }
         },
-        "vmec_jax_wout_cubic": {
-          "geometry_path": "vmec_jax read_wout -> NTX VmecSurface",
+        "vmex_wout_cubic": {
+          "geometry_path": "vmex read_wout -> NTX VmecSurface",
           "interpolation_owner": "NTX cubic interpolation in VMEC radial coordinate s on the wout harmonic tables; this is an interpolation-path audit, not the promoted Boozer path.",
           "normalization_owner": "Same NTX raw coefficient and NEOPAX export convention as the Boozer path.",
           "status": "complete",
@@ -880,13 +880,13 @@
           },
           "hdf5": {
             "status": "written",
-            "path": "docs/_static/owned_geometry_neopax_database/finite_beta_nfp3_qh_stage1_vmec_jax_wout_cubic.h5"
+            "path": "docs/_static/owned_geometry_neopax_database/finite_beta_nfp3_qh_stage1_vmex_wout_cubic.h5"
           }
         }
       },
       "interpolation_audit": {
         "reference_path": "booz_xform_jax",
-        "candidate_path": "vmec_jax_wout_cubic",
+        "candidate_path": "vmex_wout_cubic",
         "claim_scope": "same input/wout, rho, collisionality, electric field, grid, and normalization; differences isolate geometry/interpolation-path effects and should not be mixed with external reference datasets",
         "max_relative_difference": {
           "D11": 0.05735712239069513,
@@ -920,7 +920,7 @@
   "open_work": [
     "run SFINCS and the analytic bootstrap-current formula on these same owned geometry/profile grids before promoting new parity figures",
     "add the NEOPAX general and legacy interpolation modes to this audit once both are available through a stable public interface",
-    "extend vmec_jax input reconstruction to optimized finite-beta cubic-spline current profiles so those cases can use the same JAX Boozer path as the power-series finite-beta QA case",
+    "extend vmex input reconstruction to optimized finite-beta cubic-spline current profiles so those cases can use the same JAX Boozer path as the power-series finite-beta QA case",
     "expand the default case set to production-resolution QA, QH, QI, and W7-X inputs after owned SFINCS-generation scripts have completed runs"
   ],
   "figure_png": "docs/_static/owned_geometry_neopax_dataset.png",

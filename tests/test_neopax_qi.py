@@ -6,7 +6,7 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan_from_surfaces,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
     write_neopax_scan_hdf5,
 )
 
@@ -17,7 +17,7 @@ def test_neopax_scan_hdf5_round_trip(tmp_path):
     reference = load_neopax_reference_scan(SAMPLE_NEOPAX)
     rho = reference.rho
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in rho
     )
     scan = build_ntx_neopax_scan_from_surfaces(

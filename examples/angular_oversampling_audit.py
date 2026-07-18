@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 from ntx import MonoenergeticCase, load_vmec_surface  # noqa: E402
-from ntx._checkout_paths import find_stellopt_root, find_vmec_jax_root  # noqa: E402
+from ntx._checkout_paths import find_stellopt_root, find_vmex_root  # noqa: E402
 from ntx.validation import audit_angular_oversampling  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "angular_oversampling_audit"
@@ -46,16 +46,16 @@ def discover_cases() -> tuple[AuditCase, ...]:
     """Discover the three public geometries used by the production audit."""
 
     cases: list[AuditCase] = []
-    vmec_jax_root = find_vmec_jax_root()
-    if vmec_jax_root is not None:
-        path = vmec_jax_root / "examples/data/wout_nfp2_QA_finite_beta.nc"
+    vmex_root = find_vmex_root()
+    if vmex_root is not None:
+        path = vmex_root / "examples/data/wout_nfp2_QA_finite_beta.nc"
         if path.exists():
             cases.append(
                 AuditCase(
                     id="finite_beta_qa",
                     label="Finite-beta QA",
                     family="QA",
-                    source="vmec_jax examples",
+                    source="vmex examples",
                     path=path.resolve(),
                 )
             )

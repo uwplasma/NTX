@@ -9,7 +9,7 @@ from ntx import (
     GridSpec,
     build_ntx_neopax_scan,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
     to_neopax_monoenergetic,
 )
 from ntx._checkout_paths import find_neopax_root
@@ -43,7 +43,7 @@ def test_ntx_scan_maps_into_neopax_shapes():
     drds = reference.drds
 
     def surface_loader(rho_value: float):
-        return surface_from_vmec_jax_vmec_wout_file(
+        return surface_from_vmex_vmec_wout_file(
             SAMPLE_WOUT,
             s=float(rho_value**2),
         )
@@ -123,7 +123,7 @@ def test_generated_w7x_point_maps_into_database_convention():
     drds = float(scan.drds[rho_idx])
 
     generated = build_ntx_neopax_scan(
-        lambda _: surface_from_vmec_jax_vmec_wout_file(wout_path, s=float(rho**2)),
+        lambda _: surface_from_vmex_vmec_wout_file(wout_path, s=float(rho**2)),
         rho=jnp.asarray([rho]),
         nu_v=jnp.asarray([nu_v]),
         Er=jnp.asarray([[Er]]),

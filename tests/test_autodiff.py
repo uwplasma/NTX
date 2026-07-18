@@ -19,7 +19,7 @@ from ntx import (
     example_neopax_profile_autodiff,
     example_neopax_profile_uncertainty,
     load_neopax_reference_scan,
-    surface_from_vmec_jax_vmec_wout_file,
+    surface_from_vmex_vmec_wout_file,
 )
 from ntx._autodiff_workflows import (
     _er_profile,
@@ -91,7 +91,7 @@ def test_inverse_problem_recovers_scalar_amplitude():
 def test_neopax_profile_autodiff_reduces_profile_misfit():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     result = example_neopax_profile_autodiff(
@@ -114,7 +114,7 @@ def test_neopax_profile_autodiff_reduces_profile_misfit():
 def test_neopax_profile_uncertainty_matches_linearized_and_monte_carlo_scales():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     result = example_neopax_profile_uncertainty(
@@ -156,7 +156,7 @@ def test_neopax_profile_uncertainty_matches_linearized_and_monte_carlo_scales():
 def test_neopax_profile_autodiff_optional_import_paths():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     with pytest.raises(RuntimeError, match="requires a NEOPAX importer callback"):
@@ -196,7 +196,7 @@ def test_neopax_profile_autodiff_optional_import_paths():
 def test_bootstrap_current_optimization_improves_weighted_objective():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     result = example_bootstrap_current_optimization(
@@ -220,7 +220,7 @@ def test_bootstrap_current_optimization_improves_weighted_objective():
 def test_bootstrap_current_robust_optimization_improves_robust_objective():
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
-        surface_from_vmec_jax_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
     result = example_bootstrap_current_robust_optimization(

@@ -1,4 +1,4 @@
-"""VMEC `wout` helpers for NTX flux-surface inputs backed by `vmec_jax`."""
+"""VMEC `wout` helpers for NTX flux-surface inputs backed by `vmex`."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ def load_vmec_surface(
 ) -> VmecSurface:
     """Load one VMEC flux surface from a `wout_*.nc` file.
 
-    NTX now sources the VMEC data through `vmec_jax` rather than through a
+    NTX now sources the VMEC data through `vmex` rather than through a
     separate local netCDF parser.
     """
 
@@ -30,15 +30,15 @@ def load_vmec_surface(
         raise FileNotFoundError(str(wout_path))
 
     try:
-        from vmec_jax import read_wout
+        from vmex import read_wout
     except (ImportError, ModuleNotFoundError):
         try:
-            from vmec_jax.api import read_wout
+            from vmex.api import read_wout
         except (ImportError, ModuleNotFoundError) as exc:
             raise ModuleNotFoundError(
-                "load_vmec_surface requires vmec_jax. Install it with "
-                "`pip install vmec_jax`, `pip install -e ../vmec_jax`, "
-                "or `pip install git+https://github.com/uwplasma/vmec_jax.git`."
+                "load_vmec_surface requires vmex. Install it with "
+                "`pip install vmex`, `pip install -e ../vmex`, "
+                "or `pip install git+https://github.com/uwplasma/VMEX.git`."
             ) from exc
 
     wout = read_wout(wout_path)
@@ -168,7 +168,7 @@ def load_vmec_surface(
 def _mode_major(values) -> np.ndarray:
     array = np.asarray(values, dtype=np.float64)
     if array.ndim != 2:
-        raise ValueError("expected a 2D `(radius, mode)` array from vmec_jax")
+        raise ValueError("expected a 2D `(radius, mode)` array from vmex")
     return array.T
 
 
@@ -178,7 +178,7 @@ def _iota_grid_from_wout(wout) -> np.ndarray:
             values = np.asarray(getattr(wout, name), dtype=np.float64)
             if values.size > 0:
                 return values
-    raise ValueError("vmec_jax wout data does not provide an iota profile")
+    raise ValueError("vmex wout data does not provide an iota profile")
 
 
 def _resolve_psi_n(psi_n_grid: np.ndarray, psi_n: float, option: int) -> float:

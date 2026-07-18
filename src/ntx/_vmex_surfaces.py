@@ -1,4 +1,4 @@
-"""Boozer-surface builders for optional ``vmec_jax`` workflows."""
+"""Boozer-surface builders for optional ``vmex`` workflows."""
 
 from __future__ import annotations
 
@@ -10,15 +10,15 @@ import jax.numpy as jnp
 import numpy as np
 
 from ._checkout_paths import find_booz_xform_jax_root
-from ._vmec_jax_boozer import (
+from ._vmex_boozer import (
     _apply_boozer_sign_convention,
-    _booz_xform_bundle_from_vmec_jax_state,
+    _booz_xform_bundle_from_vmex_state,
 )
-from ._vmec_jax_boundary import VmecJaxBoundaryContext, solve_vmec_jax_boundary_state
+from ._vmex_boundary import VmecJaxBoundaryContext, solve_vmex_boundary_state
 from .geometry import BoozerSurface
 
 
-def surface_from_vmec_jax_state(
+def surface_from_vmex_state(
     *,
     state,
     static,
@@ -32,13 +32,13 @@ def surface_from_vmec_jax_state(
     flux_profiles=None,
     profiles_half=None,
 ) -> BoozerSurface:
-    """Build a Boozer surface from in-memory `vmec_jax` state.
+    """Build a Boozer surface from in-memory `vmex` state.
 
     This is the differentiable imported lane: VMEC state stays in Python/JAX
     memory, the Boozer transform is done with `booz_xform_jax`, and NTX solves
     directly from the resulting Boozer harmonics.
     """
-    return surfaces_from_vmec_jax_state(
+    return surfaces_from_vmex_state(
         state=state,
         static=static,
         indata=indata,
@@ -53,7 +53,7 @@ def surface_from_vmec_jax_state(
     )[0]
 
 
-def surfaces_from_vmec_jax_state(
+def surfaces_from_vmex_state(
     *,
     state,
     static,
@@ -67,9 +67,9 @@ def surfaces_from_vmec_jax_state(
     flux_profiles=None,
     profiles_half=None,
 ) -> tuple[BoozerSurface, ...]:
-    """Build several Boozer surfaces from one in-memory `vmec_jax` state."""
+    """Build several Boozer surfaces from one in-memory `vmex` state."""
 
-    inputs, out = _booz_xform_bundle_from_vmec_jax_state(
+    inputs, out = _booz_xform_bundle_from_vmex_state(
         state=state,
         static=static,
         indata=indata,
@@ -86,7 +86,7 @@ def surfaces_from_vmec_jax_state(
     source_value = getattr(
         indata,
         "input_filename",
-        getattr(indata, "source_path", "vmec_jax_state"),
+        getattr(indata, "source_path", "vmex_state"),
     )
     source_path = Path(str(source_value)).expanduser()
     surfaces: list[BoozerSurface] = []
@@ -117,7 +117,7 @@ def surfaces_from_vmec_jax_state(
     return tuple(surfaces)
 
 
-def surfaces_from_vmec_jax_boundary_params(
+def surfaces_from_vmex_boundary_params(
     context: VmecJaxBoundaryContext,
     params,
     *,
@@ -134,7 +134,7 @@ def surfaces_from_vmec_jax_boundary_params(
 ) -> tuple[BoozerSurface, ...]:
     """Solve a fixed boundary and return the requested Boozer surfaces."""
 
-    state = solve_vmec_jax_boundary_state(
+    state = solve_vmex_boundary_state(
         context,
         params,
         vmec_project=vmec_project,
@@ -143,7 +143,7 @@ def surfaces_from_vmec_jax_boundary_params(
         ftol=ftol,
         implicit=implicit,
     )
-    return surfaces_from_vmec_jax_state(
+    return surfaces_from_vmex_state(
         state=state,
         static=context.static,
         indata=context.indata,
@@ -219,7 +219,7 @@ def _surface_from_booz_xform_wout_data(
     )
 
 
-def surface_from_vmec_jax_wout(
+def surface_from_vmex_wout(
     *,
     input_path: str | Path,
     wout_path: str | Path,
@@ -235,19 +235,19 @@ def surface_from_vmec_jax_wout(
     ``profile_source="auto"`` and ``"wout"`` transform the finalized WOUT
     magnetic channels. This is the physically consistent file-backed path and
     does not reconstruct a VMEC state from output coefficients. Differentiable
-    workflows should call :func:`surface_from_vmec_jax_state` with the current
-    vmec_jax ``SpectralState`` and matching ``SolverRuntime``.
+    workflows should call :func:`surface_from_vmex_state` with the current
+    vmex ``SpectralState`` and matching ``SolverRuntime``.
     """
 
     try:
-        from vmec_jax import read_wout
+        from vmex import read_wout
     except (ImportError, ModuleNotFoundError):
         try:
-            from vmec_jax.api import read_wout
+            from vmex.api import read_wout
         except (ImportError, ModuleNotFoundError) as exc:
             raise ModuleNotFoundError(
-                "surface_from_vmec_jax_wout requires vmec_jax. "
-                "Install it with `pip install vmec_jax`."
+                "surface_from_vmex_wout requires vmex. "
+                "Install it with `pip install vmex`."
             ) from exc
 
     if profile_source not in {"auto", "input", "wout", "state_wout_profiles"}:
@@ -272,15 +272,15 @@ def surface_from_vmec_jax_wout(
         )
     raise NotImplementedError(
         f"profile_source={profile_source!r} depended on the removed legacy "
-        "vmec_jax state_from_wout API. Use profile_source='wout' for files, "
-        "or surface_from_vmec_jax_state(...) with a current vmec_jax "
+        "vmex state_from_wout API. Use profile_source='wout' for files, "
+        "or surface_from_vmex_state(...) with a current vmex "
         "SpectralState and SolverRuntime for differentiable calculations."
     )
 
 
 __all__ = [
-    "surface_from_vmec_jax_state",
-    "surface_from_vmec_jax_wout",
-    "surfaces_from_vmec_jax_boundary_params",
-    "surfaces_from_vmec_jax_state",
+    "surface_from_vmex_state",
+    "surface_from_vmex_wout",
+    "surfaces_from_vmex_boundary_params",
+    "surfaces_from_vmex_state",
 ]
