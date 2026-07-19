@@ -52,14 +52,9 @@ def surface_from_vmex_vmec_wout(
         include[np.argmax(zero_mode)] = True
 
     aminor_p = float(np.asarray(wout.Aminor_p, dtype=np.float64).reshape(()))
-    if aminor_p == 0.0:
-        raise ValueError("VMEC input must provide a nonzero Aminor_p for transport normalization")
     r_n = float(np.sqrt(float(s)))
     r_hat = float(aminor_p * r_n)
     psi_a_hat = float(phi[-1]) / (2.0 * np.pi)
-    dpsi_hat_dr_hat = float(2.0 * psi_a_hat * r_n / aminor_p)
-    if dpsi_hat_dr_hat == 0.0:
-        raise ValueError("VMEC transport normalization produced dpsi_hat/dr_hat = 0")
 
     resolved_path = Path(
         source_path if source_path is not None else getattr(wout, "path", "vmex_wout")
@@ -89,11 +84,11 @@ def surface_from_vmex_vmec_wout(
         phi_edge=float(phi[-1]),
         r_n=r_n,
         r_hat=r_hat,
-        dpsi_hat_dr_hat=dpsi_hat_dr_hat,
-        dr_hat_dpsi_hat=float(1.0 / dpsi_hat_dr_hat),
+        dpsi_hat_dr_hat=1.0,
+        dr_hat_dpsi_hat=1.0,
         aminor_p=aminor_p,
         psi_p=None,
-        transport_psi_scale=dpsi_hat_dr_hat,
+        transport_psi_scale=1.0,
     )
 
 
