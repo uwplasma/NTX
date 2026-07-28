@@ -36,12 +36,18 @@ def solve_monoenergetic_scan(
     epsi_hat: Array | None = None,
     er_hat: Array | None = None,
     scan_batch_size: int | None = None,
+    adjoint_window: int | None = None,
 ) -> dict[str, Array]:
     """Scan collisionality and radial electric field on one JAX device.
 
     ``scan_batch_size`` optionally splits the flattened scan into fixed-size
     batches. This preserves coefficient values while bounding peak memory on
     CPUs and memory-constrained accelerators.
+
+    ``adjoint_window`` bounds the reverse pass of a differentiated scan, which
+    is where a design study spends its memory; it does not affect the
+    coefficients. ``None`` retains every Legendre row and is exact. See
+    :func:`ntx.advise_adjoint_window`.
     """
 
     prepared = prepare_monoenergetic_system(surface, grid)
@@ -55,7 +61,9 @@ def solve_monoenergetic_scan(
     flat_nu = nu_values.ravel()
     flat_epsi = epsi_values.ravel()
     if scan_batch_size is None:
-        coeffs = _scan_coefficients_serial(prepared, flat_nu, flat_epsi)
+        coeffs = _scan_coefficients_serial(
+            prepared, flat_nu, flat_epsi, adjoint_window
+        )
     else:
         coeffs = _scan_coefficients_batched(
             prepared,

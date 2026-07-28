@@ -255,8 +255,12 @@ def _solve_prepared_coefficient_vector_raw(
     prepared: PreparedMonoenergeticSystem,
     nu_hat,
     epsi_hat,
+    *,
+    adjoint_window: int | None = None,
 ) -> Array:
-    values = _solve_prepared_arrays_from_values(prepared, nu_hat, epsi_hat)
+    values = _solve_prepared_arrays_from_values(
+        prepared, nu_hat, epsi_hat, adjoint_window=adjoint_window
+    )
     return jnp.stack(values[:5])
 
 

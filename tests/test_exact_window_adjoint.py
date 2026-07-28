@@ -173,3 +173,52 @@ def test_advised_window_is_usable_and_accurate_enough_to_be_worth_advising():
     at_advised = abs(grad_at(advice.window) - exact) / abs(exact)
     assert at_advised < at_zero
     assert at_advised < 1e-2
+
+
+def test_scan_accepts_a_window_without_moving_the_coefficients():
+    """The scan drivers are where a design study spends its reverse memory.
+
+    Threading the window through them is only useful if the scan's own answer
+    is untouched, so this pins every scanned coefficient across windows.
+    """
+    from ntx import solve_monoenergetic_scan
+
+    grid = GridSpec(5, 5, 24)
+    nu = jnp.asarray([1.0e-2, 1.0e-1])
+    reference = solve_monoenergetic_scan(
+        example_surface(), grid, nu, er_hat=jnp.full_like(nu, EPSI)
+    )
+    for window in (None, 6):
+        scanned = solve_monoenergetic_scan(
+            example_surface(), grid, nu,
+            er_hat=jnp.full_like(nu, EPSI), adjoint_window=window,
+        )
+        for name in ("D11", "D31", "D13", "D33"):
+            assert jnp.array_equal(reference[name], scanned[name]), (
+                f"{name} moved at window {window}"
+            )
+
+
+def test_scan_is_not_differentiable_end_to_end_today():
+    """Records a pre-existing limit, so the window is not blamed for it.
+
+    ``solve_monoenergetic_scan`` performs Python-level work on its inputs, so
+    ``jax.grad`` of it fails whether or not a window is supplied. Threading
+    ``adjoint_window`` through the scan is still worth doing --- it reaches the
+    per-point solves, which is where a caller differentiating inside their own
+    loop spends reverse memory --- but it does not make the scan itself
+    differentiable. If this test starts failing, the scan became
+    differentiable and the window's benefit there should be measured.
+    """
+    from ntx import solve_monoenergetic_scan
+
+    def loss(scale):
+        nu = jnp.asarray([1.0e-2, 1.0e-1]) * scale
+        out = solve_monoenergetic_scan(
+            example_surface(), GridSpec(5, 5, 16), nu,
+            er_hat=jnp.full_like(nu, EPSI),
+        )
+        return jnp.sum(out["D11"])
+
+    with pytest.raises(TypeError, match="constant handler"):
+        jax.grad(loss)(jnp.asarray(1.0))
