@@ -257,7 +257,7 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `b05803300637eec03082a9411761b31d055677f6` |
+| Commit | `807c03c9e2db3d2654a63ce2bac6de0f825b4ce4` |
 | Branch | `feature/exact-window-adjoint` |
 | Python | `3.13.7` |
 | JAX | `0.10.2` |

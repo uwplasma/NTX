@@ -5,7 +5,6 @@ from __future__ import annotations
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
-from functools import partial
 from typing import Any, Literal, Protocol
 
 import jax
@@ -203,15 +202,14 @@ def _scan_coefficients_serial(
     prepared: PreparedMonoenergeticSystem,
     nu_values: Array,
     epsi_values: Array,
-    adjoint_window: int | None = None,
 ) -> Array:
     mode = _resolve_scan_execution_mode("auto")
     if mode == "sequential":
         return _scan_coefficients_sequential(
-            prepared, nu_values, epsi_values, adjoint_window=adjoint_window
+            prepared, nu_values, epsi_values
         )
     return _scan_coefficients_vectorized(
-        prepared, nu_values, epsi_values, adjoint_window=adjoint_window
+        prepared, nu_values, epsi_values
     )
 
 
@@ -221,7 +219,6 @@ def _scan_coefficients_batched(
     epsi_values: Array,
     *,
     batch_size: int,
-    adjoint_window: int | None = None,
 ) -> Array:
     if batch_size < 1:
         msg = "scan_batch_size must be a positive integer"
@@ -239,9 +236,7 @@ def _scan_coefficients_batched(
         nu_values,
         epsi_values,
         batch_size=batch_size,
-        solve_batch=lambda chunk_nu, chunk_epsi: kernel(
-            prepared, chunk_nu, chunk_epsi, adjoint_window=adjoint_window
-        ),
+        solve_batch=lambda chunk_nu, chunk_epsi: kernel(prepared, chunk_nu, chunk_epsi),
     )
 
 
@@ -279,24 +274,18 @@ def _solve_scan_point(
     prepared: PreparedMonoenergeticSystem,
     nu_value: Array,
     epsi_value: Array,
-    adjoint_window: int | None = None,
 ) -> Array:
-    return _solve_prepared_coefficient_vector_raw(
-        prepared, nu_value, epsi_value, adjoint_window=adjoint_window
-    )
+    return _solve_prepared_coefficient_vector_raw(prepared, nu_value, epsi_value)
 
 
-# ``adjoint_window`` is static: it sets how many block rows the reverse pass
-# retains, which is a shape, not a value.
-@partial(jax.jit, static_argnames=("adjoint_window",))
+@jax.jit
 def _scan_coefficients_sequential(
     prepared: PreparedMonoenergeticSystem,
     nu_values: Array,
     epsi_values: Array,
-    adjoint_window: int | None = None,
 ) -> Array:
     return _scan_coefficients_sequential_impl(
-        prepared, nu_values, epsi_values, adjoint_window
+        prepared, nu_values, epsi_values
     )
 
 
@@ -304,25 +293,23 @@ def _scan_coefficients_sequential_impl(
     prepared: PreparedMonoenergeticSystem,
     nu_values: Array,
     epsi_values: Array,
-    adjoint_window: int | None = None,
 ) -> Array:
     return jax.lax.map(
         lambda values: _solve_scan_point(
-            prepared, values[0], values[1], adjoint_window
+            prepared, values[0], values[1]
         ),
         (nu_values, epsi_values),
     )
 
 
-@partial(jax.jit, static_argnames=("adjoint_window",))
+@jax.jit
 def _scan_coefficients_vectorized(
     prepared: PreparedMonoenergeticSystem,
     nu_values: Array,
     epsi_values: Array,
-    adjoint_window: int | None = None,
 ) -> Array:
     return _scan_coefficients_vectorized_impl(
-        prepared, nu_values, epsi_values, adjoint_window
+        prepared, nu_values, epsi_values
     )
 
 
@@ -330,11 +317,10 @@ def _scan_coefficients_vectorized_impl(
     prepared: PreparedMonoenergeticSystem,
     nu_values: Array,
     epsi_values: Array,
-    adjoint_window: int | None = None,
 ) -> Array:
     return jax.vmap(
         lambda nu_value, epsi_value: _solve_scan_point(
-            prepared, nu_value, epsi_value, adjoint_window
+            prepared, nu_value, epsi_value
         )
     )(nu_values, epsi_values)
 

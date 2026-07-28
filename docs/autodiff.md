@@ -12,16 +12,13 @@ as an explicit parameter set (`ntx.operators.block_parameters`) and regenerated 
 demand in both directions, so the reverse pass retains a window of rows rather
 than a tape of the sweep.
 
-The default retains every row. That is exact — it returns the same gradient the
-tape did, to rounding — and it is already cheaper, so nothing needs changing to
-benefit:
+The default is unchanged: it differentiates the elimination directly, and
+**both** AD modes work there. That matters, because the derivative audits use
+`jax.jacfwd`.
 
-```python
-grad = jax.grad(lambda nu: ntx.solve_monoenergetic(surface, grid, case(nu)).D11)(nu0)
-```
-
-A finite window retains `3 + adjoint_window` rows instead, and then the reverse
-pass stops growing with the Legendre resolution:
+Passing a window opts into the bounded reverse pass. It retains
+`3 + adjoint_window` rows, so the reverse pass stops growing with the Legendre
+resolution:
 
 ```python
 result = ntx.solve_monoenergetic(surface, grid, case, adjoint_window=33)
@@ -40,8 +37,15 @@ advice.crossover_row   # where the transfer norms fall below one
 advice.certified       # always False: this is an estimate, not a guarantee
 ```
 
-Treat it as an initializer and widen it until the gradient stops moving. On the
-example surface at `nu_hat = 1e-2`, `m = 81`:
+One restriction comes with the window, and it is not negotiable: the exact-window
+rule is a `custom_vjp`, so it is **reverse-mode only**. `jax.jacfwd` and
+`jax.jvp` through a windowed solve raise. Leave `adjoint_window` at `None` where
+forward mode is needed. `adjoint_window = n_xi + 1` retains every row and is
+exact, matching the taped gradient to rounding while still costing less than the
+tape.
+
+Treat the advised value as an initializer and widen it until the gradient stops
+moving. On the example surface at `nu_hat = 1e-2`, `m = 81`:
 
 | `n_xi` | taped | full window (exact) | advised window (33) |
 |---|---|---|---|

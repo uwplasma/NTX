@@ -50,33 +50,46 @@ def _solve_modes_with_tail_residual(
 ) -> tuple[Array, Array, Array]:
     """Return retained modes and the residual of the tail-eliminated system.
 
-    The forward solve is the same in every case: a full-tail elimination that
-    keeps only the three retained modes. What ``adjoint_window`` changes is the
-    reverse pass. Reverse-mode differentiation of the elimination records the
-    whole sweep, so its memory grows with ``n_xi``; the exact-window rule
-    instead regenerates the rows on demand and retains ``3 + adjoint_window``
-    of them.
+    The forward solve is the same either way: a full-tail elimination keeping
+    only the three retained modes. What ``adjoint_window`` changes is how a
+    derivative of it is taken.
 
-    ``None`` retains every row, which is exact --- it returns the same gradient
-    as taping, bit for bit, and is the default because it is also cheaper. A
-    finite window trades a quantified error for memory that no longer grows
-    with the Legendre resolution; :func:`advise_adjoint_window` estimates where
-    the chain becomes localized enough for that to be worth doing.
+    ``None`` (the default) differentiates the elimination directly. Reverse mode
+    records the whole sweep, so its memory grows with ``n_xi``, but *both* AD
+    modes work, which matters --- the derivative audits use forward mode.
+
+    An integer selects the exact-window rule: the rows are regenerated on demand
+    and only ``3 + adjoint_window`` of them are retained, so the reverse pass
+    stops growing with the Legendre resolution. This path is a ``custom_vjp``
+    and is therefore **reverse-mode only**; ``jax.jacfwd`` and ``jax.jvp``
+    through it raise. Passing ``adjoint_window = n_xi + 1`` retains every row
+    and is exact, matching the taped gradient to rounding while still costing
+    less; a shorter window trades a quantified error for bounded memory, and
+    :func:`advise_adjoint_window` estimates where that becomes worthwhile.
     """
 
     keep_lowest = 3
     n_blocks = n_xi + 1
     rhs_low = jnp.stack((s1[:keep_lowest], s3[:keep_lowest]), axis=-1)
-    window = n_blocks if adjoint_window is None else int(adjoint_window)
-    modes, residual = block_thomas_truncated_fn_with_residual(
-        _parameterized_block_fn(d_theta, d_zeta),
-        n_blocks=n_blocks,
-        rhs_low=rhs_low,
-        keep_lowest=keep_lowest,
-        params=block_parameters(ctx),
-        adjoint_window=window,
-        residual_rhs_index=0,
-    )
+    block_fn = _parameterized_block_fn(d_theta, d_zeta)
+    if adjoint_window is None:
+        modes, residual = block_thomas_truncated_fn_with_residual(
+            _operator_block_fn(ctx, d_theta, d_zeta),
+            n_blocks=n_blocks,
+            rhs_low=rhs_low,
+            keep_lowest=keep_lowest,
+            residual_rhs_index=0,
+        )
+    else:
+        modes, residual = block_thomas_truncated_fn_with_residual(
+            block_fn,
+            n_blocks=n_blocks,
+            rhs_low=rhs_low,
+            keep_lowest=keep_lowest,
+            params=block_parameters(ctx),
+            adjoint_window=int(adjoint_window),
+            residual_rhs_index=0,
+        )
     f1_modes = modes[..., 0]
     f3_modes = modes[..., 1]
     return f1_modes, f3_modes, residual
