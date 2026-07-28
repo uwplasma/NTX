@@ -29,7 +29,9 @@ dependencies = [
   "netCDF4",
   "numpy",
   "rich",
-  "solvax",
+  # The bounded reverse pass needs the params/adjoint_window arguments on
+  # block_thomas_truncated_fn_with_residual (SOLVAX >= 0.11.0).
+  "solvax>=0.11.0",
   "tomli; python_version < '3.11'",
 ]
 

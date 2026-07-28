@@ -45,13 +45,21 @@ def solve_monoenergetic(
     case: MonoenergeticCase,
     *,
     require_resolved_geometry: bool = False,
+    adjoint_window: int | None = None,
 ) -> TransportResult:
-    """Solve one monoenergetic DKE case."""
+    """Solve one monoenergetic DKE case.
+
+    ``adjoint_window`` bounds the memory of a reverse-mode derivative of this
+    solve. ``None`` retains every Legendre row, which is exact. A finite window
+    retains ``3 + adjoint_window`` rows instead, so the reverse pass stops
+    growing with ``grid.n_xi``; :func:`ntx.advise_adjoint_window` estimates a
+    starting value. A forward solve is unaffected either way.
+    """
 
     prepared = prepare_monoenergetic_system(
         surface, grid, require_resolved_geometry=require_resolved_geometry
     )
-    return solve_prepared(prepared, case)
+    return solve_prepared(prepared, case, adjoint_window=adjoint_window)
 
 
 def solve_monoenergetic_internal(

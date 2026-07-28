@@ -257,12 +257,12 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `8d31e9c1615bbfa02fba04e086145bff70c7722d` |
-| Branch | `feat/angular-oversampling-audit` |
-| Python | `3.11.14` |
-| JAX | `0.9.2` |
-| NumPy | `2.4.4` |
-| Platform | `macOS-14.4.1-arm64-arm-64bit` |
+| Commit | `807c03c9e2db3d2654a63ce2bac6de0f825b4ce4` |
+| Branch | `feature/exact-window-adjoint` |
+| Python | `3.13.7` |
+| JAX | `0.10.2` |
+| NumPy | `2.4.6` |
+| Platform | `macOS-26.5.1-arm64-arm-64bit-Mach-O` |
 | Figure bundle | `python examples/make_publication_figures.py --figures main_text,supplement` |
 | Main-text figures | `python examples/make_publication_figures.py --figures main_text` |
 | Supplement figures | `python examples/make_publication_figures.py --figures supplement` |

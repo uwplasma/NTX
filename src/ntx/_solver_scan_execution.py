@@ -205,8 +205,12 @@ def _scan_coefficients_serial(
 ) -> Array:
     mode = _resolve_scan_execution_mode("auto")
     if mode == "sequential":
-        return _scan_coefficients_sequential(prepared, nu_values, epsi_values)
-    return _scan_coefficients_vectorized(prepared, nu_values, epsi_values)
+        return _scan_coefficients_sequential(
+            prepared, nu_values, epsi_values
+        )
+    return _scan_coefficients_vectorized(
+        prepared, nu_values, epsi_values
+    )
 
 
 def _scan_coefficients_batched(
@@ -280,7 +284,9 @@ def _scan_coefficients_sequential(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
-    return _scan_coefficients_sequential_impl(prepared, nu_values, epsi_values)
+    return _scan_coefficients_sequential_impl(
+        prepared, nu_values, epsi_values
+    )
 
 
 def _scan_coefficients_sequential_impl(
@@ -289,7 +295,9 @@ def _scan_coefficients_sequential_impl(
     epsi_values: Array,
 ) -> Array:
     return jax.lax.map(
-        lambda values: _solve_scan_point(prepared, values[0], values[1]),
+        lambda values: _solve_scan_point(
+            prepared, values[0], values[1]
+        ),
         (nu_values, epsi_values),
     )
 
@@ -300,7 +308,9 @@ def _scan_coefficients_vectorized(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
-    return _scan_coefficients_vectorized_impl(prepared, nu_values, epsi_values)
+    return _scan_coefficients_vectorized_impl(
+        prepared, nu_values, epsi_values
+    )
 
 
 def _scan_coefficients_vectorized_impl(
@@ -308,9 +318,11 @@ def _scan_coefficients_vectorized_impl(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
-    return jax.vmap(lambda nu_value, epsi_value: _solve_scan_point(prepared, nu_value, epsi_value))(
-        nu_values, epsi_values
-    )
+    return jax.vmap(
+        lambda nu_value, epsi_value: _solve_scan_point(
+            prepared, nu_value, epsi_value
+        )
+    )(nu_values, epsi_values)
 
 
 def _resolve_scan_execution_mode(

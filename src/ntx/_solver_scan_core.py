@@ -42,6 +42,12 @@ def solve_monoenergetic_scan(
     ``scan_batch_size`` optionally splits the flattened scan into fixed-size
     batches. This preserves coefficient values while bounding peak memory on
     CPUs and memory-constrained accelerators.
+
+    Reverse-mode differentiation of this scan works and is checked against a
+    finite difference. It uses the taped path; the bounded reverse pass of
+    :func:`ntx.solve_monoenergetic` is not available here yet, because a
+    ``custom_vjp`` under the scan's batching raises. Differentiate
+    :func:`ntx.solve_prepared` per point if you need the window.
     """
 
     prepared = prepare_monoenergetic_system(surface, grid)

@@ -36,10 +36,18 @@ from .transport import coefficients_from_modes, onsager_error
 def solve_prepared(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
+    *,
+    adjoint_window: int | None = None,
 ) -> TransportResult:
-    """Solve one monoenergetic case using precomputed geometry and derivatives."""
+    """Solve one monoenergetic case using precomputed geometry and derivatives.
 
-    return transport_result_from_arrays(_solve_prepared_arrays(prepared, case))
+    ``adjoint_window`` bounds the reverse pass; see
+    :func:`ntx.advise_adjoint_window`. It has no effect on a forward solve.
+    """
+
+    return transport_result_from_arrays(
+        _solve_prepared_arrays(prepared, case, adjoint_window=adjoint_window)
+    )
 
 
 def solve_prepared_internal(
@@ -247,19 +255,26 @@ def _solve_prepared_coefficient_vector_raw(
     prepared: PreparedMonoenergeticSystem,
     nu_hat,
     epsi_hat,
+    *,
+    adjoint_window: int | None = None,
 ) -> Array:
-    values = _solve_prepared_arrays_from_values(prepared, nu_hat, epsi_hat)
+    values = _solve_prepared_arrays_from_values(
+        prepared, nu_hat, epsi_hat, adjoint_window=adjoint_window
+    )
     return jnp.stack(values[:5])
 
 
 def _solve_prepared_arrays(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
+    *,
+    adjoint_window: int | None = None,
 ) -> tuple[Array, ...]:
     return _solve_prepared_arrays_from_values(
         prepared,
         case.nu_hat,
         case.resolved_epsi_hat(prepared.geometry.transport_psi_scale),
+        adjoint_window=adjoint_window,
     )
 
 
@@ -267,6 +282,8 @@ def _solve_prepared_arrays_from_values(
     prepared: PreparedMonoenergeticSystem,
     nu_hat,
     epsi_hat,
+    *,
+    adjoint_window: int | None = None,
 ) -> tuple[Array, ...]:
     geom = prepared.geometry
     grid = prepared.grid
@@ -279,6 +296,7 @@ def _solve_prepared_arrays_from_values(
         prepared.d_zeta,
         s1,
         s3,
+        adjoint_window,
     )
     d11, d31, d13, d33, d33_spitzer = coefficients_from_modes(
         geom, f1_modes, f3_modes, ctx.nu_hat

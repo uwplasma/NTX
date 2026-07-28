@@ -10,6 +10,7 @@ from ._solver_derivative_audit import (
     PreparedDerivativeAuditResult,
     audit_prepared_coefficient_derivative,
 )
+from ._solver_factorization import advise_adjoint_window
 from ._solver_prepared import (
     audit_prepared_residuals,
     compile_prepared_solver,
@@ -49,6 +50,7 @@ __all__ = [
     "TransportResult",
     "compile_prepared_solver",
     "compile_prepared_scan_solver",
+    "advise_adjoint_window",
     "audit_prepared_residuals",
     "audit_prepared_coefficient_derivative",
     "healthy_parallel_device_count",
