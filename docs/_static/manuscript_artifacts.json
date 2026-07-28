@@ -1,13 +1,13 @@
 {
   "git": {
-    "commit": "8d31e9c1615bbfa02fba04e086145bff70c7722d",
-    "branch": "feat/angular-oversampling-audit"
+    "commit": "8e7b6c3ab07b9c42d309680fb992fdcc7646a193",
+    "branch": "feature/exact-window-adjoint"
   },
   "environment": {
-    "python": "3.11.14",
-    "platform": "macOS-14.4.1-arm64-arm-64bit",
-    "jax": "0.9.2",
-    "numpy": "2.4.4"
+    "python": "3.13.7",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "jax": "0.10.2",
+    "numpy": "2.4.6"
   },
   "tables": {
     "monoenergetic_validation": {

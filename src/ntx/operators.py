@@ -31,14 +31,65 @@ def derivative_blocks(geom: GeometryOnGrid) -> tuple[Array, Array]:
     return d_theta, d_zeta
 
 
-def coefficients_for_k(ctx: OperatorContext, k: int | Array) -> tuple[Array, Array, Array]:
-    """Return coefficient arrays for lower, diagonal, and upper blocks."""
+#: The geometry and physics arrays every block row is built from. Naming them
+#: in one place is what lets the rows be generated from an explicit parameter
+#: pytree, which in turn is what lets the reverse pass be bounded: see
+#: :func:`block_parameters`.
+BLOCK_PARAMETER_NAMES = (
+    "b",
+    "b_sup_theta",
+    "b_sup_zeta",
+    "d_b_dtheta",
+    "d_b_dzeta",
+    "b_sub_theta",
+    "b_sub_zeta",
+    "jacobian",
+    "b2_mean",
+    "nu_hat",
+    "epsi_hat",
+)
+
+
+def block_parameters(ctx: OperatorContext) -> dict[str, Array]:
+    """Extract the compact arrays the block rows are generated from.
+
+    The Legendre chain has one row per mode, but every row is a formula in the
+    same handful of surface quantities. Handing those to the solver explicitly,
+    rather than closing over them, lets it differentiate with respect to them
+    without recording the elimination -- the rows are regenerated on demand in
+    both directions. The result is an ordinary pytree, so a cotangent for it
+    chains back through the geometry to whatever produced it.
+    """
 
     g = ctx.geometry
-    b = g.b
-    bu = g.b_sup_theta
-    bv = g.b_sup_zeta
-    bdot_grad_b = bv * g.d_b_dzeta + bu * g.d_b_dtheta
+    return {
+        "b": g.b,
+        "b_sup_theta": g.b_sup_theta,
+        "b_sup_zeta": g.b_sup_zeta,
+        "d_b_dtheta": g.d_b_dtheta,
+        "d_b_dzeta": g.d_b_dzeta,
+        "b_sub_theta": g.b_sub_theta,
+        "b_sub_zeta": g.b_sub_zeta,
+        "jacobian": g.jacobian,
+        "b2_mean": g.b2_mean,
+        "nu_hat": ctx.nu_hat,
+        "epsi_hat": ctx.epsi_hat,
+    }
+
+
+def coefficients_from_parameters(
+    params: dict[str, Array], k: int | Array
+) -> tuple[Array, Array, Array]:
+    """Coefficient arrays for row ``k``, read from an explicit parameter set.
+
+    This is the single implementation; :func:`coefficients_for_k` is the same
+    thing sourced from an :class:`OperatorContext`.
+    """
+
+    b = params["b"]
+    bu = params["b_sup_theta"]
+    bv = params["b_sup_zeta"]
+    bdot_grad_b = bv * params["d_b_dzeta"] + bu * params["d_b_dtheta"]
 
     kf = jnp.asarray(k, dtype=b.dtype)
     lower = {
@@ -47,9 +98,13 @@ def coefficients_for_k(ctx: OperatorContext, k: int | Array) -> tuple[Array, Arr
         "value": (kf * (kf - 1.0)) * bdot_grad_b / (2.0 * (2.0 * kf - 1.0) * b**2),
     }
     diagonal = {
-        "theta": -ctx.epsi_hat * g.b_sub_zeta / (g.jacobian * g.b2_mean),
-        "zeta": ctx.epsi_hat * g.b_sub_theta / (g.jacobian * g.b2_mean),
-        "value": 0.5 * ctx.nu_hat * kf * (kf + 1.0) * jnp.ones_like(b),
+        "theta": -params["epsi_hat"]
+        * params["b_sub_zeta"]
+        / (params["jacobian"] * params["b2_mean"]),
+        "zeta": params["epsi_hat"]
+        * params["b_sub_theta"]
+        / (params["jacobian"] * params["b2_mean"]),
+        "value": 0.5 * params["nu_hat"] * kf * (kf + 1.0) * jnp.ones_like(b),
     }
     upper = {
         "theta": (kf + 1.0) * bu / (b * (2.0 * kf + 3.0)),
@@ -59,6 +114,12 @@ def coefficients_for_k(ctx: OperatorContext, k: int | Array) -> tuple[Array, Arr
         ),
     }
     return _pack(lower), _pack(diagonal), _pack(upper)
+
+
+def coefficients_for_k(ctx: OperatorContext, k: int | Array) -> tuple[Array, Array, Array]:
+    """Return coefficient arrays for lower, diagonal, and upper blocks."""
+
+    return coefficients_from_parameters(block_parameters(ctx), k)
 
 
 def _pack(coefficients: dict[str, Array]) -> Array:
@@ -76,6 +137,22 @@ def build_block(coefficients: Array, d_theta: Array, d_zeta: Array) -> Array:
 
     c_theta, c_zeta, c_value = coefficients
     return c_theta[:, None] * d_theta + c_zeta[:, None] * d_zeta + jnp.diag(c_value)
+
+
+def operator_blocks_from_parameters(
+    params: dict[str, Array],
+    k: int | Array,
+    d_theta: Array,
+    d_zeta: Array,
+) -> tuple[Array, Array, Array]:
+    """Construct `(L_k, D_k, U_k)` from an explicit parameter set."""
+
+    lower, diagonal, upper = coefficients_from_parameters(params, k)
+    return (
+        build_block(lower, d_theta, d_zeta),
+        build_block(diagonal, d_theta, d_zeta),
+        build_block(upper, d_theta, d_zeta),
+    )
 
 
 def operator_blocks(

@@ -3,6 +3,61 @@
 NTX keeps the imported solve lane differentiable so transport coefficients can
 be embedded in inverse problems, sensitivity analysis, and profile workflows.
 
+## Bounding the reverse pass
+
+Reverse-mode differentiation of the monoenergetic solve used to record the whole
+Legendre elimination, so the memory of a gradient grew with `n_xi` even though
+the forward solve's did not. It no longer does. The rows are handed to the solver
+as an explicit parameter set (`ntx.operators.block_parameters`) and regenerated on
+demand in both directions, so the reverse pass retains a window of rows rather
+than a tape of the sweep.
+
+The default retains every row. That is exact — it returns the same gradient the
+tape did, to rounding — and it is already cheaper, so nothing needs changing to
+benefit:
+
+```python
+grad = jax.grad(lambda nu: ntx.solve_monoenergetic(surface, grid, case(nu)).D11)(nu0)
+```
+
+A finite window retains `3 + adjoint_window` rows instead, and then the reverse
+pass stops growing with the Legendre resolution:
+
+```python
+result = ntx.solve_monoenergetic(surface, grid, case, adjoint_window=33)
+```
+
+Where to put it is a property of the collision physics, not of the grid.
+Pitch-angle scattering damps mode `l` like `nu*l(l+1)` while the streaming
+coupling grows only like `l`, so the chain contracts faster the higher one
+climbs, and the row where it starts contracting moves outward as collisions
+weaken. `advise_adjoint_window` reads that crossover off the operator:
+
+```python
+advice = ntx.advise_adjoint_window(ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta)
+advice.window          # a starting point
+advice.crossover_row   # where the transfer norms fall below one
+advice.certified       # always False: this is an estimate, not a guarantee
+```
+
+Treat it as an initializer and widen it until the gradient stops moving. On the
+example surface at `nu_hat = 1e-2`, `m = 81`:
+
+| `n_xi` | taped | full window (exact) | advised window (33) |
+|---|---|---|---|
+| 32 | 10.7 MiB, 17.8 ms | 8.7 MiB, 12.6 ms | 8.3 MiB, 13.5 ms |
+| 64 | 20.3 MiB, 51.8 ms | 16.8 MiB, 17.2 ms | 9.4 MiB, 18.4 ms |
+| 128 | 39.6 MiB, 83.3 ms | 33.2 MiB, 38.1 ms | 9.4 MiB, 25.5 ms |
+| 256 | 78.1 MiB, 125.9 ms | 66.1 MiB, 98.8 ms | 9.4 MiB, 60.9 ms |
+
+The full-window gradient agrees with the taped one to between 1.3e-14 and
+4.1e-14; the advised window costs 6.1e-07 and its memory is flat. Regenerate the
+table with `benchmarks/bench_exact_window_adjoint.py`.
+
+The forward solve is untouched in every case, and so are the transport
+coefficients: a window bounds the derivative, not the answer.
+
+
 ## Inverse Problem Example
 
 The script:
