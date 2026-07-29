@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import interpax
 import jax
 import jax.numpy as jnp
 
+from ._interp import Interpolator1D
 from ._neopax_field_utils import (
     _safe_divide,
     _safe_reciprocal,
@@ -91,7 +91,7 @@ def build_differentiable_neopax_field_from_vmex_state(
     r_grid_half = rho_grid_half * a_b
     dr = r_grid[2] - r_grid[1] if n_r_int > 2 else jnp.asarray(0.0, dtype=r_grid.dtype)
 
-    dVdr = interpax.Interpolator1D(rho_half[1:], jnp.asarray(vp)[1:], extrap=True)
+    dVdr = Interpolator1D(rho_half[1:], jnp.asarray(vp)[1:], method="akima")
     vprime = dVdr(rho_grid) * 2.0 * rho_grid / a_b
     vprime_half = dVdr(rho_grid_half) * 2.0 * rho_grid_half / a_b
     over_vprime = _safe_reciprocal(vprime)
@@ -185,7 +185,7 @@ def build_differentiable_neopax_field_from_vmex_state(
     )
 
     sqrtg00_full = _safe_divide(g_value + iota * i_value, bsqav * jnp.square(b0))
-    sqrtg00_interp = interpax.Interpolator1D(rho_grid, sqrtg00_full, extrap=True)
+    sqrtg00_interp = Interpolator1D(rho_grid, sqrtg00_full, method="akima")
     sqrtg00_value = jax.lax.stop_gradient(sqrtg00_interp(rho_grid_half))
 
     return DifferentiableNeopaxField(

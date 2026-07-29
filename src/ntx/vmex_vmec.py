@@ -133,12 +133,14 @@ def _interp_mode_columns(x: np.ndarray, values: np.ndarray, xq: float) -> np.nda
 
 
 def _interp_profile(x: np.ndarray, values: np.ndarray, xq):
-    import interpax
+    from ._interp import interp1d
 
-    return interpax.interp1d(
+    # A radial profile: smooth, no knees, and Akima is the most accurate of the
+    # local cubics on real equilibrium profiles -- including their derivative,
+    # which matters wherever one of these is differentiated.
+    return interp1d(
         jnp.asarray(xq, dtype=jnp.float64),
         jnp.asarray(x, dtype=jnp.float64),
         jnp.asarray(values, dtype=jnp.float64),
-        method="cubic",
-        extrap=True,
+        method="akima",
     )

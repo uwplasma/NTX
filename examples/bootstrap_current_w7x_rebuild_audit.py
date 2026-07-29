@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 import h5py
-import interpax
+from ntx._interp import Interpolator1D
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
@@ -121,7 +121,7 @@ def _max_relative_error(a: np.ndarray, b: np.ndarray) -> float:
 
 def _build_species_and_field():
     with h5py.File(NTSS_INITIAL_PATH, "r") as handle:
-        er_initial = interpax.Interpolator1D(handle["r"][()], handle["Er"][()], extrap=True)
+        er_initial = Interpolator1D(handle["r"][()], handle["Er"][()], method="akima")
 
     field = NEOPAX.Field.read_vmec_booz(51, str(WOUT_PATH), str(BOOZMN_PATH))
     grid = NEOPAX.Grid.create_standard(51, 64, 3, n_order=NEOPAX_N_ORDER)

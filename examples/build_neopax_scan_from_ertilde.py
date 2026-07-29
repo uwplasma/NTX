@@ -17,11 +17,12 @@ from pathlib import Path
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
-import interpax
 import jax
 import jax.numpy as jnp
 import numpy as np
 from netCDF4 import Dataset
+
+from ntx._interp import Interpolator1D
 
 jax.config.update("jax_enable_x64", True)
 
@@ -384,10 +385,10 @@ def _filled(variable) -> np.ndarray:
 
 
 def _interpolator(x, y):
-    return interpax.Interpolator1D(
+    return Interpolator1D(
         jnp.asarray(x, dtype=jnp.float64),
         jnp.asarray(y, dtype=jnp.float64),
-        extrap=True,
+        method="akima",
     )
 
 

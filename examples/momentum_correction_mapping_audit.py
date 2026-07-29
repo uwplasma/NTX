@@ -27,9 +27,10 @@ NEOPAX_ROOT = Path.home() / "local" / "tests" / "NEOPAX"
 if str(NEOPAX_ROOT) not in sys.path:
     sys.path.insert(0, str(NEOPAX_ROOT))
 
-import interpax
 import jax
 import jax.numpy as jnp
+
+from ntx._interp import Interpolator1D
 
 jax.config.update("jax_enable_x64", True)
 jax.config.update("jax_platform_name", "cpu")
@@ -185,7 +186,7 @@ def _fixed_field_samples() -> list[Sample]:
 
 def _w7x_samples() -> list[Sample]:
     file_initial = h5py.File(NEOPAX_ROOT / "tests" / "inputs" / "NTSS_W7X_Initial.h5", "r")
-    er_initial = interpax.Interpolator1D(file_initial["r"][()], file_initial["Er"][()], extrap=True)
+    er_initial = Interpolator1D(file_initial["r"][()], file_initial["Er"][()], method="akima")
     file_initial.close()
 
     vmec_file = NEOPAX_ROOT / "tests" / "inputs" / "wout_W7-X_standard_configuration.nc"

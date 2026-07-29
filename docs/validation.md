@@ -600,7 +600,7 @@ explicitly:
 
 On the cached fixed-field audit, switching that final postprocessing step from
 `PCHIP` to `linear` changes the QA/QH stress metric negligibly, so `PCHIP`
-remains the default. Forcing the imported `interpax` interpolators from cubic
+remains the default. Forcing the profile interpolators from cubic
 to linear and comparing against direct 3D interpolation also leaves the cached
 current errors unchanged to numerical precision. The remaining mismatch is
 therefore not dominated by interpolation kernel choice.

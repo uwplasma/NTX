@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import interpax
 import jax
 import jax.numpy as jnp
 from jax import Array
 
+from ._interp import interp2d_at
 from ._profiles_radial import _broadcast_profile_field
 from ._profiles_species_types import MonoenergeticSpeciesProfile
 from .neopax import NeopaxScan
@@ -29,18 +29,25 @@ def evaluate_scan_channel(
     data = _channel_data(scan, channel)
     log_nu_axis = jnp.log10(jnp.asarray(scan.nu_v))
 
+    # D11 and D33 are positive with a knee where the collisionality regime
+    # changes, so the monotone rule -- which cannot overshoot a knee -- is the
+    # accurate choice. D13 and D31 change sign and have a smooth extremum in
+    # E_r, which that same limiter would flatten; they take the unlimited
+    # parabolic slope instead. See `_interp` for the measurements.
+    method = "pchip" if channel in ("D11", "D33") else "parabolic"
+
     def per_radius(index, nu_value, er_value):
-        er_axis = jnp.asarray(scan.Er[index])
-        values = data[index]
-        interpolator = interpax.Interpolator2D(
+        value = interp2d_at(
             log_nu_axis,
-            er_axis,
-            values,
-            extrap=True,
+            jnp.asarray(scan.Er[index]),
+            data[index],
+            jnp.log10(jnp.maximum(nu_value, 1e-30)),
+            er_value,
+            method=method,
         )
         if channel == "D11":
-            return 10.0 ** interpolator(jnp.log10(jnp.maximum(nu_value, 1e-30)), er_value)
-        return interpolator(jnp.log10(jnp.maximum(nu_value, 1e-30)), er_value)
+            return 10.0 ** value
+        return value
 
     return jax.vmap(per_radius)(jnp.arange(rho_arr.size), nu_arr, er_arr)
 
