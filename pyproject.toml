@@ -25,7 +25,6 @@ classifiers = [
 ]
 dependencies = [
   "jax",
-  "interpax",
   "netCDF4",
   "numpy",
   "rich",
@@ -44,6 +43,7 @@ Documentation = "https://ntx.readthedocs.io/en/latest/"
 dev = [
   "build",
   "coverage[toml]",
+  "scipy",
   "matplotlib",
   "pytest",
   "pytest-cov",

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-import interpax
+from ._interp import Interpolator1D
+
 import jax
 import jax.numpy as jnp
 
@@ -103,9 +104,9 @@ def build_differentiable_neopax_field(
     idx00 = _find_mode_index(xm_arr, xn_arr, m_value=0, n_value=0)
     idx10 = _find_mode_index(xm_arr, xn_arr, m_value=1, n_value=0)
 
-    b00 = interpax.Interpolator1D(rho_half_arr[1:], bmnc_arr[:, idx00], extrap=True)
-    r00 = interpax.Interpolator1D(rho_full_arr[1:], rmnc_arr[:, idx00], extrap=True)
-    sqrtg00 = interpax.Interpolator1D(rho_half_arr[1:], gmnc_arr[:, idx00], extrap=True)
+    b00 = Interpolator1D(rho_half_arr[1:], bmnc_arr[:, idx00], method="akima")
+    r00 = Interpolator1D(rho_full_arr[1:], rmnc_arr[:, idx00], method="akima")
+    sqrtg00 = Interpolator1D(rho_half_arr[1:], gmnc_arr[:, idx00], method="akima")
 
     if idx10 is None:
 
@@ -113,18 +114,18 @@ def build_differentiable_neopax_field(
             return jnp.zeros_like(jnp.asarray(x))
 
     else:
-        b10 = interpax.Interpolator1D(rho_half_arr[1:], bmnc_arr[:, idx10], extrap=True)
+        b10 = Interpolator1D(rho_half_arr[1:], bmnc_arr[:, idx10], method="akima")
 
         def b10_eval(x):
             return b10(x)
 
-    dVdr = interpax.Interpolator1D(rho_half_arr[1:], vp_arr[1:], extrap=True)
+    dVdr = Interpolator1D(rho_half_arr[1:], vp_arr[1:], method="akima")
     vprime = dVdr(rho_grid) * 2.0 * rho_grid / a_b
     vprime_half = dVdr(rho_grid_half) * 2.0 * rho_grid_half / a_b
     over_vprime = _safe_reciprocal(vprime)
     over_vprime = over_vprime.at[0].set(0.0)
 
-    iota_interp = interpax.Interpolator1D(rho_full_arr, iotaf_arr, extrap=True)
+    iota_interp = Interpolator1D(rho_full_arr, iotaf_arr, method="akima")
     iota = iota_interp(rho_grid)
     epsilon_t = rho_grid * a_b / r00(rho_grid)
 
@@ -142,8 +143,8 @@ def build_differentiable_neopax_field(
     enlogation = jnp.square(_safe_divide(epsilon_t, b_10))
     enlogation = jax.lax.stop_gradient(enlogation.at[0].set(0.0))
 
-    g_interp = interpax.Interpolator1D(rho_half_arr[1:], bvco_arr[1:], extrap=True)
-    i_interp = interpax.Interpolator1D(rho_half_arr[1:], buco_arr[1:], extrap=True)
+    g_interp = Interpolator1D(rho_half_arr[1:], bvco_arr[1:], method="akima")
+    i_interp = Interpolator1D(rho_half_arr[1:], buco_arr[1:], method="akima")
     g_value = g_interp(rho_grid)
     i_value = i_interp(rho_grid)
 
