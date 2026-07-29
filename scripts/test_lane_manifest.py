@@ -112,6 +112,7 @@ CORE_CLI_WORKFLOW_TESTS: tuple[str, ...] = (
 CORE_IO_WORKFLOW_TESTS: tuple[str, ...] = (
     "tests/test_inputfiles.py",
     "tests/test_inputfiles_unit.py",
+    "tests/test_interp.py",
     "tests/test_profile_script.py",
     "tests/test_vmec_scan.py",
 )

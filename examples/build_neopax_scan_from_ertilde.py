@@ -17,7 +17,7 @@ from pathlib import Path
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
-import interpax
+from ntx._interp import Interpolator1D
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -384,10 +384,10 @@ def _filled(variable) -> np.ndarray:
 
 
 def _interpolator(x, y):
-    return interpax.Interpolator1D(
+    return Interpolator1D(
         jnp.asarray(x, dtype=jnp.float64),
         jnp.asarray(y, dtype=jnp.float64),
-        extrap=True,
+        method="akima",
     )
 
 
