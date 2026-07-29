@@ -8,11 +8,11 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
+from ._interp import interp2d_at
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from .neopax import NeopaxMonoenergeticArrays
 from .solver import solve_monoenergetic_scan
-from ._interp import interp2d_at
 
 
 def surface_with_amplitude(

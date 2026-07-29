@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from ._interp import Interpolator1D
-
 import jax
 import jax.numpy as jnp
 
+from ._interp import Interpolator1D
 from ._neopax_field_utils import (
     _find_mode_index,
     _safe_divide,

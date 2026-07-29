@@ -17,11 +17,12 @@ from pathlib import Path
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
-from ntx._interp import Interpolator1D
 import jax
 import jax.numpy as jnp
 import numpy as np
 from netCDF4 import Dataset
+
+from ntx._interp import Interpolator1D
 
 jax.config.update("jax_enable_x64", True)
 

@@ -27,9 +27,10 @@ NEOPAX_ROOT = Path.home() / "local" / "tests" / "NEOPAX"
 if str(NEOPAX_ROOT) not in sys.path:
     sys.path.insert(0, str(NEOPAX_ROOT))
 
-from ntx._interp import Interpolator1D
 import jax
 import jax.numpy as jnp
+
+from ntx._interp import Interpolator1D
 
 jax.config.update("jax_enable_x64", True)
 jax.config.update("jax_platform_name", "cpu")

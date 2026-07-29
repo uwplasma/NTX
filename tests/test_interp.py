@@ -205,7 +205,9 @@ def test_interpolator1d_is_a_pytree_and_differentiable_in_the_query() -> None:
     for n in (12, 24, 48):
         x = jnp.linspace(0.0, 1.0, n)
         itp = Interpolator1D(x, jnp.sin(3.0 * x), method="akima")
-        d = jax.vmap(jax.grad(lambda v: itp(jnp.atleast_1d(v))[0]))(q)
+        # Bind the interpolator as a default argument: closing over the loop
+        # variable would make every iteration use the last one.
+        d = jax.vmap(jax.grad(lambda v, o=itp: o(jnp.atleast_1d(v))[0]))(q)
         errs.append(float(jnp.max(jnp.abs(d - truth))))
     assert errs[1] < errs[0] / 3.0, f"no convergence under refinement: {errs}"
     assert errs[2] < errs[1] / 3.0, f"no convergence under refinement: {errs}"
