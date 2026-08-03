@@ -25,9 +25,11 @@ Operators And Transport
 
 .. automodule:: ntx.operators
    :members:
+   :exclude-members: Array
 
 .. automodule:: ntx.transport
    :members:
+   :exclude-members: Array
 
 Resolution
 ----------

@@ -10,7 +10,7 @@ from ._solver_types import (
     PreparedMonoenergeticSystem,
     TransportResult,
 )
-from .config import enable_x64
+from .config import enable_x64, geometry_precision_matches
 from .geometry import BoozerSurface, VmecSurface, geometry_on_grid
 from .grids import GridSpec
 from .operators import derivative_blocks
@@ -26,6 +26,19 @@ def prepare_monoenergetic_system(
     """Precompute geometry and derivatives, optionally enforcing Nyquist sampling."""
 
     enable_x64(grid.x64)
+    if not isinstance(surface.m, core.Tracer) and not geometry_precision_matches(
+        surface, grid
+    ):
+        msg = (
+            f"surface was built at a narrower precision than grid.dtype="
+            f"{grid.dtype!r} requests. JAX fixes an array's dtype when it is "
+            "created, so a surface constructed while x64 was off stays "
+            "single-precision and is promoted silently here -- the run would "
+            "finish, report float64, and be wrong in the eighth digit. Build "
+            "the surface after importing ntx (which enables x64), or pass a "
+            "GridSpec whose dtype matches the surface."
+        )
+        raise ValueError(msg)
     if require_resolved_geometry and not isinstance(surface.m, core.Tracer):
         geometry_resolution_report(surface, grid).require_resolved()
     geom = geometry_on_grid(surface, grid)

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from ntx import _checkout_paths as cp
 
 
@@ -37,7 +39,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
 
     monkeypatch.setenv("BOOZ_XFORM_JAX_ROOT", str(booz_root))
     monkeypatch.setenv("NEOPAX_ROOT", str(neopax_root))
-    monkeypatch.setenv("SFINCS_JAX_ROOT", str(sfincs_root))
+    monkeypatch.setenv("DKX_ROOT", str(sfincs_root))
     monkeypatch.setenv("SFINCS_ROOT", str(sfincs_fortran_root))
     monkeypatch.setenv("SINGLE_STAGE_FINITE_BETA_ROOT", str(finite_beta_root))
     monkeypatch.setenv("STELLOPT_ROOT", str(stellopt_root))
@@ -46,7 +48,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
 
     assert cp.find_booz_xform_jax_root() == booz_root.resolve()
     assert cp.find_neopax_root() == neopax_root.resolve()
-    assert cp.find_sfincs_jax_root() == sfincs_root.resolve()
+    assert cp.find_dkx_root() == sfincs_root.resolve()
     assert cp.find_sfincs_root() == sfincs_fortran_root.resolve()
     assert cp.find_sfincs_executable() == sfincs_executable.resolve()
     assert cp.find_single_stage_finite_beta_root() == finite_beta_root.resolve()
@@ -109,3 +111,26 @@ def test_find_sfincs_executable_returns_none_when_root_has_no_binary(monkeypatch
     root.mkdir()
     monkeypatch.setenv("SFINCS_ROOT", str(root))
     assert cp.find_sfincs_executable() is None
+
+
+def test_find_dkx_root_accepts_the_former_directory_name(tmp_path, monkeypatch):
+    # DKX used to be called sfincs_jax. A checkout under either name has to be
+    # found, because searching only for the old one meant a present checkout
+    # was missed and the comparison skipped without saying why.
+    import ntx._checkout_paths as cp
+
+    monkeypatch.delenv("DKX_ROOT", raising=False)
+    for name in ("DKX", "sfincs_jax"):
+        workspace = tmp_path / name
+        workspace.mkdir()
+        monkeypatch.setattr(cp, "workspace_root", lambda root=tmp_path: root)
+        assert cp.find_dkx_root() == workspace.resolve()
+        workspace.rmdir()
+
+
+def test_the_former_finder_still_works_and_says_it_is_deprecated(monkeypatch, tmp_path):
+    import ntx._checkout_paths as cp
+
+    monkeypatch.setenv("DKX_ROOT", str(tmp_path))
+    with pytest.deprecated_call():
+        assert cp.find_sfincs_jax_root() == tmp_path.resolve()

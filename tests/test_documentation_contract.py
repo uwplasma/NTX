@@ -23,7 +23,15 @@ def test_readme_is_concise_and_decision_oriented():
     assert "| Downstream closure |" in readme
     assert "| Validated comparisons |" in readme
     assert "| Research scope |" in readme
-    assert len(re.findall(r"!\[[^]]+\]\(docs/_static/[^)]+\.png\)", readme)) == 2
+    # Three figures, and which three is the point: two validation panels plus
+    # the measured gradient comparison the README leads with. Pinning the count
+    # alone let a figure be swapped for an unrelated one.
+    figures = re.findall(r"!\[[^]]+\]\(docs/_static/([^)]+)\.png\)", readme)
+    assert sorted(figures) == [
+        "bootstrap_current_fixed_field_validation",
+        "design_derivatives",
+        "validation_summary",
+    ]
     assert re.search(r"Runtime\s+code does not use fitted\s+bridge constants", readme)
 
 
