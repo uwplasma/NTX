@@ -152,7 +152,7 @@ from .vmex_vmec import surface_from_vmex_vmec_wout, surface_from_vmex_vmec_wout_
 try:
     __version__ = version("ntx")
 except PackageNotFoundError:
-    __version__ = "0.2.4"
+    __version__ = "0.3.0"
 
 __all__ = [
     "__version__",
