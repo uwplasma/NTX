@@ -34,8 +34,42 @@ weaken. `advise_adjoint_window` reads that crossover off the operator:
 advice = ntx.advise_adjoint_window(ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta)
 advice.window          # a starting point
 advice.crossover_row   # where the transfer norms fall below one
-advice.certified       # always False: this is an estimate, not a guarantee
+advice.certified       # False: this is an estimate, not a guarantee
 ```
+
+### Asking for an accuracy instead of guessing a window
+
+`certify_adjoint_window` takes the tolerance the estimate cannot:
+
+```python
+window = ntx.certify_adjoint_window(prepared, case, rtol=1e-6)
+int(window)                        # smallest window with a proof
+window.certified_relative_error    # the proven bound, at or below rtol
+window.status                      # "certified", or "full-window" if it cannot prove one
+```
+
+The proof is available because the exact-window rule leaves exactly one thing
+approximated -- the omitted rows -- while every retained row contributes
+exactly. Bounding that tail against the transfer envelopes and the generator's
+sensitivity gives an absolute bound; one evaluated gradient turns it into a
+relative one. Because the coefficients are linear functionals of the three
+retained modes, the cotangent the certificate needs is exact and costs no extra
+solve.
+
+Two limits worth knowing before relying on it. The bound is a worst case at
+every step, so the certified window is wider than the shortest that would have
+worked -- measured on this operator, a few rows at `nu_hat = 1e-1`. And where
+the chain does not localize the certificate returns the *exact* window: correct,
+and no saving. On a weakly collisional surface `advise_adjoint_window` will
+often suggest something much shorter that happens to work; it simply cannot
+prove it. The two are complementary, and neither replaces widening the window
+until the gradient stops moving.
+
+| | consumes a tolerance | cost | guarantee |
+| --- | --- | --- | --- |
+| `advise_adjoint_window` | no | a norm estimate per row | none |
+| `certify_adjoint_window` | yes | the above plus one differentiated solve | proven relative error |
+| widening until it stops moving | yes, empirically | one solve per trial window | evidence, not a bound |
 
 One restriction comes with the window, and it is not negotiable: the exact-window
 rule is a `custom_vjp`, so it is **reverse-mode only**. `jax.jacfwd` and

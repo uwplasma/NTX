@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from pathlib import Path
 
 
@@ -58,8 +59,31 @@ def find_neopax_root() -> Path | None:
     return _discover("NEOPAX_ROOT", "tests/NEOPAX", "NEOPAX")
 
 
+def find_dkx_root() -> Path | None:
+    """Locate a DKX checkout, tolerating its former name.
+
+    DKX was called ``sfincs_jax`` and its importable package is now ``dkx``.
+    Searching only for the old directory name meant a present checkout was not
+    found, and the comparisons that need it skipped silently rather than
+    failing --- the worst outcome for a validation path, because a skipped
+    check reads exactly like a passing one in a summary.
+    """
+
+    return _discover(
+        "DKX_ROOT", "DKX", "tests/DKX", "sfincs_jax", "tests/sfincs_jax"
+    )
+
+
 def find_sfincs_jax_root() -> Path | None:
-    return _discover("SFINCS_JAX_ROOT", "tests/sfincs_jax", "sfincs_jax")
+    """Deprecated alias for :func:`find_dkx_root`."""
+
+    warnings.warn(
+        "find_sfincs_jax_root is deprecated; DKX is the current name. Use "
+        "find_dkx_root, which also honours DKX_ROOT.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return find_dkx_root()
 
 
 def find_sfincs_root() -> Path | None:

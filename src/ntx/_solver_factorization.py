@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import jax
 import jax.numpy as jnp
-import solvax
 from jax import Array
 from solvax import (
     BlockTridiagFactors,
@@ -235,30 +234,3 @@ def _full_mode_transpose_relative_residual_norm(
     source_norm = jnp.linalg.norm(source_bar)
     tiny = jnp.finfo(residual.dtype).tiny
     return jnp.linalg.norm(residual) / jnp.maximum(source_norm, tiny)
-
-
-def advise_adjoint_window(
-    ctx: OperatorContext,
-    n_xi: int,
-    d_theta: Array,
-    d_zeta: Array,
-):
-    """Estimate where the Legendre chain becomes localized enough to truncate.
-
-    Returns SOLVAX's ``LocalizationWindow``: the per-row transfer norms
-    ``rho_k``, the first row where they fall below one, and a suggested window.
-
-    The estimate is read from the operator, not from a gradient, and it is not
-    a certificate: ``certified`` is always ``False``. The physics behind it is
-    that pitch-angle scattering damps Legendre mode ``l`` like ``nu*l(l+1)``
-    while the streaming coupling grows only like ``l``, so the chain contracts
-    faster the higher one climbs, and the row where it starts contracting moves
-    outward as collisions weaken. Use the value as a starting point and widen
-    it until the gradient stops moving.
-    """
-
-    return solvax.localization_crossover_window(
-        lambda k: _conditioned_operator_blocks(ctx, k, d_theta, d_zeta),
-        n_xi + 1,
-        keep_lowest=3,
-    )

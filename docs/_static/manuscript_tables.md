@@ -257,11 +257,11 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `807c03c9e2db3d2654a63ce2bac6de0f825b4ce4` |
-| Branch | `feature/exact-window-adjoint` |
+| Commit | `d38663ce17d5c8073f0bbac9accc4eb8d8d765e6` |
+| Branch | `main` |
 | Python | `3.13.7` |
-| JAX | `0.10.2` |
-| NumPy | `2.4.6` |
+| JAX | `0.11.0` |
+| NumPy | `2.5.1` |
 | Platform | `macOS-26.5.1-arm64-arm-64bit-Mach-O` |
 | Figure bundle | `python examples/make_publication_figures.py --figures main_text,supplement` |
 | Main-text figures | `python examples/make_publication_figures.py --figures main_text` |

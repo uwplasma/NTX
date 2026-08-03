@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-try:
+if sys.version_info >= (3, 11):
     import tomllib
-except ModuleNotFoundError:  # pragma: no cover - exercised on Python 3.10 environments
+else:  # pragma: no cover - exercised on Python 3.10 environments
     import tomli as tomllib
 
 from .geometry import BoozerSurface, VmecSurface, example_surface

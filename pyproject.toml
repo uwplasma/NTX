@@ -30,7 +30,7 @@ dependencies = [
   "rich",
   # The bounded reverse pass needs the params/adjoint_window arguments on
   # block_thomas_truncated_fn_with_residual (SOLVAX >= 0.11.0).
-  "solvax>=0.11.0",
+  "solvax>=0.12.0",
   "tomli; python_version < '3.11'",
 ]
 
@@ -95,7 +95,11 @@ target-version = "py310"
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.mypy]
-python_version = "3.10"
+# No python_version pin: it is checked against whatever interpreter runs, and
+# pinning 3.10 made mypy parse the installed numpy stubs under 3.10 rules,
+# where they use 3.12 type syntax. The gate then failed inside numpy and
+# checked none of NTX -- a type check that reports an error it cannot act on
+# and silently skips the code it exists to cover.
 packages = ["ntx"]
 ignore_missing_imports = true
 warn_unused_ignores = true

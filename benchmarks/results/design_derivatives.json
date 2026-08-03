@@ -1,0 +1,68 @@
+{
+  "what": "cost and accuracy of a design gradient, reverse mode vs finite differences",
+  "grid": {
+    "n_theta": 13,
+    "n_zeta": 13,
+    "n_xi": 40
+  },
+  "boozer_modes": 32,
+  "nu_hat": 0.01,
+  "rows": [
+    {
+      "parameters": 1,
+      "reverse_seconds": 0.08922774996608496,
+      "finite_difference_seconds": 0.04184866708237678,
+      "speedup": 0.46900955250225695,
+      "reverse_relative_error": 1.7199307031643863e-15,
+      "finite_difference_relative_error": 2.7874652466839597e-09
+    },
+    {
+      "parameters": 2,
+      "reverse_seconds": 0.08997179195284843,
+      "finite_difference_seconds": 0.08073479193262756,
+      "speedup": 0.897334488735517,
+      "reverse_relative_error": 7.285786647852797e-15,
+      "finite_difference_relative_error": 6.823479338165074e-10
+    },
+    {
+      "parameters": 4,
+      "reverse_seconds": 0.09594183403532952,
+      "finite_difference_seconds": 0.1626602920005098,
+      "speedup": 1.6954052800430304,
+      "reverse_relative_error": 1.001971017014036e-14,
+      "finite_difference_relative_error": 4.973265310134752e-10
+    },
+    {
+      "parameters": 8,
+      "reverse_seconds": 0.08933412504848093,
+      "finite_difference_seconds": 0.3253813750343397,
+      "speedup": 3.642296545220069,
+      "reverse_relative_error": 9.042960570448621e-15,
+      "finite_difference_relative_error": 3.619885530814525e-10
+    },
+    {
+      "parameters": 16,
+      "reverse_seconds": 0.08916066703386605,
+      "finite_difference_seconds": 0.6636024169856682,
+      "speedup": 7.442770888351598,
+      "reverse_relative_error": 2.8229027131721897e-14,
+      "finite_difference_relative_error": 6.126045138129118e-10
+    },
+    {
+      "parameters": 32,
+      "reverse_seconds": 0.08901883300859481,
+      "finite_difference_seconds": 1.268783042090945,
+      "speedup": 14.252973210381711,
+      "reverse_relative_error": 4.061322202992392e-14,
+      "finite_difference_relative_error": 8.059758763221699e-10
+    }
+  ],
+  "provenance": {
+    "ntx": "0.2.4",
+    "jax": "0.11.0",
+    "backend": "cpu",
+    "device_kind": "cpu",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "x64": true
+  }
+}
