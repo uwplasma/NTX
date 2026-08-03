@@ -20,22 +20,25 @@ def _load_module(path: Path, name: str):
     return module
 
 
-def test_build_manuscript_artifacts_script_writes_outputs():
+def test_build_manuscript_artifacts_script_writes_outputs(tmp_path):
+    # Regenerate into a temporary directory, never over the committed copies:
+    # a suite run used to leave docs/_static dirty, so the next run started
+    # from a tree the previous one had modified and identical runs disagreed.
     subprocess.run(
         [
             sys.executable,
             str(MANUSCRIPT_SCRIPT),
+            "--output-dir",
+            str(tmp_path),
         ],
         check=True,
         text=True,
         capture_output=True,
     )
 
-    payload = json.loads(
-        (ROOT / "docs" / "_static" / "manuscript_artifacts.json").read_text(encoding="utf-8")
-    )
-    markdown = (ROOT / "docs" / "_static" / "manuscript_tables.md").read_text(encoding="utf-8")
-    claims = (ROOT / "docs" / "_static" / "manuscript_claims.md").read_text(encoding="utf-8")
+    payload = json.loads((tmp_path / "manuscript_artifacts.json").read_text(encoding="utf-8"))
+    markdown = (tmp_path / "manuscript_tables.md").read_text(encoding="utf-8")
+    claims = (tmp_path / "manuscript_claims.md").read_text(encoding="utf-8")
 
     assert "monoenergetic_validation" in payload["tables"]
     assert "fixed_field_validation" in payload["tables"]

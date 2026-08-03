@@ -8,25 +8,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_build_closure_validation_report_writes_outputs():
+def test_build_closure_validation_report_writes_outputs(tmp_path):
+    # Into a temporary prefix, not over the committed report: regenerating in
+    # place left the working tree dirty and made consecutive suite runs
+    # disagree with each other.
+    prefix = tmp_path / "closure_validation_report"
     subprocess.run(
         [
             sys.executable,
             str(ROOT / "scripts" / "build_closure_validation_report.py"),
+            "--output-prefix",
+            str(prefix),
         ],
         check=True,
         text=True,
         capture_output=True,
     )
 
-    payload = json.loads(
-        (ROOT / "docs" / "_static" / "closure_validation_report.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    markdown = (
-        ROOT / "docs" / "_static" / "closure_validation_report.txt"
-    ).read_text(encoding="utf-8")
+    payload = json.loads(prefix.with_suffix(".json").read_text(encoding="utf-8"))
+    markdown = prefix.with_suffix(".txt").read_text(encoding="utf-8")
 
     assert "precise_qs" in payload
     assert "claim_scope" in payload

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import platform
 import subprocess
@@ -2720,18 +2721,32 @@ def build_claims_markdown(payload: dict) -> str:
 
 
 def main() -> None:
+    # --output-dir exists so a test can regenerate into a temporary directory.
+    # Writing into docs/_static by default meant every suite run left the
+    # working tree dirty and the next run started from a tree the previous one
+    # had modified, which made failure counts differ between identical runs.
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=STATIC,
+        help="where to write the artifacts (default: the committed docs/_static)",
+    )
+    args = parser.parse_args()
+    output_dir = args.output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     payload = build_payload()
     markdown = build_markdown(payload)
     claims = build_claims_markdown(payload)
-    (STATIC / "manuscript_artifacts.json").write_text(
+    (output_dir / "manuscript_artifacts.json").write_text(
         json.dumps(payload, indent=2),
         encoding="utf-8",
     )
-    (STATIC / "manuscript_tables.md").write_text(markdown, encoding="utf-8")
-    (STATIC / "manuscript_claims.md").write_text(claims, encoding="utf-8")
-    print(f"Wrote {STATIC / 'manuscript_artifacts.json'}")
-    print(f"Wrote {STATIC / 'manuscript_tables.md'}")
-    print(f"Wrote {STATIC / 'manuscript_claims.md'}")
+    (output_dir / "manuscript_tables.md").write_text(markdown, encoding="utf-8")
+    (output_dir / "manuscript_claims.md").write_text(claims, encoding="utf-8")
+    for name in ("manuscript_artifacts.json", "manuscript_tables.md", "manuscript_claims.md"):
+        print(f"Wrote {output_dir / name}")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -236,7 +237,7 @@ def build_markdown(payload: dict) -> str:
     )
 
 
-def build_figure(payload: dict) -> None:
+def build_figure(payload: dict, output_prefix: Path = OUTPUT_PREFIX) -> None:
     qa = payload["precise_qs"]["qa"]
     qh = payload["precise_qs"]["qh"]
     redl_gate = payload["precise_qs"]["redl_gate"]
@@ -332,20 +333,33 @@ def build_figure(payload: dict) -> None:
             ha="left",
         )
 
-    OUTPUT_PREFIX.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUTPUT_PREFIX.with_suffix(".png"), dpi=220, bbox_inches="tight")
-    fig.savefig(OUTPUT_PREFIX.with_suffix(".pdf"), bbox_inches="tight")
+    output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_prefix.with_suffix(".png"), dpi=220, bbox_inches="tight")
+    fig.savefig(output_prefix.with_suffix(".pdf"), bbox_inches="tight")
     plt.close(fig)
 
 
 def main() -> None:
+    # See build_manuscript_artifacts.py: regenerating into the committed
+    # docs/_static made the test suite non-deterministic across runs.
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output-prefix",
+        type=Path,
+        default=OUTPUT_PREFIX,
+        help="path prefix for the report (default: the committed docs/_static copy)",
+    )
+    args = parser.parse_args()
+    prefix = args.output_prefix
+    prefix.parent.mkdir(parents=True, exist_ok=True)
+
     payload = build_payload()
-    build_figure(payload)
-    OUTPUT_PREFIX.with_suffix(".json").write_text(
+    build_figure(payload, prefix)
+    prefix.with_suffix(".json").write_text(
         json.dumps(payload, indent=2),
         encoding="utf-8",
     )
-    OUTPUT_PREFIX.with_suffix(".txt").write_text(
+    prefix.with_suffix(".txt").write_text(
         build_markdown(payload),
         encoding="utf-8",
     )
