@@ -1,3 +1,5 @@
+"""Evaluates one artifact-backed gate against its committed record."""
+
 from __future__ import annotations
 
 import json

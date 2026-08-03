@@ -1,3 +1,5 @@
+"""Benchmark-matrix entries for finite-beta geometry handling."""
+
 from __future__ import annotations
 
 from ._benchmark_matrix_types import BenchmarkEntry

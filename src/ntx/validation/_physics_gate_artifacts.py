@@ -1,3 +1,9 @@
+"""Artifact-backed physics gates: committed records against thresholds.
+
+A gate whose artifact is absent reports ``missing`` rather than passing, which
+is the distinction that keeps an unrun check from reading as a satisfied one.
+"""
+
 from __future__ import annotations
 
 import json

@@ -88,6 +88,7 @@ CORE_FOUNDATION_TESTS: tuple[str, ...] = (
     "tests/test_parallel_unit.py",
     "tests/test_profiles_unit.py",
     "tests/test_resolution.py",
+    "tests/test_docstring_coverage.py",
     "tests/test_source_map.py",
     "tests/test_suite_leaves_tree_clean.py",
     "tests/test_solver.py",

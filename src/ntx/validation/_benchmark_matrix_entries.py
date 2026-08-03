@@ -1,3 +1,10 @@
+"""Assembles the benchmark matrix from its per-lane entry modules.
+
+This module owns only the composition. Each lane keeps its own entries next to
+the claims it makes, which is what keeps any single module inside the
+repository ownership limit.
+"""
+
 from __future__ import annotations
 
 from ._benchmark_matrix_autodiff import (

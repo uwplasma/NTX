@@ -1,3 +1,5 @@
+"""The registry of physics gates, analytical and artifact-backed."""
+
 from __future__ import annotations
 
 from ._physics_gate_analytical import ANALYTICAL_GATES

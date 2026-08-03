@@ -1,3 +1,5 @@
+"""Benchmark-matrix entries for the differentiation lane."""
+
 from __future__ import annotations
 
 from ._benchmark_matrix_autodiff_derivatives import (

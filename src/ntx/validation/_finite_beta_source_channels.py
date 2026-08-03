@@ -1,3 +1,9 @@
+"""Source-channel decomposition for the finite-beta closure audit.
+
+Splits the closure response into the channels a reader can attribute, so a
+disagreement points at a term rather than at the total.
+"""
+
 from __future__ import annotations
 
 from typing import Any

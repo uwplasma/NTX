@@ -1,3 +1,9 @@
+"""Types for physics gates: category, relation and status.
+
+A gate is a claim plus the comparison that decides it. Keeping the vocabulary
+here means a new relation or status is constrained at every use site.
+"""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

@@ -1,3 +1,9 @@
+"""Types for the benchmark matrix: entries, lanes, maturity and status.
+
+Separated from the entry data so the vocabulary has one owner: a lane or
+maturity value added here is immediately constrained everywhere it is used.
+"""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
