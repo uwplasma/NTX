@@ -1,3 +1,5 @@
+"""Benchmark-matrix entries for the bootstrap-current lane."""
+
 from __future__ import annotations
 
 from ._benchmark_matrix_types import BenchmarkEntry

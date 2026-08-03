@@ -1,3 +1,5 @@
+"""Artifact registry entries for the finite-beta gates."""
+
 from __future__ import annotations
 
 from ._physics_gate_types import PhysicsGate

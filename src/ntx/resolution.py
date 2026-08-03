@@ -38,6 +38,7 @@ class GeometryResolutionReport:
 
     @property
     def resolved(self) -> bool:
+        """Whether the grid samples the retained modes without aliasing."""
         return self.status == "resolved"
 
     def require_resolved(self) -> None:

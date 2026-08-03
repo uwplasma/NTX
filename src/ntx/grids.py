@@ -28,10 +28,12 @@ class GridSpec:
 
     @property
     def jax_dtype(self):
+        """The JAX dtype this grid asks for, as a dtype rather than a name."""
         return jnp.float64 if self.dtype == "float64" else jnp.float32
 
     @property
     def n_fs(self) -> int:
+        """Number of flux-surface points, ``n_theta * n_zeta``."""
         return self.n_theta * self.n_zeta
 
 
@@ -44,6 +46,11 @@ tree_util.register_dataclass(
 
 @dataclass(frozen=True)
 class AngularGrid:
+    """Periodic theta/zeta grid with its spacings and spectral derivative matrices.
+
+    Built once per :class:`GridSpec` and reused: the derivative matrices are the
+    expensive part and do not depend on the case being solved.
+    """
     theta: Array
     zeta: Array
     dtheta: Array

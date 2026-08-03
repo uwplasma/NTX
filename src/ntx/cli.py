@@ -16,6 +16,12 @@ from .solver import MonoenergeticCase, solve_monoenergetic
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Entry point for the ``ntx`` command.
+
+    Dispatches either the TOML input-file form or a subcommand. Returns the
+    process exit status rather than calling ``sys.exit``, so it can be driven
+    from a test.
+    """
     args_list = sys.argv[1:] if argv is None else argv
     if _looks_like_input_file(args_list):
         input_args = _parse_input_file_args(args_list)

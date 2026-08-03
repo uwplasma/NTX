@@ -1,3 +1,5 @@
+"""Benchmark-matrix entries for profile and closure workflows."""
+
 from __future__ import annotations
 
 from ._benchmark_matrix_types import BenchmarkEntry

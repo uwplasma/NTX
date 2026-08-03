@@ -1,3 +1,10 @@
+"""The benchmark matrix: every promoted claim and the evidence behind it.
+
+Public entry point for evaluating the matrix and writing it as JSON. Each entry
+names a claim, the lane it belongs to, its maturity, and the artifact and
+threshold that decide whether it currently holds.
+"""
+
 from __future__ import annotations
 
 import json
@@ -27,6 +34,11 @@ __all__ = [
 
 
 def evaluate_benchmark_matrix(root: Path) -> tuple[BenchmarkEvaluation, ...]:
+    """Evaluate every matrix entry against the artifacts under ``root``.
+
+    An entry whose artifact is absent evaluates to a missing status rather than
+    a pass, so an unrun claim cannot read as a satisfied one.
+    """
     root = Path(root)
     evaluations: list[BenchmarkEvaluation] = []
     for entry in benchmark_matrix():
@@ -50,6 +62,7 @@ def evaluate_benchmark_matrix(root: Path) -> tuple[BenchmarkEvaluation, ...]:
 
 
 def benchmark_matrix_payload(root: Path) -> dict[str, object]:
+    """The evaluated matrix as a JSON-ready payload, entries plus a summary."""
     evaluations = evaluate_benchmark_matrix(root)
     return {
         "entries": [evaluation.as_dict() for evaluation in evaluations],
@@ -62,6 +75,7 @@ def benchmark_matrix_payload(root: Path) -> dict[str, object]:
 
 
 def write_benchmark_matrix_json(root: Path, output_path: Path) -> None:
+    """Write :func:`benchmark_matrix_payload` to ``output_path``."""
     payload = benchmark_matrix_payload(root)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")

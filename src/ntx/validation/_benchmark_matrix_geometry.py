@@ -1,3 +1,5 @@
+"""Benchmark-matrix entries for geometry breadth across stellarator families."""
+
 from __future__ import annotations
 
 from ._benchmark_matrix_geometry_finite_beta import FINITE_BETA_GEOMETRY_BREADTH_ENTRIES

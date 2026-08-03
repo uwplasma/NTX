@@ -1,3 +1,11 @@
+"""The physics gates: analytical limits and artifact thresholds, evaluated.
+
+Public entry point for the gate registry and its evaluation. Analytical gates
+compare against a closed-form limit; artifact gates compare a committed record
+against a declared threshold. Both report pass, fail, monitor or missing, and a
+missing artifact is never silently a pass.
+"""
+
 from __future__ import annotations
 
 from ._physics_gate_artifacts import (

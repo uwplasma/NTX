@@ -1,3 +1,5 @@
+"""Artifact-backed physics gates for the finite-beta lane."""
+
 from __future__ import annotations
 
 from pathlib import Path

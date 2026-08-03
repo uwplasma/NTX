@@ -1,3 +1,9 @@
+"""Finite-beta closure target used by the source-channel audit.
+
+Builds the reference the audit compares against, keeping the target definition
+separate from the channel bookkeeping that consumes it.
+"""
+
 from __future__ import annotations
 
 import json

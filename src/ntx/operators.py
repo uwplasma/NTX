@@ -13,6 +13,12 @@ from .grids import flatten_fs
 
 @dataclass(frozen=True)
 class OperatorContext:
+    """Everything the block generator needs to build one row of the chain.
+
+    Carries the surface, its geometry on the grid, and the two case parameters.
+    Held as a frozen dataclass so it can be closed over by the row generator and
+    still be replaced cheaply for a different collisionality.
+    """
     surface: BoozerSurface | VmecSurface
     geometry: GeometryOnGrid
     nu_hat: Array

@@ -1,3 +1,5 @@
+"""Analytical physics gates: comparisons against closed-form limits."""
+
 from __future__ import annotations
 
 from ._physics_gate_types import PhysicsGate

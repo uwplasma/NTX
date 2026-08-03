@@ -1,3 +1,5 @@
+"""Maps each artifact-backed gate to the record that decides it."""
+
 from __future__ import annotations
 
 from ._physics_gate_artifact_registry_finite_beta import FINITE_BETA_ARTIFACT_GATES
