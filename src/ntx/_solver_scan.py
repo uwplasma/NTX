@@ -176,10 +176,14 @@ class CompiledPreparedScanSolver:
 
         started = time.perf_counter()
         first = executable(nu, epsi)
+        # JAX dispatches asynchronously, so without blocking these timings would
+        # measure queueing rather than execution.
         first.block_until_ready()
         first_execution_seconds = time.perf_counter() - started
 
         started = time.perf_counter()
+        # Second run with the cache warm: the difference against the first is
+        # what any per-call setup costs.
         warm = executable(nu, epsi)
         warm.block_until_ready()
         warm_execution_seconds = time.perf_counter() - started

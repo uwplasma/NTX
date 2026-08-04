@@ -69,6 +69,9 @@ def geometry_resolution_report(
 
     m_min, m_max = int(m.min()), int(m.max())
     n_min, n_max = int(n.min()), int(n.max())
+    # Nyquist: representing harmonics up to max|m| needs 2*max|m|+1 samples.
+    # Below that the grid aliases high modes onto low ones, which looks like
+    # a converged answer rather than an error.
     theta_floor = 2 * int(np.max(np.abs(m))) + 1
     zeta_floor = 2 * int(np.max(np.abs(n))) + 1
     theta_ratio = grid.n_theta / theta_floor

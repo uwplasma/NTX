@@ -60,6 +60,9 @@ def solve_monoenergetic_multiprocess_scan(
     padded_size = shard_count * shard_size
     if padded_size > flat_nu.size:
         pad = padded_size - flat_nu.size
+        # Pad to a whole number of shards by repeating the edge value. Repeating a
+        # real point keeps every shard the same shape, so all workers compile the
+        # same program; the padded results are dropped afterwards.
         flat_nu = cast(np.ndarray, np.pad(flat_nu, (0, pad), mode="edge"))
         flat_epsi = cast(np.ndarray, np.pad(flat_epsi, (0, pad), mode="edge"))
     nu_shards = flat_nu.reshape((shard_count, shard_size))
@@ -78,6 +81,8 @@ def solve_monoenergetic_multiprocess_scan(
         }
         for index in range(shard_count)
     ]
+    # spawn, not fork: a forked child inherits the parent's initialized JAX
+    # and CUDA state, which then races with the child's own device setup.
     ctx = mp.get_context("spawn")
     with ProcessPoolExecutor(max_workers=shard_count, mp_context=ctx) as pool:
         shard_results = list(pool.map(_solve_scan_worker, tasks))

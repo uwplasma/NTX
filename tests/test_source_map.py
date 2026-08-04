@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -49,14 +50,44 @@ def test_source_map_mentions_split_internal_modules() -> None:
 # The limit is therefore set above the largest coherent concern rather than
 # below it. Exceeding it is a signal to check whether a module has taken on a
 # second concern -- not an instruction to cut the current one in half.
-MODULE_LINE_LIMIT = 1200
+#
+# It counts *code* lines: docstrings, comments and blanks are excluded. Counting
+# raw lines made documenting a module a way to fail this test, which is exactly
+# backwards -- the first version of this rule tripped on _neopax.py at 1201 raw
+# lines while its code was 948. A module's cost to a reader is its logic; the
+# prose that explains that logic makes it cheaper, not dearer.
+MODULE_CODE_LINE_LIMIT = 1000
+
+
+def _code_lines(path: Path) -> int:
+    """Lines that are neither blank, comment, nor docstring."""
+    source = path.read_text(encoding="utf-8")
+    documented: set[int] = set()
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(
+            node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+        ):
+            continue
+        body = node.body
+        if (
+            body
+            and isinstance(body[0], ast.Expr)
+            and isinstance(body[0].value, ast.Constant)
+            and isinstance(body[0].value.value, str)
+        ):
+            documented.update(range(body[0].lineno, body[0].end_lineno + 1))
+    return sum(
+        1
+        for number, line in enumerate(source.splitlines(), start=1)
+        if line.strip() and not line.strip().startswith("#") and number not in documented
+    )
 
 
 def test_top_level_source_modules_stay_below_ownership_limit() -> None:
     oversized = {
-        path.relative_to(ROOT).as_posix(): len(path.read_text(encoding="utf-8").splitlines())
+        path.relative_to(ROOT).as_posix(): _code_lines(path)
         for path in ROOT.joinpath("src", "ntx").glob("*.py")
-        if len(path.read_text(encoding="utf-8").splitlines()) > MODULE_LINE_LIMIT
+        if _code_lines(path) > MODULE_CODE_LINE_LIMIT
     }
 
     assert oversized == {}

@@ -54,6 +54,8 @@ def load_vmec_surface(
         raise ValueError("VMEC transport normalization produced dpsi_hat/dr_hat = 0")
     psi_n_grid = phi / float(phi[-1])
     iota_full = _iota_grid_from_wout(wout)
+    # reshape(()) rather than float() directly: VMEC writes some scalars as
+    # zero-dimensional arrays and others as one-element ones.
     aminor_p = float(np.asarray(wout.Aminor_p).reshape(()))
 
     base_mode_m = np.asarray(wout.xm, dtype=np.int32)

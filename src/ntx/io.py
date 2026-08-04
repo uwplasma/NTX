@@ -86,6 +86,8 @@ def load_dkes_surface(path: str | Path) -> BoozerSurface:
     if not modes:
         msg = f"no borbi(m,n) entries found in {path}"
         raise ValueError(msg)
+    # Sort so the harmonic ordering is a property of the data rather than of
+    # the order rows happened to appear in the file.
     modes.sort()
 
     m = jnp.asarray([mode[0] for mode in modes], dtype=jnp.int32)
@@ -134,6 +136,8 @@ def load_magnetic_configuration_surface(path: str | Path) -> BoozerSurface:
     if not rows:
         msg = f"no Fourier rows found in {resolved}"
         raise ValueError(msg)
+    # Same ordering guarantee as the DKES loader, so the two produce
+    # comparable surfaces from equivalent input.
     rows.sort()
 
     return BoozerSurface(

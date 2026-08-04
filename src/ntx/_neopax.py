@@ -792,6 +792,8 @@ def _surface_bsqav(surface, *, ntheta: int = 31, nzeta: int = 31):
     Only one field period is sampled in zeta, since the average over one period
     equals the average over all of them.
     """
+    # endpoint=False because theta = 0 and 2*pi are the same point; including
+    # both would double-weight it in the average.
     theta = jnp.linspace(0.0, 2.0 * jnp.pi, int(ntheta), endpoint=False)
     zeta = jnp.linspace(0.0, 2.0 * jnp.pi / int(surface.nfp), int(nzeta), endpoint=False)
     theta_2d, zeta_2d = jnp.meshgrid(theta, zeta, indexing="ij")

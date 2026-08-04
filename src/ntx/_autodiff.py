@@ -80,6 +80,8 @@ def er_profile(rho: Array, params: Array) -> Array:
     polynomial would have to be constrained afterwards to achieve it.
     """
     parameters = jnp.asarray(params)
+    # Odd powers only: E_r must vanish on axis, and building that into the
+    # basis is more robust than constraining a general polynomial afterwards.
     powers = 2 * jnp.arange(parameters.size, dtype=jnp.asarray(rho).dtype) + 1
     return jnp.sum(parameters[:, None] * jnp.asarray(rho)[None, :] ** powers[:, None], axis=0)
 

@@ -104,6 +104,8 @@ def _rankdata(values: np.ndarray) -> np.ndarray:
     Written out rather than taken from scipy, which is not a dependency.
     Mergesort keeps the ranking stable, so equal values rank in input order.
     """
+    # Mergesort is the stable choice, so equal values keep their input order
+    # and the ranking is reproducible across runs.
     order = np.argsort(values, kind="mergesort")
     ranks = np.empty_like(values, dtype=float)
     sorted_values = values[order]

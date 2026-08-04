@@ -61,12 +61,16 @@ def _changes(
     changes sign, so its relative change is noise near the crossing and would
     stall an otherwise converged run.
     """
+    # Positions of D11, D31 and D33 in the snapshot tuple. Index 2 is D13,
+    # skipped for the reason in the docstring above.
     indices = np.asarray([0, 1, 3])
     old = np.asarray(previous)[indices]
     new = np.asarray(current)[indices]
     absolute = np.abs(new - old)
     scale = np.maximum(np.abs(old), np.abs(new))
     tolerance = atol + rtol * scale
+    # Floored twice: by atol so a coefficient converging to zero reports a
+    # finite ratio, and by tiny so the division itself cannot overflow.
     denominator = np.maximum(np.maximum(scale, atol), np.finfo(float).tiny)
     relative = absolute / denominator
     absolute_tuple = (float(absolute[0]), float(absolute[1]), float(absolute[2]))

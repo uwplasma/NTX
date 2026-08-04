@@ -118,6 +118,8 @@ def _normalized_transport_updates(
     by being larger.
     """
     particle_mismatch, current_mismatch = _transport_mismatch(profile, closure_spec)
+    # RMS over the radial axis, per species: each species is normalized by its
+    # own mismatch so a hot species cannot dominate the step by magnitude alone.
     particle_scale = jnp.maximum(
         jnp.sqrt(jnp.mean(particle_mismatch**2, axis=1, keepdims=True)),
         normalization_floor,
