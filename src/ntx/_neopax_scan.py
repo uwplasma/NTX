@@ -5,16 +5,16 @@ Sweeps fields and coefficients across a scan and collects the resulting fluxes.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
+
 import jax.numpy as jnp
 from jax import Array
-from ._neopax import _surface_reference_bridge
+
+from ._neopax import NeopaxScan, _surface_reference_bridge, _surface_transport_scale
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from .solver import solve_monoenergetic_scan
-from ._neopax import _surface_transport_scale
-from collections.abc import Callable
-from ._neopax import NeopaxScan
 from .vmex_backend import (
     VmecJaxBoundaryContext,
     surfaces_from_vmex_boundary_params,
@@ -30,6 +30,7 @@ __all__ = [
 
 
 # --- _neopax_scan_coefficients: Coefficient and normalization-block assembly for NEOPAX scans. ---
+
 
 @dataclass(frozen=True)
 class NeopaxScanCoefficientBlocks:
@@ -113,6 +114,7 @@ def solve_neopax_scan_coefficient_blocks(
 
 # --- _neopax_scan_fields: Field-channel normalization for NTX-to-NEOPAX scan assembly. ---
 
+
 @dataclass(frozen=True)
 class NeopaxScanFieldChannels:
     """Validated radial, collisionality, and electric-field scan channels."""
@@ -177,6 +179,7 @@ def normalize_neopax_scan_field_channels(
 
 
 # --- _neopax_scan: NEOPAX scan assembly from NTX surfaces and imported VMEX states. ---
+
 
 def build_ntx_neopax_scan(
     surface_loader: Callable[[float], BoozerSurface | VmecSurface],

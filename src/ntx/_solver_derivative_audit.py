@@ -10,20 +10,17 @@ import jax.numpy as jnp
 from jax import Array, tree_util
 
 from ._solver import (
+    MonoenergeticCase,
+    PreparedMonoenergeticSystem,
     _coefficient_mode_pullback,
-    _prepared_implicit_vjp_primal,
-)
-from ._solver import _operator_context
-from ._solver import (
     _full_mode_relative_residual_norm,
     _full_mode_transpose_relative_residual_norm,
+    _operator_context,
+    _prepared_implicit_vjp_primal,
     _solve_factorized_adjoint,
-)
-from ._solver import (
     solve_prepared_coefficient_vector,
     solve_prepared_coefficient_vector_vjp,
 )
-from ._solver import MonoenergeticCase, PreparedMonoenergeticSystem
 from .operators import source_modes
 
 CoefficientParameter = Literal["nu_hat", "epsi_hat", "er_hat"]

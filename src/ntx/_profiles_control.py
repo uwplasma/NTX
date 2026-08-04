@@ -7,26 +7,22 @@ profile, so an optimizer sees a well-conditioned space. Types live in _profiles.
 from __future__ import annotations
 
 from dataclasses import replace
+
 import jax
 import jax.numpy as jnp
 from jax import Array
+
 from ._profiles import (
+    MonoenergeticSpeciesProfile,
     ProfileBasisControlSpec,
     ProfileBasisOptimizationResult,
-)
-from ._profiles import (
+    ProfileControlOptimizationResult,
+    ProfileControlSpec,
+    _broadcast_profile_field,
     current_response_objective,
     solve_ambipolar_er_profile,
 )
-from ._profiles import _broadcast_profile_field
-from ._profiles import (
-    MonoenergeticSpeciesProfile,
-)
 from .neopax import NeopaxScan
-from ._profiles import (
-    ProfileControlOptimizationResult,
-    ProfileControlSpec,
-)
 
 __all__ = [
     "_basis_profile_modifier",
@@ -38,6 +34,7 @@ __all__ = [
 
 
 # --- _profiles_control_basis: Radial-basis control helpers for profile-grade NTX workflows. ---
+
 
 def apply_profile_basis_control(
     species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
@@ -168,9 +165,7 @@ def optimize_profile_basis_control(
             profile,
         )
 
-    er_seed0 = 0.5 * (
-        jnp.min(jnp.asarray(scan.Er), axis=1) + jnp.max(jnp.asarray(scan.Er), axis=1)
-    )
+    er_seed0 = 0.5 * (jnp.min(jnp.asarray(scan.Er), axis=1) + jnp.max(jnp.asarray(scan.Er), axis=1))
     (_, _), history = jax.lax.scan(
         optimization_step,
         (control0, er_seed0),
@@ -200,6 +195,7 @@ def _basis_profile_modifier(control: Array, response: Array, basis: Array) -> Ar
 
 
 # --- _profiles_control_scalar: Scalar control helpers for profile-grade NTX workflows. ---
+
 
 def apply_profile_control(
     species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
@@ -320,9 +316,7 @@ def optimize_profile_control(
             profile,
         )
 
-    er_seed0 = 0.5 * (
-        jnp.min(jnp.asarray(scan.Er), axis=1) + jnp.max(jnp.asarray(scan.Er), axis=1)
-    )
+    er_seed0 = 0.5 * (jnp.min(jnp.asarray(scan.Er), axis=1) + jnp.max(jnp.asarray(scan.Er), axis=1))
     (_, _), history = jax.lax.scan(
         optimization_step,
         (control0, er_seed0),

@@ -69,9 +69,7 @@ def test_write_and_plot_synthetic_payload(tmp_path):
             "trapped_fraction": np.linspace(0.20, 0.42, rho.size).tolist(),
             "L31": np.linspace(0.1, 0.4, rho.size).tolist(),
             "L32": np.linspace(0.05, 0.2, rho.size).tolist(),
-            "density_gradient_term_over_root_fsab2": (
-                -0.2e6 * np.arange(1, rho.size + 1)
-            ).tolist(),
+            "density_gradient_term_over_root_fsab2": (-0.2e6 * np.arange(1, rho.size + 1)).tolist(),
             "electron_temperature_gradient_term_over_root_fsab2": (
                 -0.3e6 * np.arange(1, rho.size + 1)
             ).tolist(),
@@ -85,12 +83,8 @@ def test_write_and_plot_synthetic_payload(tmp_path):
         "comparison": {
             "rho": rho.tolist(),
             "redl_current_over_root_fsab2": (-1.0e6 * np.arange(1, rho.size + 1)).tolist(),
-            "ntx_neopax_nomom_over_root_fsab2": (
-                -0.8e6 * np.arange(1, rho.size + 1)
-            ).tolist(),
-            "ntx_neopax_total_over_root_fsab2": (
-                -0.9e6 * np.arange(1, rho.size + 1)
-            ).tolist(),
+            "ntx_neopax_nomom_over_root_fsab2": (-0.8e6 * np.arange(1, rho.size + 1)).tolist(),
+            "ntx_neopax_total_over_root_fsab2": (-0.9e6 * np.arange(1, rho.size + 1)).tolist(),
             "relative_error_total_vs_redl": np.full(rho.size, 0.1).tolist(),
         },
     }

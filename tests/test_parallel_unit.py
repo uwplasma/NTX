@@ -301,9 +301,7 @@ def test_parallel_scan_warns_and_shards_when_devices_are_filtered(monkeypatch):
         def __exit__(self, exc_type, exc, tb):
             return False
 
-    monkeypatch.setattr(
-        solver_scan_parallel.jax, "default_device", lambda device: DummyContext()
-    )
+    monkeypatch.setattr(solver_scan_parallel.jax, "default_device", lambda device: DummyContext())
     monkeypatch.setattr(solver_scan_parallel.jax, "device_get", lambda value: value)
 
     seen_batch_sizes = []
@@ -344,9 +342,7 @@ def test_healthy_parallel_helpers_cover_count_and_exception_branch(monkeypatch):
         def __exit__(self, exc_type, exc, tb):
             return False
 
-    monkeypatch.setattr(
-        solver_scan_parallel.jax, "default_device", lambda device: DummyContext()
-    )
+    monkeypatch.setattr(solver_scan_parallel.jax, "default_device", lambda device: DummyContext())
 
     def fake_scan(surface, grid, nu, *, er_hat=None, epsi_hat=None):
         if nu is None:  # pragma: no cover - defensive

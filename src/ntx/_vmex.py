@@ -6,17 +6,18 @@ boundary through to the Boozer-coordinate transform.
 
 from __future__ import annotations
 
+import dataclasses
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
+
 import jax
 import jax.numpy as jnp
-from ._checkout_paths import find_booz_xform_jax_root, find_vmex_root
-import dataclasses
-from typing import Any
 import numpy as np
-from ._checkout_paths import find_booz_xform_jax_root
+
+from ._checkout_paths import find_booz_xform_jax_root, find_vmex_root
 from .geometry import BoozerSurface
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
 
 
 # --- _vmex_boozer: Boozer-transform helpers for in-memory ``vmex`` workflows. ---
+
 
 def _apply_boozer_sign_convention(
     *,
@@ -363,6 +365,7 @@ def _booz_xform_gmnc_from_inputs(*, inputs, mboz: int, nboz: int, asym: bool):
 
 # --- _vmex_boundary: Boundary-state helpers for optional ``vmex`` workflows. ---
 
+
 @dataclasses.dataclass(frozen=True)
 class VmecJaxBoundaryContext:
     """Static inputs for differentiable fixed-boundary VMEC workflows."""
@@ -647,6 +650,7 @@ def relax_vmex_boundary_state_explicit(
 
 # --- _vmex_surfaces: Boozer-surface builders for optional ``vmex`` workflows. ---
 
+
 def surface_from_vmex_state(
     *,
     state,
@@ -875,8 +879,7 @@ def surface_from_vmex_wout(
             from vmex.api import read_wout
         except (ImportError, ModuleNotFoundError) as exc:
             raise ModuleNotFoundError(
-                "surface_from_vmex_wout requires vmex. "
-                "Install it with `pip install vmex`."
+                "surface_from_vmex_wout requires vmex. Install it with `pip install vmex`."
             ) from exc
 
     if profile_source not in {"auto", "input", "wout", "state_wout_profiles"}:

@@ -8,10 +8,11 @@ layers both build on. Those two layers import from here, never the other way.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from jax import Array, tree_util
-import jax.numpy as jnp
-from jax import Array
+
 import jax
+import jax.numpy as jnp
+from jax import Array, tree_util
+
 from ._interp import interp2d_at
 from .neopax import NeopaxScan
 
@@ -45,6 +46,7 @@ __all__ = [
 
 
 # --- _profiles_ambipolar_types: Ambipolar-profile result dataclasses. ---
+
 
 @dataclass(frozen=True)
 class AmbipolarProfileResult:
@@ -118,6 +120,7 @@ tree_util.register_dataclass(
 
 # --- _profiles_radial: Small radial-profile array helpers shared by profile workflows. ---
 
+
 def _broadcast_profile_field(values, rho: Array) -> Array:
     array = jnp.asarray(values)
     if array.ndim == 0:
@@ -150,6 +153,7 @@ def _single_radius_profile(
 
 
 # --- _profiles_species_types: Species-profile dataclasses for profile transport workflows. ---
+
 
 @dataclass(frozen=True)
 class MonoenergeticSpeciesProfile:
@@ -202,6 +206,7 @@ tree_util.register_dataclass(
 
 # --- _profiles_channels: Scan-channel interpolation and species response helpers. ---
 
+
 def evaluate_scan_channel(
     scan: NeopaxScan,
     channel: str,
@@ -236,7 +241,7 @@ def evaluate_scan_channel(
             method=method,
         )
         if channel == "D11":
-            return 10.0 ** value
+            return 10.0**value
         return value
 
     return jax.vmap(per_radius)(jnp.arange(rho_arr.size), nu_arr, er_arr)
@@ -315,6 +320,7 @@ def _channel_data(scan: NeopaxScan, channel: str) -> Array:
 
 
 # --- _profiles_control_types: Profile-control dataclasses. ---
+
 
 @dataclass(frozen=True)
 class ProfileControlSpec:
@@ -403,6 +409,7 @@ tree_util.register_dataclass(
 
 # --- _profiles_primitives: Primitive density/temperature profiles mapped to NTX force channels. ---
 
+
 def build_species_profile_from_primitives(
     rho: Array,
     primitive: PrimitiveSpeciesProfile,
@@ -457,6 +464,7 @@ def build_species_profiles_from_primitives(
 
 # --- _profiles_eval: Ambipolar-profile solvers built on NTX scan data. ---
 
+
 def solve_ambipolar_er_profile(
     scan: NeopaxScan,
     species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
@@ -492,9 +500,8 @@ def solve_ambipolar_er_profile(
             return jnp.asarray(0.0, dtype=dtype)
         first_diff = jnp.diff(er_profile)
         second_diff = jnp.diff(first_diff)
-        return (
-            jnp.mean(first_diff**2) / (er_scale**2)
-            + 0.5 * jnp.mean(second_diff**2) / (er_scale**2)
+        return jnp.mean(first_diff**2) / (er_scale**2) + 0.5 * jnp.mean(second_diff**2) / (
+            er_scale**2
         )
 
     def profile_loss(er_profile):
@@ -635,6 +642,7 @@ def current_response_objective(
 
 
 # --- _profiles_transport_types: Profile-transport closure and result dataclasses. ---
+
 
 @dataclass(frozen=True)
 class ProfileTransportClosureSpec:

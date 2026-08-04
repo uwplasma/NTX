@@ -9,14 +9,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from jax import Array, tree_util
-from .grids import AngularGrid
-import jax.numpy as jnp
-from jax import Array
-from .grids import flux_surface_average, periodic_grid
 
+import jax.numpy as jnp
+from jax import Array, tree_util
+
+from .grids import AngularGrid, flux_surface_average, periodic_grid
 
 # --- _geometry_types: Geometry dataclasses for Boozer and VMEC surfaces. ---
+
 
 @dataclass(frozen=True)
 class BoozerSurface:
@@ -203,6 +203,7 @@ tree_util.register_dataclass(
 
 
 # --- _geometry_eval: Fourier evaluation and grid projection helpers. ---
+
 
 def example_surface(dtype=jnp.float64) -> BoozerSurface:
     """Return a small stellarator-symmetric test surface."""

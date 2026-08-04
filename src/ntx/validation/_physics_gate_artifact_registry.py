@@ -14,7 +14,8 @@ __all__ = [
 ]
 
 
-# --- _physics_gate_artifact_registry_finite_beta: Artifact registry entries for the finite-beta gates. ---
+# --- _physics_gate_artifact_registry_finite_beta ---
+# Artifact registry entries for the finite-beta gates.
 
 FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
     PhysicsGate(
@@ -108,10 +109,7 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         metric="max RHSMode=1 SFINCS-JAX finite-beta profile-current difference",
         relation="monitor",
         threshold=None,
-        source=(
-            "docs/_static/"
-            "owned_finite_beta_sfincs_jax_profile_current_audit.json"
-        ),
+        source=("docs/_static/owned_finite_beta_sfincs_jax_profile_current_audit.json"),
         rationale=(
             "The owned finite-beta SFINCS-JAX profile-current diagnostic runs "
             "RHSMode=1 on the same VMEC/profile contract as Redl and "
@@ -126,10 +124,7 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         metric="RHSMode=1 profile-current high-Nxi even/odd accepted stress gap",
         relation="<=",
         threshold=1.5e-1,
-        source=(
-            "docs/_static/"
-            "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
-        ),
+        source=("docs/_static/owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"),
         rationale=(
             "The RHSMode=1 current observable is sensitive to the terminal "
             "Legendre pitch moment. The current finite-beta benchmark accepts "
@@ -230,8 +225,7 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         relation="monitor",
         threshold=None,
         source=(
-            "docs/_static/"
-            "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
+            "docs/_static/owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
         ),
         rationale=(
             "After removing the sparse-radius interpolation layer, finite-beta "
@@ -247,10 +241,7 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         metric="field-radius-matched source-channel superposition relative residual",
         relation="<=",
         threshold=1.0e-8,
-        source=(
-            "docs/_static/"
-            "owned_finite_beta_field_radius_matched_source_channel_audit.json"
-        ),
+        source=("docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json"),
         rationale=(
             "After removing the sparse-radius interpolation layer, the "
             "field-radius-matched source-channel diagnostic must still "
@@ -264,10 +255,7 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         metric="field-radius-matched Redl/NTX effective-temperature source response multiplier",
         relation="monitor",
         threshold=None,
-        source=(
-            "docs/_static/"
-            "owned_finite_beta_field_radius_matched_source_channel_audit.json"
-        ),
+        source=("docs/_static/owned_finite_beta_field_radius_matched_source_channel_audit.json"),
         rationale=(
             "The matched-radius finite-beta profile-current gap should be "
             "localized to physical source-channel response after interpolation "
@@ -278,7 +266,8 @@ FINITE_BETA_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
 )
 
 
-# --- _physics_gate_artifact_registry: Maps each artifact-backed gate to the record that decides it. ---
+# --- _physics_gate_artifact_registry ---
+# Maps each artifact-backed gate to the record that decides it.
 
 _GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
     PhysicsGate(
@@ -365,10 +354,7 @@ _GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         metric="max relative forward-mode vs finite-difference mismatch",
         relation="<=",
         threshold=1.0e-4,
-        source=(
-            "docs/_static/"
-            "explicit_relaxed_boundary_current_derivative_benchmark.json"
-        ),
+        source=("docs/_static/explicit_relaxed_boundary_current_derivative_benchmark.json"),
         rationale=(
             "The explicit-relaxed boundary-to-current family should preserve "
             "forward-mode agreement with centered finite differences on the "
@@ -381,10 +367,7 @@ _GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
         metric="max relative forward-mode vs finite-difference mismatch",
         relation="monitor",
         threshold=None,
-        source=(
-            "docs/_static/"
-            "implicit_equilibrium_forward_mode_derivative_benchmark.json"
-        ),
+        source=("docs/_static/implicit_equilibrium_forward_mode_derivative_benchmark.json"),
         rationale=(
             "The implicit-equilibrium derivative diagnostic is kept visible but "
             "closed as a non-shipping lane: residual contraction and Boozer/NTX "
@@ -515,6 +498,4 @@ _GENERAL_ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
 )
 
 
-ARTIFACT_GATES: tuple[PhysicsGate, ...] = (
-    _GENERAL_ARTIFACT_GATES + FINITE_BETA_ARTIFACT_GATES
-)
+ARTIFACT_GATES: tuple[PhysicsGate, ...] = _GENERAL_ARTIFACT_GATES + FINITE_BETA_ARTIFACT_GATES

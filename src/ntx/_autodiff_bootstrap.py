@@ -8,8 +8,12 @@ machinery.
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+import jax
 import jax.numpy as jnp
 from jax import Array
+
+from ._autodiff import BootstrapOptimizationResult, RobustBootstrapOptimizationResult
 from ._autodiff import (
     dominant_nonaxisymmetric_mode as _dominant_nonaxisymmetric_mode,
 )
@@ -19,9 +23,6 @@ from .neopax import (
     build_ntx_neopax_scan_from_surfaces,
     scan_to_neopax_arrays,
 )
-import jax
-from ._autodiff import BootstrapOptimizationResult
-from ._autodiff import RobustBootstrapOptimizationResult
 
 __all__ = [
     "example_bootstrap_current_optimization",
@@ -30,6 +31,7 @@ __all__ = [
 
 
 # --- _autodiff_bootstrap_common: Shared helpers for bootstrap-current autodiff workflows. ---
+
 
 @dataclass(frozen=True)
 class BootstrapProfileContext:
@@ -141,7 +143,9 @@ def transport_profiles_from_raw_scale(
     return current, d13, d33
 
 
-# --- _autodiff_bootstrap_deterministic: Deterministic bootstrap-current autodiff optimization workflow. ---
+# --- _autodiff_bootstrap_deterministic ---
+# Deterministic bootstrap-current autodiff optimization workflow.
+
 
 def example_bootstrap_current_optimization(
     surfaces: tuple,
@@ -201,19 +205,17 @@ def example_bootstrap_current_optimization(
     scale_history, objective_history, gradient_history = history
     baseline_scale = _bounded_surface_scale(baseline_raw_scale)
     optimized_scale = _bounded_surface_scale(fitted_raw_scale)
-    baseline_current_profile, baseline_d13_profile, baseline_d33_profile = (
-        transport_profiles(baseline_raw_scale)
+    baseline_current_profile, baseline_d13_profile, baseline_d33_profile = transport_profiles(
+        baseline_raw_scale
     )
-    optimized_current_profile, optimized_d13_profile, optimized_d33_profile = (
-        transport_profiles(fitted_raw_scale)
+    optimized_current_profile, optimized_d13_profile, optimized_d33_profile = transport_profiles(
+        fitted_raw_scale
     )
-    objective_landscape = jax.vmap(
-        lambda scale: objective(_raw_scale_from_bounded_scale(scale))
-    )(scale_grid)
+    objective_landscape = jax.vmap(lambda scale: objective(_raw_scale_from_bounded_scale(scale)))(
+        scale_grid
+    )
     current_sensitivity = jax.grad(
-        lambda raw_scale: jnp.sum(
-            transport_profiles(raw_scale)[0] * context.objective_weight
-        )
+        lambda raw_scale: jnp.sum(transport_profiles(raw_scale)[0] * context.objective_weight)
     )(fitted_raw_scale)[None]
     return BootstrapOptimizationResult(
         scale_history=scale_history,
@@ -241,6 +243,7 @@ def example_bootstrap_current_optimization(
 
 
 # --- _autodiff_bootstrap_robust: Robust bootstrap-current autodiff optimization workflow. ---
+
 
 def _gauss_hermite_rule(
     quadrature_order: int,
@@ -333,11 +336,7 @@ def example_bootstrap_current_robust_optimization(
     def robust_objective(raw_scale: Array) -> Array:
         _, mean_objective, objective_std = robust_moments(raw_scale)
         scale = _bounded_surface_scale(raw_scale)
-        return (
-            mean_objective
-            - risk * objective_std
-            - regularization * (scale - 1.0) ** 2 * 1.0e18
-        )
+        return mean_objective - risk * objective_std - regularization * (scale - 1.0) ** 2 * 1.0e18
 
     baseline_raw_scale = jnp.asarray(0.0, dtype=dtype)
     initial_raw_scale = jnp.asarray(-0.35, dtype=dtype)
@@ -360,9 +359,7 @@ def example_bootstrap_current_robust_optimization(
     sample_currents = jax.vmap(current_profile_from_raw)(sample_raw)
     optimized_current_mean = jnp.tensordot(quadrature_weights, sample_currents, axes=1)
     centered_current = sample_currents - optimized_current_mean[None, :]
-    optimized_current_std = jnp.sqrt(
-        jnp.tensordot(quadrature_weights, centered_current**2, axes=1)
-    )
+    optimized_current_std = jnp.sqrt(jnp.tensordot(quadrature_weights, centered_current**2, axes=1))
     optimized_current_quantile_low = jnp.quantile(sample_currents, 0.16, axis=0)
     optimized_current_quantile_high = jnp.quantile(sample_currents, 0.84, axis=0)
     deterministic_objective_landscape = jax.vmap(

@@ -30,8 +30,10 @@ jax.config.update("jax_enable_x64", True)
 
 import ntx  # noqa: E402
 from ntx import GridSpec, MonoenergeticCase, advise_adjoint_window, example_surface  # noqa: E402
-from ntx._solver import prepare_monoenergetic_system  # noqa: E402
-from ntx._solver import _solve_modes_with_tail_residual  # noqa: E402
+from ntx._solver import (  # noqa: E402
+    _solve_modes_with_tail_residual,
+    prepare_monoenergetic_system,
+)
 from ntx.operators import OperatorContext, source_modes  # noqa: E402
 
 

@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+
 from ._physics_gate import _gate_by_name
 from ._physics_gate_types import GateStatus, PhysicsGate, PhysicsGateResult
-from ._physics_gate_types import PhysicsGateResult
 
 __all__ = [
     "_append_missing_artifact_gate",
@@ -21,7 +21,9 @@ __all__ = [
 ]
 
 
-# --- _physics_gate_artifact_eval: Evaluates one artifact-backed gate against its committed record. ---
+# --- _physics_gate_artifact_eval ---
+# Evaluates one artifact-backed gate against its committed record.
+
 
 def _append_summary_metric_gate(
     results: list[PhysicsGateResult],
@@ -74,7 +76,9 @@ def _evaluate_scalar_gate(
     return PhysicsGateResult(gate=gate, value=value, status=status, details=details)
 
 
-# --- _physics_gate_artifacts_finite_beta: Artifact-backed physics gates for the finite-beta lane. ---
+# --- _physics_gate_artifacts_finite_beta ---
+# Artifact-backed physics gates for the finite-beta lane.
+
 
 def append_finite_beta_artifact_gates(
     results: list[PhysicsGateResult],
@@ -105,10 +109,7 @@ def append_finite_beta_artifact_gates(
         gate_name="owned_finite_beta_species_cancellation_stress",
         path=static_root / "owned_finite_beta_profile_current_observable_audit.json",
         metric_key="stress_residual_after_correction_over_species_correction_l1",
-        details=(
-            "monitored species-current cancellation scale at the finite-beta "
-            "stress radius"
-        ),
+        details=("monitored species-current cancellation scale at the finite-beta stress radius"),
     )
     _append_summary_metric_gate(
         results,
@@ -137,10 +138,7 @@ def append_finite_beta_artifact_gates(
     _append_summary_metric_gate(
         results,
         gate_name="owned_finite_beta_production_ladder_stress",
-        path=(
-            static_root
-            / "owned_finite_beta_sfincs_jax_production_ladder_audit.json"
-        ),
+        path=(static_root / "owned_finite_beta_sfincs_jax_production_ladder_audit.json"),
         metric_key="max_production_precision_gap_to_current_gate",
         details=(
             "monitored finite-beta production radial/collisionality coefficient "
@@ -164,10 +162,7 @@ def append_finite_beta_artifact_gates(
     _append_summary_metric_gate(
         results,
         gate_name="owned_finite_beta_sfincs_jax_profile_current_pitch_resolution_stress",
-        path=(
-            static_root
-            / "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"
-        ),
+        path=(static_root / "owned_finite_beta_sfincs_jax_profile_current_resolution_audit.json"),
         metric_key="tail_even_odd_relative_gap",
         details=(
             "accepted finite-beta RHSMode=1 SFINCS-JAX pitch Legendre "
@@ -248,10 +243,7 @@ def append_finite_beta_artifact_gates(
     _append_summary_metric_gate(
         results,
         gate_name="owned_finite_beta_field_radius_matched_quadrature_stress",
-        path=(
-            static_root
-            / "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"
-        ),
+        path=(static_root / "owned_finite_beta_field_radius_matched_closure_quadrature_audit.json"),
         metric_key="quadrature_stable_gate_pass_count",
         details=(
             "monitored matched-radius finite-beta closure quadrature pass count; "
@@ -263,10 +255,7 @@ def append_finite_beta_artifact_gates(
     _append_summary_metric_gate(
         results,
         gate_name="owned_finite_beta_field_radius_matched_source_reconstruction",
-        path=(
-            static_root
-            / "owned_finite_beta_field_radius_matched_source_channel_audit.json"
-        ),
+        path=(static_root / "owned_finite_beta_field_radius_matched_source_channel_audit.json"),
         metric_key="max_source_channel_superposition_relative_residual",
         details=(
             "matched-radius finite-beta source-channel decomposition of the "
@@ -278,10 +267,7 @@ def append_finite_beta_artifact_gates(
     _append_summary_metric_gate(
         results,
         gate_name="owned_finite_beta_field_radius_matched_temperature_response_stress",
-        path=(
-            static_root
-            / "owned_finite_beta_field_radius_matched_source_channel_audit.json"
-        ),
+        path=(static_root / "owned_finite_beta_field_radius_matched_source_channel_audit.json"),
         metric_key="high_stable_effective_temperature_response_multiplier_to_redl",
         details=(
             "monitored matched-radius ratio between the Redl effective-"
@@ -292,7 +278,9 @@ def append_finite_beta_artifact_gates(
     )
 
 
-# --- _physics_gate_artifacts: Artifact-backed physics gates: committed records against thresholds. ---
+# --- _physics_gate_artifacts ---
+# Artifact-backed physics gates: committed records against thresholds.
+
 
 def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
     """Evaluate committed artifact-backed gates below a repository root.
@@ -342,8 +330,7 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
     if w7x_path.exists():
         payload = json.loads(w7x_path.read_text())
         best_error = min(
-            float(item["max_relative_error"])
-            for item in payload["bootstrap_current_errors"]
+            float(item["max_relative_error"]) for item in payload["bootstrap_current_errors"]
         )
         results.append(_evaluate_scalar_gate(w7x_gate, best_error))
     else:
@@ -391,8 +378,7 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
         path=static_root / "geometry_control_derivative_benchmark.json",
         metric_key="max_relative_mismatch",
         details=(
-            "owned analytic geometry-control direct AD compared with centered "
-            "finite differences"
+            "owned analytic geometry-control direct AD compared with centered finite differences"
         ),
     )
     _append_summary_metric_gate(
@@ -411,22 +397,17 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
         path=static_root / "boundary_forward_mode_current_derivative_benchmark.json",
         metric_key="max_relative_mismatch",
         details=(
-            "boundary-projected forward-mode derivatives compared with "
-            "centered finite differences"
+            "boundary-projected forward-mode derivatives compared with centered finite differences"
         ),
     )
 
     explicit_gate = _gate_by_name("explicit_relaxed_boundary_current_derivative_stress")
-    explicit_path = (
-        static_root / "explicit_relaxed_boundary_current_derivative_benchmark.json"
-    )
+    explicit_path = static_root / "explicit_relaxed_boundary_current_derivative_benchmark.json"
     if explicit_path.exists():
         payload = json.loads(explicit_path.read_text())
         metrics = payload["summary_metrics"]
         max_mismatch = float(metrics["max_relative_mismatch"])
-        volume_difference = float(
-            metrics["max_ordinary_explicit_volume_relative_difference"]
-        )
+        volume_difference = float(metrics["max_ordinary_explicit_volume_relative_difference"])
         results.append(
             _evaluate_scalar_gate(
                 explicit_gate,
@@ -503,8 +484,7 @@ def evaluate_artifact_gates(root: Path) -> list[PhysicsGateResult]:
                 optimization_gate,
                 weighted_gain,
                 details=(
-                    "optimized weighted reduced bootstrap-current response "
-                    "divided by baseline"
+                    "optimized weighted reduced bootstrap-current response divided by baseline"
                 ),
             )
         )

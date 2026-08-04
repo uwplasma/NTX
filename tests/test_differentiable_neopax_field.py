@@ -25,17 +25,15 @@ from ntx._checkout_paths import (
 )
 from ntx._geometry import BoozerSurface
 from ntx._neopax import (
+    _apply_boozer_sign_convention_profiles,
+    _booz_xform_bundle_with_gmnc_from_vmex_state,
+    _booz_xform_gmnc_from_inputs,
     _find_mode_index,
+    _rho_half_mesh_from_s,
     _safe_divide,
     _safe_reciprocal,
     _surface_b10,
     _surface_bsqav,
-)
-from ntx._neopax import (
-    _apply_boozer_sign_convention_profiles,
-    _booz_xform_bundle_with_gmnc_from_vmex_state,
-    _booz_xform_gmnc_from_inputs,
-    _rho_half_mesh_from_s,
     _vmec_edge_r00_from_state,
     _vmec_psia_from_indata,
     _vmec_psia_from_state,

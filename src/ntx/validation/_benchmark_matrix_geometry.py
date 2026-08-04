@@ -14,7 +14,8 @@ __all__ = [
 ]
 
 
-# --- _benchmark_matrix_geometry_finite_beta: Benchmark-matrix entries for finite-beta geometry handling. ---
+# --- _benchmark_matrix_geometry_finite_beta ---
+# Benchmark-matrix entries for finite-beta geometry handling.
 
 FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
     BenchmarkEntry(
@@ -330,7 +331,9 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
 )
 
 
-# --- _benchmark_matrix_geometry: Benchmark-matrix entries for geometry breadth across stellarator families. ---
+# --- _benchmark_matrix_geometry ---
+# Benchmark-matrix entries for geometry breadth across stellarator families.
+
 
 def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (

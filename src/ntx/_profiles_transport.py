@@ -8,29 +8,21 @@ _profiles.
 from __future__ import annotations
 
 from dataclasses import replace
+
 import jax.numpy as jnp
 from jax import Array
+
 from ._profiles import (
     AmbipolarProfileResult,
-)
-from ._profiles import _broadcast_profile_field
-from ._profiles import PrimitiveSpeciesProfile
-from ._profiles import (
-    ProfileTransportClosureSpec,
-)
-from ._profiles import _smooth_radial_profile
-from ._profiles import (
     MonoenergeticSpeciesProfile,
-    PrimitiveSpeciesProfile,
-)
-from ._profiles import (
-    build_species_profiles_from_primitives,
-    solve_ambipolar_er_profile,
-)
-from ._profiles import (
     PrimitiveProfileTransportIterationResult,
+    PrimitiveSpeciesProfile,
     ProfileTransportClosureSpec,
     ProfileTransportIterationResult,
+    _broadcast_profile_field,
+    _smooth_radial_profile,
+    build_species_profiles_from_primitives,
+    solve_ambipolar_er_profile,
 )
 from .neopax import NeopaxScan
 
@@ -49,6 +41,7 @@ __all__ = [
 
 
 # --- _profiles_transport_terms: Profile transport mismatch, normalization, and scaling terms. ---
+
 
 def _broadcast_species_transport_field(
     values,
@@ -174,10 +167,7 @@ def _primitive_mismatch(
         [_broadcast_profile_field(primitive.density, rho) for primitive in primitive_profiles]
     )
     temperature = jnp.stack(
-        [
-            _broadcast_profile_field(primitive.temperature, rho)
-            for primitive in primitive_profiles
-        ]
+        [_broadcast_profile_field(primitive.temperature, rho) for primitive in primitive_profiles]
     )
     density_mismatch = density - density_target - density_source
     temperature_mismatch = temperature - temperature_target - temperature_source
@@ -215,6 +205,7 @@ def _normalized_primitive_updates(
 
 
 # --- _profiles_transport_closure: Profile transport closure losses and explicit update algebra. ---
+
 
 def profile_transport_loss(
     profile: AmbipolarProfileResult,
@@ -434,6 +425,7 @@ def primitive_profile_transport_loss(
 
 # --- _profiles_transport: Transport-loop helpers for profile-grade NTX workflows. ---
 
+
 def solve_profile_transport_loop(
     scan: NeopaxScan,
     species_profiles: tuple[MonoenergeticSpeciesProfile, ...],
@@ -564,10 +556,7 @@ def solve_primitive_profile_transport_loop(
         profile_history.append(profile)
         density_history.append(
             jnp.stack(
-                [
-                    _broadcast_profile_field(primitive.density, rho)
-                    for primitive in primitive_state
-                ]
+                [_broadcast_profile_field(primitive.density, rho) for primitive in primitive_state]
             )
         )
         temperature_history.append(

@@ -7,41 +7,36 @@ scan driver that repeats this over a parameter sweep lives in _solver_scan.
 
 from __future__ import annotations
 
-import jax.numpy as jnp
-from .geometry import BoozerSurface, VmecSurface
-from .grids import GridSpec
-from .operators import OperatorContext
+from collections.abc import Callable
+from dataclasses import dataclass
+from functools import partial
+
 import jax
-from jax import Array
+import jax.numpy as jnp
+import solvax
+from jax import Array, core, tree_util
 from solvax import (
     BlockTridiagFactors,
     block_thomas_factor_fn,
     block_thomas_solve,
     block_thomas_truncated_fn_with_residual,
 )
+
+from .config import enable_x64, geometry_precision_matches
+from .geometry import BoozerSurface, GeometryOnGrid, VmecSurface, geometry_on_grid
+from .grids import GridSpec
 from .operators import (
     OperatorContext,
     apply_nullspace_condition,
     block_parameters,
+    derivative_blocks,
     operator_blocks,
     operator_blocks_from_parameters,
+    parameter_derivative_blocks,
+    source_modes,
 )
-from collections.abc import Callable
-from dataclasses import dataclass
-from jax import Array, tree_util
-from .geometry import BoozerSurface, GeometryOnGrid, VmecSurface
-from .operators import OperatorContext, parameter_derivative_blocks, source_modes
-from .transport import coefficients_from_modes
-from functools import partial
-from .operators import source_modes
-from .transport import coefficients_from_modes, onsager_error
-from jax import Array, core
-from .config import enable_x64, geometry_precision_matches
-from .geometry import BoozerSurface, VmecSurface, geometry_on_grid
-from .operators import derivative_blocks
 from .resolution import geometry_resolution_report
-import solvax
-from .operators import OperatorContext, block_parameters, source_modes
+from .transport import coefficients_from_modes, onsager_error
 
 __all__ = [
     "_operator_context",
@@ -58,6 +53,7 @@ __all__ = [
 
 
 # --- _solver_context: Shared solver context construction. ---
+
 
 def _operator_context(
     surface: BoozerSurface | VmecSurface,
@@ -76,6 +72,7 @@ def _operator_context(
 
 # --- _solver_factorization: Block-tridiagonal solve and factorized adjoint helpers. ---
 
+
 def _solve_modes(
     ctx: OperatorContext,
     n_xi: int,
@@ -87,9 +84,7 @@ def _solve_modes(
 ) -> tuple[Array, Array]:
     """Return source solutions for modes 0, 1, and 2."""
 
-    f1, f3, _ = _solve_modes_with_tail_residual(
-        ctx, n_xi, d_theta, d_zeta, s1, s3, adjoint_window
-    )
+    f1, f3, _ = _solve_modes_with_tail_residual(ctx, n_xi, d_theta, d_zeta, s1, s3, adjoint_window)
     return f1, f3
 
 
@@ -192,9 +187,7 @@ def _parameterized_block_fn(d_theta: Array, d_zeta: Array):
     """Row generator taking the parameters explicitly, for the bounded adjoint."""
 
     def block_fn(params, k):
-        lower, diagonal, upper = operator_blocks_from_parameters(
-            params, k, d_theta, d_zeta
-        )
+        lower, diagonal, upper = operator_blocks_from_parameters(params, k, d_theta, d_zeta)
         return _apply_nullspace_at_first_row(k, lower, diagonal, upper)
 
     return block_fn
@@ -292,6 +285,7 @@ def _full_mode_transpose_relative_residual_norm(
 
 
 # --- _solver_types: Core monoenergetic solver dataclasses and result helpers. ---
+
 
 @dataclass(frozen=True)
 class MonoenergeticCase:
@@ -427,6 +421,7 @@ def transport_result_from_arrays(values: tuple[Array, ...]) -> TransportResult:
 
 # --- _solver_adjoint: Prepared-solver adjoint and custom-VJP helper algebra. ---
 
+
 def _prepared_implicit_vjp_primal(
     prepared: PreparedMonoenergeticSystem,
     nu_hat,
@@ -503,6 +498,7 @@ def _parameter_gradient_from_adjoint(
 
 # --- _solver_prepared: Prepared monoenergetic solve path and custom-VJP wrappers. ---
 
+
 def solve_prepared(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -543,9 +539,7 @@ def audit_prepared_residuals(
     """
     grid = prepared.grid
     epsi_hat = case.resolved_epsi_hat(prepared.geometry.transport_psi_scale)
-    ctx = _operator_context(
-        prepared.surface, prepared.geometry, grid, case.nu_hat, epsi_hat
-    )
+    ctx = _operator_context(prepared.surface, prepared.geometry, grid, case.nu_hat, epsi_hat)
     source, parallel_source = source_modes(ctx, grid.n_xi)
     retained, _, tail_residual = _solve_modes_with_tail_residual(
         ctx,
@@ -555,9 +549,7 @@ def audit_prepared_residuals(
         source,
         parallel_source,
     )
-    factors = _factorize_prepared_modes(
-        ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta
-    )
+    factors = _factorize_prepared_modes(ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta)
     full_modes = _solve_factorized_modes(*factors, source)
     full_residual = _full_mode_residual_norm(
         ctx,
@@ -768,9 +760,7 @@ def _solve_prepared_arrays_from_values(
         s3,
         adjoint_window,
     )
-    d11, d31, d13, d33, d33_spitzer = coefficients_from_modes(
-        geom, f1_modes, f3_modes, ctx.nu_hat
-    )
+    d11, d31, d13, d33, d33_spitzer = coefficients_from_modes(geom, f1_modes, f3_modes, ctx.nu_hat)
     return (
         d11,
         d31,
@@ -796,6 +786,7 @@ def _monoenergetic_matrix(d11: Array, d31: Array, d13: Array, d33: Array) -> Arr
 
 # --- _solver_core: Monoenergetic solve orchestration. ---
 
+
 def prepare_monoenergetic_system(
     surface: BoozerSurface | VmecSurface,
     grid: GridSpec,
@@ -805,9 +796,7 @@ def prepare_monoenergetic_system(
     """Precompute geometry and derivatives, optionally enforcing Nyquist sampling."""
 
     enable_x64(grid.x64)
-    if not isinstance(surface.m, core.Tracer) and not geometry_precision_matches(
-        surface, grid
-    ):
+    if not isinstance(surface.m, core.Tracer) and not geometry_precision_matches(surface, grid):
         msg = (
             f"surface was built at a narrower precision than grid.dtype="
             f"{grid.dtype!r} requests. JAX fixes an array's dtype when it is "
@@ -966,9 +955,7 @@ def certify_adjoint_window(
     retained = jnp.stack((f1_modes, f3_modes), axis=-1)
 
     def selected(modes: Array) -> Array:
-        values = coefficients_from_modes(
-            geom, modes[..., 0], modes[..., 1], ctx.nu_hat
-        )
+        values = coefficients_from_modes(geom, modes[..., 0], modes[..., 1], ctx.nu_hat)
         return jnp.asarray(values[index])
 
     cotangent = jax.grad(selected)(retained)

@@ -7,8 +7,8 @@ _physics_gate_artifacts.
 
 from __future__ import annotations
 
-from ._physics_gate_types import PhysicsGate
 from ._physics_gate_artifact_registry import ARTIFACT_GATES
+from ._physics_gate_types import PhysicsGate
 
 __all__ = [
     "ANALYTICAL_GATES",
@@ -18,7 +18,8 @@ __all__ = [
 ]
 
 
-# --- _physics_gate_analytical: Analytical physics gates: comparisons against closed-form limits. ---
+# --- _physics_gate_analytical ---
+# Analytical physics gates: comparisons against closed-form limits.
 
 ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
     PhysicsGate(
@@ -354,6 +355,7 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
 
 
 # --- _physics_gate_registry: The registry of physics gates, analytical and artifact-backed. ---
+
 
 def physics_gate_registry() -> tuple[PhysicsGate, ...]:
     """Return analytical and artifact-backed physics gates in stable order."""

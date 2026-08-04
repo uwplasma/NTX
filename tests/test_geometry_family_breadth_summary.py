@@ -34,9 +34,7 @@ def test_geometry_family_breadth_summary_builds_from_committed_artifacts():
     assert payload["summary_metrics"]["retired_case_count"] == 2
     assert payload["summary_metrics"]["max_active_relative_mismatch"] < 5.0e-4
     assert payload["summary_metrics"]["max_retired_relative_mismatch"] > 1.0e-1
-    assert {case["status"] for case in payload["retired_cases"]} == {
-        "closed-not-shipped"
-    }
+    assert {case["status"] for case in payload["retired_cases"]} == {"closed-not-shipped"}
 
 
 def test_geometry_family_breadth_summary_writes_outputs(tmp_path):

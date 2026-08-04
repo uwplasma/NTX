@@ -6,26 +6,30 @@ result collection a sweep needs.
 
 from __future__ import annotations
 
+import math
 import time
+import warnings
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any, Literal, Protocol
+
 import jax
 import jax.numpy as jnp
-from jax import Array
-from ._solver import _solve_prepared_coefficient_vector_raw
-from ._solver import PreparedMonoenergeticSystem
-from .grids import GridSpec
-from ._solver import prepare_monoenergetic_system
-from ._solver import solve_prepared
-from ._solver import MonoenergeticCase, TransportResult
-from .geometry import BoozerSurface, VmecSurface
-import math
-import warnings
-from concurrent.futures import ThreadPoolExecutor
-from functools import lru_cache
 import numpy as np
+from jax import Array
+
+from ._solver import (
+    MonoenergeticCase,
+    PreparedMonoenergeticSystem,
+    TransportResult,
+    _solve_prepared_coefficient_vector_raw,
+    prepare_monoenergetic_system,
+    solve_prepared,
+)
 from .geometry import BoozerSurface, VmecSurface, example_surface
+from .grids import GridSpec
 
 __all__ = [
     "CompiledPreparedScanSolver",
@@ -251,12 +255,8 @@ def _scan_coefficients_serial(
 ) -> Array:
     mode = _resolve_scan_execution_mode("auto")
     if mode == "sequential":
-        return _scan_coefficients_sequential(
-            prepared, nu_values, epsi_values
-        )
-    return _scan_coefficients_vectorized(
-        prepared, nu_values, epsi_values
-    )
+        return _scan_coefficients_sequential(prepared, nu_values, epsi_values)
+    return _scan_coefficients_vectorized(prepared, nu_values, epsi_values)
 
 
 def _scan_coefficients_batched(
@@ -330,9 +330,7 @@ def _scan_coefficients_sequential(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
-    return _scan_coefficients_sequential_impl(
-        prepared, nu_values, epsi_values
-    )
+    return _scan_coefficients_sequential_impl(prepared, nu_values, epsi_values)
 
 
 def _scan_coefficients_sequential_impl(
@@ -341,9 +339,7 @@ def _scan_coefficients_sequential_impl(
     epsi_values: Array,
 ) -> Array:
     return jax.lax.map(
-        lambda values: _solve_scan_point(
-            prepared, values[0], values[1]
-        ),
+        lambda values: _solve_scan_point(prepared, values[0], values[1]),
         (nu_values, epsi_values),
     )
 
@@ -354,9 +350,7 @@ def _scan_coefficients_vectorized(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
-    return _scan_coefficients_vectorized_impl(
-        prepared, nu_values, epsi_values
-    )
+    return _scan_coefficients_vectorized_impl(prepared, nu_values, epsi_values)
 
 
 def _scan_coefficients_vectorized_impl(
@@ -364,11 +358,9 @@ def _scan_coefficients_vectorized_impl(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
-    return jax.vmap(
-        lambda nu_value, epsi_value: _solve_scan_point(
-            prepared, nu_value, epsi_value
-        )
-    )(nu_values, epsi_values)
+    return jax.vmap(lambda nu_value, epsi_value: _solve_scan_point(prepared, nu_value, epsi_value))(
+        nu_values, epsi_values
+    )
 
 
 def _resolve_scan_execution_mode(
@@ -408,6 +400,7 @@ def _coefficients_dict(coeffs: Array) -> dict[str, Array]:
 
 
 # --- _solver_scan_core: Single-device scan orchestration for the monoenergetic solver. ---
+
 
 def solve_scan(
     surface: BoozerSurface | VmecSurface,
@@ -465,6 +458,7 @@ def solve_monoenergetic_scan(
 
 
 # --- _solver_scan_parallel: Device health checks and local-device scan sharding. ---
+
 
 def solve_monoenergetic_parallel_scan(
     surface: BoozerSurface | VmecSurface,

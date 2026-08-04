@@ -560,6 +560,7 @@ def test_conductivity_difference_d33_mode_requires_spitzer_branch():
     else:  # pragma: no cover - defensive
         raise AssertionError("expected ValueError for conductivity_difference without D33_spitzer")
 
+
 def test_scan_to_neopax_arrays_is_differentiable_in_es():
     surfaces = (example_surface(), example_surface())
     rho = jnp.asarray([0.25, 0.5])

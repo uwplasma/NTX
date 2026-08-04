@@ -6,27 +6,27 @@ writers that render results back out.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from .geometry import BoozerSurface, VmecSurface, example_surface
-from .grids import GridSpec
-from .io import load_dkes_surface, load_vmec_surface
-from .solver import MonoenergeticCase
-import hashlib
+
 import jax
 import numpy as np
-from rich.table import Table
-from .geometry import BoozerSurface, VmecSurface
-import json
-from .geometry import BoozerSurface, VmecSurface, geometry_on_grid
-from .solver import TransportResult
-import time
 from rich.console import Console
 from rich.panel import Panel
+from rich.table import Table
+
 from .config import enable_x64
+from .geometry import BoozerSurface, VmecSurface, example_surface, geometry_on_grid
+from .grids import GridSpec
+from .io import load_dkes_surface, load_vmec_surface
 from .solver import (
+    MonoenergeticCase,
+    TransportResult,
     prepare_monoenergetic_system,
     solve_prepared,
 )
@@ -225,6 +225,7 @@ def _resolve_relative_path(input_path: Path, value: Path) -> Path:
 
 
 # --- _inputfiles_reporting: Input-file reporting and metadata helpers. ---
+
 
 def _surface_table(surface: BoozerSurface | VmecSurface, config: RunConfig) -> Table:
     table = Table(title="Surface", show_header=True, header_style="bold magenta")
@@ -624,10 +625,7 @@ def load_run_output(path: str | Path) -> dict[str, np.ndarray]:
         from netCDF4 import Dataset
 
         with Dataset(output_path, "r") as handle:
-            data = {
-                key: np.asarray(variable[()])
-                for key, variable in handle.variables.items()
-            }
+            data = {key: np.asarray(variable[()]) for key, variable in handle.variables.items()}
             for key in handle.ncattrs():
                 if key.startswith("ntx_"):
                     continue
@@ -848,6 +846,7 @@ def _netcdf_dims_for(
 
 
 # --- _inputfiles_run: Execution and artifact writing for TOML-driven NTX runs. ---
+
 
 def run_from_input_file(
     path: str | Path,

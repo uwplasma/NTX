@@ -9,8 +9,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from .._solver import solve_prepared
-from .._solver import MonoenergeticCase
+from .._solver import MonoenergeticCase, solve_prepared
 from ..config import enable_x64
 from ..geometry import BoozerSurface, VmecSurface
 from ..grids import GridSpec

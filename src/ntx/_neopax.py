@@ -8,28 +8,26 @@ share a module. Scans live in _neopax_scan.
 
 from __future__ import annotations
 
-from ._vmex import (
-    _booz_xform_bundle_from_vmex_state,
-    _booz_xform_gmnc_from_inputs,
-)
-import jax.numpy as jnp
+from dataclasses import dataclass
+from pathlib import Path
+
 import jax
+import jax.numpy as jnp
+import numpy as np
+from jax import Array, tree_util
+
 from ._interp import Interpolator1D
 from ._vmex import (
     _apply_boozer_sign_convention_profiles,
+    _booz_xform_bundle_from_vmex_state,
+    _booz_xform_gmnc_from_inputs,
 )
+from .geometry import BoozerSurface, VmecSurface, evaluate_boozer_modes
 from .vmex_backend import (
     VmecJaxBoundaryContext,
     solve_vmex_boundary_state,
     surfaces_from_vmex_state,
 )
-from dataclasses import dataclass
-from jax import Array, tree_util
-from jax import Array
-from .geometry import BoozerSurface, VmecSurface
-from .geometry import evaluate_boozer_modes
-from pathlib import Path
-import numpy as np
 
 __all__ = [
     "_apply_boozer_sign_convention_profiles",
@@ -54,6 +52,7 @@ __all__ = [
 
 
 # --- _neopax_vmex: NEOPAX fields sourced from a VMEX equilibrium. ---
+
 
 def _booz_xform_bundle_with_gmnc_from_vmex_state(
     *,
@@ -623,17 +622,13 @@ def scan_to_neopax_arrays(
         raise ValueError(f"d33_mode must be one of {sorted(D33_MODES)}")
     if d33_mode == "spitzer":
         d33 = (
-            jnp.asarray(scan.D33_spitzer)
-            if scan.D33_spitzer is not None
-            else jnp.asarray(scan.D33)
+            jnp.asarray(scan.D33_spitzer) if scan.D33_spitzer is not None else jnp.asarray(scan.D33)
         )
     elif d33_mode == "raw":
         d33 = jnp.asarray(scan.D33)
     else:
         if scan.D33_spitzer is None:
-            raise ValueError(
-                "d33_mode='conductivity_difference' requires D33_spitzer in the scan"
-            )
+            raise ValueError("d33_mode='conductivity_difference' requires D33_spitzer in the scan")
         d33 = jnp.asarray(scan.D33_spitzer) - jnp.asarray(scan.D33)
     a_b_value = jnp.asarray(a_b)
     d13 = d13 * drds[:, None, None]
@@ -809,9 +804,7 @@ def build_differentiable_neopax_field(
 
     rho_grid = jnp.linspace(0.0, 1.0, n_r_int)
     rho_grid_half0 = (
-        0.5 * (rho_grid[0] + rho_grid[1])
-        if n_r_int > 1
-        else jnp.asarray(0.0, dtype=rho_grid.dtype)
+        0.5 * (rho_grid[0] + rho_grid[1]) if n_r_int > 1 else jnp.asarray(0.0, dtype=rho_grid.dtype)
     )
     rho_grid_half = jnp.linspace(rho_grid_half0, rho_grid_half0 + rho_grid[-1], n_r_int)
     r_grid = rho_grid * a_b
@@ -850,9 +843,7 @@ def build_differentiable_neopax_field(
     b10_rho = b10_eval(rho_grid)
     b_10 = _safe_divide(b10_rho, b00_rho)
     b0 = b00_rho
-    d_b0_d_rho = jax.vmap(jax.grad(lambda rho_value: b00(rho_value)), in_axes=0)(
-        rho_grid
-    )
+    d_b0_d_rho = jax.vmap(jax.grad(lambda rho_value: b00(rho_value)), in_axes=0)(rho_grid)
     b0prime = jax.lax.stop_gradient(_safe_divide(d_b0_d_rho, a_b))
 
     curvature = _safe_divide(jnp.abs(b_10), epsilon_t)
@@ -986,10 +977,14 @@ def get_differentiable_neopax_fluxes(species, grid, field, database):
             + lij[species_index, :, 0, 1] * a2
             + lij[species_index, :, 0, 2] * a3
         )
-        heat = -temperature * density * (
-            lij[species_index, :, 1, 0] * a1
-            + lij[species_index, :, 1, 1] * a2
-            + lij[species_index, :, 1, 2] * a3
+        heat = (
+            -temperature
+            * density
+            * (
+                lij[species_index, :, 1, 0] * a1
+                + lij[species_index, :, 1, 1] * a2
+                + lij[species_index, :, 1, 2] * a3
+            )
         )
         upar = -density * (
             lij[species_index, :, 2, 0] * a1

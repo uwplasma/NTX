@@ -13,18 +13,16 @@ from ._autodiff import (
     NeopaxProfileAutodiffResult,
     NeopaxProfileUncertaintyResult,
     RobustBootstrapOptimizationResult,
-)
-from ._autodiff import (
     example_derivative_audit,
     example_inverse_problem,
     example_neopax_profile_uncertainty,
 )
+from ._autodiff import (
+    example_neopax_profile_autodiff as _example_neopax_profile_autodiff,
+)
 from ._autodiff_bootstrap import (
     example_bootstrap_current_optimization,
     example_bootstrap_current_robust_optimization,
-)
-from ._autodiff import (
-    example_neopax_profile_autodiff as _example_neopax_profile_autodiff,
 )
 from ._checkout_paths import find_neopax_root
 

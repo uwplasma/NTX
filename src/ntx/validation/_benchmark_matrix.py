@@ -7,8 +7,8 @@ _benchmark_matrix_types, which both import.
 
 from __future__ import annotations
 
-from ._benchmark_matrix_types import BenchmarkEntry
 from ._benchmark_matrix_geometry import geometry_breadth_benchmark_entries
+from ._benchmark_matrix_types import BenchmarkEntry
 
 __all__ = [
     "autodiff_active_benchmark_entries",
@@ -26,7 +26,9 @@ __all__ = [
 ]
 
 
-# --- _benchmark_matrix_autodiff_derivatives: Benchmark-matrix entries for derivative-accuracy claims. ---
+# --- _benchmark_matrix_autodiff_derivatives ---
+# Benchmark-matrix entries for derivative-accuracy claims.
+
 
 def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
@@ -222,10 +224,7 @@ def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             manuscript_figures=("explicit_relaxed_boundary_current_derivative_benchmark",),
             docs=("docs/autodiff.md", "docs/research-roadmap.md", "docs/manuscript.md"),
             open_work=(
-                (
-                    "widen beyond the committed QA and QH cases to additional "
-                    "geometry families"
-                ),
+                ("widen beyond the committed QA and QH cases to additional geometry families"),
                 (
                     "establish whether the implicit-equilibrium path can recover "
                     "the same boundary sensitivities"
@@ -239,7 +238,9 @@ def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     )
 
 
-# --- _benchmark_matrix_autodiff_design: Benchmark-matrix entries for design-sensitivity and optimization claims. ---
+# --- _benchmark_matrix_autodiff_design ---
+# Benchmark-matrix entries for design-sensitivity and optimization claims.
+
 
 def autodiff_design_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
@@ -399,6 +400,7 @@ def autodiff_design_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 # --- _benchmark_matrix_autodiff: Benchmark-matrix entries for the differentiation lane. ---
 
+
 def autodiff_active_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
         *autodiff_derivative_benchmark_entries(),
@@ -411,6 +413,7 @@ def autodiff_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 # --- _benchmark_matrix_bootstrap: Benchmark-matrix entries for the bootstrap-current lane. ---
+
 
 def bootstrap_current_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
@@ -497,7 +500,9 @@ def bootstrap_current_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     )
 
 
-# --- _benchmark_matrix_integrated: Benchmark-matrix entries for end-to-end integrated workflows. ---
+# --- _benchmark_matrix_integrated ---
+# Benchmark-matrix entries for end-to-end integrated workflows.
+
 
 def integrated_workflow_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
@@ -530,7 +535,9 @@ def integrated_workflow_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     )
 
 
-# --- _benchmark_matrix_monoenergetic: Benchmark-matrix entries for the monoenergetic transport lane. ---
+# --- _benchmark_matrix_monoenergetic ---
+# Benchmark-matrix entries for the monoenergetic transport lane.
+
 
 def monoenergetic_active_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
@@ -597,6 +604,7 @@ def monoenergetic_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 # --- _benchmark_matrix_performance: Benchmark-matrix entries for throughput and scaling claims. ---
+
 
 def performance_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
@@ -691,6 +699,7 @@ def performance_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 # --- _benchmark_matrix_profiles: Benchmark-matrix entries for profile and closure workflows. ---
 
+
 def profile_workflow_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
     return (
         BenchmarkEntry(
@@ -749,6 +758,7 @@ def profile_workflow_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 # --- _benchmark_matrix_entries: Assembles the benchmark matrix from its per-lane entry modules. ---
+
 
 def benchmark_matrix() -> tuple[BenchmarkEntry, ...]:
     """Return the maintained NTX benchmark matrix."""

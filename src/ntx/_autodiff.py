@@ -7,25 +7,24 @@ treatment, live in _autodiff_bootstrap.
 
 from __future__ import annotations
 
-from dataclasses import replace
+from collections.abc import Callable
+from dataclasses import dataclass, replace
+from typing import Any
+
 import jax
 import jax.numpy as jnp
-from jax import Array
-from ._interp import interp2d_at
-from .geometry import BoozerSurface, VmecSurface
-from .grids import GridSpec
-from .neopax import NeopaxMonoenergeticArrays
-from .solver import solve_monoenergetic_scan
-from dataclasses import dataclass
 from jax import Array, tree_util
-from .geometry import example_surface
-from collections.abc import Callable
-from typing import Any
 from solvax import chunked_jacobian
+
+from ._interp import interp2d_at
+from .geometry import BoozerSurface, VmecSurface, example_surface
+from .grids import GridSpec
 from .neopax import (
+    NeopaxMonoenergeticArrays,
     build_ntx_neopax_scan_from_surfaces,
     scan_to_neopax_arrays,
 )
+from .solver import solve_monoenergetic_scan
 
 __all__ = [
     "_er_profile",
@@ -34,8 +33,6 @@ __all__ = [
     "_evaluate_d33_profile",
     "_inverse_problem_response",
     "_surface_with_amplitude",
-    "example_bootstrap_current_optimization",
-    "example_bootstrap_current_robust_optimization",
     "example_derivative_audit",
     "example_inverse_problem",
     "example_neopax_profile_autodiff",
@@ -44,6 +41,7 @@ __all__ = [
 
 
 # --- _autodiff_helpers: Private helpers shared by autodiff workflow examples. ---
+
 
 def surface_with_amplitude(
     surface: BoozerSurface,
@@ -114,7 +112,7 @@ def evaluate_d11_profile(
             er_log,
             method="pchip",
         )
-        return 10.0 ** value
+        return 10.0**value
 
     return jax.vmap(per_radius)(jnp.arange(rho.size), er_profile_value)
 
@@ -174,6 +172,7 @@ def scale_surface_mode(
 
 
 # --- _autodiff_types: Autodiff result dataclasses. ---
+
 
 @dataclass(frozen=True)
 class InverseProblemResult:
@@ -439,6 +438,7 @@ tree_util.register_dataclass(
 
 # --- _autodiff_derivatives: Finite-difference derivative audit workflow helpers. ---
 
+
 def example_derivative_audit(
     *,
     grid: GridSpec | None = None,
@@ -455,9 +455,7 @@ def example_derivative_audit(
 
     grid = GridSpec(7, 9, 6) if grid is None else grid
     nu_hat = (
-        jnp.logspace(-4.5, -1.5, 9)
-        if nu_hat is None
-        else jnp.asarray(nu_hat, dtype=grid.jax_dtype)
+        jnp.logspace(-4.5, -1.5, 9) if nu_hat is None else jnp.asarray(nu_hat, dtype=grid.jax_dtype)
     )
     er_hat_scan = (
         jnp.logspace(-6, -2.5, 8)
@@ -515,13 +513,15 @@ def example_derivative_audit(
 
     autodiff_d11_der = jax.vmap(jax.grad(d11_at_er))(er_hat_scan)
     finite_difference_d11_der = jax.vmap(
-        lambda value: (d11_at_er(value + fd_step_er) - d11_at_er(value - fd_step_er))
-        / (2.0 * fd_step_er)
+        lambda value: (
+            (d11_at_er(value + fd_step_er) - d11_at_er(value - fd_step_er)) / (2.0 * fd_step_er)
+        )
     )(er_hat_scan)
     autodiff_d33_der = jax.vmap(jax.grad(d33_at_er))(er_hat_scan)
     finite_difference_d33_der = jax.vmap(
-        lambda value: (d33_at_er(value + fd_step_er) - d33_at_er(value - fd_step_er))
-        / (2.0 * fd_step_er)
+        lambda value: (
+            (d33_at_er(value + fd_step_er) - d33_at_er(value - fd_step_er)) / (2.0 * fd_step_er)
+        )
     )(er_hat_scan)
 
     return DerivativeAuditResult(
@@ -543,6 +543,7 @@ def example_derivative_audit(
 
 # --- _autodiff_inverse: Synthetic inverse-problem workflow helpers. ---
 
+
 def example_inverse_problem(
     *,
     grid: GridSpec | None = None,
@@ -558,9 +559,7 @@ def example_inverse_problem(
 
     grid = GridSpec(7, 9, 6) if grid is None else grid
     nu_hat = (
-        jnp.logspace(-4, -2, 8)
-        if nu_hat is None
-        else jnp.asarray(nu_hat, dtype=grid.jax_dtype)
+        jnp.logspace(-4, -2, 8) if nu_hat is None else jnp.asarray(nu_hat, dtype=grid.jax_dtype)
     )
     base_surface = example_surface(dtype=grid.jax_dtype)
     target_surface = surface_with_amplitude(base_surface, coefficient_index, target_amplitude)
