@@ -51,6 +51,11 @@ __all__ = [
 
 # --------------------------------------------------------------- slope rules ---
 def _secants(x: Array, f: Array) -> Array:
+    """Divided differences between neighbouring nodes.
+
+    Reshapes the spacing to broadcast over trailing axes, so the same routine
+    serves scalar and vector-valued data.
+    """
     h = jnp.diff(x)
     shape = (-1,) + (1,) * (f.ndim - 1)
     return jnp.diff(f, axis=0) / h.reshape(shape)
@@ -145,6 +150,11 @@ def slopes(x: Array, f: Array, method: str = "akima") -> Array:
 
 # ---------------------------------------------------------------- evaluation ---
 def _hermite(x, f, m, i, xq):
+    """Evaluate the cubic Hermite polynomial on interval i.
+
+    All slope rules in this module differ only in how they choose `m`; the
+    evaluation is shared, so a new rule never re-derives the basis.
+    """
     hx = x[i + 1] - x[i]
     t = (xq - x[i]) / hx
     t2 = t * t
@@ -186,21 +196,38 @@ class Interpolator1D:
     """
 
     def __init__(self, x: Array, f: Array, method: str = "akima") -> None:
+        """Precompute the slopes for the chosen rule.
+
+    The slopes are the expensive part and depend only on the data, so building
+    the interpolator once and calling it many times avoids recomputing them per
+    query.
+        """
         self.x = jnp.asarray(x)
         self.f = jnp.asarray(f)
         self.method = method
         self.m = slopes(self.x, self.f, method)
 
     def __call__(self, xq: Array) -> Array:
+        """Interpolate at the query points."""
         xq = jnp.asarray(xq)
         i = _interval(self.x, xq)
         return _hermite(self.x, self.f, self.m, i, xq)
 
     def _tree_flatten(self):
+        """Split into JAX children (arrays) and static data (the method name).
+
+    The method is static because it selects a code path; tracing it as data
+    would make every rule compile to the same branchless program.
+        """
         return (self.x, self.f, self.m), (self.method,)
 
     @classmethod
     def _tree_unflatten(cls, aux, children):
+        """Rebuild from flattened parts without re-running __init__.
+
+    Bypasses __init__ via __new__ so the precomputed slopes survive a JAX
+    transform rather than being recomputed on every unflatten.
+        """
         obj = cls.__new__(cls)
         obj.x, obj.f, obj.m = children
         (obj.method,) = aux
@@ -251,10 +278,17 @@ def interp2d_at(
 
 
 def _interp2d_full(x, y, values, xq, yq, method):
+    """Bicubic interpolation at a query point, locating both intervals first."""
     return _bicubic(x, y, values, _interval(x, xq), _interval(y, yq), xq, yq, method)
 
 
 def _bicubic(x, y, f, i, j, xq, yq, method):
+    """Tensor-product bicubic patch from values, both slopes, and the cross term.
+
+    The cross derivative is built by applying the 1-D slope rule along one axis
+    and then the other, so a monotone rule stays monotone in each direction
+    separately.
+    """
     fx = slopes(x, f, method)
     fy = jnp.swapaxes(slopes(y, jnp.swapaxes(f, 0, 1), method), 0, 1)
     fxy = jnp.swapaxes(slopes(y, jnp.swapaxes(fx, 0, 1), method), 0, 1)

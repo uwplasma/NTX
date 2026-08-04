@@ -70,9 +70,18 @@ SUPPORTED_SCAN_BATCH_SIZES = (1, 8, 32, 128)
 
 
 class _CompiledBatchFunction(Protocol):
-    def __call__(self, nu_values: Array, epsi_values: Array) -> Array: ...
+    """Protocol for a compiled batch solve: callable, and lowerable for inspection.
 
-    def lower(self, nu_values: Array, epsi_values: Array) -> Any: ...
+    `lower` is part of the contract because the scan reports compiled shapes
+    without executing, which is how a batch plan is checked before it runs.
+    """
+    def __call__(self, nu_values: Array, epsi_values: Array) -> Array:
+        """Run the compiled batch."""
+        ...
+
+    def lower(self, nu_values: Array, epsi_values: Array) -> Any:
+        """Lower without executing, to inspect compiled shapes."""
+        ...
 
 
 @dataclass(frozen=True)
@@ -105,6 +114,11 @@ class CompiledPreparedScanSolver:
         execution_mode: Literal["sequential", "vectorized"],
         solve_batch: _CompiledBatchFunction,
     ) -> None:
+        """Hold a prepared system with a fixed batch size and execution mode.
+
+    Fixing both at construction is what lets the batch compile once and be
+    reused across calls.
+        """
         self.prepared = prepared
         self.batch_size = batch_size
         self.execution_mode = execution_mode
@@ -162,10 +176,14 @@ class CompiledPreparedScanSolver:
 
         started = time.perf_counter()
         first = executable(nu, epsi)
+        # JAX dispatches asynchronously, so without blocking these timings would
+        # measure queueing rather than execution.
         first.block_until_ready()
         first_execution_seconds = time.perf_counter() - started
 
         started = time.perf_counter()
+        # Second run with the cache warm: the difference against the first is
+        # what any per-call setup costs.
         warm = executable(nu, epsi)
         warm.block_until_ready()
         warm_execution_seconds = time.perf_counter() - started
@@ -229,6 +247,11 @@ def _resolved_scan_inputs(
     epsi_hat: Array | None,
     er_hat: Array | None,
 ) -> tuple[Array, Array, tuple[int, ...]]:
+    """Broadcast and validate the scan's nu/epsi inputs.
+
+    epsi_hat and er_hat are two parameterizations of the same physical quantity,
+    so setting both is rejected rather than silently preferring one.
+    """
     geom = prepared.geometry
     if epsi_hat is not None and er_hat is not None:
         msg = "set only one of epsi_hat or er_hat"
@@ -253,6 +276,7 @@ def _scan_coefficients_serial(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
+    """Run a scan on one device, choosing sequential or vectorized automatically."""
     mode = _resolve_scan_execution_mode("auto")
     if mode == "sequential":
         return _scan_coefficients_sequential(prepared, nu_values, epsi_values)
@@ -266,6 +290,12 @@ def _scan_coefficients_batched(
     *,
     batch_size: int,
 ) -> Array:
+    """Run a scan in fixed-size batches.
+
+    Fixed batch size means every batch compiles to the same shape, so JAX
+    compiles once instead of once per remainder; the final short batch is padded
+    rather than given its own program.
+    """
     if batch_size < 1:
         msg = "scan_batch_size must be a positive integer"
         raise ValueError(msg)
@@ -321,6 +351,7 @@ def _solve_scan_point(
     nu_value: Array,
     epsi_value: Array,
 ) -> Array:
+    """Solve one (nu, epsi) point of a scan."""
     return _solve_prepared_coefficient_vector_raw(prepared, nu_value, epsi_value)
 
 
@@ -330,6 +361,7 @@ def _scan_coefficients_sequential(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
+    """Scan points one at a time, holding one solve in memory."""
     return _scan_coefficients_sequential_impl(prepared, nu_values, epsi_values)
 
 
@@ -338,6 +370,7 @@ def _scan_coefficients_sequential_impl(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
+    """lax.map over scan points: constant memory, one compilation."""
     return jax.lax.map(
         lambda values: _solve_scan_point(prepared, values[0], values[1]),
         (nu_values, epsi_values),
@@ -350,6 +383,7 @@ def _scan_coefficients_vectorized(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
+    """Scan all points at once via vmap."""
     return _scan_coefficients_vectorized_impl(prepared, nu_values, epsi_values)
 
 
@@ -358,6 +392,7 @@ def _scan_coefficients_vectorized_impl(
     nu_values: Array,
     epsi_values: Array,
 ) -> Array:
+    """vmap over scan points: fastest, but holds every solve at once."""
     return jax.vmap(lambda nu_value, epsi_value: _solve_scan_point(prepared, nu_value, epsi_value))(
         nu_values, epsi_values
     )
@@ -366,6 +401,11 @@ def _scan_coefficients_vectorized_impl(
 def _resolve_scan_execution_mode(
     execution_mode: ScanExecutionMode,
 ) -> Literal["sequential", "vectorized"]:
+    """Resolve 'auto' to a concrete execution mode.
+
+    'auto' picks sequential: it is the choice that cannot exhaust memory on a
+    large scan, and the vectorized path is opt-in for that reason.
+    """
     if execution_mode == "auto":
         return "sequential"
     if execution_mode not in ("sequential", "vectorized"):
@@ -375,6 +415,11 @@ def _resolve_scan_execution_mode(
 
 
 def _memory_stat(memory, name: str) -> int | None:
+    """Read one field from a device memory report, tolerating its absence.
+
+    Memory statistics are backend-specific and simply missing on some
+    platforms, so this reports None rather than failing a solve over telemetry.
+    """
     if memory is None:
         return None
     value = getattr(memory, name, None)
@@ -382,6 +427,12 @@ def _memory_stat(memory, name: str) -> int | None:
 
 
 def _is_out_of_memory_error(error: RuntimeError) -> bool:
+    """Whether a RuntimeError is an out-of-memory condition.
+
+    Matched on the message because the backends raise a plain RuntimeError
+    rather than a distinguishable type; several spellings are checked since
+    they differ between CPU, CUDA and TPU.
+    """
     message = str(error).lower()
     return any(
         marker in message
@@ -390,6 +441,7 @@ def _is_out_of_memory_error(error: RuntimeError) -> bool:
 
 
 def _coefficients_dict(coeffs: Array) -> dict[str, Array]:
+    """Name the trailing axis of a stacked coefficient array."""
     return {
         "D11": coeffs[..., 0],
         "D31": coeffs[..., 1],
@@ -568,6 +620,12 @@ def healthy_parallel_devices() -> tuple:
 
 @lru_cache(maxsize=1)
 def _healthy_parallel_devices_cached() -> tuple:
+    """Devices that survive a trial solve, computed once per process.
+
+    A device can be present and still fail — busy, out of memory, or
+    misconfigured — so each is probed with a small real solve rather than
+    trusted from the device list. Cached because the probe costs a compile.
+    """
     devices = tuple(jax.local_devices())
     healthy = []
     surface = example_surface()

@@ -70,6 +70,58 @@ def test_every_public_api_symbol_has_a_docstring() -> None:
     )
 
 
+def _every_definition(tree: ast.Module) -> list[tuple[str, ast.AST]]:
+    """Top-level and class-level definitions, public or private.
+
+    Closures are excluded. A function defined inside another is read together
+    with its enclosing function, where the surrounding code is the explanation;
+    a docstring there is usually a restatement.
+    """
+    found: list[tuple[str, ast.AST]] = []
+
+    def scan(body: list[ast.stmt], prefix: str) -> None:
+        for node in body:
+            if isinstance(node, ast.If):  # definitions guarded by a version check
+                scan(node.body, prefix)
+                scan(node.orelse, prefix)
+                continue
+            if not isinstance(
+                node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+            ):
+                continue
+            found.append((f"{prefix}{node.name}", node))
+            if isinstance(node, ast.ClassDef):
+                scan(node.body, f"{prefix}{node.name}.")
+
+    scan(tree.body, "")
+    return found
+
+
+def test_every_definition_in_the_package_has_a_docstring() -> None:
+    """The whole package explains itself, not only its public face.
+
+    This used to stop at the public API, on the reasoning that a docstring on
+    every private helper would be a restatement of its signature. That holds
+    only if the docstring says *what* the code does -- which the reader can
+    already see. It does not hold for *why*: which of several interpolants this
+    one uses and what breaks with the others, why a guard clause is there, why
+    an import is deferred. Those are invisible in the code and are exactly what
+    a maintainer needs, so private helpers are in scope too.
+    """
+    missing = []
+    for path in _modules():
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for qualname, node in _every_definition(tree):
+            if not ast.get_docstring(node):
+                missing.append(f"{path.relative_to(PACKAGE)}::{qualname}")
+    assert missing == [], (
+        f"{len(missing)} definitions without a docstring: "
+        + ", ".join(missing[:20])
+        + ". Say why the code is the way it is; restating the signature is worse "
+        "than nothing, because it looks like documentation."
+    )
+
+
 def test_the_public_api_surface_is_actually_covered() -> None:
     """Guard the guard: if the scan finds nothing, it is not proving anything.
 

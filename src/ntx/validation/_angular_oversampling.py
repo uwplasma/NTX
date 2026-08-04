@@ -66,6 +66,7 @@ class AngularOversamplingAudit:
 
 @dataclass(frozen=True)
 class _RawPoint:
+    """One measured oversampling point: the grid used and what it cost."""
     requested_ratio: float
     n_theta: int
     n_zeta: int
@@ -82,16 +83,27 @@ class _RawPoint:
 
 
 def _odd_ceiling(value: float) -> int:
+    """Round up to the next odd integer.
+
+    Odd angular resolutions keep the grid symmetric about theta = 0, which
+    avoids a half-cell offset between the positive and negative branches.
+    """
     integer = int(np.ceil(value))
     return integer if integer % 2 else integer + 1
 
 
 def _memory_stat(memory: object, name: str) -> int | None:
+    """Read one device memory field, tolerating its absence."""
     value = getattr(memory, name, None)
     return None if value is None else int(value)
 
 
 def _block_result(result) -> None:
+    """Wait for a result to be materialized.
+
+    JAX is asynchronous, so a timing that does not block measures dispatch
+    rather than the solve.
+    """
     jax.block_until_ready(result.D11)
 
 
@@ -102,6 +114,7 @@ def _profile_grid(
     *,
     repeats: int,
 ) -> _RawPoint:
+    """Time one grid resolution end to end."""
     started = time.perf_counter()
     prepared = prepare_monoenergetic_system(
         surface,

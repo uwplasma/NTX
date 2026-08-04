@@ -80,6 +80,11 @@ def example_neopax_profile_autodiff(
 
 
 def _maybe_import_neopax():
+    """Import NEOPAX if available, else None.
+
+    NEOPAX is an optional dependency, so the examples that need it degrade to a
+    skip rather than making the whole module unimportable.
+    """
     try:
         import NEOPAX
 

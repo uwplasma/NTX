@@ -27,6 +27,7 @@ EFFECTIVE_LABELS = (
 
 
 def finite_or_none(value: float | None) -> float | None:
+    """Coerce to float, mapping non-finite values to None."""
     if value is None:
         return None
     value = float(value)
@@ -34,12 +35,18 @@ def finite_or_none(value: float | None) -> float | None:
 
 
 def dominant_channel(values: dict[str, float]) -> str:
+    """The channel with the largest magnitude, or 'none' when empty.
+
+    Compared on absolute value: a strongly negative channel dominates just as a
+    strongly positive one does.
+    """
     if not values:
         return "none"
     return max(values, key=lambda key: abs(float(values[key])))
 
 
 def relative_scalar_error(candidate: float, reference: float) -> float:
+    """Relative error against a reference, floored by EPS."""
     return float(abs(float(candidate) - float(reference)) / max(abs(float(reference)), EPS))
 
 
@@ -47,6 +54,7 @@ def relative_scalar_error_or_none(
     candidate: float | None,
     reference: float | None,
 ) -> float | None:
+    """Relative error, returning None when either side is missing or non-finite."""
     if candidate is None or reference is None:
         return None
     if not np.isfinite(float(candidate)) or not np.isfinite(float(reference)):
@@ -58,6 +66,11 @@ def channel_response_ratios(
     candidate_by_channel: dict[str, float],
     target_by_channel: dict[str, float],
 ) -> tuple[dict[str, float | None], dict[str, float | None]]:
+    """Per-channel multipliers and relative errors against the target.
+
+    Reported per channel rather than in aggregate because a total that matches
+    can still be built from channels that individually do not.
+    """
     multipliers: dict[str, float | None] = {}
     relative_errors: dict[str, float | None] = {}
     for label in EFFECTIVE_LABELS:
@@ -129,6 +142,7 @@ def source_contributions_by_channel(
 
 
 def source_channel_summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Summarize a source-channel audit into its headline metrics."""
     if not rows:
         raise ValueError("source-channel audit requires at least one row")
     high_stable = max(
@@ -206,6 +220,7 @@ def source_channel_summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]
 
 
 def finite_values(values: list[float | None]) -> np.ndarray:
+    """Drop None and non-finite entries, returning a plain float array."""
     return np.asarray(
         [float(value) for value in values if value is not None and np.isfinite(value)],
         dtype=float,
@@ -218,6 +233,12 @@ def _correlation(
     driver_key: str,
     response_key: str = "effective_temperature_response_multiplier_to_redl",
 ) -> float | None:
+    """Correlate one Redl profile driver against the effective-temperature response.
+
+    Distinct from the same-named helper in the closure-target module: that one
+    takes two arrays, this one pulls a driver and a response out of the audit
+    rows by key.
+    """
     pairs: list[tuple[float, float]] = []
     for row in rows:
         driver = row.get("redl_profile_drivers", {}).get(driver_key)
@@ -239,6 +260,11 @@ def _correlation(
 
 
 def high_order_setting(rows: list[dict[str, Any]]) -> tuple[int, int]:
+    """The highest-order resolution setting present, preferring x >= order.
+
+    Settings with fewer speed points than Legendre orders are under-resolved in
+    a way that makes them a poor reference, so they lose the tie-break.
+    """
     high = max(
         rows,
         key=lambda row: (
@@ -255,6 +281,7 @@ def rows_for_setting(
     *,
     setting: tuple[int, int],
 ) -> list[dict[str, Any]]:
+    """Rows recorded at one resolution setting, sorted for stable output."""
     x_value, p_value = setting
     return sorted(
         [
@@ -269,6 +296,7 @@ def rows_for_setting(
 def profile_source_response_summary_metrics(
     rows: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    """Summarize a profile source-response audit into its headline metrics."""
     if not rows:
         raise ValueError("profile source-response audit requires at least one row")
     high_setting = high_order_setting(rows)

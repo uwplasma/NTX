@@ -250,6 +250,12 @@ def _gauss_hermite_rule(
     *,
     dtype,
 ) -> tuple[Array, Array]:
+    """Gauss-Hermite nodes and weights for the robust objective's expectation.
+
+    Low orders are written out as exact literals rather than computed, so the
+    quadrature is bit-identical across platforms and the robust optimum is
+    reproducible.
+    """
     if quadrature_order == 3:
         nodes = jnp.asarray([-1.7320508075688772, 0.0, 1.7320508075688772], dtype=dtype)
         weights = jnp.asarray([1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0], dtype=dtype)

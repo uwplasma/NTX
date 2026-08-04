@@ -86,6 +86,8 @@ def load_dkes_surface(path: str | Path) -> BoozerSurface:
     if not modes:
         msg = f"no borbi(m,n) entries found in {path}"
         raise ValueError(msg)
+    # Sort so the harmonic ordering is a property of the data rather than of
+    # the order rows happened to appear in the file.
     modes.sort()
 
     m = jnp.asarray([mode[0] for mode in modes], dtype=jnp.int32)
@@ -134,6 +136,8 @@ def load_magnetic_configuration_surface(path: str | Path) -> BoozerSurface:
     if not rows:
         msg = f"no Fourier rows found in {resolved}"
         raise ValueError(msg)
+    # Same ordering guarantee as the DKES loader, so the two produce
+    # comparable surfaces from equivalent input.
     rows.sort()
 
     return BoozerSurface(
@@ -158,6 +162,7 @@ def write_result_jsonable(result) -> dict[str, float]:
 
 
 def _parse_scalar(text: str, name: str) -> float:
+    """Extract a named scalar from a DKES-format text file."""
     match = re.search(_SCALAR_PATTERN.format(name=re.escape(name)), text)
     if match is None:
         msg = f"missing `{name}` in DKES input"
@@ -166,4 +171,9 @@ def _parse_scalar(text: str, name: str) -> float:
 
 
 def _parse_float(value: str) -> float:
+    """Parse a Fortran float, accepting D exponents.
+
+    Fortran writes double precision as 1.0D+00; Python's float does not accept
+    that spelling.
+    """
     return float(value.replace("D", "E").replace("d", "e"))

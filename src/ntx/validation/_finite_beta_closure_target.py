@@ -36,6 +36,11 @@ LINEAR_MODELS = (
 
 
 def _finite_array(values: list[float | None]) -> np.ndarray:
+    """Coerce a list with None and non-finite entries into a float array of NaN.
+
+    One representation for 'missing' downstream, so every consumer can rely on
+    np.isfinite rather than checking for None as well.
+    """
     return np.asarray(
         [
             float(value)
@@ -48,6 +53,10 @@ def _finite_array(values: list[float | None]) -> np.ndarray:
 
 
 def _rows_for_high_order(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Select the rows recorded at the highest-order resolution setting.
+
+    That setting is the reference the lower-order ones are judged against.
+    """
     metrics = payload["summary_metrics"]
     high_x = int(metrics["high_order_neopax_x"])
     high_p = int(metrics["high_order_n_order"])
@@ -60,6 +69,7 @@ def _rows_for_high_order(payload: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _response_table(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
+    """Assemble the audit rows into named column arrays."""
     table: dict[str, np.ndarray] = {
         "rho": np.asarray([float(row["rho"]) for row in rows], dtype=float),
         "response": np.asarray(
@@ -89,6 +99,13 @@ def _response_table(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
 
 
 def _rankdata(values: np.ndarray) -> np.ndarray:
+    """Rank values, averaging ties.
+
+    Written out rather than taken from scipy, which is not a dependency.
+    Mergesort keeps the ranking stable, so equal values rank in input order.
+    """
+    # Mergesort is the stable choice, so equal values keep their input order
+    # and the ranking is reproducible across runs.
     order = np.argsort(values, kind="mergesort")
     ranks = np.empty_like(values, dtype=float)
     sorted_values = values[order]
@@ -103,6 +120,11 @@ def _rankdata(values: np.ndarray) -> np.ndarray:
 
 
 def _correlation(x: np.ndarray, y: np.ndarray) -> float | None:
+    """Pearson correlation over the entries finite in both inputs.
+
+    Returns None below three usable points, where a correlation coefficient is
+    not meaningful rather than merely imprecise.
+    """
     mask = np.isfinite(x) & np.isfinite(y)
     if int(np.sum(mask)) < 3:
         return None
@@ -114,6 +136,11 @@ def _correlation(x: np.ndarray, y: np.ndarray) -> float | None:
 
 
 def _spearman(x: np.ndarray, y: np.ndarray) -> float | None:
+    """Rank correlation: Pearson on the ranks.
+
+    Used alongside Pearson because the closure response is expected to be
+    monotone in its driver but not linear in it.
+    """
     mask = np.isfinite(x) & np.isfinite(y)
     if int(np.sum(mask)) < 3:
         return None
@@ -121,6 +148,11 @@ def _spearman(x: np.ndarray, y: np.ndarray) -> float | None:
 
 
 def _design_matrix(table: dict[str, np.ndarray], feature_keys: tuple[str, ...]) -> np.ndarray:
+    """Build the regression design matrix, centring each feature.
+
+    Centring keeps the intercept interpretable as the mean response and lowers
+    the condition number, which is reported alongside the fit.
+    """
     columns = [np.ones_like(table["response"])]
     for key in feature_keys:
         values = np.asarray(table[key], dtype=float)
@@ -132,6 +164,11 @@ def _fit_predict(
     table: dict[str, np.ndarray],
     feature_keys: tuple[str, ...],
 ) -> tuple[np.ndarray, np.ndarray, float]:
+    """Least-squares fit of the response on the given features.
+
+    Returns the condition number with the coefficients: on this few rows a fit
+    can be numerically ill-posed and still produce plausible numbers.
+    """
     x = _design_matrix(table, feature_keys)
     y = table["response"]
     mask = np.isfinite(y) & np.all(np.isfinite(x), axis=1)
@@ -148,6 +185,12 @@ def _leave_one_out_rmse(
     table: dict[str, np.ndarray],
     feature_keys: tuple[str, ...],
 ) -> float | None:
+    """Leave-one-out cross-validated RMSE.
+
+    With this few rows an in-sample RMSE mostly measures the number of free
+    parameters; leave-one-out is what distinguishes a model that predicts from
+    one that interpolates.
+    """
     y = table["response"]
     predictions = np.full_like(y, np.nan)
     for index in range(y.size):
@@ -172,6 +215,7 @@ def _leave_one_out_rmse(
 
 
 def _model_diagnostics(table: dict[str, np.ndarray]) -> list[dict[str, Any]]:
+    """Fit every candidate model and collect its diagnostics."""
     diagnostics: list[dict[str, Any]] = []
     for name, features in LINEAR_MODELS:
         prediction, coeffs, condition = _fit_predict(table, features)
@@ -198,6 +242,11 @@ def _model_diagnostics(table: dict[str, np.ndarray]) -> list[dict[str, Any]]:
 
 
 def _best_model(diagnostics: list[dict[str, Any]]) -> dict[str, Any]:
+    """Pick the model with the lowest cross-validated error.
+
+    Chosen on leave-one-out rather than in-sample fit, so more features cannot
+    win by construction.
+    """
     finite = [
         item
         for item in diagnostics
@@ -293,12 +342,18 @@ def profile_closure_target_diagnostics(source_payload: dict[str, Any]) -> dict[s
 
 
 def _load_optional_json(path: Path | None) -> dict[str, Any] | None:
+    """Read a JSON file, passing None through."""
     if path is None:
         return None
     return json.loads(path.read_text())
 
 
 def _artifact_path(path: Path, root: Path | None) -> str:
+    """Express a path relative to the record root when possible.
+
+    Relative paths keep a record reproducible from a different checkout
+    location; absolute paths are kept when the file lies outside the root.
+    """
     if root is None:
         return str(path)
     try:
@@ -308,14 +363,17 @@ def _artifact_path(path: Path, root: Path | None) -> str:
 
 
 def _setting(row: dict[str, Any]) -> tuple[int, int]:
+    """The (neopax_x, n_order) resolution setting of a row."""
     return int(row["neopax_x"]), int(row["n_order"])
 
 
 def _setting_dict(setting: tuple[int, int]) -> dict[str, int]:
+    """Render a resolution setting as a named mapping for the record."""
     return {"neopax_x": int(setting[0]), "n_order": int(setting[1])}
 
 
 def _float_or_none(value: Any) -> float | None:
+    """Coerce to float, mapping None and non-finite values to None."""
     if value is None:
         return None
     value = float(value)
@@ -326,6 +384,11 @@ def _settings_match_rho(
     rows: list[dict[str, Any]],
     stress_rho: float | None,
 ) -> bool | None:
+    """Whether every row sits at the stress-test radius.
+
+    Guards against mixing radii into one comparison, which would attribute a
+    radial difference to the resolution setting under test.
+    """
     if stress_rho is None or not rows:
         return None
     return bool(

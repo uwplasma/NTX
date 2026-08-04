@@ -33,6 +33,11 @@ def _append_summary_metric_gate(
     metric_key: str,
     details: str,
 ) -> None:
+    """Evaluate one gate against a metric in a summary artifact.
+
+    A missing artifact is recorded as a missing-artifact result rather than
+    skipped, so an absent file fails the gate instead of quietly passing it.
+    """
     gate = _gate_by_name(gate_name)
     if path.exists():
         payload = json.loads(path.read_text())
@@ -47,6 +52,7 @@ def _append_missing_artifact_gate(
     gate: PhysicsGate,
     path: Path,
 ) -> None:
+    """Record a gate whose backing artifact is absent."""
     results.append(
         PhysicsGateResult(
             gate=gate,
@@ -63,6 +69,7 @@ def _evaluate_scalar_gate(
     *,
     details: str = "",
 ) -> PhysicsGateResult:
+    """Compare a value against its gate threshold."""
     if gate.relation == "<=":
         assert gate.threshold is not None
         status: GateStatus = "pass" if value <= gate.threshold else "fail"
@@ -84,6 +91,7 @@ def append_finite_beta_artifact_gates(
     results: list[PhysicsGateResult],
     static_root: Path,
 ) -> None:
+    """Evaluate every finite-beta artifact-backed gate."""
     _append_summary_metric_gate(
         results,
         gate_name="owned_finite_beta_same_grid_coefficient_stress",

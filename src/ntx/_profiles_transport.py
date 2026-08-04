@@ -48,6 +48,11 @@ def _broadcast_species_transport_field(
     species_count: int,
     rho: Array,
 ) -> Array:
+    """Broadcast a scalar, per-species, or per-species-per-radius input to full shape.
+
+    Lets a closure be specified at whatever resolution is natural without every
+    consumer handling three shapes.
+    """
     array = jnp.asarray(values)
     radial_size = int(jnp.asarray(rho).size)
     if array.ndim == 0:
@@ -67,6 +72,10 @@ def _transport_mismatch(
     profile: AmbipolarProfileResult,
     closure_spec: ProfileTransportClosureSpec,
 ) -> tuple[Array, Array]:
+    """Residual between the transported fluxes and their targets.
+
+    The quantity the closure iteration drives to zero.
+    """
     species_flux = jnp.asarray(profile.species_particle_flux)
     species_current = jnp.asarray(profile.species_current_response)
     rho = jnp.asarray(profile.rho)
@@ -102,7 +111,15 @@ def _normalized_transport_updates(
     normalization_floor: Array,
     max_update: Array,
 ) -> tuple[Array, Array]:
+    """Closure updates, normalized by the RMS of each mismatch.
+
+    Particle flux and current response have different units and magnitudes;
+    normalizing each by its own scale keeps one from dominating the step purely
+    by being larger.
+    """
     particle_mismatch, current_mismatch = _transport_mismatch(profile, closure_spec)
+    # RMS over the radial axis, per species: each species is normalized by its
+    # own mismatch so a hot species cannot dominate the step by magnitude alone.
     particle_scale = jnp.maximum(
         jnp.sqrt(jnp.mean(particle_mismatch**2, axis=1, keepdims=True)),
         normalization_floor,
@@ -128,6 +145,11 @@ def _scaled_transport_closure(
     closure_spec: ProfileTransportClosureSpec,
     factor: Array,
 ) -> ProfileTransportClosureSpec:
+    """Scale every relaxation factor in a closure spec by a common factor.
+
+    The line-search knob: the update direction is kept and only its length
+    changes.
+    """
     return replace(
         closure_spec,
         particle_relaxation=jnp.asarray(closure_spec.particle_relaxation) * factor,
@@ -142,6 +164,7 @@ def _primitive_mismatch(
     closure_spec: ProfileTransportClosureSpec,
     rho: Array,
 ) -> tuple[Array, Array]:
+    """Residual between primitive density/temperature profiles and their targets."""
     species_count = len(primitive_profiles)
     density_target = _broadcast_species_transport_field(
         closure_spec.density_target,
@@ -182,6 +205,7 @@ def _normalized_primitive_updates(
     normalization_floor: Array,
     max_update: Array,
 ) -> tuple[Array, Array]:
+    """Primitive-variable updates, each normalized by its own mismatch scale."""
     density_mismatch, temperature_mismatch = _primitive_mismatch(
         primitive_profiles,
         closure_spec,

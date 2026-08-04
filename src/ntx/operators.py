@@ -129,6 +129,11 @@ def coefficients_for_k(ctx: OperatorContext, k: int | Array) -> tuple[Array, Arr
 
 
 def _pack(coefficients: dict[str, Array]) -> Array:
+    """Flatten the coefficient dictionary into one stacked array.
+
+    A single array is what the block builder consumes, so the named form exists
+    only above this boundary.
+    """
     return jnp.stack(
         [
             flatten_fs(coefficients["theta"]),

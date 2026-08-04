@@ -52,6 +52,11 @@ else:  # pragma: no cover - exercised on Python 3.10 environments
 
 @dataclass(frozen=True)
 class SurfaceSpec:
+    """Which surface a run loads, and from where.
+
+    `type` selects the loader; the remaining fields are the arguments that
+    loader needs, left as None when it does not.
+    """
     type: str
     path: Path | None = None
     psi_n: float | None = None
@@ -63,6 +68,11 @@ class SurfaceSpec:
 
 @dataclass(frozen=True, init=False)
 class OutputSpec:
+    """Where a run writes its results, and whether Legendre modes are included.
+
+    Modes are opt-in because they are far larger than the coefficients and are
+    only wanted when the distribution itself is under study.
+    """
     path: Path
     include_modes: bool
 
@@ -98,6 +108,11 @@ class OutputSpec:
 
 @dataclass(frozen=True)
 class RunConfig:
+    """A fully resolved input file: surface, grid, case and output.
+
+    Every path is absolute and every default filled in by the time this exists,
+    so the run itself never re-reads or re-interprets the input file.
+    """
     input_path: Path
     surface: SurfaceSpec
     grid: GridSpec
@@ -170,6 +185,7 @@ def load_run_config(path: str | Path) -> RunConfig:
 
 
 def _load_surface(spec: SurfaceSpec) -> BoozerSurface | VmecSurface:
+    """Dispatch to the loader named by the spec's `type`."""
     if spec.type == "example":
         return example_surface()
     if spec.type == "dkes" and spec.path is not None:
@@ -188,6 +204,11 @@ def _load_surface(spec: SurfaceSpec) -> BoozerSurface | VmecSurface:
 
 
 def _get_table(data: dict[str, Any], name: str) -> dict[str, Any]:
+    """Fetch a required TOML table, failing with the section name if absent.
+
+    A missing section is a user error in the input file, so it raises rather
+    than defaulting: silently solving a different problem is worse than stopping.
+    """
     section = data.get(name)
     if not isinstance(section, dict):
         msg = f"missing [{name}] table in input file"
@@ -196,6 +217,11 @@ def _get_table(data: dict[str, Any], name: str) -> dict[str, Any]:
 
 
 def _get_optional_table(data: dict[str, Any], name: str) -> dict[str, Any]:
+    """Fetch an optional TOML table, defaulting to empty but rejecting a non-table.
+
+    Absent and present-but-wrong-type are different mistakes: the first is fine,
+    the second is a typo worth reporting.
+    """
     section = data.get(name, {})
     if not isinstance(section, dict):
         msg = f"[{name}] must be a TOML table"
@@ -204,12 +230,18 @@ def _get_optional_table(data: dict[str, Any], name: str) -> dict[str, Any]:
 
 
 def _optional_float(value: Any) -> float | None:
+    """Coerce to float, passing None through."""
     if value is None:
         return None
     return float(value)
 
 
 def _output_path_value(output_data: dict[str, Any], input_path: Path) -> Any:
+    """Resolve the output path from whichever spelling the input file used.
+
+    Several key names are accepted for convenience, but setting more than one is
+    rejected: the alternative is silently honouring one and ignoring the other.
+    """
     path_keys = ("path", "file", "netcdf", "nc", "hdf5", "h5", "npz")
     selected = [key for key in path_keys if key in output_data]
     if len(selected) > 1:
@@ -221,6 +253,10 @@ def _output_path_value(output_data: dict[str, Any], input_path: Path) -> Any:
 
 
 def _resolve_relative_path(input_path: Path, value: Path) -> Path:
+    """Resolve a path relative to the input file, not the working directory.
+
+    An input file should mean the same thing regardless of where it is run from.
+    """
     return value if value.is_absolute() else (input_path.parent / value).resolve()
 
 
@@ -228,6 +264,7 @@ def _resolve_relative_path(input_path: Path, value: Path) -> Path:
 
 
 def _surface_table(surface: BoozerSurface | VmecSurface, config: RunConfig) -> Table:
+    """Render the surface summary table."""
     table = Table(title="Surface", show_header=True, header_style="bold magenta")
     table.add_column("Field")
     table.add_column("Value", overflow="fold")
@@ -258,6 +295,7 @@ def _surface_table(surface: BoozerSurface | VmecSurface, config: RunConfig) -> T
 
 
 def _surface_metadata_table(surface: BoozerSurface | VmecSurface) -> Table:
+    """Render the surface provenance table."""
     table = Table(title="Surface Metadata", show_header=True, header_style="bold cyan")
     table.add_column("Field")
     table.add_column("Value", overflow="fold")
@@ -267,6 +305,7 @@ def _surface_metadata_table(surface: BoozerSurface | VmecSurface) -> Table:
 
 
 def _geometry_table(geom) -> Table:
+    """Render the geometry statistics table."""
     table = Table(title="Geometry Statistics", show_header=True, header_style="bold blue")
     table.add_column("Field")
     table.add_column("Value")
@@ -276,6 +315,7 @@ def _geometry_table(geom) -> Table:
 
 
 def _case_table(config: RunConfig, surface: BoozerSurface | VmecSurface) -> Table:
+    """Render the solve-parameters table."""
     table = Table(title="Solve Parameters", show_header=True, header_style="bold magenta")
     table.add_column("Field")
     table.add_column("Value")
@@ -307,6 +347,7 @@ def _case_table(config: RunConfig, surface: BoozerSurface | VmecSurface) -> Tabl
 
 
 def _algorithm_table(config: RunConfig, geom) -> Table:
+    """Render the algorithm and solver-settings table."""
     table = Table(title="Algorithm", show_header=True, header_style="bold white")
     table.add_column("Field")
     table.add_column("Value", overflow="fold")
@@ -316,6 +357,7 @@ def _algorithm_table(config: RunConfig, geom) -> Table:
 
 
 def _result_table(result: dict[str, float]) -> Table:
+    """Render the transport coefficients table."""
     table = Table(title="Results", show_header=True, header_style="bold green")
     table.add_column("Coefficient")
     table.add_column("Value")
@@ -325,6 +367,7 @@ def _result_table(result: dict[str, float]) -> Table:
 
 
 def _timing_table(timings: dict[str, float]) -> Table:
+    """Render the per-stage runtime table."""
     table = Table(title="Runtime", show_header=True, header_style="bold green")
     table.add_column("Stage")
     table.add_column("Seconds", justify="right")
@@ -335,6 +378,7 @@ def _timing_table(timings: dict[str, float]) -> Table:
 
 
 def _output_table(path: Path, config: RunConfig) -> Table:
+    """Render the output-payload summary table."""
     table = Table(title="Output Payload", show_header=True, header_style="bold yellow")
     table.add_column("Field")
     table.add_column("Value", overflow="fold")
@@ -363,6 +407,11 @@ def _output_table(path: Path, config: RunConfig) -> Table:
 
 
 def _surface_metadata(surface: BoozerSurface | VmecSurface) -> dict[str, Any]:
+    """Collect surface provenance: source path, size, checksum, mode count.
+
+    Recorded so a result can be traced back to the exact input that produced it;
+    the checksum is what makes 'the same file' checkable rather than assumed.
+    """
     source_path = _surface_source_path(surface)
     source_stat = None if source_path is None or not source_path.exists() else source_path.stat()
     common: dict[str, Any] = {
@@ -413,6 +462,7 @@ def _surface_metadata(surface: BoozerSurface | VmecSurface) -> dict[str, Any]:
 
 
 def _geometry_metadata(geom) -> dict[str, Any]:
+    """Collect the resolution and surface type the geometry was built at."""
     return {
         "surface_type": geom.surface_type,
         "n_theta": int(geom.grid.theta.size),
@@ -432,6 +482,11 @@ def _geometry_metadata(geom) -> dict[str, Any]:
 
 
 def _algorithm_metadata(config: RunConfig, geom) -> dict[str, Any]:
+    """Record which solver path and settings produced a result.
+
+    Written into the output so a stored result carries the algorithm that made
+    it, rather than relying on the reader knowing which version was current.
+    """
     return {
         "solver": "dense_block_tridiagonal_schur",
         "block_storage": "dense",
@@ -446,16 +501,23 @@ def _algorithm_metadata(config: RunConfig, geom) -> dict[str, Any]:
 
 
 def _mode_count(surface: BoozerSurface | VmecSurface) -> int:
+    """Number of harmonics in the surface representation."""
     return int(len(surface.m))
 
 
 def _surface_source_path(surface: BoozerSurface | VmecSurface) -> Path | None:
+    """Source file of a surface, whichever attribute the surface type uses."""
     if isinstance(surface, BoozerSurface):
         return surface.source_path
     return surface.path
 
 
 def _source_sha256(path: Path | None) -> str | None:
+    """Checksum a source file, returning None when there is nothing to read.
+
+    Streamed in blocks so a large equilibrium file is not read into memory
+    solely to be hashed.
+    """
     if path is None or not path.exists():
         return None
     digest = hashlib.sha256()
@@ -466,6 +528,11 @@ def _source_sha256(path: Path | None) -> str | None:
 
 
 def _surface_source_text(surface: BoozerSurface | VmecSurface, path: Path | None) -> str | None:
+    """Original text of a surface file, when it is a text format.
+
+    VMEC surfaces come from binary NetCDF, so they return None rather than a
+    decoded approximation of the file.
+    """
     if path is None or not path.exists():
         return None
     if isinstance(surface, VmecSurface):
@@ -477,6 +544,7 @@ def _surface_source_text(surface: BoozerSurface | VmecSurface, path: Path | None
 
 
 def _output_format_label(path: Path) -> str:
+    """Human-readable format name inferred from the output suffix."""
     suffix = Path(path).suffix.lower()
     if suffix in {".nc", ".netcdf"}:
         return "NetCDF"
@@ -804,16 +872,27 @@ def build_run_payload(
 
 
 def _is_string_array(array: np.ndarray) -> bool:
+    """Whether a numpy array holds strings or objects rather than numbers."""
     return array.dtype.kind in {"U", "S", "O"}
 
 
 def _string_array_value(array: np.ndarray) -> str:
+    """Render a string array as a scalar or a JSON list.
+
+    NetCDF has no native list-of-strings, so a JSON encoding keeps the value
+    round-trippable through a single text attribute.
+    """
     if array.shape == ():
         return str(array.item())
     return json.dumps(array.tolist())
 
 
 def _netcdf_numeric_array(array: np.ndarray) -> np.ndarray:
+    """Coerce an array to a NetCDF-writable numeric type.
+
+    NetCDF has no boolean type; booleans become int8 rather than failing at
+    write time.
+    """
     if array.dtype == np.dtype("bool"):
         return array.astype(np.int8)
     return np.asarray(array)
@@ -824,6 +903,11 @@ def _netcdf_dims_for(
     shape: tuple[int, ...],
     data: dict[str, np.ndarray],
 ) -> tuple[str, ...]:
+    """Map an array's shape onto the run's named NetCDF dimensions.
+
+    Matching by extent means a variable picks up `n_theta`/`n_zeta` names
+    automatically, so the file is self-describing without a hand-kept table.
+    """
     if not shape:
         return ()
     n_theta = int(np.asarray(data["n_theta"]))

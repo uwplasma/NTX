@@ -62,6 +62,12 @@ def _operator_context(
     nu_hat,
     epsi_hat,
 ) -> OperatorContext:
+    """Bundle surface, geometry, grid and physics parameters for the operator build.
+
+    Casts nu_hat and epsi_hat to the grid's dtype at construction. JAX fixes an
+    array's precision when it is created, not when it is used, so a stray
+    float32 here would silently demote the whole solve.
+    """
     return OperatorContext(
         surface=surface,
         geometry=geom,
@@ -150,6 +156,12 @@ def _factorize_prepared_modes(
     d_theta: Array,
     d_zeta: Array,
 ) -> tuple[Array, Array, Array, Array]:
+    """Block-Thomas factorization of the operator, returned as bare arrays.
+
+    Returns the four factor arrays rather than the container, because these are
+    the residuals saved by the custom VJP: a pytree of plain arrays is what the
+    backward pass can be handed without re-tracing the container type.
+    """
     factors = block_thomas_factor_fn(_operator_block_fn(ctx, d_theta, d_zeta), n_blocks=n_xi + 1)
     return factors.delta_lu, factors.delta_piv, factors.lower, factors.upper
 
@@ -161,6 +173,11 @@ def _solve_factorized_modes(
     saved_upper: Array,
     source: Array,
 ) -> Array:
+    """Apply a saved factorization to a source term.
+
+    Reassembles the factor container from the saved arrays; the split exists so
+    the factorization can cross a custom-VJP boundary.
+    """
     factors = BlockTridiagFactors(saved_lu, saved_piv, saved_lower, saved_upper)
     return block_thomas_solve(factors, source)
 
@@ -172,11 +189,22 @@ def _solve_factorized_adjoint(
     saved_upper: Array,
     source_bar: Array,
 ) -> Array:
+    """Apply the transpose of a saved factorization to a cotangent.
+
+    The adjoint solve reuses the primal factorization rather than refactorizing
+    the transpose, which is what makes the gradient cost a solve rather than a
+    second elimination.
+    """
     factors = BlockTridiagFactors(saved_lu, saved_piv, saved_lower, saved_upper)
     return block_thomas_solve(factors, source_bar, transpose=True)
 
 
 def _operator_block_fn(ctx: OperatorContext, d_theta: Array, d_zeta: Array):
+    """Return a closure giving the conditioned operator blocks at Legendre index k.
+
+    Block-Thomas wants a function of k rather than a materialized chain, so the
+    blocks are built lazily and the full operator is never held at once.
+    """
     def block_fn(k):
         return _conditioned_operator_blocks(ctx, k, d_theta, d_zeta)
 
@@ -214,6 +242,11 @@ def _conditioned_operator_blocks(
     d_theta: Array,
     d_zeta: Array,
 ) -> tuple[Array, Array, Array]:
+    """Operator blocks at index k, with the nullspace condition applied.
+
+    The monoenergetic operator is singular for the density-like mode; the
+    condition on the first row is what makes the block solve well-posed.
+    """
     lower, diagonal, upper = operator_blocks(ctx, k, d_theta, d_zeta)
     return _apply_nullspace_at_first_row(k, lower, diagonal, upper)
 
@@ -250,6 +283,12 @@ def _full_mode_relative_residual_norm(
     source: Array,
     modes: Array,
 ) -> Array:
+    """Residual norm relative to the source norm.
+
+    Normalizing by the source makes the number comparable across cases of
+    different amplitude. Guarded by `tiny` so a zero source reports a finite
+    ratio rather than a NaN.
+    """
     residual_rms = _full_mode_residual_norm(ctx, n_xi, d_theta, d_zeta, source, modes)
     source_rms = jnp.linalg.norm(source) / jnp.sqrt(source.size)
     tiny = jnp.finfo(residual_rms.dtype).tiny
@@ -296,6 +335,11 @@ class MonoenergeticCase:
     er_hat: float | Array | None = None
 
     def resolved_epsi_hat(self, transport_psi_scale: float | Array | None) -> Array:
+        """Resolve the radial-field parameter to epsi_hat.
+
+    epsi_hat and er_hat are two spellings of the same physical input, so
+    supplying both is rejected rather than silently preferring one.
+        """
         if self.epsi_hat is not None and self.er_hat is not None:
             msg = "set only one of epsi_hat or er_hat"
             raise ValueError(msg)
@@ -341,6 +385,7 @@ class TransportResult:
         return self.residual_l2
 
     def as_dict(self) -> dict[str, float]:
+        """Coefficients as plain floats, for serialization."""
         return {
             "D11": float(self.D11),
             "D31": float(self.D31),
@@ -406,6 +451,11 @@ CompiledPreparedSolver = Callable[[MonoenergeticCase], TransportResult]
 
 
 def transport_result_from_arrays(values: tuple[Array, ...]) -> TransportResult:
+    """Repack a positional array tuple into the named TransportResult.
+
+    The solve returns a bare tuple so it can cross jit and vmap boundaries;
+    this restores the names at the edge.
+    """
     return TransportResult(
         D11=values[0],
         D31=values[1],
@@ -427,6 +477,12 @@ def _prepared_implicit_vjp_primal(
     nu_hat,
     epsi_hat,
 ) -> tuple[Array, Array, Array, Array, Array, Array, Array]:
+    """Forward pass of the implicit adjoint: solve, and save what the backward needs.
+
+    Saves the factorization rather than the elimination trace. That is the whole
+    point of the implicit formulation: reverse mode costs one extra solve and
+    bounded memory, instead of recording every block operation.
+    """
     geom = prepared.geometry
     grid = prepared.grid
     ctx = _operator_context(prepared.surface, geom, grid, nu_hat, epsi_hat)
@@ -454,6 +510,11 @@ def _coefficient_mode_pullback(
     nu_hat: Array,
     coefficient_bar: Array,
 ) -> tuple[Array, Array, Array]:
+    """Pull a cotangent on the transport coefficients back onto the Legendre modes.
+
+    Uses jax.vjp on the coefficient map alone, so only the cheap post-processing
+    is differentiated by AD; the expensive solve is handled by the implicit rule.
+    """
     def coefficient_fn(modes1, modes3, nu_value):
         return jnp.stack(coefficients_from_modes(geom, modes1, modes3, nu_value))
 
@@ -470,6 +531,12 @@ def _parameter_gradient_from_adjoint(
     lambda1: Array,
     lambda3: Array,
 ) -> tuple[Array, Array]:
+    """Contract the adjoint solution with the operator derivative to get parameter gradients.
+
+    Zeroes the first row of each block, matching the nullspace condition applied
+    in the primal: that row is a constraint rather than a physical equation, so
+    it carries no sensitivity.
+    """
     def zero_first_row(block: Array) -> Array:
         return block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
 
@@ -617,6 +684,7 @@ def _solve_prepared_coefficient_vector_vjp_fwd(
     Array,
     tuple[Array, Array, Array | None, bool, bool, Array, Array, Array, Array, Array, Array],
 ]:
+    """Custom-VJP forward rule: transport coefficients plus saved residuals."""
     transport_scale = prepared.geometry.transport_psi_scale
     resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
     coefficients, f1_full, f3_full, saved_lu, saved_piv, saved_lower, saved_upper = (
@@ -658,6 +726,12 @@ def _solve_prepared_coefficient_vector_vjp_bwd(
     ],
     coefficient_bar: Array,
 ) -> tuple[MonoenergeticCase]:
+    """Custom-VJP backward rule: cotangents for nu_hat and epsi_hat.
+
+    Runs one transposed solve against the saved factorization and contracts it
+    with the operator derivative; nothing from the primal elimination is
+    replayed.
+    """
     (
         nu_hat,
         resolved_epsi_hat,
@@ -720,6 +794,11 @@ def _solve_prepared_coefficient_vector_raw(
     *,
     adjoint_window: int | None = None,
 ) -> Array:
+    """Solve and return the coefficients stacked as one array.
+
+    A single array output is what custom_vjp requires; the named unpacking
+    happens above this level.
+    """
     values = _solve_prepared_arrays_from_values(
         prepared, nu_hat, epsi_hat, adjoint_window=adjoint_window
     )
@@ -732,6 +811,7 @@ def _solve_prepared_arrays(
     *,
     adjoint_window: int | None = None,
 ) -> tuple[Array, ...]:
+    """Solve a prepared system for one case, returning the raw array tuple."""
     return _solve_prepared_arrays_from_values(
         prepared,
         case.nu_hat,
@@ -747,6 +827,11 @@ def _solve_prepared_arrays_from_values(
     *,
     adjoint_window: int | None = None,
 ) -> tuple[Array, ...]:
+    """Solve a prepared system from explicit nu_hat and epsi_hat values.
+
+    Takes values rather than a case object so the same path serves both the
+    public call and the custom-VJP rules, which only ever hold arrays.
+    """
     geom = prepared.geometry
     grid = prepared.grid
     ctx = _operator_context(prepared.surface, geom, grid, nu_hat, epsi_hat)
@@ -777,10 +862,21 @@ def _solve_prepared_arrays_from_values(
 
 
 def _stack_internal_systems(primary: Array, parallel: Array) -> Array:
+    """Stack the three internal right-hand sides.
+
+    The primary source appears twice: the D11 and D12 columns are driven by the
+    same source and differ only in how their modes are contracted afterwards.
+    """
     return jnp.stack((primary, primary, parallel))
 
 
 def _monoenergetic_matrix(d11: Array, d31: Array, d13: Array, d33: Array) -> Array:
+    """Assemble the 3x3 monoenergetic transport matrix.
+
+    The repeated D11 entries are not a typo: the first two rows share a driving
+    source, so the matrix is built with the Onsager structure explicit rather
+    than recomputing equal entries.
+    """
     return jnp.asarray([[d11, d11, d13], [d11, d11, d13], [d31, d31, d33]])
 
 

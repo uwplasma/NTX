@@ -122,6 +122,7 @@ tree_util.register_dataclass(
 
 
 def _broadcast_profile_field(values, rho: Array) -> Array:
+    """Broadcast a scalar or radial input to the radial grid's shape."""
     array = jnp.asarray(values)
     if array.ndim == 0:
         return jnp.full_like(rho, array)
@@ -131,6 +132,11 @@ def _broadcast_profile_field(values, rho: Array) -> Array:
 
 
 def _smooth_radial_profile(values: Array, strength: Array) -> Array:
+    """Smooth a radial profile by the given strength.
+
+    Rejects non-1D input up front: a species-major array would otherwise be
+    smoothed across species rather than along the radius.
+    """
     if jnp.asarray(values).ndim != 1:
         raise ValueError("values must be one-dimensional for radial smoothing")
     if jnp.asarray(values).shape[0] < 3:
@@ -148,6 +154,11 @@ def _single_radius_profile(
     er_profile: Array,
     er_trial: Array,
 ) -> Array:
+    """Replace the profile value at the radius nearest `rho_value`.
+
+    Used to probe the ambipolar root one radius at a time while leaving the rest
+    of the profile at its converged value.
+    """
     index = jnp.argmin(jnp.abs(rho - rho_value))
     return er_profile.at[index].set(er_trial)
 
@@ -306,6 +317,11 @@ def ambipolar_residual_profile(
 
 
 def _channel_data(scan: NeopaxScan, channel: str) -> Array:
+    """Return one scan channel, log-scaled where the channel spans decades.
+
+    D11 is interpolated in log10 for the same reason it is evaluated that way:
+    its dynamic range is decades and its regime knees are log-log features.
+    """
     if channel == "D11":
         return jnp.log10(jnp.maximum(jnp.asarray(scan.D11), 1.0e-30))
     if channel == "D13":

@@ -187,6 +187,12 @@ def _prepared_primal_transpose_residuals(
     case: MonoenergeticCase,
     coefficient_index: int,
 ) -> tuple[Array, Array]:
+    """Residual norms of the primal and transposed solves.
+
+    An adjoint gradient is only as good as the transposed solve behind it, so
+    both residuals are reported: a converged primal with a poorly solved
+    transpose produces a plausible and wrong derivative.
+    """
     epsi_hat = case.resolved_epsi_hat(prepared.geometry.transport_psi_scale)
     ctx = _operator_context(
         prepared.surface,
@@ -258,6 +264,7 @@ def _case_parameter_value(
     case: MonoenergeticCase,
     parameter: CoefficientParameter,
 ) -> Array:
+    """Current value of the parameter being differentiated."""
     if parameter == "nu_hat":
         return jnp.asarray(case.nu_hat)
     if parameter == "epsi_hat":
@@ -276,6 +283,11 @@ def _case_with_parameter(
     parameter: CoefficientParameter,
     value: Array,
 ) -> MonoenergeticCase:
+    """Copy a case with one parameter replaced.
+
+    Used to step a parameter for the finite-difference reference without
+    mutating the case under audit.
+    """
     if parameter == "nu_hat":
         return MonoenergeticCase(value, epsi_hat=case.epsi_hat, er_hat=case.er_hat)
     if parameter == "epsi_hat":
@@ -284,6 +296,12 @@ def _case_with_parameter(
 
 
 def _finite_difference_step(value: Array, requested: float | Array | None) -> Array:
+    """Choose a finite-difference step, defaulting from the value's magnitude.
+
+    A step scaled to the value keeps the difference in the range where
+    truncation and round-off are balanced; a fixed absolute step would be far
+    too large or too small depending on units.
+    """
     if requested is not None:
         step = jnp.asarray(requested, dtype=value.dtype)
         if float(step) <= 0.0:
@@ -294,6 +312,11 @@ def _finite_difference_step(value: Array, requested: float | Array | None) -> Ar
 
 
 def _relative_scalar_error(candidate: Array, reference: Array) -> Array:
+    """Relative error between two scalars, floored so zeros compare finitely.
+
+    Scaled by the larger magnitude rather than the reference, so the comparison
+    stays symmetric and does not blow up when the reference is near zero.
+    """
     scale = jnp.maximum(jnp.maximum(jnp.abs(candidate), jnp.abs(reference)), 1.0e-30)
     return jnp.abs(candidate - reference) / scale
 
