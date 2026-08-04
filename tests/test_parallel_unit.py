@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 import ntx._solver_scan as solver_scan
-import ntx._solver_scan_parallel as solver_scan_parallel
+import ntx._solver_scan as solver_scan_parallel
 import ntx.parallel as parallel_mod
 from ntx import GridSpec, example_surface, solve_monoenergetic_multiprocess_scan
 from ntx.geometry import VmecSurface

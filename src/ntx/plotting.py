@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from ._inputfiles_output import load_run_output
+from ._inputfiles import load_run_output
 
 
 def plot_run_output(

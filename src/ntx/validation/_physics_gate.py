@@ -1,8 +1,24 @@
-"""Analytical physics gates: comparisons against closed-form limits."""
+"""The physics-gate registry and the analytical limits gates check against.
+
+Aggregates the analytical gates with the artifact-backed ones and provides
+lookup by name. Artifact production sits above this, in
+_physics_gate_artifacts.
+"""
 
 from __future__ import annotations
 
 from ._physics_gate_types import PhysicsGate
+from ._physics_gate_artifact_registry import ARTIFACT_GATES
+
+__all__ = [
+    "ANALYTICAL_GATES",
+    "ARTIFACT_GATES",
+    "_gate_by_name",
+    "physics_gate_registry",
+]
+
+
+# --- _physics_gate_analytical: Analytical physics gates: comparisons against closed-form limits. ---
 
 ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
     PhysicsGate(
@@ -336,4 +352,17 @@ ANALYTICAL_GATES: tuple[PhysicsGate, ...] = (
     ),
 )
 
-__all__ = ["ANALYTICAL_GATES"]
+
+# --- _physics_gate_registry: The registry of physics gates, analytical and artifact-backed. ---
+
+def physics_gate_registry() -> tuple[PhysicsGate, ...]:
+    """Return analytical and artifact-backed physics gates in stable order."""
+
+    return ANALYTICAL_GATES + ARTIFACT_GATES
+
+
+def _gate_by_name(name: str) -> PhysicsGate:
+    for gate in physics_gate_registry():
+        if gate.name == name:
+            return gate
+    raise KeyError(name)

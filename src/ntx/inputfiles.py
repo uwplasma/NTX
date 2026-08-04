@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ._inputfiles_model import (
+from ._inputfiles import (
     OutputSpec,
     RunConfig,
     SurfaceSpec,
@@ -13,7 +13,7 @@ from ._inputfiles_model import (
     _resolve_relative_path,
     load_run_config,
 )
-from ._inputfiles_output import (
+from ._inputfiles import (
     build_run_payload,
     infer_run_output_format,
     load_run_output,
@@ -22,7 +22,7 @@ from ._inputfiles_output import (
     save_run_npz,
     save_run_output,
 )
-from ._inputfiles_reporting import (
+from ._inputfiles import (
     _algorithm_metadata,
     _algorithm_table,
     _case_table,
@@ -37,7 +37,7 @@ from ._inputfiles_reporting import (
     _surface_source_text,
     _surface_table,
 )
-from ._inputfiles_run import run_from_input_file
+from ._inputfiles import run_from_input_file
 
 __all__ = [
     "OutputSpec",

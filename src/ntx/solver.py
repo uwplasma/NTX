@@ -1,7 +1,7 @@
 """Dense JAX block-tridiagonal monoenergetic DKE solver."""
 
-from ._solver_context import _operator_context
-from ._solver_core import (
+from ._solver import _operator_context
+from ._solver import (
     prepare_monoenergetic_system,
     solve_monoenergetic,
     solve_monoenergetic_internal,
@@ -10,7 +10,7 @@ from ._solver_derivative_audit import (
     PreparedDerivativeAuditResult,
     audit_prepared_coefficient_derivative,
 )
-from ._solver_prepared import (
+from ._solver import (
     audit_prepared_residuals,
     compile_prepared_solver,
     solve_prepared,
@@ -30,14 +30,14 @@ from ._solver_scan import (
     solve_monoenergetic_scan,
     solve_scan,
 )
-from ._solver_types import (
+from ._solver import (
     CompiledPreparedSolver,
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
     ResidualAuditResult,
     TransportResult,
 )
-from ._solver_window import advise_adjoint_window, certify_adjoint_window
+from ._solver import advise_adjoint_window, certify_adjoint_window
 
 __all__ = [
     "CompiledPreparedSolver",

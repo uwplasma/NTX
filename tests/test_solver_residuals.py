@@ -11,8 +11,8 @@ from ntx import (
     prepare_monoenergetic_system,
     solve_prepared,
 )
-from ntx._solver_context import _operator_context
-from ntx._solver_factorization import (
+from ntx._solver import _operator_context
+from ntx._solver import (
     _factorize_prepared_modes,
     _full_mode_residual_norm,
     _full_mode_transpose_relative_residual_norm,

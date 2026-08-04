@@ -261,8 +261,8 @@ The corresponding helpers are:
 - `optimize_profile_control(...)`
 
 The scalar-control implementation lives in
-`src/ntx/_profiles_control_scalar.py`; the compatibility facade
-`src/ntx/_profiles_controls.py` preserves the existing public import surface.
+`src/ntx/_profiles_control.py`; the compatibility facade
+`src/ntx/_profiles_control.py` preserves the existing public import surface.
 The fast test suite gates the intended linear response: zero control leaves
 `A1` and `A3` unchanged, and finite control multiplies each species profile by
 the prescribed response factor.
@@ -335,7 +335,7 @@ The corresponding helpers are:
 - `apply_profile_basis_control(...)`
 - `optimize_profile_basis_control(...)`
 
-The radial-basis implementation lives in `src/ntx/_profiles_control_basis.py`.
+The radial-basis implementation lives in `src/ntx/_profiles_control.py`.
 The matching gate checks that the basis-control modifier is exactly the
 contracted response-basis map, with zero control again preserving the original
 thermodynamic-force profiles.

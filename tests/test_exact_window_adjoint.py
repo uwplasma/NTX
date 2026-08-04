@@ -23,8 +23,8 @@ from ntx import (
     example_surface,
     solve_monoenergetic,
 )
-from ntx._solver_core import prepare_monoenergetic_system
-from ntx._solver_factorization import _solve_modes_with_tail_residual
+from ntx._solver import prepare_monoenergetic_system
+from ntx._solver import _solve_modes_with_tail_residual
 from ntx.operators import (
     OperatorContext,
     block_parameters,

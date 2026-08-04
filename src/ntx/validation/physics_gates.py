@@ -14,7 +14,7 @@ from ._physics_gate_artifacts import (
     _evaluate_scalar_gate,
     evaluate_artifact_gates,
 )
-from ._physics_gate_registry import (
+from ._physics_gate import (
     ANALYTICAL_GATES,
     ARTIFACT_GATES,
     _gate_by_name,

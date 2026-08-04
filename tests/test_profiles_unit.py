@@ -21,9 +21,9 @@ from ntx import (
     evaluate_species_current_response,
     evaluate_species_particle_flux,
 )
-from ntx._profiles_channels import _channel_data
-from ntx._profiles_radial import _single_radius_profile, _smooth_radial_profile
-from ntx._profiles_transport_terms import (
+from ntx._profiles import _channel_data
+from ntx._profiles import _single_radius_profile, _smooth_radial_profile
+from ntx._profiles_transport import (
     _broadcast_species_transport_field,
     _scaled_transport_closure,
 )
