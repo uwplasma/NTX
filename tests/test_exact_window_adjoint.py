@@ -23,8 +23,7 @@ from ntx import (
     example_surface,
     solve_monoenergetic,
 )
-from ntx._solver_core import prepare_monoenergetic_system
-from ntx._solver_factorization import _solve_modes_with_tail_residual
+from ntx._solver import _solve_modes_with_tail_residual, prepare_monoenergetic_system
 from ntx.operators import (
     OperatorContext,
     block_parameters,
@@ -41,9 +40,7 @@ def _context(n_xi=32, n_theta=5, n_zeta=5):
     prepared = prepare_monoenergetic_system(example_surface(), grid)
     case = MonoenergeticCase(NU, er_hat=EPSI)
     epsi = case.resolved_epsi_hat(prepared.geometry.transport_psi_scale)
-    ctx = OperatorContext(
-        prepared.surface, prepared.geometry, jnp.asarray(NU), jnp.asarray(epsi)
-    )
+    ctx = OperatorContext(prepared.surface, prepared.geometry, jnp.asarray(NU), jnp.asarray(epsi))
     return prepared, grid, ctx
 
 
@@ -67,13 +64,11 @@ def test_transport_coefficients_are_unchanged_by_the_window(n_xi):
     case = MonoenergeticCase(NU, er_hat=EPSI)
     reference = solve_monoenergetic(example_surface(), grid, case)
     for window in (None, 4, 12):
-        result = solve_monoenergetic(
-            example_surface(), grid, case, adjoint_window=window
-        )
+        result = solve_monoenergetic(example_surface(), grid, case, adjoint_window=window)
         for name in ("D11", "D31", "D13", "D33", "D33_spitzer"):
-            assert jnp.array_equal(
-                getattr(reference, name), getattr(result, name)
-            ), f"{name} moved at window {window}"
+            assert jnp.array_equal(getattr(reference, name), getattr(result, name)), (
+                f"{name} moved at window {window}"
+            )
 
 
 def test_default_supports_forward_mode_and_a_window_does_not():
@@ -137,6 +132,7 @@ def test_full_window_gradient_equals_the_taped_gradient():
 
 def test_finite_window_bounds_the_reverse_pass_but_not_the_forward_one():
     """The point of the change: reverse memory stops tracking ``n_xi``."""
+
     def reverse_bytes(n_xi, window):
         prepared, grid, ctx = _context(n_xi=n_xi)
         s1, s3 = source_modes(ctx, grid.n_xi)
@@ -168,9 +164,7 @@ def test_finite_window_bounds_the_reverse_pass_but_not_the_forward_one():
 
 def test_window_advisor_reports_an_uncertified_estimate():
     prepared, grid, ctx = _context(n_xi=64)
-    advice = advise_adjoint_window(
-        ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta
-    )
+    advice = advise_adjoint_window(ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta)
     assert advice.certified is False
     assert 0 <= advice.window <= grid.n_xi + 1
     assert advice.primal_profile.shape[0] > 0
@@ -224,7 +218,9 @@ def test_scan_gradient_works_and_matches_a_finite_difference():
     def loss(scale):
         nu = jnp.asarray([1.0e-2, 1.0e-1]) * scale
         out = solve_monoenergetic_scan(
-            example_surface(), GridSpec(5, 5, 24), nu,
+            example_surface(),
+            GridSpec(5, 5, 24),
+            nu,
             er_hat=jnp.full_like(nu, EPSI),
         )
         return jnp.sum(out["D11"])

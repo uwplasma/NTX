@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from ._inputfiles_output import load_run_output
+from ._inputfiles import load_run_output
 
 
 def plot_run_output(
@@ -113,10 +113,14 @@ def _run_output_figure(plt, data: dict[str, np.ndarray], output_path: Path):
     axes[1, 0].tick_params(axis="x", rotation=20)
 
     summary = (
-        rf"$\hat{{\nu}}={_scalar(data['nu_hat']):.2e}$" "\n"
-        rf"$\hat{{\epsilon}}={_scalar(data['epsi_hat_resolved']):.2e}$" "\n"
-        rf"residual$={_scalar(data['residual_l2']):.2e}$" "\n"
-        rf"Onsager$={_scalar(data['onsager_residual']):.2e}$" "\n"
+        rf"$\hat{{\nu}}={_scalar(data['nu_hat']):.2e}$"
+        "\n"
+        rf"$\hat{{\epsilon}}={_scalar(data['epsi_hat_resolved']):.2e}$"
+        "\n"
+        rf"residual$={_scalar(data['residual_l2']):.2e}$"
+        "\n"
+        rf"Onsager$={_scalar(data['onsager_residual']):.2e}$"
+        "\n"
         rf"$N_\theta={int(_scalar(data['n_theta']))},\;"
         rf"N_\zeta={int(_scalar(data['n_zeta']))},\;"
         rf"N_\xi={int(_scalar(data['n_xi']))}$"

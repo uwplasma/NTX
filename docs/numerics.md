@@ -101,7 +101,7 @@ X_k = \Delta_k^{-1} L_k.
 ```
 
 This is assembled by `_solve_modes(...)` in
-[`src/ntx/_solver_factorization.py`](../src/ntx/_solver_factorization.py)
+[`src/ntx/_solver.py`](../src/ntx/_solver.py)
 and eliminated by SOLVAX's generated block-tridiagonal solver.
 
 ### Why Only Modes 0, 1, And 2 Are Stored
@@ -152,10 +152,10 @@ That choice is visible in:
 - `_factorize_prepared_modes(...)`
 - `compile_prepared_solver(...)`
 
-in [`src/ntx/_solver_factorization.py`](../src/ntx/_solver_factorization.py)
-[`src/ntx/_solver_core.py`](../src/ntx/_solver_core.py), and the prepared
+in [`src/ntx/_solver.py`](../src/ntx/_solver.py)
+[`src/ntx/_solver.py`](../src/ntx/_solver.py), and the prepared
 custom-VJP adjoint helpers in
-[`src/ntx/_solver_adjoint.py`](../src/ntx/_solver_adjoint.py).
+[`src/ntx/_solver.py`](../src/ntx/_solver.py).
 
 ## Complexity
 

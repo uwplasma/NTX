@@ -4,7 +4,7 @@ This namespace groups autodiff, profile, and imported database helpers without
 removing the historical flat imports from `ntx`.
 """
 
-from ..autodiff import (
+from .autodiff import (
     BootstrapOptimizationResult,
     DerivativeAuditResult,
     InverseProblemResult,
@@ -18,7 +18,7 @@ from ..autodiff import (
     example_neopax_profile_autodiff,
     example_neopax_profile_uncertainty,
 )
-from ..neopax import (
+from .neopax import (
     DifferentiableNeopaxField,
     NeopaxMonoenergeticArrays,
     NeopaxScan,
@@ -37,7 +37,7 @@ from ..neopax import (
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
-from ..profiles import (
+from .profiles import (
     AmbipolarProfileFamilyResult,
     AmbipolarProfileResult,
     MonoenergeticSpeciesProfile,

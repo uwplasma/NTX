@@ -23,19 +23,17 @@ from ntx._checkout_paths import (
     find_neopax_root,
     find_vmex_example_input,
 )
-from ntx._geometry_types import BoozerSurface
-from ntx._neopax_field import (
+from ntx._geometry import BoozerSurface
+from ntx._neopax import (
+    _apply_boozer_sign_convention_profiles,
+    _booz_xform_bundle_with_gmnc_from_vmex_state,
+    _booz_xform_gmnc_from_inputs,
     _find_mode_index,
+    _rho_half_mesh_from_s,
     _safe_divide,
     _safe_reciprocal,
     _surface_b10,
     _surface_bsqav,
-)
-from ntx._neopax_vmex_field import (
-    _apply_boozer_sign_convention_profiles,
-    _booz_xform_bundle_with_gmnc_from_vmex_state,
-    _booz_xform_gmnc_from_inputs,
-    _rho_half_mesh_from_s,
     _vmec_edge_r00_from_state,
     _vmec_psia_from_indata,
     _vmec_psia_from_state,
@@ -382,7 +380,7 @@ def test_vmec_scalar_profile_helpers_with_fake_modules(monkeypatch):
 
 
 def test_differentiable_neopax_field_from_vmec_state_uses_axis_safe_profiles(monkeypatch):
-    import ntx._neopax_vmex_field as neopax_field_module
+    import ntx._neopax as neopax_field_module
 
     static = SimpleNamespace(s=jnp.asarray([0.0, 0.25, 0.5, 0.75, 1.0]))
     state = SimpleNamespace(
@@ -445,7 +443,7 @@ def test_differentiable_neopax_field_from_vmec_state_uses_axis_safe_profiles(mon
 
 
 def test_differentiable_neopax_field_from_vmec_state_falls_back_to_indata_psia(monkeypatch):
-    import ntx._neopax_vmex_field as neopax_field_module
+    import ntx._neopax as neopax_field_module
 
     monkeypatch.setattr(
         neopax_field_module,
@@ -544,7 +542,7 @@ def test_differentiable_neopax_fluxes_copy_axis_block_and_apply_lij_forces(monke
 
 
 def test_boundary_params_field_builder_delegates_to_state_builder(monkeypatch):
-    import ntx._neopax_vmex_field as neopax_field_module
+    import ntx._neopax as neopax_field_module
 
     context = SimpleNamespace(static="static", indata="indata", signgs=-1)
     calls = {}
@@ -586,7 +584,7 @@ def test_boundary_params_field_builder_delegates_to_state_builder(monkeypatch):
 
 
 def test_booz_xform_gmnc_helpers_with_fake_internal_api(monkeypatch):
-    import ntx._neopax_vmex_boozer as vmex_boozer_module
+    import ntx._neopax as vmex_boozer_module
 
     jax_api = ModuleType("booz_xform_jax.jax_api")
 

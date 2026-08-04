@@ -30,8 +30,10 @@ jax.config.update("jax_enable_x64", True)
 
 import ntx  # noqa: E402
 from ntx import GridSpec, MonoenergeticCase, advise_adjoint_window, example_surface  # noqa: E402
-from ntx._solver_core import prepare_monoenergetic_system  # noqa: E402
-from ntx._solver_factorization import _solve_modes_with_tail_residual  # noqa: E402
+from ntx._solver import (  # noqa: E402
+    _solve_modes_with_tail_residual,
+    prepare_monoenergetic_system,
+)
 from ntx.operators import OperatorContext, source_modes  # noqa: E402
 
 
@@ -88,7 +90,7 @@ def measure(n_xi: int, n_theta: int, n_zeta: int, nu: float, epsi: float) -> dic
     # cannot use its exact-window rule and JAX records the sweep instead.
     import solvax
 
-    from ntx._solver_factorization import _operator_block_fn
+    from ntx._solver import _operator_block_fn
 
     def taped_loss(nu_scale):
         scaled = OperatorContext(

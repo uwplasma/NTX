@@ -432,7 +432,7 @@ contains one radial and one parallel response, so it receives one `dr/ds`
 factor. The parallel conductivity coefficient is stored as `nu * D33` because
 the consumer reconstructs the monoenergetic conductivity integrand by dividing
 by the collisionality used in the energy convolution. This is the exact mapping
-implemented in [`src/ntx/_neopax_bridge.py`](../src/ntx/_neopax_bridge.py).
+implemented in [`src/ntx/_neopax.py`](../src/ntx/_neopax.py).
 
 `D33_spitzer` is not a fitted alternate normalization. It is the analytic
 Spitzer-conductivity contribution

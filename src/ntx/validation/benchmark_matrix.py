@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Literal
 
-from ._benchmark_matrix_entries import benchmark_matrix
+from ._benchmark_matrix import benchmark_matrix
 from ._benchmark_matrix_types import (
     BenchmarkEntry,
     BenchmarkEvaluation,

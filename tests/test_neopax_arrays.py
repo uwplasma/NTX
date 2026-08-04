@@ -23,7 +23,7 @@ from ntx import (
     scan_to_neopax_arrays,
     write_neopax_scan_hdf5,
 )
-from ntx._neopax_scan_fields import normalize_neopax_scan_field_channels
+from ntx._neopax_scan import normalize_neopax_scan_field_channels
 from ntx.neopax import _surface_reference_bridge
 
 from .fixture_data import SAMPLE_WOUT
@@ -559,6 +559,7 @@ def test_conductivity_difference_d33_mode_requires_spitzer_branch():
         assert "requires D33_spitzer" in str(exc)
     else:  # pragma: no cover - defensive
         raise AssertionError("expected ValueError for conductivity_difference without D33_spitzer")
+
 
 def test_scan_to_neopax_arrays_is_differentiable_in_es():
     surfaces = (example_surface(), example_surface())

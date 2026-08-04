@@ -17,8 +17,7 @@ def test_neopax_scan_hdf5_round_trip(tmp_path):
     reference = load_neopax_reference_scan(SAMPLE_NEOPAX)
     rho = reference.rho
     surfaces = tuple(
-        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
-        for rho_value in rho
+        surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2)) for rho_value in rho
     )
     scan = build_ntx_neopax_scan_from_surfaces(
         surfaces,

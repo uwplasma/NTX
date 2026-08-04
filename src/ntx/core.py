@@ -4,7 +4,7 @@ This namespace is a stable import surface for solver, scan, and transport
 helpers while the historical flat modules remain supported.
 """
 
-from ..solver import (
+from .solver import (
     CompiledPreparedScanSolver,
     CompiledPreparedSolver,
     MonoenergeticCase,
@@ -27,7 +27,7 @@ from ..solver import (
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
-from ..transport import coefficients_from_modes, onsager_error
+from .transport import coefficients_from_modes, onsager_error
 
 __all__ = [
     "CompiledPreparedSolver",

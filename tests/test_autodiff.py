@@ -21,16 +21,16 @@ from ntx import (
     load_neopax_reference_scan,
     surface_from_vmex_vmec_wout_file,
 )
-from ntx._autodiff_workflows import (
+from ntx._autodiff import (
     _er_profile,
     _evaluate_d11_profile,
     _evaluate_d13_profile,
     _evaluate_d33_profile,
 )
-from ntx._autodiff_workflows import (
+from ntx._autodiff import (
     example_neopax_profile_autodiff as _example_neopax_profile_autodiff,
 )
-from ntx._neopax_types import NeopaxMonoenergeticArrays
+from ntx._neopax import NeopaxMonoenergeticArrays
 from ntx.autodiff import _maybe_import_neopax
 
 from .fixture_data import SAMPLE_NEOPAX, SAMPLE_WOUT

@@ -6,23 +6,23 @@ import sys
 
 from jax import Array
 
-from ._autodiff_types import (
+from ._autodiff import (
     BootstrapOptimizationResult,
     DerivativeAuditResult,
     InverseProblemResult,
     NeopaxProfileAutodiffResult,
     NeopaxProfileUncertaintyResult,
     RobustBootstrapOptimizationResult,
-)
-from ._autodiff_workflows import (
-    example_bootstrap_current_optimization,
-    example_bootstrap_current_robust_optimization,
     example_derivative_audit,
     example_inverse_problem,
     example_neopax_profile_uncertainty,
 )
-from ._autodiff_workflows import (
+from ._autodiff import (
     example_neopax_profile_autodiff as _example_neopax_profile_autodiff,
+)
+from ._autodiff_bootstrap import (
+    example_bootstrap_current_optimization,
+    example_bootstrap_current_robust_optimization,
 )
 from ._checkout_paths import find_neopax_root
 

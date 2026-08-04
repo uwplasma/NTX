@@ -9,7 +9,7 @@ import jax.numpy as jnp
 import pytest
 
 from ntx import surface_from_vmex_state, surface_from_vmex_wout
-from ntx._vmex_boozer import _apply_boozer_sign_convention_profiles
+from ntx._vmex import _apply_boozer_sign_convention_profiles
 from ntx.geometry import BoozerSurface
 from ntx.vmex_backend import (
     _apply_boozer_sign_convention,
@@ -164,7 +164,7 @@ def test_surface_from_vmex_wout_uses_current_root_api(monkeypatch, tmp_path):
         return "surface"
 
     monkeypatch.setattr(
-        "ntx._vmex_surfaces._surface_from_booz_xform_wout_data",
+        "ntx._vmex._surface_from_booz_xform_wout_data",
         fake_wout_fallback,
     )
 
@@ -377,7 +377,7 @@ def test_current_vmex_boundary_context_uses_implicit_params(monkeypatch, tmp_pat
 
 
 def test_surfaces_from_boundary_params_delegates(monkeypatch):
-    import ntx._vmex_surfaces as surfaces
+    import ntx._vmex as surfaces
 
     context = SimpleNamespace(static="static", indata="indata", signgs=1)
     calls = {}
@@ -452,7 +452,7 @@ def test_prepend_checkout_adds_existing_root_once(tmp_path):
 
 
 def test_import_helpers_use_checkout_fallback(monkeypatch, tmp_path):
-    import ntx._vmex_boozer as boozer_backend
+    import ntx._vmex as boozer_backend
 
     real_import = builtins.__import__
     fake_vmec = ModuleType("vmex")

@@ -66,9 +66,7 @@ def test_ambipolar_residual_and_solver_are_differentiable():
             profiles[1],
         )
         result = solve_ambipolar_er_profile(scan, scaled_species, steps=6)
-        return jnp.sum(result.bootstrap_current_response**2) + jnp.sum(
-            result.ambipolar_residual**2
-        )
+        return jnp.sum(result.bootstrap_current_response**2) + jnp.sum(result.ambipolar_residual**2)
 
     gradient = jax.grad(objective)(1.0)
     assert jnp.isfinite(gradient)
