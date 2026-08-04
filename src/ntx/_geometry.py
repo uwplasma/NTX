@@ -37,6 +37,11 @@ class BoozerSurface:
     source_path: Path | None = None
 
     def __post_init__(self) -> None:
+        """Reject harmonic arrays of mismatched length.
+
+    Checked at construction because a length mismatch would otherwise surface as
+    a silent broadcast far away in the operator build.
+        """
         if len(self.m) != len(self.n) or len(self.m) != len(self.b_cos):
             msg = "m, n, and b_cos must have the same length"
             raise ValueError(msg)
@@ -95,6 +100,7 @@ class VmecSurface:
     stellarator_symmetric: bool = True
 
     def __post_init__(self) -> None:
+        """Reject harmonic arrays of mismatched length."""
         size = len(self.m)
         for name in (
             "n",
@@ -150,6 +156,12 @@ tree_util.register_dataclass(
 
 @dataclass(frozen=True)
 class GeometryOnGrid:
+    """Magnetic geometry evaluated on a theta-zeta grid.
+
+    Everything the operator build needs from the equilibrium, precomputed once:
+    the field and its derivatives, the Jacobian, and the flux scale. Holding it
+    as one frozen container is what lets the solve be a pure function of it.
+    """
     surface_type: str
     surface_path: Path | None
     nfp: int
@@ -275,6 +287,11 @@ def geometry_on_grid(surface: BoozerSurface | VmecSurface, spec) -> GeometryOnGr
 
 
 def _boozer_geometry_on_grid(surface: BoozerSurface, spec) -> GeometryOnGrid:
+    """Evaluate a Boozer surface on the grid.
+
+    Boozer coordinates make the field a single Fourier sum, so B and its
+    derivatives come directly from the harmonics.
+    """
     grid = periodic_grid(spec, surface.nfp)
     theta_2d, zeta_2d = jnp.meshgrid(grid.theta, grid.zeta, indexing="ij")
     b, d_b_dtheta, d_b_dzeta = evaluate_boozer_modes(surface, theta_2d, zeta_2d)
@@ -318,6 +335,12 @@ def _boozer_geometry_on_grid(surface: BoozerSurface, spec) -> GeometryOnGrid:
 
 
 def _vmec_geometry_on_grid(surface: VmecSurface, spec) -> GeometryOnGrid:
+    """Evaluate a VMEC surface on the grid.
+
+    Unlike the Boozer path, the metric has to be assembled from the R/Z
+    harmonics, so this carries the extra geometry that the Boozer form makes
+    implicit.
+    """
     grid = periodic_grid(spec, surface.nfp)
     theta_2d, zeta_2d = jnp.meshgrid(grid.theta, grid.zeta, indexing="ij")
     b, d_b_dtheta, d_b_dzeta = evaluate_fourier_series(

@@ -48,6 +48,11 @@ def surface_with_amplitude(
     coefficient_index: int,
     amplitude: float | Array,
 ) -> BoozerSurface:
+    """Return `surface` with one Boozer coefficient replaced by `amplitude`.
+
+    Functional update rather than mutation, so the result is differentiable
+    with respect to `amplitude` and safe to call inside a traced loop.
+    """
     return replace(surface, b_cos=surface.b_cos.at[coefficient_index].set(amplitude))
 
 
@@ -57,11 +62,23 @@ def inverse_problem_response(
     nu_hat: Array,
     er_hat: float,
 ) -> Array:
+    """Forward map of the inverse problem: surface geometry to D11.
+
+    The quantity an inverse solve tries to match. Wrapping the scan in a
+    single-output function is what lets JAX differentiate the response with
+    respect to a geometry coefficient.
+    """
     coeffs = solve_monoenergetic_scan(surface, grid, nu_hat, er_hat=jnp.full_like(nu_hat, er_hat))
     return coeffs["D11"]
 
 
 def er_profile(rho: Array, params: Array) -> Array:
+    """Evaluate a radial electric field profile from its polynomial parameters.
+
+    Uses odd powers of rho only, so the profile is odd about the magnetic
+    axis and E_r(0) = 0, which is the physical boundary condition; a general
+    polynomial would have to be constrained afterwards to achieve it.
+    """
     parameters = jnp.asarray(params)
     powers = 2 * jnp.arange(parameters.size, dtype=jnp.asarray(rho).dtype) + 1
     return jnp.sum(parameters[:, None] * jnp.asarray(rho)[None, :] ** powers[:, None], axis=0)
@@ -73,6 +90,12 @@ def evaluate_d33_profile(
     nu_value: Array,
     er_profile_value: Array,
 ) -> Array:
+    """Interpolate D33 across a radial profile at fixed collisionality.
+
+    Monotone (pchip) interpolation: D33 is positive and saturating, so a
+    monotone rule cannot overshoot its knee. Interpolated directly rather
+    than in log space, unlike D11.
+    """
     log_nu = jnp.log10(jnp.maximum(nu_value, 1e-12))
 
     def per_radius(index, er_value):
@@ -98,6 +121,12 @@ def evaluate_d11_profile(
     nu_value: Array,
     er_profile_value: Array,
 ) -> Array:
+    """Interpolate D11 across a radial profile at fixed collisionality.
+
+    Interpolated in log10 and exponentiated back, because D11 spans several
+    decades and its regime transitions appear as knees in log-log; a monotone
+    (pchip) rule cannot overshoot them.
+    """
     log_nu = jnp.log10(jnp.maximum(nu_value, 1e-12))
 
     def per_radius(index, er_value):
@@ -123,6 +152,12 @@ def evaluate_d13_profile(
     nu_value: Array,
     er_profile_value: Array,
 ) -> Array:
+    """Interpolate D13 across a radial profile at fixed collisionality.
+
+    Parabolic rather than pchip, and the exception to the rule the other two
+    coefficients follow: D13 changes sign and has a smooth extremum, which a
+    monotone limiter would flatten into a plateau.
+    """
     log_nu = jnp.log10(jnp.maximum(nu_value, 1e-12))
 
     def per_radius(index, er_value):
@@ -143,6 +178,11 @@ def evaluate_d13_profile(
 
 
 def dominant_nonaxisymmetric_mode(surface: BoozerSurface | VmecSurface) -> tuple[int, int]:
+    """Return the (m, n) of the largest-amplitude non-axisymmetric harmonic.
+
+    The (0, 0) component is masked out because it carries the field strength
+    rather than the shaping, and would otherwise always win.
+    """
     mask = jnp.logical_not(jnp.logical_and(surface.m == 0, surface.n == 0))
     masked_amplitude = jnp.where(mask, jnp.abs(surface.b_cos), -1.0)
     index = int(jnp.argmax(masked_amplitude))
@@ -154,6 +194,11 @@ def mode_value_for_surface(
     harmonic_m: int,
     harmonic_n: int,
 ) -> Array:
+    """Return the b_cos amplitude of one (m, n) harmonic.
+
+    Selects by boolean match rather than by index arithmetic so the lookup
+    survives an arbitrary harmonic ordering.
+    """
     matches = jnp.logical_and(surface.m == harmonic_m, surface.n == harmonic_n)
     index = jnp.argmax(matches)
     return surface.b_cos[index]
@@ -165,6 +210,12 @@ def scale_surface_mode(
     harmonic_n: int,
     scale: Array,
 ) -> BoozerSurface | VmecSurface:
+    """Return `surface` with one harmonic's amplitude multiplied by `scale`.
+
+    The knob a geometry optimization turns: it perturbs a single shaping
+    harmonic while leaving every other harmonic, and the mode table itself,
+    untouched.
+    """
     matches = jnp.logical_and(surface.m == harmonic_m, surface.n == harmonic_n)
     index = jnp.argmax(matches)
     scaled = surface.b_cos.at[index].set(surface.b_cos[index] * scale)
@@ -176,6 +227,11 @@ def scale_surface_mode(
 
 @dataclass(frozen=True)
 class InverseProblemResult:
+    """Per-iteration history of an inverse-problem solve.
+
+    Keeps the whole trajectory rather than the final answer alone, so a run
+    can be shown to have converged rather than merely stopped.
+    """
     amplitude_history: Array
     gradient_history: Array
     loss_history: Array
@@ -208,6 +264,11 @@ tree_util.register_dataclass(
 
 @dataclass(frozen=True)
 class NeopaxProfileAutodiffResult:
+    """Fitted profile, its target, and the optimization trajectory.
+
+    Carries both the fitted and target profiles so the residual can be
+    recomputed without rerunning the fit.
+    """
     parameter_history: Array
     loss_history: Array
     rho: Array
@@ -242,6 +303,11 @@ tree_util.register_dataclass(
 
 @dataclass(frozen=True)
 class NeopaxProfileUncertaintyResult:
+    """Fitted profile with its sensitivity matrix and parameter covariance.
+
+    The covariance is what turns a fit into an error bar; it is propagated
+    from the sensitivity matrix rather than estimated by resampling.
+    """
     rho: Array
     fitted_er_profile: Array
     fitted_d33_profile: Array
@@ -292,6 +358,12 @@ tree_util.register_dataclass(
 
 @dataclass(frozen=True)
 class BootstrapOptimizationResult:
+    """Bootstrap-current optimization history plus the objective landscape.
+
+    The landscape is swept alongside the descent path so a reported optimum
+    can be checked against the surrounding objective rather than trusted from
+    the final iterate.
+    """
     scale_history: Array
     gradient_history: Array
     objective_history: Array
@@ -346,6 +418,12 @@ tree_util.register_dataclass(
 
 @dataclass(frozen=True)
 class RobustBootstrapOptimizationResult:
+    """Robust bootstrap optimization, with both objective landscapes.
+
+    Keeps the deterministic and robust landscapes side by side: the point of
+    the robust objective is that its optimum sits somewhere the deterministic
+    one does not, and that is only visible with both.
+    """
     scale_history: Array
     gradient_history: Array
     objective_history: Array
@@ -400,6 +478,12 @@ tree_util.register_dataclass(
 
 @dataclass(frozen=True)
 class DerivativeAuditResult:
+    """Autodiff derivatives beside finite-difference references.
+
+    The audit exists because an autodiff gradient through an interpolated
+    table can be silently wrong where the interpolant is not differentiable;
+    holding both lets the comparison be asserted rather than assumed.
+    """
     nu_hat: Array
     er_hat_scan: Array
     amplitude_value: Array

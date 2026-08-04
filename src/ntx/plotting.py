@@ -45,6 +45,11 @@ def plot_run_output(
 
 
 def _configure_style(plt) -> None:
+    """Apply the plot style, from a reset baseline.
+
+    Starts from `default` so a caller's own rcParams cannot leak in and change
+    what the figure looks like.
+    """
     plt.style.use("default")
     plt.rcParams.update(
         {
@@ -69,6 +74,7 @@ def _configure_style(plt) -> None:
 
 
 def _run_output_figure(plt, data: dict[str, np.ndarray], output_path: Path):
+    """Draw the field and geometry panels for a run output."""
     theta = np.asarray(data["theta_grid"])
     zeta = np.asarray(data["zeta_grid"])
     b = np.asarray(data["b"])
@@ -153,6 +159,7 @@ def _run_output_figure(plt, data: dict[str, np.ndarray], output_path: Path):
 
 
 def _scalar(value) -> float:
+    """Coerce a zero-dimensional array to a float."""
     return float(np.asarray(value))
 
 

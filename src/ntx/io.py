@@ -158,6 +158,7 @@ def write_result_jsonable(result) -> dict[str, float]:
 
 
 def _parse_scalar(text: str, name: str) -> float:
+    """Extract a named scalar from a DKES-format text file."""
     match = re.search(_SCALAR_PATTERN.format(name=re.escape(name)), text)
     if match is None:
         msg = f"missing `{name}` in DKES input"
@@ -166,4 +167,9 @@ def _parse_scalar(text: str, name: str) -> float:
 
 
 def _parse_float(value: str) -> float:
+    """Parse a Fortran float, accepting D exponents.
+
+    Fortran writes double precision as 1.0D+00; Python's float does not accept
+    that spelling.
+    """
     return float(value.replace("D", "E").replace("d", "e"))

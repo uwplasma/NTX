@@ -19,6 +19,11 @@ class GridSpec:
     x64: bool = True
 
     def __post_init__(self) -> None:
+        """Reject grids too coarse to resolve a Fourier derivative.
+
+    Three points is the minimum for which the spectral derivative is meaningful
+    rather than merely computable.
+        """
         if self.n_theta < 3 or self.n_zeta < 3:
             msg = "n_theta and n_zeta must be at least 3"
             raise ValueError(msg)

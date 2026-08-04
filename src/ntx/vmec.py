@@ -166,6 +166,11 @@ def load_vmec_surface(
 
 
 def _mode_major(values) -> np.ndarray:
+    """Transpose a vmex `(radius, mode)` array to mode-major order.
+
+    NTX indexes harmonics first throughout; converting once at the boundary
+    keeps that convention from leaking into the loaders.
+    """
     array = np.asarray(values, dtype=np.float64)
     if array.ndim != 2:
         raise ValueError("expected a 2D `(radius, mode)` array from vmex")
@@ -173,6 +178,11 @@ def _mode_major(values) -> np.ndarray:
 
 
 def _iota_grid_from_wout(wout) -> np.ndarray:
+    """Read the rotational transform under whichever name the file uses.
+
+    VMEC outputs differ in whether iota is stored full-mesh or half-mesh and
+    under which spelling.
+    """
     for name in ("iota_f", "iotaf", "iotas"):
         if hasattr(wout, name):
             values = np.asarray(getattr(wout, name), dtype=np.float64)
@@ -182,6 +192,12 @@ def _iota_grid_from_wout(wout) -> np.ndarray:
 
 
 def _resolve_psi_n(psi_n_grid: np.ndarray, psi_n: float, option: int) -> float:
+    """Map a requested normalized flux onto a radial index or interpolation.
+
+    `option` selects the convention: nearest stored surface, or interpolation
+    between them. The bounds check is first because a psi_n outside [0, 1] is a
+    configuration error, not something to clamp.
+    """
     if not 0.0 <= psi_n <= 1.0:
         raise ValueError("surface.psi_n must be between 0 and 1")
     if option == 0:
@@ -195,10 +211,12 @@ def _resolve_psi_n(psi_n_grid: np.ndarray, psi_n: float, option: int) -> float:
 
 
 def _interp_1d(x: np.ndarray, values: np.ndarray, xq: float) -> float:
+    """Quadratic interpolation of a profile at one radius."""
     return float(_interpolated_value(x, values, float(xq), order=2))
 
 
 def _interp_mode_columns(x: np.ndarray, values: np.ndarray, xq: float) -> np.ndarray:
+    """Interpolate every harmonic column to one radius."""
     if values.ndim != 2:
         raise ValueError("expected a 2D `(mode, radius)` array")
     return np.asarray(
@@ -214,6 +232,11 @@ def _interpolated_value(
     *,
     order: int,
 ) -> float:
+    """Polynomial interpolation of the requested order at a query point.
+
+    Shapes are validated up front: a transposed input would otherwise
+    interpolate along the wrong axis and return a plausible wrong number.
+    """
     if x_nodes.ndim != 1 or y_nodes.ndim != 1:
         raise ValueError("interpolation inputs must be 1D")
     if x_nodes.shape[0] != y_nodes.shape[0]:
@@ -251,6 +274,12 @@ def _select_mode_set(
     option: int,
     mode_convention: str,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Choose which harmonics to keep, by option and mode convention.
+
+    A reduced convention keeps only the harmonics the coefficient arrays
+    actually populate, so the surface does not carry modes that are structurally
+    zero.
+    """
     selected_indices: np.ndarray
     if option == 1:
         if mode_convention == "reduced":

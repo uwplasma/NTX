@@ -127,12 +127,18 @@ def surface_from_vmex_vmec_wout_file(
 
 
 def _interp_mode_columns(x: np.ndarray, values: np.ndarray, xq: float) -> np.ndarray:
+    """Interpolate every harmonic column to one radius."""
     if values.ndim != 2:
         raise ValueError("expected a 2D `(radius, mode)` array")
     return np.asarray(_interp_profile(x, values, xq), dtype=np.float64)
 
 
 def _interp_profile(x: np.ndarray, values: np.ndarray, xq):
+    """Interpolate a radial profile with Akima.
+
+    Akima is chosen because a radial profile is smooth and knee-free; the
+    monotone rules used for transport coefficients would add no accuracy here.
+    """
     from ._interp import interp1d
 
     # A radial profile: smooth, no knees, and Akima is the most accurate of the

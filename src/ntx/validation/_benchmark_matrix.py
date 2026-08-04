@@ -31,6 +31,7 @@ __all__ = [
 
 
 def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Benchmark entries for the derivative-path claims."""
     return (
         BenchmarkEntry(
             id="prepared_derivative_path",
@@ -243,6 +244,7 @@ def autodiff_derivative_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def autodiff_design_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Benchmark entries for the autodiff design-loop claims."""
     return (
         BenchmarkEntry(
             id="autodiff_inverse_problem",
@@ -364,6 +366,7 @@ def autodiff_design_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def autodiff_design_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Design-loop entries that are declared but not yet evidenced."""
     return (
         BenchmarkEntry(
             id="large_geometry_control_autodiff",
@@ -402,6 +405,7 @@ def autodiff_design_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def autodiff_active_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Every autodiff entry currently backed by evidence."""
     return (
         *autodiff_derivative_benchmark_entries(),
         *autodiff_design_benchmark_entries(),
@@ -409,6 +413,7 @@ def autodiff_active_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def autodiff_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Every autodiff entry still planned."""
     return autodiff_design_planned_benchmark_entries()
 
 
@@ -416,6 +421,7 @@ def autodiff_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def bootstrap_current_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Benchmark entries for the bootstrap-current claims."""
     return (
         BenchmarkEntry(
             id="precise_qs_redl_sfincs",
@@ -505,6 +511,7 @@ def bootstrap_current_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def integrated_workflow_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Benchmark entries for the end-to-end workflow claims."""
     return (
         BenchmarkEntry(
             id="w7x_integrated_transfer",
@@ -540,6 +547,7 @@ def integrated_workflow_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def monoenergetic_active_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Monoenergetic entries currently backed by evidence."""
     return (
         BenchmarkEntry(
             id="monoenergetic_validation_summary",
@@ -573,6 +581,7 @@ def monoenergetic_active_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def monoenergetic_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Monoenergetic entries still planned."""
     return (
         BenchmarkEntry(
             id="full_monoenergetic_geometry_family",
@@ -607,6 +616,7 @@ def monoenergetic_planned_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def performance_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Benchmark entries for the performance and scaling claims."""
     return (
         BenchmarkEntry(
             id="performance_scaling",
@@ -701,6 +711,7 @@ def performance_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
 
 
 def profile_workflow_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Benchmark entries for the profile-grade workflow claims."""
     return (
         BenchmarkEntry(
             id="profile_force_reconstruction",

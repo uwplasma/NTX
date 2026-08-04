@@ -94,6 +94,11 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _looks_like_input_file(argv: list[str]) -> bool:
+    """Whether the first argument is an input file rather than a subcommand.
+
+    Lets `ntx run.toml` work alongside `ntx <subcommand>` without a subcommand
+    name being mistakable for a path.
+    """
     if not argv:
         return False
     candidate = Path(argv[0]).expanduser()
@@ -101,6 +106,7 @@ def _looks_like_input_file(argv: list[str]) -> bool:
 
 
 def _parse_input_file_args(argv: list[str]) -> argparse.Namespace:
+    """Parse the argument form that takes a TOML input file."""
     parser = argparse.ArgumentParser(prog="ntx input.toml")
     parser.add_argument("input", type=Path, help="NTX TOML input file.")
     parser.add_argument(
@@ -124,6 +130,7 @@ def _parse_input_file_args(argv: list[str]) -> argparse.Namespace:
 
 
 def _load_surface(args):
+    """Load whichever surface the command-line flags select."""
     if getattr(args, "example", False):
         return example_surface()
     if getattr(args, "dkes", None) is not None:

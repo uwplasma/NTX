@@ -336,6 +336,7 @@ FINITE_BETA_GEOMETRY_BREADTH_ENTRIES: tuple[BenchmarkEntry, ...] = (
 
 
 def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
+    """Benchmark entries for the geometry-family breadth claims."""
     return (
         BenchmarkEntry(
             id="geometry_family_breadth_summary",

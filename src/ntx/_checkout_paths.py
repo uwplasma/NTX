@@ -26,6 +26,12 @@ def fixture_path(*parts: str) -> Path:
 
 
 def _discover(env_var: str, *relative_candidates: str) -> Path | None:
+    """Find a sibling checkout: environment variable first, then known locations.
+
+    The environment variable wins so a developer can point at a checkout
+    anywhere; the relative candidates cover the usual side-by-side and
+    vendored-under-tests layouts.
+    """
     env_value = os.environ.get(env_var)
     candidates: list[Path] = []
     if env_value:
@@ -40,6 +46,11 @@ def _discover(env_var: str, *relative_candidates: str) -> Path | None:
 
 
 def _workspace_checkout_candidates() -> list[Path]:
+    """Sibling directories of this repo that could hold a checkout.
+
+    Excludes the repo itself, resolved, so a symlink back to it is not offered
+    as its own dependency.
+    """
     root = workspace_root()
     repo = repo_root().resolve()
     candidates = [entry for entry in root.iterdir() if entry.is_dir() and entry.resolve() != repo]
@@ -52,10 +63,12 @@ def _workspace_checkout_candidates() -> list[Path]:
 
 
 def find_booz_xform_jax_root() -> Path | None:
+    """Locate a booz_xform_jax checkout, or None."""
     return _discover("BOOZ_XFORM_JAX_ROOT", "booz_xform_jax", "tests/booz_xform_jax")
 
 
 def find_neopax_root() -> Path | None:
+    """Locate a NEOPAX checkout, or None."""
     return _discover("NEOPAX_ROOT", "tests/NEOPAX", "NEOPAX")
 
 
@@ -87,10 +100,16 @@ def find_sfincs_jax_root() -> Path | None:
 
 
 def find_sfincs_root() -> Path | None:
+    """Locate a SFINCS checkout, or None."""
     return _discover("SFINCS_ROOT", "sfincs", "tests/sfincs")
 
 
 def find_sfincs_executable() -> Path | None:
+    """Locate the built SFINCS binary within a checkout, or None.
+
+    Checks the version-3 build path before the top level, since a source tree
+    usually holds both.
+    """
     root = find_sfincs_root()
     if root is None:
         return None
@@ -102,6 +121,7 @@ def find_sfincs_executable() -> Path | None:
 
 
 def find_single_stage_finite_beta_root() -> Path | None:
+    """Locate the single-stage finite-beta optimization checkout, or None."""
     return _discover(
         "SINGLE_STAGE_FINITE_BETA_ROOT",
         "single_stage_optimization_finite_beta",
@@ -110,16 +130,23 @@ def find_single_stage_finite_beta_root() -> Path | None:
 
 
 def find_simsopt_root() -> Path | None:
+    """Locate a simsopt checkout, or None."""
     return _discover("SIMSOPT_ROOT", "tests/simsopt", "simsopt")
 
 
 def find_stellopt_root() -> Path | None:
+    """Locate a STELLOPT checkout, or None."""
     return _discover("STELLOPT_ROOT", "STELLOPT", "tests/STELLOPT")
 
 
 def find_vmex_root() -> Path | None:
     # VMEX checkouts commonly still live under the historical vmec_jax
     # directory name (and env var); prefer the new names but fall back.
+    """Locate a VMEX checkout, or None.
+
+    Falls back to the pre-rename vmec_jax names and variable, so an older
+    checkout on disk still resolves.
+    """
     root = _discover("VMEX_ROOT", "VMEX", "vmex", "tests/vmex")
     if root is None:
         root = _discover("VMEC_JAX_ROOT", "vmec_jax", "tests/vmec_jax")
@@ -127,6 +154,11 @@ def find_vmex_root() -> Path | None:
 
 
 def find_qs_zenodo_root() -> Path | None:
+    """Locate the quasisymmetry Zenodo archive, or None.
+
+    A data archive rather than a code checkout, so it does not go through
+    `_discover`: it has its own environment variable and layout.
+    """
     env_value = os.environ.get("QS_ZENODO_ROOT")
     candidates: list[Path] = []
     if env_value:
@@ -150,6 +182,7 @@ def find_qs_zenodo_root() -> Path | None:
 
 
 def find_vmex_example_input(name: str = "input.circular_tokamak") -> Path | None:
+    """Path to a named VMEX example input, or None when unavailable."""
     root = find_vmex_root()
     if root is None:
         return None

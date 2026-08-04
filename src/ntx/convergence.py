@@ -38,6 +38,7 @@ class AdaptiveConvergenceResult:
 
 
 def _snapshot(result: TransportResult) -> tuple[float, float, float, float, float]:
+    """Reduce a result to the coefficient tuple convergence is judged on."""
     return (
         float(result.D11),
         float(result.D31),
@@ -54,6 +55,12 @@ def _changes(
     rtol: float,
     atol: np.ndarray,
 ) -> tuple[tuple[float, float, float], tuple[float, float, float], bool]:
+    """Relative changes in the coefficients that gate convergence.
+
+    Only D11, D31 and D33 are compared: D13 is the smallest coefficient and
+    changes sign, so its relative change is noise near the crossing and would
+    stall an otherwise converged run.
+    """
     indices = np.asarray([0, 1, 3])
     old = np.asarray(previous)[indices]
     new = np.asarray(current)[indices]

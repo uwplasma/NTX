@@ -95,6 +95,7 @@ def _worker_ids(
     workers: int | None,
     gpu_ids: tuple[int, ...] | None,
 ) -> tuple[int, ...]:
+    """Decide which worker ids, and hence which devices, a run uses."""
     import jax
 
     if backend == "gpu":
@@ -110,6 +111,11 @@ def _worker_ids(
 
 
 def _surface_to_payload(surface) -> dict[str, Any]:
+    """Flatten a surface into plain data for a worker process.
+
+    Workers are separate processes, so surfaces cross as picklable primitives
+    rather than as JAX arrays bound to a parent device.
+    """
     from .geometry import BoozerSurface
 
     if isinstance(surface, BoozerSurface):
@@ -163,10 +169,16 @@ def _surface_to_payload(surface) -> dict[str, Any]:
 
 
 def _grid_to_payload(grid) -> dict[str, Any]:
+    """Flatten a grid spec into plain data."""
     return asdict(grid)
 
 
 def _surface_from_payload(payload: dict[str, Any]):
+    """Rebuild a surface inside a worker process.
+
+    Imports JAX lazily: the import must happen after the worker sets its device
+    environment, or the process would claim the wrong device.
+    """
     import jax.numpy as jnp
 
     from .geometry import BoozerSurface, VmecSurface
@@ -220,6 +232,11 @@ def _surface_from_payload(payload: dict[str, Any]):
 
 
 def _solve_scan_worker(task: dict[str, Any]) -> dict[str, np.ndarray]:
+    """Run one worker's share of a scan in its own process.
+
+    Sets CUDA_VISIBLE_DEVICES before importing JAX, which is the only point at
+    which the device assignment can still take effect.
+    """
     backend = task["backend"]
     if backend == "gpu":
         os.environ["CUDA_VISIBLE_DEVICES"] = str(task["worker_id"])

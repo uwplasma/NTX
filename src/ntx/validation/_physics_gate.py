@@ -364,6 +364,7 @@ def physics_gate_registry() -> tuple[PhysicsGate, ...]:
 
 
 def _gate_by_name(name: str) -> PhysicsGate:
+    """Look up a registered gate, raising KeyError when it is not registered."""
     for gate in physics_gate_registry():
         if gate.name == name:
             return gate

@@ -63,6 +63,11 @@ def _booz_xform_bundle_with_gmnc_from_vmex_state(
     mboz: int,
     nboz: int,
 ):
+    """Boozer bundle from a VMEX state, with the Jacobian harmonics included.
+
+    gmnc is needed for flux-surface averages; it is a separate entry point
+    because computing it costs an extra transform that most callers do not want.
+    """
     inputs, out = _booz_xform_bundle_from_vmex_state(
         state=state,
         static=static,
@@ -88,11 +93,19 @@ def _booz_xform_bundle_with_gmnc_from_vmex_state(
 
 
 def _vmec_s_full(static):
+    """Full-mesh normalized toroidal flux, from whichever VMEX layout is present."""
     setup = getattr(static, "setup", None)
     return jnp.asarray(setup.s_full if setup is not None else static.s)
 
 
 def _rho_half_mesh_from_s(s_full):
+    """Half-mesh rho from the full-mesh s grid.
+
+    VMEC stores different quantities on the full and half meshes; interpolating
+    to the half mesh here keeps the radial coordinate consistent with the
+    profiles that live there. Degenerate single-point grids pass straight
+    through rather than producing an empty interior.
+    """
     s_arr = jnp.asarray(s_full)
     if s_arr.shape[0] < 2:
         return jnp.sqrt(jnp.maximum(s_arr, 0.0))
@@ -107,6 +120,7 @@ def _rho_half_mesh_from_s(s_full):
 
 
 def _vmec_psia_from_state(state, static):
+    """Toroidal flux at the edge, derived from the state's flux profile."""
     setup = getattr(static, "setup", None)
     if setup is not None:
         s_full = jnp.asarray(setup.s_full)
@@ -127,6 +141,11 @@ def _vmec_psia_from_state(state, static):
 
 
 def _vmec_edge_r00_from_state(state):
+    """Major radius from the (0,0) harmonic at the boundary.
+
+    Raises rather than guessing if the state exposes neither spelling of the
+    cosine array: a silently wrong major radius rescales every transport result.
+    """
     rcos = getattr(state, "R_cos", getattr(state, "Rcos", None))
     if rcos is None:
         raise AttributeError("vmex state does not expose `R_cos` or `Rcos`")
@@ -134,6 +153,7 @@ def _vmec_edge_r00_from_state(state):
 
 
 def _vmec_psia_from_indata(*, indata, static, signgs: int):
+    """Edge toroidal flux from the input namelist, preferring phiedge when present."""
     if hasattr(indata, "phiedge"):
         return jnp.abs(jnp.asarray(indata.phiedge) / (2.0 * jnp.pi))
 
@@ -150,6 +170,11 @@ def _vmec_psia_from_indata(*, indata, static, signgs: int):
 
 
 def _vmec_volume_profiles_from_state(*, state, static, indata, signgs: int):
+    """Volume and its derivative, recomputed from the VMEX state when possible.
+
+    Imports from vmex lazily: the import is only reachable on the branch that
+    needs it, so NTX stays usable without vmex installed.
+    """
     if hasattr(static, "setup") and hasattr(state, "R_cos"):
         from vmex.core.fields import (
             energies_and_force_norms,
@@ -678,12 +703,18 @@ def to_neopax_monoenergetic(
 
 
 def _surface_transport_scale(surface: BoozerSurface | VmecSurface) -> Array:
+    """Flux scale used to normalize transport coefficients, per surface type.
+
+    VMEC and Boozer surfaces store this under different names for the same
+    physical quantity.
+    """
     if isinstance(surface, VmecSurface):
         return jnp.asarray(surface.transport_psi_scale, dtype=jnp.float64)
     return jnp.asarray(surface.psi_p, dtype=jnp.float64)
 
 
 def _surface_reference_bridge(surface: BoozerSurface | VmecSurface) -> dict[str, Array]:
+    """Reference field quantities bridging a surface into NEOPAX's conventions."""
     if isinstance(surface, VmecSurface):
         zero_mode = jnp.asarray((surface.m == 0) & (surface.n == 0))
         idx = jnp.argmax(zero_mode.astype(jnp.int32))
@@ -725,6 +756,12 @@ def _surface_reference_bridge(surface: BoozerSurface | VmecSurface) -> dict[str,
 
 
 def _safe_divide(num, den):
+    """Divide, returning zero where the denominator is zero.
+
+    Written with `where` on both the numerator and the denominator so the
+    unused branch never evaluates a division by zero: under reverse-mode AD a
+    NaN produced in a masked branch still propagates into the gradient.
+    """
     num_arr = jnp.asarray(num)
     den_arr = jnp.asarray(den)
     den_safe = jnp.where(jnp.abs(den_arr) > 0.0, den_arr, 1.0)
@@ -732,11 +769,16 @@ def _safe_divide(num, den):
 
 
 def _safe_reciprocal(values):
+    """Reciprocal, returning zero where the input is zero.
+
+    Same masking discipline as `_safe_divide`, for the same AD reason.
+    """
     arr = jnp.asarray(values)
     return jnp.where(jnp.abs(arr) > 0.0, 1.0 / arr, 0.0)
 
 
 def _surface_b10(surface):
+    """The B(1,0) harmonic amplitude, or zero when the surface lacks that mode."""
     mask = (jnp.asarray(surface.m) == 1) & (jnp.asarray(surface.n) == 0)
     idx = jnp.argmax(mask.astype(jnp.int32))
     b10 = jnp.where(mask.any(), jnp.asarray(surface.b_cos)[idx], 0.0)
@@ -745,6 +787,11 @@ def _surface_b10(surface):
 
 
 def _surface_bsqav(surface, *, ntheta: int = 31, nzeta: int = 31):
+    """Flux-surface average of B squared, by direct quadrature on a theta-zeta grid.
+
+    Only one field period is sampled in zeta, since the average over one period
+    equals the average over all of them.
+    """
     theta = jnp.linspace(0.0, 2.0 * jnp.pi, int(ntheta), endpoint=False)
     zeta = jnp.linspace(0.0, 2.0 * jnp.pi / int(surface.nfp), int(nzeta), endpoint=False)
     theta_2d, zeta_2d = jnp.meshgrid(theta, zeta, indexing="ij")
@@ -755,6 +802,11 @@ def _surface_bsqav(surface, *, ntheta: int = 31, nzeta: int = 31):
 
 
 def _find_mode_index(xm_b, xn_b, *, m_value: int, n_value: int) -> int | None:
+    """Index of the (m, n) harmonic, or None when it is absent.
+
+    Returns None rather than raising so callers can fall back to a default;
+    the emptiness check is done in Python because the result picks a shape.
+    """
     matches = (jnp.asarray(xm_b) == int(m_value)) & (jnp.asarray(xn_b) == int(n_value))
     if not bool(jnp.any(matches)):
         return None
@@ -907,6 +959,11 @@ def build_differentiable_neopax_field(
 
 
 def _filled_dataset_array(handle, name: str):
+    """Read a NetCDF variable, filling masked entries.
+
+    netCDF4 returns masked arrays for variables with a fill value; unfilled,
+    those masks propagate into JAX as silent NaNs.
+    """
     values = handle.variables[name][:]
     if hasattr(values, "filled"):
         values = values.filled()
@@ -1085,18 +1142,28 @@ def write_neopax_scan_hdf5(scan: NeopaxScan, path: str | Path) -> Path:
 
 
 def _optional_dataset(handle, name: str):
+    """Read an HDF5 dataset if present, otherwise None."""
     if name not in handle:
         return None
     return jnp.asarray(handle[name][()])
 
 
 def _write_dataset(handle, name: str, values) -> None:
+    """Write a dataset, skipping None.
+
+    `track_times=False` keeps the file byte-identical across runs, so an output
+    can be checksummed and compared.
+    """
     if values is None:
         return
     handle.create_dataset(name, data=np.asarray(values), track_times=False)
 
 
 def _scan_datasets(scan: NeopaxScan):
+    """The (name, array) pairs that make up a scan file.
+
+    One list drives both writing and reading, so the two cannot drift apart.
+    """
     return (
         ("rho", scan.rho),
         ("nu_v", scan.nu_v),

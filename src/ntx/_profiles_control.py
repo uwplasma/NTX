@@ -191,6 +191,11 @@ def optimize_profile_basis_control(
 
 
 def _basis_profile_modifier(control: Array, response: Array, basis: Array) -> Array:
+    """Contract control coefficients and their response against the basis.
+
+    One tensordot rather than a loop over basis functions, so the whole
+    modification stays a single differentiable operation.
+    """
     return jnp.tensordot(control * response, basis, axes=1)
 
 

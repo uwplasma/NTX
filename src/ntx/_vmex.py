@@ -79,6 +79,11 @@ def _apply_boozer_sign_convention_profiles(*, iotaf, buco, bvco, gmnc_b):
 
 
 def _prepend_checkout(root: Path | None) -> None:
+    """Put a sibling checkout at the front of sys.path.
+
+    Front rather than back, so a local checkout under development wins over an
+    installed copy of the same package.
+    """
     if root is None:
         return
     root_str = str(root)
@@ -87,6 +92,11 @@ def _prepend_checkout(root: Path | None) -> None:
 
 
 def _import_vmex():
+    """Import vmex, from a sibling checkout if it is not installed.
+
+    Returns the cached module when already imported, so path manipulation
+    happens at most once per process.
+    """
     if "vmex" in sys.modules:
         return sys.modules["vmex"]
     try:
@@ -99,6 +109,7 @@ def _import_vmex():
 
 
 def _import_booz_xform_jax_api():
+    """Import the booz_xform_jax JAX API, from a sibling checkout if needed."""
     if "booz_xform_jax.jax_api" in sys.modules:
         return sys.modules["booz_xform_jax.jax_api"]
     try:
@@ -122,6 +133,11 @@ def _booz_xform_bundle_from_vmex_state(
     flux_profiles=None,
     profiles_half=None,
 ):
+    """Build Boozer-transform inputs and outputs from a VMEX equilibrium state.
+
+    Prefers vmex's own builder when the installed version provides it and falls
+    back to assembling the inputs here, so both older and newer vmex work.
+    """
     vmex = _import_vmex()
     jax_api = _import_booz_xform_jax_api()
     legacy_builder = getattr(vmex, "booz_xform_inputs_from_state", None)
@@ -237,6 +253,12 @@ def _core_boozer_inputs_from_state(*, vmex, state, runtime, s_values):
 
 
 def _booz_xform_gmnc_from_inputs(*, inputs, mboz: int, nboz: int, asym: bool):
+    """Compute the Jacobian harmonics gmnc from prepared Boozer inputs.
+
+    Reaches for two private booz_xform_jax helpers and raises a clear error when
+    they are absent, rather than failing later with an attribute error deep in
+    the transform.
+    """
     jax_api = _import_booz_xform_jax_api()
     if not hasattr(jax_api, "_surface_transform") or not hasattr(jax_api, "_init_trig"):
         raise RuntimeError("booz_xform_jax internal JAX helpers are unavailable")
@@ -454,6 +476,11 @@ def _core_boundary_param_specs(
     fix: Sequence[str],
     include_axis: bool,
 ) -> tuple[_CoreBoundaryParamSpec, ...]:
+    """Enumerate the boundary coefficients exposed as optimization parameters.
+
+    Honours an include/fix split and a mode-number cutoff, so a design study can
+    vary a chosen subset of the boundary while holding the rest fixed.
+    """
     include_set = {name.lower() for name in include}
     fix_set = {name.lower() for name in fix}
     families = (("rc", "rbc"), ("rs", "rbs"), ("zc", "zbc"), ("zs", "zbs"))
@@ -482,6 +509,11 @@ def _core_boundary_param_specs(
 
 
 def _core_params_with_updates(context: VmecJaxBoundaryContext, params):
+    """Apply a flat parameter vector back onto the boundary coefficients.
+
+    Checks the length against the spec list first: a silently mismatched vector
+    would scatter parameters onto the wrong harmonics.
+    """
     values = jnp.asarray(params)
     if values.ndim != 1 or int(values.size) != len(context.specs):
         raise ValueError(f"expected {len(context.specs)} boundary updates, got {values.size}")
