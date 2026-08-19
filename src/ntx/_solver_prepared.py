@@ -1676,6 +1676,26 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
         return outputs
 
     base = _base_pullback(base_coefficient_bar)
+    if include_prepared and case.er_hat is not None:
+        # ``_prepared_gradient_from_adjoint`` holds resolved epsilon fixed.
+        # The public er_hat representation instead has
+        # epsilon = er_hat / transport_psi_scale, so retain the same scale
+        # chain rule as pullback_prepared_coefficient_vector_case_and_prepared.
+        base_nu_bar, base_epsi_bar, base_prepared_bar = base
+        assert transport_scale is not None
+        base_prepared_bar = dataclasses.replace(
+            base_prepared_bar,
+            geometry=dataclasses.replace(
+                base_prepared_bar.geometry,
+                transport_psi_scale=(
+                    base_prepared_bar.geometry.transport_psi_scale
+                    - base_epsi_bar
+                    * jnp.asarray(case.er_hat)
+                    / jnp.asarray(transport_scale) ** 2
+                ),
+            ),
+        )
+        base = (base_nu_bar, base_epsi_bar, base_prepared_bar)
     direction = _scan_direction_pullbacks(
         jnp.stack([first_coefficient_bar, second_coefficient_bar], axis=0),
         jnp.stack([first_nu_dot, second_nu_dot], axis=0),
