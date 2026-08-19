@@ -17,6 +17,7 @@ from ntx import (
     solve_prepared,
     solve_prepared_coefficient_vector,
     pullback_prepared_coefficient_vector_case_and_prepared,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
@@ -402,3 +403,37 @@ def test_grouped_prepared_pullback_matches_full_prepared_vjp():
     ):
         if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
             assert jnp.allclose(grouped_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
+
+
+def test_fused_prepared_two_direction_pullback_runs_and_matches_base_vjp():
+    """The fused prepared-support branch must receive mode arrays, not callbacks."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    coefficient_bar = jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4])
+    zero_direction = MonoenergeticCase(0.0, er_hat=0.0)
+
+    result = solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux(
+        prepared,
+        case,
+        zero_direction,
+        zero_direction,
+        lambda coefficients, first_coeff_dot, second_coeff_dot: (
+            coefficient_bar,
+            jnp.zeros_like(first_coeff_dot),
+            jnp.zeros_like(second_coeff_dot),
+            jnp.asarray(0.0, dtype=coefficients.dtype),
+        ),
+    )
+    fused_prepared_bar = result[2]
+    _, reference_prepared_bar = pullback_prepared_coefficient_vector_case_and_prepared(
+        prepared,
+        case,
+        coefficient_bar,
+    )
+    for fused_leaf, reference_leaf in zip(
+        jax.tree_util.tree_leaves(fused_prepared_bar),
+        jax.tree_util.tree_leaves(reference_prepared_bar),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
+            assert jnp.allclose(fused_leaf, reference_leaf, rtol=1e-9, atol=1e-11)

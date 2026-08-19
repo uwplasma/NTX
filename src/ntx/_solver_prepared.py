@@ -1601,10 +1601,16 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                     source3_dot,
                 )
                 lambda1_dot = _solve_factorized_adjoint_scan(
-                    lambda k: _adjoint_rhs_dot_for_mode(lambda1, g1_dot, k)
+                    jax.lax.map(
+                        lambda k: _adjoint_rhs_dot_for_mode(lambda1, g1_dot, k),
+                        mode_indices,
+                    )
                 )
                 lambda3_dot = _solve_factorized_adjoint_scan(
-                    lambda k: _adjoint_rhs_dot_for_mode(lambda3, g3_dot, k)
+                    jax.lax.map(
+                        lambda k: _adjoint_rhs_dot_for_mode(lambda3, g3_dot, k),
+                        mode_indices,
+                    )
                 )
                 base_support_bar, directional_support_bar = (
                     _directional_geometry_gradient_from_adjoint(
