@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 from functools import partial
 
 import jax
@@ -384,6 +385,22 @@ def pullback_prepared_coefficient_vector_case_and_prepared(
         case_bar = MonoenergeticCase(nu_hat=nu_hat_direct_bar + nu_hat_implicit_bar, epsi_hat=epsi_hat_bar, er_hat=None)
     elif case.er_hat is not None:
         assert transport_scale is not None
+        # The fixed-residual prepared pullback holds the resolved epsilon
+        # coordinate fixed.  The public ``er_hat`` representation additionally
+        # depends on ``geometry.transport_psi_scale`` through
+        # epsilon = er_hat / transport_psi_scale.
+        prepared_bar = dataclasses.replace(
+            prepared_bar,
+            geometry=dataclasses.replace(
+                prepared_bar.geometry,
+                transport_psi_scale=(
+                    prepared_bar.geometry.transport_psi_scale
+                    - epsi_hat_bar
+                    * jnp.asarray(case.er_hat)
+                    / jnp.asarray(transport_scale) ** 2
+                ),
+            ),
+        )
         case_bar = MonoenergeticCase(
             nu_hat=nu_hat_direct_bar + nu_hat_implicit_bar,
             epsi_hat=None,
