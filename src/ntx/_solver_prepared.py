@@ -40,6 +40,82 @@ from .operators import parameter_derivative_blocks, source_modes
 from .transport import coefficients_from_modes, onsager_error
 
 
+def _solve_factorized_adjoint_field_pair(
+    saved_lu: Array,
+    saved_piv: Array,
+    saved_lower: Array,
+    saved_upper: Array,
+    first_field_rhs: Array,
+    second_field_rhs: Array,
+) -> tuple[Array, Array]:
+    """Solve two compatible adjoint field RHS through one matrix-RHS call.
+
+    The leading block and unknown axes are shared and a trailing RHS-column
+    axis is required. It is deliberately independent of the scalar low-dot
+    helper; scalar vector RHS must use the established scalar solve.
+    """
+
+    if first_field_rhs.ndim != 3 or second_field_rhs.shape != first_field_rhs.shape:
+        raise ValueError(
+            "Paired adjoint RHS must both have shape (mode, unknown, n_rhs)."
+        )
+    packed = _solve_factorized_adjoint(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.concatenate([first_field_rhs, second_field_rhs], axis=-1),
+    )
+    first_solution, second_solution = jnp.split(packed, 2, axis=-1)
+    return first_solution, second_solution
+
+
+def _solve_factorized_directional_adjoint_field_pair(
+    saved_lu: Array,
+    saved_piv: Array,
+    saved_lower: Array,
+    saved_upper: Array,
+    first_field_adjoint: Array,
+    second_field_adjoint: Array,
+    first_field_rhs_dot: Array,
+    second_field_rhs_dot: Array,
+    diagonal_dot: Array,
+) -> tuple[Array, Array]:
+    """Solve paired directional adjoints for a trailing direction/RHS axis.
+
+    ``diagonal_dot`` has layout ``(mode, direction, row, column)`` and the
+    four field arrays have layout ``(mode, unknown, direction)``.  The RHS is
+    the exact scalar formula ``g_dot - diagonal_dot.T @ lambda`` evaluated
+    independently for each direction, then packed only for the factorized
+    transpose solve.
+    """
+
+    expected_shape = first_field_adjoint.shape
+    if (
+        second_field_adjoint.shape != expected_shape
+        or first_field_rhs_dot.shape != expected_shape
+        or second_field_rhs_dot.shape != expected_shape
+        or diagonal_dot.shape != (
+            expected_shape[0], expected_shape[-1], expected_shape[1], expected_shape[1]
+        )
+    ):
+        raise ValueError("Directional paired-adjoint inputs have incompatible shapes.")
+    first_rhs = first_field_rhs_dot - jnp.einsum(
+        "mdji,mjd->mid", diagonal_dot, first_field_adjoint
+    )
+    second_rhs = second_field_rhs_dot - jnp.einsum(
+        "mdji,mjd->mid", diagonal_dot, second_field_adjoint
+    )
+    return _solve_factorized_adjoint_field_pair(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        first_rhs,
+        second_rhs,
+    )
+
+
 def solve_prepared(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -413,6 +489,171 @@ def pullback_prepared_coefficient_vector_case_and_prepared(
     return case_bar, prepared_bar
 
 
+def pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    coefficient_bars: Array,
+) -> tuple[MonoenergeticCase, PreparedMonoenergeticSystem]:
+    """Exact prepared-system pullback for a leading coefficient-RHS axis.
+
+    This is an opt-in API, separate from the scalar custom-VJP and scalar
+    explicit pullback APIs above.  It evaluates the implicit primal once,
+    retains its unbatched block factors, and packs the two kinetic fields of
+    every requested coefficient cotangent into one matrix-RHS transpose solve.
+    The returned case and prepared cotangents carry the same leading RHS axis
+    as ``coefficient_bars``.
+
+    It intentionally covers only the base coefficient pullback.  The
+    low-dot/two-direction transport helper has additional tangent terms and
+    will use a dedicated native multi-RHS implementation rather than silently
+    changing this scalar-compatible contract.
+    """
+
+    coefficient_bars = jnp.asarray(coefficient_bars)
+    if coefficient_bars.ndim != 2:
+        raise ValueError(
+            "coefficient_bars must have shape (n_rhs, n_coefficients)."
+        )
+
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    (
+        _coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(prepared, case.nu_hat, resolved_epsi_hat)
+    ctx = _operator_context(
+        prepared.surface, prepared.geometry, prepared.grid, case.nu_hat, resolved_epsi_hat
+    )
+
+    def _coefficient_bar_to_low_modes(one_coefficient_bar):
+        return _coefficient_mode_pullback(
+            prepared.geometry,
+            f1_full[:3],
+            f3_full[:3],
+            ctx.nu_hat,
+            one_coefficient_bar,
+        )
+
+    f1_bar_low, f3_bar_low, nu_hat_direct_bars = jax.vmap(
+        _coefficient_bar_to_low_modes
+    )(coefficient_bars)
+    rhs_count = coefficient_bars.shape[0]
+    g1 = jnp.zeros((*f1_full.shape, rhs_count), dtype=f1_full.dtype).at[:3].set(
+        jnp.moveaxis(f1_bar_low, 0, -1)
+    )
+    g3 = jnp.zeros((*f3_full.shape, rhs_count), dtype=f3_full.dtype).at[:3].set(
+        jnp.moveaxis(f3_bar_low, 0, -1)
+    )
+    lambda1, lambda3 = _solve_factorized_adjoint_field_pair(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        g1,
+        g3,
+    )
+
+    def _parameter_bars(carry, mode_index):
+        nu_bar, epsi_bar = carry
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx,
+            mode_index,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        diagonal_nu = jax.lax.cond(
+            mode_index == 0, _zero_first_row, lambda value: value, diagonal_nu
+        )
+        diagonal_epsi = jax.lax.cond(
+            mode_index == 0, _zero_first_row, lambda value: value, diagonal_epsi
+        )
+        f1_mode = jax.lax.dynamic_index_in_dim(f1_full, mode_index, axis=0, keepdims=False)
+        f3_mode = jax.lax.dynamic_index_in_dim(f3_full, mode_index, axis=0, keepdims=False)
+        lambda1_mode = jax.lax.dynamic_index_in_dim(lambda1, mode_index, axis=0, keepdims=False)
+        lambda3_mode = jax.lax.dynamic_index_in_dim(lambda3, mode_index, axis=0, keepdims=False)
+        nu_bar = nu_bar - (
+            jnp.einsum("nr,n->r", lambda1_mode, diagonal_nu @ f1_mode)
+            + jnp.einsum("nr,n->r", lambda3_mode, diagonal_nu @ f3_mode)
+        )
+        epsi_bar = epsi_bar - (
+            jnp.einsum("nr,n->r", lambda1_mode, diagonal_epsi @ f1_mode)
+            + jnp.einsum("nr,n->r", lambda3_mode, diagonal_epsi @ f3_mode)
+        )
+        return (nu_bar, epsi_bar), None
+
+    (nu_hat_implicit_bars, epsi_hat_bars), _ = jax.lax.scan(
+        _parameter_bars,
+        (
+            jnp.zeros((rhs_count,), dtype=prepared.grid.jax_dtype),
+            jnp.zeros((rhs_count,), dtype=prepared.grid.jax_dtype),
+        ),
+        jnp.arange(prepared.grid.n_xi + 1, dtype=jnp.int32),
+    )
+    # ``PreparedMonoenergeticSystem`` has static metadata leaves.  Batch only
+    # its dynamic cotangent leaves, then rebuild the original pytree, rather
+    # than asking ``vmap`` to construct a batched instance with static fields.
+    prepared_bar_tree = jax.tree_util.tree_structure(prepared)
+
+    def _prepared_bar_leaves(one_lambda1, one_lambda3, one_coefficient_bar):
+        prepared_bar = _prepared_gradient_from_adjoint(
+            prepared,
+            ctx,
+            f1_full,
+            f3_full,
+            one_lambda1,
+            one_lambda3,
+            one_coefficient_bar,
+        )
+        return tuple(jax.tree_util.tree_leaves(prepared_bar))
+
+    batched_prepared_bar_leaves = jax.vmap(
+        _prepared_bar_leaves,
+        in_axes=(2, 2, 0),
+    )(lambda1, lambda3, coefficient_bars)
+    prepared_bars = jax.tree_util.tree_unflatten(
+        prepared_bar_tree,
+        batched_prepared_bar_leaves,
+    )
+
+    if case.epsi_hat is not None:
+        case_bars = MonoenergeticCase(
+            nu_hat=nu_hat_direct_bars + nu_hat_implicit_bars,
+            epsi_hat=epsi_hat_bars,
+            er_hat=None,
+        )
+    elif case.er_hat is not None:
+        assert transport_scale is not None
+        prepared_bars = dataclasses.replace(
+            prepared_bars,
+            geometry=dataclasses.replace(
+                prepared_bars.geometry,
+                transport_psi_scale=(
+                    prepared_bars.geometry.transport_psi_scale
+                    - epsi_hat_bars
+                    * jnp.asarray(case.er_hat)
+                    / jnp.asarray(transport_scale) ** 2
+                ),
+            ),
+        )
+        case_bars = MonoenergeticCase(
+            nu_hat=nu_hat_direct_bars + nu_hat_implicit_bars,
+            epsi_hat=None,
+            er_hat=epsi_hat_bars / transport_scale,
+        )
+    else:
+        case_bars = MonoenergeticCase(
+            nu_hat=nu_hat_direct_bars + nu_hat_implicit_bars,
+            epsi_hat=None,
+            er_hat=None,
+        )
+    return case_bars, prepared_bars
+
+
 def _zero_first_row(block: Array) -> Array:
     return block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
 
@@ -729,6 +970,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     include_geometry: bool,
     include_prepared: bool = False,
     return_coefficient_aux: bool,
+    packed_support_directional_adjoint: bool = False,
 ):
     """Fused exact pullback for two coefficient-derivative contractions.
 
@@ -748,6 +990,8 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     if include_geometry and include_prepared:
         raise ValueError("Only one prepared-support cotangent representation may be requested.")
     include_support = include_geometry or include_prepared
+    if packed_support_directional_adjoint and not include_support:
+        raise ValueError("Packed support directional adjoint requires a support pullback mode.")
 
     from jax.scipy.linalg import lu_solve
 
@@ -1600,17 +1844,35 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                     saved_upper,
                     source3_dot,
                 )
-                lambda1_dot = _solve_factorized_adjoint_scan(
-                    jax.lax.map(
-                        lambda k: _adjoint_rhs_dot_for_mode(lambda1, g1_dot, k),
-                        mode_indices,
+                if packed_support_directional_adjoint:
+                    diagonal_dot = jax.lax.map(_diagonal_dot, mode_indices)[:, None, :, :]
+                    lambda1_dot_pair, lambda3_dot_pair = (
+                        _solve_factorized_directional_adjoint_field_pair(
+                            saved_lu,
+                            saved_piv,
+                            saved_lower,
+                            saved_upper,
+                            lambda1[..., None],
+                            lambda3[..., None],
+                            g1_dot[..., None],
+                            g3_dot[..., None],
+                            diagonal_dot,
+                        )
                     )
-                )
-                lambda3_dot = _solve_factorized_adjoint_scan(
-                    jax.lax.map(
-                        lambda k: _adjoint_rhs_dot_for_mode(lambda3, g3_dot, k),
-                        mode_indices,
+                    lambda1_dot = lambda1_dot_pair[..., 0]
+                    lambda3_dot = lambda3_dot_pair[..., 0]
+                else:
+                    lambda1_dot = _solve_factorized_adjoint_scan(
+                        jax.lax.map(
+                            lambda k: _adjoint_rhs_dot_for_mode(lambda1, g1_dot, k),
+                            mode_indices,
+                        )
                     )
+                    lambda3_dot = _solve_factorized_adjoint_scan(
+                        jax.lax.map(
+                            lambda k: _adjoint_rhs_dot_for_mode(lambda3, g3_dot, k),
+                            mode_indices,
+                        )
                 )
                 base_support_bar, directional_support_bar = (
                     _directional_geometry_gradient_from_adjoint(
@@ -1854,6 +2116,33 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux
         include_geometry=False,
         include_prepared=True,
         return_coefficient_aux=True,
+    )
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bar_and_aux_fn,
+):
+    """Prepared-support low-dot pullback with paired directional adjoint solves.
+
+    Experimental and isolated: only the two ``lambda_dot`` field solves in
+    the prepared-support branch are packed. All scalar APIs retain their
+    established implementation.
+    """
+
+    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bar_and_aux_fn,
+        include_geometry=False,
+        include_prepared=True,
+        return_coefficient_aux=True,
+        packed_support_directional_adjoint=True,
     )
 
 

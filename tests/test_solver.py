@@ -17,7 +17,9 @@ from ntx import (
     solve_prepared,
     solve_prepared_coefficient_vector,
     pullback_prepared_coefficient_vector_case_and_prepared,
+    pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint,
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
@@ -405,6 +407,48 @@ def test_grouped_prepared_pullback_matches_full_prepared_vjp():
             assert jnp.allclose(grouped_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
 
 
+def test_multi_rhs_prepared_pullback_matches_scalar_prepared_pullbacks():
+    """The native matrix-RHS base rule must match every scalar RHS exactly."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    coefficient_bars = jnp.asarray(
+        [[0.7, -0.2, 0.1, 0.3, -0.4], [-0.3, 0.8, -0.5, 0.2, 0.6]]
+    )
+    multi_case_bar, multi_prepared_bar = (
+        pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs(
+            prepared,
+            case,
+            coefficient_bars,
+        )
+    )
+    for rhs_index in range(coefficient_bars.shape[0]):
+        scalar_case_bar, scalar_prepared_bar = (
+            pullback_prepared_coefficient_vector_case_and_prepared(
+                prepared,
+                case,
+                coefficient_bars[rhs_index],
+            )
+        )
+        for multi_leaf, scalar_leaf in zip(
+            jax.tree_util.tree_leaves(multi_case_bar),
+            jax.tree_util.tree_leaves(scalar_case_bar),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(scalar_leaf).dtype, jnp.inexact):
+                assert jnp.allclose(
+                    multi_leaf[rhs_index], scalar_leaf, rtol=1e-9, atol=1e-11
+                )
+        for multi_leaf, scalar_leaf in zip(
+            jax.tree_util.tree_leaves(multi_prepared_bar),
+            jax.tree_util.tree_leaves(scalar_prepared_bar),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(scalar_leaf).dtype, jnp.inexact):
+                assert jnp.allclose(
+                    multi_leaf[rhs_index], scalar_leaf, rtol=1e-9, atol=1e-11
+                )
+
+
 def test_fused_prepared_two_direction_pullback_runs_and_matches_base_vjp():
     """The fused prepared-support branch must receive mode arrays, not callbacks."""
     prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
@@ -437,3 +481,43 @@ def test_fused_prepared_two_direction_pullback_runs_and_matches_base_vjp():
     ):
         if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
             assert jnp.allclose(fused_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
+
+
+def test_packed_support_directional_adjoint_matches_scalar_prepared_helper():
+    """Packing only lambda-dot field solves must preserve every support bar."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, er_hat=0.2)
+    second_direction = MonoenergeticCase(0.1, er_hat=0.0)
+
+    def coefficient_bar_and_aux(coefficients, first_coefficient_dot, second_coefficient_dot):
+        return (
+            jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4]),
+            jnp.asarray([-0.1, 0.3, 0.2, -0.4, 0.5]),
+            jnp.asarray([0.4, 0.1, -0.6, 0.3, -0.2]),
+            jnp.asarray(0.0, dtype=coefficients.dtype),
+        )
+
+    reference = solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux(
+        prepared,
+        case,
+        first_direction,
+        second_direction,
+        coefficient_bar_and_aux,
+    )
+    packed = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            coefficient_bar_and_aux,
+        )
+    )
+    for packed_leaf, reference_leaf in zip(
+        jax.tree_util.tree_leaves(packed),
+        jax.tree_util.tree_leaves(reference),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
+            assert jnp.allclose(packed_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
