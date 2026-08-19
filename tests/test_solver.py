@@ -16,6 +16,7 @@ from ntx import (
     solve_monoenergetic_scan,
     solve_prepared,
     solve_prepared_coefficient_vector,
+    pullback_prepared_coefficient_vector_case_and_prepared,
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
@@ -377,3 +378,27 @@ def test_custom_vjp_coefficient_vector_matches_direct_forward_and_gradient():
     )(1e-3)
     assert jnp.isfinite(wrapped_grad)
     assert jnp.allclose(direct_grad, wrapped_grad, rtol=1e-10, atol=1e-12)
+
+
+def test_grouped_prepared_pullback_matches_full_prepared_vjp():
+    """The grouped rule must retain every differentiable prepared leaf."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    coefficient_bar = jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4])
+    _case_bar, grouped_prepared_bar = pullback_prepared_coefficient_vector_case_and_prepared(
+        prepared,
+        case,
+        coefficient_bar,
+    )
+    _, full_pullback = jax.vjp(
+        lambda prepared_value: solve_prepared_coefficient_vector(prepared_value, case),
+        prepared,
+    )
+    (reference_prepared_bar,) = full_pullback(coefficient_bar)
+    for grouped_leaf, reference_leaf in zip(
+        jax.tree_util.tree_leaves(grouped_prepared_bar),
+        jax.tree_util.tree_leaves(reference_prepared_bar),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
+            assert jnp.allclose(grouped_leaf, reference_leaf, rtol=1e-9, atol=1e-11)

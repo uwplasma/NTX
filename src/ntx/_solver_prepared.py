@@ -8,8 +8,14 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
+from .geometry import GeometryOnGrid
 from ._solver_adjoint import (
+    _case_and_geometry_gradient_from_adjoint,
     _coefficient_mode_pullback,
+    _directional_geometry_gradient_from_adjoint,
+    _directional_prepared_gradient_from_adjoint,
+    _geometry_gradient_from_adjoint,
+    _prepared_gradient_from_adjoint,
     _parameter_gradient_from_adjoint,
     _prepared_implicit_vjp_primal,
 )
@@ -245,6 +251,151 @@ def _solve_prepared_coefficient_vector_vjp_bwd(
     return (MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),)
 
 
+def pullback_prepared_coefficient_vector_case_and_geometry(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    coefficient_bar: Array,
+) -> tuple[MonoenergeticCase, GeometryOnGrid]:
+    """Exact grouped implicit pullback for case/profile and NTX geometry.
+
+    Unlike :func:`solve_prepared_coefficient_vector_vjp`, this is an explicit
+    pullback API. It retains the existing custom-VJP contract (``prepared`` is
+    non-differentiable there), while exposing the exact prepared-geometry
+    cotangent required by callers that already manage a higher-level support
+    payload. No primal or adjoint system is solved twice.
+    """
+
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    (
+        _coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    f1_bar_low, f3_bar_low, nu_hat_direct_bar = _coefficient_mode_pullback(
+        prepared.geometry,
+        f1_full[:3],
+        f3_full[:3],
+        ctx.nu_hat,
+        coefficient_bar,
+    )
+    g1 = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low)
+    g3 = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low)
+    lambda1 = _solve_factorized_adjoint(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        g1,
+    )
+    lambda3 = _solve_factorized_adjoint(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        g3,
+    )
+    nu_hat_bar, epsi_hat_bar, geometry_bar = _case_and_geometry_gradient_from_adjoint(
+        prepared,
+        ctx,
+        f1_full,
+        f3_full,
+        lambda1,
+        lambda3,
+        coefficient_bar,
+        nu_hat_direct_bar,
+    )
+    if case.epsi_hat is not None:
+        case_bar = MonoenergeticCase(
+            nu_hat=nu_hat_bar,
+            epsi_hat=epsi_hat_bar,
+            er_hat=None,
+        )
+    elif case.er_hat is not None:
+        assert transport_scale is not None
+        case_bar = MonoenergeticCase(
+            nu_hat=nu_hat_bar,
+            epsi_hat=None,
+            er_hat=epsi_hat_bar / transport_scale,
+        )
+    else:
+        case_bar = MonoenergeticCase(
+            nu_hat=nu_hat_bar,
+            epsi_hat=None,
+            er_hat=None,
+        )
+    return case_bar, geometry_bar
+
+
+def pullback_prepared_coefficient_vector_case_and_prepared(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    coefficient_bar: Array,
+) -> tuple[MonoenergeticCase, PreparedMonoenergeticSystem]:
+    """Exact grouped implicit pullback for case and complete prepared support.
+
+    The returned prepared cotangent includes every differentiable leaf of the
+    prepared NTX system.  It reuses the primal factorization and transpose
+    solutions exactly as the geometry-only API does.
+    """
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    (
+        _coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(prepared, case.nu_hat, resolved_epsi_hat)
+    ctx = _operator_context(
+        prepared.surface, prepared.geometry, prepared.grid, case.nu_hat, resolved_epsi_hat
+    )
+    f1_bar_low, f3_bar_low, nu_hat_direct_bar = _coefficient_mode_pullback(
+        prepared.geometry, f1_full[:3], f3_full[:3], ctx.nu_hat, coefficient_bar
+    )
+    g1 = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low)
+    g3 = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low)
+    lambda1 = _solve_factorized_adjoint(saved_lu, saved_piv, saved_lower, saved_upper, g1)
+    lambda3 = _solve_factorized_adjoint(saved_lu, saved_piv, saved_lower, saved_upper, g3)
+    nu_hat_implicit_bar, epsi_hat_bar = _parameter_gradient_from_adjoint(
+        prepared, ctx, f1_full, f3_full, lambda1, lambda3
+    )
+    prepared_bar = _prepared_gradient_from_adjoint(
+        prepared, ctx, f1_full, f3_full, lambda1, lambda3, coefficient_bar
+    )
+    if case.epsi_hat is not None:
+        case_bar = MonoenergeticCase(nu_hat=nu_hat_direct_bar + nu_hat_implicit_bar, epsi_hat=epsi_hat_bar, er_hat=None)
+    elif case.er_hat is not None:
+        assert transport_scale is not None
+        case_bar = MonoenergeticCase(
+            nu_hat=nu_hat_direct_bar + nu_hat_implicit_bar,
+            epsi_hat=None,
+            er_hat=epsi_hat_bar / transport_scale,
+        )
+    else:
+        case_bar = MonoenergeticCase(
+            nu_hat=nu_hat_direct_bar + nu_hat_implicit_bar, epsi_hat=None, er_hat=None
+        )
+    return case_bar, prepared_bar
+
+
 def _zero_first_row(block: Array) -> Array:
     return block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
 
@@ -288,18 +439,26 @@ def _parameter_gradient_directional_from_adjoint(
     return nu_bar_dot, epsi_bar_dot
 
 
-def solve_prepared_coefficient_vector_derivative_vjp(
+def _pullback_prepared_coefficient_vector_case_and_geometry_derivative_core(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
     case_dot: MonoenergeticCase,
     coefficient_bar: Array,
-) -> tuple[MonoenergeticCase, MonoenergeticCase]:
-    """Return a compact VJP and directional derivative of that VJP.
+    *,
+    include_geometry: bool,
+) -> tuple[
+    MonoenergeticCase,
+    MonoenergeticCase,
+    GeometryOnGrid | None,
+    GeometryOnGrid | None,
+]:
+    """Return exact case/profile and geometry bars for a coefficient direction.
 
     This is the reverse-mode companion needed by callers that differentiate
     coefficient-solve derivative fields. It avoids tracing a JVP through the LU
     factorization by differentiating the implicit primal/adjoint systems
-    directly for one monoenergetic case.
+    directly for one monoenergetic case. The geometry bars reuse those same
+    primal and adjoint quantities.
     """
 
     transport_scale = prepared.geometry.transport_psi_scale
@@ -462,38 +621,116 @@ def solve_prepared_coefficient_vector_derivative_vjp(
 
     nu_bar = nu_bar_direct + nu_bar_implicit
     nu_bar_dot = nu_bar_direct_dot + nu_bar_implicit_dot
+    if include_geometry:
+        base_geometry_bar, directional_geometry_bar = _directional_geometry_gradient_from_adjoint(
+            prepared,
+            nu_hat=ctx.nu_hat,
+            epsi_hat=ctx.epsi_hat,
+            nu_hat_dot=nu_hat_dot,
+            epsi_hat_dot=epsi_hat_dot,
+            f1_full=f1_full,
+            f3_full=f3_full,
+            f1_dot=f1_dot,
+            f3_dot=f3_dot,
+            lambda1=lambda1,
+            lambda3=lambda3,
+            lambda1_dot=lambda1_dot,
+            lambda3_dot=lambda3_dot,
+            coefficient_bar=coefficient_bar,
+        )
+    else:
+        base_geometry_bar = None
+        directional_geometry_bar = None
     if case.epsi_hat is not None:
-        return (
+        case_bars = (
             MonoenergeticCase(nu_hat=nu_bar, epsi_hat=epsi_bar, er_hat=None),
             MonoenergeticCase(nu_hat=nu_bar_dot, epsi_hat=epsi_bar_dot, er_hat=None),
         )
-    if case.er_hat is not None:
+    elif case.er_hat is not None:
         assert transport_scale is not None
-        return (
+        case_bars = (
             MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=epsi_bar / transport_scale),
             MonoenergeticCase(nu_hat=nu_bar_dot, epsi_hat=None, er_hat=epsi_bar_dot / transport_scale),
         )
+    else:
+        case_bars = (
+            MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),
+            MonoenergeticCase(nu_hat=nu_bar_dot, epsi_hat=None, er_hat=None),
+        )
     return (
-        MonoenergeticCase(nu_hat=nu_bar, epsi_hat=None, er_hat=None),
-        MonoenergeticCase(nu_hat=nu_bar_dot, epsi_hat=None, er_hat=None),
+        case_bars[0],
+        case_bars[1],
+        base_geometry_bar,
+        directional_geometry_bar,
     )
 
 
-def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
+def pullback_prepared_coefficient_vector_case_and_geometry_derivative(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    case_dot: MonoenergeticCase,
+    coefficient_bar: Array,
+) -> tuple[MonoenergeticCase, MonoenergeticCase, GeometryOnGrid, GeometryOnGrid]:
+    """Exact grouped directional pullback for case/profile and geometry."""
+
+    return _pullback_prepared_coefficient_vector_case_and_geometry_derivative_core(
+        prepared,
+        case,
+        case_dot,
+        coefficient_bar,
+        include_geometry=True,
+    )
+
+
+def solve_prepared_coefficient_vector_derivative_vjp(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    case_dot: MonoenergeticCase,
+    coefficient_bar: Array,
+) -> tuple[MonoenergeticCase, MonoenergeticCase]:
+    """Backward-compatible case-only view of the grouped directional rule."""
+
+    base_case_bar, tangent_case_bar, _base_geometry_bar, _tangent_geometry_bar = (
+        _pullback_prepared_coefficient_vector_case_and_geometry_derivative_core(
+            prepared,
+            case,
+            case_dot,
+            coefficient_bar,
+            include_geometry=False,
+        )
+    )
+    return base_case_bar, tangent_case_bar
+
+
+def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
     first_case_dot: MonoenergeticCase,
     second_case_dot: MonoenergeticCase,
     coefficient_bar_fn,
-) -> tuple[Array, Array, Array, Array, Array, Array, Array, Array, Array, Array]:
+    *,
+    include_geometry: bool,
+    include_prepared: bool = False,
+    return_coefficient_aux: bool,
+):
     """Fused exact pullback for two coefficient-derivative contractions.
 
     Higher-level transport models own the mapping from coefficient vectors to
     objective-specific coefficient cotangents, so this helper receives that
     mapping as a Python callback. NTX still owns the expensive implicit-solve
     pullback algebra and reuses one primal factorization for the base VJP and
-    the two low-mode directional pullbacks.
+    the two low-mode directional pullbacks. ``include_geometry`` is static:
+    the legacy public API keeps its existing case-only output and does not
+    build the prepared-geometry cotangents. When ``return_coefficient_aux``
+    is true, ``coefficient_bar_fn`` must additionally return a pytree after
+    the three coefficient cotangents; it is forwarded unchanged. This lets a
+    transport caller carry exact direct prefactor bars (for example ``drds``)
+    without another NTX solve.
     """
+
+    if include_geometry and include_prepared:
+        raise ValueError("Only one prepared-support cotangent representation may be requested.")
+    include_support = include_geometry or include_prepared
 
     from jax.scipy.linalg import lu_solve
 
@@ -528,9 +765,6 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
         prepared,
         case.nu_hat,
         resolved_epsi_hat,
-    )
-    base_coefficient_bar, first_coefficient_bar, second_coefficient_bar = coefficient_bar_fn(
-        coefficients
     )
     ctx = _operator_context(
         prepared.surface,
@@ -714,6 +948,28 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
         def _source_bar_matrix_for_mode(k):
             return jnp.stack([_take_mode(g1, k), _take_mode(g3, k)], axis=-1)
 
+        if include_support:
+            lambda1 = _solve_factorized_adjoint_scan(g1)
+            lambda3 = _solve_factorized_adjoint_scan(g3)
+            nu_bar_implicit, epsi_bar = _parameter_gradient_from_adjoint(
+                prepared,
+                ctx,
+                f1_full,
+                f3_full,
+                lambda1,
+                lambda3,
+            )
+            support_bar = (
+                _geometry_gradient_from_adjoint(
+                    prepared, ctx, f1_full, f3_full, lambda1, lambda3, coefficient_bar
+                )
+                if include_geometry
+                else _prepared_gradient_from_adjoint(
+                    prepared, ctx, f1_full, f3_full, lambda1, lambda3, coefficient_bar
+                )
+            )
+            return nu_bar_direct + nu_bar_implicit, epsi_bar, support_bar
+
         nu_bar_implicit, epsi_bar = -_contract_factorized_parameter_sources_scan(
             _source_bar_matrix_for_mode
         )
@@ -753,6 +1009,43 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
     packed_f_dot_low_matrix = _solve_factorized_low_modes_scan(
         _packed_source_dot_matrix_for_mode
     )
+
+    def _coefficient_vector_from_low_modes(modes1, modes3, nu_value):
+        return jnp.stack(
+            coefficients_from_modes(prepared.geometry, modes1, modes3, nu_value)
+        )
+
+    _, first_coefficient_dot = jax.jvp(
+        _coefficient_vector_from_low_modes,
+        (f1_full[:3], f3_full[:3], ctx.nu_hat),
+        (
+            packed_f_dot_low_matrix[..., 0],
+            packed_f_dot_low_matrix[..., 1],
+            first_nu_dot,
+        ),
+    )
+    _, second_coefficient_dot = jax.jvp(
+        _coefficient_vector_from_low_modes,
+        (f1_full[:3], f3_full[:3], ctx.nu_hat),
+        (
+            packed_f_dot_low_matrix[..., 2],
+            packed_f_dot_low_matrix[..., 3],
+            second_nu_dot,
+        ),
+    )
+    coefficient_bar_result = (
+        coefficient_bar_fn(
+            coefficients,
+            first_coefficient_dot,
+            second_coefficient_dot,
+        )
+        if return_coefficient_aux
+        else coefficient_bar_fn(coefficients)
+    )
+    base_coefficient_bar, first_coefficient_bar, second_coefficient_bar = (
+        coefficient_bar_result[:3]
+    )
+    coefficient_aux = coefficient_bar_result[3] if return_coefficient_aux else None
 
     def _two_direction_pullbacks(
         coefficient_bar_pair,
@@ -1271,6 +1564,74 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
             )
             nu_bar_implicit_dot = nu_bar_implicit_dot - f1_field_dot[0] - f3_field_dot[0]
             epsi_bar_dot = epsi_bar_dot - f1_field_dot[1] - f3_field_dot[1]
+            if include_support:
+                source1_dot, source3_dot = jax.lax.map(
+                    lambda k: _source_dot_pair_for_direction(k, nu_hat_dot, epsi_hat_dot),
+                    mode_indices,
+                )
+                f1_dot = _solve_factorized_modes(
+                    saved_lu,
+                    saved_piv,
+                    saved_lower,
+                    saved_upper,
+                    source1_dot,
+                )
+                f3_dot = _solve_factorized_modes(
+                    saved_lu,
+                    saved_piv,
+                    saved_lower,
+                    saved_upper,
+                    source3_dot,
+                )
+                lambda1_dot = _solve_factorized_adjoint_scan(
+                    lambda k: _adjoint_rhs_dot_for_mode(lambda1, g1_dot, k)
+                )
+                lambda3_dot = _solve_factorized_adjoint_scan(
+                    lambda k: _adjoint_rhs_dot_for_mode(lambda3, g3_dot, k)
+                )
+                base_support_bar, directional_support_bar = (
+                    _directional_geometry_gradient_from_adjoint(
+                        prepared,
+                        nu_hat=ctx.nu_hat,
+                        epsi_hat=ctx.epsi_hat,
+                        nu_hat_dot=nu_hat_dot,
+                        epsi_hat_dot=epsi_hat_dot,
+                        f1_full=f1_full,
+                        f3_full=f3_full,
+                        f1_dot=f1_dot,
+                        f3_dot=f3_dot,
+                        lambda1=lambda1,
+                        lambda3=lambda3,
+                        lambda1_dot=lambda1_dot,
+                        lambda3_dot=lambda3_dot,
+                        coefficient_bar=coefficient_bar,
+                    )
+                    if include_geometry
+                    else _directional_prepared_gradient_from_adjoint(
+                        prepared,
+                        nu_hat=ctx.nu_hat,
+                        epsi_hat=ctx.epsi_hat,
+                        nu_hat_dot=nu_hat_dot,
+                        epsi_hat_dot=epsi_hat_dot,
+                        f1_full=f1_full,
+                        f3_full=f3_full,
+                        f1_dot=f1_dot,
+                        f3_dot=f3_dot,
+                        lambda1=lambda1,
+                        lambda3=lambda3,
+                        lambda1_dot=lambda1_dot,
+                        lambda3_dot=lambda3_dot,
+                        coefficient_bar=coefficient_bar,
+                    )
+                )
+                return (
+                    nu_bar_direct + nu_bar_implicit,
+                    epsi_bar,
+                    nu_bar_direct_dot + nu_bar_implicit_dot,
+                    epsi_bar_dot,
+                    base_support_bar,
+                    directional_support_bar,
+                )
             return (
                 nu_bar_direct + nu_bar_implicit,
                 epsi_bar,
@@ -1292,15 +1653,29 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
         return outputs
 
     base = _base_pullback(base_coefficient_bar)
-    direction_nu_bar, direction_epsi_bar, direction_nu_bar_dot, direction_epsi_bar_dot = (
-        _scan_direction_pullbacks(
-            jnp.stack([first_coefficient_bar, second_coefficient_bar], axis=0),
-            jnp.stack([first_nu_dot, second_nu_dot], axis=0),
-            jnp.stack([first_epsi_dot, second_epsi_dot], axis=0),
-            jnp.stack([packed_f_dot_low_matrix[..., 0], packed_f_dot_low_matrix[..., 2]], axis=0),
-            jnp.stack([packed_f_dot_low_matrix[..., 1], packed_f_dot_low_matrix[..., 3]], axis=0),
-        )
+    direction = _scan_direction_pullbacks(
+        jnp.stack([first_coefficient_bar, second_coefficient_bar], axis=0),
+        jnp.stack([first_nu_dot, second_nu_dot], axis=0),
+        jnp.stack([first_epsi_dot, second_epsi_dot], axis=0),
+        jnp.stack([packed_f_dot_low_matrix[..., 0], packed_f_dot_low_matrix[..., 2]], axis=0),
+        jnp.stack([packed_f_dot_low_matrix[..., 1], packed_f_dot_low_matrix[..., 3]], axis=0),
     )
+    if include_support:
+        (
+            direction_nu_bar,
+            direction_epsi_bar,
+            direction_nu_bar_dot,
+            direction_epsi_bar_dot,
+            direction_base_support_bar,
+            direction_support_bar_dot,
+        ) = direction
+    else:
+        (
+            direction_nu_bar,
+            direction_epsi_bar,
+            direction_nu_bar_dot,
+            direction_epsi_bar_dot,
+        ) = direction
     first = (
         direction_nu_bar[0],
         direction_epsi_bar[0],
@@ -1313,7 +1688,130 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
         direction_nu_bar_dot[1],
         direction_epsi_bar_dot[1],
     )
+    if include_support:
+        base_nu_bar, base_epsi_bar, base_support_bar = base
+        def _take_direction_support(support_bars, index):
+            return jax.tree_util.tree_map(
+                lambda value: jax.lax.dynamic_index_in_dim(
+                    value,
+                    index,
+                    axis=0,
+                    keepdims=False,
+                ),
+                support_bars,
+            )
+
+        first = (
+            *first,
+            _take_direction_support(direction_base_support_bar, 0),
+            _take_direction_support(direction_support_bar_dot, 0),
+        )
+        second = (
+            *second,
+            _take_direction_support(direction_base_support_bar, 1),
+            _take_direction_support(direction_support_bar_dot, 1),
+        )
+        result = (base_nu_bar, base_epsi_bar, base_support_bar, *first, *second)
+        return (*result, coefficient_aux) if return_coefficient_aux else result
     return (*base, *first, *second)
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bar_fn,
+) -> tuple[Array, Array, Array, Array, Array, Array, Array, Array, Array, Array]:
+    """Case-only public view of the fused low-order pullback kernel."""
+
+    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bar_fn,
+        include_geometry=False,
+        return_coefficient_aux=False,
+    )
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bar_fn,
+):
+    """Fused exact pullback returning case and prepared-geometry cotangents.
+
+    This opt-in API preserves the original 10 case cotangents and additionally
+    returns one geometry cotangent for the base response plus base/directional
+    geometry cotangents for each supplied case direction.  The primal
+    factorization is shared across all three contractions.
+    """
+
+    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bar_fn,
+        include_geometry=True,
+        return_coefficient_aux=False,
+    )
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry_and_aux(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bar_and_aux_fn,
+):
+    """Geometry-returning fused pullback with caller-defined direct auxiliaries.
+
+    ``coefficient_bar_and_aux_fn(coefficients, first_coeff_dot,
+    second_coeff_dot)`` returns ``(base_bar, first_bar, second_bar,
+    auxiliary)``. ``auxiliary`` is not interpreted by NTX; it is evaluated
+    from the already available coefficient vector and its two exact tangent
+    vectors, then returned with the implicit bars.
+    """
+
+    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bar_and_aux_fn,
+        include_geometry=True,
+        return_coefficient_aux=True,
+    )
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bar_and_aux_fn,
+):
+    """Fused exact pullback returning a complete prepared-system cotangent.
+
+    This is the support-payload-safe variant of the geometry-only helper. Its
+    prepared bars include ``surface``, ``geometry``, and derivative-operator
+    leaves while retaining the same one-factorization grouped adjoint.
+    """
+    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bar_and_aux_fn,
+        include_geometry=False,
+        include_prepared=True,
+        return_coefficient_aux=True,
+    )
 
 
 solve_prepared_coefficient_vector_vjp.defvjp(
@@ -1400,6 +1898,8 @@ __all__ = [
     "compile_prepared_solver",
     "solve_prepared",
     "solve_prepared_coefficient_vector",
+    "pullback_prepared_coefficient_vector_case_and_prepared",
+    "solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared_internal",
 ]
