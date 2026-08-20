@@ -971,6 +971,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     include_prepared: bool = False,
     return_coefficient_aux: bool,
     packed_support_directional_adjoint: bool = False,
+    support_only: bool = False,
 ):
     """Fused exact pullback for two coefficient-derivative contractions.
 
@@ -990,6 +991,8 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     if include_geometry and include_prepared:
         raise ValueError("Only one prepared-support cotangent representation may be requested.")
     include_support = include_geometry or include_prepared
+    if support_only and not include_prepared:
+        raise ValueError("support_only requires include_prepared=True.")
     if packed_support_directional_adjoint and not include_support:
         raise ValueError("Packed support directional adjoint requires a support pullback mode.")
 
@@ -1756,6 +1759,58 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
             def _adjoint_rhs_dot_for_mode(lambda_field, g_dot, k):
                 return _take_mode(g_dot, k) - _diagonal_dot(k).T @ _take_mode(lambda_field, k)
 
+            if support_only:
+                # The support-only caller holds the local case fixed.  Do not
+                # form any case/profile contractions: only the forward
+                # directional fields and prepared-support adjoints are needed.
+                source1_dot, source3_dot = jax.lax.map(
+                    lambda k: _source_dot_pair_for_direction(k, nu_hat_dot, epsi_hat_dot),
+                    mode_indices,
+                )
+                f1_dot = _solve_factorized_modes(
+                    saved_lu,
+                    saved_piv,
+                    saved_lower,
+                    saved_upper,
+                    source1_dot,
+                )
+                f3_dot = _solve_factorized_modes(
+                    saved_lu,
+                    saved_piv,
+                    saved_lower,
+                    saved_upper,
+                    source3_dot,
+                )
+                lambda1_dot = _solve_factorized_adjoint_scan(
+                    jax.lax.map(
+                        lambda k: _adjoint_rhs_dot_for_mode(lambda1, g1_dot, k),
+                        mode_indices,
+                    )
+                )
+                lambda3_dot = _solve_factorized_adjoint_scan(
+                    jax.lax.map(
+                        lambda k: _adjoint_rhs_dot_for_mode(lambda3, g3_dot, k),
+                        mode_indices,
+                    )
+                )
+                base_support_bar, directional_support_bar = _directional_prepared_gradient_from_adjoint(
+                    prepared,
+                    nu_hat=ctx.nu_hat,
+                    epsi_hat=ctx.epsi_hat,
+                    nu_hat_dot=nu_hat_dot,
+                    epsi_hat_dot=epsi_hat_dot,
+                    f1_full=f1_full,
+                    f3_full=f3_full,
+                    f1_dot=f1_dot,
+                    f3_dot=f3_dot,
+                    lambda1=lambda1,
+                    lambda3=lambda3,
+                    lambda1_dot=lambda1_dot,
+                    lambda3_dot=lambda3_dot,
+                    coefficient_bar=coefficient_bar,
+                )
+                return base_support_bar, directional_support_bar
+
             def _accumulate_base_bars(carry, k):
                 nu_bar, epsi_bar = carry
                 diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
@@ -1965,7 +2020,9 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
         jnp.stack([packed_f_dot_low_matrix[..., 0], packed_f_dot_low_matrix[..., 2]], axis=0),
         jnp.stack([packed_f_dot_low_matrix[..., 1], packed_f_dot_low_matrix[..., 3]], axis=0),
     )
-    if include_support:
+    if support_only:
+        direction_base_support_bar, direction_support_bar_dot = direction
+    elif include_support:
         (
             direction_nu_bar,
             direction_epsi_bar,
@@ -1981,20 +2038,9 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
             direction_nu_bar_dot,
             direction_epsi_bar_dot,
         ) = direction
-    first = (
-        direction_nu_bar[0],
-        direction_epsi_bar[0],
-        direction_nu_bar_dot[0],
-        direction_epsi_bar_dot[0],
-    )
-    second = (
-        direction_nu_bar[1],
-        direction_epsi_bar[1],
-        direction_nu_bar_dot[1],
-        direction_epsi_bar_dot[1],
-    )
     if include_support:
         base_nu_bar, base_epsi_bar, base_support_bar = base
+
         def _take_direction_support(support_bars, index):
             return jax.tree_util.tree_map(
                 lambda value: jax.lax.dynamic_index_in_dim(
@@ -2006,6 +2052,28 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                 support_bars,
             )
 
+        if support_only:
+            return (
+                base_support_bar,
+                _take_direction_support(direction_base_support_bar, 0),
+                _take_direction_support(direction_support_bar_dot, 0),
+                _take_direction_support(direction_base_support_bar, 1),
+                _take_direction_support(direction_support_bar_dot, 1),
+                coefficient_aux,
+            )
+
+        first = (
+            direction_nu_bar[0],
+            direction_epsi_bar[0],
+            direction_nu_bar_dot[0],
+            direction_epsi_bar_dot[0],
+        )
+        second = (
+            direction_nu_bar[1],
+            direction_epsi_bar[1],
+            direction_nu_bar_dot[1],
+            direction_epsi_bar_dot[1],
+        )
         first = (
             *first,
             _take_direction_support(direction_base_support_bar, 0),
@@ -2018,6 +2086,18 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
         )
         result = (base_nu_bar, base_epsi_bar, base_support_bar, *first, *second)
         return (*result, coefficient_aux) if return_coefficient_aux else result
+    first = (
+        direction_nu_bar[0],
+        direction_epsi_bar[0],
+        direction_nu_bar_dot[0],
+        direction_epsi_bar_dot[0],
+    )
+    second = (
+        direction_nu_bar[1],
+        direction_epsi_bar[1],
+        direction_nu_bar_dot[1],
+        direction_epsi_bar_dot[1],
+    )
     return (*base, *first, *second)
 
 
@@ -2117,6 +2197,43 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux
         include_prepared=True,
         return_coefficient_aux=True,
     )
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bar_and_aux_fn,
+):
+    """Return only the prepared-support bars of the fused low-dot pullback.
+
+    This is an isolated API for callers differentiating a response with
+    respect to a prepared NTX payload and an external direct auxiliary (for
+    example ``drds``).  It intentionally discards the case/profile bars:
+    callers in that lane hold the local case fixed.  The underlying grouped
+    implicit algebra and primal factorization are exactly the established
+    prepared-support implementation above, while the directional case/profile
+    contractions are omitted rather than merely discarded.
+
+    The result is ``(base_prepared, first_base_prepared,
+    first_directional_prepared, second_base_prepared,
+    second_directional_prepared, auxiliary)``.  This keeps the smaller
+    support-only algebra isolated from every existing public helper.
+    """
+
+    result = _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bar_and_aux_fn,
+        include_geometry=False,
+        include_prepared=True,
+        return_coefficient_aux=True,
+        support_only=True,
+    )
+    return result
 
 
 def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint(
@@ -2232,6 +2349,7 @@ __all__ = [
     "solve_prepared_coefficient_vector",
     "pullback_prepared_coefficient_vector_case_and_prepared",
     "solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux",
+    "solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared_internal",
 ]

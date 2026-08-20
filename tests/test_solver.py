@@ -18,6 +18,7 @@ from ntx import (
     solve_prepared_coefficient_vector,
     pullback_prepared_coefficient_vector_case_and_prepared,
     pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint,
     solve_prepared_coefficient_vector_vjp,
@@ -521,3 +522,52 @@ def test_packed_support_directional_adjoint_matches_scalar_prepared_helper():
     ):
         if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
             assert jnp.allclose(packed_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
+
+
+@pytest.mark.parametrize("case_representation", ("er", "epsi"))
+def test_support_only_lowdot_prepared_helper_matches_full_prepared_helper(case_representation):
+    """Support-only prepared bars match the full helper in both case representations."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    if case_representation == "er":
+        case = MonoenergeticCase(1e-2, er_hat=1e-3)
+        first_direction = MonoenergeticCase(0.0, er_hat=0.2)
+        second_direction = MonoenergeticCase(0.1, er_hat=0.0)
+    else:
+        case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+        first_direction = MonoenergeticCase(0.0, epsi_hat=0.2)
+        second_direction = MonoenergeticCase(0.1, epsi_hat=0.0)
+
+    def coefficient_bar_and_aux(coefficients, first_coefficient_dot, second_coefficient_dot):
+        return (
+            jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4]),
+            jnp.asarray([-0.1, 0.3, 0.2, -0.4, 0.5]),
+            jnp.asarray([0.4, 0.1, -0.6, 0.3, -0.2]),
+            jnp.sum(coefficients)
+            + jnp.sum(first_coefficient_dot)
+            - jnp.sum(second_coefficient_dot),
+        )
+
+    full = solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux(
+        prepared,
+        case,
+        first_direction,
+        second_direction,
+        coefficient_bar_and_aux,
+    )
+    support_only = jax.jit(
+        lambda: solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            coefficient_bar_and_aux,
+        )
+    )()
+    expected = (full[2], full[7], full[8], full[13], full[14], full[15])
+    for support_only_leaf, expected_leaf in zip(
+        jax.tree_util.tree_leaves(support_only),
+        jax.tree_util.tree_leaves(expected),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
+            assert jnp.allclose(support_only_leaf, expected_leaf, rtol=1e-9, atol=1e-11)
