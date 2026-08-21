@@ -972,6 +972,8 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     return_coefficient_aux: bool,
     packed_support_directional_adjoint: bool = False,
     support_only: bool = False,
+    primal_residuals=None,
+    return_primal_residuals: bool = False,
 ):
     """Fused exact pullback for two coefficient-derivative contractions.
 
@@ -998,45 +1000,72 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
 
     from jax.scipy.linalg import lu_solve
 
-    transport_scale = prepared.geometry.transport_psi_scale
-    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
-    first_nu_dot = jnp.asarray(first_case_dot.nu_hat)
-    second_nu_dot = jnp.asarray(second_case_dot.nu_hat)
-    if first_case_dot.epsi_hat is not None:
-        first_epsi_dot = jnp.asarray(first_case_dot.epsi_hat)
-    elif first_case_dot.er_hat is not None:
-        assert transport_scale is not None
-        first_epsi_dot = jnp.asarray(first_case_dot.er_hat) / jnp.asarray(transport_scale)
-    else:
-        first_epsi_dot = jnp.zeros_like(resolved_epsi_hat)
-    if second_case_dot.epsi_hat is not None:
-        second_epsi_dot = jnp.asarray(second_case_dot.epsi_hat)
-    elif second_case_dot.er_hat is not None:
-        assert transport_scale is not None
-        second_epsi_dot = jnp.asarray(second_case_dot.er_hat) / jnp.asarray(transport_scale)
-    else:
-        second_epsi_dot = jnp.zeros_like(resolved_epsi_hat)
+    if primal_residuals is None:
+        transport_scale = prepared.geometry.transport_psi_scale
+        resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+        first_nu_dot = jnp.asarray(first_case_dot.nu_hat)
+        second_nu_dot = jnp.asarray(second_case_dot.nu_hat)
+        if first_case_dot.epsi_hat is not None:
+            first_epsi_dot = jnp.asarray(first_case_dot.epsi_hat)
+        elif first_case_dot.er_hat is not None:
+            assert transport_scale is not None
+            first_epsi_dot = jnp.asarray(first_case_dot.er_hat) / jnp.asarray(transport_scale)
+        else:
+            first_epsi_dot = jnp.zeros_like(resolved_epsi_hat)
+        if second_case_dot.epsi_hat is not None:
+            second_epsi_dot = jnp.asarray(second_case_dot.epsi_hat)
+        elif second_case_dot.er_hat is not None:
+            assert transport_scale is not None
+            second_epsi_dot = jnp.asarray(second_case_dot.er_hat) / jnp.asarray(transport_scale)
+        else:
+            second_epsi_dot = jnp.zeros_like(resolved_epsi_hat)
 
-    (
-        coefficients,
-        f1_full,
-        f3_full,
-        saved_lu,
-        saved_piv,
-        saved_lower,
-        saved_upper,
-    ) = _prepared_implicit_vjp_primal(
-        prepared,
-        case.nu_hat,
-        resolved_epsi_hat,
-    )
-    ctx = _operator_context(
-        prepared.surface,
-        prepared.geometry,
-        prepared.grid,
-        case.nu_hat,
-        resolved_epsi_hat,
-    )
+        (
+            coefficients,
+            f1_full,
+            f3_full,
+            saved_lu,
+            saved_piv,
+            saved_lower,
+            saved_upper,
+        ) = _prepared_implicit_vjp_primal(
+            prepared,
+            case.nu_hat,
+            resolved_epsi_hat,
+        )
+        ctx = _operator_context(
+            prepared.surface,
+            prepared.geometry,
+            prepared.grid,
+            case.nu_hat,
+            resolved_epsi_hat,
+        )
+    else:
+        (
+            transport_scale,
+            resolved_epsi_hat,
+            first_nu_dot,
+            first_epsi_dot,
+            second_nu_dot,
+            second_epsi_dot,
+            coefficients,
+            f1_full,
+            f3_full,
+            saved_lu,
+            saved_piv,
+            saved_lower,
+            saved_upper,
+            packed_f_dot_low_matrix,
+            first_coefficient_dot,
+            second_coefficient_dot,
+        ) = primal_residuals
+        ctx = _operator_context(
+            prepared.surface,
+            prepared.geometry,
+            prepared.grid,
+            case.nu_hat,
+            resolved_epsi_hat,
+        )
     mode_indices = jnp.arange(prepared.grid.n_xi + 1, dtype=jnp.int32)
 
     def _zero_first_row_if_needed(block, k):
@@ -1270,33 +1299,64 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
             axis=-1,
         )
 
-    packed_f_dot_low_matrix = _solve_factorized_low_modes_scan(
-        _packed_source_dot_matrix_for_mode
-    )
-
-    def _coefficient_vector_from_low_modes(modes1, modes3, nu_value):
-        return jnp.stack(
-            coefficients_from_modes(prepared.geometry, modes1, modes3, nu_value)
+    if primal_residuals is None:
+        packed_f_dot_low_matrix = _solve_factorized_low_modes_scan(
+            _packed_source_dot_matrix_for_mode
         )
 
-    _, first_coefficient_dot = jax.jvp(
-        _coefficient_vector_from_low_modes,
-        (f1_full[:3], f3_full[:3], ctx.nu_hat),
-        (
-            packed_f_dot_low_matrix[..., 0],
-            packed_f_dot_low_matrix[..., 1],
-            first_nu_dot,
-        ),
+        def _coefficient_vector_from_low_modes(modes1, modes3, nu_value):
+            return jnp.stack(
+                coefficients_from_modes(prepared.geometry, modes1, modes3, nu_value)
+            )
+
+        _, first_coefficient_dot = jax.jvp(
+            _coefficient_vector_from_low_modes,
+            (f1_full[:3], f3_full[:3], ctx.nu_hat),
+            (
+                packed_f_dot_low_matrix[..., 0],
+                packed_f_dot_low_matrix[..., 1],
+                first_nu_dot,
+            ),
+        )
+        _, second_coefficient_dot = jax.jvp(
+            _coefficient_vector_from_low_modes,
+            (f1_full[:3], f3_full[:3], ctx.nu_hat),
+            (
+                packed_f_dot_low_matrix[..., 2],
+                packed_f_dot_low_matrix[..., 3],
+                second_nu_dot,
+            ),
+        )
+    local_primal_residuals = (
+        transport_scale,
+        resolved_epsi_hat,
+        first_nu_dot,
+        first_epsi_dot,
+        second_nu_dot,
+        second_epsi_dot,
+        coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        packed_f_dot_low_matrix,
+        first_coefficient_dot,
+        second_coefficient_dot,
     )
-    _, second_coefficient_dot = jax.jvp(
-        _coefficient_vector_from_low_modes,
-        (f1_full[:3], f3_full[:3], ctx.nu_hat),
-        (
-            packed_f_dot_low_matrix[..., 2],
-            packed_f_dot_low_matrix[..., 3],
-            second_nu_dot,
-        ),
-    )
+    # This is also useful on its own for callers that need the primal
+    # coefficient vector and two exact parameter directions.  Keep the
+    # factorization-local calculation here: it is the same established
+    # algebra used by the grouped pullback below, but stops before any
+    # reverse contractions are formed.
+    if coefficient_bar_fn is None:
+        primal_outputs = (coefficients, first_coefficient_dot, second_coefficient_dot)
+        return (
+            (primal_outputs, local_primal_residuals)
+            if return_primal_residuals
+            else primal_outputs
+        )
     coefficient_bar_result = (
         coefficient_bar_fn(
             coefficients,
@@ -2101,6 +2161,304 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     return (*base, *first, *second)
 
 
+def solve_prepared_coefficient_vector_two_directional_factorized(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+) -> tuple[Array, Array, Array]:
+    """Return a prepared solve and two exact case directions from one factorization.
+
+    This is an isolated forward helper.  It evaluates the base coefficient
+    vector and the exact linear responses to ``first_case_dot`` and
+    ``second_case_dot`` by reusing the one prepared-system factorization.
+    It does not install a custom derivative rule and does not alter the
+    existing solve or pullback entry points.
+    """
+
+    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        None,
+        include_geometry=False,
+        return_coefficient_aux=False,
+    )
+
+
+def _case_cotangent_from_resolved_epsi_bar(
+    case: MonoenergeticCase,
+    *,
+    nu_hat_bar: Array,
+    epsi_hat_bar: Array,
+    transport_scale: Array | None,
+) -> MonoenergeticCase:
+    """Rebuild a case cotangent in the input's public coordinate system."""
+
+    if case.epsi_hat is not None:
+        return MonoenergeticCase(nu_hat=nu_hat_bar, epsi_hat=epsi_hat_bar, er_hat=None)
+    if case.er_hat is not None:
+        assert transport_scale is not None
+        return MonoenergeticCase(
+            nu_hat=nu_hat_bar,
+            epsi_hat=None,
+            er_hat=epsi_hat_bar / transport_scale,
+        )
+    return MonoenergeticCase(nu_hat=nu_hat_bar, epsi_hat=None, er_hat=None)
+
+
+def _add_er_coordinate_scale_bar(
+    prepared_bar: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    epsi_hat_bar: Array,
+    transport_scale: Array | None,
+) -> PreparedMonoenergeticSystem:
+    """Apply ``epsi_hat = er_hat / transport_scale`` to a prepared bar."""
+
+    if case.er_hat is None:
+        return prepared_bar
+    assert transport_scale is not None
+    return dataclasses.replace(
+        prepared_bar,
+        geometry=dataclasses.replace(
+            prepared_bar.geometry,
+            transport_psi_scale=(
+                prepared_bar.geometry.transport_psi_scale
+                - epsi_hat_bar
+                * jnp.asarray(case.er_hat)
+                / jnp.asarray(transport_scale) ** 2
+            ),
+        ),
+    )
+
+
+def _sum_prepared_cotangent_trees(*trees: PreparedMonoenergeticSystem):
+    """Sum prepared cotangents while preserving JAX's static ``float0`` leaves."""
+
+    def _sum_leaves(*values):
+        if jnp.asarray(values[0]).dtype == jax.dtypes.float0:
+            return values[0]
+        result = values[0]
+        for value in values[1:]:
+            result = result + value
+        return result
+
+    return jax.tree_util.tree_map(_sum_leaves, *trees)
+
+
+def solve_prepared_coefficient_vector_two_directional_prepared_vjp(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+) -> tuple[Array, Array, Array]:
+    """Prepared-pytree wrapper around a local exact prepared-support custom VJP.
+
+    This entry point is intentionally separate from the existing raw solve and
+    grouped pullback APIs.  Its forward rule saves one local prepared-system
+    factorization and the two directional low modes; its backward rule reuses
+    those residuals instead of constructing a second primal NTX solve.
+    """
+
+    prepared_tree = jax.tree_util.tree_structure(prepared)
+    prepared_leaves = tuple(jax.tree_util.tree_leaves(prepared))
+    return _solve_prepared_coefficient_vector_two_directional_prepared_leaves_vjp(
+        prepared_tree,
+        prepared_leaves,
+        case,
+        first_case_dot,
+        second_case_dot,
+    )
+
+
+def _solve_prepared_coefficient_vector_two_directional_prepared_primal(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+):
+    return solve_prepared_coefficient_vector_two_directional_factorized(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+    )
+
+
+def _solve_prepared_coefficient_vector_two_directional_prepared_vjp_fwd(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+):
+    outputs, primal_residuals = _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        None,
+        include_geometry=False,
+        return_coefficient_aux=False,
+        return_primal_residuals=True,
+    )
+    return outputs, (prepared, case, first_case_dot, second_case_dot, primal_residuals)
+
+
+def _solve_prepared_coefficient_vector_two_directional_prepared_vjp_bwd(
+    residuals,
+    output_bars: tuple[Array, Array, Array],
+):
+    prepared, case, first_case_dot, second_case_dot, primal_residuals = residuals
+    base_coefficient_bar, first_coefficient_bar, second_coefficient_bar = output_bars
+
+    def _coefficient_bars_and_aux(_coefficients, _first_coefficients, _second_coefficients):
+        return (
+            base_coefficient_bar,
+            first_coefficient_bar,
+            second_coefficient_bar,
+            jnp.asarray(0.0, dtype=base_coefficient_bar.dtype),
+        )
+
+    result = _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        _coefficient_bars_and_aux,
+        include_geometry=False,
+        include_prepared=True,
+        return_coefficient_aux=True,
+        primal_residuals=primal_residuals,
+    )
+    (
+        base_nu_hat_bar,
+        base_epsi_hat_bar,
+        base_prepared_bar,
+        first_base_nu_hat_bar,
+        first_base_epsi_hat_bar,
+        first_nu_hat_bar,
+        first_epsi_hat_bar,
+        _first_base_prepared_bar,
+        first_prepared_bar,
+        second_base_nu_hat_bar,
+        second_base_epsi_hat_bar,
+        second_nu_hat_bar,
+        second_epsi_hat_bar,
+        _second_base_prepared_bar,
+        second_prepared_bar,
+        _auxiliary_bar,
+    ) = result
+    transport_scale = primal_residuals[0]
+    prepared_bar = _sum_prepared_cotangent_trees(
+        base_prepared_bar,
+        first_prepared_bar,
+        second_prepared_bar,
+    )
+    # The grouped core has already applied this chain rule to the base output
+    # bar.  Apply only the two directional-output contributions here.
+    prepared_bar = _add_er_coordinate_scale_bar(
+        prepared_bar,
+        case,
+        first_epsi_hat_bar + second_epsi_hat_bar,
+        transport_scale,
+    )
+    prepared_bar = _add_er_coordinate_scale_bar(
+        prepared_bar,
+        first_case_dot,
+        first_base_epsi_hat_bar,
+        transport_scale,
+    )
+    prepared_bar = _add_er_coordinate_scale_bar(
+        prepared_bar,
+        second_case_dot,
+        second_base_epsi_hat_bar,
+        transport_scale,
+    )
+    case_bar = _case_cotangent_from_resolved_epsi_bar(
+        case,
+        nu_hat_bar=(
+            base_nu_hat_bar + first_nu_hat_bar + second_nu_hat_bar
+        ),
+        epsi_hat_bar=(
+            base_epsi_hat_bar + first_epsi_hat_bar + second_epsi_hat_bar
+        ),
+        transport_scale=transport_scale,
+    )
+    first_case_dot_bar = _case_cotangent_from_resolved_epsi_bar(
+        first_case_dot,
+        nu_hat_bar=first_base_nu_hat_bar,
+        epsi_hat_bar=first_base_epsi_hat_bar,
+        transport_scale=transport_scale,
+    )
+    second_case_dot_bar = _case_cotangent_from_resolved_epsi_bar(
+        second_case_dot,
+        nu_hat_bar=second_base_nu_hat_bar,
+        epsi_hat_bar=second_base_epsi_hat_bar,
+        transport_scale=transport_scale,
+    )
+    return prepared_bar, case_bar, first_case_dot_bar, second_case_dot_bar
+
+
+@partial(jax.custom_vjp, nondiff_argnums=(0,))
+def _solve_prepared_coefficient_vector_two_directional_prepared_leaves_vjp(
+    prepared_tree,
+    prepared_leaves,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+) -> tuple[Array, Array, Array]:
+    prepared = jax.tree_util.tree_unflatten(prepared_tree, prepared_leaves)
+    return _solve_prepared_coefficient_vector_two_directional_prepared_primal(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+    )
+
+
+def _solve_prepared_coefficient_vector_two_directional_prepared_leaves_vjp_fwd(
+    prepared_tree,
+    prepared_leaves,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+):
+    prepared = jax.tree_util.tree_unflatten(prepared_tree, prepared_leaves)
+    outputs, residuals = _solve_prepared_coefficient_vector_two_directional_prepared_vjp_fwd(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+    )
+    return outputs, residuals
+
+
+def _solve_prepared_coefficient_vector_two_directional_prepared_leaves_vjp_bwd(
+    prepared_tree,
+    residuals,
+    output_bars: tuple[Array, Array, Array],
+):
+    prepared_bar, case_bar, first_case_dot_bar, second_case_dot_bar = (
+        _solve_prepared_coefficient_vector_two_directional_prepared_vjp_bwd(
+            residuals,
+            output_bars,
+        )
+    )
+    return (
+        tuple(jax.tree_util.tree_leaves(prepared_bar)),
+        case_bar,
+        first_case_dot_bar,
+        second_case_dot_bar,
+    )
+
+
+_solve_prepared_coefficient_vector_two_directional_prepared_leaves_vjp.defvjp(
+    _solve_prepared_coefficient_vector_two_directional_prepared_leaves_vjp_fwd,
+    _solve_prepared_coefficient_vector_two_directional_prepared_leaves_vjp_bwd,
+)
+
+
 def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -2347,6 +2705,8 @@ __all__ = [
     "compile_prepared_solver",
     "solve_prepared",
     "solve_prepared_coefficient_vector",
+    "solve_prepared_coefficient_vector_two_directional_factorized",
+    "solve_prepared_coefficient_vector_two_directional_prepared_vjp",
     "pullback_prepared_coefficient_vector_case_and_prepared",
     "solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux",
     "solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux",

@@ -16,6 +16,8 @@ from ntx import (
     solve_monoenergetic_scan,
     solve_prepared,
     solve_prepared_coefficient_vector,
+    solve_prepared_coefficient_vector_two_directional_factorized,
+    solve_prepared_coefficient_vector_two_directional_prepared_vjp,
     pullback_prepared_coefficient_vector_case_and_prepared,
     pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux,
@@ -482,6 +484,118 @@ def test_fused_prepared_two_direction_pullback_runs_and_matches_base_vjp():
     ):
         if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
             assert jnp.allclose(fused_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
+
+
+@pytest.mark.parametrize("case_representation", ("er", "epsi"))
+def test_factorized_two_directional_primal_matches_raw_jvps(case_representation):
+    """One-factorization primal directions match the established raw JVPs."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    if case_representation == "er":
+        case = MonoenergeticCase(1e-2, er_hat=1e-3)
+        first_direction = MonoenergeticCase(0.13, er_hat=-0.27)
+        second_direction = MonoenergeticCase(-0.19, er_hat=0.41)
+
+        def raw_solution(nu_hat, field_value):
+            return solve_prepared_coefficient_vector(
+                prepared,
+                MonoenergeticCase(nu_hat, er_hat=field_value),
+            )
+
+        primal = (case.nu_hat, case.er_hat)
+        first_tangent = (first_direction.nu_hat, first_direction.er_hat)
+        second_tangent = (second_direction.nu_hat, second_direction.er_hat)
+    else:
+        case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+        first_direction = MonoenergeticCase(0.13, epsi_hat=-0.27)
+        second_direction = MonoenergeticCase(-0.19, epsi_hat=0.41)
+
+        def raw_solution(nu_hat, field_value):
+            return solve_prepared_coefficient_vector(
+                prepared,
+                MonoenergeticCase(nu_hat, epsi_hat=field_value),
+            )
+
+        primal = (case.nu_hat, case.epsi_hat)
+        first_tangent = (first_direction.nu_hat, first_direction.epsi_hat)
+        second_tangent = (second_direction.nu_hat, second_direction.epsi_hat)
+
+    reference_base, reference_first = jax.jvp(raw_solution, primal, first_tangent)
+    _, reference_second = jax.jvp(raw_solution, primal, second_tangent)
+    actual_base, actual_first, actual_second = jax.jit(
+        lambda: solve_prepared_coefficient_vector_two_directional_factorized(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+        )
+    )()
+    assert jnp.allclose(actual_base, reference_base, rtol=1e-9, atol=1e-11)
+    assert jnp.allclose(actual_first, reference_first, rtol=1e-9, atol=1e-11)
+    assert jnp.allclose(actual_second, reference_second, rtol=1e-9, atol=1e-11)
+
+
+@pytest.mark.parametrize("case_representation", ("er", "epsi"))
+def test_factorized_two_directional_prepared_vjp_matches_raw_vjp(case_representation):
+    """The isolated prepared custom VJP matches the raw triple-output VJP."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    if case_representation == "er":
+        case = MonoenergeticCase(1e-2, er_hat=1e-3)
+        first_direction = MonoenergeticCase(0.13, er_hat=-0.27)
+        second_direction = MonoenergeticCase(-0.19, er_hat=0.41)
+    else:
+        case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+        first_direction = MonoenergeticCase(0.13, epsi_hat=-0.27)
+        second_direction = MonoenergeticCase(-0.19, epsi_hat=0.41)
+    output_bars = (
+        jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4]),
+        jnp.asarray([-0.1, 0.3, 0.2, -0.4, 0.5]),
+        jnp.asarray([0.4, 0.1, -0.6, 0.3, -0.2]),
+    )
+
+    def raw_two_directional(prepared_value, case_value, first_dot, second_dot):
+        base = solve_prepared_coefficient_vector(prepared_value, case_value)
+        _, first = jax.jvp(
+            lambda local_case: solve_prepared_coefficient_vector(prepared_value, local_case),
+            (case_value,),
+            (first_dot,),
+        )
+        _, second = jax.jvp(
+            lambda local_case: solve_prepared_coefficient_vector(prepared_value, local_case),
+            (case_value,),
+            (second_dot,),
+        )
+        return base, first, second
+
+    _, raw_pullback = jax.vjp(
+        raw_two_directional,
+        prepared,
+        case,
+        first_direction,
+        second_direction,
+    )
+    raw_bars = raw_pullback(output_bars)
+    custom_bars = jax.jit(
+        lambda prepared_value, case_value, first_dot, second_dot: jax.vjp(
+            solve_prepared_coefficient_vector_two_directional_prepared_vjp,
+            prepared_value,
+            case_value,
+            first_dot,
+            second_dot,
+        )[1](output_bars)
+    )(
+        prepared,
+        case,
+        first_direction,
+        second_direction,
+    )
+    for custom_bar, raw_bar in zip(custom_bars, raw_bars, strict=True):
+        for custom_leaf, raw_leaf in zip(
+            jax.tree_util.tree_leaves(custom_bar),
+            jax.tree_util.tree_leaves(raw_bar),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(raw_leaf).dtype, jnp.inexact):
+                assert jnp.allclose(custom_leaf, raw_leaf, rtol=1e-9, atol=1e-11)
 
 
 def test_packed_support_directional_adjoint_matches_scalar_prepared_helper():
