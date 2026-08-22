@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import dataclasses
+
 import jax
 import jax.numpy as jnp
 import pytest
@@ -23,6 +25,9 @@ from ntx import (
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry_and_aux,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_geometry_support_only_and_aux,
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
@@ -408,6 +413,157 @@ def test_grouped_prepared_pullback_matches_full_prepared_vjp():
     ):
         if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
             assert jnp.allclose(grouped_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
+
+
+def test_grouped_geometry_two_direction_pullback_matches_geometry_only_vjp():
+    """The geometry-only rule must equal a VJP with fixed support operators."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    zero_direction = MonoenergeticCase(0.0, epsi_hat=0.0)
+    coefficient_bar = jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4])
+
+    grouped = solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry(
+        prepared,
+        case,
+        zero_direction,
+        zero_direction,
+        lambda coefficients: (
+            coefficient_bar,
+            jnp.zeros_like(coefficients),
+            jnp.zeros_like(coefficients),
+        ),
+    )
+    grouped_geometry_bar = grouped[2]
+    _, pullback = jax.vjp(
+        lambda geometry: solve_prepared_coefficient_vector(
+            dataclasses.replace(prepared, geometry=geometry),
+            case,
+        ),
+        prepared.geometry,
+    )
+    (reference_geometry_bar,) = pullback(coefficient_bar)
+    for grouped_leaf, reference_leaf in zip(
+        jax.tree_util.tree_leaves(grouped_geometry_bar),
+        jax.tree_util.tree_leaves(reference_geometry_bar),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
+            assert jnp.allclose(grouped_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
+
+
+def test_geometry_only_prepared_input_matches_full_vjp_active_geometry_bar():
+    """Fixing grid-derived derivative blocks preserves the geometry cotangent."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    coefficient_bar = jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4])
+
+    _, full_pullback = jax.vjp(
+        lambda prepared_value: solve_prepared_coefficient_vector(prepared_value, case),
+        prepared,
+    )
+    (full_prepared_bar,) = full_pullback(coefficient_bar)
+    _, geometry_pullback = jax.vjp(
+        lambda geometry: solve_prepared_coefficient_vector(
+            dataclasses.replace(prepared, geometry=geometry),
+            case,
+        ),
+        prepared.geometry,
+    )
+    (geometry_only_bar,) = geometry_pullback(coefficient_bar)
+
+    for full_leaf, geometry_leaf in zip(
+        jax.tree_util.tree_leaves(full_prepared_bar.geometry),
+        jax.tree_util.tree_leaves(geometry_only_bar),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(geometry_leaf).dtype, jnp.inexact):
+            assert jnp.allclose(full_leaf, geometry_leaf, rtol=1e-9, atol=1e-11)
+
+    # These bars are nonzero in the broad VJP, yet their tangent is zero for
+    # the fixed GridSpec runtime payload.  The restricted boundary removes
+    # this dense operator-transpose work exactly for that payload.
+    assert float(jnp.max(jnp.abs(full_prepared_bar.d_theta))) > 1e-12
+    assert float(jnp.max(jnp.abs(full_prepared_bar.d_zeta))) > 1e-12
+
+
+def test_geometry_aux_two_direction_pullback_matches_prepared_geometry_projection():
+    """Geometry-only grouped bars equal the active projection of prepared bars."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, epsi_hat=0.13)
+    second_direction = MonoenergeticCase(0.17, epsi_hat=0.0)
+    coefficient_bar = jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4])
+
+    def _bars_and_aux(coefficients, first_coeff_dot, second_coeff_dot):
+        return (
+            coefficient_bar,
+            -0.4 * coefficient_bar,
+            0.6 * coefficient_bar,
+            (coefficients, first_coeff_dot, second_coeff_dot),
+        )
+
+    geometry_result = solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry_and_aux(
+        prepared, case, first_direction, second_direction, _bars_and_aux
+    )
+    prepared_result = solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux(
+        prepared, case, first_direction, second_direction, _bars_and_aux
+    )
+    for geometry_index in (2, 7, 8, 13, 14):
+        for geometry_leaf, prepared_leaf in zip(
+            jax.tree_util.tree_leaves(geometry_result[geometry_index]),
+            jax.tree_util.tree_leaves(prepared_result[geometry_index].geometry),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(geometry_leaf).dtype, jnp.inexact):
+                assert jnp.allclose(geometry_leaf, prepared_leaf, rtol=1e-9, atol=1e-11)
+    for geometry_aux, prepared_aux in zip(geometry_result[-1], prepared_result[-1], strict=True):
+        assert jnp.allclose(geometry_aux, prepared_aux, rtol=1e-12, atol=1e-12)
+
+
+def test_geometry_support_only_aux_matches_geometry_full_result():
+    """Geometry support-only output omits case bars without changing support."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, epsi_hat=0.13)
+    second_direction = MonoenergeticCase(0.17, epsi_hat=0.0)
+    coefficient_bar = jnp.asarray([0.7, -0.2, 0.1, 0.3, -0.4])
+
+    def _bars_and_aux(coefficients, first_coeff_dot, second_coeff_dot):
+        return (
+            coefficient_bar,
+            -0.4 * coefficient_bar,
+            0.6 * coefficient_bar,
+            (coefficients, first_coeff_dot, second_coeff_dot),
+        )
+
+    support_result = solve_prepared_coefficient_vector_lowdot_two_pullbacks_geometry_support_only_and_aux(
+        prepared,
+        case,
+        first_direction,
+        second_direction,
+        _bars_and_aux,
+    )
+    full_result = solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry_and_aux(
+        prepared,
+        case,
+        first_direction,
+        second_direction,
+        _bars_and_aux,
+    )
+    for support_index, full_index in zip((0, 1, 2, 3, 4), (2, 7, 8, 13, 14), strict=True):
+        for support_leaf, full_leaf in zip(
+            jax.tree_util.tree_leaves(support_result[support_index]),
+            jax.tree_util.tree_leaves(full_result[full_index]),
+            strict=True,
+        ):
+            if (
+                jnp.asarray(support_leaf).dtype != jax.dtypes.float0
+                and jnp.asarray(full_leaf).dtype != jax.dtypes.float0
+                and jnp.issubdtype(jnp.asarray(full_leaf).dtype, jnp.inexact)
+            ):
+                assert jnp.allclose(support_leaf, full_leaf, rtol=1e-9, atol=1e-11)
+    for support_aux, full_aux in zip(support_result[-1], full_result[-1], strict=True):
+        assert jnp.allclose(support_aux, full_aux, rtol=1e-12, atol=1e-12)
 
 
 def test_multi_rhs_prepared_pullback_matches_scalar_prepared_pullbacks():

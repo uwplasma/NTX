@@ -993,8 +993,8 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     if include_geometry and include_prepared:
         raise ValueError("Only one prepared-support cotangent representation may be requested.")
     include_support = include_geometry or include_prepared
-    if support_only and not include_prepared:
-        raise ValueError("support_only requires include_prepared=True.")
+    if support_only and not include_support:
+        raise ValueError("support_only requires a prepared-support representation.")
     if packed_support_directional_adjoint and not include_support:
         raise ValueError("Packed support directional adjoint requires a support pullback mode.")
 
@@ -1853,21 +1853,40 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                         mode_indices,
                     )
                 )
-                base_support_bar, directional_support_bar = _directional_prepared_gradient_from_adjoint(
-                    prepared,
-                    nu_hat=ctx.nu_hat,
-                    epsi_hat=ctx.epsi_hat,
-                    nu_hat_dot=nu_hat_dot,
-                    epsi_hat_dot=epsi_hat_dot,
-                    f1_full=f1_full,
-                    f3_full=f3_full,
-                    f1_dot=f1_dot,
-                    f3_dot=f3_dot,
-                    lambda1=lambda1,
-                    lambda3=lambda3,
-                    lambda1_dot=lambda1_dot,
-                    lambda3_dot=lambda3_dot,
-                    coefficient_bar=coefficient_bar,
+                base_support_bar, directional_support_bar = (
+                    _directional_geometry_gradient_from_adjoint(
+                        prepared,
+                        nu_hat=ctx.nu_hat,
+                        epsi_hat=ctx.epsi_hat,
+                        nu_hat_dot=nu_hat_dot,
+                        epsi_hat_dot=epsi_hat_dot,
+                        f1_full=f1_full,
+                        f3_full=f3_full,
+                        f1_dot=f1_dot,
+                        f3_dot=f3_dot,
+                        lambda1=lambda1,
+                        lambda3=lambda3,
+                        lambda1_dot=lambda1_dot,
+                        lambda3_dot=lambda3_dot,
+                        coefficient_bar=coefficient_bar,
+                    )
+                    if include_geometry
+                    else _directional_prepared_gradient_from_adjoint(
+                        prepared,
+                        nu_hat=ctx.nu_hat,
+                        epsi_hat=ctx.epsi_hat,
+                        nu_hat_dot=nu_hat_dot,
+                        epsi_hat_dot=epsi_hat_dot,
+                        f1_full=f1_full,
+                        f3_full=f3_full,
+                        f1_dot=f1_dot,
+                        f3_dot=f3_dot,
+                        lambda1=lambda1,
+                        lambda3=lambda3,
+                        lambda1_dot=lambda1_dot,
+                        lambda3_dot=lambda3_dot,
+                        coefficient_bar=coefficient_bar,
+                    )
                 )
                 return base_support_bar, directional_support_bar
 
@@ -2532,6 +2551,35 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry_and_aux
     )
 
 
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_geometry_support_only_and_aux(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bar_and_aux_fn,
+):
+    """Return only geometry support bars of the fused low-dot pullback.
+
+    This is the geometry-only counterpart of the prepared-support-only helper.
+    It retains the exact base and two directional implicit adjoints, but omits
+    unused case/profile contractions and does not construct complete prepared
+    cotangent trees.  The result is ``(base_geometry,
+    first_base_geometry, first_directional_geometry,
+    second_base_geometry, second_directional_geometry, auxiliary)``.
+    """
+
+    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bar_and_aux_fn,
+        include_geometry=True,
+        return_coefficient_aux=True,
+        support_only=True,
+    )
+
+
 def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -2709,6 +2757,7 @@ __all__ = [
     "solve_prepared_coefficient_vector_two_directional_prepared_vjp",
     "pullback_prepared_coefficient_vector_case_and_prepared",
     "solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux",
+    "solve_prepared_coefficient_vector_lowdot_two_pullbacks_geometry_support_only_and_aux",
     "solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared_internal",
