@@ -2642,6 +2642,98 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     return result
 
 
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_multi_rhs_and_aux(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bars_and_aux_fn,
+    *,
+    return_primal_outputs: bool = False,
+):
+    """Exact batched support-only low-dot pullback with one local primal.
+
+    ``coefficient_bars_and_aux_fn`` receives the unbatched base coefficient
+    vector and its two case-direction coefficient vectors.  It must return
+    ``(base_bars, first_bars, second_bars, auxiliary)`` with a common leading
+    RHS axis.  The local NTX primal modes, block factorisation, and two forward
+    directional mode solves are constructed *once*, then each RHS performs
+    only its cotangent-dependent support adjoints.  The factorisation-local
+    residual is scoped to this call; it is neither returned nor retained by a
+    transport timestep/segment record.
+
+    When ``return_primal_outputs`` is true, the unbatched
+    ``(coefficients, first_coefficient_dot, second_coefficient_dot)`` tuple is
+    returned beside the RHS-batched pullback result.  This lets an immediate
+    caller construct its local primal response for interpolation without
+    evaluating NTX again.  It does not retain the factorisation after return.
+
+    This is deliberately separate from the scalar API.  It is the native
+    multi-RHS building block for a future NEOPAX adapter and changes no
+    existing solver or reverse-mode dispatch.
+    """
+
+    primal_outputs, primal_residuals = (
+        _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+            prepared,
+            case,
+            first_case_dot,
+            second_case_dot,
+            None,
+            include_geometry=False,
+            include_prepared=True,
+            return_coefficient_aux=True,
+            support_only=True,
+            return_primal_residuals=True,
+        )
+    )
+    coefficient_bars_and_aux = coefficient_bars_and_aux_fn(*primal_outputs)
+    if len(coefficient_bars_and_aux) != 4:
+        raise ValueError(
+            "coefficient_bars_and_aux_fn must return "
+            "(base_bars, first_bars, second_bars, auxiliary)."
+        )
+
+    prepared_bar_tree = jax.tree_util.tree_structure(prepared)
+
+    def _one_rhs(base_bar, first_bar, second_bar, auxiliary):
+        result = _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+            prepared,
+            case,
+            first_case_dot,
+            second_case_dot,
+            lambda _base, _first, _second: (
+                base_bar,
+                first_bar,
+                second_bar,
+                auxiliary,
+            ),
+            include_geometry=False,
+            include_prepared=True,
+            return_coefficient_aux=True,
+            support_only=True,
+            primal_residuals=primal_residuals,
+        )
+        # Keep static prepared-system metadata outside ``vmap``.  Returning a
+        # PreparedMonoenergeticSystem directly would ask JAX to batch its
+        # validated/static fields; batch only the dynamic cotangent leaves and
+        # reconstruct the five original pytrees afterwards.
+        return (
+            tuple(tuple(jax.tree_util.tree_leaves(value)) for value in result[:5]),
+            result[5],
+        )
+
+    prepared_bar_leaf_groups, auxiliary = jax.vmap(_one_rhs)(*coefficient_bars_and_aux)
+    result = (
+        *(
+            prepared_bar_tree.unflatten(leaves)
+            for leaves in prepared_bar_leaf_groups
+        ),
+        auxiliary,
+    )
+    return (primal_outputs, result) if return_primal_outputs else result
+
+
 def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,

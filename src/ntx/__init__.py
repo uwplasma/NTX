@@ -147,6 +147,7 @@ from .solver import (
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_geometry_support_only_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_multi_rhs_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint,
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,

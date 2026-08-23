@@ -23,6 +23,7 @@ from ntx import (
     pullback_prepared_coefficient_vector_case_and_prepared,
     pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_multi_rhs_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry,
@@ -606,6 +607,87 @@ def test_multi_rhs_prepared_pullback_matches_scalar_prepared_pullbacks():
                 assert jnp.allclose(
                     multi_leaf[rhs_index], scalar_leaf, rtol=1e-9, atol=1e-11
                 )
+
+
+@pytest.mark.parametrize("rhs_count", (1, 2, 4))
+def test_lowdot_support_only_multi_rhs_matches_scalar_support_only(rhs_count):
+    """The local multi-RHS helper must preserve every exact support bar."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, er_hat=0.23)
+    second_direction = MonoenergeticCase(-0.17, er_hat=0.0)
+    base_bars = jnp.reshape(
+        jnp.arange(rhs_count * 5, dtype=jnp.float64), (rhs_count, 5)
+    ) / 13.0 - 0.4
+    first_bars = jnp.flip(base_bars, axis=1) * 0.37
+    second_bars = base_bars * -0.21
+    auxiliary = jnp.linspace(-0.3, 0.4, rhs_count, dtype=jnp.float64)
+
+    multi = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_multi_rhs_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            lambda _base, _first, _second: (
+                base_bars,
+                first_bars,
+                second_bars,
+                auxiliary,
+            ),
+        )
+    )
+    primal_outputs, multi_with_primal = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_multi_rhs_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            lambda _base, _first, _second: (
+                base_bars,
+                first_bars,
+                second_bars,
+                auxiliary,
+            ),
+            return_primal_outputs=True,
+        )
+    )
+    assert all(value.shape == (5,) for value in primal_outputs)
+    for with_primal_tree, multi_tree in zip(
+        multi_with_primal, multi, strict=True
+    ):
+        for with_primal_leaf, multi_leaf in zip(
+            jax.tree_util.tree_leaves(with_primal_tree),
+            jax.tree_util.tree_leaves(multi_tree),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(multi_leaf).dtype, jnp.inexact):
+                assert jnp.allclose(with_primal_leaf, multi_leaf, rtol=0.0, atol=0.0)
+    assert multi[-1].shape == (rhs_count,)
+    for rhs_index in range(rhs_count):
+        scalar = solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            lambda _base, _first, _second, index=rhs_index: (
+                base_bars[index],
+                first_bars[index],
+                second_bars[index],
+                auxiliary[index],
+            ),
+        )
+        for multi_tree, scalar_tree in zip(multi[:-1], scalar[:-1], strict=True):
+            for multi_leaf, scalar_leaf in zip(
+                jax.tree_util.tree_leaves(multi_tree),
+                jax.tree_util.tree_leaves(scalar_tree),
+                strict=True,
+            ):
+                if jnp.issubdtype(jnp.asarray(scalar_leaf).dtype, jnp.inexact):
+                    assert jnp.allclose(
+                        multi_leaf[rhs_index], scalar_leaf, rtol=1e-9, atol=1e-11
+                    )
+        assert jnp.allclose(multi[-1][rhs_index], scalar[-1], rtol=0.0, atol=0.0)
 
 
 def test_fused_prepared_two_direction_pullback_runs_and_matches_base_vjp():
