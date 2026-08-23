@@ -353,6 +353,7 @@ def _directional_geometry_gradient_from_adjoint(
     lambda1_dot: Array,
     lambda3_dot: Array,
     coefficient_bar: Array,
+    coefficient_bar_dot: Array | None = None,
 ):
     """Return base and directional exact geometry bars without re-solving.
 
@@ -369,6 +370,7 @@ def _directional_geometry_gradient_from_adjoint(
         f3_value,
         lambda1_value,
         lambda3_value,
+        coefficient_bar_value,
     ):
         local_ctx = OperatorContext(
             surface=prepared.surface,
@@ -383,13 +385,24 @@ def _directional_geometry_gradient_from_adjoint(
             f3_value,
             lambda1_value,
             lambda3_value,
-            coefficient_bar,
+            coefficient_bar_value,
         )
+
+    if coefficient_bar_dot is None:
+        coefficient_bar_dot = jnp.zeros_like(coefficient_bar)
 
     return jax.jvp(
         _geometry_bar_from_dynamic_terms,
-        (nu_hat, epsi_hat, f1_full, f3_full, lambda1, lambda3),
-        (nu_hat_dot, epsi_hat_dot, f1_dot, f3_dot, lambda1_dot, lambda3_dot),
+        (nu_hat, epsi_hat, f1_full, f3_full, lambda1, lambda3, coefficient_bar),
+        (
+            nu_hat_dot,
+            epsi_hat_dot,
+            f1_dot,
+            f3_dot,
+            lambda1_dot,
+            lambda3_dot,
+            coefficient_bar_dot,
+        ),
     )
 
 
@@ -409,10 +422,17 @@ def _directional_prepared_gradient_from_adjoint(
     lambda1_dot: Array,
     lambda3_dot: Array,
     coefficient_bar: Array,
+    coefficient_bar_dot: Array | None = None,
 ):
     """Directional counterpart of :func:`_prepared_gradient_from_adjoint`."""
     def _prepared_bar_from_dynamic_terms(
-        nu_hat_value, epsi_hat_value, f1_value, f3_value, lambda1_value, lambda3_value
+        nu_hat_value,
+        epsi_hat_value,
+        f1_value,
+        f3_value,
+        lambda1_value,
+        lambda3_value,
+        coefficient_bar_value,
     ):
         local_ctx = _operator_context(
             prepared.surface, prepared.geometry, prepared.grid, nu_hat_value, epsi_hat_value
@@ -424,11 +444,22 @@ def _directional_prepared_gradient_from_adjoint(
             f3_value,
             lambda1_value,
             lambda3_value,
-            coefficient_bar,
+            coefficient_bar_value,
         )
+
+    if coefficient_bar_dot is None:
+        coefficient_bar_dot = jnp.zeros_like(coefficient_bar)
 
     return jax.jvp(
         _prepared_bar_from_dynamic_terms,
-        (nu_hat, epsi_hat, f1_full, f3_full, lambda1, lambda3),
-        (nu_hat_dot, epsi_hat_dot, f1_dot, f3_dot, lambda1_dot, lambda3_dot),
+        (nu_hat, epsi_hat, f1_full, f3_full, lambda1, lambda3, coefficient_bar),
+        (
+            nu_hat_dot,
+            epsi_hat_dot,
+            f1_dot,
+            f3_dot,
+            lambda1_dot,
+            lambda3_dot,
+            coefficient_bar_dot,
+        ),
     )

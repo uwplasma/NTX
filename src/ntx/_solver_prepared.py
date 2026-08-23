@@ -1447,6 +1447,16 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
         coefficient_bar_result[:3]
     )
     coefficient_aux = coefficient_bar_result[3] if return_coefficient_aux else None
+    # A differentiated transport-moment pullback can make its coefficient
+    # cotangent depend on the NTX coefficient primal.  Carry that mixed term
+    # into the two low-dot reverse directions when supplied.  The optional
+    # fifth result keeps every established caller on the previous zero-tangent
+    # contract.
+    if return_coefficient_aux and len(coefficient_bar_result) > 4:
+        first_coefficient_bar_dot, second_coefficient_bar_dot = coefficient_bar_result[4]
+    else:
+        first_coefficient_bar_dot = jnp.zeros_like(first_coefficient_bar)
+        second_coefficient_bar_dot = jnp.zeros_like(second_coefficient_bar)
 
     def _two_direction_pullbacks(
         coefficient_bar_pair,
@@ -1795,6 +1805,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
 
     def _scan_direction_pullbacks(
         coefficient_bar_pair,
+        coefficient_bar_dot_pair,
         nu_hat_dot_pair,
         epsi_hat_dot_pair,
         f1_dot_low_pair,
@@ -1849,15 +1860,22 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
             return contracted
 
         def _one_direction_pullback(xs):
-            coefficient_bar, nu_hat_dot, epsi_hat_dot, f1_dot_low, f3_dot_low = xs
+            (
+                coefficient_bar,
+                coefficient_bar_dot,
+                nu_hat_dot,
+                epsi_hat_dot,
+                f1_dot_low,
+                f3_dot_low,
+            ) = xs
 
-            def _coefficient_pullback(modes1, modes3, nu_value):
+            def _coefficient_pullback(modes1, modes3, nu_value, coefficient_bar_value):
                 return _coefficient_mode_pullback(
                     prepared.geometry,
                     modes1,
                     modes3,
                     nu_value,
-                    coefficient_bar,
+                    coefficient_bar_value,
                 )
 
             (
@@ -1870,8 +1888,8 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                 nu_bar_direct_dot,
             ) = jax.jvp(
                 _coefficient_pullback,
-                (f1_full[:3], f3_full[:3], ctx.nu_hat),
-                (f1_dot_low, f3_dot_low, nu_hat_dot),
+                (f1_full[:3], f3_full[:3], ctx.nu_hat, coefficient_bar),
+                (f1_dot_low, f3_dot_low, nu_hat_dot, coefficient_bar_dot),
             )
 
             g1 = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low)
@@ -1946,6 +1964,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                         lambda1_dot=lambda1_dot,
                         lambda3_dot=lambda3_dot,
                         coefficient_bar=coefficient_bar,
+                        coefficient_bar_dot=coefficient_bar_dot,
                     )
                     if include_geometry
                     else _directional_prepared_gradient_from_adjoint(
@@ -1963,6 +1982,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                         lambda1_dot=lambda1_dot,
                         lambda3_dot=lambda3_dot,
                         coefficient_bar=coefficient_bar,
+                        coefficient_bar_dot=coefficient_bar_dot,
                     )
                 )
                 return base_support_bar, directional_support_bar
@@ -2101,6 +2121,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                         lambda1_dot=lambda1_dot,
                         lambda3_dot=lambda3_dot,
                         coefficient_bar=coefficient_bar,
+                        coefficient_bar_dot=coefficient_bar_dot,
                     )
                     if include_geometry
                     else _directional_prepared_gradient_from_adjoint(
@@ -2118,6 +2139,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
                         lambda1_dot=lambda1_dot,
                         lambda3_dot=lambda3_dot,
                         coefficient_bar=coefficient_bar,
+                        coefficient_bar_dot=coefficient_bar_dot,
                     )
                 )
                 return (
@@ -2140,6 +2162,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
             jnp.asarray(0, dtype=jnp.int32),
             (
                 coefficient_bar_pair,
+                coefficient_bar_dot_pair,
                 nu_hat_dot_pair,
                 epsi_hat_dot_pair,
                 f1_dot_low_pair,
@@ -2171,6 +2194,7 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
         base = (base_nu_bar, base_epsi_bar, base_prepared_bar)
     direction = _scan_direction_pullbacks(
         jnp.stack([first_coefficient_bar, second_coefficient_bar], axis=0),
+        jnp.stack([first_coefficient_bar_dot, second_coefficient_bar_dot], axis=0),
         jnp.stack([first_nu_dot, second_nu_dot], axis=0),
         jnp.stack([first_epsi_dot, second_epsi_dot], axis=0),
         jnp.stack([packed_f_dot_low_matrix[..., 0], packed_f_dot_low_matrix[..., 2]], axis=0),
@@ -2313,21 +2337,31 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
     del transport_scale
 
     coefficient_bars_and_aux = coefficient_bars_and_aux_fn(*primal_outputs)
-    if len(coefficient_bars_and_aux) != 4:
+    if len(coefficient_bars_and_aux) not in {4, 5}:
         raise ValueError(
             "coefficient_bars_and_aux_fn must return "
-            "(base_bars, first_bars, second_bars, auxiliary)."
+            "(base_bars, first_bars, second_bars, auxiliary) optionally followed "
+            "by (first_bars_dot, second_bars_dot)."
         )
     base_coefficient_bars, first_coefficient_bars, second_coefficient_bars, auxiliary = (
-        coefficient_bars_and_aux
+        coefficient_bars_and_aux[:4]
     )
     base_coefficient_bars = jnp.asarray(base_coefficient_bars)
     first_coefficient_bars = jnp.asarray(first_coefficient_bars)
     second_coefficient_bars = jnp.asarray(second_coefficient_bars)
+    if len(coefficient_bars_and_aux) == 5:
+        first_coefficient_bars_dot, second_coefficient_bars_dot = (
+            jnp.asarray(value) for value in coefficient_bars_and_aux[4]
+        )
+    else:
+        first_coefficient_bars_dot = jnp.zeros_like(first_coefficient_bars)
+        second_coefficient_bars_dot = jnp.zeros_like(second_coefficient_bars)
     if (
         base_coefficient_bars.ndim != 2
         or first_coefficient_bars.shape != base_coefficient_bars.shape
         or second_coefficient_bars.shape != base_coefficient_bars.shape
+        or first_coefficient_bars_dot.shape != base_coefficient_bars.shape
+        or second_coefficient_bars_dot.shape != base_coefficient_bars.shape
     ):
         raise ValueError(
             "All low-dot coefficient cotangent batches must have shape "
@@ -2389,36 +2423,46 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
 
     def _directional_coefficient_pullback(
         coefficient_bars,
+        coefficient_bars_dot,
         f1_dot_low_value,
         f3_dot_low_value,
         nu_dot_value,
     ):
-        def _one_rhs(one_coefficient_bar):
-            def _pullback_from_primal(modes1, modes3, nu_value):
+        def _one_rhs(one_coefficient_bar, one_coefficient_bar_dot):
+            def _pullback_from_primal(
+                modes1, modes3, nu_value, coefficient_bar_value
+            ):
                 return _coefficient_mode_pullback(
                     prepared.geometry,
                     modes1,
                     modes3,
                     nu_value,
-                    one_coefficient_bar,
+                    coefficient_bar_value,
                 )
 
             return jax.jvp(
                 _pullback_from_primal,
-                (f1_full[:3], f3_full[:3], ctx.nu_hat),
-                (f1_dot_low_value, f3_dot_low_value, nu_dot_value),
+                (f1_full[:3], f3_full[:3], ctx.nu_hat, one_coefficient_bar),
+                (
+                    f1_dot_low_value,
+                    f3_dot_low_value,
+                    nu_dot_value,
+                    one_coefficient_bar_dot,
+                ),
             )
 
-        return jax.vmap(_one_rhs)(coefficient_bars)
+        return jax.vmap(_one_rhs)(coefficient_bars, coefficient_bars_dot)
 
     first_directional = _directional_coefficient_pullback(
         first_coefficient_bars,
+        first_coefficient_bars_dot,
         f1_dot_low[..., 0],
         f3_dot_low[..., 0],
         first_nu_dot,
     )
     second_directional = _directional_coefficient_pullback(
         second_coefficient_bars,
+        second_coefficient_bars_dot,
         f1_dot_low[..., 1],
         f3_dot_low[..., 1],
         second_nu_dot,
@@ -3004,7 +3048,10 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     ``coefficient_bars_and_aux_fn`` receives the unbatched base coefficient
     vector and its two case-direction coefficient vectors.  It must return
     ``(base_bars, first_bars, second_bars, auxiliary)`` with a common leading
-    RHS axis.  The local NTX primal modes, block factorisation, and two forward
+    RHS axis.  It may additionally return
+    ``(first_bars_dot, second_bars_dot)`` as a fifth item when the directional
+    coefficient cotangents themselves depend on the local NTX primal. The local
+    NTX primal modes, block factorisation, and two forward
     directional mode solves are constructed *once*, then each RHS performs
     only its cotangent-dependent support adjoints.  The factorisation-local
     residual is scoped to this call; it is neither returned nor retained by a
@@ -3036,15 +3083,29 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         )
     )
     coefficient_bars_and_aux = coefficient_bars_and_aux_fn(*primal_outputs)
-    if len(coefficient_bars_and_aux) != 4:
+    if len(coefficient_bars_and_aux) not in {4, 5}:
         raise ValueError(
             "coefficient_bars_and_aux_fn must return "
-            "(base_bars, first_bars, second_bars, auxiliary)."
+            "(base_bars, first_bars, second_bars, auxiliary) optionally followed "
+            "by (first_bars_dot, second_bars_dot)."
         )
+    base_bars, first_bars, second_bars, auxiliary = coefficient_bars_and_aux[:4]
+    if len(coefficient_bars_and_aux) == 5:
+        first_bars_dot, second_bars_dot = coefficient_bars_and_aux[4]
+    else:
+        first_bars_dot = jnp.zeros_like(first_bars)
+        second_bars_dot = jnp.zeros_like(second_bars)
 
     prepared_bar_tree = jax.tree_util.tree_structure(prepared)
 
-    def _one_rhs(base_bar, first_bar, second_bar, auxiliary):
+    def _one_rhs(
+        base_bar,
+        first_bar,
+        second_bar,
+        auxiliary,
+        first_bar_dot,
+        second_bar_dot,
+    ):
         result = _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
             prepared,
             case,
@@ -3055,6 +3116,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
                 first_bar,
                 second_bar,
                 auxiliary,
+                (first_bar_dot, second_bar_dot),
             ),
             include_geometry=False,
             include_prepared=True,
@@ -3071,7 +3133,14 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             result[5],
         )
 
-    prepared_bar_leaf_groups, auxiliary = jax.vmap(_one_rhs)(*coefficient_bars_and_aux)
+    prepared_bar_leaf_groups, auxiliary = jax.vmap(_one_rhs)(
+        base_bars,
+        first_bars,
+        second_bars,
+        auxiliary,
+        first_bars_dot,
+        second_bars_dot,
+    )
     result = (
         *(
             prepared_bar_tree.unflatten(leaves)
@@ -3160,6 +3229,8 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         base_coefficient_bar,
         first_coefficient_bar,
         second_coefficient_bar,
+        first_coefficient_bar_dot,
+        second_coefficient_bar_dot,
         base_lambda1_value,
         base_lambda3_value,
         directional_lambda1_value,
@@ -3192,6 +3263,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
                 lambda1_dot=directional_lambda1_dot_value[..., 0],
                 lambda3_dot=directional_lambda3_dot_value[..., 0],
                 coefficient_bar=first_coefficient_bar,
+                coefficient_bar_dot=first_coefficient_bar_dot,
             )
         )
         second_base_prepared, second_directional_prepared = (
@@ -3210,6 +3282,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
                 lambda1_dot=directional_lambda1_dot_value[..., 1],
                 lambda3_dot=directional_lambda3_dot_value[..., 1],
                 coefficient_bar=second_coefficient_bar,
+                coefficient_bar_dot=second_coefficient_bar_dot,
             )
         )
 
@@ -3228,6 +3301,8 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         base_coefficient_bars,
         first_coefficient_bars,
         second_coefficient_bars,
+        first_coefficient_bars_dot,
+        second_coefficient_bars_dot,
         jnp.moveaxis(base_lambda1, 2, 0),
         jnp.moveaxis(base_lambda3, 2, 0),
         jnp.moveaxis(directional_lambda1, 2, 0),
