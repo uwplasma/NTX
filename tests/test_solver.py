@@ -24,6 +24,7 @@ from ntx import (
     pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_multi_rhs_and_aux,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry,
@@ -33,6 +34,11 @@ from ntx import (
     solve_prepared_internal,
 )
 from ntx.geometry import BoozerSurface
+from ntx._solver_adjoint import _prepared_implicit_vjp_primal
+from ntx._solver_prepared import (
+    _solve_factorized_adjoint_field_pair,
+    _solve_factorized_multi_rhs_directional_adjoint_field_pair,
+)
 
 
 def test_uniform_field_has_zero_radial_transport():
@@ -690,6 +696,60 @@ def test_lowdot_support_only_multi_rhs_matches_scalar_support_only(rhs_count):
         assert jnp.allclose(multi[-1][rhs_index], scalar[-1], rtol=0.0, atol=0.0)
 
 
+@pytest.mark.parametrize("rhs_count", (1, 2, 4))
+def test_native_lowdot_support_multi_rhs_matches_scalar_support_only(rhs_count):
+    """Native RHS-column adjoints reproduce the scalar prepared-support rule."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, epsi_hat=0.23)
+    second_direction = MonoenergeticCase(-0.17, epsi_hat=0.0)
+    base_bars = jnp.reshape(
+        jnp.arange(rhs_count * 5, dtype=jnp.float64), (rhs_count, 5)
+    ) / 13.0 - 0.4
+    first_bars = jnp.flip(base_bars, axis=1) * 0.37
+    second_bars = base_bars * -0.21
+    auxiliary = jnp.linspace(-0.3, 0.4, rhs_count, dtype=jnp.float64)
+
+    native = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            lambda _base, _first, _second: (
+                base_bars,
+                first_bars,
+                second_bars,
+                auxiliary,
+            ),
+        )
+    )
+    for rhs_index in range(rhs_count):
+        scalar = solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            lambda _base, _first, _second, index=rhs_index: (
+                base_bars[index],
+                first_bars[index],
+                second_bars[index],
+                auxiliary[index],
+            ),
+        )
+        for native_tree, scalar_tree in zip(native[:-1], scalar[:-1], strict=True):
+            for native_leaf, scalar_leaf in zip(
+                jax.tree_util.tree_leaves(native_tree),
+                jax.tree_util.tree_leaves(scalar_tree),
+                strict=True,
+            ):
+                if jnp.issubdtype(jnp.asarray(scalar_leaf).dtype, jnp.inexact):
+                    assert jnp.allclose(
+                        native_leaf[rhs_index], scalar_leaf, rtol=1e-9, atol=1e-11
+                    )
+        assert jnp.allclose(native[-1][rhs_index], scalar[-1], rtol=0.0, atol=0.0)
+
+
 def test_fused_prepared_two_direction_pullback_runs_and_matches_base_vjp():
     """The fused prepared-support branch must receive mode arrays, not callbacks."""
     prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
@@ -874,6 +934,80 @@ def test_packed_support_directional_adjoint_matches_scalar_prepared_helper():
     ):
         if jnp.issubdtype(jnp.asarray(reference_leaf).dtype, jnp.inexact):
             assert jnp.allclose(packed_leaf, reference_leaf, rtol=1e-9, atol=1e-11)
+
+
+def test_multi_rhs_directional_adjoint_packing_matches_explicit_columns():
+    """Objective RHS columns use one packed transpose system, not scalar VJPs."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, er_hat=1e-3)
+    _, f1_full, _, saved_lu, saved_piv, saved_lower, saved_upper = (
+        _prepared_implicit_vjp_primal(
+            prepared,
+            case.nu_hat,
+            case.resolved_epsi_hat(prepared.geometry.transport_psi_scale),
+        )
+    )
+    mode_count, unknown_count = f1_full.shape
+    rhs_count = 3
+    direction_count = 2
+    shape = (mode_count, unknown_count, rhs_count, direction_count)
+    values = jnp.arange(
+        mode_count * unknown_count * rhs_count * direction_count,
+        dtype=f1_full.dtype,
+    ).reshape(shape)
+    first_adjoint = values / 13.0
+    second_adjoint = (values + 1.0) / 17.0
+    first_rhs_dot = (values - 2.0) / 19.0
+    second_rhs_dot = (values + 3.0) / 23.0
+    diagonal_dot = jnp.broadcast_to(
+        jnp.stack(
+            [
+                jnp.eye(unknown_count, dtype=f1_full.dtype),
+                -2.0 * jnp.eye(unknown_count, dtype=f1_full.dtype),
+            ]
+        ),
+        (mode_count, direction_count, unknown_count, unknown_count),
+    )
+
+    first_solution, second_solution = (
+        _solve_factorized_multi_rhs_directional_adjoint_field_pair(
+            saved_lu,
+            saved_piv,
+            saved_lower,
+            saved_upper,
+            first_adjoint,
+            second_adjoint,
+            first_rhs_dot,
+            second_rhs_dot,
+            diagonal_dot,
+        )
+    )
+    first_rhs = first_rhs_dot - jnp.einsum(
+        "mdji,mjrd->mird", diagonal_dot, first_adjoint
+    )
+    second_rhs = second_rhs_dot - jnp.einsum(
+        "mdji,mjrd->mird", diagonal_dot, second_adjoint
+    )
+    first_reference, second_reference = _solve_factorized_adjoint_field_pair(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.reshape(first_rhs, (mode_count, unknown_count, rhs_count * direction_count)),
+        jnp.reshape(second_rhs, (mode_count, unknown_count, rhs_count * direction_count)),
+    )
+    assert jnp.allclose(
+        first_solution,
+        jnp.reshape(first_reference, shape),
+        rtol=1e-10,
+        atol=1e-12,
+    )
+    assert jnp.allclose(
+        second_solution,
+        jnp.reshape(second_reference, shape),
+        rtol=1e-10,
+        atol=1e-12,
+    )
 
 
 @pytest.mark.parametrize("case_representation", ("er", "epsi"))

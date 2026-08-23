@@ -116,6 +116,82 @@ def _solve_factorized_directional_adjoint_field_pair(
     )
 
 
+def _solve_factorized_multi_rhs_directional_adjoint_field_pair(
+    saved_lu: Array,
+    saved_piv: Array,
+    saved_lower: Array,
+    saved_upper: Array,
+    first_field_adjoint: Array,
+    second_field_adjoint: Array,
+    first_field_rhs_dot: Array,
+    second_field_rhs_dot: Array,
+    diagonal_dot: Array,
+) -> tuple[Array, Array]:
+    """Solve directional adjoints for objective RHS columns in one call.
+
+    This is the matrix-RHS counterpart of
+    :func:`_solve_factorized_directional_adjoint_field_pair`.  The trailing
+    axes are ``(rhs, direction)`` rather than only ``(direction,)``:
+
+    - fields: ``(mode, unknown, rhs, direction)``;
+    - diagonal derivatives: ``(mode, direction, row, column)``.
+
+    The physical directions are shared by every objective RHS.  They are
+    packed with the objective columns only at the block-tridiagonal transpose
+    solve, then restored immediately.  In particular, this is not a ``vmap``
+    around scalar implicit solves and it keeps no factorisation outside the
+    caller's local anchor calculation.
+    """
+
+    expected_shape = first_field_adjoint.shape
+    if (
+        first_field_adjoint.ndim != 4
+        or second_field_adjoint.shape != expected_shape
+        or first_field_rhs_dot.shape != expected_shape
+        or second_field_rhs_dot.shape != expected_shape
+        or diagonal_dot.shape
+        != (
+            expected_shape[0],
+            expected_shape[-1],
+            expected_shape[1],
+            expected_shape[1],
+        )
+    ):
+        raise ValueError(
+            "Multi-RHS directional paired-adjoint inputs have incompatible shapes."
+        )
+
+    # ``diagonal_dot`` has no RHS axis: each physical case direction acts on
+    # every objective adjoint column.  Keep that broadcasting explicit so a
+    # later caller cannot accidentally introduce an objective-dependent
+    # physical direction.
+    first_rhs = first_field_rhs_dot - jnp.einsum(
+        "mdji,mjrd->mird", diagonal_dot, first_field_adjoint
+    )
+    second_rhs = second_field_rhs_dot - jnp.einsum(
+        "mdji,mjrd->mird", diagonal_dot, second_field_adjoint
+    )
+    mode_count, unknown_count, rhs_count, direction_count = first_rhs.shape
+    first_packed = jnp.reshape(
+        first_rhs, (mode_count, unknown_count, rhs_count * direction_count)
+    )
+    second_packed = jnp.reshape(
+        second_rhs, (mode_count, unknown_count, rhs_count * direction_count)
+    )
+    first_solution, second_solution = _solve_factorized_adjoint_field_pair(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        first_packed,
+        second_packed,
+    )
+    return (
+        jnp.reshape(first_solution, first_rhs.shape),
+        jnp.reshape(second_solution, second_rhs.shape),
+    )
+
+
 def solve_prepared(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -2180,6 +2256,274 @@ def _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
     return (*base, *first, *second)
 
 
+def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bars_and_aux_fn,
+):
+    """Build native matrix-RHS fields for the exact low-dot support pullback.
+
+    This private building block deliberately stops before constructing any
+    prepared-system cotangent pytree.  It evaluates the primal and the two
+    physical forward directions once, then forms all base and directional
+    implicit adjoints with trailing objective-RHS columns.  The caller can
+    subsequently apply the prepared-gradient contractions to those fields
+    without entering the scalar low-dot implicit helper once per objective.
+
+    Returned field layouts are ``(mode, unknown, rhs)`` for base fields and
+    ``(mode, unknown, rhs, direction)`` for directional fields.  The two
+    physical direction fields themselves have no RHS axis.  This distinction
+    is essential: physical forward directions are objective-independent, while
+    cotangents are objective-dependent.
+    """
+
+    primal_outputs, primal_residuals = (
+        _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+            prepared,
+            case,
+            first_case_dot,
+            second_case_dot,
+            None,
+            include_geometry=False,
+            return_coefficient_aux=True,
+            return_primal_residuals=True,
+        )
+    )
+    (
+        transport_scale,
+        resolved_epsi_hat,
+        first_nu_dot,
+        first_epsi_dot,
+        second_nu_dot,
+        second_epsi_dot,
+        _coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        packed_f_dot_low_matrix,
+        _first_coefficient_dot,
+        _second_coefficient_dot,
+    ) = primal_residuals
+    del transport_scale
+
+    coefficient_bars_and_aux = coefficient_bars_and_aux_fn(*primal_outputs)
+    if len(coefficient_bars_and_aux) != 4:
+        raise ValueError(
+            "coefficient_bars_and_aux_fn must return "
+            "(base_bars, first_bars, second_bars, auxiliary)."
+        )
+    base_coefficient_bars, first_coefficient_bars, second_coefficient_bars, auxiliary = (
+        coefficient_bars_and_aux
+    )
+    base_coefficient_bars = jnp.asarray(base_coefficient_bars)
+    first_coefficient_bars = jnp.asarray(first_coefficient_bars)
+    second_coefficient_bars = jnp.asarray(second_coefficient_bars)
+    if (
+        base_coefficient_bars.ndim != 2
+        or first_coefficient_bars.shape != base_coefficient_bars.shape
+        or second_coefficient_bars.shape != base_coefficient_bars.shape
+    ):
+        raise ValueError(
+            "All low-dot coefficient cotangent batches must have shape "
+            "(n_rhs, n_coefficients)."
+        )
+
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    rhs_count = base_coefficient_bars.shape[0]
+    direction_count = 2
+    mode_count, unknown_count = f1_full.shape
+    mode_indices = jnp.arange(mode_count, dtype=jnp.int32)
+
+    def _zero_first_row_if_needed(block, k):
+        zeroed = block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
+        return jnp.where(jnp.asarray(k) == 0, zeroed, block)
+
+    def _coefficient_pullback(one_coefficient_bar):
+        return _coefficient_mode_pullback(
+            prepared.geometry,
+            f1_full[:3],
+            f3_full[:3],
+            ctx.nu_hat,
+            one_coefficient_bar,
+        )
+
+    def _field_rhs_from_low(low_fields):
+        # ``low_fields`` is (rhs, retained-mode, unknown).  The factorized
+        # solver uses mode/unknown/RHS ordering.
+        return jnp.zeros(
+            (mode_count, unknown_count, rhs_count), dtype=f1_full.dtype
+        ).at[:3].set(jnp.moveaxis(low_fields, 0, -1))
+
+    base_f1_low, base_f3_low, _base_nu_direct = jax.vmap(_coefficient_pullback)(
+        base_coefficient_bars
+    )
+    base_lambda1, base_lambda3 = _solve_factorized_adjoint_field_pair(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        _field_rhs_from_low(base_f1_low),
+        _field_rhs_from_low(base_f3_low),
+    )
+
+    nu_dots = jnp.stack([first_nu_dot, second_nu_dot])
+    epsi_dots = jnp.stack([first_epsi_dot, second_epsi_dot])
+    f1_dot_low = jnp.stack(
+        [packed_f_dot_low_matrix[..., 0], packed_f_dot_low_matrix[..., 2]], axis=-1
+    )
+    f3_dot_low = jnp.stack(
+        [packed_f_dot_low_matrix[..., 1], packed_f_dot_low_matrix[..., 3]], axis=-1
+    )
+
+    def _directional_coefficient_pullback(
+        coefficient_bars,
+        f1_dot_low_value,
+        f3_dot_low_value,
+        nu_dot_value,
+    ):
+        def _one_rhs(one_coefficient_bar):
+            def _pullback_from_primal(modes1, modes3, nu_value):
+                return _coefficient_mode_pullback(
+                    prepared.geometry,
+                    modes1,
+                    modes3,
+                    nu_value,
+                    one_coefficient_bar,
+                )
+
+            return jax.jvp(
+                _pullback_from_primal,
+                (f1_full[:3], f3_full[:3], ctx.nu_hat),
+                (f1_dot_low_value, f3_dot_low_value, nu_dot_value),
+            )
+
+        return jax.vmap(_one_rhs)(coefficient_bars)
+
+    first_directional = _directional_coefficient_pullback(
+        first_coefficient_bars,
+        f1_dot_low[..., 0],
+        f3_dot_low[..., 0],
+        first_nu_dot,
+    )
+    second_directional = _directional_coefficient_pullback(
+        second_coefficient_bars,
+        f1_dot_low[..., 1],
+        f3_dot_low[..., 1],
+        second_nu_dot,
+    )
+    directional_primal_low = tuple(
+        jnp.stack([first_value, second_value], axis=-1)
+        for first_value, second_value in zip(first_directional[0], second_directional[0], strict=True)
+    )
+    directional_dot_low = tuple(
+        jnp.stack([first_value, second_value], axis=-1)
+        for first_value, second_value in zip(first_directional[1], second_directional[1], strict=True)
+    )
+    # (rhs, retained-mode, unknown, direction) -> (mode, unknown, rhs, direction)
+    directional_f1_low, directional_f3_low, _directional_nu_direct = directional_primal_low
+    directional_f1_low_dot, directional_f3_low_dot, _directional_nu_direct_dot = (
+        directional_dot_low
+    )
+    directional_f1_low = jnp.transpose(directional_f1_low, (1, 2, 0, 3))
+    directional_f3_low = jnp.transpose(directional_f3_low, (1, 2, 0, 3))
+    directional_f1_low_dot = jnp.transpose(directional_f1_low_dot, (1, 2, 0, 3))
+    directional_f3_low_dot = jnp.transpose(directional_f3_low_dot, (1, 2, 0, 3))
+    directional_shape = (mode_count, unknown_count, rhs_count, direction_count)
+    directional_g1 = jnp.zeros(directional_shape, dtype=f1_full.dtype).at[:3].set(
+        directional_f1_low
+    )
+    directional_g3 = jnp.zeros(directional_shape, dtype=f1_full.dtype).at[:3].set(
+        directional_f3_low
+    )
+    directional_g1_dot = jnp.zeros(directional_shape, dtype=f1_full.dtype).at[:3].set(
+        directional_f1_low_dot
+    )
+    directional_g3_dot = jnp.zeros(directional_shape, dtype=f1_full.dtype).at[:3].set(
+        directional_f3_low_dot
+    )
+    directional_lambda1, directional_lambda3 = _solve_factorized_adjoint_field_pair(
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+        jnp.reshape(directional_g1, (mode_count, unknown_count, rhs_count * direction_count)),
+        jnp.reshape(directional_g3, (mode_count, unknown_count, rhs_count * direction_count)),
+    )
+    directional_lambda1 = jnp.reshape(directional_lambda1, directional_shape)
+    directional_lambda3 = jnp.reshape(directional_lambda3, directional_shape)
+
+    def _directional_sources_for_mode(k):
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx, k, prepared.d_theta, prepared.d_zeta
+        )
+        diagonal_nu = _zero_first_row_if_needed(diagonal_nu, k)
+        diagonal_epsi = _zero_first_row_if_needed(diagonal_epsi, k)
+        diagonal_dot = (
+            nu_dots[:, None, None] * diagonal_nu[None, :, :]
+            + epsi_dots[:, None, None] * diagonal_epsi[None, :, :]
+        )
+        f1_value = jax.lax.dynamic_index_in_dim(f1_full, k, axis=0, keepdims=False)
+        f3_value = jax.lax.dynamic_index_in_dim(f3_full, k, axis=0, keepdims=False)
+        return (
+            -jnp.einsum("dij,j->id", diagonal_dot, f1_value),
+            -jnp.einsum("dij,j->id", diagonal_dot, f3_value),
+            diagonal_dot,
+        )
+
+    source1_dot, source3_dot, diagonal_dot = jax.vmap(
+        _directional_sources_for_mode, mode_indices
+    )
+    f1_dot_full = _solve_factorized_modes(
+        saved_lu, saved_piv, saved_lower, saved_upper, source1_dot
+    )
+    f3_dot_full = _solve_factorized_modes(
+        saved_lu, saved_piv, saved_lower, saved_upper, source3_dot
+    )
+    directional_lambda1_dot, directional_lambda3_dot = (
+        _solve_factorized_multi_rhs_directional_adjoint_field_pair(
+            saved_lu,
+            saved_piv,
+            saved_lower,
+            saved_upper,
+            directional_lambda1,
+            directional_lambda3,
+            directional_g1_dot,
+            directional_g3_dot,
+            diagonal_dot,
+        )
+    )
+    return (
+        primal_outputs,
+        base_coefficient_bars,
+        first_coefficient_bars,
+        second_coefficient_bars,
+        auxiliary,
+        f1_full,
+        f3_full,
+        f1_dot_full,
+        f3_dot_full,
+        base_lambda1,
+        base_lambda3,
+        directional_lambda1,
+        directional_lambda3,
+        directional_lambda1_dot,
+        directional_lambda3_dot,
+        nu_dots,
+        epsi_dots,
+    )
+
+
 def solve_prepared_coefficient_vector_two_directional_factorized(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -2729,6 +3073,157 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             prepared_bar_tree.unflatten(leaves)
             for leaves in prepared_bar_leaf_groups
         ),
+        auxiliary,
+    )
+    return (primal_outputs, result) if return_primal_outputs else result
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bars_and_aux_fn,
+    *,
+    return_primal_outputs: bool = False,
+):
+    """Exact support-only low-dot pullback with native objective RHS solves.
+
+    Unlike the older ``*_multi_rhs_and_aux`` experiment, this function does
+    not ``vmap`` the scalar implicit pullback.  It builds all of the base and
+    two directional adjoint fields with matrix-RHS factorized solves, then
+    batches only the final prepared-gradient contractions.  Consequently the
+    primal modes, physical forward directions, and block-tridiagonal adjoint
+    factorization are each local to one call and are never recreated per
+    objective RHS.
+
+    It is intentionally opt-in and currently supports the explicit
+    ``epsi_hat`` coordinate used by NEOPAX's local interpolated response.  The
+    existing scalar APIs retain their broader public-coordinate contracts.
+    """
+
+    if (
+        case.epsi_hat is None
+        or first_case_dot.epsi_hat is None
+        or second_case_dot.epsi_hat is None
+    ):
+        raise ValueError(
+            "The native multi-RHS prepared-support helper requires explicit epsi_hat cases."
+        )
+    (
+        primal_outputs,
+        base_coefficient_bars,
+        first_coefficient_bars,
+        second_coefficient_bars,
+        auxiliary,
+        f1_full,
+        f3_full,
+        f1_dot_full,
+        f3_dot_full,
+        base_lambda1,
+        base_lambda3,
+        directional_lambda1,
+        directional_lambda3,
+        directional_lambda1_dot,
+        directional_lambda3_dot,
+        nu_dots,
+        epsi_dots,
+    ) = _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bars_and_aux_fn,
+    )
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        case.nu_hat,
+        case.epsi_hat,
+    )
+    prepared_tree = jax.tree_util.tree_structure(prepared)
+
+    def _one_rhs(
+        base_coefficient_bar,
+        first_coefficient_bar,
+        second_coefficient_bar,
+        base_lambda1_value,
+        base_lambda3_value,
+        directional_lambda1_value,
+        directional_lambda3_value,
+        directional_lambda1_dot_value,
+        directional_lambda3_dot_value,
+    ):
+        base_prepared = _prepared_gradient_from_adjoint(
+            prepared,
+            ctx,
+            f1_full,
+            f3_full,
+            base_lambda1_value,
+            base_lambda3_value,
+            base_coefficient_bar,
+        )
+        first_base_prepared, first_directional_prepared = (
+            _directional_prepared_gradient_from_adjoint(
+                prepared,
+                nu_hat=ctx.nu_hat,
+                epsi_hat=ctx.epsi_hat,
+                nu_hat_dot=nu_dots[0],
+                epsi_hat_dot=epsi_dots[0],
+                f1_full=f1_full,
+                f3_full=f3_full,
+                f1_dot=f1_dot_full[..., 0],
+                f3_dot=f3_dot_full[..., 0],
+                lambda1=directional_lambda1_value[..., 0],
+                lambda3=directional_lambda3_value[..., 0],
+                lambda1_dot=directional_lambda1_dot_value[..., 0],
+                lambda3_dot=directional_lambda3_dot_value[..., 0],
+                coefficient_bar=first_coefficient_bar,
+            )
+        )
+        second_base_prepared, second_directional_prepared = (
+            _directional_prepared_gradient_from_adjoint(
+                prepared,
+                nu_hat=ctx.nu_hat,
+                epsi_hat=ctx.epsi_hat,
+                nu_hat_dot=nu_dots[1],
+                epsi_hat_dot=epsi_dots[1],
+                f1_full=f1_full,
+                f3_full=f3_full,
+                f1_dot=f1_dot_full[..., 1],
+                f3_dot=f3_dot_full[..., 1],
+                lambda1=directional_lambda1_value[..., 1],
+                lambda3=directional_lambda3_value[..., 1],
+                lambda1_dot=directional_lambda1_dot_value[..., 1],
+                lambda3_dot=directional_lambda3_dot_value[..., 1],
+                coefficient_bar=second_coefficient_bar,
+            )
+        )
+        return tuple(
+            tuple(jax.tree_util.tree_leaves(value))
+            for value in (
+                base_prepared,
+                first_base_prepared,
+                first_directional_prepared,
+                second_base_prepared,
+                second_directional_prepared,
+            )
+        )
+
+    prepared_bar_leaf_groups = jax.vmap(_one_rhs)(
+        base_coefficient_bars,
+        first_coefficient_bars,
+        second_coefficient_bars,
+        jnp.moveaxis(base_lambda1, 2, 0),
+        jnp.moveaxis(base_lambda3, 2, 0),
+        jnp.moveaxis(directional_lambda1, 2, 0),
+        jnp.moveaxis(directional_lambda3, 2, 0),
+        jnp.moveaxis(directional_lambda1_dot, 2, 0),
+        jnp.moveaxis(directional_lambda3_dot, 2, 0),
+    )
+    result = (
+        *(prepared_tree.unflatten(leaves) for leaves in prepared_bar_leaf_groups),
         auxiliary,
     )
     return (primal_outputs, result) if return_primal_outputs else result
