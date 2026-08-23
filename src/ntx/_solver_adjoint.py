@@ -96,6 +96,58 @@ def _parameter_gradient_from_adjoint(
     return nu_bar, epsi_bar
 
 
+def _parameter_gradient_from_adjoint_multi_rhs(
+    prepared: PreparedMonoenergeticSystem,
+    ctx: OperatorContext,
+    f1_full: Array,
+    f3_full: Array,
+    lambda1: Array,
+    lambda3: Array,
+) -> tuple[Array, Array]:
+    """Case bars for a trailing batch of already-solved adjoint fields.
+
+    This is the matrix-RHS counterpart of
+    :func:`_parameter_gradient_from_adjoint`.  It only contracts existing
+    primal and adjoint fields; it neither factorizes nor solves.  Keeping the
+    RHS column explicit avoids ``vmap`` tracing one complete parameter-JVP
+    graph per objective in the experimental native support path.
+    """
+    if lambda1.ndim != 3 or lambda3.shape != lambda1.shape:
+        raise ValueError(
+            "lambda1 and lambda3 must have shape (mode, unknown, n_rhs)."
+        )
+
+    def zero_first_row(block: Array) -> Array:
+        return block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
+
+    n_rhs = lambda1.shape[-1]
+    nu_bar = jnp.zeros((n_rhs,), dtype=prepared.grid.jax_dtype)
+    epsi_bar = jnp.zeros((n_rhs,), dtype=prepared.grid.jax_dtype)
+    for k in range(prepared.grid.n_xi + 1):
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx,
+            k,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        if k == 0:
+            diagonal_nu = zero_first_row(diagonal_nu)
+            diagonal_epsi = zero_first_row(diagonal_epsi)
+        f1_nu = diagonal_nu @ f1_full[k]
+        f3_nu = diagonal_nu @ f3_full[k]
+        f1_epsi = diagonal_epsi @ f1_full[k]
+        f3_epsi = diagonal_epsi @ f3_full[k]
+        nu_bar = nu_bar - (
+            jnp.sum(lambda1[k] * f1_nu[:, None], axis=0)
+            + jnp.sum(lambda3[k] * f3_nu[:, None], axis=0)
+        )
+        epsi_bar = epsi_bar - (
+            jnp.sum(lambda1[k] * f1_epsi[:, None], axis=0)
+            + jnp.sum(lambda3[k] * f3_epsi[:, None], axis=0)
+        )
+    return nu_bar, epsi_bar
+
+
 def _geometry_gradient_from_adjoint(
     prepared: PreparedMonoenergeticSystem,
     ctx: OperatorContext,

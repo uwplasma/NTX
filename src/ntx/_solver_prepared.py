@@ -18,6 +18,7 @@ from ._solver_adjoint import (
     _geometry_gradient_from_adjoint,
     _prepared_gradient_from_adjoint,
     _parameter_gradient_from_adjoint,
+    _parameter_gradient_from_adjoint_multi_rhs,
     _prepared_implicit_vjp_primal,
 )
 from ._solver_context import _operator_context
@@ -3159,11 +3160,6 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         base_coefficient_bar,
         first_coefficient_bar,
         second_coefficient_bar,
-        base_nu_direct_value,
-        first_nu_direct_value,
-        second_nu_direct_value,
-        first_nu_direct_dot_value,
-        second_nu_direct_dot_value,
         base_lambda1_value,
         base_lambda3_value,
         directional_lambda1_value,
@@ -3217,6 +3213,33 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             )
         )
 
+        return tuple(
+            tuple(jax.tree_util.tree_leaves(value))
+            for value in (
+                base_prepared,
+                first_base_prepared,
+                first_directional_prepared,
+                second_base_prepared,
+                second_directional_prepared,
+            )
+        )
+
+    prepared_bar_leaf_groups = jax.vmap(_one_rhs)(
+        base_coefficient_bars,
+        first_coefficient_bars,
+        second_coefficient_bars,
+        jnp.moveaxis(base_lambda1, 2, 0),
+        jnp.moveaxis(base_lambda3, 2, 0),
+        jnp.moveaxis(directional_lambda1, 2, 0),
+        jnp.moveaxis(directional_lambda3, 2, 0),
+        jnp.moveaxis(directional_lambda1_dot, 2, 0),
+        jnp.moveaxis(directional_lambda3_dot, 2, 0),
+    )
+    result = (
+        *(prepared_tree.unflatten(leaves) for leaves in prepared_bar_leaf_groups),
+        auxiliary,
+    )
+    if return_case_bars:
         def _parameter_gradient_from_values(
             nu_hat_value,
             epsi_hat_value,
@@ -3225,7 +3248,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             lambda1_value,
             lambda3_value,
         ):
-            return _parameter_gradient_from_adjoint(
+            return _parameter_gradient_from_adjoint_multi_rhs(
                 prepared,
                 _operator_context(
                     prepared.surface,
@@ -3241,12 +3264,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             )
 
         base_nu_implicit, base_epsi_bar = _parameter_gradient_from_values(
-            ctx.nu_hat,
-            ctx.epsi_hat,
-            f1_full,
-            f3_full,
-            base_lambda1_value,
-            base_lambda3_value,
+            ctx.nu_hat, ctx.epsi_hat, f1_full, f3_full, base_lambda1, base_lambda3
         )
         (
             (first_base_nu_implicit, first_base_epsi_bar),
@@ -3254,20 +3272,12 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         ) = jax.jvp(
             _parameter_gradient_from_values,
             (
-                ctx.nu_hat,
-                ctx.epsi_hat,
-                f1_full,
-                f3_full,
-                directional_lambda1_value[..., 0],
-                directional_lambda3_value[..., 0],
+                ctx.nu_hat, ctx.epsi_hat, f1_full, f3_full,
+                directional_lambda1[..., 0], directional_lambda3[..., 0],
             ),
             (
-                nu_dots[0],
-                epsi_dots[0],
-                f1_dot_full[..., 0],
-                f3_dot_full[..., 0],
-                directional_lambda1_dot_value[..., 0],
-                directional_lambda3_dot_value[..., 0],
+                nu_dots[0], epsi_dots[0], f1_dot_full[..., 0], f3_dot_full[..., 0],
+                directional_lambda1_dot[..., 0], directional_lambda3_dot[..., 0],
             ),
         )
         (
@@ -3276,68 +3286,26 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         ) = jax.jvp(
             _parameter_gradient_from_values,
             (
-                ctx.nu_hat,
-                ctx.epsi_hat,
-                f1_full,
-                f3_full,
-                directional_lambda1_value[..., 1],
-                directional_lambda3_value[..., 1],
+                ctx.nu_hat, ctx.epsi_hat, f1_full, f3_full,
+                directional_lambda1[..., 1], directional_lambda3[..., 1],
             ),
             (
-                nu_dots[1],
-                epsi_dots[1],
-                f1_dot_full[..., 1],
-                f3_dot_full[..., 1],
-                directional_lambda1_dot_value[..., 1],
-                directional_lambda3_dot_value[..., 1],
+                nu_dots[1], epsi_dots[1], f1_dot_full[..., 1], f3_dot_full[..., 1],
+                directional_lambda1_dot[..., 1], directional_lambda3_dot[..., 1],
             ),
         )
-        return (
-            tuple(
-                tuple(jax.tree_util.tree_leaves(value))
-                for value in (
-                    base_prepared,
-                    first_base_prepared,
-                    first_directional_prepared,
-                    second_base_prepared,
-                    second_directional_prepared,
-                )
-            ),
-            (
-                base_nu_direct_value + base_nu_implicit,
-                base_epsi_bar,
-                first_nu_direct_value + first_base_nu_implicit,
-                first_base_epsi_bar,
-                first_nu_direct_dot_value + first_nu_implicit_dot,
-                first_epsi_bar_dot,
-                second_nu_direct_value + second_base_nu_implicit,
-                second_base_epsi_bar,
-                second_nu_direct_dot_value + second_nu_implicit_dot,
-                second_epsi_bar_dot,
-            ),
+        case_bar_components = (
+            base_nu_direct + base_nu_implicit,
+            base_epsi_bar,
+            directional_nu_direct[..., 0] + first_base_nu_implicit,
+            first_base_epsi_bar,
+            directional_nu_direct_dot[..., 0] + first_nu_implicit_dot,
+            first_epsi_bar_dot,
+            directional_nu_direct[..., 1] + second_base_nu_implicit,
+            second_base_epsi_bar,
+            directional_nu_direct_dot[..., 1] + second_nu_implicit_dot,
+            second_epsi_bar_dot,
         )
-
-    prepared_bar_leaf_groups, case_bar_components = jax.vmap(_one_rhs)(
-        base_coefficient_bars,
-        first_coefficient_bars,
-        second_coefficient_bars,
-        base_nu_direct,
-        directional_nu_direct[..., 0],
-        directional_nu_direct[..., 1],
-        directional_nu_direct_dot[..., 0],
-        directional_nu_direct_dot[..., 1],
-        jnp.moveaxis(base_lambda1, 2, 0),
-        jnp.moveaxis(base_lambda3, 2, 0),
-        jnp.moveaxis(directional_lambda1, 2, 0),
-        jnp.moveaxis(directional_lambda3, 2, 0),
-        jnp.moveaxis(directional_lambda1_dot, 2, 0),
-        jnp.moveaxis(directional_lambda3_dot, 2, 0),
-    )
-    result = (
-        *(prepared_tree.unflatten(leaves) for leaves in prepared_bar_leaf_groups),
-        auxiliary,
-    )
-    if return_case_bars:
         return (
             (primal_outputs, result, case_bar_components)
             if return_primal_outputs
