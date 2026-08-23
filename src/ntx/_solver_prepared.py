@@ -2482,8 +2482,8 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
         )
 
     source1_dot, source3_dot, diagonal_dot = jax.vmap(
-        _directional_sources_for_mode, mode_indices
-    )
+        _directional_sources_for_mode
+    )(mode_indices)
     f1_dot_full = _solve_factorized_modes(
         saved_lu, saved_piv, saved_lower, saved_upper, source1_dot
     )
