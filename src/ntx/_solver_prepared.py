@@ -2365,7 +2365,7 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
             (mode_count, unknown_count, rhs_count), dtype=f1_full.dtype
         ).at[:3].set(jnp.moveaxis(low_fields, 0, -1))
 
-    base_f1_low, base_f3_low, _base_nu_direct = jax.vmap(_coefficient_pullback)(
+    base_f1_low, base_f3_low, base_nu_direct = jax.vmap(_coefficient_pullback)(
         base_coefficient_bars
     )
     base_lambda1, base_lambda3 = _solve_factorized_adjoint_field_pair(
@@ -2431,8 +2431,8 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
         for first_value, second_value in zip(first_directional[1], second_directional[1], strict=True)
     )
     # (rhs, retained-mode, unknown, direction) -> (mode, unknown, rhs, direction)
-    directional_f1_low, directional_f3_low, _directional_nu_direct = directional_primal_low
-    directional_f1_low_dot, directional_f3_low_dot, _directional_nu_direct_dot = (
+    directional_f1_low, directional_f3_low, directional_nu_direct = directional_primal_low
+    directional_f1_low_dot, directional_f3_low_dot, directional_nu_direct_dot = (
         directional_dot_low
     )
     directional_f1_low = jnp.transpose(directional_f1_low, (1, 2, 0, 3))
@@ -2521,6 +2521,9 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
         directional_lambda3_dot,
         nu_dots,
         epsi_dots,
+        base_nu_direct,
+        directional_nu_direct,
+        directional_nu_direct_dot,
     )
 
 
@@ -3086,6 +3089,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     coefficient_bars_and_aux_fn,
     *,
     return_primal_outputs: bool = False,
+    return_case_bars: bool = False,
 ):
     """Exact support-only low-dot pullback with native objective RHS solves.
 
@@ -3098,8 +3102,12 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     objective RHS.
 
     It is intentionally opt-in and currently supports the explicit
-    ``epsi_hat`` coordinate used by NEOPAX's local interpolated response.  The
-    existing scalar APIs retain their broader public-coordinate contracts.
+    ``epsi_hat`` coordinate used by NEOPAX's local interpolated response. If
+    ``return_case_bars`` is selected, it also returns the native matrix-RHS
+    case contractions needed by NEOPAX's local support-coordinate chain.
+    Those contractions reuse the adjoint fields formed here and do not create
+    another NTX solve. The existing scalar APIs retain their broader public
+    coordinate contracts.
     """
 
     if (
@@ -3128,6 +3136,9 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         directional_lambda3_dot,
         nu_dots,
         epsi_dots,
+        base_nu_direct,
+        directional_nu_direct,
+        directional_nu_direct_dot,
     ) = _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
         prepared,
         case,
@@ -3148,6 +3159,11 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         base_coefficient_bar,
         first_coefficient_bar,
         second_coefficient_bar,
+        base_nu_direct_value,
+        first_nu_direct_value,
+        second_nu_direct_value,
+        first_nu_direct_dot_value,
+        second_nu_direct_dot_value,
         base_lambda1_value,
         base_lambda3_value,
         directional_lambda1_value,
@@ -3200,21 +3216,116 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
                 coefficient_bar=second_coefficient_bar,
             )
         )
-        return tuple(
-            tuple(jax.tree_util.tree_leaves(value))
-            for value in (
-                base_prepared,
-                first_base_prepared,
-                first_directional_prepared,
-                second_base_prepared,
-                second_directional_prepared,
+
+        def _parameter_gradient_from_values(
+            nu_hat_value,
+            epsi_hat_value,
+            f1_value,
+            f3_value,
+            lambda1_value,
+            lambda3_value,
+        ):
+            return _parameter_gradient_from_adjoint(
+                prepared,
+                _operator_context(
+                    prepared.surface,
+                    prepared.geometry,
+                    prepared.grid,
+                    nu_hat_value,
+                    epsi_hat_value,
+                ),
+                f1_value,
+                f3_value,
+                lambda1_value,
+                lambda3_value,
             )
+
+        base_nu_implicit, base_epsi_bar = _parameter_gradient_from_values(
+            ctx.nu_hat,
+            ctx.epsi_hat,
+            f1_full,
+            f3_full,
+            base_lambda1_value,
+            base_lambda3_value,
+        )
+        (
+            (first_base_nu_implicit, first_base_epsi_bar),
+            (first_nu_implicit_dot, first_epsi_bar_dot),
+        ) = jax.jvp(
+            _parameter_gradient_from_values,
+            (
+                ctx.nu_hat,
+                ctx.epsi_hat,
+                f1_full,
+                f3_full,
+                directional_lambda1_value[..., 0],
+                directional_lambda3_value[..., 0],
+            ),
+            (
+                nu_dots[0],
+                epsi_dots[0],
+                f1_dot_full[..., 0],
+                f3_dot_full[..., 0],
+                directional_lambda1_dot_value[..., 0],
+                directional_lambda3_dot_value[..., 0],
+            ),
+        )
+        (
+            (second_base_nu_implicit, second_base_epsi_bar),
+            (second_nu_implicit_dot, second_epsi_bar_dot),
+        ) = jax.jvp(
+            _parameter_gradient_from_values,
+            (
+                ctx.nu_hat,
+                ctx.epsi_hat,
+                f1_full,
+                f3_full,
+                directional_lambda1_value[..., 1],
+                directional_lambda3_value[..., 1],
+            ),
+            (
+                nu_dots[1],
+                epsi_dots[1],
+                f1_dot_full[..., 1],
+                f3_dot_full[..., 1],
+                directional_lambda1_dot_value[..., 1],
+                directional_lambda3_dot_value[..., 1],
+            ),
+        )
+        return (
+            tuple(
+                tuple(jax.tree_util.tree_leaves(value))
+                for value in (
+                    base_prepared,
+                    first_base_prepared,
+                    first_directional_prepared,
+                    second_base_prepared,
+                    second_directional_prepared,
+                )
+            ),
+            (
+                base_nu_direct_value + base_nu_implicit,
+                base_epsi_bar,
+                first_nu_direct_value + first_base_nu_implicit,
+                first_base_epsi_bar,
+                first_nu_direct_dot_value + first_nu_implicit_dot,
+                first_epsi_bar_dot,
+                second_nu_direct_value + second_base_nu_implicit,
+                second_base_epsi_bar,
+                second_nu_direct_dot_value + second_nu_implicit_dot,
+                second_epsi_bar_dot,
+            ),
         )
 
-    prepared_bar_leaf_groups = jax.vmap(_one_rhs)(
+    prepared_bar_leaf_groups, case_bar_components = jax.vmap(_one_rhs)(
         base_coefficient_bars,
         first_coefficient_bars,
         second_coefficient_bars,
+        base_nu_direct,
+        directional_nu_direct[..., 0],
+        directional_nu_direct[..., 1],
+        directional_nu_direct_dot[..., 0],
+        directional_nu_direct_dot[..., 1],
         jnp.moveaxis(base_lambda1, 2, 0),
         jnp.moveaxis(base_lambda3, 2, 0),
         jnp.moveaxis(directional_lambda1, 2, 0),
@@ -3226,6 +3337,12 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         *(prepared_tree.unflatten(leaves) for leaves in prepared_bar_leaf_groups),
         auxiliary,
     )
+    if return_case_bars:
+        return (
+            (primal_outputs, result, case_bar_components)
+            if return_primal_outputs
+            else (result, case_bar_components)
+        )
     return (primal_outputs, result) if return_primal_outputs else result
 
 
