@@ -3411,7 +3411,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
                 base_nu_direct
                 + base_nu_implicit
                 + directional_nu_direct[..., 0]
-                + first_nu_implicit_dot
+                + first_base_nu_implicit
                 + directional_nu_direct[..., 1]
                 + second_base_nu_implicit
                 + directional_nu_direct_dot[..., 1]
