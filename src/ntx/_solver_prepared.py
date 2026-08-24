@@ -12,7 +12,11 @@ from jax import Array
 from .geometry import GeometryOnGrid
 from ._solver_adjoint import (
     _case_and_geometry_gradient_from_adjoint,
+    _compact_prepared_bar_to_prepared,
+    _compact_prepared_gradient_from_adjoint,
+    _compact_prepared_residual_inputs,
     _coefficient_mode_pullback,
+    _directional_compact_prepared_gradient_from_adjoint,
     _directional_geometry_gradient_from_adjoint,
     _directional_prepared_gradient_from_adjoint,
     _geometry_gradient_from_adjoint,
@@ -3163,6 +3167,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     return_primal_outputs: bool = False,
     return_case_bars: bool = False,
     _compact_result: bool = False,
+    _compact_residual_transpose: bool = False,
 ):
     """Exact support-only low-dot pullback with native objective RHS solves.
 
@@ -3230,6 +3235,123 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     )
     prepared_tree = jax.tree_util.tree_structure(prepared)
 
+    if _compact_residual_transpose and not _compact_result:
+        raise ValueError(
+            "The compact residual transpose has only the compact prepared-bar contract."
+        )
+
+    if _compact_residual_transpose:
+        compact_tree = jax.tree_util.tree_structure(
+            _compact_prepared_residual_inputs(
+                prepared,
+                ctx.nu_hat,
+                ctx.epsi_hat,
+            )
+        )
+
+        def _combine_compact_leaf(*leaves):
+            if any(
+                jnp.asarray(leaf).dtype == jax.dtypes.float0 for leaf in leaves
+            ):
+                return leaves[0]
+            return sum(leaves)
+
+        def _one_rhs_compact_residual(
+            base_coefficient_bar,
+            first_coefficient_bar,
+            second_coefficient_bar,
+            first_coefficient_bar_dot,
+            second_coefficient_bar_dot,
+            base_lambda1_value,
+            base_lambda3_value,
+            directional_lambda1_value,
+            directional_lambda3_value,
+            directional_lambda1_dot_value,
+            directional_lambda3_dot_value,
+        ):
+            base_compact = _compact_prepared_gradient_from_adjoint(
+                prepared,
+                ctx,
+                f1_full,
+                f3_full,
+                base_lambda1_value,
+                base_lambda3_value,
+                base_coefficient_bar,
+            )
+            _, first_directional_compact = (
+                _directional_compact_prepared_gradient_from_adjoint(
+                    prepared,
+                    nu_hat=ctx.nu_hat,
+                    epsi_hat=ctx.epsi_hat,
+                    nu_hat_dot=nu_dots[0],
+                    epsi_hat_dot=epsi_dots[0],
+                    f1_full=f1_full,
+                    f3_full=f3_full,
+                    f1_dot=f1_dot_full[..., 0],
+                    f3_dot=f3_dot_full[..., 0],
+                    lambda1=directional_lambda1_value[..., 0],
+                    lambda3=directional_lambda3_value[..., 0],
+                    lambda1_dot=directional_lambda1_dot_value[..., 0],
+                    lambda3_dot=directional_lambda3_dot_value[..., 0],
+                    coefficient_bar=first_coefficient_bar,
+                    coefficient_bar_dot=first_coefficient_bar_dot,
+                )
+            )
+            _, second_directional_compact = (
+                _directional_compact_prepared_gradient_from_adjoint(
+                    prepared,
+                    nu_hat=ctx.nu_hat,
+                    epsi_hat=ctx.epsi_hat,
+                    nu_hat_dot=nu_dots[1],
+                    epsi_hat_dot=epsi_dots[1],
+                    f1_full=f1_full,
+                    f3_full=f3_full,
+                    f1_dot=f1_dot_full[..., 1],
+                    f3_dot=f3_dot_full[..., 1],
+                    lambda1=directional_lambda1_value[..., 1],
+                    lambda3=directional_lambda3_value[..., 1],
+                    lambda1_dot=directional_lambda1_dot_value[..., 1],
+                    lambda3_dot=directional_lambda3_dot_value[..., 1],
+                    coefficient_bar=second_coefficient_bar,
+                    coefficient_bar_dot=second_coefficient_bar_dot,
+                )
+            )
+            combined_compact = jax.tree_util.tree_map(
+                _combine_compact_leaf,
+                base_compact,
+                first_directional_compact,
+                second_directional_compact,
+            )
+            return tuple(jax.tree_util.tree_leaves(combined_compact))
+
+        compact_bar_leaf_groups = jax.vmap(_one_rhs_compact_residual)(
+            base_coefficient_bars,
+            first_coefficient_bars,
+            second_coefficient_bars,
+            first_coefficient_bars_dot,
+            second_coefficient_bars_dot,
+            jnp.moveaxis(base_lambda1, 2, 0),
+            jnp.moveaxis(base_lambda3, 2, 0),
+            jnp.moveaxis(directional_lambda1, 2, 0),
+            jnp.moveaxis(directional_lambda3, 2, 0),
+            jnp.moveaxis(directional_lambda1_dot, 2, 0),
+            jnp.moveaxis(directional_lambda3_dot, 2, 0),
+        )
+
+        def _one_compact_bar_to_prepared(*compact_leaves):
+            compact_bar = compact_tree.unflatten(compact_leaves)
+            prepared_bar = _compact_prepared_bar_to_prepared(
+                prepared,
+                nu_hat=ctx.nu_hat,
+                epsi_hat=ctx.epsi_hat,
+                compact_bar=compact_bar,
+            )
+            return tuple(jax.tree_util.tree_leaves(prepared_bar))
+
+        prepared_bar_leaf_groups = jax.vmap(_one_compact_bar_to_prepared)(
+            *compact_bar_leaf_groups
+        )
+        result = (prepared_tree.unflatten(prepared_bar_leaf_groups), auxiliary)
     def _one_rhs(
         base_coefficient_bar,
         first_coefficient_bar,
@@ -3330,27 +3452,28 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             )
         )
 
-    prepared_bar_leaf_groups = jax.vmap(_one_rhs)(
-        base_coefficient_bars,
-        first_coefficient_bars,
-        second_coefficient_bars,
-        first_coefficient_bars_dot,
-        second_coefficient_bars_dot,
-        jnp.moveaxis(base_lambda1, 2, 0),
-        jnp.moveaxis(base_lambda3, 2, 0),
-        jnp.moveaxis(directional_lambda1, 2, 0),
-        jnp.moveaxis(directional_lambda3, 2, 0),
-        jnp.moveaxis(directional_lambda1_dot, 2, 0),
-        jnp.moveaxis(directional_lambda3_dot, 2, 0),
-    )
-    result = (
-        (prepared_tree.unflatten(prepared_bar_leaf_groups), auxiliary)
-        if _compact_result
-        else (
-            *(prepared_tree.unflatten(leaves) for leaves in prepared_bar_leaf_groups),
-            auxiliary,
+    if not _compact_residual_transpose:
+        prepared_bar_leaf_groups = jax.vmap(_one_rhs)(
+            base_coefficient_bars,
+            first_coefficient_bars,
+            second_coefficient_bars,
+            first_coefficient_bars_dot,
+            second_coefficient_bars_dot,
+            jnp.moveaxis(base_lambda1, 2, 0),
+            jnp.moveaxis(base_lambda3, 2, 0),
+            jnp.moveaxis(directional_lambda1, 2, 0),
+            jnp.moveaxis(directional_lambda3, 2, 0),
+            jnp.moveaxis(directional_lambda1_dot, 2, 0),
+            jnp.moveaxis(directional_lambda3_dot, 2, 0),
         )
-    )
+        result = (
+            (prepared_tree.unflatten(prepared_bar_leaf_groups), auxiliary)
+            if _compact_result
+            else (
+                *(prepared_tree.unflatten(leaves) for leaves in prepared_bar_leaf_groups),
+                auxiliary,
+            )
+        )
     if return_case_bars:
         def _parameter_gradient_from_values(
             nu_hat_value,
@@ -3459,6 +3582,35 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         return_primal_outputs=return_primal_outputs,
         return_case_bars=return_case_bars,
         _compact_result=True,
+    )
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_residual_and_aux(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bars_and_aux_fn,
+    *,
+    return_primal_outputs: bool = False,
+    return_case_bars: bool = False,
+):
+    """Opt-in native helper with a split compact prepared residual transpose.
+
+    It preserves the grouped primal/factorization/matrix-RHS adjoints, while
+    keeping dense residual differentiation out of the final prepared-input
+    pullback.  Existing public helpers and selectors do not use this path.
+    """
+    return solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bars_and_aux_fn,
+        return_primal_outputs=return_primal_outputs,
+        return_case_bars=return_case_bars,
+        _compact_result=True,
+        _compact_residual_transpose=True,
     )
 
 

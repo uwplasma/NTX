@@ -26,6 +26,7 @@ from ntx import (
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_multi_rhs_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_and_aux,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_residual_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry,
@@ -35,8 +36,18 @@ from ntx import (
     solve_prepared_internal,
 )
 from ntx.geometry import BoozerSurface
-from ntx._solver_adjoint import _prepared_implicit_vjp_primal
+from ntx._solver_adjoint import (
+    _compact_prepared_bar_to_prepared,
+    _compact_prepared_gradient_from_adjoint,
+    _combined_prepared_gradient_from_adjoint_multi_rhs_oracle,
+    _directional_compact_prepared_gradient_from_adjoint,
+    _directional_prepared_gradient_from_adjoint,
+    _prepared_gradient_from_adjoint,
+    _prepared_implicit_vjp_primal,
+)
+from ntx._solver_context import _operator_context
 from ntx._solver_prepared import (
+    _lowdot_two_pullback_native_multi_rhs_adjoint_fields,
     _solve_factorized_adjoint_field_pair,
     _solve_factorized_multi_rhs_directional_adjoint_field_pair,
 )
@@ -829,6 +840,347 @@ def test_native_lowdot_support_multi_rhs_compact_matches_full_contract(rhs_count
     assert jnp.allclose(compact_auxiliary, full_auxiliary, rtol=0.0, atol=0.0)
     for actual, expected in zip(compact_case, full_case, strict=True):
         assert jnp.allclose(actual, expected, rtol=1e-9, atol=1e-11)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_native_lowdot_combined_prepared_rhs_oracle_matches_compact_contract(rhs_count):
+    """The future RHS-axis transpose has one exact, isolated output contract."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, epsi_hat=0.23)
+    second_direction = MonoenergeticCase(-0.17, epsi_hat=0.0)
+    base_bars = jnp.reshape(
+        jnp.arange(rhs_count * 5, dtype=jnp.float64), (rhs_count, 5)
+    ) / 13.0 - 0.4
+    first_bars = jnp.flip(base_bars, axis=1) * 0.37
+    second_bars = base_bars * -0.21
+    auxiliary = jnp.linspace(-0.3, 0.4, rhs_count, dtype=jnp.float64)
+    bar_fn = lambda _base, _first, _second: (
+        base_bars,
+        first_bars,
+        second_bars,
+        auxiliary,
+    )
+
+    fields = _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
+        prepared,
+        case,
+        first_direction,
+        second_direction,
+        bar_fn,
+    )
+    (
+        _primal_outputs,
+        native_base_bars,
+        native_first_bars,
+        native_second_bars,
+        native_first_bars_dot,
+        native_second_bars_dot,
+        _native_auxiliary,
+        f1_full,
+        f3_full,
+        f1_dot_full,
+        f3_dot_full,
+        base_lambda1,
+        base_lambda3,
+        directional_lambda1,
+        directional_lambda3,
+        directional_lambda1_dot,
+        directional_lambda3_dot,
+        nu_dots,
+        epsi_dots,
+        _base_nu_direct,
+        _directional_nu_direct,
+        _directional_nu_direct_dot,
+    ) = fields
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        case.nu_hat,
+        case.epsi_hat,
+    )
+    oracle_leaves = _combined_prepared_gradient_from_adjoint_multi_rhs_oracle(
+        prepared,
+        ctx=ctx,
+        f1_full=f1_full,
+        f3_full=f3_full,
+        first_f1_dot=f1_dot_full[..., 0],
+        first_f3_dot=f3_dot_full[..., 0],
+        second_f1_dot=f1_dot_full[..., 1],
+        second_f3_dot=f3_dot_full[..., 1],
+        nu_dots=nu_dots,
+        epsi_dots=epsi_dots,
+        base_lambda1=base_lambda1,
+        base_lambda3=base_lambda3,
+        directional_lambda1=directional_lambda1,
+        directional_lambda3=directional_lambda3,
+        directional_lambda1_dot=directional_lambda1_dot,
+        directional_lambda3_dot=directional_lambda3_dot,
+        base_coefficient_bars=native_base_bars,
+        first_coefficient_bars=native_first_bars,
+        second_coefficient_bars=native_second_bars,
+        first_coefficient_bars_dot=native_first_bars_dot,
+        second_coefficient_bars_dot=native_second_bars_dot,
+    )
+    _, compact_result, _ = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            bar_fn,
+            return_primal_outputs=True,
+            return_case_bars=True,
+        )
+    )
+    compact_prepared, _compact_auxiliary = compact_result
+    for actual, expected in zip(
+        jax.tree_util.tree_leaves(compact_prepared), oracle_leaves, strict=True
+    ):
+        if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
+            assert jnp.allclose(actual, expected, rtol=1e-9, atol=1e-11)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_compact_prepared_residual_transpose_matches_full_prepared_transpose(rhs_count):
+    """Split residual/support transpose retains base and both low-dot terms."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, epsi_hat=0.23)
+    second_direction = MonoenergeticCase(-0.17, epsi_hat=0.0)
+    base_bars = jnp.reshape(
+        jnp.arange(rhs_count * 5, dtype=jnp.float64), (rhs_count, 5)
+    ) / 13.0 - 0.4
+    first_bars = jnp.flip(base_bars, axis=1) * 0.37
+    second_bars = base_bars * -0.21
+    bar_fn = lambda _base, _first, _second: (
+        base_bars,
+        first_bars,
+        second_bars,
+        jnp.zeros((rhs_count,), dtype=jnp.float64),
+    )
+    (
+        _primal_outputs,
+        native_base_bars,
+        native_first_bars,
+        native_second_bars,
+        native_first_bars_dot,
+        native_second_bars_dot,
+        _auxiliary,
+        f1_full,
+        f3_full,
+        f1_dot_full,
+        f3_dot_full,
+        base_lambda1,
+        base_lambda3,
+        directional_lambda1,
+        directional_lambda3,
+        directional_lambda1_dot,
+        directional_lambda3_dot,
+        nu_dots,
+        epsi_dots,
+        _base_nu_direct,
+        _directional_nu_direct,
+        _directional_nu_direct_dot,
+    ) = _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
+        prepared,
+        case,
+        first_direction,
+        second_direction,
+        bar_fn,
+    )
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        case.nu_hat,
+        case.epsi_hat,
+    )
+
+    for rhs_index in range(rhs_count):
+        base_reference = _prepared_gradient_from_adjoint(
+            prepared,
+            ctx,
+            f1_full,
+            f3_full,
+            base_lambda1[..., rhs_index],
+            base_lambda3[..., rhs_index],
+            native_base_bars[rhs_index],
+        )
+        base_compact = _compact_prepared_gradient_from_adjoint(
+            prepared,
+            ctx,
+            f1_full,
+            f3_full,
+            base_lambda1[..., rhs_index],
+            base_lambda3[..., rhs_index],
+            native_base_bars[rhs_index],
+        )
+        base_actual = _compact_prepared_bar_to_prepared(
+            prepared,
+            nu_hat=ctx.nu_hat,
+            epsi_hat=ctx.epsi_hat,
+            compact_bar=base_compact,
+        )
+
+        _, first_reference = _directional_prepared_gradient_from_adjoint(
+            prepared,
+            nu_hat=ctx.nu_hat,
+            epsi_hat=ctx.epsi_hat,
+            nu_hat_dot=nu_dots[0],
+            epsi_hat_dot=epsi_dots[0],
+            f1_full=f1_full,
+            f3_full=f3_full,
+            f1_dot=f1_dot_full[..., 0],
+            f3_dot=f3_dot_full[..., 0],
+            lambda1=directional_lambda1[..., rhs_index, 0],
+            lambda3=directional_lambda3[..., rhs_index, 0],
+            lambda1_dot=directional_lambda1_dot[..., rhs_index, 0],
+            lambda3_dot=directional_lambda3_dot[..., rhs_index, 0],
+            coefficient_bar=native_first_bars[rhs_index],
+            coefficient_bar_dot=native_first_bars_dot[rhs_index],
+        )
+        _, first_compact = _directional_compact_prepared_gradient_from_adjoint(
+            prepared,
+            nu_hat=ctx.nu_hat,
+            epsi_hat=ctx.epsi_hat,
+            nu_hat_dot=nu_dots[0],
+            epsi_hat_dot=epsi_dots[0],
+            f1_full=f1_full,
+            f3_full=f3_full,
+            f1_dot=f1_dot_full[..., 0],
+            f3_dot=f3_dot_full[..., 0],
+            lambda1=directional_lambda1[..., rhs_index, 0],
+            lambda3=directional_lambda3[..., rhs_index, 0],
+            lambda1_dot=directional_lambda1_dot[..., rhs_index, 0],
+            lambda3_dot=directional_lambda3_dot[..., rhs_index, 0],
+            coefficient_bar=native_first_bars[rhs_index],
+            coefficient_bar_dot=native_first_bars_dot[rhs_index],
+        )
+        _, second_compact = _directional_compact_prepared_gradient_from_adjoint(
+            prepared,
+            nu_hat=ctx.nu_hat,
+            epsi_hat=ctx.epsi_hat,
+            nu_hat_dot=nu_dots[1],
+            epsi_hat_dot=epsi_dots[1],
+            f1_full=f1_full,
+            f3_full=f3_full,
+            f1_dot=f1_dot_full[..., 1],
+            f3_dot=f3_dot_full[..., 1],
+            lambda1=directional_lambda1[..., rhs_index, 1],
+            lambda3=directional_lambda3[..., rhs_index, 1],
+            lambda1_dot=directional_lambda1_dot[..., rhs_index, 1],
+            lambda3_dot=directional_lambda3_dot[..., rhs_index, 1],
+            coefficient_bar=native_second_bars[rhs_index],
+            coefficient_bar_dot=native_second_bars_dot[rhs_index],
+        )
+        _, second_reference = _directional_prepared_gradient_from_adjoint(
+            prepared,
+            nu_hat=ctx.nu_hat,
+            epsi_hat=ctx.epsi_hat,
+            nu_hat_dot=nu_dots[1],
+            epsi_hat_dot=epsi_dots[1],
+            f1_full=f1_full,
+            f3_full=f3_full,
+            f1_dot=f1_dot_full[..., 1],
+            f3_dot=f3_dot_full[..., 1],
+            lambda1=directional_lambda1[..., rhs_index, 1],
+            lambda3=directional_lambda3[..., rhs_index, 1],
+            lambda1_dot=directional_lambda1_dot[..., rhs_index, 1],
+            lambda3_dot=directional_lambda3_dot[..., rhs_index, 1],
+            coefficient_bar=native_second_bars[rhs_index],
+            coefficient_bar_dot=native_second_bars_dot[rhs_index],
+        )
+
+        def _add_compact(*bars):
+            def _add_leaves(*leaves):
+                if any(
+                    jnp.asarray(leaf).dtype == jax.dtypes.float0 for leaf in leaves
+                ):
+                    return leaves[0]
+                return sum(leaves)
+
+            return jax.tree_util.tree_map(
+                _add_leaves,
+                *bars,
+            )
+
+        combined_actual = _compact_prepared_bar_to_prepared(
+            prepared,
+            nu_hat=ctx.nu_hat,
+            epsi_hat=ctx.epsi_hat,
+            compact_bar=_add_compact(base_compact, first_compact, second_compact),
+        )
+        combined_reference = jax.tree_util.tree_map(
+            lambda first, second, third: (
+                first
+                if (
+                    jnp.asarray(first).dtype == jax.dtypes.float0
+                    or jnp.asarray(second).dtype == jax.dtypes.float0
+                    or jnp.asarray(third).dtype == jax.dtypes.float0
+                )
+                else first + second + third
+            ),
+            base_reference,
+            first_reference,
+            second_reference,
+        )
+        for actual, expected in zip(
+            jax.tree_util.tree_leaves(combined_actual),
+            jax.tree_util.tree_leaves(combined_reference),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
+                assert jnp.allclose(actual, expected, rtol=1e-9, atol=1e-11)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_native_lowdot_compact_residual_contract_matches_compact_contract(rhs_count):
+    """The new split transpose is exactly the existing compact native result."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, epsi_hat=0.23)
+    second_direction = MonoenergeticCase(-0.17, epsi_hat=0.0)
+    base_bars = jnp.reshape(
+        jnp.arange(rhs_count * 5, dtype=jnp.float64), (rhs_count, 5)
+    ) / 13.0 - 0.4
+    bar_fn = lambda _base, _first, _second: (
+        base_bars,
+        jnp.flip(base_bars, axis=1) * 0.37,
+        base_bars * -0.21,
+        jnp.linspace(-0.3, 0.4, rhs_count, dtype=jnp.float64),
+    )
+    reference = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            bar_fn,
+            return_primal_outputs=True,
+            return_case_bars=True,
+        )
+    )
+    actual = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_residual_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            bar_fn,
+            return_primal_outputs=True,
+            return_case_bars=True,
+        )
+    )
+    for actual_tree, expected_tree in zip(actual, reference, strict=True):
+        for actual_leaf, expected_leaf in zip(
+            jax.tree_util.tree_leaves(actual_tree),
+            jax.tree_util.tree_leaves(expected_tree),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
+                assert jnp.allclose(actual_leaf, expected_leaf, rtol=1e-9, atol=1e-11)
 
 
 def test_fused_prepared_two_direction_pullback_runs_and_matches_base_vjp():
