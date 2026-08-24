@@ -70,6 +70,146 @@ def evaluate_fourier_series(
     return value, d_dtheta, d_dzeta
 
 
+def fourier_series_coefficient_bars_multi_rhs(
+    m: Array,
+    n: Array,
+    theta: Array,
+    zeta: Array,
+    *,
+    nfp: int,
+    value_bar: Array,
+    d_theta_bar: Array | None = None,
+    d_zeta_bar: Array | None = None,
+) -> tuple[Array, Array]:
+    """Native RHS-axis transpose of :func:`evaluate_fourier_series`.
+
+    Bars have shape ``(rhs, theta, zeta)`` and the returned cosine/sine
+    coefficient bars have shape ``(rhs, mode)``.  This is pure Fourier-basis
+    algebra and does not construct geometry or invoke any solver.
+    """
+    phase = theta[..., None] * m + zeta[..., None] * (n * nfp)
+    cosine = jnp.cos(phase)
+    sine = jnp.sin(phase)
+    if d_theta_bar is None:
+        d_theta_bar = jnp.zeros_like(value_bar)
+    if d_zeta_bar is None:
+        d_zeta_bar = jnp.zeros_like(value_bar)
+    mode_m = jnp.asarray(m)[None, None, None, :]
+    mode_nfp = (jnp.asarray(n) * nfp)[None, None, None, :]
+    value_bar = value_bar[..., None]
+    d_theta_bar = d_theta_bar[..., None]
+    d_zeta_bar = d_zeta_bar[..., None]
+    cosine_bar = jnp.sum(
+        value_bar * cosine
+        - d_theta_bar * mode_m * sine
+        - d_zeta_bar * mode_nfp * sine,
+        axis=(1, 2),
+    )
+    sine_bar = jnp.sum(
+        value_bar * sine
+        + d_theta_bar * mode_m * cosine
+        + d_zeta_bar * mode_nfp * cosine,
+        axis=(1, 2),
+    )
+    return cosine_bar, sine_bar
+
+
+def volume_prime_bars_multi_rhs(volume_prime_bar: Array, jacobian: Array, grid) -> Array:
+    """Add the RHS-axis transpose of ``volume_prime = sum(J) dtheta dzeta``."""
+    return volume_prime_bar[:, None, None] * jnp.ones_like(jacobian)[None] * (
+        grid.dtheta * grid.dzeta
+    )
+
+
+def b2_mean_bars_multi_rhs(b: Array, jacobian: Array, b2_mean_bar: Array, grid):
+    """RHS-axis transpose of the flux-surface average defining ``b2_mean``."""
+    delta = grid.dtheta * grid.dzeta
+    volume = jnp.sum(jacobian) * delta
+    b2 = jnp.sum(b**2 * jacobian) * delta / volume
+    weight = b2_mean_bar[:, None, None]
+    return (
+        weight * 2.0 * b[None] * jacobian[None] * delta / volume,
+        weight * (b[None] ** 2 - b2) * delta / volume,
+    )
+
+
+def radial_drift_bars_multi_rhs(
+    b: Array, d_b_dtheta: Array, d_b_dzeta: Array, jacobian: Array,
+    b_sub_theta: Array, b_sub_zeta: Array, radial_drift_bar: Array,
+):
+    """RHS-axis transpose of the sampled radial-drift expression."""
+    drift = (b_sub_theta * d_b_dzeta - b_sub_zeta * d_b_dtheta) / (jacobian * b**3)
+    weight = radial_drift_bar
+    denom = jacobian[None] * b[None] ** 3
+    return {
+        "b": -3.0 * weight * drift[None] / b[None],
+        "d_b_dtheta": -weight * b_sub_zeta[None] / denom,
+        "d_b_dzeta": weight * b_sub_theta[None] / denom,
+        "jacobian": -weight * drift[None] / jacobian[None],
+        "b_sub_theta": weight * d_b_dzeta[None] / denom,
+        "b_sub_zeta": -weight * d_b_dtheta[None] / denom,
+    }
+
+
+def add_sampled_field_bars_multi_rhs(*bar_dicts: dict[str, Array]) -> dict[str, Array]:
+    """Combine named sampled-geometry cotangents without reducing RHS."""
+    result: dict[str, Array] = {}
+    for bars in bar_dicts:
+        for name, bar in bars.items():
+            result[name] = bar if name not in result else result[name] + bar
+    return result
+
+
+def vmec_sampled_field_bars_to_coefficients_multi_rhs(surface: VmecSurface, geometry: GeometryOnGrid, bars: dict[str, Array]) -> dict[str, Array]:
+    """Map RHS-batched sampled VMEC field bars to Fourier coefficient bars."""
+    zeros = lambda: jnp.zeros_like(bars["b"])
+    result: dict[str, Array] = {}
+    result["b_cos"], _ = fourier_series_coefficient_bars_multi_rhs(
+        surface.m, surface.n, geometry.theta_2d, geometry.zeta_2d, nfp=surface.nfp,
+        value_bar=bars.get("b", zeros()), d_theta_bar=bars.get("d_b_dtheta"),
+        d_zeta_bar=bars.get("d_b_dzeta"),
+    )
+    for field, coeff in (("jacobian", "jacobian_cos"), ("b_sub_theta", "b_sub_theta_cos"), ("b_sub_zeta", "b_sub_zeta_cos"), ("b_sup_theta", "b_sup_theta_cos"), ("b_sup_zeta", "b_sup_zeta_cos")):
+        if field in bars:
+            result[coeff], _ = fourier_series_coefficient_bars_multi_rhs(
+                surface.m, surface.n, geometry.theta_2d, geometry.zeta_2d,
+                nfp=surface.nfp, value_bar=bars[field]
+            )
+    return result
+
+
+def vmec_geometry_bars_to_coefficients_multi_rhs(
+    surface: VmecSurface, geometry: GeometryOnGrid, primitive_bars: dict[str, Array]
+) -> dict[str, Array]:
+    """Reverse derived VMEC geometry fields then map the result to coefficients."""
+    template = primitive_bars["b"]
+    zero_field = jnp.zeros_like(template)
+    sampled = dict(primitive_bars)
+    volume_bar = sampled.pop("volume_prime", None)
+    if volume_bar is not None:
+        sampled = add_sampled_field_bars_multi_rhs(
+            sampled, {"jacobian": volume_prime_bars_multi_rhs(volume_bar, geometry.jacobian, geometry.grid)}
+        )
+    b2_bar = sampled.pop("b2_mean", None)
+    if b2_bar is not None:
+        b_bar, jacobian_bar = b2_mean_bars_multi_rhs(
+            geometry.b, geometry.jacobian, b2_bar, geometry.grid
+        )
+        sampled = add_sampled_field_bars_multi_rhs(sampled, {"b": b_bar, "jacobian": jacobian_bar})
+    drift_bar = sampled.pop("radial_drift_spatial", None)
+    if drift_bar is not None:
+        sampled = add_sampled_field_bars_multi_rhs(
+            sampled,
+            radial_drift_bars_multi_rhs(
+                geometry.b, geometry.d_b_dtheta, geometry.d_b_dzeta,
+                geometry.jacobian, geometry.b_sub_theta, geometry.b_sub_zeta,
+                drift_bar,
+            ),
+        )
+    sampled.setdefault("b", zero_field)
+    return vmec_sampled_field_bars_to_coefficients_multi_rhs(surface, geometry, sampled)
+
+
 def geometry_on_grid(surface: BoozerSurface | VmecSurface, spec) -> GeometryOnGrid:
     """Evaluate all geometric quantities needed by the solver."""
 

@@ -19,7 +19,9 @@ from ._solver_adjoint import (
     _directional_compact_prepared_gradient_from_adjoint,
     _directional_geometry_gradient_from_adjoint,
     _directional_prepared_gradient_from_adjoint,
+    _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
     _geometry_gradient_from_adjoint,
+    _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
     _prepared_gradient_from_adjoint,
     _parameter_gradient_from_adjoint,
     _parameter_gradient_from_adjoint_multi_rhs,
@@ -3168,6 +3170,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     return_case_bars: bool = False,
     _compact_result: bool = False,
     _compact_residual_transpose: bool = False,
+    return_vmec_coefficient_bars: bool = False,
 ):
     """Exact support-only low-dot pullback with native objective RHS solves.
 
@@ -3238,6 +3241,11 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     if _compact_residual_transpose and not _compact_result:
         raise ValueError(
             "The compact residual transpose has only the compact prepared-bar contract."
+        )
+
+    if return_vmec_coefficient_bars and not _compact_result:
+        raise ValueError(
+            "Native VMEC coefficient bars require the combined compact prepared contract."
         )
 
     if _compact_residual_transpose:
@@ -3474,6 +3482,68 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
                 auxiliary,
             )
         )
+    native_vmec_coefficient_bars = None
+    if return_vmec_coefficient_bars:
+        # The local support cotangent contains only the primal prepared-system
+        # terms: base plus the two directional low-dot contributions.  The
+        # two physical-direction *base* cotangents belong exclusively to the
+        # case chain below and must not be added to this geometry result.
+        native_vmec_base = _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+            prepared,
+            ctx,
+            f1_full,
+            f3_full,
+            base_lambda1,
+            base_lambda3,
+            base_coefficient_bars,
+        )
+        _first_direction_base, native_vmec_first_directional = (
+            _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+                prepared,
+                nu_hat=ctx.nu_hat,
+                epsi_hat=ctx.epsi_hat,
+                nu_hat_dot=nu_dots[0],
+                epsi_hat_dot=epsi_dots[0],
+                f1_full=f1_full,
+                f3_full=f3_full,
+                f1_dot=f1_dot_full[..., 0],
+                f3_dot=f3_dot_full[..., 0],
+                lambda1=directional_lambda1[..., 0],
+                lambda3=directional_lambda3[..., 0],
+                lambda1_dot=directional_lambda1_dot[..., 0],
+                lambda3_dot=directional_lambda3_dot[..., 0],
+                coefficient_bars=first_coefficient_bars,
+                coefficient_bars_dot=first_coefficient_bars_dot,
+            )
+        )
+        _second_direction_base, native_vmec_second_directional = (
+            _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+                prepared,
+                nu_hat=ctx.nu_hat,
+                epsi_hat=ctx.epsi_hat,
+                nu_hat_dot=nu_dots[1],
+                epsi_hat_dot=epsi_dots[1],
+                f1_full=f1_full,
+                f3_full=f3_full,
+                f1_dot=f1_dot_full[..., 1],
+                f3_dot=f3_dot_full[..., 1],
+                lambda1=directional_lambda1[..., 1],
+                lambda3=directional_lambda3[..., 1],
+                lambda1_dot=directional_lambda1_dot[..., 1],
+                lambda3_dot=directional_lambda3_dot[..., 1],
+                coefficient_bars=second_coefficient_bars,
+                coefficient_bars_dot=second_coefficient_bars_dot,
+            )
+        )
+        native_vmec_coefficient_bars = {
+            name: (
+                native_vmec_base[name]
+                + native_vmec_first_directional[name]
+                + native_vmec_second_directional[name]
+            )
+            for name in native_vmec_base
+        }
+
     if return_case_bars:
         def _parameter_gradient_from_values(
             nu_hat_value,
@@ -3546,10 +3616,22 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             directional_nu_direct_dot[..., 1] + second_nu_implicit_dot,
             second_epsi_bar_dot,
         )
+        if return_vmec_coefficient_bars:
+            return (
+                (primal_outputs, result, case_bar_components, native_vmec_coefficient_bars)
+                if return_primal_outputs
+                else (result, case_bar_components, native_vmec_coefficient_bars)
+            )
         return (
             (primal_outputs, result, case_bar_components)
             if return_primal_outputs
             else (result, case_bar_components)
+        )
+    if return_vmec_coefficient_bars:
+        return (
+            (primal_outputs, result, native_vmec_coefficient_bars)
+            if return_primal_outputs
+            else (result, native_vmec_coefficient_bars)
         )
     return (primal_outputs, result) if return_primal_outputs else result
 

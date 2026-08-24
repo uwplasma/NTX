@@ -12,6 +12,8 @@ from ._solver_factorization import (
     _solve_factorized_modes,
 )
 from ._solver_types import PreparedMonoenergeticSystem
+from ._geometry_types import VmecSurface
+from ._geometry_eval import vmec_geometry_bars_to_coefficients_multi_rhs
 from .operators import (
     OperatorContext,
     apply_nullspace_condition,
@@ -148,6 +150,308 @@ def _parameter_gradient_from_adjoint_multi_rhs(
             + jnp.sum(lambda3[k] * f3_epsi[:, None], axis=0)
         )
     return nu_bar, epsi_bar
+
+
+def _fixed_residual_block_coefficient_bars_multi_rhs(
+    prepared: PreparedMonoenergeticSystem,
+    f1_full: Array,
+    f3_full: Array,
+    lambda1: Array,
+    lambda3: Array,
+) -> tuple[Array, Array, Array]:
+    """Transpose the fixed block residual directly along its RHS axis.
+
+    The return values are cotangents for the lower, diagonal and upper packed
+    coefficient arrays, with shape ``(mode, rhs, 3, n_fs)``.  They are the
+    exact contribution of ``-lambda.T @ A @ f`` before the coefficient arrays
+    are chained to ``block_parameters``.  No factorisation, solve, generic VJP
+    or objective ``vmap`` occurs here.
+
+    This is deliberately a small, independently testable first part of the
+    native prepared-support transpose.  Source and direct-coefficient terms
+    have different geometry dependencies and are added by the later stages.
+    """
+    if lambda1.ndim != 3 or lambda3.shape != lambda1.shape:
+        raise ValueError(
+            "lambda1 and lambda3 must have shape (mode, unknown, n_rhs)."
+        )
+    if f1_full.shape != f3_full.shape or f1_full.ndim != 2:
+        raise ValueError("primal mode fields must have shape (mode, unknown).")
+
+    n_modes, n_fs = f1_full.shape
+    if lambda1.shape[:2] != (n_modes, n_fs):
+        raise ValueError("primal and adjoint mode dimensions must agree.")
+
+    # The fixed residual pullback is called with residual cotangents
+    # ``(-lambda1, -lambda3)``.  Keep that sign explicit so this helper can be
+    # compared directly against the established compact residual VJP.
+    residual_bar1 = -lambda1
+    residual_bar3 = -lambda3
+
+    def _coefficient_bar(residual_bar: Array, mode_values: Array) -> Array:
+        """Return the packed block-coefficient bar for one ``A @ f`` term."""
+        theta_value = prepared.d_theta @ mode_values
+        zeta_value = prepared.d_zeta @ mode_values
+        # ``residual_bar`` is (n_fs, rhs); make the RHS axis leading once and
+        # contract it with the three pointwise block contributions.
+        bar = jnp.swapaxes(residual_bar, 0, 1)
+        return jnp.stack(
+            (
+                bar * theta_value[None, :],
+                bar * zeta_value[None, :],
+                bar * mode_values[None, :],
+            ),
+            axis=1,
+        )
+
+    lower_bars = []
+    diagonal_bars = []
+    upper_bars = []
+    for mode_index in range(n_modes):
+        diagonal_bar1 = residual_bar1[mode_index]
+        diagonal_bar3 = residual_bar3[mode_index]
+        upper_bar1 = residual_bar1[mode_index]
+        upper_bar3 = residual_bar3[mode_index]
+        if mode_index == 0:
+            # ``apply_nullspace_condition`` replaces the diagonal first row
+            # and zeros the upper first row.  The original coefficient arrays
+            # therefore receive no cotangent from that row.
+            diagonal_bar1 = diagonal_bar1.at[0].set(0)
+            diagonal_bar3 = diagonal_bar3.at[0].set(0)
+            upper_bar1 = upper_bar1.at[0].set(0)
+            upper_bar3 = upper_bar3.at[0].set(0)
+
+        diagonal_bars.append(
+            _coefficient_bar(diagonal_bar1, f1_full[mode_index])
+            + _coefficient_bar(diagonal_bar3, f3_full[mode_index])
+        )
+        if mode_index > 0:
+            lower_bars.append(
+                _coefficient_bar(residual_bar1[mode_index], f1_full[mode_index - 1])
+                + _coefficient_bar(residual_bar3[mode_index], f3_full[mode_index - 1])
+            )
+        else:
+            lower_bars.append(
+                jnp.zeros_like(diagonal_bars[-1])
+            )
+        if mode_index < n_modes - 1:
+            upper_bars.append(
+                _coefficient_bar(upper_bar1, f1_full[mode_index + 1])
+                + _coefficient_bar(upper_bar3, f3_full[mode_index + 1])
+            )
+        else:
+            upper_bars.append(jnp.zeros_like(diagonal_bars[-1]))
+
+    return jnp.stack(lower_bars), jnp.stack(diagonal_bars), jnp.stack(upper_bars)
+
+
+def _block_parameters_bar_from_coefficient_bars_multi_rhs(
+    prepared: PreparedMonoenergeticSystem,
+    params: dict[str, Array],
+    lower_bars: Array,
+    diagonal_bars: Array,
+    upper_bars: Array,
+) -> dict[str, Array]:
+    """Direct RHS-axis transpose of :func:`coefficients_from_parameters`.
+
+    This is the analytic coefficient-to-block-parameter portion of the native
+    prepared-support transpose.  It retains one leading RHS axis and performs
+    only elementwise reductions; importantly, it does not invoke a generic
+    VJP over the dense operator construction.
+    """
+    n_modes, n_rhs, _, n_fs = lower_bars.shape
+    if diagonal_bars.shape != lower_bars.shape or upper_bars.shape != lower_bars.shape:
+        raise ValueError("all packed coefficient bars must have the same shape.")
+    if n_modes != prepared.grid.n_xi + 1 or n_fs != prepared.grid.n_fs:
+        raise ValueError("coefficient-bar shape does not match the prepared grid.")
+    nt, nz = prepared.geometry.b.shape
+
+    def field(values):
+        # Inverse of the solver's Fortran-order spatial flattening, retaining
+        # mode/RHS/component leading axes without an objective vmap.
+        return jnp.swapaxes(values.reshape(n_modes, n_rhs, 3, nz, nt), -1, -2)
+
+    lower = field(lower_bars)
+    diagonal = field(diagonal_bars)
+    upper = field(upper_bars)
+    b = params["b"]
+    bu = params["b_sup_theta"]
+    bv = params["b_sup_zeta"]
+    dbt = params["d_b_dtheta"]
+    dbz = params["d_b_dzeta"]
+    bsubt = params["b_sub_theta"]
+    bsubz = params["b_sub_zeta"]
+    jacobian = params["jacobian"]
+    b2_mean = params["b2_mean"]
+    nu_hat = params["nu_hat"]
+    epsi_hat = params["epsi_hat"]
+    del nu_hat
+    mode = jnp.arange(n_modes, dtype=b.dtype)[:, None, None, None]
+    lower_theta_scale = mode / (2.0 * mode - 1.0)
+    upper_theta_scale = (mode + 1.0) / (2.0 * mode + 3.0)
+    lower_value_scale = mode * (mode - 1.0) / (2.0 * (2.0 * mode - 1.0))
+    upper_value_scale = -((mode + 1.0) * (mode + 2.0)) / (2.0 * (2.0 * mode + 3.0))
+
+    inv_b = 1.0 / b
+    h = bv * dbz + bu * dbt
+    theta_bar = lower[:, :, 0] * lower_theta_scale + upper[:, :, 0] * upper_theta_scale
+    zeta_bar = lower[:, :, 1] * lower_theta_scale + upper[:, :, 1] * upper_theta_scale
+    h_bar = (lower[:, :, 2] * lower_value_scale + upper[:, :, 2] * upper_value_scale) * inv_b**2
+    b_bar = jnp.sum(
+        -theta_bar * bu[None, None] * inv_b**2
+        - zeta_bar * bv[None, None] * inv_b**2
+        - 2.0 * h_bar * h[None, None] * inv_b,
+        axis=0,
+    )
+    bu_bar = jnp.sum(theta_bar * inv_b[None, None] + h_bar * dbt[None, None], axis=0)
+    bv_bar = jnp.sum(zeta_bar * inv_b[None, None] + h_bar * dbz[None, None], axis=0)
+    dbt_bar = jnp.sum(h_bar * bu[None, None], axis=0)
+    dbz_bar = jnp.sum(h_bar * bv[None, None], axis=0)
+
+    diagonal_theta_bar = diagonal[:, :, 0]
+    diagonal_zeta_bar = diagonal[:, :, 1]
+    denominator = jacobian * b2_mean
+    theta_factor = -epsi_hat * bsubz / denominator
+    zeta_factor = epsi_hat * bsubt / denominator
+    bsubz_bar = jnp.sum(diagonal_theta_bar * (-epsi_hat / denominator)[None, None], axis=0)
+    bsubt_bar = jnp.sum(diagonal_zeta_bar * (epsi_hat / denominator)[None, None], axis=0)
+    jacobian_bar = jnp.sum(
+        (diagonal_theta_bar * (-theta_factor / jacobian)[None, None]
+         + diagonal_zeta_bar * (-zeta_factor / jacobian)[None, None]), axis=0
+    )
+    b2_mean_bar = jnp.sum(
+        (diagonal_theta_bar * (-theta_factor / b2_mean)[None, None]
+         + diagonal_zeta_bar * (-zeta_factor / b2_mean)[None, None]), axis=(0, 2, 3)
+    )
+    epsi_bar = jnp.sum(
+        diagonal_theta_bar * (-bsubz / denominator)[None, None]
+        + diagonal_zeta_bar * (bsubt / denominator)[None, None], axis=(0, 2, 3)
+    )
+    nu_bar = jnp.sum(
+        diagonal[:, :, 2] * (0.5 * mode * (mode + 1.0)), axis=(0, 2, 3)
+    )
+    return {
+        "b": b_bar,
+        "b_sup_theta": bu_bar,
+        "b_sup_zeta": bv_bar,
+        "d_b_dtheta": dbt_bar,
+        "d_b_dzeta": dbz_bar,
+        "b_sub_theta": bsubt_bar,
+        "b_sub_zeta": bsubz_bar,
+        "jacobian": jacobian_bar,
+        "b2_mean": b2_mean_bar,
+        "nu_hat": nu_bar,
+        "epsi_hat": epsi_bar,
+    }
+
+
+def _fixed_residual_source_geometry_bars_multi_rhs(lambda1: Array, lambda3: Array):
+    """Direct RHS-axis transpose of the two fixed residual source arrays.
+
+    Returns bars for the flattened ``b`` and ``radial_drift_spatial`` source
+    inputs.  This is pure post-adjoint algebra: it neither builds nor solves
+    an NTX system.
+    """
+    if lambda1.ndim != 3 or lambda3.shape != lambda1.shape:
+        raise ValueError("source adjoints must have shape (mode, unknown, n_rhs).")
+    if lambda1.shape[0] < 3:
+        raise ValueError("the NTX source requires modes 0, 1 and 2.")
+    # The residual pullback receives -lambda and r=A f-s, hence +lambda ds.
+    b_bar = jnp.swapaxes(lambda3[1], 0, 1)
+    drift_bar = jnp.swapaxes(
+        -(2.0 / 3.0) * lambda1[0] - (1.0 / 3.0) * lambda1[2], 0, 1
+    )
+    return b_bar, drift_bar
+
+
+def _direct_coefficient_geometry_bars_multi_rhs(prepared, f1_low, f3_low, nu_hat, coefficient_bars):
+    """Direct RHS-axis transpose of transport coefficients at fixed modes."""
+    g = prepared.geometry
+    if coefficient_bars.ndim != 2 or coefficient_bars.shape[1] != 5:
+        raise ValueError("coefficient_bars must have shape (n_rhs, 5).")
+    nt, nz = g.b.shape
+    def unflat(values):
+        return jnp.swapaxes(values.reshape(nz, nt), -1, -2)
+    f10, f11, f12 = (unflat(f1_low[k]) for k in range(3))
+    f30, f31, f32 = (unflat(f3_low[k]) for k in range(3))
+    q = coefficient_bars
+    delta = g.grid.dtheta * g.grid.dzeta
+    pref = g.jacobian / g.volume_prime * delta
+    drift11 = -4.0 * f10 / 3.0 - 2.0 * f12 / 15.0
+    drift13 = -4.0 * f30 / 3.0 - 2.0 * f32 / 15.0
+    d11_density = pref * g.radial_drift_spatial * drift11 / g.coefficient_psi_scale**2
+    d31_density = pref * 2.0 * f11 * g.b / (3.0 * g.b0 * g.coefficient_psi_scale)
+    d13_density = pref * g.radial_drift_spatial * drift13 / (g.coefficient_psi_scale * g.b0)
+    d33_density = pref * 2.0 * g.b * f31 / (3.0 * g.b0**2)
+    dsp_density = pref * 2.0 * g.b**2 / (3.0 * g.b0**2 * nu_hat)
+    densities = jnp.stack((d11_density, d31_density, d13_density, d33_density, dsp_density))
+    values = jnp.sum(densities, axis=(1, 2))
+    weight = q[:, :, None, None]
+    jacobian_bar = jnp.sum(weight * densities[None] / g.jacobian, axis=1)
+    volume_prime_bar = -jnp.sum(q * values[None] / g.volume_prime, axis=1)
+    drift_bar = q[:, 0, None, None] * pref * drift11[None] / g.coefficient_psi_scale**2 + q[:, 2, None, None] * pref * drift13[None] / (g.coefficient_psi_scale * g.b0)
+    b_bar = (q[:, 1, None, None] * pref * 2.0 * f11[None] / (3.0*g.b0*g.coefficient_psi_scale) + q[:, 3, None, None] * pref * 2.0*f31[None]/(3.0*g.b0**2) + q[:, 4, None, None] * pref * 4.0*g.b[None]/(3.0*g.b0**2*nu_hat))
+    psi_bar = -2.0*q[:,0]*values[0]/g.coefficient_psi_scale - q[:,1]*values[1]/g.coefficient_psi_scale - q[:,2]*values[2]/g.coefficient_psi_scale
+    b0_bar = -q[:,1]*values[1]/g.b0 -q[:,2]*values[2]/g.b0 -2.0*q[:,3]*values[3]/g.b0 -2.0*q[:,4]*values[4]/g.b0
+    nu_bar = -q[:,4]*values[4]/nu_hat
+    return dict(radial_drift_spatial=drift_bar, jacobian=jacobian_bar, volume_prime=volume_prime_bar, coefficient_psi_scale=psi_bar, b=b_bar, b0=b0_bar, nu_hat=nu_bar)
+
+
+def _add_native_rhs_bar_dicts(*bar_dicts):
+    """Add matching RHS-preserving primitive cotangent dictionaries."""
+    result = {}
+    for bars in bar_dicts:
+        for key, value in bars.items():
+            result[key] = value if key not in result else result[key] + value
+    return result
+
+
+def _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+    prepared: PreparedMonoenergeticSystem, ctx: OperatorContext, f1_full: Array,
+    f3_full: Array, lambda1: Array, lambda3: Array, coefficient_bars: Array,
+) -> dict[str, Array]:
+    """Native VMEC coefficient bars from existing fixed primal/adjoint fields."""
+    if not isinstance(prepared.surface, VmecSurface):
+        raise ValueError("native VMEC geometry transpose requires VmecSurface.")
+    lower, diagonal, upper = _fixed_residual_block_coefficient_bars_multi_rhs(
+        prepared, f1_full, f3_full, lambda1, lambda3
+    )
+    parameter_bars = _block_parameters_bar_from_coefficient_bars_multi_rhs(
+        prepared, block_parameters(ctx), lower, diagonal, upper
+    )
+    source_b, source_drift = _fixed_residual_source_geometry_bars_multi_rhs(lambda1, lambda3)
+    nt, nz = prepared.geometry.b.shape
+    unflat = lambda value: jnp.swapaxes(value.reshape(value.shape[0], nz, nt), -1, -2)
+    source_bars = {"b": unflat(source_b), "radial_drift_spatial": unflat(source_drift)}
+    direct_bars = _direct_coefficient_geometry_bars_multi_rhs(
+        prepared, f1_full[:3], f3_full[:3], ctx.nu_hat, coefficient_bars
+    )
+    primitive_bars = _add_native_rhs_bar_dicts(parameter_bars, source_bars, direct_bars)
+    return vmec_geometry_bars_to_coefficients_multi_rhs(
+        prepared.surface, prepared.geometry, primitive_bars
+    )
+
+
+def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+    prepared: PreparedMonoenergeticSystem, *, nu_hat: Array, epsi_hat: Array,
+    nu_hat_dot: Array, epsi_hat_dot: Array, f1_full: Array, f3_full: Array,
+    f1_dot: Array, f3_dot: Array, lambda1: Array, lambda3: Array,
+    lambda1_dot: Array, lambda3_dot: Array, coefficient_bars: Array,
+    coefficient_bars_dot: Array,
+):
+    """Base/directional VMEC coefficient bars without an NTX re-solve."""
+    def native(nu_value, epsi_value, f1_value, f3_value, l1_value, l3_value, bar_value):
+        ctx = _operator_context(prepared.surface, prepared.geometry, prepared.grid,
+                                nu_value, epsi_value)
+        return _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+            prepared, ctx, f1_value, f3_value, l1_value, l3_value, bar_value
+        )
+    return jax.jvp(
+        native,
+        (nu_hat, epsi_hat, f1_full, f3_full, lambda1, lambda3, coefficient_bars),
+        (nu_hat_dot, epsi_hat_dot, f1_dot, f3_dot, lambda1_dot, lambda3_dot,
+         coefficient_bars_dot),
+    )
 
 
 def _geometry_gradient_from_adjoint(

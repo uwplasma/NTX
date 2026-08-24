@@ -35,17 +35,36 @@ from ntx import (
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
-from ntx.geometry import BoozerSurface
+from ntx.geometry import BoozerSurface, VmecSurface
+from ntx._geometry_eval import geometry_on_grid, vmec_sampled_field_bars_to_coefficients_multi_rhs, vmec_geometry_bars_to_coefficients_multi_rhs
 from ntx._solver_adjoint import (
     _compact_prepared_bar_to_prepared,
     _compact_prepared_gradient_from_adjoint,
     _combined_prepared_gradient_from_adjoint_multi_rhs_oracle,
     _directional_compact_prepared_gradient_from_adjoint,
     _directional_prepared_gradient_from_adjoint,
+    _block_parameters_bar_from_coefficient_bars_multi_rhs,
+    _fixed_residual_block_coefficient_bars_multi_rhs,
+    _fixed_residual_source_geometry_bars_multi_rhs,
+    _direct_coefficient_geometry_bars_multi_rhs,
+    _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
+    _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
     _prepared_gradient_from_adjoint,
     _prepared_implicit_vjp_primal,
 )
 from ntx._solver_context import _operator_context
+from ntx.operators import (
+    apply_nullspace_condition,
+    block_parameters,
+    build_block,
+    coefficients_from_parameters,
+)
+from ntx.transport import coefficients_from_modes
+from ntx._geometry_eval import (
+    b2_mean_bars_multi_rhs, evaluate_fourier_series,
+    fourier_series_coefficient_bars_multi_rhs, radial_drift_bars_multi_rhs,
+    volume_prime_bars_multi_rhs,
+)
 from ntx._solver_prepared import (
     _lowdot_two_pullback_native_multi_rhs_adjoint_fields,
     _solve_factorized_adjoint_field_pair,
@@ -1490,3 +1509,364 @@ def test_support_only_lowdot_prepared_helper_matches_full_prepared_helper(case_r
     ):
         if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
             assert jnp.allclose(support_only_leaf, expected_leaf, rtol=1e-9, atol=1e-11)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_fixed_residual_block_coefficient_bars_multi_rhs_match_generic_vjp(rhs_count):
+    """The first native RHS-axis residual transpose matches the block VJP.
+
+    This deliberately isolates dense block coefficients from the later
+    geometry/source and prepared-pytree chains.  The generic VJP is an oracle
+    only; the implementation under test performs direct RHS contractions.
+    """
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    n_modes = prepared.grid.n_xi + 1
+    n_fs = prepared.geometry.b.size
+    f1_full = jnp.reshape(
+        jnp.linspace(-0.7, 0.9, n_modes * n_fs), (n_modes, n_fs)
+    )
+    f3_full = jnp.reshape(
+        jnp.linspace(0.5, -0.8, n_modes * n_fs), (n_modes, n_fs)
+    )
+    lambda1 = jnp.reshape(
+        jnp.linspace(-0.4, 0.6, n_modes * n_fs * rhs_count),
+        (n_modes, n_fs, rhs_count),
+    )
+    lambda3 = jnp.flip(lambda1, axis=1) * -0.73
+
+    actual = _fixed_residual_block_coefficient_bars_multi_rhs(
+        prepared, f1_full, f3_full, lambda1, lambda3
+    )
+
+    def residual_from_blocks(lower_blocks, diagonal_blocks, upper_blocks):
+        def residual(modes):
+            rows = []
+            for mode_index in range(n_modes):
+                lower = lower_blocks[mode_index]
+                diagonal = diagonal_blocks[mode_index]
+                upper = upper_blocks[mode_index]
+                if mode_index == 0:
+                    diagonal, upper = apply_nullspace_condition(diagonal, upper)
+                row = diagonal @ modes[mode_index]
+                if mode_index > 0:
+                    row = row + lower @ modes[mode_index - 1]
+                if mode_index < n_modes - 1:
+                    row = row + upper @ modes[mode_index + 1]
+                rows.append(row)
+            return jnp.stack(rows)
+
+        return residual(f1_full), residual(f3_full)
+
+    # Convert block cotangents back to the packed coefficient representation.
+    # The linear build-block map is intentionally used only by the oracle.
+    def one_packed_rhs(lambda1_value, lambda3_value):
+        def residual_from_packed(lower_packed, diagonal_packed, upper_packed):
+            lower = jax.vmap(
+                lambda value: build_block(value, prepared.d_theta, prepared.d_zeta)
+            )(lower_packed)
+            diagonal = jax.vmap(
+                lambda value: build_block(value, prepared.d_theta, prepared.d_zeta)
+            )(diagonal_packed)
+            upper = jax.vmap(
+                lambda value: build_block(value, prepared.d_theta, prepared.d_zeta)
+            )(upper_packed)
+            return residual_from_blocks(lower, diagonal, upper)
+
+        zeros = jnp.zeros((n_modes, 3, n_fs), dtype=f1_full.dtype)
+        _, packed_pullback = jax.vjp(residual_from_packed, zeros, zeros, zeros)
+        return packed_pullback((-lambda1_value, -lambda3_value))
+
+    expected = jax.vmap(one_packed_rhs, in_axes=(2, 2), out_axes=1)(lambda1, lambda3)
+    for actual_leaf, expected_leaf in zip(actual, expected, strict=True):
+        assert jnp.allclose(actual_leaf, expected_leaf, rtol=1e-10, atol=1e-12)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_block_parameters_bar_multi_rhs_matches_coefficient_vjp(rhs_count):
+    """Native coefficient-to-parameter transpose retains every RHS column."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    ctx = _operator_context(
+        prepared.surface, prepared.geometry, prepared.grid, 1.1e-2, 1.7e-3
+    )
+    params = block_parameters(ctx)
+    m, n = prepared.grid.n_xi + 1, prepared.grid.n_fs
+    bars = tuple(
+        jnp.reshape(jnp.linspace(-0.4 + offset, 0.6 + offset, m * rhs_count * 3 * n),
+                    (m, rhs_count, 3, n))
+        for offset in (0.0, 0.13, -0.21)
+    )
+    actual = _block_parameters_bar_from_coefficient_bars_multi_rhs(
+        prepared, params, *bars
+    )
+
+    def all_coefficients(value):
+        return tuple(
+            jnp.stack(part) for part in zip(
+                *(coefficients_from_parameters(value, k) for k in range(m)), strict=True
+            )
+        )
+
+    _, pullback = jax.vjp(all_coefficients, params)
+    expected = jax.vmap(
+        lambda lower, diagonal, upper: pullback((lower, diagonal, upper))[0],
+        in_axes=(1, 1, 1),
+    )(*bars)
+    for key, expected_leaf in expected.items():
+        assert jnp.allclose(actual[key], expected_leaf, rtol=1e-10, atol=1e-12), key
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_fixed_residual_source_geometry_bars_multi_rhs_match_source_vjp(rhs_count):
+    """Native source transpose preserves each RHS column and residual sign."""
+    modes, n = 5, 6
+    lambda1 = jnp.reshape(jnp.linspace(-0.4, 0.7, modes * n * rhs_count), (modes, n, rhs_count))
+    lambda3 = jnp.flip(lambda1, axis=1) * -0.6
+    actual_b, actual_drift = _fixed_residual_source_geometry_bars_multi_rhs(lambda1, lambda3)
+    def sources(b, drift):
+        s1 = jnp.zeros((modes, n), dtype=b.dtype).at[0].set(-(2.0 / 3.0) * drift).at[2].set(-(1.0 / 3.0) * drift)
+        s3 = jnp.zeros((modes, n), dtype=b.dtype).at[1].set(b)
+        return -s1, -s3  # residual contribution: ``A @ f - source``
+    b = jnp.linspace(0.9, 1.2, n); drift = jnp.linspace(-0.3, 0.2, n)
+    _, pullback = jax.vjp(sources, b, drift)
+    expected_b, expected_drift = jax.vmap(lambda l1, l3: pullback((-l1, -l3)), in_axes=(2, 2))(lambda1, lambda3)
+    assert jnp.allclose(actual_b, expected_b, rtol=1e-10, atol=1e-12)
+    assert jnp.allclose(actual_drift, expected_drift, rtol=1e-10, atol=1e-12)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_direct_coefficient_geometry_bars_multi_rhs_match_fixed_mode_vjp(rhs_count):
+    """Native direct transport transpose matches the fixed-mode primitive VJP."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    g = prepared.geometry
+    n = prepared.grid.n_fs
+    f1 = jnp.reshape(jnp.linspace(-0.5, 0.8, 3 * n), (3, n))
+    f3 = jnp.reshape(jnp.linspace(0.7, -0.4, 3 * n), (3, n))
+    bars = jnp.reshape(jnp.linspace(-0.3, 0.6, rhs_count * 5), (rhs_count, 5))
+    actual = _direct_coefficient_geometry_bars_multi_rhs(prepared, f1, f3, jnp.asarray(1.1e-2), bars)
+    def direct(drift, jacobian, volume, psi, b, b0, nu):
+        local = dataclasses.replace(g, radial_drift_spatial=drift, jacobian=jacobian,
+            volume_prime=volume, coefficient_psi_scale=psi, b=b, b0=b0)
+        return jnp.stack(coefficients_from_modes(local, f1, f3, nu))
+    values = (g.radial_drift_spatial, g.jacobian, g.volume_prime,
+              g.coefficient_psi_scale, g.b, g.b0, jnp.asarray(1.1e-2))
+    _, pullback = jax.vjp(direct, *values)
+    expected = jax.vmap(lambda bar: pullback(bar), in_axes=0)(bars)
+    for key, expected_leaf in zip(actual, expected, strict=True):
+        assert jnp.allclose(actual[key], expected_leaf, rtol=1e-10, atol=1e-12), key
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_fourier_series_coefficient_bars_multi_rhs_match_vjp(rhs_count):
+    """Native Fourier transpose matches the value-and-derivative VJP."""
+    m = jnp.asarray([0, 1, 2]); n = jnp.asarray([0, 1, -1])
+    theta = jnp.linspace(0.0, 2.0 * jnp.pi, 4, endpoint=False)[:, None]
+    zeta = jnp.linspace(0.0, 0.7, 5, endpoint=False)[None, :]
+    bars = tuple(jnp.reshape(jnp.linspace(-0.3 + shift, 0.4 + shift, rhs_count * 20), (rhs_count, 4, 5)) for shift in (0.0, 0.1, -0.2))
+    actual = fourier_series_coefficient_bars_multi_rhs(m, n, theta, zeta, nfp=5, value_bar=bars[0], d_theta_bar=bars[1], d_zeta_bar=bars[2])
+    def forward(cosine, sine):
+        return evaluate_fourier_series(m, n, cosine, theta, zeta, nfp=5, sin_coeffs=sine)
+    _, pullback = jax.vjp(forward, jnp.asarray([1.0, -0.2, 0.3]), jnp.asarray([0.1, 0.4, -0.1]))
+    expected = jax.vmap(lambda v, dt, dz: pullback((v, dt, dz)), in_axes=(0, 0, 0))(*bars)
+    for actual_leaf, expected_leaf in zip(actual, expected, strict=True):
+        assert jnp.allclose(actual_leaf, expected_leaf, rtol=1e-10, atol=1e-12)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_vmec_sampled_field_mapper_matches_field_vjps(rhs_count):
+    """The VMEC wrapper preserves the Fourier transpose for every field."""
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2,
+        psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2,
+        loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]),
+        b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5,
+        dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]),
+        b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]),
+        b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    geometry = geometry_on_grid(surface, GridSpec(4, 5, 2))
+    bars = {name: jnp.reshape(jnp.linspace(-.2 + i*.03, .3+i*.03, rhs_count*20), (rhs_count,4,5))
+            for i, name in enumerate(("b", "d_b_dtheta", "d_b_dzeta", "jacobian", "b_sub_theta", "b_sub_zeta", "b_sup_theta", "b_sup_zeta"))}
+    actual = vmec_sampled_field_bars_to_coefficients_multi_rhs(surface, geometry, bars)
+    _, b_pb = jax.vjp(
+        lambda c: evaluate_fourier_series(surface.m, surface.n, c, geometry.theta_2d,
+                                            geometry.zeta_2d, nfp=surface.nfp),
+        surface.b_cos,
+    )
+    b_expected = jax.vmap(
+        lambda value, dtheta, dzeta: b_pb((value, dtheta, dzeta))[0]
+    )(bars["b"], bars["d_b_dtheta"], bars["d_b_dzeta"])
+    assert jnp.allclose(actual["b_cos"], b_expected, rtol=1e-10, atol=1e-12)
+    for field, coeff in (("jacobian", "jacobian_cos"), ("b_sub_theta", "b_sub_theta_cos"), ("b_sub_zeta", "b_sub_zeta_cos"), ("b_sup_theta", "b_sup_theta_cos"), ("b_sup_zeta", "b_sup_zeta_cos")):
+        _, pb = jax.vjp(lambda c: evaluate_fourier_series(surface.m, surface.n, c, geometry.theta_2d, geometry.zeta_2d, nfp=surface.nfp)[0], getattr(surface, coeff))
+        expected = jax.vmap(lambda bar: pb(bar)[0])(bars[field])
+        assert jnp.allclose(actual[coeff], expected, rtol=1e-10, atol=1e-12), coeff
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_native_vmec_fixed_adjoint_bars_match_generic_prepared_vjp(rhs_count):
+    """Full native VMEC base pullback matches the established prepared VJP."""
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    prepared = prepare_monoenergetic_system(surface, GridSpec(4, 5, 2))
+    ctx = _operator_context(surface, prepared.geometry, prepared.grid, .011, .002)
+    modes, n = 3, prepared.grid.n_fs
+    f1 = jnp.reshape(jnp.linspace(-.4,.6,modes*n),(modes,n)); f3 = jnp.reshape(jnp.linspace(.5,-.3,modes*n),(modes,n))
+    l1 = jnp.reshape(jnp.linspace(-.2,.3,modes*n*rhs_count),(modes,n,rhs_count)); l3 = l1*.7
+    bars = jnp.reshape(jnp.linspace(-.3,.4,rhs_count*5),(rhs_count,5))
+    actual = _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(prepared,ctx,f1,f3,l1,l3,bars)
+    def one(l1v,l3v,bar):
+        compact = _compact_prepared_gradient_from_adjoint(prepared,ctx,f1,f3,l1v,l3v,bar)
+        prepared_bar = _compact_prepared_bar_to_prepared(prepared,nu_hat=ctx.nu_hat,epsi_hat=ctx.epsi_hat,compact_bar=compact)
+        _, surface_pullback = jax.vjp(lambda value: prepare_monoenergetic_system(value, prepared.grid), surface)
+        return surface_pullback(prepared_bar)[0]
+    expected = [one(l1[..., index], l3[..., index], bars[index]) for index in range(rhs_count)]
+    for key in actual:
+        expected_value = jnp.stack([getattr(value, key) for value in expected])
+        assert jnp.allclose(actual[key], expected_value,rtol=1e-10,atol=1e-12), key
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_directional_native_vmec_fixed_adjoint_bars_match_generic_jvp(rhs_count):
+    """Native lowdot VMEC transpose preserves the full prepared JVP chain.
+
+    This is deliberately a tiny CPU gate: it compares the new explicit
+    coefficient transpose, including its two directional fields, with the
+    established differentiated prepared-support pullback.  It does not run a
+    transport rollout or create any profile/dump output.
+    """
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    prepared = prepare_monoenergetic_system(surface, GridSpec(4, 5, 2))
+    modes, n = 3, prepared.grid.n_fs
+    nu, epsi = jnp.asarray(.011), jnp.asarray(.002)
+    f1 = jnp.reshape(jnp.linspace(-.4,.6,modes*n),(modes,n)); f3 = jnp.reshape(jnp.linspace(.5,-.3,modes*n),(modes,n))
+    l1 = jnp.reshape(jnp.linspace(-.2,.3,modes*n*rhs_count),(modes,n,rhs_count)); l3 = l1*.7
+    bars = jnp.reshape(jnp.linspace(-.3,.4,rhs_count*5),(rhs_count,5))
+    nu_dot, epsi_dot = jnp.asarray(.003), jnp.asarray(-.004)
+    f1_dot, f3_dot = f1 * -.11, f3 * .13
+    l1_dot, l3_dot, bars_dot = l1 * .17, l3 * -.19, bars * .23
+    actual, actual_dot = _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+        prepared, nu_hat=nu, epsi_hat=epsi, nu_hat_dot=nu_dot,
+        epsi_hat_dot=epsi_dot, f1_full=f1, f3_full=f3, f1_dot=f1_dot,
+        f3_dot=f3_dot, lambda1=l1, lambda3=l3, lambda1_dot=l1_dot,
+        lambda3_dot=l3_dot, coefficient_bars=bars,
+        coefficient_bars_dot=bars_dot,
+    )
+    coeff_names = ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos")
+    def generic(nu_value, epsi_value, f1_value, f3_value, l1_value, l3_value, bar_value):
+        ctx = _operator_context(surface, prepared.geometry, prepared.grid, nu_value, epsi_value)
+        per_rhs = []
+        for index in range(rhs_count):
+            compact = _compact_prepared_gradient_from_adjoint(prepared, ctx, f1_value, f3_value, l1_value[..., index], l3_value[..., index], bar_value[index])
+            prepared_bar = _compact_prepared_bar_to_prepared(prepared, nu_hat=nu_value, epsi_hat=epsi_value, compact_bar=compact)
+            _, surface_pullback = jax.vjp(lambda value: prepare_monoenergetic_system(value, prepared.grid), surface)
+            per_rhs.append(surface_pullback(prepared_bar)[0])
+        return tuple(jnp.stack([getattr(value, name) for value in per_rhs]) for name in coeff_names)
+    expected, expected_dot = jax.jvp(
+        generic, (nu, epsi, f1, f3, l1, l3, bars),
+        (nu_dot, epsi_dot, f1_dot, f3_dot, l1_dot, l3_dot, bars_dot),
+    )
+    for name, base_value, dot_value in zip(coeff_names, expected, expected_dot, strict=True):
+        assert jnp.allclose(actual[name], base_value, rtol=1e-10, atol=1e-12), name
+        assert jnp.allclose(actual_dot[name], dot_value, rtol=1e-10, atol=1e-12), name
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_native_lowdot_vmec_coefficient_return_matches_combined_prepared_pullback(rhs_count):
+    """The opt-in lowdot return is the exact compact prepared surface chain."""
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    prepared = prepare_monoenergetic_system(surface, GridSpec(4, 5, 2))
+    case = MonoenergeticCase(.011, epsi_hat=.002)
+    first_direction = MonoenergeticCase(0., epsi_hat=.013)
+    second_direction = MonoenergeticCase(.011, epsi_hat=0.)
+    base_bars = jnp.reshape(jnp.linspace(-.3,.4,rhs_count * 5), (rhs_count, 5))
+    first_bars, second_bars = base_bars * .21, base_bars * -.17
+    base_dot, first_dot, second_dot = base_bars * .07, first_bars * -.11, second_bars * .19
+    def bar_fn(_base, _first, _second):
+        return base_bars, first_bars, second_bars, jnp.zeros((rhs_count,)), (first_dot, second_dot)
+    _primal, (prepared_bar, _aux), native = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+            prepared, case, first_direction, second_direction, bar_fn,
+            return_primal_outputs=True, _compact_result=True,
+            return_vmec_coefficient_bars=True,
+        )
+    )
+    _, pullback = jax.vjp(
+        lambda value: prepare_monoenergetic_system(value, prepared.grid), surface
+    )
+    def _one_rhs_prepared_bar(rhs_index):
+        return jax.tree_util.tree_map(
+            lambda leaf: (
+                leaf[rhs_index]
+                if jnp.asarray(leaf).ndim > 0
+                and int(jnp.asarray(leaf).shape[0]) == rhs_count
+                else leaf
+            ),
+            prepared_bar,
+        )
+    expected = tuple(
+        pullback(_one_rhs_prepared_bar(rhs_index))[0]
+        for rhs_index in range(rhs_count)
+    )
+    for name in ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos"):
+        expected_value = jnp.stack([getattr(value, name) for value in expected])
+        assert jnp.allclose(native[name], expected_value, rtol=1e-10, atol=1e-12), name
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_vmec_geometry_bar_chain_matches_geometry_vjp(rhs_count):
+    """Full private VMEC primitive reverse matches ``geometry_on_grid`` VJP."""
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    grid = GridSpec(4, 5, 2); geometry = geometry_on_grid(surface, grid)
+    names = ("b", "d_b_dtheta", "d_b_dzeta", "jacobian", "b_sub_theta", "b_sub_zeta", "b_sup_theta", "b_sup_zeta", "radial_drift_spatial")
+    bars = {name: jnp.reshape(jnp.linspace(-.2+i*.02,.3+i*.02,rhs_count*20),(rhs_count,4,5)) for i,name in enumerate(names)}
+    bars["volume_prime"] = jnp.linspace(-.1,.2,rhs_count); bars["b2_mean"] = jnp.linspace(.05,.15,rhs_count)
+    actual = vmec_geometry_bars_to_coefficients_multi_rhs(surface, geometry, bars)
+    def forward(*coeffs):
+        local = dataclasses.replace(surface, b_cos=coeffs[0], jacobian_cos=coeffs[1], b_sub_theta_cos=coeffs[2], b_sub_zeta_cos=coeffs[3], b_sup_theta_cos=coeffs[4], b_sup_zeta_cos=coeffs[5])
+        g = geometry_on_grid(local, grid)
+        return tuple(getattr(g, name) for name in names) + (g.volume_prime, g.b2_mean)
+    inputs = (surface.b_cos,surface.jacobian_cos,surface.b_sub_theta_cos,surface.b_sub_zeta_cos,surface.b_sup_theta_cos,surface.b_sup_zeta_cos)
+    _, pb = jax.vjp(forward,*inputs)
+    expected = jax.vmap(lambda *cot: pb(cot), in_axes=(0,)*11)(*(bars[n] for n in names),bars["volume_prime"],bars["b2_mean"])
+    for key, value in zip(("b_cos","jacobian_cos","b_sub_theta_cos","b_sub_zeta_cos","b_sup_theta_cos","b_sup_zeta_cos"),expected,strict=True):
+        assert jnp.allclose(actual[key], value, rtol=1e-10, atol=1e-12), key
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_radial_drift_bars_multi_rhs_match_vjp(rhs_count):
+    """Native radial-drift transpose matches the pointwise VJP."""
+    shape = (4, 5)
+    b = jnp.ones(shape) * 1.2; dt = jnp.ones(shape) * 0.13; dz = jnp.ones(shape) * -0.07
+    jac = jnp.ones(shape) * 0.9; bt = jnp.ones(shape) * 0.2; bz = jnp.ones(shape) * 0.8
+    bars = jnp.reshape(jnp.linspace(-0.4, 0.5, rhs_count * 20), (rhs_count, *shape))
+    actual = radial_drift_bars_multi_rhs(b, dt, dz, jac, bt, bz, bars)
+    def drift(bv, dtv, dzv, jv, btv, bzv): return (btv*dzv-bzv*dtv)/(jv*bv**3)
+    _, pb = jax.vjp(drift, b, dt, dz, jac, bt, bz)
+    expected = jax.vmap(lambda bar: pb(bar))(bars)
+    for key, value in zip(actual, expected, strict=True):
+        assert jnp.allclose(actual[key], value, rtol=1e-10, atol=1e-12), key
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_volume_and_b2_mean_bars_multi_rhs_match_vjp(rhs_count):
+    """Native scalar geometry reductions match their batched VJPs."""
+    grid = GridSpec(4, 5, 2)
+    from ntx.grids import periodic_grid
+    angular = periodic_grid(grid, 3)
+    b = jnp.reshape(jnp.linspace(0.8, 1.3, 20), (4, 5))
+    jac = jnp.reshape(jnp.linspace(0.7, 1.1, 20), (4, 5))
+    volume_bars = jnp.linspace(-0.2, 0.3, rhs_count)
+    b2_bars = jnp.linspace(0.1, 0.4, rhs_count)
+    actual_volume = volume_prime_bars_multi_rhs(volume_bars, jac, angular)
+    actual_b, actual_j = b2_mean_bars_multi_rhs(b, jac, b2_bars, angular)
+    def reductions(bv, jv):
+        volume = jnp.sum(jv) * angular.dtheta * angular.dzeta
+        return volume, jnp.sum(bv**2*jv)*angular.dtheta*angular.dzeta/volume
+    _, pb = jax.vjp(reductions, b, jac)
+    expected_volume = jax.vmap(lambda bar: pb((bar, 0.0))[1])(volume_bars)
+    expected_b, expected_j = jax.vmap(lambda bar: pb((0.0, bar)))(b2_bars)
+    assert jnp.allclose(actual_volume, expected_volume, rtol=1e-10, atol=1e-12)
+    assert jnp.allclose(actual_b, expected_b, rtol=1e-10, atol=1e-12)
+    assert jnp.allclose(actual_j, expected_j, rtol=1e-10, atol=1e-12)
