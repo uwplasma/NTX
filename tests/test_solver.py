@@ -795,8 +795,21 @@ def test_native_lowdot_support_multi_rhs_compact_matches_full_contract(rhs_count
     )
     full_base, _first_base, full_first_directional, _second_base, full_second_directional, full_auxiliary = full_result
     compact_prepared, compact_auxiliary = compact_result
+    def _expected_prepared_leaf(primal_leaf, base_leaf, first_leaf, second_leaf):
+        primal_arr = jnp.asarray(primal_leaf)
+        if not jnp.issubdtype(primal_arr.dtype, jnp.inexact):
+            return jnp.zeros(primal_arr.shape, dtype=jnp.float64)
+        if (
+            jnp.asarray(base_leaf).dtype == jax.dtypes.float0
+            or jnp.asarray(first_leaf).dtype == jax.dtypes.float0
+            or jnp.asarray(second_leaf).dtype == jax.dtypes.float0
+        ):
+            return jnp.zeros_like(primal_arr)
+        return base_leaf + first_leaf + second_leaf
+
     expected_prepared = jax.tree_util.tree_map(
-        lambda base, first, second: base + first + second,
+        _expected_prepared_leaf,
+        prepared,
         full_base,
         full_first_directional,
         full_second_directional,

@@ -3297,8 +3297,23 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             # directions and are consumed below for the compact case chain;
             # returning them as full prepared pytrees needlessly multiplies
             # the objective-batched temporary payload.
+            def _combine_primal_prepared_leaf(
+                primal_leaf, base_leaf, first_leaf, second_leaf
+            ):
+                primal_arr = jnp.asarray(primal_leaf)
+                if not jnp.issubdtype(primal_arr.dtype, jnp.inexact):
+                    return jnp.zeros(primal_arr.shape, dtype=jnp.float64)
+                if (
+                    jnp.asarray(base_leaf).dtype == jax.dtypes.float0
+                    or jnp.asarray(first_leaf).dtype == jax.dtypes.float0
+                    or jnp.asarray(second_leaf).dtype == jax.dtypes.float0
+                ):
+                    return jnp.zeros_like(primal_arr)
+                return base_leaf + first_leaf + second_leaf
+
             combined_prepared = jax.tree_util.tree_map(
-                lambda base, first, second: base + first + second,
+                _combine_primal_prepared_leaf,
+                prepared,
                 base_prepared,
                 first_directional_prepared,
                 second_directional_prepared,
