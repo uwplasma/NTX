@@ -3162,6 +3162,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     *,
     return_primal_outputs: bool = False,
     return_case_bars: bool = False,
+    _compact_result: bool = False,
 ):
     """Exact support-only low-dot pullback with native objective RHS solves.
 
@@ -3290,6 +3291,19 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             )
         )
 
+        if _compact_result:
+            # Only these three terms are cotangents of the primal prepared
+            # system.  The two ``*_base`` trees belong to the physical case
+            # directions and are consumed below for the compact case chain;
+            # returning them as full prepared pytrees needlessly multiplies
+            # the objective-batched temporary payload.
+            combined_prepared = jax.tree_util.tree_map(
+                lambda base, first, second: base + first + second,
+                base_prepared,
+                first_directional_prepared,
+                second_directional_prepared,
+            )
+            return tuple(jax.tree_util.tree_leaves(combined_prepared))
         return tuple(
             tuple(jax.tree_util.tree_leaves(value))
             for value in (
@@ -3315,8 +3329,12 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         jnp.moveaxis(directional_lambda3_dot, 2, 0),
     )
     result = (
-        *(prepared_tree.unflatten(leaves) for leaves in prepared_bar_leaf_groups),
-        auxiliary,
+        (prepared_tree.unflatten(prepared_bar_leaf_groups), auxiliary)
+        if _compact_result
+        else (
+            *(prepared_tree.unflatten(leaves) for leaves in prepared_bar_leaf_groups),
+            auxiliary,
+        )
     )
     if return_case_bars:
         def _parameter_gradient_from_values(
@@ -3374,16 +3392,31 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             ),
         )
         case_bar_components = (
-            base_nu_direct + base_nu_implicit,
-            base_epsi_bar,
-            directional_nu_direct[..., 0] + first_base_nu_implicit,
-            first_base_epsi_bar,
-            directional_nu_direct_dot[..., 0] + first_nu_implicit_dot,
-            first_epsi_bar_dot,
-            directional_nu_direct[..., 1] + second_base_nu_implicit,
-            second_base_epsi_bar,
-            directional_nu_direct_dot[..., 1] + second_nu_implicit_dot,
-            second_epsi_bar_dot,
+            (
+                base_nu_direct
+                + base_nu_implicit
+                + directional_nu_direct[..., 0]
+                + first_nu_implicit_dot
+                + directional_nu_direct[..., 1]
+                + second_base_nu_implicit
+                + directional_nu_direct_dot[..., 1]
+                + second_nu_implicit_dot,
+                base_epsi_bar + first_epsi_bar_dot + second_epsi_bar_dot,
+                first_base_epsi_bar,
+            )
+            if _compact_result
+            else (
+                base_nu_direct + base_nu_implicit,
+                base_epsi_bar,
+                directional_nu_direct[..., 0] + first_base_nu_implicit,
+                first_base_epsi_bar,
+                directional_nu_direct_dot[..., 0] + first_nu_implicit_dot,
+                first_epsi_bar_dot,
+                directional_nu_direct[..., 1] + second_base_nu_implicit,
+                second_base_epsi_bar,
+                directional_nu_direct_dot[..., 1] + second_nu_implicit_dot,
+                second_epsi_bar_dot,
+            )
         )
         return (
             (primal_outputs, result, case_bar_components)
@@ -3391,6 +3424,36 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             else (result, case_bar_components)
         )
     return (primal_outputs, result) if return_primal_outputs else result
+
+
+def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_and_aux(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    first_case_dot: MonoenergeticCase,
+    second_case_dot: MonoenergeticCase,
+    coefficient_bars_and_aux_fn,
+    *,
+    return_primal_outputs: bool = False,
+    return_case_bars: bool = False,
+):
+    """Compact native matrix-RHS support pullback.
+
+    This opt-in view preserves the native primal/factorization and matrix-RHS
+    algebra, while returning one final prepared bar and three compact
+    case-chain bars.  It is intentionally separate from the existing native
+    helper so current experiments retain their output contracts.
+    """
+
+    return solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+        prepared,
+        case,
+        first_case_dot,
+        second_case_dot,
+        coefficient_bars_and_aux_fn,
+        return_primal_outputs=return_primal_outputs,
+        return_case_bars=return_case_bars,
+        _compact_result=True,
+    )
 
 
 def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint(

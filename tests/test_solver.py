@@ -25,6 +25,7 @@ from ntx import (
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_multi_rhs_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_prepared_and_aux_packed_support_adjoint,
     solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry,
@@ -748,6 +749,75 @@ def test_native_lowdot_support_multi_rhs_matches_scalar_support_only(rhs_count):
                         native_leaf[rhs_index], scalar_leaf, rtol=1e-9, atol=1e-11
                     )
         assert jnp.allclose(native[-1][rhs_index], scalar[-1], rtol=0.0, atol=0.0)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_native_lowdot_support_multi_rhs_compact_matches_full_contract(rhs_count):
+    """The compact native view is exactly the required reduction of full output."""
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    case = MonoenergeticCase(1e-2, epsi_hat=1e-3)
+    first_direction = MonoenergeticCase(0.0, epsi_hat=0.23)
+    second_direction = MonoenergeticCase(-0.17, epsi_hat=0.0)
+    base_bars = jnp.reshape(
+        jnp.arange(rhs_count * 5, dtype=jnp.float64), (rhs_count, 5)
+    ) / 13.0 - 0.4
+    first_bars = jnp.flip(base_bars, axis=1) * 0.37
+    second_bars = base_bars * -0.21
+    auxiliary = jnp.linspace(-0.3, 0.4, rhs_count, dtype=jnp.float64)
+    bar_fn = lambda _base, _first, _second: (
+        base_bars,
+        first_bars,
+        second_bars,
+        auxiliary,
+    )
+
+    full_primal, full_result, full_case = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            bar_fn,
+            return_primal_outputs=True,
+            return_case_bars=True,
+        )
+    )
+    compact_primal, compact_result, compact_case = (
+        solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_compact_and_aux(
+            prepared,
+            case,
+            first_direction,
+            second_direction,
+            bar_fn,
+            return_primal_outputs=True,
+            return_case_bars=True,
+        )
+    )
+    full_base, _first_base, full_first_directional, _second_base, full_second_directional, full_auxiliary = full_result
+    compact_prepared, compact_auxiliary = compact_result
+    expected_prepared = jax.tree_util.tree_map(
+        lambda base, first, second: base + first + second,
+        full_base,
+        full_first_directional,
+        full_second_directional,
+    )
+    expected_case = (
+        full_case[0] + full_case[2] + full_case[6] + full_case[8],
+        full_case[1] + full_case[5] + full_case[9],
+        full_case[3],
+    )
+    for actual, expected in zip(compact_primal, full_primal, strict=True):
+        assert jnp.allclose(actual, expected, rtol=0.0, atol=0.0)
+    for actual, expected in zip(
+        jax.tree_util.tree_leaves(compact_prepared),
+        jax.tree_util.tree_leaves(expected_prepared),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
+            assert jnp.allclose(actual, expected, rtol=1e-9, atol=1e-11)
+    assert jnp.allclose(compact_auxiliary, full_auxiliary, rtol=0.0, atol=0.0)
+    for actual, expected in zip(compact_case, expected_case, strict=True):
+        assert jnp.allclose(actual, expected, rtol=1e-9, atol=1e-11)
 
 
 def test_fused_prepared_two_direction_pullback_runs_and_matches_base_vjp():
