@@ -3406,32 +3406,22 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
                 directional_lambda1_dot[..., 1], directional_lambda3_dot[..., 1],
             ),
         )
+        # Keep the established ten case components even in the compact view.
+        # They are small compared with the prepared-system trees, and routing
+        # them through NEOPAX's already-proven combination preserves exactly
+        # the native mapped contract.  Only the five large prepared trees are
+        # compacted to one.
         case_bar_components = (
-            (
-                base_nu_direct
-                + base_nu_implicit
-                + directional_nu_direct[..., 0]
-                + first_base_nu_implicit
-                + directional_nu_direct[..., 1]
-                + second_base_nu_implicit
-                + directional_nu_direct_dot[..., 1]
-                + second_nu_implicit_dot,
-                base_epsi_bar + first_epsi_bar_dot + second_epsi_bar_dot,
-                first_base_epsi_bar,
-            )
-            if _compact_result
-            else (
-                base_nu_direct + base_nu_implicit,
-                base_epsi_bar,
-                directional_nu_direct[..., 0] + first_base_nu_implicit,
-                first_base_epsi_bar,
-                directional_nu_direct_dot[..., 0] + first_nu_implicit_dot,
-                first_epsi_bar_dot,
-                directional_nu_direct[..., 1] + second_base_nu_implicit,
-                second_base_epsi_bar,
-                directional_nu_direct_dot[..., 1] + second_nu_implicit_dot,
-                second_epsi_bar_dot,
-            )
+            base_nu_direct + base_nu_implicit,
+            base_epsi_bar,
+            directional_nu_direct[..., 0] + first_base_nu_implicit,
+            first_base_epsi_bar,
+            directional_nu_direct_dot[..., 0] + first_nu_implicit_dot,
+            first_epsi_bar_dot,
+            directional_nu_direct[..., 1] + second_base_nu_implicit,
+            second_base_epsi_bar,
+            directional_nu_direct_dot[..., 1] + second_nu_implicit_dot,
+            second_epsi_bar_dot,
         )
         return (
             (primal_outputs, result, case_bar_components)
@@ -3454,9 +3444,10 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     """Compact native matrix-RHS support pullback.
 
     This opt-in view preserves the native primal/factorization and matrix-RHS
-    algebra, while returning one final prepared bar and three compact
-    case-chain bars.  It is intentionally separate from the existing native
-    helper so current experiments retain their output contracts.
+    algebra, while returning one final prepared bar.  It retains the existing
+    small case-component contract so NEOPAX can use its proven case-chain
+    combination unchanged. It is intentionally separate from the existing
+    native helper so current experiments retain their output contracts.
     """
 
     return solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(

@@ -817,11 +817,6 @@ def test_native_lowdot_support_multi_rhs_compact_matches_full_contract(rhs_count
             strict=True,
         )
     )
-    expected_case = (
-        full_case[0] + full_case[2] + full_case[6] + full_case[8],
-        full_case[1] + full_case[5] + full_case[9],
-        full_case[3],
-    )
     for actual, expected in zip(compact_primal, full_primal, strict=True):
         assert jnp.allclose(actual, expected, rtol=0.0, atol=0.0)
     for actual, expected in zip(
@@ -832,7 +827,7 @@ def test_native_lowdot_support_multi_rhs_compact_matches_full_contract(rhs_count
         if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
             assert jnp.allclose(actual, expected, rtol=1e-9, atol=1e-11)
     assert jnp.allclose(compact_auxiliary, full_auxiliary, rtol=0.0, atol=0.0)
-    for actual, expected in zip(compact_case, expected_case, strict=True):
+    for actual, expected in zip(compact_case, full_case, strict=True):
         assert jnp.allclose(actual, expected, rtol=1e-9, atol=1e-11)
 
 
