@@ -807,12 +807,15 @@ def test_native_lowdot_support_multi_rhs_compact_matches_full_contract(rhs_count
             return jnp.zeros_like(primal_arr)
         return base_leaf + first_leaf + second_leaf
 
-    expected_prepared = jax.tree_util.tree_map(
-        _expected_prepared_leaf,
-        prepared,
-        full_base,
-        full_first_directional,
-        full_second_directional,
+    expected_prepared_leaves = tuple(
+        _expected_prepared_leaf(primal_leaf, base_leaf, first_leaf, second_leaf)
+        for primal_leaf, base_leaf, first_leaf, second_leaf in zip(
+            jax.tree_util.tree_leaves(prepared),
+            jax.tree_util.tree_leaves(full_base),
+            jax.tree_util.tree_leaves(full_first_directional),
+            jax.tree_util.tree_leaves(full_second_directional),
+            strict=True,
+        )
     )
     expected_case = (
         full_case[0] + full_case[2] + full_case[6] + full_case[8],
@@ -823,7 +826,7 @@ def test_native_lowdot_support_multi_rhs_compact_matches_full_contract(rhs_count
         assert jnp.allclose(actual, expected, rtol=0.0, atol=0.0)
     for actual, expected in zip(
         jax.tree_util.tree_leaves(compact_prepared),
-        jax.tree_util.tree_leaves(expected_prepared),
+        expected_prepared_leaves,
         strict=True,
     ):
         if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
