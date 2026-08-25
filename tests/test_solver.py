@@ -1777,7 +1777,7 @@ def test_directional_native_vmec_fixed_adjoint_bars_match_generic_jvp(rhs_count)
         lambda3_dot=l3_dot, coefficient_bars=bars,
         coefficient_bars_dot=bars_dot,
     )
-    coeff_names = ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos")
+    coeff_names = ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos", "b0")
     def generic(nu_value, epsi_value, f1_value, f3_value, l1_value, l3_value, bar_value):
         ctx = _operator_context(surface, prepared.geometry, prepared.grid, nu_value, epsi_value)
         per_rhs = []
@@ -1814,7 +1814,7 @@ def test_directional_native_vmec_fixed_adjoint_bars_match_full_prepared_jvp(rhs_
         lambda1=l1, lambda3=l3, lambda1_dot=tangents[4], lambda3_dot=tangents[5],
         coefficient_bars=bars, coefficient_bars_dot=tangents[6],
     )
-    names = ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos")
+    names = ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos", "b0")
     def production(nu_value, epsi_value, f1_value, f3_value, l1_value, l3_value, bar_value):
         ctx = _operator_context(surface, prepared.geometry, prepared.grid, nu_value, epsi_value)
         _, surface_pullback = jax.vjp(lambda value: prepare_monoenergetic_system(value, prepared.grid), surface)
@@ -1857,9 +1857,23 @@ def test_native_lowdot_vmec_coefficient_return_matches_combined_prepared_pullbac
         pullback(_one_rhs_prepared_bar(rhs_index))[0]
         for rhs_index in range(rhs_count)
     )
-    for name in ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos"):
+    for name in ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos", "b0"):
         expected_value = jnp.stack([getattr(value, name) for value in expected])
         assert jnp.allclose(native[name], expected_value, rtol=1e-10, atol=1e-12), name
+    # The fixed local NTX residual reads the VMEC surface through the sampled
+    # Fourier fields plus ``b0``.  Keep the replacement boundary explicit:
+    # any other differentiable surface leaf receiving a nonzero prepared VJP
+    # must be added to the compact native contract rather than being lost when
+    # ``native_vmec_coefficient_bars_only`` suppresses the generic tree.
+    for name in (
+        "iota", "psi_a_hat", "phi_edge", "r_n", "r_hat",
+        "dpsi_hat_dr_hat", "dr_hat_dpsi_hat", "transport_psi_scale",
+    ):
+        values = tuple(getattr(value, name) for value in expected)
+        if any(value is None for value in values):
+            continue
+        expected_value = jnp.stack([jnp.asarray(value) for value in values])
+        assert jnp.allclose(expected_value, jnp.zeros_like(expected_value), rtol=1e-10, atol=1e-12), name
 
 
 @pytest.mark.parametrize("rhs_count", (1, 3))

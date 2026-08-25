@@ -181,7 +181,14 @@ def vmec_sampled_field_bars_to_coefficients_multi_rhs(surface: VmecSurface, geom
 def vmec_geometry_bars_to_coefficients_multi_rhs(
     surface: VmecSurface, geometry: GeometryOnGrid, primitive_bars: dict[str, Array]
 ) -> dict[str, Array]:
-    """Reverse derived VMEC geometry fields then map the result to coefficients."""
+    """Reverse derived VMEC geometry fields to the compact surface contract.
+
+    The six Fourier arrays are obtained by reversing their sampled fields.
+    ``b0`` is an independent scalar leaf of :class:`VmecSurface`, however: it
+    is consumed directly by the transport-coefficient formulas and is not a
+    Fourier coefficient.  Preserve its RHS-batched bar here so callers that
+    replace the generic prepared VJP do not silently drop that surface path.
+    """
     template = primitive_bars["b"]
     zero_field = jnp.zeros_like(template)
     sampled = dict(primitive_bars)
@@ -207,7 +214,10 @@ def vmec_geometry_bars_to_coefficients_multi_rhs(
             ),
         )
     sampled.setdefault("b", zero_field)
-    return vmec_sampled_field_bars_to_coefficients_multi_rhs(surface, geometry, sampled)
+    result = vmec_sampled_field_bars_to_coefficients_multi_rhs(surface, geometry, sampled)
+    if "b0" in primitive_bars:
+        result["b0"] = jnp.asarray(primitive_bars["b0"])
+    return result
 
 
 def geometry_on_grid(surface: BoozerSurface | VmecSurface, spec) -> GeometryOnGrid:
