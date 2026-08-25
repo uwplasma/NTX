@@ -1850,12 +1850,7 @@ def test_native_lowdot_vmec_coefficient_return_matches_combined_prepared_pullbac
     )
     def _one_rhs_prepared_bar(rhs_index):
         return jax.tree_util.tree_map(
-            lambda leaf: (
-                leaf[rhs_index]
-                if jnp.asarray(leaf).ndim > 0
-                and int(jnp.asarray(leaf).shape[0]) == rhs_count
-                else leaf
-            ),
+            lambda leaf: leaf[rhs_index],
             prepared_bar,
         )
     expected = tuple(
