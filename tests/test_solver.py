@@ -1863,6 +1863,50 @@ def test_native_lowdot_vmec_coefficient_return_matches_combined_prepared_pullbac
 
 
 @pytest.mark.parametrize("rhs_count", (1, 3))
+def test_native_lowdot_vmec_coefficient_only_skips_prepared_payload_without_changing_coefficients(rhs_count):
+    """The bridge-only return preserves native bars and removes the large tree."""
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    prepared = prepare_monoenergetic_system(surface, GridSpec(4, 5, 2))
+    case = MonoenergeticCase(.011, epsi_hat=.002)
+    first_direction = MonoenergeticCase(0., epsi_hat=.013)
+    second_direction = MonoenergeticCase(.011, epsi_hat=0.)
+    base_bars = jnp.reshape(jnp.linspace(-.3,.4,rhs_count * 5), (rhs_count, 5))
+    first_bars, second_bars = base_bars * .21, base_bars * -.17
+    base_dot, first_dot, second_dot = base_bars * .07, first_bars * -.11, second_bars * .19
+
+    def bar_fn(_base, _first, _second):
+        return base_bars, first_bars, second_bars, jnp.zeros((rhs_count,)), (first_dot, second_dot)
+
+    full = solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+        prepared, case, first_direction, second_direction, bar_fn,
+        return_primal_outputs=True, _compact_result=True,
+        return_vmec_coefficient_bars=True,
+    )
+    compact = solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+        prepared, case, first_direction, second_direction, bar_fn,
+        return_primal_outputs=True, _compact_result=True,
+        return_vmec_coefficient_bars=True,
+        native_vmec_coefficient_bars_only=True,
+    )
+    full_primal, (_full_prepared, full_auxiliary), full_native = full
+    compact_primal, (compact_prepared, compact_auxiliary), compact_native = compact
+    for actual, expected in zip(
+        jax.tree_util.tree_leaves(compact_primal),
+        jax.tree_util.tree_leaves(full_primal),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
+            assert jnp.allclose(actual, expected, rtol=1e-12, atol=1e-12)
+    assert jnp.allclose(compact_auxiliary, full_auxiliary, rtol=1e-12, atol=1e-12)
+    for name in full_native:
+        assert jnp.allclose(compact_native[name], full_native[name], rtol=1e-12, atol=1e-12), name
+    for leaf in jax.tree_util.tree_leaves(compact_prepared):
+        if jnp.issubdtype(jnp.asarray(leaf).dtype, jnp.inexact):
+            assert jnp.allclose(leaf, 0.0, rtol=0.0, atol=0.0)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
 def test_vmec_geometry_bar_chain_matches_geometry_vjp(rhs_count):
     """Full private VMEC primitive reverse matches ``geometry_on_grid`` VJP."""
     base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)

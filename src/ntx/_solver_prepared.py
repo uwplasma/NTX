@@ -3171,6 +3171,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     _compact_result: bool = False,
     _compact_residual_transpose: bool = False,
     return_vmec_coefficient_bars: bool = False,
+    native_vmec_coefficient_bars_only: bool = False,
 ):
     """Exact support-only low-dot pullback with native objective RHS solves.
 
@@ -3246,6 +3247,14 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     if return_vmec_coefficient_bars and not _compact_result:
         raise ValueError(
             "Native VMEC coefficient bars require the combined compact prepared contract."
+        )
+    if native_vmec_coefficient_bars_only and not return_vmec_coefficient_bars:
+        raise ValueError(
+            "native_vmec_coefficient_bars_only requires return_vmec_coefficient_bars=True."
+        )
+    if native_vmec_coefficient_bars_only and _compact_residual_transpose:
+        raise ValueError(
+            "native_vmec_coefficient_bars_only does not support the compact residual contract."
         )
 
     if _compact_residual_transpose:
@@ -3460,7 +3469,23 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             )
         )
 
-    if not _compact_residual_transpose:
+    if native_vmec_coefficient_bars_only:
+        # The caller routes the complete prepared-system contribution through
+        # ``native_vmec_coefficient_bars``.  Do not stage the generic
+        # prepared-gradient contraction merely to return a support payload
+        # which NEOPAX will discard.  Keep a shape-compatible zero tree so
+        # the established outer scan/carry ABI remains unchanged for now.
+        rhs_count = int(jnp.asarray(base_coefficient_bars).shape[0])
+
+        def _zero_prepared_leaf(primal_leaf):
+            primal_arr = jnp.asarray(primal_leaf)
+            return jnp.zeros((rhs_count,) + primal_arr.shape, dtype=jnp.float64)
+
+        result = (
+            jax.tree_util.tree_map(_zero_prepared_leaf, prepared),
+            auxiliary,
+        )
+    elif not _compact_residual_transpose:
         prepared_bar_leaf_groups = jax.vmap(_one_rhs)(
             base_coefficient_bars,
             first_coefficient_bars,
