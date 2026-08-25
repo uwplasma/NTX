@@ -10,6 +10,7 @@ import jax.numpy as jnp
 from jax import Array
 
 from .geometry import GeometryOnGrid
+from ._geometry_eval import vmec_geometry_bars_to_coefficients_multi_rhs
 from ._solver_adjoint import (
     _case_and_geometry_gradient_from_adjoint,
     _compact_prepared_bar_to_prepared,
@@ -19,9 +20,8 @@ from ._solver_adjoint import (
     _directional_compact_prepared_gradient_from_adjoint,
     _directional_geometry_gradient_from_adjoint,
     _directional_prepared_gradient_from_adjoint,
-    _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
     _geometry_gradient_from_adjoint,
-    _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
+    _native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs,
     _prepared_gradient_from_adjoint,
     _parameter_gradient_from_adjoint,
     _parameter_gradient_from_adjoint_multi_rhs,
@@ -3513,7 +3513,13 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         # terms: base plus the two directional low-dot contributions.  The
         # two physical-direction *base* cotangents belong exclusively to the
         # case chain below and must not be added to this geometry result.
-        native_vmec_base = _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+        #
+        # Keep those three terms as primitive geometry bars until after their
+        # sum.  Mapping each one separately through the sampled-field/Fourier
+        # transpose changes floating-point reduction order relative to the
+        # combined prepared VJP and needlessly stages that large transpose
+        # three times inside the segment graph.
+        native_vmec_base = _native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs(
             prepared,
             ctx,
             f1_full,
@@ -3522,45 +3528,72 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             base_lambda3,
             base_coefficient_bars,
         )
-        _first_direction_base, native_vmec_first_directional = (
-            _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
-                prepared,
-                nu_hat=ctx.nu_hat,
-                epsi_hat=ctx.epsi_hat,
-                nu_hat_dot=nu_dots[0],
-                epsi_hat_dot=epsi_dots[0],
-                f1_full=f1_full,
-                f3_full=f3_full,
-                f1_dot=f1_dot_full[..., 0],
-                f3_dot=f3_dot_full[..., 0],
-                lambda1=directional_lambda1[..., 0],
-                lambda3=directional_lambda3[..., 0],
-                lambda1_dot=directional_lambda1_dot[..., 0],
-                lambda3_dot=directional_lambda3_dot[..., 0],
-                coefficient_bars=first_coefficient_bars,
-                coefficient_bars_dot=first_coefficient_bars_dot,
+
+        def _directional_native_primitive_bars(
+            direction_index,
+            coefficient_bars,
+            coefficient_bars_dot,
+        ):
+            def _primitive_from_dynamic_terms(
+                nu_hat_value,
+                epsi_hat_value,
+                f1_value,
+                f3_value,
+                lambda1_value,
+                lambda3_value,
+                coefficient_bar_value,
+            ):
+                local_ctx = _operator_context(
+                    prepared.surface,
+                    prepared.geometry,
+                    prepared.grid,
+                    nu_hat_value,
+                    epsi_hat_value,
+                )
+                return _native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs(
+                    prepared,
+                    local_ctx,
+                    f1_value,
+                    f3_value,
+                    lambda1_value,
+                    lambda3_value,
+                    coefficient_bar_value,
+                )
+
+            _base, directional = jax.jvp(
+                _primitive_from_dynamic_terms,
+                (
+                    ctx.nu_hat,
+                    ctx.epsi_hat,
+                    f1_full,
+                    f3_full,
+                    directional_lambda1[..., direction_index],
+                    directional_lambda3[..., direction_index],
+                    coefficient_bars,
+                ),
+                (
+                    nu_dots[direction_index],
+                    epsi_dots[direction_index],
+                    f1_dot_full[..., direction_index],
+                    f3_dot_full[..., direction_index],
+                    directional_lambda1_dot[..., direction_index],
+                    directional_lambda3_dot[..., direction_index],
+                    coefficient_bars_dot,
+                ),
             )
+            return directional
+
+        native_vmec_first_directional = _directional_native_primitive_bars(
+            0,
+            first_coefficient_bars,
+            first_coefficient_bars_dot,
         )
-        _second_direction_base, native_vmec_second_directional = (
-            _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
-                prepared,
-                nu_hat=ctx.nu_hat,
-                epsi_hat=ctx.epsi_hat,
-                nu_hat_dot=nu_dots[1],
-                epsi_hat_dot=epsi_dots[1],
-                f1_full=f1_full,
-                f3_full=f3_full,
-                f1_dot=f1_dot_full[..., 1],
-                f3_dot=f3_dot_full[..., 1],
-                lambda1=directional_lambda1[..., 1],
-                lambda3=directional_lambda3[..., 1],
-                lambda1_dot=directional_lambda1_dot[..., 1],
-                lambda3_dot=directional_lambda3_dot[..., 1],
-                coefficient_bars=second_coefficient_bars,
-                coefficient_bars_dot=second_coefficient_bars_dot,
-            )
+        native_vmec_second_directional = _directional_native_primitive_bars(
+            1,
+            second_coefficient_bars,
+            second_coefficient_bars_dot,
         )
-        native_vmec_coefficient_bars = {
+        native_vmec_primitive_bars = {
             name: (
                 native_vmec_base[name]
                 + native_vmec_first_directional[name]
@@ -3568,6 +3601,11 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
             )
             for name in native_vmec_base
         }
+        native_vmec_coefficient_bars = vmec_geometry_bars_to_coefficients_multi_rhs(
+            prepared.surface,
+            prepared.geometry,
+            native_vmec_primitive_bars,
+        )
 
     if return_case_bars:
         def _parameter_gradient_from_values(

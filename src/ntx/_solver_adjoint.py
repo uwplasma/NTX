@@ -411,6 +411,30 @@ def _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
     f3_full: Array, lambda1: Array, lambda3: Array, coefficient_bars: Array,
 ) -> dict[str, Array]:
     """Native VMEC coefficient bars from existing fixed primal/adjoint fields."""
+    primitive_bars = _native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs(
+        prepared,
+        ctx,
+        f1_full,
+        f3_full,
+        lambda1,
+        lambda3,
+        coefficient_bars,
+    )
+    return vmec_geometry_bars_to_coefficients_multi_rhs(
+        prepared.surface, prepared.geometry, primitive_bars
+    )
+
+
+def _native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs(
+    prepared: PreparedMonoenergeticSystem, ctx: OperatorContext, f1_full: Array,
+    f3_full: Array, lambda1: Array, lambda3: Array, coefficient_bars: Array,
+) -> dict[str, Array]:
+    """RHS-batched VMEC primitive bars before the Fourier transpose.
+
+    Keeping this intermediate form allows the fused low-dot helper to add its
+    base and directional cotangents before one VMEC sampled-field transpose.
+    That is the same linear contraction order as a combined prepared VJP.
+    """
     if not isinstance(prepared.surface, VmecSurface):
         raise ValueError("native VMEC geometry transpose requires VmecSurface.")
     lower, diagonal, upper = _fixed_residual_block_coefficient_bars_multi_rhs(
@@ -426,10 +450,7 @@ def _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
     direct_bars = _direct_coefficient_geometry_bars_multi_rhs(
         prepared, f1_full[:3], f3_full[:3], ctx.nu_hat, coefficient_bars
     )
-    primitive_bars = _add_native_rhs_bar_dicts(parameter_bars, source_bars, direct_bars)
-    return vmec_geometry_bars_to_coefficients_multi_rhs(
-        prepared.surface, prepared.geometry, primitive_bars
-    )
+    return _add_native_rhs_bar_dicts(parameter_bars, source_bars, direct_bars)
 
 
 def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
