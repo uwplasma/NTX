@@ -531,26 +531,50 @@ def _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_direct(
         prepared, params, *block_dot
     )
 
-    # The coefficient-to-parameter map is linear in epsi_hat.  Its explicit
-    # epsilon derivative is obtained algebraically from the unit-minus-zero
-    # coefficient maps, rather than staging a generic JVP.
-    unit_epsi_params = dict(params)
-    unit_epsi_params["epsi_hat"] = jnp.ones_like(params["epsi_hat"])
-    zero_epsi_params = dict(params)
-    zero_epsi_params["epsi_hat"] = jnp.zeros_like(params["epsi_hat"])
     # The explicit epsilon term multiplies the base block bars, which have
-    # lambda and f at their primal values.
+    # lambda and f at their primal values.  Do not obtain this slope by
+    # subtracting two complete parameter maps: their large epsilon-independent
+    # terms can lose precision before the final VMEC Fourier cancellation.
     block_base = _fixed_residual_block_coefficient_bars_multi_rhs(
         prepared, f1_full, f3_full, lambda1, lambda3
     )
-    parameter_epsi_slope = _subtract(
-        _block_parameters_bar_from_coefficient_bars_multi_rhs(
-            prepared, unit_epsi_params, *block_base
-        ),
-        _block_parameters_bar_from_coefficient_bars_multi_rhs(
-            prepared, zero_epsi_params, *block_base
-        ),
+    _lower_base, diagonal_base, _upper_base = block_base
+    n_modes, n_rhs, _, n_fs = diagonal_base.shape
+    nt, nz = prepared.geometry.b.shape
+    diagonal_field = jnp.swapaxes(
+        diagonal_base.reshape(n_modes, n_rhs, 3, nz, nt), -1, -2
     )
+    diagonal_theta_bar = diagonal_field[:, :, 0]
+    diagonal_zeta_bar = diagonal_field[:, :, 1]
+    denominator = (
+        prepared.geometry.jacobian * prepared.geometry.b2_mean
+    )
+    parameter_epsi_slope = {
+        "b_sub_zeta": jnp.sum(
+            diagonal_theta_bar * (-1.0 / denominator)[None, None], axis=0
+        ),
+        "b_sub_theta": jnp.sum(
+            diagonal_zeta_bar * (1.0 / denominator)[None, None], axis=0
+        ),
+        "jacobian": jnp.sum(
+            (
+                diagonal_theta_bar
+                * (prepared.geometry.b_sub_zeta / (denominator * prepared.geometry.jacobian))[None, None]
+                + diagonal_zeta_bar
+                * (-prepared.geometry.b_sub_theta / (denominator * prepared.geometry.jacobian))[None, None]
+            ),
+            axis=0,
+        ),
+        "b2_mean": jnp.sum(
+            (
+                diagonal_theta_bar
+                * (prepared.geometry.b_sub_zeta / denominator)[None, None]
+                + diagonal_zeta_bar
+                * (-prepared.geometry.b_sub_theta / denominator)[None, None]
+            ) / prepared.geometry.b2_mean,
+            axis=(0, 2, 3),
+        ),
+    }
     parameter_dot = _add(
         parameter_dot,
         _scale(parameter_epsi_slope, epsi_hat_dot),

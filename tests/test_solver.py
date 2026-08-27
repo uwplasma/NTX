@@ -1939,13 +1939,29 @@ def test_native_lowdot_vmec_direct_directional_product_rule_matches_jvp_path(rhs
         prepared, case, first_direction, second_direction, bar_fn,
         native_vmec_direct_directional_product_rule=True, **common
     )
-    for actual_leaf, expected_leaf in zip(
-        jax.tree_util.tree_leaves(direct),
-        jax.tree_util.tree_leaves(ordinary),
-        strict=True,
+    ordinary_primal, ordinary_result, ordinary_native = ordinary
+    direct_primal, direct_result, direct_native = direct
+    for name in ordinary_native:
+        difference = jnp.abs(direct_native[name] - ordinary_native[name])
+        scale = jnp.maximum(jnp.abs(ordinary_native[name]), 1.0e-30)
+        assert jnp.allclose(
+            direct_native[name], ordinary_native[name], rtol=1e-10, atol=1e-12
+        ), (
+            name,
+            float(jnp.max(difference)),
+            float(jnp.max(difference / scale)),
+        )
+    for actual_tree, expected_tree in (
+        (direct_primal, ordinary_primal),
+        (direct_result, ordinary_result),
     ):
-        if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
-            assert jnp.allclose(actual_leaf, expected_leaf, rtol=1e-10, atol=1e-12)
+        for actual_leaf, expected_leaf in zip(
+            jax.tree_util.tree_leaves(actual_tree),
+            jax.tree_util.tree_leaves(expected_tree),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
+                assert jnp.allclose(actual_leaf, expected_leaf, rtol=1e-10, atol=1e-12)
 
 
 @pytest.mark.parametrize("rhs_count", (1, 3))
