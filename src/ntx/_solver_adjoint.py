@@ -475,6 +475,135 @@ def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
     )
 
 
+def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs_direct(
+    prepared: PreparedMonoenergeticSystem, *, nu_hat: Array, epsi_hat: Array,
+    nu_hat_dot: Array, epsi_hat_dot: Array, f1_full: Array, f3_full: Array,
+    f1_dot: Array, f3_dot: Array, lambda1: Array, lambda3: Array,
+    lambda1_dot: Array, lambda3_dot: Array, coefficient_bars: Array,
+    coefficient_bars_dot: Array,
+) -> dict[str, Array]:
+    """Exact product-rule form of the directional native VMEC transpose.
+
+    This private helper is deliberately the same derivative returned as the
+    tangent from :func:`_directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs`.
+    It replaces only the generic forward-mode transformation of the
+    post-adjoint primitive-bar algebra: the NTX primal, factorisation and
+    matrix-RHS adjoint fields are inputs and are not rebuilt here.
+
+    The VMEC sampled-field/Fourier transpose is linear for the fixed prepared
+    surface, so all primitive directional bars are accumulated first and
+    converted once at the end.
+    """
+    def _add(*bar_dicts: dict[str, Array]) -> dict[str, Array]:
+        return _add_native_rhs_bar_dicts(*bar_dicts)
+
+    def _subtract(first: dict[str, Array], second: dict[str, Array]) -> dict[str, Array]:
+        return {
+            name: first.get(name, 0.0) - second.get(name, 0.0)
+            for name in first.keys() | second.keys()
+        }
+
+    def _scale(bar_dict: dict[str, Array], scalar: Array) -> dict[str, Array]:
+        return {name: scalar * value for name, value in bar_dict.items()}
+
+    ctx = _operator_context(
+        prepared.surface, prepared.geometry, prepared.grid, nu_hat, epsi_hat
+    )
+
+    # ``_fixed_residual_block_coefficient_bars_multi_rhs`` is bilinear in the
+    # primal modes and adjoint fields.  Its tangent is therefore exactly the
+    # two product-rule contractions below, including its existing nullspace
+    # row handling.
+    block_from_primal = _fixed_residual_block_coefficient_bars_multi_rhs(
+        prepared, f1_dot, f3_dot, lambda1, lambda3
+    )
+    block_from_adjoint = _fixed_residual_block_coefficient_bars_multi_rhs(
+        prepared, f1_full, f3_full, lambda1_dot, lambda3_dot
+    )
+    block_dot = tuple(
+        primal_part + adjoint_part
+        for primal_part, adjoint_part in zip(
+            block_from_primal, block_from_adjoint, strict=True
+        )
+    )
+    params = block_parameters(ctx)
+    parameter_dot = _block_parameters_bar_from_coefficient_bars_multi_rhs(
+        prepared, params, *block_dot
+    )
+
+    # The coefficient-to-parameter map is linear in epsi_hat.  Its explicit
+    # epsilon derivative is obtained algebraically from the unit-minus-zero
+    # coefficient maps, rather than staging a generic JVP.
+    unit_epsi_params = dict(params)
+    unit_epsi_params["epsi_hat"] = jnp.ones_like(params["epsi_hat"])
+    zero_epsi_params = dict(params)
+    zero_epsi_params["epsi_hat"] = jnp.zeros_like(params["epsi_hat"])
+    # The explicit epsilon term multiplies the base block bars, which have
+    # lambda and f at their primal values.
+    block_base = _fixed_residual_block_coefficient_bars_multi_rhs(
+        prepared, f1_full, f3_full, lambda1, lambda3
+    )
+    parameter_epsi_slope = _subtract(
+        _block_parameters_bar_from_coefficient_bars_multi_rhs(
+            prepared, unit_epsi_params, *block_base
+        ),
+        _block_parameters_bar_from_coefficient_bars_multi_rhs(
+            prepared, zero_epsi_params, *block_base
+        ),
+    )
+    parameter_dot = _add(
+        parameter_dot,
+        _scale(parameter_epsi_slope, epsi_hat_dot),
+    )
+
+    source_b_dot, source_drift_dot = _fixed_residual_source_geometry_bars_multi_rhs(
+        lambda1_dot, lambda3_dot
+    )
+    source_dot = {
+        "b": jnp.swapaxes(
+            source_b_dot.reshape(source_b_dot.shape[0], *prepared.geometry.b.shape[::-1]),
+            -1,
+            -2,
+        ),
+        "radial_drift_spatial": jnp.swapaxes(
+            source_drift_dot.reshape(
+                source_drift_dot.shape[0], *prepared.geometry.b.shape[::-1]
+            ),
+            -1,
+            -2,
+        ),
+    }
+
+    # The direct coefficient map is linear in f and coefficient bars, while
+    # its q_4 contribution is proportional to nu_hat**-1.  Split its product
+    # rule explicitly; no forward-mode transform is staged.
+    f1_zero = jnp.zeros_like(f1_full[:3])
+    f3_zero = jnp.zeros_like(f3_full[:3])
+    direct_zero = _direct_coefficient_geometry_bars_multi_rhs(
+        prepared, f1_zero, f3_zero, nu_hat, coefficient_bars
+    )
+    direct_from_primal = _subtract(
+        _direct_coefficient_geometry_bars_multi_rhs(
+            prepared, f1_dot[:3], f3_dot[:3], nu_hat, coefficient_bars
+        ),
+        direct_zero,
+    )
+    direct_from_bar = _direct_coefficient_geometry_bars_multi_rhs(
+        prepared, f1_full[:3], f3_full[:3], nu_hat, coefficient_bars_dot
+    )
+    direct_from_nu = _scale(direct_zero, -nu_hat_dot / nu_hat)
+    # The returned nu_hat cotangent is itself proportional to nu_hat**-2.
+    direct_from_nu["nu_hat"] = (
+        -2.0 * nu_hat_dot / nu_hat * direct_zero["nu_hat"]
+    )
+    direct_dot = _add(direct_from_primal, direct_from_bar, direct_from_nu)
+
+    primitive_dot = _add(parameter_dot, source_dot, direct_dot)
+    return vmec_geometry_bars_to_coefficients_multi_rhs(
+        prepared.surface, prepared.geometry, primitive_dot
+    )
+
+
 def _geometry_gradient_from_adjoint(
     prepared: PreparedMonoenergeticSystem,
     ctx: OperatorContext,

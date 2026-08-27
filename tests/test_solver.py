@@ -49,6 +49,7 @@ from ntx._solver_adjoint import (
     _direct_coefficient_geometry_bars_multi_rhs,
     _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
     _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
+    _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs_direct,
     _prepared_gradient_from_adjoint,
     _prepared_implicit_vjp_primal,
 )
@@ -1794,6 +1795,41 @@ def test_directional_native_vmec_fixed_adjoint_bars_match_generic_jvp(rhs_count)
     for name, base_value, dot_value in zip(coeff_names, expected, expected_dot, strict=True):
         assert jnp.allclose(actual[name], base_value, rtol=1e-10, atol=1e-12), name
         assert jnp.allclose(actual_dot[name], dot_value, rtol=1e-10, atol=1e-12), name
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_direct_directional_native_vmec_fixed_adjoint_bars_match_jvp_oracle(rhs_count):
+    """The direct product rule exactly replaces the primitive-bar JVP.
+
+    The established JVP helper is retained solely as an oracle here.  Neither
+    side solves NTX: both receive already computed primal and matrix-RHS
+    adjoint fields, so this remains a small in-memory algebra gate.
+    """
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    prepared = prepare_monoenergetic_system(surface, GridSpec(4, 5, 2))
+    modes, n = 3, prepared.grid.n_fs
+    nu, epsi = jnp.asarray(.011), jnp.asarray(.002)
+    f1 = jnp.reshape(jnp.linspace(-.4,.6,modes*n),(modes,n)); f3 = jnp.reshape(jnp.linspace(.5,-.3,modes*n),(modes,n))
+    l1 = jnp.reshape(jnp.linspace(-.2,.3,modes*n*rhs_count),(modes,n,rhs_count)); l3 = l1*.7
+    bars = jnp.reshape(jnp.linspace(-.3,.4,rhs_count*5),(rhs_count,5))
+    kwargs = dict(
+        nu_hat=nu, epsi_hat=epsi, nu_hat_dot=jnp.asarray(.003),
+        epsi_hat_dot=jnp.asarray(-.004), f1_full=f1, f3_full=f3,
+        f1_dot=f1 * -.11, f3_dot=f3 * .13, lambda1=l1, lambda3=l3,
+        lambda1_dot=l1 * .17, lambda3_dot=l3 * -.19,
+        coefficient_bars=bars, coefficient_bars_dot=bars * .23,
+    )
+    _base, expected = (
+        _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
+            prepared, **kwargs
+        )
+    )
+    actual = _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs_direct(
+        prepared, **kwargs
+    )
+    for name in expected:
+        assert jnp.allclose(actual[name], expected[name], rtol=1e-10, atol=1e-12), name
 
 
 @pytest.mark.parametrize("rhs_count", (1, 3))
