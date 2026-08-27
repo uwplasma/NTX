@@ -475,14 +475,14 @@ def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
     )
 
 
-def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs_direct(
+def _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_direct(
     prepared: PreparedMonoenergeticSystem, *, nu_hat: Array, epsi_hat: Array,
     nu_hat_dot: Array, epsi_hat_dot: Array, f1_full: Array, f3_full: Array,
     f1_dot: Array, f3_dot: Array, lambda1: Array, lambda3: Array,
     lambda1_dot: Array, lambda3_dot: Array, coefficient_bars: Array,
     coefficient_bars_dot: Array,
 ) -> dict[str, Array]:
-    """Exact product-rule form of the directional native VMEC transpose.
+    """Exact product-rule form of the directional native VMEC primitive bars.
 
     This private helper is deliberately the same derivative returned as the
     tangent from :func:`_directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs`.
@@ -599,8 +599,23 @@ def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs_direc
     direct_dot = _add(direct_from_primal, direct_from_bar, direct_from_nu)
 
     primitive_dot = _add(parameter_dot, source_dot, direct_dot)
+    return primitive_dot
+
+
+def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs_direct(
+    prepared: PreparedMonoenergeticSystem, **kwargs,
+) -> dict[str, Array]:
+    """Convert the direct directional primitive bars to VMEC coefficients.
+
+    The primitive helper is used by the low-dot path so base and both
+    directional contributions can be summed before one conversion.  This
+    wrapper is retained as the direct unit-test boundary.
+    """
+    primitive_bars = _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_direct(
+        prepared, **kwargs
+    )
     return vmec_geometry_bars_to_coefficients_multi_rhs(
-        prepared.surface, prepared.geometry, primitive_dot
+        prepared.surface, prepared.geometry, primitive_bars
     )
 
 

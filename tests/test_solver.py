@@ -1913,6 +1913,42 @@ def test_native_lowdot_vmec_coefficient_return_matches_combined_prepared_pullbac
 
 
 @pytest.mark.parametrize("rhs_count", (1, 3))
+def test_native_lowdot_vmec_direct_directional_product_rule_matches_jvp_path(rhs_count):
+    """The high-level opt-in changes only the directional implementation."""
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    prepared = prepare_monoenergetic_system(surface, GridSpec(4, 5, 2))
+    case = MonoenergeticCase(.011, epsi_hat=.002)
+    first_direction = MonoenergeticCase(0., epsi_hat=.013)
+    second_direction = MonoenergeticCase(.011, epsi_hat=0.)
+    base_bars = jnp.reshape(jnp.linspace(-.3,.4,rhs_count * 5), (rhs_count, 5))
+    bar_fn = lambda _base, _first, _second: (
+        base_bars, base_bars * .21, base_bars * -.17,
+        jnp.zeros((rhs_count,)), (base_bars * .07, base_bars * -.11),
+    )
+    common = dict(
+        return_primal_outputs=True,
+        _compact_result=True,
+        return_vmec_coefficient_bars=True,
+        native_vmec_coefficient_bars_only=True,
+    )
+    ordinary = solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+        prepared, case, first_direction, second_direction, bar_fn, **common
+    )
+    direct = solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux(
+        prepared, case, first_direction, second_direction, bar_fn,
+        native_vmec_direct_directional_product_rule=True, **common
+    )
+    for actual_leaf, expected_leaf in zip(
+        jax.tree_util.tree_leaves(direct),
+        jax.tree_util.tree_leaves(ordinary),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
+            assert jnp.allclose(actual_leaf, expected_leaf, rtol=1e-10, atol=1e-12)
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
 def test_native_lowdot_vmec_coefficient_only_skips_prepared_payload_without_changing_coefficients(rhs_count):
     """The bridge-only return preserves native bars and removes the large tree."""
     base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
