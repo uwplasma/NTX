@@ -475,6 +475,30 @@ def _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs(
     )
 
 
+def _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_jvp(
+    prepared: PreparedMonoenergeticSystem, *, nu_hat: Array, epsi_hat: Array,
+    nu_hat_dot: Array, epsi_hat_dot: Array, f1_full: Array, f3_full: Array,
+    f1_dot: Array, f3_dot: Array, lambda1: Array, lambda3: Array,
+    lambda1_dot: Array, lambda3_dot: Array, coefficient_bars: Array,
+    coefficient_bars_dot: Array,
+) -> dict[str, Array]:
+    """Existing generic-JVP primitive tangent, exposed only as an oracle."""
+    def native(nu_value, epsi_value, f1_value, f3_value, l1_value, l3_value, bar_value):
+        ctx = _operator_context(
+            prepared.surface, prepared.geometry, prepared.grid, nu_value, epsi_value
+        )
+        return _native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs(
+            prepared, ctx, f1_value, f3_value, l1_value, l3_value, bar_value
+        )
+
+    return jax.jvp(
+        native,
+        (nu_hat, epsi_hat, f1_full, f3_full, lambda1, lambda3, coefficient_bars),
+        (nu_hat_dot, epsi_hat_dot, f1_dot, f3_dot, lambda1_dot, lambda3_dot,
+         coefficient_bars_dot),
+    )[1]
+
+
 def _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_direct(
     prepared: PreparedMonoenergeticSystem, *, nu_hat: Array, epsi_hat: Array,
     nu_hat_dot: Array, epsi_hat_dot: Array, f1_full: Array, f3_full: Array,

@@ -50,6 +50,8 @@ from ntx._solver_adjoint import (
     _native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
     _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs,
     _directional_native_vmec_coefficient_bars_from_fixed_adjoint_multi_rhs_direct,
+    _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_direct,
+    _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_jvp,
     _prepared_gradient_from_adjoint,
     _prepared_implicit_vjp_primal,
 )
@@ -1962,6 +1964,93 @@ def test_native_lowdot_vmec_direct_directional_product_rule_matches_jvp_path(rhs
         ):
             if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
                 assert jnp.allclose(actual_leaf, expected_leaf, rtol=1e-10, atol=1e-12)
+
+
+@pytest.mark.parametrize("direction_index", (0, 1))
+def test_native_lowdot_vmec_direct_directional_primitives_match_jvp_path(direction_index):
+    """Locate a product-rule discrepancy before the VMEC Fourier transpose.
+
+    This uses the exact physical low-dot primal and adjoint fields produced by
+    the high-level helper.  It is deliberately an in-memory unit test: no
+    transport rollout, file output, or profiler data is created.
+    """
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    prepared = prepare_monoenergetic_system(surface, GridSpec(4, 5, 2))
+    case = MonoenergeticCase(.011, epsi_hat=.002)
+    first_direction = MonoenergeticCase(0., epsi_hat=.013)
+    second_direction = MonoenergeticCase(.011, epsi_hat=0.)
+    base_bars = jnp.reshape(jnp.linspace(-.3, .4, 5), (1, 5))
+
+    def bar_fn(_base, _first, _second):
+        return (
+            base_bars,
+            base_bars * .21,
+            base_bars * -.17,
+            jnp.zeros((1,)),
+            (base_bars * .07, base_bars * -.11),
+        )
+
+    (
+        _primal_outputs,
+        _base_bars,
+        first_bars,
+        second_bars,
+        first_bars_dot,
+        second_bars_dot,
+        _auxiliary,
+        f1_full,
+        f3_full,
+        f1_dot_full,
+        f3_dot_full,
+        _base_lambda1,
+        _base_lambda3,
+        directional_lambda1,
+        directional_lambda3,
+        directional_lambda1_dot,
+        directional_lambda3_dot,
+        nu_dots,
+        epsi_dots,
+        _base_nu_direct,
+        _directional_nu_direct,
+        _directional_nu_direct_dot,
+    ) = _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
+        prepared, case, first_direction, second_direction, bar_fn
+    )
+    coefficient_bars = (first_bars, second_bars)[direction_index]
+    coefficient_bars_dot = (first_bars_dot, second_bars_dot)[direction_index]
+    kwargs = dict(
+        nu_hat=case.nu_hat,
+        epsi_hat=case.epsi_hat,
+        nu_hat_dot=nu_dots[direction_index],
+        epsi_hat_dot=epsi_dots[direction_index],
+        f1_full=f1_full,
+        f3_full=f3_full,
+        f1_dot=f1_dot_full[..., direction_index],
+        f3_dot=f3_dot_full[..., direction_index],
+        lambda1=directional_lambda1[..., direction_index],
+        lambda3=directional_lambda3[..., direction_index],
+        lambda1_dot=directional_lambda1_dot[..., direction_index],
+        lambda3_dot=directional_lambda3_dot[..., direction_index],
+        coefficient_bars=coefficient_bars,
+        coefficient_bars_dot=coefficient_bars_dot,
+    )
+    expected = _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_jvp(
+        prepared, **kwargs
+    )
+    actual = _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_direct(
+        prepared, **kwargs
+    )
+    assert actual.keys() == expected.keys()
+    for name in expected:
+        difference = jnp.abs(actual[name] - expected[name])
+        scale = jnp.maximum(jnp.abs(expected[name]), 1.0e-30)
+        assert jnp.allclose(actual[name], expected[name], rtol=1e-10, atol=1e-12), (
+            direction_index,
+            name,
+            float(jnp.max(difference)),
+            float(jnp.max(difference / scale)),
+        )
 
 
 @pytest.mark.parametrize("rhs_count", (1, 3))
