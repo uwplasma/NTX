@@ -106,12 +106,11 @@ def _coefficient_mode_pullback_multi_rhs_direct(
     q0, q1, q2, q3, q4 = (
         coefficient_bars[:, index, None, None] for index in range(5)
     )
-    zeros = jnp.zeros((rhs_count,) + b.shape, dtype=dtype)
     drift_weight = weight * drift
     f1_bar = jnp.stack(
         (
             _flat(q0 * (-4.0 / 3.0) * drift_weight / psi_scale**2),
-            _flat(zeros),
+            _flat(q1 * weight * (2.0 * b / (3.0 * b0 * psi_scale))),
             _flat(q0 * (-2.0 / 15.0) * drift_weight / psi_scale**2),
         ),
         axis=1,
@@ -120,8 +119,7 @@ def _coefficient_mode_pullback_multi_rhs_direct(
         (
             _flat(q2 * (-4.0 / 3.0) * drift_weight / (psi_scale * b0)),
             _flat(
-                q1 * weight * (2.0 * b / (3.0 * b0 * psi_scale))
-                + q3 * weight * (2.0 * b / (3.0 * b0**2))
+                q3 * weight * (2.0 * b / (3.0 * b0**2))
             ),
             _flat(q2 * (-2.0 / 15.0) * drift_weight / (psi_scale * b0)),
         ),
