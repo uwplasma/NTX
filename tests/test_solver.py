@@ -41,6 +41,9 @@ from ntx._solver_adjoint import (
     _compact_prepared_bar_to_prepared,
     _compact_prepared_gradient_from_adjoint,
     _combined_prepared_gradient_from_adjoint_multi_rhs_oracle,
+    _coefficient_mode_pullback,
+    _coefficient_mode_pullback_multi_rhs_direct,
+    _directional_coefficient_mode_pullback_multi_rhs_direct,
     _directional_compact_prepared_gradient_from_adjoint,
     _directional_prepared_gradient_from_adjoint,
     _block_parameters_bar_from_coefficient_bars_multi_rhs,
@@ -73,6 +76,63 @@ from ntx._solver_prepared import (
     _solve_factorized_adjoint_field_pair,
     _solve_factorized_multi_rhs_directional_adjoint_field_pair,
 )
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_direct_coefficient_pullback_multi_rhs_matches_generic_vjp_and_jvp(rhs_count):
+    """The direct low-dot coefficient transpose is the generic AD result.
+
+    This deliberately exercises nonzero retained-mode tangents too: they
+    must make no contribution because the coefficient *transpose* is affine
+    in the coefficient bars and independent of the retained primal modes.
+    """
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(5, 5, 4))
+    geometry = prepared.geometry
+    n_fs = prepared.grid.n_fs
+    f1 = jnp.reshape(jnp.linspace(-0.3, 0.4, 3 * n_fs), (3, n_fs))
+    f3 = jnp.reshape(jnp.linspace(0.2, -0.5, 3 * n_fs), (3, n_fs))
+    f1_dot = f1 * -0.17
+    f3_dot = f3 * 0.23
+    nu_hat = jnp.asarray(0.017)
+    nu_hat_dot = jnp.asarray(-0.004)
+    coefficient_bars = jnp.reshape(
+        jnp.linspace(-0.4, 0.5, rhs_count * 5), (rhs_count, 5)
+    )
+    coefficient_bars_dot = jnp.flip(coefficient_bars, axis=1) * 0.31
+
+    expected_base = jax.vmap(
+        lambda bar: _coefficient_mode_pullback(geometry, f1, f3, nu_hat, bar)
+    )(coefficient_bars)
+
+    def _generic_directional(bar, bar_dot):
+        return jax.jvp(
+            lambda modes1, modes3, nu_value, local_bar: _coefficient_mode_pullback(
+                geometry, modes1, modes3, nu_value, local_bar
+            ),
+            (f1, f3, nu_hat, bar),
+            (f1_dot, f3_dot, nu_hat_dot, bar_dot),
+        )
+
+    expected_directional = jax.vmap(_generic_directional)(
+        coefficient_bars, coefficient_bars_dot
+    )
+    actual_base = _coefficient_mode_pullback_multi_rhs_direct(
+        geometry, nu_hat, coefficient_bars
+    )
+    actual_directional = _directional_coefficient_mode_pullback_multi_rhs_direct(
+        geometry,
+        nu_hat,
+        nu_hat_dot,
+        coefficient_bars,
+        coefficient_bars_dot,
+    )
+    for actual, expected in zip(actual_base, expected_base, strict=True):
+        assert jnp.allclose(actual, expected, rtol=1e-12, atol=1e-12)
+    for actual_group, expected_group in zip(
+        actual_directional, expected_directional, strict=True
+    ):
+        for actual, expected in zip(actual_group, expected_group, strict=True):
+            assert jnp.allclose(actual, expected, rtol=1e-12, atol=1e-12)
 
 
 def test_uniform_field_has_zero_radial_transport():

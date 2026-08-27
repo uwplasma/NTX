@@ -17,6 +17,8 @@ from ._solver_adjoint import (
     _compact_prepared_gradient_from_adjoint,
     _compact_prepared_residual_inputs,
     _coefficient_mode_pullback,
+    _coefficient_mode_pullback_multi_rhs_direct,
+    _directional_coefficient_mode_pullback_multi_rhs_direct,
     _directional_compact_prepared_gradient_from_adjoint,
     _directional_geometry_gradient_from_adjoint,
     _directional_native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs_direct,
@@ -2294,6 +2296,8 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
     first_case_dot: MonoenergeticCase,
     second_case_dot: MonoenergeticCase,
     coefficient_bars_and_aux_fn,
+    *,
+    direct_coefficient_pullback: bool = False,
 ):
     """Build native matrix-RHS fields for the exact low-dot support pullback.
 
@@ -2407,9 +2411,16 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
             (mode_count, unknown_count, rhs_count), dtype=f1_full.dtype
         ).at[:3].set(jnp.moveaxis(low_fields, 0, -1))
 
-    base_f1_low, base_f3_low, base_nu_direct = jax.vmap(_coefficient_pullback)(
-        base_coefficient_bars
-    )
+    if direct_coefficient_pullback:
+        base_f1_low, base_f3_low, base_nu_direct = (
+            _coefficient_mode_pullback_multi_rhs_direct(
+                prepared.geometry, ctx.nu_hat, base_coefficient_bars
+            )
+        )
+    else:
+        base_f1_low, base_f3_low, base_nu_direct = jax.vmap(
+            _coefficient_pullback
+        )(base_coefficient_bars)
     base_lambda1, base_lambda3 = _solve_factorized_adjoint_field_pair(
         saved_lu,
         saved_piv,
@@ -2435,6 +2446,19 @@ def _lowdot_two_pullback_native_multi_rhs_adjoint_fields(
         f3_dot_low_value,
         nu_dot_value,
     ):
+        if direct_coefficient_pullback:
+            # ``_coefficient_mode_pullback`` is independent of the retained
+            # primal modes.  The direct helper therefore needs only the two
+            # coefficient-bar batches and the explicit Spitzer ``nu``
+            # direction; ``f*_dot_low_value`` are intentionally absent.
+            return _directional_coefficient_mode_pullback_multi_rhs_direct(
+                prepared.geometry,
+                ctx.nu_hat,
+                nu_dot_value,
+                coefficient_bars,
+                coefficient_bars_dot,
+            )
+
         def _one_rhs(one_coefficient_bar, one_coefficient_bar_dot):
             def _pullback_from_primal(
                 modes1, modes3, nu_value, coefficient_bar_value
@@ -3174,6 +3198,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
     return_vmec_coefficient_bars: bool = False,
     native_vmec_coefficient_bars_only: bool = False,
     native_vmec_direct_directional_product_rule: bool = False,
+    native_direct_coefficient_pullback: bool = False,
 ):
     """Exact support-only low-dot pullback with native objective RHS solves.
 
@@ -3231,6 +3256,7 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only
         first_case_dot,
         second_case_dot,
         coefficient_bars_and_aux_fn,
+        direct_coefficient_pullback=native_direct_coefficient_pullback,
     )
     ctx = _operator_context(
         prepared.surface,

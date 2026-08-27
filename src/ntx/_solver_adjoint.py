@@ -14,6 +14,7 @@ from ._solver_factorization import (
 from ._solver_types import PreparedMonoenergeticSystem
 from ._geometry_types import VmecSurface
 from ._geometry_eval import vmec_geometry_bars_to_coefficients_multi_rhs
+from .grids import flatten_fs
 from .operators import (
     OperatorContext,
     apply_nullspace_condition,
@@ -64,6 +65,109 @@ def _coefficient_mode_pullback(
     _, pullback = jax.vjp(coefficient_fn, f1_low, f3_low, nu_hat)
     f1_bar, f3_bar, nu_bar = pullback(coefficient_bar)
     return f1_bar, f3_bar, nu_bar
+
+
+def _coefficient_mode_pullback_multi_rhs_direct(
+    geom,
+    nu_hat: Array,
+    coefficient_bars: Array,
+) -> tuple[Array, Array, Array]:
+    """Exact RHS-batched transpose of :func:`coefficients_from_modes`.
+
+    This is deliberately below the implicit NTX adjoint.  The five transport
+    coefficients are affine in the retained ``f1``/``f3`` modes, and only the
+    Spitzer coefficient depends on ``nu_hat``.  Keeping the RHS axis explicit
+    avoids staging ``vmap(_coefficient_mode_pullback)`` and, more
+    importantly, makes its two low-dot directional tangents available without
+    a JVP through a generic VJP.
+
+    The returned mode bars have shape ``(n_rhs, 3, n_fs)`` and the scalar
+    ``nu_hat`` bar has shape ``(n_rhs,)``.
+    """
+    coefficient_bars = jnp.asarray(coefficient_bars)
+    if coefficient_bars.ndim != 2 or coefficient_bars.shape[1] != 5:
+        raise ValueError("coefficient_bars must have shape (n_rhs, 5).")
+
+    rhs_count = coefficient_bars.shape[0]
+    dtype = coefficient_bars.dtype
+    psi_scale = jnp.asarray(geom.coefficient_psi_scale, dtype=dtype)
+    b0 = jnp.asarray(geom.b0, dtype=dtype)
+    weight = (
+        jnp.asarray(geom.jacobian, dtype=dtype)
+        / jnp.asarray(geom.volume_prime, dtype=dtype)
+        * jnp.asarray(geom.grid.dtheta * geom.grid.dzeta, dtype=dtype)
+    )
+    drift = jnp.asarray(geom.radial_drift_spatial, dtype=dtype)
+    b = jnp.asarray(geom.b, dtype=dtype)
+
+    def _flat(fields):
+        return jax.vmap(flatten_fs)(fields)
+
+    q0, q1, q2, q3, q4 = (
+        coefficient_bars[:, index, None, None] for index in range(5)
+    )
+    zeros = jnp.zeros((rhs_count,) + b.shape, dtype=dtype)
+    drift_weight = weight * drift
+    f1_bar = jnp.stack(
+        (
+            _flat(q0 * (-4.0 / 3.0) * drift_weight / psi_scale**2),
+            _flat(zeros),
+            _flat(q0 * (-2.0 / 15.0) * drift_weight / psi_scale**2),
+        ),
+        axis=1,
+    )
+    f3_bar = jnp.stack(
+        (
+            _flat(q2 * (-4.0 / 3.0) * drift_weight / (psi_scale * b0)),
+            _flat(
+                q1 * weight * (2.0 * b / (3.0 * b0 * psi_scale))
+                + q3 * weight * (2.0 * b / (3.0 * b0**2))
+            ),
+            _flat(q2 * (-2.0 / 15.0) * drift_weight / (psi_scale * b0)),
+        ),
+        axis=1,
+    )
+    spitzer_without_nu = jnp.sum(weight * 2.0 * b**2 / (3.0 * b0**2))
+    nu_bar = -coefficient_bars[:, 4] * spitzer_without_nu / nu_hat**2
+    return f1_bar, f3_bar, nu_bar
+
+
+def _directional_coefficient_mode_pullback_multi_rhs_direct(
+    geom,
+    nu_hat: Array,
+    nu_hat_dot: Array,
+    coefficient_bars: Array,
+    coefficient_bars_dot: Array,
+) -> tuple[tuple[Array, Array, Array], tuple[Array, Array, Array]]:
+    """Exact low-dot tangent of the direct RHS-batched coefficient transpose.
+
+    ``coefficients_from_modes`` is linear in the retained modes, so the
+    coefficient transpose itself has no mode tangent.  Its only physical
+    tangent is the explicit ``nu_hat**-1`` Spitzer term.  This is therefore
+    algebraically the same result as the existing JVP of
+    ``_coefficient_mode_pullback`` but contains no nested AD transform.
+    """
+    base = _coefficient_mode_pullback_multi_rhs_direct(
+        geom, nu_hat, coefficient_bars
+    )
+    bar_tangent = _coefficient_mode_pullback_multi_rhs_direct(
+        geom, nu_hat, coefficient_bars_dot
+    )
+    f1_dot, f3_dot, nu_bar_from_bar_dot = bar_tangent
+    spitzer_without_nu = jnp.sum(
+        (geom.jacobian / geom.volume_prime)
+        * (geom.grid.dtheta * geom.grid.dzeta)
+        * 2.0 * geom.b**2
+        / (3.0 * geom.b0**2)
+    )
+    nu_dot = nu_bar_from_bar_dot + (
+        2.0
+        * coefficient_bars[:, 4]
+        * spitzer_without_nu
+        * nu_hat_dot
+        / nu_hat**3
+    )
+    return base, (f1_dot, f3_dot, nu_dot)
 
 
 def _parameter_gradient_from_adjoint(
