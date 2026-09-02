@@ -2631,6 +2631,157 @@ def solve_prepared_coefficient_vector_two_directional_factorized(
     )
 
 
+def solve_prepared_coefficient_vector_hessian_factorized(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+) -> tuple[Array, Array, Array, Array, Array, Array]:
+    """Return coefficient value, gradient, and Hessian from one factorization.
+
+    The prepared NTX operator is affine in the resolved local coordinates
+    ``(nu_hat, epsi_hat)`` and its source is parameter independent.  For
+    ``A f = b`` this gives the exact directional systems
+
+    ``A f_p = -A_p f`` and
+    ``A f_pq = -(A_p f_q + A_q f_p)``.
+
+    Consequently one base factorization can solve all base, first-, and
+    second-direction fields.  This is intentionally an explicit implicit
+    derivative primitive: it does not differentiate through the existing
+    custom-VJP solver entry point.
+    """
+
+    transport_scale = prepared.geometry.transport_psi_scale
+    resolved_epsi_hat = case.resolved_epsi_hat(transport_scale)
+    (
+        coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(
+        prepared,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    ctx = _operator_context(
+        prepared.surface,
+        prepared.geometry,
+        prepared.grid,
+        case.nu_hat,
+        resolved_epsi_hat,
+    )
+    mode_indices = jnp.arange(prepared.grid.n_xi + 1, dtype=jnp.int32)
+
+    def _parameter_blocks(mode_index):
+        dnu, depsi = parameter_derivative_blocks(
+            ctx,
+            mode_index,
+            prepared.d_theta,
+            prepared.d_zeta,
+        )
+        dnu = jax.lax.cond(
+            mode_index == 0,
+            lambda value: value.at[0, :].set(jnp.zeros_like(value[0, :])),
+            lambda value: value,
+            dnu,
+        )
+        depsi = jax.lax.cond(
+            mode_index == 0,
+            lambda value: value.at[0, :].set(jnp.zeros_like(value[0, :])),
+            lambda value: value,
+            depsi,
+        )
+        return dnu, depsi
+
+    dnu_blocks, depsi_blocks = jax.vmap(_parameter_blocks)(mode_indices)
+
+    def _solve_first_fields(field):
+        rhs = jnp.stack(
+            (
+                -jnp.einsum("mij,mj->mi", dnu_blocks, field),
+                -jnp.einsum("mij,mj->mi", depsi_blocks, field),
+            ),
+            axis=-1,
+        )
+        return _solve_factorized_modes(
+            saved_lu,
+            saved_piv,
+            saved_lower,
+            saved_upper,
+            rhs,
+        )
+
+    f1_first = _solve_first_fields(f1_full)
+    f3_first = _solve_first_fields(f3_full)
+
+    def _solve_second_fields(first_fields):
+        f_nu = first_fields[..., 0]
+        f_epsi = first_fields[..., 1]
+        rhs = jnp.stack(
+            (
+                -2.0 * jnp.einsum("mij,mj->mi", dnu_blocks, f_nu),
+                -(
+                    jnp.einsum("mij,mj->mi", dnu_blocks, f_epsi)
+                    + jnp.einsum("mij,mj->mi", depsi_blocks, f_nu)
+                ),
+                -2.0 * jnp.einsum("mij,mj->mi", depsi_blocks, f_epsi),
+            ),
+            axis=-1,
+        )
+        return _solve_factorized_modes(
+            saved_lu,
+            saved_piv,
+            saved_lower,
+            saved_upper,
+            rhs,
+        )
+
+    f1_second = _solve_second_fields(f1_first)
+    f3_second = _solve_second_fields(f3_first)
+
+    def _coefficient_first(f1_dot, f3_dot, nu_dot):
+        output = jnp.stack(
+            coefficients_from_modes(
+                prepared.geometry,
+                f1_dot[:3],
+                f3_dot[:3],
+                ctx.nu_hat,
+            )
+        )
+        return output.at[4].set(-coefficients[4] * nu_dot / ctx.nu_hat)
+
+    def _coefficient_second(f1_dotdot, f3_dotdot, nu_dot_a, nu_dot_b):
+        output = jnp.stack(
+            coefficients_from_modes(
+                prepared.geometry,
+                f1_dotdot[:3],
+                f3_dotdot[:3],
+                ctx.nu_hat,
+            )
+        )
+        return output.at[4].set(
+            2.0 * coefficients[4] * nu_dot_a * nu_dot_b / ctx.nu_hat**2
+        )
+
+    nu_one = jnp.asarray(1.0, dtype=ctx.nu_hat.dtype)
+    zero = jnp.asarray(0.0, dtype=ctx.nu_hat.dtype)
+    coefficient_nu = _coefficient_first(f1_first[..., 0], f3_first[..., 0], nu_one)
+    coefficient_epsi = _coefficient_first(f1_first[..., 1], f3_first[..., 1], zero)
+    coefficient_nunu = _coefficient_second(f1_second[..., 0], f3_second[..., 0], nu_one, nu_one)
+    coefficient_nuepsi = _coefficient_second(f1_second[..., 1], f3_second[..., 1], nu_one, zero)
+    coefficient_epsiepsi = _coefficient_second(f1_second[..., 2], f3_second[..., 2], zero, zero)
+    return (
+        coefficients,
+        coefficient_nu,
+        coefficient_epsi,
+        coefficient_nunu,
+        coefficient_nuepsi,
+        coefficient_epsiepsi,
+    )
+
+
 def _case_cotangent_from_resolved_epsi_bar(
     case: MonoenergeticCase,
     *,
@@ -3933,6 +4084,7 @@ __all__ = [
     "compile_prepared_solver",
     "solve_prepared",
     "solve_prepared_coefficient_vector",
+    "solve_prepared_coefficient_vector_hessian_factorized",
     "solve_prepared_coefficient_vector_two_directional_factorized",
     "solve_prepared_coefficient_vector_two_directional_prepared_vjp",
     "pullback_prepared_coefficient_vector_case_and_prepared",

@@ -18,6 +18,7 @@ from ntx import (
     solve_monoenergetic_scan,
     solve_prepared,
     solve_prepared_coefficient_vector,
+    solve_prepared_coefficient_vector_hessian_factorized,
     solve_prepared_coefficient_vector_two_directional_factorized,
     solve_prepared_coefficient_vector_two_directional_prepared_vjp,
     pullback_prepared_coefficient_vector_case_and_prepared,
@@ -1345,6 +1346,55 @@ def test_factorized_two_directional_primal_matches_raw_jvps(case_representation)
     assert jnp.allclose(actual_base, reference_base, rtol=1e-9, atol=1e-11)
     assert jnp.allclose(actual_first, reference_first, rtol=1e-9, atol=1e-11)
     assert jnp.allclose(actual_second, reference_second, rtol=1e-9, atol=1e-11)
+
+
+def test_factorized_coefficient_hessian_matches_raw_finite_differences():
+    """The explicit local Hessian agrees with a small raw-solve stencil."""
+    # This is a local derivative oracle, not a transport-resolution test.
+    # The smallest grid retaining modes 0, 1, and 2 avoids an oversized
+    # nested-forward reference compilation.
+    prepared = prepare_monoenergetic_system(example_surface(), GridSpec(3, 3, 2))
+    case = MonoenergeticCase(1.0e-2, epsi_hat=1.0e-3)
+
+    def raw_solution(nu_hat, epsi_hat):
+        return solve_prepared_coefficient_vector(
+            prepared,
+            MonoenergeticCase(nu_hat, epsi_hat=epsi_hat),
+        )
+
+    nu_hat = jnp.asarray(case.nu_hat)
+    epsi_hat = jnp.asarray(case.epsi_hat)
+    h_nu = nu_hat * jnp.asarray(1.0e-3, dtype=nu_hat.dtype)
+    h_epsi = jnp.asarray(1.0e-5, dtype=epsi_hat.dtype)
+    reference_base = raw_solution(nu_hat, epsi_hat)
+    nu_plus = raw_solution(nu_hat + h_nu, epsi_hat)
+    nu_minus = raw_solution(nu_hat - h_nu, epsi_hat)
+    epsi_plus = raw_solution(nu_hat, epsi_hat + h_epsi)
+    epsi_minus = raw_solution(nu_hat, epsi_hat - h_epsi)
+    reference_nu = (nu_plus - nu_minus) / (2.0 * h_nu)
+    reference_epsi = (epsi_plus - epsi_minus) / (2.0 * h_epsi)
+    reference_nunu = (nu_plus - 2.0 * reference_base + nu_minus) / h_nu**2
+    reference_epsiepsi = (
+        epsi_plus - 2.0 * reference_base + epsi_minus
+    ) / h_epsi**2
+    reference_nuepsi = (
+        raw_solution(nu_hat + h_nu, epsi_hat + h_epsi)
+        - raw_solution(nu_hat + h_nu, epsi_hat - h_epsi)
+        - raw_solution(nu_hat - h_nu, epsi_hat + h_epsi)
+        + raw_solution(nu_hat - h_nu, epsi_hat - h_epsi)
+    ) / (4.0 * h_nu * h_epsi)
+
+    actual = solve_prepared_coefficient_vector_hessian_factorized(prepared, case)
+    reference = (
+        reference_base,
+        reference_nu,
+        reference_epsi,
+        reference_nunu,
+        reference_nuepsi,
+        reference_epsiepsi,
+    )
+    for actual_value, reference_value in zip(actual, reference, strict=True):
+        assert jnp.allclose(actual_value, reference_value, rtol=3e-3, atol=1e-7)
 
 
 @pytest.mark.parametrize("case_representation", ("er", "epsi"))
