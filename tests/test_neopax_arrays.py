@@ -13,6 +13,7 @@ import ntx._neopax_scan as neopax_scan_module
 import ntx.neopax as neopax_module
 from ntx._neopax_scan_coefficients import (
     NeopaxScanCoefficientBlocks,
+    pullback_neopax_scan_coefficient_blocks_from_primal_record,
     pullback_neopax_scan_coefficient_blocks_prepared,
     solve_neopax_scan_coefficient_blocks,
     solve_neopax_scan_coefficient_blocks_prepared,
@@ -187,6 +188,39 @@ def test_prepared_scan_coefficient_pullback_matches_generic_vjp():
     assert jnp.allclose(actual_es_bar, expected_es_bar, rtol=1.0e-10, atol=1.0e-10)
 
 
+def test_prepared_scan_primal_record_reuses_prepared_systems_for_same_pullback():
+    """Recording the primal does not change blocks or the compact transpose."""
+
+    surfaces = (example_surface(), example_surface())
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    grid = GridSpec(5, 5, 4)
+    blocks, record = solve_neopax_scan_coefficient_blocks_prepared(
+        surfaces, Es=es, nu_v=nu_v, grid=grid, return_primal_record=True
+    )
+    assert len(record.surfaces) == len(surfaces)
+    assert len(record.prepared) == len(surfaces)
+    bars = NeopaxScanCoefficientBlocks(
+        **{
+            name: jnp.full_like(getattr(blocks, name), 0.02 * (index + 1))
+            for index, name in enumerate(NeopaxScanCoefficientBlocks.__dataclass_fields__)
+        }
+    )
+    expected = pullback_neopax_scan_coefficient_blocks_prepared(
+        surfaces, Es=es, nu_v=nu_v, grid=grid, coefficient_blocks_bar=bars
+    )
+    actual = pullback_neopax_scan_coefficient_blocks_from_primal_record(
+        record, coefficient_blocks_bar=bars
+    )
+    for actual_leaf, expected_leaf in zip(
+        jax.tree_util.tree_leaves(actual),
+        jax.tree_util.tree_leaves(expected),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
+            assert jnp.allclose(actual_leaf, expected_leaf, rtol=1.0e-10, atol=1.0e-10)
+
+
 def test_prepared_scan_structured_vjp_matches_generic_vjp():
     """The opt-in scan custom rule preserves the generic VJP exactly."""
 
@@ -234,6 +268,40 @@ def test_prepared_scan_structured_vjp_matches_generic_vjp():
         if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
             assert jnp.allclose(actual, expected, rtol=1.0e-10, atol=1.0e-12)
     assert jnp.allclose(actual_es_bar, expected_es_bar, rtol=1.0e-10, atol=1.0e-10)
+
+
+def test_structured_scan_builder_matches_generic_forward_values():
+    """Selecting the reverse rule never changes public scan primal values."""
+
+    surfaces = (example_surface(), example_surface())
+    rho = jnp.asarray([0.25, 0.5])
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    er = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    drds = jnp.asarray([1.0, 1.5])
+    grid = GridSpec(5, 5, 4)
+    generic = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Er=er,
+        drds=drds,
+        grid=grid,
+        coefficient_reverse_mode="generic",
+    )
+    structured = build_ntx_neopax_scan_from_surfaces(
+        surfaces,
+        rho=rho,
+        nu_v=nu_v,
+        Er=er,
+        drds=drds,
+        grid=grid,
+        coefficient_reverse_mode="structured",
+    )
+    for name in (
+        "rho", "nu_v", "Er", "Es", "drds", "D11", "D13", "D33",
+        "D33_spitzer", "b00", "boozer_i", "boozer_g", "iota",
+    ):
+        assert jnp.allclose(getattr(structured, name), getattr(generic, name))
 
 
 def test_build_ntx_neopax_scan_validates_basic_shapes():

@@ -39,6 +39,82 @@ class NeopaxScanCoefficientBlocks:
     fac_sfincs_to_dkes_33: Array
 
 
+@dataclass(frozen=True)
+class NeopaxScanCoefficientPrimalRecord:
+    """Reusable primal state for a live structured NEOPAX scan transpose.
+
+    The coefficient tables remain in the database.  This record retains only
+    the prepared NTX systems that produced those tables, plus their matching
+    scan inputs.  It is intentionally opt-in because prepared systems can be
+    materially larger than the interpolated database itself.
+    """
+
+    surfaces: tuple[BoozerSurface | VmecSurface, ...]
+    prepared: tuple[object, ...]
+    Es: Array
+    nu_v: Array
+    grid: GridSpec
+
+
+def _zero_float_tree(tree):
+    """Zeros compatible with a prepared-system PyTree, including static leaves."""
+
+    def _zero(leaf):
+        value = jnp.asarray(leaf)
+        dtype = value.dtype if jnp.issubdtype(value.dtype, jnp.inexact) else jnp.float64
+        return jnp.zeros(value.shape, dtype=dtype)
+
+    return jax.tree_util.tree_map(_zero, tree)
+
+
+def _add_float_trees(left, right):
+    """Add prepared-system bars while preserving JAX's float0 static leaves."""
+
+    def _add(left_leaf, right_leaf):
+        left_value = jnp.asarray(left_leaf)
+        right_value = jnp.asarray(right_leaf)
+        if right_value.dtype == jax.dtypes.float0:
+            return left_leaf
+        if left_value.dtype == jax.dtypes.float0:
+            return right_leaf
+        return left_leaf + right_leaf
+
+    return jax.tree_util.tree_map(_add, left, right)
+
+
+@jax.jit
+def _prepared_scan_coefficient_bar_kernel(
+    prepared,
+    nu_values: Array,
+    epsi_values: Array,
+    coefficient_bars: Array,
+):
+    """One reusable, bounded NTX coefficient-adjoint scan.
+
+    Keeping this as a JIT call rather than expanding it in the outer database
+    VJP is essential: the database has several surfaces, but every surface
+    uses the same scan shape.  XLA can then compile this kernel once and
+    execute it for each prepared surface.
+    """
+
+    def _accumulate(prepared_bar, values):
+        nu_value, epsi_value, coefficient_bar = values
+        case_bar, local_prepared_bar = (
+            pullback_prepared_coefficient_vector_case_and_prepared(
+                prepared,
+                MonoenergeticCase(nu_hat=nu_value, epsi_hat=epsi_value),
+                coefficient_bar,
+            )
+        )
+        return _add_float_trees(prepared_bar, local_prepared_bar), case_bar.epsi_hat
+
+    return jax.lax.scan(
+        _accumulate,
+        _zero_float_tree(prepared),
+        (nu_values, epsi_values, coefficient_bars),
+    )
+
+
 _COEFFICIENT_BLOCK_NAMES = tuple(NeopaxScanCoefficientBlocks.__dataclass_fields__)
 
 
@@ -108,7 +184,8 @@ def solve_neopax_scan_coefficient_blocks_prepared(
     Es: Array,
     nu_v: Array,
     grid: GridSpec,
-) -> NeopaxScanCoefficientBlocks:
+    return_primal_record: bool = False,
+) -> NeopaxScanCoefficientBlocks | tuple[NeopaxScanCoefficientBlocks, NeopaxScanCoefficientPrimalRecord]:
     """Build scan blocks through explicit per-surface prepared systems.
 
     The values are identical to :func:`solve_neopax_scan_coefficient_blocks`.
@@ -134,8 +211,11 @@ def solve_neopax_scan_coefficient_blocks_prepared(
     sfincs_to_dkes_11_list = []
     sfincs_to_dkes_31_list = []
     sfincs_to_dkes_33_list = []
+    prepared_records = []
     for surface, es_row in zip(surfaces, Es, strict=True):
         prepared = prepare_monoenergetic_system(surface, grid)
+        if return_primal_record:
+            prepared_records.append(prepared)
         nu_grid, es_grid = jnp.meshgrid(nu_v, es_row, indexing="ij")
         nu_values, epsi_values, output_shape = _resolved_scan_inputs(
             prepared,
@@ -165,7 +245,7 @@ def solve_neopax_scan_coefficient_blocks_prepared(
         sfincs_to_dkes_31_list.append(bridge["fac_sfincs_to_dkes_31"])
         sfincs_to_dkes_33_list.append(bridge["fac_sfincs_to_dkes_33"])
 
-    return NeopaxScanCoefficientBlocks(
+    blocks = NeopaxScanCoefficientBlocks(
         D11=jnp.stack(d11_list),
         D13=jnp.stack(d13_list),
         D33=jnp.stack(d33_list),
@@ -181,6 +261,15 @@ def solve_neopax_scan_coefficient_blocks_prepared(
         fac_sfincs_to_dkes_31=jnp.asarray(sfincs_to_dkes_31_list),
         fac_sfincs_to_dkes_33=jnp.asarray(sfincs_to_dkes_33_list),
     )
+    if not return_primal_record:
+        return blocks
+    return blocks, NeopaxScanCoefficientPrimalRecord(
+        surfaces=tuple(surfaces),
+        prepared=tuple(prepared_records),
+        Es=jnp.asarray(Es),
+        nu_v=jnp.asarray(nu_v),
+        grid=grid,
+    )
 
 
 def pullback_neopax_scan_coefficient_blocks_prepared(
@@ -190,6 +279,7 @@ def pullback_neopax_scan_coefficient_blocks_prepared(
     nu_v: Array,
     grid: GridSpec,
     coefficient_blocks_bar: NeopaxScanCoefficientBlocks,
+    prepared_systems: tuple[object, ...] | None = None,
 ) -> tuple[tuple[BoozerSurface | VmecSurface, ...], Array]:
     """Explicit scan coefficient transpose for the structured reverse mode.
 
@@ -205,30 +295,17 @@ def pullback_neopax_scan_coefficient_blocks_prepared(
     installed as a custom VJP for the live scan builder.
     """
 
-    def _zero_float_tree(tree):
-        def _zero(leaf):
-            value = jnp.asarray(leaf)
-            dtype = value.dtype if jnp.issubdtype(value.dtype, jnp.inexact) else jnp.float64
-            return jnp.zeros(value.shape, dtype=dtype)
-
-        return jax.tree_util.tree_map(_zero, tree)
-
-    def _add_trees(left, right):
-        def _add(left_leaf, right_leaf):
-            left_value = jnp.asarray(left_leaf)
-            right_value = jnp.asarray(right_leaf)
-            if right_value.dtype == jax.dtypes.float0:
-                return left_leaf
-            if left_value.dtype == jax.dtypes.float0:
-                return right_leaf
-            return left_leaf + right_leaf
-
-        return jax.tree_util.tree_map(_add, left, right)
-
     surface_bars = []
     es_bars = []
+    if prepared_systems is not None and len(prepared_systems) != len(surfaces):
+        raise ValueError("prepared_systems must contain one entry per scan surface")
+
     for surface_index, (surface, es_row) in enumerate(zip(surfaces, Es, strict=True)):
-        prepared = prepare_monoenergetic_system(surface, grid)
+        prepared = (
+            prepare_monoenergetic_system(surface, grid)
+            if prepared_systems is None
+            else prepared_systems[surface_index]
+        )
         nu_grid, es_grid = jnp.meshgrid(nu_v, es_row, indexing="ij")
         nu_values, epsi_values, _output_shape = _resolved_scan_inputs(
             prepared,
@@ -248,25 +325,11 @@ def pullback_neopax_scan_coefficient_blocks_prepared(
             axis=-1,
         ).reshape((-1, 5))
 
-        def _accumulate(prepared_bar, values):
-            nu_value, epsi_value, coefficient_bar = values
-            case_bar, local_prepared_bar = (
-                pullback_prepared_coefficient_vector_case_and_prepared(
-                    prepared,
-                    MonoenergeticCase(nu_hat=nu_value, epsi_hat=epsi_value),
-                    coefficient_bar,
-                )
-            )
-            return _add_trees(prepared_bar, local_prepared_bar), case_bar.epsi_hat
-
-        prepared_bar, epsi_flat_bar = jax.lax.scan(
-            _accumulate,
-            _zero_float_tree(prepared),
-            (
-                nu_values.reshape((-1,)),
-                epsi_values.reshape((-1,)),
-                coefficient_bars,
-            ),
+        prepared_bar, epsi_flat_bar = _prepared_scan_coefficient_bar_kernel(
+            prepared,
+            nu_values.reshape((-1,)),
+            epsi_values.reshape((-1,)),
+            coefficient_bars,
         )
         # ``lax.scan`` carries a scalar/vector accumulator.  Its epsi
         # contribution is per scan case, so reconstruct the original field
@@ -293,9 +356,26 @@ def pullback_neopax_scan_coefficient_blocks_prepared(
         }
         _, reference_pullback = jax.vjp(_surface_reference_bridge, surface)
         reference_surface_bar = reference_pullback(reference_bar)[0]
-        surface_bars.append(_add_trees(surface_bar, reference_surface_bar))
+        surface_bars.append(_add_float_trees(surface_bar, reference_surface_bar))
 
     return tuple(surface_bars), jnp.stack(es_bars)
+
+
+def pullback_neopax_scan_coefficient_blocks_from_primal_record(
+    record: NeopaxScanCoefficientPrimalRecord,
+    *,
+    coefficient_blocks_bar: NeopaxScanCoefficientBlocks,
+) -> tuple[tuple[BoozerSurface | VmecSurface, ...], Array]:
+    """Structured scan transpose reusing the prepared systems from its primal."""
+
+    return pullback_neopax_scan_coefficient_blocks_prepared(
+        record.surfaces,
+        Es=record.Es,
+        nu_v=record.nu_v,
+        grid=record.grid,
+        coefficient_blocks_bar=coefficient_blocks_bar,
+        prepared_systems=record.prepared,
+    )
 
 
 def _coefficient_block_values(

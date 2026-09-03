@@ -8,7 +8,9 @@ import jax.numpy as jnp
 from jax import Array
 
 from ._neopax_scan_coefficients import (
+    NeopaxScanCoefficientPrimalRecord,
     solve_neopax_scan_coefficient_blocks,
+    solve_neopax_scan_coefficient_blocks_prepared,
     solve_neopax_scan_coefficient_blocks_prepared_structured_vjp,
 )
 from ._neopax_scan_fields import normalize_neopax_scan_field_channels
@@ -77,7 +79,8 @@ def build_ntx_neopax_scan_from_surfaces(
     grid: GridSpec,
     source_name: str | None = None,
     coefficient_reverse_mode: str = "generic",
-) -> NeopaxScan:
+    return_primal_record: bool = False,
+) -> NeopaxScan | tuple[NeopaxScan, NeopaxScanCoefficientPrimalRecord]:
     """Build a NEOPAX-style scan from an explicit tuple of NTX surfaces.
 
     This is the intended imported path when the caller already has surface
@@ -97,19 +100,35 @@ def build_ntx_neopax_scan_from_surfaces(
         drds=drds,
         grid=grid,
     )
+    primal_record = None
     if coefficient_reverse_mode == "generic":
+        if return_primal_record:
+            raise ValueError(
+                "A scan primal record is available only with coefficient_reverse_mode='structured'."
+            )
         block_builder = solve_neopax_scan_coefficient_blocks
     elif coefficient_reverse_mode == "structured":
-        block_builder = solve_neopax_scan_coefficient_blocks_prepared_structured_vjp
+        if return_primal_record:
+            blocks, primal_record = solve_neopax_scan_coefficient_blocks_prepared(
+                surfaces,
+                Es=channels.Es,
+                nu_v=channels.nu_v,
+                grid=grid,
+                return_primal_record=True,
+            )
+            block_builder = None
+        else:
+            block_builder = solve_neopax_scan_coefficient_blocks_prepared_structured_vjp
     else:
         raise ValueError(
             "coefficient_reverse_mode must be 'generic' or 'structured'"
         )
-    blocks = block_builder(
-        surfaces, Es=channels.Es, nu_v=channels.nu_v, grid=grid
-    )
+    if block_builder is not None:
+        blocks = block_builder(
+            surfaces, Es=channels.Es, nu_v=channels.nu_v, grid=grid
+        )
 
-    return NeopaxScan(
+    scan = NeopaxScan(
         rho=channels.rho,
         nu_v=channels.nu_v,
         Er=channels.Er,
@@ -131,6 +150,9 @@ def build_ntx_neopax_scan_from_surfaces(
         fac_sfincs_to_dkes_33=blocks.fac_sfincs_to_dkes_33,
         source_name=source_name,
     )
+    if return_primal_record:
+        return scan, primal_record
+    return scan
 
 
 def build_ntx_neopax_scan_from_vmex_state(

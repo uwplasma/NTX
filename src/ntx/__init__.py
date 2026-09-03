@@ -45,6 +45,8 @@ from .io import (
 )
 from .neopax import (
     DifferentiableNeopaxField,
+    NeopaxScanCoefficientBlocks,
+    NeopaxScanCoefficientPrimalRecord,
     NeopaxMonoenergeticArrays,
     NeopaxScan,
     build_differentiable_neopax_field,
@@ -53,6 +55,7 @@ from .neopax import (
     build_differentiable_neopax_field_from_vmex_state,
     build_ntx_neopax_scan,
     build_ntx_neopax_scan_from_surfaces,
+    pullback_neopax_scan_coefficient_blocks_from_primal_record,
     build_ntx_neopax_scan_from_vmex_boundary_params,
     build_ntx_neopax_scan_from_vmex_state,
     get_differentiable_neopax_fluxes,
@@ -203,6 +206,8 @@ __all__ = [
     "ProfileControlSpec",
     "NeopaxMonoenergeticArrays",
     "NeopaxScan",
+    "NeopaxScanCoefficientBlocks",
+    "NeopaxScanCoefficientPrimalRecord",
     "PreparedMonoenergeticSystem",
     "PreparedDerivativeAuditResult",
     "PreparedScanCompilationReport",
@@ -228,6 +233,7 @@ __all__ = [
     "build_ntx_neopax_scan_from_vmex_boundary_params",
     "build_ntx_neopax_scan_from_vmex_state",
     "build_ntx_neopax_scan_from_surfaces",
+    "pullback_neopax_scan_coefficient_blocks_from_primal_record",
     "get_differentiable_neopax_fluxes",
     "geometry_resolution_report",
     "evaluate_scan_channel",
