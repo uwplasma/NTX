@@ -11,6 +11,13 @@ import pytest
 
 import ntx._neopax_scan as neopax_scan_module
 import ntx.neopax as neopax_module
+from ntx._neopax_scan_coefficients import (
+    NeopaxScanCoefficientBlocks,
+    pullback_neopax_scan_coefficient_blocks_prepared,
+    solve_neopax_scan_coefficient_blocks,
+    solve_neopax_scan_coefficient_blocks_prepared,
+    solve_neopax_scan_coefficient_blocks_prepared_structured_vjp,
+)
 from ntx import (
     GridSpec,
     NeopaxScan,
@@ -92,6 +99,137 @@ def test_build_ntx_neopax_scan_from_surfaces_matches_callback_builder():
     assert jnp.all(explicit.fac_sfincs_to_dkes_11 > 0)
     assert jnp.all(explicit.fac_sfincs_to_dkes_31 > 0)
     assert jnp.all(explicit.fac_sfincs_to_dkes_33 > 0)
+
+
+def test_prepared_scan_coefficient_blocks_match_established_scan_blocks():
+    """The structured-reverse primal boundary preserves the scan coefficients."""
+
+    surfaces = (example_surface(), example_surface())
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    grid = GridSpec(5, 5, 4)
+
+    expected = solve_neopax_scan_coefficient_blocks(
+        surfaces, Es=es, nu_v=nu_v, grid=grid
+    )
+    actual = solve_neopax_scan_coefficient_blocks_prepared(
+        surfaces, Es=es, nu_v=nu_v, grid=grid
+    )
+
+    for name in (
+        "D11",
+        "D13",
+        "D33",
+        "D33_spitzer",
+        "b00",
+        "boozer_i",
+        "boozer_g",
+        "iota",
+        "fac_reference_to_sfincs_11",
+        "fac_reference_to_sfincs_31",
+        "fac_reference_to_sfincs_33",
+        "fac_sfincs_to_dkes_11",
+        "fac_sfincs_to_dkes_31",
+        "fac_sfincs_to_dkes_33",
+    ):
+        assert jnp.allclose(getattr(actual, name), getattr(expected, name))
+
+
+def test_prepared_scan_coefficient_pullback_matches_generic_vjp():
+    """The compact scan transpose matches the taped scan VJP on a tiny grid."""
+
+    surfaces = (example_surface(), example_surface())
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    grid = GridSpec(5, 5, 4)
+    names = tuple(NeopaxScanCoefficientBlocks.__dataclass_fields__)
+
+    def _values(surface_values, es_values):
+        blocks = solve_neopax_scan_coefficient_blocks_prepared(
+            surface_values, Es=es_values, nu_v=nu_v, grid=grid
+        )
+        return tuple(getattr(blocks, name) for name in names)
+
+    primal = solve_neopax_scan_coefficient_blocks_prepared(
+        surfaces, Es=es, nu_v=nu_v, grid=grid
+    )
+    bars = NeopaxScanCoefficientBlocks(
+        **{
+            name: jnp.full_like(getattr(primal, name), 0.03 * (index + 1))
+            for index, name in enumerate(names)
+        }
+    )
+    _, generic_pullback = jax.vjp(_values, surfaces, es)
+    expected_surface_bars, expected_es_bar = generic_pullback(
+        tuple(getattr(bars, name) for name in names)
+    )
+    actual_surface_bars, actual_es_bar = (
+        pullback_neopax_scan_coefficient_blocks_prepared(
+            surfaces,
+            Es=es,
+            nu_v=nu_v,
+            grid=grid,
+            coefficient_blocks_bar=bars,
+        )
+    )
+
+    for actual, expected in zip(
+        jax.tree_util.tree_leaves(actual_surface_bars),
+        jax.tree_util.tree_leaves(expected_surface_bars),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
+            assert jnp.allclose(actual, expected, rtol=1.0e-10, atol=1.0e-12)
+    assert jnp.allclose(actual_es_bar, expected_es_bar, rtol=1.0e-10, atol=1.0e-12)
+
+
+def test_prepared_scan_structured_vjp_matches_generic_vjp():
+    """The opt-in scan custom rule preserves the generic VJP exactly."""
+
+    surfaces = (example_surface(), example_surface())
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    grid = GridSpec(5, 5, 4)
+    names = tuple(NeopaxScanCoefficientBlocks.__dataclass_fields__)
+
+    def _values(builder, surface_values, es_values):
+        blocks = builder(surface_values, Es=es_values, nu_v=nu_v, grid=grid)
+        return tuple(getattr(blocks, name) for name in names)
+
+    primal = solve_neopax_scan_coefficient_blocks_prepared(
+        surfaces, Es=es, nu_v=nu_v, grid=grid
+    )
+    output_bars = tuple(
+        jnp.full_like(getattr(primal, name), 0.04 * (index + 1))
+        for index, name in enumerate(names)
+    )
+    _, generic_pullback = jax.vjp(
+        lambda surface_values, es_values: _values(
+            solve_neopax_scan_coefficient_blocks_prepared, surface_values, es_values
+        ),
+        surfaces,
+        es,
+    )
+    _, structured_pullback = jax.vjp(
+        lambda surface_values, es_values: _values(
+            solve_neopax_scan_coefficient_blocks_prepared_structured_vjp,
+            surface_values,
+            es_values,
+        ),
+        surfaces,
+        es,
+    )
+    expected_surface_bars, expected_es_bar = generic_pullback(output_bars)
+    actual_surface_bars, actual_es_bar = structured_pullback(output_bars)
+
+    for actual, expected in zip(
+        jax.tree_util.tree_leaves(actual_surface_bars),
+        jax.tree_util.tree_leaves(expected_surface_bars),
+        strict=True,
+    ):
+        if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
+            assert jnp.allclose(actual, expected, rtol=1.0e-10, atol=1.0e-12)
+    assert jnp.allclose(actual_es_bar, expected_es_bar, rtol=1.0e-10, atol=1.0e-12)
 
 
 def test_build_ntx_neopax_scan_validates_basic_shapes():
