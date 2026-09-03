@@ -310,45 +310,52 @@ def _coefficient_block_values(
     return tuple(getattr(blocks, name) for name in _COEFFICIENT_BLOCK_NAMES)
 
 
-@partial(jax.custom_vjp, nondiff_argnums=(2, 3))
+@partial(jax.custom_vjp, nondiff_argnums=(0, 3, 4))
 def _structured_scan_coefficient_block_values(
-    surfaces: tuple[BoozerSurface | VmecSurface, ...],
+    surface_tree,
+    surface_leaves: tuple[Array, ...],
     Es: Array,
     nu_v: Array,
     grid: GridSpec,
 ) -> tuple[Array, ...]:
     """Prepared scan values with a bounded coefficient-adjoint VJP."""
 
+    surfaces = jax.tree_util.tree_unflatten(surface_tree, surface_leaves)
     return _coefficient_block_values(surfaces, Es, nu_v, grid)
 
 
 def _structured_scan_coefficient_block_values_fwd(
-    surfaces: tuple[BoozerSurface | VmecSurface, ...],
+    surface_tree,
+    surface_leaves: tuple[Array, ...],
     Es: Array,
     nu_v: Array,
     grid: GridSpec,
 ) -> tuple[tuple[Array, ...], tuple[tuple[BoozerSurface | VmecSurface, ...], Array]]:
+    surfaces = jax.tree_util.tree_unflatten(surface_tree, surface_leaves)
     values = _coefficient_block_values(surfaces, Es, nu_v, grid)
     return values, (surfaces, Es)
 
 
 def _structured_scan_coefficient_block_values_bwd(
+    surface_tree,
     nu_v: Array,
     grid: GridSpec,
     residuals: tuple[tuple[BoozerSurface | VmecSurface, ...], Array],
     output_bars: tuple[Array, ...],
-) -> tuple[tuple[BoozerSurface | VmecSurface, ...], Array]:
+) -> tuple[tuple[Array, ...], Array]:
     surfaces, Es = residuals
     blocks_bar = NeopaxScanCoefficientBlocks(
         **dict(zip(_COEFFICIENT_BLOCK_NAMES, output_bars, strict=True))
     )
-    return pullback_neopax_scan_coefficient_blocks_prepared(
+    surface_bars, es_bar = pullback_neopax_scan_coefficient_blocks_prepared(
         surfaces,
         Es=Es,
         nu_v=nu_v,
         grid=grid,
         coefficient_blocks_bar=blocks_bar,
     )
+    del surface_tree
+    return tuple(jax.tree_util.tree_leaves(surface_bars)), es_bar
 
 
 _structured_scan_coefficient_block_values.defvjp(
@@ -366,7 +373,10 @@ def solve_neopax_scan_coefficient_blocks_prepared_structured_vjp(
 ) -> NeopaxScanCoefficientBlocks:
     """Prepared scan builder with an opt-in compact reverse rule."""
 
-    values = _structured_scan_coefficient_block_values(surfaces, Es, nu_v, grid)
+    surface_leaves, surface_tree = jax.tree_util.tree_flatten(surfaces)
+    values = _structured_scan_coefficient_block_values(
+        surface_tree, tuple(surface_leaves), Es, nu_v, grid
+    )
     return NeopaxScanCoefficientBlocks(
         **dict(zip(_COEFFICIENT_BLOCK_NAMES, values, strict=True))
     )
