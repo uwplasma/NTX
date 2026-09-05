@@ -25,12 +25,19 @@ from ._neopax_scan import (
     build_ntx_neopax_scan_from_vmex_boundary_params,
     build_ntx_neopax_scan_from_vmex_state,
 )
+from ._neopax_scan_coefficients import (
+    NeopaxScanCoefficientBlocks,
+    NeopaxScanCoefficientPrimalRecord,
+    pullback_neopax_scan_coefficient_blocks_from_primal_record,
+)
 from ._neopax_types import DifferentiableNeopaxField, NeopaxMonoenergeticArrays, NeopaxScan
 
 __all__ = [
     "DifferentiableNeopaxField",
     "NeopaxMonoenergeticArrays",
     "NeopaxScan",
+    "NeopaxScanCoefficientBlocks",
+    "NeopaxScanCoefficientPrimalRecord",
     "build_differentiable_neopax_field",
     "build_differentiable_neopax_field_from_vmec_booz_files",
     "build_differentiable_neopax_field_from_vmex_boundary_params",
@@ -39,6 +46,7 @@ __all__ = [
     "build_ntx_neopax_scan_from_vmex_boundary_params",
     "build_ntx_neopax_scan_from_vmex_state",
     "build_ntx_neopax_scan_from_surfaces",
+    "pullback_neopax_scan_coefficient_blocks_from_primal_record",
     "get_differentiable_neopax_fluxes",
     "load_neopax_reference_scan",
     "neopax_scan_requires_rebuild",
