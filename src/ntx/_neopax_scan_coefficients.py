@@ -14,7 +14,10 @@ from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from ._solver_core import prepare_monoenergetic_system
 from ._solver_scan_execution import _resolved_scan_inputs, _scan_coefficients_serial
-from ._solver_prepared import pullback_prepared_coefficient_vector_case_and_prepared
+from ._solver_prepared import (
+    pullback_prepared_coefficient_vector_case_and_prepared,
+    pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs,
+)
 from ._solver_types import MonoenergeticCase
 from .solver import solve_monoenergetic_scan
 
@@ -113,6 +116,51 @@ def _prepared_scan_coefficient_bar_kernel(
         _zero_float_tree(prepared),
         (nu_values, epsi_values, coefficient_bars),
     )
+
+
+@jax.jit
+def _prepared_scan_coefficient_bar_multi_rhs_kernel(
+    prepared,
+    nu_values: Array,
+    epsi_values: Array,
+    coefficient_bars: Array,
+):
+    """Prepared scan transpose with a leading table-bar RHS axis.
+
+    ``PreparedMonoenergeticSystem`` contains a surface PyTree and therefore
+    must stay outside ``vmap``.  The established multi-RHS prepared pullback
+    instead solves all table-bar rows as matrix right-hand sides while keeping
+    that prepared system scalar and fixed.
+    """
+
+    rhs_count = coefficient_bars.shape[0]
+    prepared_bars0 = jax.tree_util.tree_map(
+        lambda value: jnp.broadcast_to(
+            value, (rhs_count, *jnp.asarray(value).shape)
+        ),
+        _zero_float_tree(prepared),
+    )
+
+    def _accumulate(prepared_bars, values):
+        nu_value, epsi_value, coefficient_bar = values
+        case_bars, local_prepared_bars = (
+            pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs(
+                prepared,
+                MonoenergeticCase(nu_hat=nu_value, epsi_hat=epsi_value),
+                coefficient_bar,
+            )
+        )
+        return (
+            _add_float_trees(prepared_bars, local_prepared_bars),
+            case_bars.epsi_hat,
+        )
+
+    prepared_bars, epsi_case_bars = jax.lax.scan(
+        _accumulate,
+        prepared_bars0,
+        (nu_values, epsi_values, jnp.moveaxis(coefficient_bars, 0, 1)),
+    )
+    return prepared_bars, jnp.moveaxis(epsi_case_bars, 0, 1)
 
 
 _COEFFICIENT_BLOCK_NAMES = tuple(NeopaxScanCoefficientBlocks.__dataclass_fields__)
@@ -376,6 +424,100 @@ def pullback_neopax_scan_coefficient_blocks_from_primal_record(
         coefficient_blocks_bar=coefficient_blocks_bar,
         prepared_systems=record.prepared,
     )
+
+
+def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
+    record: NeopaxScanCoefficientPrimalRecord,
+    *,
+    coefficient_blocks_bar: NeopaxScanCoefficientBlocks,
+) -> tuple[tuple[BoozerSurface | VmecSurface, ...], Array]:
+    """Batch the *numeric coefficient bars* through one recorded scan.
+
+    The scan surfaces and prepared systems are deliberately kept outside the
+    mapped axis.  Mapping the public scalar transpose instead also maps the
+    surface cotangent PyTrees; VMEC surface metadata then encounters JAX's
+    internal zero-tangent sentinel while reconstructing its dataclass.  This
+    routine maps only table-bar rows and retains the established per-surface
+    prepared-system boundary.
+    """
+
+    surface_bars = []
+    es_bars = []
+    for surface_index, (surface, prepared, es_row) in enumerate(
+        zip(record.surfaces, record.prepared, record.Es, strict=True)
+    ):
+        nu_grid, es_grid = jnp.meshgrid(record.nu_v, es_row, indexing="ij")
+        nu_values, epsi_values, _output_shape = _resolved_scan_inputs(
+            prepared,
+            record.grid,
+            nu_grid,
+            es_grid,
+            None,
+        )
+        coefficient_bars = jnp.stack(
+            (
+                coefficient_blocks_bar.D11[:, surface_index],
+                jnp.zeros_like(coefficient_blocks_bar.D11[:, surface_index]),
+                coefficient_blocks_bar.D13[:, surface_index],
+                coefficient_blocks_bar.D33[:, surface_index],
+                coefficient_blocks_bar.D33_spitzer[:, surface_index],
+            ),
+            axis=-1,
+        ).reshape((coefficient_blocks_bar.D11.shape[0], -1, 5))
+        prepared_bars, epsi_flat_bars = _prepared_scan_coefficient_bar_multi_rhs_kernel(
+            prepared,
+            nu_values.reshape((-1,)),
+            epsi_values.reshape((-1,)),
+            coefficient_bars,
+        )
+        epsi_bar_grid = epsi_flat_bars.reshape(
+            (coefficient_bars.shape[0], *es_grid.shape)
+        )
+        es_bars.append(jnp.sum(epsi_bar_grid, axis=1))
+
+        _, prepare_pullback = jax.vjp(
+            lambda surface_value: prepare_monoenergetic_system(surface_value, record.grid),
+            surface,
+        )
+        reference_bars = {
+            "b00": coefficient_blocks_bar.b00[:, surface_index],
+            "boozer_i": coefficient_blocks_bar.boozer_i[:, surface_index],
+            "boozer_g": coefficient_blocks_bar.boozer_g[:, surface_index],
+            "iota": coefficient_blocks_bar.iota[:, surface_index],
+            "fac_11": coefficient_blocks_bar.fac_reference_to_sfincs_11[:, surface_index],
+            "fac_31": coefficient_blocks_bar.fac_reference_to_sfincs_31[:, surface_index],
+            "fac_33": coefficient_blocks_bar.fac_reference_to_sfincs_33[:, surface_index],
+            "fac_sfincs_to_dkes_11": coefficient_blocks_bar.fac_sfincs_to_dkes_11[:, surface_index],
+            "fac_sfincs_to_dkes_31": coefficient_blocks_bar.fac_sfincs_to_dkes_31[:, surface_index],
+            "fac_sfincs_to_dkes_33": coefficient_blocks_bar.fac_sfincs_to_dkes_33[:, surface_index],
+        }
+        _, reference_pullback = jax.vjp(_surface_reference_bridge, surface)
+        # The surface classes intentionally retain non-differentiable mode
+        # metadata.  Do not vmap a VJP that *returns* those dataclasses: JAX
+        # may materialise its Zero sentinel as a data leaf while rebuilding a
+        # VMEC surface.  The expensive coefficient scan above is already
+        # batched; these small fixed-geometry pullbacks reuse their ordinary
+        # scalar executable and their numeric leaves are stacked afterwards.
+        per_row_surface_bars = []
+        for batch_index in range(int(coefficient_bars.shape[0])):
+            prepared_bar = jax.tree_util.tree_map(
+                lambda value: value[batch_index], prepared_bars
+            )
+            reference_bar = jax.tree_util.tree_map(
+                lambda value: value[batch_index], reference_bars
+            )
+            per_row_surface_bars.append(
+                _add_float_trees(
+                    prepare_pullback(prepared_bar)[0],
+                    reference_pullback(reference_bar)[0],
+                )
+            )
+        surface_bar = jax.tree_util.tree_map(
+            lambda *values: jnp.stack(values), *per_row_surface_bars
+        )
+        surface_bars.append(surface_bar)
+
+    return tuple(surface_bars), jnp.stack(es_bars, axis=1)
 
 
 def _coefficient_block_values(

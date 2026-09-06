@@ -14,6 +14,7 @@ import ntx.neopax as neopax_module
 from ntx._neopax_scan_coefficients import (
     NeopaxScanCoefficientBlocks,
     pullback_neopax_scan_coefficient_blocks_from_primal_record,
+    pullback_neopax_scan_coefficient_blocks_from_primal_record_batched,
     pullback_neopax_scan_coefficient_blocks_prepared,
     solve_neopax_scan_coefficient_blocks,
     solve_neopax_scan_coefficient_blocks_prepared,
@@ -219,6 +220,60 @@ def test_prepared_scan_primal_record_reuses_prepared_systems_for_same_pullback()
     ):
         if jnp.issubdtype(jnp.asarray(expected_leaf).dtype, jnp.inexact):
             assert jnp.allclose(actual_leaf, expected_leaf, rtol=1.0e-10, atol=1.0e-10)
+
+
+def test_prepared_scan_primal_record_batched_pullback_matches_scalar_rows():
+    """Batching table bars keeps VMEC surface metadata outside the mapped axis."""
+
+    surfaces = (example_surface(), example_surface())
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    grid = GridSpec(5, 5, 4)
+    blocks, record = solve_neopax_scan_coefficient_blocks_prepared(
+        surfaces, Es=es, nu_v=nu_v, grid=grid, return_primal_record=True
+    )
+    names = tuple(NeopaxScanCoefficientBlocks.__dataclass_fields__)
+    row_bars = tuple(
+        NeopaxScanCoefficientBlocks(
+            **{
+                name: jnp.full_like(
+                    getattr(blocks, name), scale * (index + 1)
+                )
+                for index, name in enumerate(names)
+            }
+        )
+        for scale in (0.02, -0.03)
+    )
+    batched_bars = NeopaxScanCoefficientBlocks(
+        **{
+            name: jnp.stack(tuple(getattr(row, name) for row in row_bars))
+            for name in names
+        }
+    )
+    actual_surfaces, actual_es = (
+        pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
+            record, coefficient_blocks_bar=batched_bars
+        )
+    )
+    expected_rows = tuple(
+        pullback_neopax_scan_coefficient_blocks_from_primal_record(
+            record, coefficient_blocks_bar=row
+        )
+        for row in row_bars
+    )
+    for row_index, (expected_surfaces, expected_es) in enumerate(expected_rows):
+        actual_row_surfaces = jax.tree_util.tree_map(
+            lambda value: value[row_index], actual_surfaces
+        )
+        actual_row_es = actual_es[row_index]
+        for actual, expected in zip(
+            jax.tree_util.tree_leaves(actual_row_surfaces),
+            jax.tree_util.tree_leaves(expected_surfaces),
+            strict=True,
+        ):
+            if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
+                assert jnp.allclose(actual, expected, rtol=1.0e-10, atol=1.0e-10)
+        assert jnp.allclose(actual_row_es, expected_es, rtol=1.0e-10, atol=1.0e-10)
 
 
 def test_prepared_scan_structured_vjp_matches_generic_vjp():
