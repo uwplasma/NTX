@@ -69,8 +69,12 @@ tree_util.register_dataclass(
         "dzeta",
         "dtheta_matrix",
         "dzeta_matrix",
+        # ``nfp`` is derived from a VMEC surface.  During the recorded scan
+        # transpose it is traced, so it must be a numeric leaf rather than
+        # PyTree metadata (metadata equality would attempt ``tracer == nfp``).
+        "nfp",
     ),
-    meta_fields=("nfp",),
+    meta_fields=(),
 )
 
 

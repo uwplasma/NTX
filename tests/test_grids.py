@@ -3,7 +3,7 @@ from __future__ import annotations
 import jax.numpy as jnp
 import jax
 
-from ntx.grids import fourier_derivative_matrix
+from ntx.grids import GridSpec, fourier_derivative_matrix, periodic_grid
 
 
 def test_fourier_derivative_matrix_differentiates_trig_mode():
@@ -22,3 +22,13 @@ def test_fourier_derivative_matrix_accepts_a_jitted_dynamic_period():
     dynamic = jax.jit(lambda value: fourier_derivative_matrix(n, value))(period)
     static = fourier_derivative_matrix(n, period)
     assert jnp.allclose(dynamic, static, rtol=1.0e-12, atol=1.0e-12)
+
+
+def test_periodic_grid_accepts_a_jitted_dynamic_nfp():
+    """nfp must remain a leaf during the recorded VMEC scan transpose."""
+    spec = GridSpec(5, 5, 4)
+    actual = jax.jit(lambda nfp: periodic_grid(spec, nfp).dzeta_matrix)(
+        jnp.asarray(3.0)
+    )
+    expected = periodic_grid(spec, 3).dzeta_matrix
+    assert jnp.allclose(actual, expected, rtol=1.0e-12, atol=1.0e-12)
