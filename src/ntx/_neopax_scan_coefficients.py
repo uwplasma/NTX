@@ -163,6 +163,60 @@ def _prepared_scan_coefficient_bar_multi_rhs_kernel(
     return prepared_bars, jnp.moveaxis(epsi_case_bars, 0, 1)
 
 
+@partial(jax.jit, static_argnums=(2,), inline=False)
+def _prepared_scan_coefficient_bar_rows_to_numeric_surface_leaves_kernel(
+    prepared,
+    surface,
+    grid: GridSpec,
+    nu_values: Array,
+    epsi_values: Array,
+    coefficient_bars: Array,
+    reference_bars: Array,
+):
+    """Run a compiled RHS scan while keeping VMEC metadata out of its output.
+
+    The output contains only numerical leaves.  Reconstructing a surface
+    cotangent inside ``vmap``/``scan`` would expose static mode metadata to
+    JAX's tangent machinery, so the caller restores the original surface tree
+    only after this compiled scan completes.
+    """
+    _, prepare_pullback = jax.vjp(
+        lambda surface_value: prepare_monoenergetic_system(surface_value, grid),
+        surface,
+    )
+    _, reference_pullback = jax.vjp(_surface_reference_bridge, surface)
+
+    def _one_row(values):
+        coefficient_bar, reference_values = values
+        prepared_bar, epsi_flat_bar = _prepared_scan_coefficient_bar_kernel(
+            prepared, nu_values, epsi_values, coefficient_bar
+        )
+        prepared_surface_bar = prepare_pullback(prepared_bar)[0]
+        reference_bar = {
+            "b00": reference_values[0],
+            "boozer_i": reference_values[1],
+            "boozer_g": reference_values[2],
+            "iota": reference_values[3],
+            "fac_11": reference_values[4],
+            "fac_31": reference_values[5],
+            "fac_33": reference_values[6],
+            "fac_sfincs_to_dkes_11": reference_values[7],
+            "fac_sfincs_to_dkes_31": reference_values[8],
+            "fac_sfincs_to_dkes_33": reference_values[9],
+        }
+        surface_bar = _add_float_trees(
+            prepared_surface_bar, reference_pullback(reference_bar)[0]
+        )
+        return tuple(jax.tree_util.tree_leaves(surface_bar)), epsi_flat_bar
+
+    _, (surface_leaf_rows, epsi_flat_rows) = jax.lax.scan(
+        lambda carry, values: (carry, _one_row(values)),
+        None,
+        (coefficient_bars, reference_bars),
+    )
+    return surface_leaf_rows, epsi_flat_rows
+
+
 _COEFFICIENT_BLOCK_NAMES = tuple(NeopaxScanCoefficientBlocks.__dataclass_fields__)
 
 
@@ -430,7 +484,6 @@ def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
     record: NeopaxScanCoefficientPrimalRecord,
     *,
     coefficient_blocks_bar: NeopaxScanCoefficientBlocks,
-    rhs_block_size: int = 1,
 ) -> tuple[tuple[BoozerSurface | VmecSurface, ...], Array]:
     """Fold numeric coefficient bars through one recorded scan with bounded memory.
 
@@ -441,14 +494,12 @@ def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
     routine maps only table-bar rows and retains the established per-surface
     prepared-system boundary.  A full all-row RHS batch is not viable at the
     production scan grid: every RHS materialises prepared-system intermediates
-    of shape ``(nu, Er, theta, zeta, xi, ...)``.  Rows are therefore processed
-    in fixed blocks inside this one final scan-fold operation.  This neither
-    rebuilds the scan nor permits a scan transpose inside a transport segment.
+    of shape ``(nu, Er, theta, zeta, xi, ...)``.  The compiled row scan below
+    therefore carries one RHS through the prepared coefficient transpose at a
+    time and emits only numeric surface leaves.  This neither rebuilds the
+    scan nor permits a scan transpose inside a transport segment.
     """
 
-    rhs_block_size = int(rhs_block_size)
-    if rhs_block_size < 1:
-        raise ValueError("rhs_block_size must be positive.")
     rhs_count = int(coefficient_blocks_bar.D11.shape[0])
     if rhs_count < 1:
         raise ValueError("Batched scan coefficient bars must contain at least one RHS row.")
@@ -476,10 +527,6 @@ def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
             ),
             axis=-1,
         ).reshape((coefficient_blocks_bar.D11.shape[0], -1, 5))
-        _, prepare_pullback = jax.vjp(
-            lambda surface_value: prepare_monoenergetic_system(surface_value, record.grid),
-            surface,
-        )
         reference_bars = {
             "b00": coefficient_blocks_bar.b00[:, surface_index],
             "boozer_i": coefficient_blocks_bar.boozer_i[:, surface_index],
@@ -492,44 +539,24 @@ def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
             "fac_sfincs_to_dkes_31": coefficient_blocks_bar.fac_sfincs_to_dkes_31[:, surface_index],
             "fac_sfincs_to_dkes_33": coefficient_blocks_bar.fac_sfincs_to_dkes_33[:, surface_index],
         }
-        _, reference_pullback = jax.vjp(_surface_reference_bridge, surface)
-        # The surface classes intentionally retain non-differentiable mode
-        # metadata.  Do not vmap a VJP that *returns* those dataclasses: JAX
-        # may materialise its Zero sentinel as a data leaf while rebuilding a
-        # VMEC surface.  The expensive coefficient scan above is already
-        # batched; these small fixed-geometry pullbacks reuse their ordinary
-        # scalar executable and their numeric leaves are stacked afterwards.
-        per_row_surface_bars = []
-        es_bar_blocks = []
-        for block_start in range(0, rhs_count, rhs_block_size):
-            block_stop = min(block_start + rhs_block_size, rhs_count)
-            block_coefficient_bars = coefficient_bars[block_start:block_stop]
-            prepared_bars, epsi_flat_bars = _prepared_scan_coefficient_bar_multi_rhs_kernel(
+        reference_bar_rows = jnp.stack(
+            tuple(reference_bars[name] for name in reference_bars), axis=1
+        )
+        surface_leaf_rows, epsi_flat_rows = (
+            _prepared_scan_coefficient_bar_rows_to_numeric_surface_leaves_kernel(
                 prepared,
+                surface,
+                record.grid,
                 nu_values.reshape((-1,)),
                 epsi_values.reshape((-1,)),
-                block_coefficient_bars,
+                coefficient_bars,
+                reference_bar_rows,
             )
-            epsi_bar_grid = epsi_flat_bars.reshape(
-                (block_stop - block_start, *es_grid.shape)
-            )
-            es_bar_blocks.append(jnp.sum(epsi_bar_grid, axis=1))
-            for block_index in range(block_stop - block_start):
-                prepared_bar = jax.tree_util.tree_map(
-                    lambda value: value[block_index], prepared_bars
-                )
-                reference_bar = jax.tree_util.tree_map(
-                    lambda value: value[block_start + block_index], reference_bars
-                )
-                per_row_surface_bars.append(
-                    _add_float_trees(
-                        prepare_pullback(prepared_bar)[0],
-                        reference_pullback(reference_bar)[0],
-                    )
-                )
-        es_bars.append(jnp.concatenate(es_bar_blocks, axis=0))
-        surface_bar = jax.tree_util.tree_map(
-            lambda *values: jnp.stack(values), *per_row_surface_bars
+        )
+        epsi_bar_grid = epsi_flat_rows.reshape((rhs_count, *es_grid.shape))
+        es_bars.append(jnp.sum(epsi_bar_grid, axis=1))
+        surface_bar = jax.tree_util.tree_unflatten(
+            jax.tree_util.tree_structure(surface), surface_leaf_rows
         )
         surface_bars.append(surface_bar)
 

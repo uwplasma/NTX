@@ -255,19 +255,6 @@ def test_prepared_scan_primal_record_batched_pullback_matches_scalar_rows():
             record, coefficient_blocks_bar=batched_bars
         )
     )
-    block_two_surfaces, block_two_es = (
-        pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
-            record, coefficient_blocks_bar=batched_bars, rhs_block_size=2
-        )
-    )
-    for actual, block_two in zip(
-        jax.tree_util.tree_leaves(actual_surfaces),
-        jax.tree_util.tree_leaves(block_two_surfaces),
-        strict=True,
-    ):
-        if jnp.issubdtype(jnp.asarray(actual).dtype, jnp.inexact):
-            assert jnp.allclose(actual, block_two, rtol=1.0e-10, atol=1.0e-10)
-    assert jnp.allclose(actual_es, block_two_es, rtol=1.0e-10, atol=1.0e-10)
     expected_rows = tuple(
         pullback_neopax_scan_coefficient_blocks_from_primal_record(
             record, coefficient_blocks_bar=row
