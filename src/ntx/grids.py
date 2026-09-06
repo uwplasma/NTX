@@ -100,7 +100,12 @@ def fourier_derivative_matrix(n: int, period: float | Array, dtype=jnp.float64) 
     the discrete Fourier basis, which keeps the formula compact and easy to test.
     """
 
-    k = jnp.fft.fftfreq(n, d=float(period) / n) * (2.0 * jnp.pi)
+    # ``period`` is dynamic when a recorded VMEC surface is transposed inside
+    # the compiled scan-fold kernel.  ``fftfreq`` needs only its static sample
+    # count; construct unit-period integer modes first and apply the physical
+    # ``2π / period`` scale with JAX arithmetic.  This is algebraically the
+    # same as ``fftfreq(n, d=period / n) * 2π`` without Python ``float``.
+    k = jnp.fft.fftfreq(n, d=1.0 / n) * (2.0 * jnp.pi / jnp.asarray(period))
     eye = jnp.eye(n, dtype=jnp.complex128 if dtype == jnp.float64 else jnp.complex64)
 
     def differentiate(column):
