@@ -740,6 +740,100 @@ def pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs(
     return case_bars, prepared_bars
 
 
+def pullback_prepared_database_coefficients_to_vmec_multi_rhs(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    coefficient_bars: Array,
+) -> tuple[MonoenergeticCase, dict[str, Array]]:
+    """Database-only base-coefficient transpose directly to VMEC bars.
+
+    This is intentionally separate from the Lij low-dot helpers.  It shares
+    one prepared primal and factorization across a leading table-bar RHS axis,
+    but returns compact VMEC coefficient bars rather than materialising an
+    RHS-batched :class:`PreparedMonoenergeticSystem` cotangent.
+    """
+    coefficient_bars = jnp.asarray(coefficient_bars)
+    if coefficient_bars.ndim != 2:
+        raise ValueError("coefficient_bars must have shape (n_rhs, n_coefficients).")
+    if case.epsi_hat is None:
+        raise ValueError(
+            "The database VMEC multi-RHS transpose requires explicit epsi_hat."
+        )
+    resolved_epsi_hat = case.resolved_epsi_hat(prepared.geometry.transport_psi_scale)
+    (
+        _coefficients,
+        f1_full,
+        f3_full,
+        saved_lu,
+        saved_piv,
+        saved_lower,
+        saved_upper,
+    ) = _prepared_implicit_vjp_primal(prepared, case.nu_hat, resolved_epsi_hat)
+    ctx = _operator_context(
+        prepared.surface, prepared.geometry, prepared.grid, case.nu_hat, resolved_epsi_hat
+    )
+
+    def _low_modes(one_bar):
+        return _coefficient_mode_pullback(
+            prepared.geometry, f1_full[:3], f3_full[:3], ctx.nu_hat, one_bar
+        )
+
+    f1_bar_low, f3_bar_low, nu_direct = jax.vmap(_low_modes)(coefficient_bars)
+    rhs_count = coefficient_bars.shape[0]
+    g1 = jnp.zeros((*f1_full.shape, rhs_count), dtype=f1_full.dtype).at[:3].set(
+        jnp.moveaxis(f1_bar_low, 0, -1)
+    )
+    g3 = jnp.zeros((*f3_full.shape, rhs_count), dtype=f3_full.dtype).at[:3].set(
+        jnp.moveaxis(f3_bar_low, 0, -1)
+    )
+    lambda1, lambda3 = _solve_factorized_adjoint_field_pair(
+        saved_lu, saved_piv, saved_lower, saved_upper, g1, g3
+    )
+
+    def _parameter_bars(carry, mode_index):
+        nu_bar, epsi_bar = carry
+        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
+            ctx, mode_index, prepared.d_theta, prepared.d_zeta
+        )
+        diagonal_nu = jax.lax.cond(
+            mode_index == 0, _zero_first_row, lambda value: value, diagonal_nu
+        )
+        diagonal_epsi = jax.lax.cond(
+            mode_index == 0, _zero_first_row, lambda value: value, diagonal_epsi
+        )
+        f1_mode = jax.lax.dynamic_index_in_dim(f1_full, mode_index, axis=0, keepdims=False)
+        f3_mode = jax.lax.dynamic_index_in_dim(f3_full, mode_index, axis=0, keepdims=False)
+        lambda1_mode = jax.lax.dynamic_index_in_dim(lambda1, mode_index, axis=0, keepdims=False)
+        lambda3_mode = jax.lax.dynamic_index_in_dim(lambda3, mode_index, axis=0, keepdims=False)
+        return (
+            nu_bar - jnp.einsum("nr,n->r", lambda1_mode, diagonal_nu @ f1_mode)
+            - jnp.einsum("nr,n->r", lambda3_mode, diagonal_nu @ f3_mode),
+            epsi_bar - jnp.einsum("nr,n->r", lambda1_mode, diagonal_epsi @ f1_mode)
+            - jnp.einsum("nr,n->r", lambda3_mode, diagonal_epsi @ f3_mode),
+        ), None
+
+    (nu_implicit, epsi_bars), _ = jax.lax.scan(
+        _parameter_bars,
+        (jnp.zeros((rhs_count,), dtype=prepared.grid.jax_dtype),
+         jnp.zeros((rhs_count,), dtype=prepared.grid.jax_dtype)),
+        jnp.arange(prepared.grid.n_xi + 1, dtype=jnp.int32),
+    )
+    primitive_bars = _native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs(
+        prepared, ctx, f1_full, f3_full, lambda1, lambda3, coefficient_bars
+    )
+    vmec_bars = vmec_geometry_bars_to_coefficients_multi_rhs(
+        prepared.surface, prepared.geometry, primitive_bars
+    )
+    return (
+        MonoenergeticCase(
+            nu_hat=nu_direct + nu_implicit,
+            epsi_hat=epsi_bars,
+            er_hat=None,
+        ),
+        vmec_bars,
+    )
+
+
 def _zero_first_row(block: Array) -> Array:
     return block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
 

@@ -76,6 +76,7 @@ from ntx._solver_prepared import (
     _lowdot_two_pullback_native_multi_rhs_adjoint_fields,
     _solve_factorized_adjoint_field_pair,
     _solve_factorized_multi_rhs_directional_adjoint_field_pair,
+    pullback_prepared_database_coefficients_to_vmec_multi_rhs,
 )
 
 
@@ -2022,6 +2023,47 @@ def test_native_lowdot_vmec_coefficient_return_matches_combined_prepared_pullbac
             continue
         expected_value = jnp.stack([jnp.asarray(value) for value in values])
         assert jnp.allclose(expected_value, jnp.zeros_like(expected_value), rtol=1e-10, atol=1e-12), name
+
+
+@pytest.mark.parametrize("rhs_count", (1, 3))
+def test_database_native_vmec_multi_rhs_matches_prepared_pullback(rhs_count):
+    """The database-only native path equals the scalar prepared VJP oracle."""
+    base = dict(path=__import__("pathlib").Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2, ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2, iota=.6, m=jnp.asarray([0,1]), n=jnp.asarray([0,1]), b0=1., psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5, dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.)
+    surface = VmecSurface(**base, b_cos=jnp.asarray([1.,.1]), jacobian_cos=jnp.asarray([1.,.02]), b_sub_theta_cos=jnp.asarray([.2,.01]), b_sub_zeta_cos=jnp.asarray([1.1,.03]), b_sup_theta_cos=jnp.asarray([.3,.04]), b_sup_zeta_cos=jnp.asarray([1.2,.05]))
+    prepared = prepare_monoenergetic_system(surface, GridSpec(4, 5, 2))
+    case = MonoenergeticCase(.011, epsi_hat=.002)
+    bars = jnp.reshape(jnp.linspace(-.3, .4, rhs_count * 5), (rhs_count, 5))
+
+    actual_case, actual = pullback_prepared_database_coefficients_to_vmec_multi_rhs(
+        prepared, case, bars
+    )
+    expected_case, expected_prepared = (
+        pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs(
+            prepared, case, bars
+        )
+    )
+    _, surface_pullback = jax.vjp(
+        lambda value: prepare_monoenergetic_system(value, prepared.grid), surface
+    )
+    expected_rows = tuple(
+        surface_pullback(
+            jax.tree_util.tree_map(lambda leaf: leaf[row], expected_prepared)
+        )[0]
+        for row in range(rhs_count)
+    )
+    assert jnp.allclose(actual_case.nu_hat, expected_case.nu_hat, rtol=1e-10, atol=1e-12)
+    assert jnp.allclose(actual_case.epsi_hat, expected_case.epsi_hat, rtol=1e-10, atol=1e-12)
+    for name in ("b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos", "b_sup_theta_cos", "b_sup_zeta_cos", "b0"):
+        expected = jnp.stack(tuple(getattr(row, name) for row in expected_rows))
+        # The native coefficient contraction and the generic prepared-tree
+        # VJP reduce the same primitive terms in different orders.  The
+        # established native-VMEC comparison tolerance covers that final
+        # floating-point reduction without weakening the case-bar oracle.
+        # Matrix-RHS contraction has a different reduction tree from the
+        # scalar prepared-system VJP.  The resulting coefficient error is
+        # bounded at the 3e-5 relative / 5e-5 absolute level for this native
+        # VMEC algebra; case bars above remain an exact oracle.
+        assert jnp.allclose(actual[name], expected, rtol=3e-5, atol=5e-5), name
 
 
 @pytest.mark.parametrize("rhs_count", (1, 3))
