@@ -10,11 +10,13 @@ import jax.numpy as jnp
 from jax import Array
 
 from ._neopax_bridge import _surface_reference_bridge
+from ._geometry_eval import geometry_on_grid
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
 from ._solver_core import prepare_monoenergetic_system
 from ._solver_scan_execution import _resolved_scan_inputs, _scan_coefficients_serial
 from ._solver_prepared import (
+    pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs,
     pullback_prepared_coefficient_vector_case_and_prepared,
     pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs,
 )
@@ -215,6 +217,84 @@ def _prepared_scan_coefficient_bar_rows_to_numeric_surface_leaves_kernel(
         (coefficient_bars, reference_bars),
     )
     return surface_leaf_rows, epsi_flat_rows
+
+
+@partial(jax.jit, static_argnums=(2,), inline=False)
+def _prepared_scan_coefficient_bar_rows_to_vmec_surface_leaves_native_kernel(
+    prepared,
+    surface: VmecSurface,
+    grid: GridSpec,
+    nu_values: Array,
+    epsi_values: Array,
+    coefficient_bars: Array,
+    reference_bars: Array,
+):
+    """Database-only matrix-RHS scan transpose directly to VMEC leaves.
+
+    Unlike the established generic row kernel above, this never materialises
+    a RHS-batched ``PreparedMonoenergeticSystem`` cotangent.  It is used only
+    by the runtime-database boundary; the Lij and generic scan paths retain
+    their existing prepared-system pullbacks.
+    """
+
+    rhs_count = coefficient_bars.shape[0]
+    geometry_bars0 = jax.tree_util.tree_map(
+        lambda value: jnp.broadcast_to(
+            value, (rhs_count, *jnp.asarray(value).shape)
+        ),
+        _zero_float_tree(prepared.geometry),
+    )
+
+    def _accumulate(geometry_bars, values):
+        nu_value, epsi_value, coefficient_bar = values
+        case_bars, local_geometry_bars = (
+            pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs(
+                prepared,
+                MonoenergeticCase(nu_hat=nu_value, epsi_hat=epsi_value),
+                coefficient_bar,
+            )
+        )
+        return (
+            _add_float_trees(geometry_bars, local_geometry_bars),
+            case_bars.epsi_hat,
+        )
+
+    geometry_bars, epsi_case_bars = jax.lax.scan(
+        _accumulate,
+        geometry_bars0,
+        (nu_values, epsi_values, jnp.moveaxis(coefficient_bars, 0, 1)),
+    )
+    _, reference_pullback = jax.vjp(_surface_reference_bridge, surface)
+    _, geometry_pullback = jax.vjp(
+        lambda surface_value: geometry_on_grid(surface_value, grid), surface
+    )
+
+    def _surface_leaves(values):
+        reference_values, local_geometry_bars = values
+        reference_bar = {
+            "b00": reference_values[0],
+            "boozer_i": reference_values[1],
+            "boozer_g": reference_values[2],
+            "iota": reference_values[3],
+            "fac_11": reference_values[4],
+            "fac_31": reference_values[5],
+            "fac_33": reference_values[6],
+            "fac_sfincs_to_dkes_11": reference_values[7],
+            "fac_sfincs_to_dkes_31": reference_values[8],
+            "fac_sfincs_to_dkes_33": reference_values[9],
+        }
+        surface_bar = _add_float_trees(
+            geometry_pullback(local_geometry_bars)[0],
+            reference_pullback(reference_bar)[0],
+        )
+        return tuple(jax.tree_util.tree_leaves(surface_bar))
+
+    _, surface_leaf_rows = jax.lax.scan(
+        lambda carry, values: (carry, _surface_leaves(values)),
+        None,
+        (reference_bars, geometry_bars),
+    )
+    return surface_leaf_rows, jnp.moveaxis(epsi_case_bars, 0, 1)
 
 
 _COEFFICIENT_BLOCK_NAMES = tuple(NeopaxScanCoefficientBlocks.__dataclass_fields__)
@@ -559,6 +639,86 @@ def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
             jax.tree_util.tree_structure(surface), surface_leaf_rows
         )
         surface_bars.append(surface_bar)
+
+    return tuple(surface_bars), jnp.stack(es_bars, axis=1)
+
+
+def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched_vmec_native(
+    record: NeopaxScanCoefficientPrimalRecord,
+    *,
+    coefficient_blocks_bar: NeopaxScanCoefficientBlocks,
+) -> tuple[tuple[VmecSurface, ...], Array]:
+    """Compact matrix-RHS recorded transpose for VMEC database scans only.
+
+    This is deliberately a separate public entry point.  The generic recorded
+    transpose remains the compatibility path for Boozer scans and all
+    non-database users, including the established Lij lane.
+    """
+
+    rhs_count = int(coefficient_blocks_bar.D11.shape[0])
+    if rhs_count < 1:
+        raise ValueError("Batched scan coefficient bars must contain at least one RHS row.")
+    if not all(isinstance(surface, VmecSurface) for surface in record.surfaces):
+        raise ValueError(
+            "The compact database recorded transpose requires VMEC scan surfaces."
+        )
+
+    surface_bars = []
+    es_bars = []
+    for surface_index, (surface, prepared, es_row) in enumerate(
+        zip(record.surfaces, record.prepared, record.Es, strict=True)
+    ):
+        nu_grid, es_grid = jnp.meshgrid(record.nu_v, es_row, indexing="ij")
+        nu_values, epsi_values, _output_shape = _resolved_scan_inputs(
+            prepared,
+            record.grid,
+            nu_grid,
+            es_grid,
+            None,
+        )
+        coefficient_bars = jnp.stack(
+            (
+                coefficient_blocks_bar.D11[:, surface_index],
+                jnp.zeros_like(coefficient_blocks_bar.D11[:, surface_index]),
+                coefficient_blocks_bar.D13[:, surface_index],
+                coefficient_blocks_bar.D33[:, surface_index],
+                coefficient_blocks_bar.D33_spitzer[:, surface_index],
+            ),
+            axis=-1,
+        ).reshape((rhs_count, -1, 5))
+        reference_bars = {
+            "b00": coefficient_blocks_bar.b00[:, surface_index],
+            "boozer_i": coefficient_blocks_bar.boozer_i[:, surface_index],
+            "boozer_g": coefficient_blocks_bar.boozer_g[:, surface_index],
+            "iota": coefficient_blocks_bar.iota[:, surface_index],
+            "fac_11": coefficient_blocks_bar.fac_reference_to_sfincs_11[:, surface_index],
+            "fac_31": coefficient_blocks_bar.fac_reference_to_sfincs_31[:, surface_index],
+            "fac_33": coefficient_blocks_bar.fac_reference_to_sfincs_33[:, surface_index],
+            "fac_sfincs_to_dkes_11": coefficient_blocks_bar.fac_sfincs_to_dkes_11[:, surface_index],
+            "fac_sfincs_to_dkes_31": coefficient_blocks_bar.fac_sfincs_to_dkes_31[:, surface_index],
+            "fac_sfincs_to_dkes_33": coefficient_blocks_bar.fac_sfincs_to_dkes_33[:, surface_index],
+        }
+        reference_bar_rows = jnp.stack(
+            tuple(reference_bars[name] for name in reference_bars), axis=1
+        )
+        surface_leaf_rows, epsi_flat_rows = (
+            _prepared_scan_coefficient_bar_rows_to_vmec_surface_leaves_native_kernel(
+                prepared,
+                surface,
+                record.grid,
+                nu_values.reshape((-1,)),
+                epsi_values.reshape((-1,)),
+                coefficient_bars,
+                reference_bar_rows,
+            )
+        )
+        epsi_bar_grid = epsi_flat_rows.reshape((rhs_count, *es_grid.shape))
+        es_bars.append(jnp.sum(epsi_bar_grid, axis=1))
+        surface_bars.append(
+            jax.tree_util.tree_unflatten(
+                jax.tree_util.tree_structure(surface), surface_leaf_rows
+            )
+        )
 
     return tuple(surface_bars), jnp.stack(es_bars, axis=1)
 

@@ -13,13 +13,18 @@ import ntx._neopax_scan as neopax_scan_module
 import ntx.neopax as neopax_module
 from ntx._neopax_scan_coefficients import (
     NeopaxScanCoefficientBlocks,
+    _add_float_trees,
+    _prepared_scan_coefficient_bar_multi_rhs_kernel,
     pullback_neopax_scan_coefficient_blocks_from_primal_record,
     pullback_neopax_scan_coefficient_blocks_from_primal_record_batched,
+    pullback_neopax_scan_coefficient_blocks_from_primal_record_batched_vmec_native,
     pullback_neopax_scan_coefficient_blocks_prepared,
     solve_neopax_scan_coefficient_blocks,
     solve_neopax_scan_coefficient_blocks_prepared,
     solve_neopax_scan_coefficient_blocks_prepared_structured_vjp,
 )
+from ntx._solver_core import prepare_monoenergetic_system
+from ntx._solver_scan_execution import _resolved_scan_inputs
 from ntx import (
     GridSpec,
     NeopaxScan,
@@ -33,6 +38,7 @@ from ntx import (
     write_neopax_scan_hdf5,
 )
 from ntx._neopax_scan_fields import normalize_neopax_scan_field_channels
+from ntx.geometry import VmecSurface
 from ntx.neopax import _surface_reference_bridge
 
 from .fixture_data import SAMPLE_WOUT
@@ -274,6 +280,132 @@ def test_prepared_scan_primal_record_batched_pullback_matches_scalar_rows():
             if jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
                 assert jnp.allclose(actual, expected, rtol=1.0e-10, atol=1.0e-10)
         assert jnp.allclose(actual_row_es, expected_es, rtol=1.0e-10, atol=1.0e-10)
+
+
+def test_vmec_native_batched_recorded_scan_pullback_matches_generic_rows():
+    """The database-only VMEC fold preserves the generic recorded transpose."""
+
+    base = dict(
+        path=Path("fixture.nc"), requested_psi_n=.2, psi_n=.2, nfp=2,
+        ns=3, mpol=2, ntor=1, total_mode_count=2, loaded_mode_count=2,
+        iota=.6, m=jnp.asarray([0, 1]), n=jnp.asarray([0, 1]), b0=1.,
+        psi_a_hat=1., phi_edge=1., r_n=.5, r_hat=.5,
+        dpsi_hat_dr_hat=1., dr_hat_dpsi_hat=1., transport_psi_scale=1.,
+    )
+    surface = VmecSurface(
+        **base,
+        b_cos=jnp.asarray([1., .1]), jacobian_cos=jnp.asarray([1., .02]),
+        b_sub_theta_cos=jnp.asarray([.2, .01]),
+        b_sub_zeta_cos=jnp.asarray([1.1, .03]),
+        b_sup_theta_cos=jnp.asarray([.3, .04]),
+        b_sup_zeta_cos=jnp.asarray([1.2, .05]),
+    )
+    surfaces = (surface, surface)
+    nu_v = jnp.asarray([1.0e-2, 2.0e-2])
+    es = jnp.asarray([[0.0, 1.0e-3], [0.0, 2.0e-3]])
+    grid = GridSpec(4, 5, 2)
+    blocks, record = solve_neopax_scan_coefficient_blocks_prepared(
+        surfaces, Es=es, nu_v=nu_v, grid=grid, return_primal_record=True
+    )
+    names = tuple(NeopaxScanCoefficientBlocks.__dataclass_fields__)
+    bars = NeopaxScanCoefficientBlocks(
+        **{
+            name: jnp.stack((
+                jnp.full_like(getattr(blocks, name), .02 * (index + 1)),
+                jnp.full_like(getattr(blocks, name), -.03 * (index + 1)),
+            ))
+            for index, name in enumerate(names)
+        }
+    )
+    expected_surfaces = []
+    expected_es = []
+    for surface_index, (surface_value, prepared, es_row) in enumerate(
+        zip(record.surfaces, record.prepared, record.Es, strict=True)
+    ):
+        nu_grid, es_grid = jnp.meshgrid(record.nu_v, es_row, indexing="ij")
+        nu_values, epsi_values, _ = _resolved_scan_inputs(
+            prepared, record.grid, nu_grid, es_grid, None
+        )
+        coefficient_bars = jnp.stack((
+            bars.D11[:, surface_index], jnp.zeros_like(bars.D11[:, surface_index]),
+            bars.D13[:, surface_index], bars.D33[:, surface_index],
+            bars.D33_spitzer[:, surface_index],
+        ), axis=-1).reshape((bars.D11.shape[0], -1, 5))
+        prepared_bars, epsi_flat_bars = _prepared_scan_coefficient_bar_multi_rhs_kernel(
+            prepared,
+            nu_values.reshape((-1,)),
+            epsi_values.reshape((-1,)),
+            coefficient_bars,
+        )
+        _, prepare_pullback = jax.vjp(
+            lambda value: prepare_monoenergetic_system(value, record.grid),
+            surface_value,
+        )
+        _, reference_pullback = jax.vjp(_surface_reference_bridge, surface_value)
+        reference_rows = jnp.stack((
+            bars.b00[:, surface_index], bars.boozer_i[:, surface_index],
+            bars.boozer_g[:, surface_index], bars.iota[:, surface_index],
+            bars.fac_reference_to_sfincs_11[:, surface_index],
+            bars.fac_reference_to_sfincs_31[:, surface_index],
+            bars.fac_reference_to_sfincs_33[:, surface_index],
+            bars.fac_sfincs_to_dkes_11[:, surface_index],
+            bars.fac_sfincs_to_dkes_31[:, surface_index],
+            bars.fac_sfincs_to_dkes_33[:, surface_index],
+        ), axis=1)
+
+        def _surface_row(values):
+            prepared_bar, reference_values = values
+            reference_bar = dict(zip(
+                ("b00", "boozer_i", "boozer_g", "iota", "fac_11", "fac_31", "fac_33", "fac_sfincs_to_dkes_11", "fac_sfincs_to_dkes_31", "fac_sfincs_to_dkes_33"),
+                reference_values,
+                strict=True,
+            ))
+            return _add_float_trees(
+                prepare_pullback(prepared_bar)[0],
+                reference_pullback(reference_bar)[0],
+            )
+
+        rows = tuple(
+            _surface_row((
+                jax.tree_util.tree_map(lambda leaf: leaf[row], prepared_bars),
+                reference_rows[row],
+            ))
+            for row in range(bars.D11.shape[0])
+        )
+        expected_surfaces.append(jax.tree_util.tree_map(
+            lambda *values: jnp.stack(values), *rows
+        ))
+        expected_es.append(jnp.sum(
+            epsi_flat_bars.reshape((bars.D11.shape[0], *es_grid.shape)), axis=1
+        ))
+    expected_surfaces = tuple(expected_surfaces)
+    expected_es = jnp.stack(expected_es, axis=1)
+    actual_surfaces, actual_es = (
+        pullback_neopax_scan_coefficient_blocks_from_primal_record_batched_vmec_native(
+            record, coefficient_blocks_bar=bars
+        )
+    )
+    vmec_fields = (
+        "requested_psi_n", "psi_n", "nfp", "iota", "m", "n",
+        "b_cos", "jacobian_cos", "b_sub_theta_cos", "b_sub_zeta_cos",
+        "b_sup_theta_cos", "b_sup_zeta_cos", "b0", "psi_a_hat",
+        "phi_edge", "r_n", "r_hat", "dpsi_hat_dr_hat",
+        "dr_hat_dpsi_hat", "aminor_p", "psi_p", "transport_psi_scale",
+    )
+    for surface_index, (actual_surface, expected_surface) in enumerate(
+        zip(actual_surfaces, expected_surfaces, strict=True)
+    ):
+        for name in vmec_fields:
+            actual = getattr(actual_surface, name)
+            expected = getattr(expected_surface, name)
+            if expected is None or not jnp.issubdtype(jnp.asarray(expected).dtype, jnp.inexact):
+                continue
+            difference_norm = jnp.linalg.norm(jnp.ravel(actual - expected))
+            expected_norm = jnp.linalg.norm(jnp.ravel(expected))
+            assert difference_norm <= 3e-5 * jnp.maximum(expected_norm, 1.0), (
+                surface_index, name, difference_norm, expected_norm
+            )
+    assert jnp.allclose(actual_es, expected_es, rtol=3e-5, atol=5e-5)
 
 
 def test_prepared_scan_structured_vjp_matches_generic_vjp():

@@ -740,17 +740,18 @@ def pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs(
     return case_bars, prepared_bars
 
 
-def pullback_prepared_database_coefficients_to_vmec_multi_rhs(
+def pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
     coefficient_bars: Array,
 ) -> tuple[MonoenergeticCase, dict[str, Array]]:
-    """Database-only base-coefficient transpose directly to VMEC bars.
+    """Database-only base-coefficient transpose to GeometryOnGrid bars.
 
     This is intentionally separate from the Lij low-dot helpers.  It shares
-    one prepared primal and factorization across a leading table-bar RHS axis,
-    but returns compact VMEC coefficient bars rather than materialising an
-    RHS-batched :class:`PreparedMonoenergeticSystem` cotangent.
+    one prepared primal and factorization across a leading table-bar RHS axis.
+    Returning geometry bars lets a scan caller add every ``(nu, Er)`` case
+    before one exact geometry-to-surface VJP, without materialising an
+    RHS-batched prepared-system cotangent.
     """
     coefficient_bars = jnp.asarray(coefficient_bars)
     if coefficient_bars.ndim != 2:
@@ -818,19 +819,67 @@ def pullback_prepared_database_coefficients_to_vmec_multi_rhs(
          jnp.zeros((rhs_count,), dtype=prepared.grid.jax_dtype)),
         jnp.arange(prepared.grid.n_xi + 1, dtype=jnp.int32),
     )
-    primitive_bars = _native_vmec_primitive_bars_from_fixed_adjoint_multi_rhs(
-        prepared, ctx, f1_full, f3_full, lambda1, lambda3, coefficient_bars
-    )
-    vmec_bars = vmec_geometry_bars_to_coefficients_multi_rhs(
-        prepared.surface, prepared.geometry, primitive_bars
-    )
+    # Keep the fixed primal/factorisation and matrix-RHS adjoints above, but
+    # use the exact geometry-only residual VJP here.  The earlier analytic
+    # primitive contraction is fast for one case yet accumulates a measurable
+    # Jacobian error across the different epsi values of a database scan.
+    # This VJP is over ``GeometryOnGrid`` only: it does not materialise a
+    # prepared-system cotangent or re-solve NTX.
+    geometry_bars = jax.vmap(
+        lambda lambda1_value, lambda3_value, coefficient_bar_value:
+        _geometry_gradient_from_adjoint(
+            prepared,
+            ctx,
+            f1_full,
+            f3_full,
+            lambda1_value,
+            lambda3_value,
+            coefficient_bar_value,
+        ),
+        in_axes=(2, 2, 0),
+    )(lambda1, lambda3, coefficient_bars)
     return (
         MonoenergeticCase(
             nu_hat=nu_direct + nu_implicit,
             epsi_hat=epsi_bars,
             er_hat=None,
         ),
-        vmec_bars,
+        geometry_bars,
+    )
+
+
+def pullback_prepared_database_coefficients_to_vmec_multi_rhs(
+    prepared: PreparedMonoenergeticSystem,
+    case: MonoenergeticCase,
+    coefficient_bars: Array,
+) -> tuple[MonoenergeticCase, dict[str, Array]]:
+    """Database-only base-coefficient transpose directly to VMEC bars.
+
+    This convenience wrapper preserves the compact per-case API.  Recorded
+    scan transposes should instead use the primitive helper above and defer
+    their Fourier contraction until all scan cases have been accumulated.
+    """
+
+    case_bars, geometry_bars = (
+        pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs(
+            prepared, case, coefficient_bars
+        )
+    )
+    return (
+        case_bars,
+        vmec_geometry_bars_to_coefficients_multi_rhs(
+            prepared.surface,
+            prepared.geometry,
+            {
+                name: getattr(geometry_bars, name)
+                for name in (
+                    "b", "d_b_dtheta", "d_b_dzeta", "jacobian",
+                    "b_sub_theta", "b_sub_zeta", "b_sup_theta",
+                    "b_sup_zeta", "volume_prime", "b2_mean",
+                    "radial_drift_spatial", "b0",
+                )
+            },
+        ),
     )
 
 
