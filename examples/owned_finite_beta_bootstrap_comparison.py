@@ -79,9 +79,9 @@ def _require_external_stacks() -> tuple[Any, Any, Any, Any, Any]:
     """Import optional local stacks only when the full audit is executed."""
 
     for path in (
-        Path("/Users/rogeriojorge/local/booz_xform_jax/src"),
-        Path("/Users/rogeriojorge/local/tests/NEOPAX"),
-        Path("/Users/rogeriojorge/local/simsopt/src"),
+        Path("../booz_xform_jax/src"),
+        Path("../NEOPAX"),
+        Path("../simsopt/src"),
     ):
         if path.exists() and str(path) not in sys.path:
             sys.path.insert(0, str(path))

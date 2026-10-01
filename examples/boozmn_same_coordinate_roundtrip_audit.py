@@ -38,10 +38,10 @@ from ntx import (  # noqa: E402
 )
 
 DEFAULT_INPUT = Path(
-    "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres"
+    "../vmex/examples/data/input.LandremanPaul2021_QA_lowres"
 )
 DEFAULT_WOUT = Path(
-    "/Users/rogeriojorge/local/vmex/examples/data/wout_LandremanPaul2021_QA_lowres.nc"
+    "../vmex/examples/data/wout_LandremanPaul2021_QA_lowres.nc"
 )
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "boozmn_same_coordinate_roundtrip_audit"
 

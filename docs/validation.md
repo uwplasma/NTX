@@ -162,7 +162,7 @@ they can be used as a finite-beta current reference. A `17 x 21 x 12, Nx=5`
 inner-radius rerun now completes the HDF5 output on local CPU, moving the
 SFINCS-JAX-vs-Redl current gap from about `8.5e-1` on the smoke grid to about
 `5.6e-1`, but the reported linear residual remains `1.88e-2` against a
-`1.09e-9` target. The office one-GPU rerun reaches the same fallback residual
+`1.09e-9` target. The benchmark one-GPU rerun reaches the same fallback residual
 and then fails with a CUDA illegal-address error in JAX GMRES. This keeps the
 current comparison explicit rather than folding an unconverged direct-profile
 observable into a promoted parity claim.

@@ -12,7 +12,7 @@ The canonical local checkout for commits, pushes, and collaborator-facing
 relative paths is:
 
 ```text
-/Users/rogeriojorge/local/NTX
+../NTX
 ```
 
 Do not maintain a second writable NTX checkout under nearby code directories.
@@ -21,7 +21,7 @@ rather than a stale clone. The local NEOPAX sibling path currently follows that
 policy:
 
 ```text
-/Users/rogeriojorge/local/several_codes/NTX -> /Users/rogeriojorge/local/NTX
+../NTX -> ../NTX
 ```
 
 The following reproducible local artifacts were removed from the NTX worktree:
@@ -37,7 +37,7 @@ The 2.9 GB literature/reference checkout
 was moved out of the NTX repository root to:
 
 ```text
-/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current
+../20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current
 ```
 
 That keeps the reference material available locally without making the NTX

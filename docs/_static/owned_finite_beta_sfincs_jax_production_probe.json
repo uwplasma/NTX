@@ -41,9 +41,9 @@
       "s": 0.02040816326530612,
       "nu_prime": 0.01,
       "e_star": 0.0,
-      "input_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48/finite_beta_qa_pressure_current/rho_0p142857/nuPrime_0p01/EStar_0/input.namelist",
-      "output_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48/finite_beta_qa_pressure_current/rho_0p142857/nuPrime_0p01/EStar_0/sfincs_jax_output.h5",
-      "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+      "input_path": "NTX/examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48/finite_beta_qa_pressure_current/rho_0p142857/nuPrime_0p01/EStar_0/input.namelist",
+      "output_path": "NTX/examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48/finite_beta_qa_pressure_current/rho_0p142857/nuPrime_0p01/EStar_0/sfincs_jax_output.h5",
+      "wout_path": "../single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
       "status": "complete",
       "seconds": 2.70819420798216,
       "error": null,
@@ -145,7 +145,7 @@
     "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.003628590757026083
   },
   "run_sfincs_jax": true,
-  "output_dir": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48",
+  "output_dir": "NTX/examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48",
   "figure_png": "docs/_static/owned_finite_beta_sfincs_jax_inputs.png",
   "figure_pdf": "docs/_static/owned_finite_beta_sfincs_jax_inputs.pdf",
   "open_work": [

@@ -54,7 +54,7 @@ OUTPUT_PREFIX = (
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_sfincs_jax_profile_current_audit"
 BOOTSTRAP_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison.json"
 SFINCS_JAX_ROOT = Path(
-    os.environ.get("NTX_SFINCS_JAX_ROOT", "/Users/rogeriojorge/local/tests/sfincs_jax")
+    os.environ.get("NTX_SFINCS_JAX_ROOT", "../tests/sfincs_jax")
 )
 
 DEFAULT_GRID = GridSpec(13, 15, 8)

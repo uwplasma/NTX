@@ -4,15 +4,15 @@
       "helicity_n": 0,
       "label": "QA precise-QS fixed-field reference",
       "name": "qa",
-      "sfincs_scan_path": "/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/calculations/20211226-01-sfincs_for_precise_QS_for_Redl_benchmark/20211226-01-012_QA_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces/sfincsScan.dat",
-      "wout_path": "/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/codes/simsopt/tests/test_files/wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
+      "sfincs_scan_path": "../20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/calculations/20211226-01-sfincs_for_precise_QS_for_Redl_benchmark/20211226-01-012_QA_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces/sfincsScan.dat",
+      "wout_path": "simsopt/tests/test_files/wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
     },
     "qh": {
       "helicity_n": -1,
       "label": "QH precise-QS fixed-field reference",
       "name": "qh",
-      "sfincs_scan_path": "/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/calculations/20211226-01-sfincs_for_precise_QS_for_Redl_benchmark/20211226-01-019_QH_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces/sfincsScan.dat",
-      "wout_path": "/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/codes/simsopt/tests/test_files/wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc"
+      "sfincs_scan_path": "../20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/calculations/20211226-01-sfincs_for_precise_QS_for_Redl_benchmark/20211226-01-019_QH_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces/sfincsScan.dat",
+      "wout_path": "simsopt/tests/test_files/wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc"
     }
   },
   "cases": {
@@ -2308,7 +2308,7 @@
           5.819888959289219,
           5.817787966016628
         ],
-        "scan_path": "/Users/rogeriojorge/local/NTX/examples/outputs/bootstrap_current_fixed_field_validation/qa/fixed_field/ntx_scan.h5",
+        "scan_path": "NTX/examples/outputs/bootstrap_current_fixed_field_validation/qa/fixed_field/ntx_scan.h5",
         "timing": {
           "field_seconds": 1.0881566659954842,
           "neopax_closure_seconds": 17.498687416984467,
@@ -5301,7 +5301,7 @@
           5.843880776303934,
           5.842864300932552
         ],
-        "scan_path": "/Users/rogeriojorge/local/NTX/examples/outputs/bootstrap_current_fixed_field_validation/qh/fixed_field/ntx_scan.h5",
+        "scan_path": "NTX/examples/outputs/bootstrap_current_fixed_field_validation/qh/fixed_field/ntx_scan.h5",
         "timing": {
           "field_seconds": 0.010540249990299344,
           "neopax_closure_seconds": 0.0051778329943772405,
@@ -6004,8 +6004,8 @@
     }
   },
   "enable_sfincs_jax": false,
-  "figure_pdf": "/Users/rogeriojorge/local/NTX/docs/_static/bootstrap_current_fixed_field_validation.pdf",
-  "figure_png": "/Users/rogeriojorge/local/NTX/docs/_static/bootstrap_current_fixed_field_validation.png",
+  "figure_pdf": "NTX/docs/_static/bootstrap_current_fixed_field_validation.pdf",
+  "figure_png": "NTX/docs/_static/bootstrap_current_fixed_field_validation.png",
   "ntx_neopax_d33_mode": "spitzer",
   "ntx_neopax_n_order": 2,
   "ntx_neopax_radial_points": 17,

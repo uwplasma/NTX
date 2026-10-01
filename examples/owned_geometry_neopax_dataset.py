@@ -46,9 +46,9 @@ DEFAULT_GRID = GridSpec(9, 11, 8)
 COEFFICIENTS = ("D11", "D13", "D33")
 EPS = 1.0e-30
 FINITE_BETA_ROOT_CANDIDATES = (
-    Path("/Users/rogeriojorge/local/single_stage_finite_beta"),
-    Path("/Users/rogeriojorge/local/single_stage_optimization_finite_beta"),
-    Path("/Users/rogeriojorge/local/tests/single_stage_optimization_finite_beta"),
+    Path("../single_stage_finite_beta"),
+    Path("../single_stage_optimization_finite_beta"),
+    Path("../tests/single_stage_optimization_finite_beta"),
 )
 
 

@@ -3,8 +3,8 @@
   "classification": "owned finite-beta coefficient/profile-current mismatch localization",
   "claim_scope": "Compares the completed same-grid finite-beta SFINCS-JAX transport-matrix coefficient ladder with the finite-beta Redl and NTX+NEOPAX profile-current stress artifact. It is a localization diagnostic: coefficient errors below the 1e-1 gate at the profile-current stress radius do not by themselves promote bootstrap-current parity.",
   "inputs": {
-    "sfincs_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
-    "bootstrap_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_bootstrap_comparison.json",
+    "sfincs_artifact": "NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+    "bootstrap_artifact": "NTX/docs/_static/owned_finite_beta_bootstrap_comparison.json",
     "raw_coefficient_channels": [
       "L13_bridge_vs_sfincs",
       "L31_bridge_vs_sfincs",

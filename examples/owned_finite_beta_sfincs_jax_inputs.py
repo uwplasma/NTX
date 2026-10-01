@@ -51,7 +51,7 @@ from ntx import (  # noqa: E402
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_inputs"
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_sfincs_jax_inputs"
 SFINCS_JAX_ROOT = Path(
-    os.environ.get("NTX_SFINCS_JAX_ROOT", "/Users/rogeriojorge/local/tests/sfincs_jax")
+    os.environ.get("NTX_SFINCS_JAX_ROOT", "../tests/sfincs_jax")
 )
 DEFAULT_GRID = GridSpec(25, 31, 32)
 DEFAULT_SFINCS_RHO = (1.0 / 7.0, 0.30, 0.50)

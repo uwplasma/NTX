@@ -25,7 +25,7 @@
     {
       "id": "qa_lowres",
       "label": "QA low-res",
-      "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
+      "input_path": "vmex/examples/data/input.LandremanPaul2021_QA_lowres",
       "geometry_path": "explicit_relaxed_fixed_boundary",
       "parameter_names": [
         "rc01",
@@ -202,7 +202,7 @@
     {
       "id": "qh_warm_start",
       "label": "QH warm-start",
-      "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.nfp4_QH_warm_start",
+      "input_path": "vmex/examples/data/input.nfp4_QH_warm_start",
       "geometry_path": "explicit_relaxed_fixed_boundary",
       "parameter_names": [
         "rc01",

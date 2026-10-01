@@ -21,7 +21,7 @@
       "id": "boozmn_sample",
       "label": "Sample Boozer file",
       "source_kind": "boozmn",
-      "source_path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_boozmn.nc",
+      "source_path": "NTX/tests/fixtures/sample_boozmn.nc",
       "rho": 0.5,
       "s": 0.25,
       "grid": {
@@ -298,7 +298,7 @@
       "id": "vmec_sample",
       "label": "Sample VMEC-backed surface",
       "source_kind": "vmex",
-      "source_path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_wout.nc",
+      "source_path": "NTX/tests/fixtures/sample_wout.nc",
       "rho": 0.5,
       "s": 0.25,
       "grid": {
@@ -634,6 +634,6 @@
     "compare geometry-control pullbacks against a prepared implicit-adjoint path",
     "measure memory and factorization reuse on larger geometry-control scans"
   ],
-  "figure_png": "/Users/rogeriojorge/local/NTX/docs/_static/file_backed_geometry_control_derivative_benchmark.png",
-  "figure_pdf": "/Users/rogeriojorge/local/NTX/docs/_static/file_backed_geometry_control_derivative_benchmark.pdf"
+  "figure_png": "NTX/docs/_static/file_backed_geometry_control_derivative_benchmark.png",
+  "figure_pdf": "NTX/docs/_static/file_backed_geometry_control_derivative_benchmark.pdf"
 }
