@@ -16,6 +16,8 @@ pip install ntx
 ntx solve --example --nu-hat 1e-2
 ```
 
+For optional Boozer transforms, use `pip install -e ".[booz]"` in a clone.
+
 ## Why differentiability changes the cost model
 
 Conventional monoenergetic solvers are forward maps: given a surface, they
