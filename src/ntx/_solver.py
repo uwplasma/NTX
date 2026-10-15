@@ -163,6 +163,7 @@ def _factorize_prepared_modes(
     backward pass can be handed without re-tracing the container type.
     """
     factors = block_thomas_factor_fn(_operator_block_fn(ctx, d_theta, d_zeta), n_blocks=n_xi + 1)
+    assert isinstance(factors, BlockTridiagFactors)  # store_offdiagonals defaults to True
     return factors.delta_lu, factors.delta_piv, factors.lower, factors.upper
 
 

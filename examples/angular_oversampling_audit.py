@@ -9,7 +9,7 @@ import platform
 import subprocess
 import sys
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
@@ -154,7 +154,7 @@ def run_audits(
     )
     return {
         "schema_version": 1,
-        "generated_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_utc": datetime.now(UTC).isoformat(),
         "provenance": {
             "ntx_version": _package_version("ntx"),
             "jax_version": jax.__version__,

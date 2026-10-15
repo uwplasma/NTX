@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,10 +43,7 @@ __all__ = [
 
 # --- _inputfiles_model: Input-file configuration models and parsing helpers. ---
 
-if sys.version_info >= (3, 11):
-    import tomllib
-else:  # pragma: no cover - exercised on Python 3.10 environments
-    import tomli as tomllib
+import tomllib
 
 
 @dataclass(frozen=True)
