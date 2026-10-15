@@ -3,10 +3,10 @@
   "classification": "owned finite-beta production same-grid coefficient ladder",
   "claim_scope": "Audits the completed production-resolution finite-beta QA SFINCS-JAX/NTX same-grid transport-matrix ladder across the profile-relevant radii and collisionalities. This closes the coefficient-resolution breadth check for the finite-beta stress case, while keeping bootstrap-current parity open until the profile-current closure clears the current-conditioned precision target.",
   "inputs": {
-    "smoke_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
-    "production_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_ladder.json",
-    "conditioning_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_current_conditioning_audit.json",
-    "observable_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+    "smoke_json": "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+    "production_json": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder.json",
+    "conditioning_json": "docs/_static/owned_finite_beta_current_conditioning_audit.json",
+    "observable_json": "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
     "coefficient_gate": 0.1
   },
   "rows": [

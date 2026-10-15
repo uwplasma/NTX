@@ -716,7 +716,7 @@ with:
 XLA_FLAGS=--xla_force_host_platform_device_count=4 python scripts/profile_parallel_runtime.py
 ```
 
-On the office workstation, the single-process path exposes a cuSolver failure
+On the two-GPU workstation (2x RTX A4000), the single-process path exposes a cuSolver failure
 mode on `cuda:1`, while the multiprocess pinned-device path is numerically
 correct on both GPUs. For the repository smoke cases the multiprocess path is
 still slower than the serial batched solve because worker startup dominates, so

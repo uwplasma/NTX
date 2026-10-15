@@ -7,12 +7,12 @@
     "label": "Finite-beta QA pressure/current",
     "family": "QA finite beta",
     "source": "single-stage finite-beta test case",
-    "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
-    "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+    "input_path": "single_stage_optimization_finite_beta:test/input.LandremanPaul2021_QA_lowres_pressure_current",
+    "wout_path": "single_stage_optimization_finite_beta:test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
     "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
     "primary_geometry_path": "booz_xform_jax",
     "wout_metadata": {
-      "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+      "path": "single_stage_optimization_finite_beta:test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
       "exists": true,
       "nfp": 2,
       "ns": 50,
@@ -68,7 +68,7 @@
       "n_xi": 24
     },
     "scan_source": "cached_hdf5",
-    "scan_path": "/Users/rogeriojorge/local/NTX/examples/outputs/owned_finite_beta_radial_interpolation_audit/finite_beta_qa_pressure_current_bootstrap_scan.h5",
+    "scan_path": "examples/outputs/owned_finite_beta_radial_interpolation_audit/finite_beta_qa_pressure_current_bootstrap_scan.h5",
     "scan_load_seconds": 0.0015739579685032368
   },
   "rows": [

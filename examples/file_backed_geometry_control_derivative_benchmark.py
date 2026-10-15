@@ -21,7 +21,7 @@ import numpy as np  # noqa: E402
 from matplotlib.colors import LogNorm  # noqa: E402
 
 from ntx import GridSpec, load_boozmn_surface, solve_monoenergetic_scan  # noqa: E402
-from ntx._checkout_paths import fixture_path  # noqa: E402
+from ntx._checkout_paths import fixture_path, portable_path  # noqa: E402
 from ntx.config import enable_x64  # noqa: E402
 from ntx.geometry import BoozerSurface  # noqa: E402
 from ntx.vmex_vmec import surface_from_vmex_vmec_wout_file  # noqa: E402
@@ -96,7 +96,7 @@ def _load_surface(case: FileBackedCase) -> tuple[BoozerSurface, dict[str, float 
         payload = load_boozmn_surface(case.path, rho=float(case.rho))
         return payload.surface, {
             "source_kind": case.source_kind,
-            "source_path": str(case.path),
+            "source_path": portable_path(case.path),
             "rho": float(payload.rho),
             "s": float(payload.s),
         }
@@ -105,7 +105,7 @@ def _load_surface(case: FileBackedCase) -> tuple[BoozerSurface, dict[str, float 
     s_value = float(case.s if case.s is not None else 0.0)
     return surface, {
         "source_kind": case.source_kind,
-        "source_path": str(case.path),
+        "source_path": portable_path(case.path),
         "rho": float(np.sqrt(max(s_value, 0.0))),
         "s": s_value,
     }
@@ -436,8 +436,8 @@ def write_outputs(payload: dict[str, object], output_prefix: Path) -> None:
     plt.close(fig)
 
     payload = dict(payload)
-    payload["figure_png"] = str(figure_png)
-    payload["figure_pdf"] = str(figure_pdf)
+    payload["figure_png"] = portable_path(figure_png)
+    payload["figure_pdf"] = portable_path(figure_pdf)
     figure_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"Wrote {figure_png}")
     print(f"Wrote {figure_pdf}")

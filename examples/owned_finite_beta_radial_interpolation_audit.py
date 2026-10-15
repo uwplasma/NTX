@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 from examples import owned_finite_beta_bootstrap_comparison as bootstrap  # noqa: E402
+from ntx._checkout_paths import portable_path  # noqa: E402
 
 BASELINE_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison.json"
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_radial_interpolation_audit"
@@ -40,13 +41,6 @@ EPS = 1.0e-30
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
-
-
-def _artifact_path(path: Path) -> str:
-    try:
-        return str(path.relative_to(ROOT))
-    except ValueError:
-        return str(path)
 
 
 def _array(payload: dict[str, Any], section: str, key: str) -> np.ndarray:
@@ -228,8 +222,8 @@ def build_payload_from_comparisons(
             "correction is promoted by this artifact."
         ),
         "source_artifacts": {
-            "baseline": _artifact_path(baseline_path),
-            "field_radius_matched": _artifact_path(matched_path),
+            "baseline": portable_path(baseline_path),
+            "field_radius_matched": portable_path(matched_path),
         },
         "radial_contract": {
             "baseline_scan_rho": baseline_scan_rho.tolist(),
@@ -268,8 +262,8 @@ def build_payload_from_comparisons(
                 "gates for any future runtime interpolation policy change"
             ),
         ],
-        "figure_png": _artifact_path(OUTPUT_PREFIX.with_suffix(".png")),
-        "figure_pdf": _artifact_path(OUTPUT_PREFIX.with_suffix(".pdf")),
+        "figure_png": portable_path(OUTPUT_PREFIX.with_suffix(".png")),
+        "figure_pdf": portable_path(OUTPUT_PREFIX.with_suffix(".pdf")),
     }
 
 

@@ -26,7 +26,7 @@ from ntx import (  # noqa: E402
     load_neopax_reference_scan,
     to_neopax_monoenergetic,
 )
-from ntx._checkout_paths import find_neopax_root  # noqa: E402
+from ntx._checkout_paths import find_neopax_root, portable_path  # noqa: E402
 from ntx.vmex_vmec import surface_from_vmex_vmec_wout_file  # noqa: E402
 
 NEOPAX_ROOT = find_neopax_root()
@@ -235,12 +235,8 @@ def plot_profiles(data: dict[str, np.ndarray | float | bool]) -> None:
 
 
 def write_summary(data: dict[str, np.ndarray | float | bool]) -> None:
-    try:
-        figure_png = str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT))
-        figure_pdf = str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT))
-    except ValueError:
-        figure_png = str(OUTPUT_PREFIX.with_suffix(".png"))
-        figure_pdf = str(OUTPUT_PREFIX.with_suffix(".pdf"))
+    figure_png = portable_path(OUTPUT_PREFIX.with_suffix(".png"))
+    figure_pdf = portable_path(OUTPUT_PREFIX.with_suffix(".pdf"))
 
     summary = {
         "wout": WOUT_PATH.name,

@@ -21,6 +21,6 @@
     "3": 1.1670174968393047e-12,
     "4": 0.49423424778953606
   },
-  "figure_png": "/Users/rogeriojorge/local/NTX/docs/_static/closure_pmax_convergence.png",
-  "figure_pdf": "/Users/rogeriojorge/local/NTX/docs/_static/closure_pmax_convergence.pdf"
+  "figure_png": "docs/_static/closure_pmax_convergence.png",
+  "figure_pdf": "docs/_static/closure_pmax_convergence.pdf"
 }

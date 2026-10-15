@@ -8,21 +8,8 @@ preserving benchmark reproducibility.
 The tracked worktree is clean after the latest ship-readiness commits. No
 tracked benchmark artifact was removed during the cleanup pass.
 
-The canonical local checkout for commits, pushes, and collaborator-facing
-relative paths is:
-
-```text
-/Users/rogeriojorge/local/NTX
-```
-
-Do not maintain a second writable NTX checkout under nearby code directories.
-If a sibling project needs `../NTX/...`, use a symlink to the canonical checkout
-rather than a stale clone. The local NEOPAX sibling path currently follows that
-policy:
-
-```text
-/Users/rogeriojorge/local/several_codes/NTX -> /Users/rogeriojorge/local/NTX
-```
+Keep one writable NTX checkout. If a sibling project needs `../NTX/...`,
+symlink it to that checkout rather than keeping a stale clone.
 
 The following reproducible local artifacts were removed from the NTX worktree:
 
@@ -34,11 +21,8 @@ The following reproducible local artifacts were removed from the NTX worktree:
 
 The 2.9 GB literature/reference checkout
 `20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current`
-was moved out of the NTX repository root to:
-
-```text
-/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current
-```
+was moved out of the NTX repository root to a sibling directory, where
+`ntx._checkout_paths.find_qs_zenodo_root` finds it (or set `QS_ZENODO_ROOT`).
 
 That keeps the reference material available locally without making the NTX
 worktree look dirty or inflating repository-local tooling scans.

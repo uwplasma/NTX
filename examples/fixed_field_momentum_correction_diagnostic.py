@@ -48,6 +48,7 @@ from ntx import (
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
+from ntx._checkout_paths import portable_path  # noqa: E402
 
 _bootstrap_current_pythonpath()
 
@@ -1044,8 +1045,8 @@ def _diagnose_case(case_key: str, rho_targets: np.ndarray) -> dict[str, Any]:
             "name": case.name,
             "label": case.label,
             "helicity_n": case.helicity_n,
-            "wout_path": str(case.wout_path),
-            "sfincs_scan_path": str(case.sfincs_scan_path),
+            "wout_path": portable_path(case.wout_path),
+            "sfincs_scan_path": portable_path(case.sfincs_scan_path),
         },
         "timings": context["timings"],
         "rho_grid": rho_grid.tolist(),

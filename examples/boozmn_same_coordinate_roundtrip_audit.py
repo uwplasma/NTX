@@ -36,13 +36,12 @@ from ntx import (  # noqa: E402
     solve_prepared,
     surface_from_vmex_wout,
 )
+from ntx._checkout_paths import find_vmex_example_input, portable_path  # noqa: E402
 
-DEFAULT_INPUT = Path(
-    "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres"
-)
-DEFAULT_WOUT = Path(
-    "/Users/rogeriojorge/local/vmex/examples/data/wout_LandremanPaul2021_QA_lowres.nc"
-)
+# Both files ship with VMEX under examples/data
+# (https://github.com/uwplasma/vmex); set VMEX_ROOT to point at a checkout.
+DEFAULT_INPUT = find_vmex_example_input("input.LandremanPaul2021_QA_lowres")
+DEFAULT_WOUT = find_vmex_example_input("wout_LandremanPaul2021_QA_lowres.nc")
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "boozmn_same_coordinate_roundtrip_audit"
 
 
@@ -56,7 +55,7 @@ def _scalar(value: Any) -> float:
 
 def _jsonify(value: Any) -> Any:
     if isinstance(value, Path):
-        return str(value)
+        return portable_path(value)
     if isinstance(value, np.ndarray):
         return value.tolist()
     if isinstance(value, np.floating | np.integer):
@@ -315,9 +314,9 @@ def build_roundtrip_audit(
             "benchmark": "boozmn_same_coordinate_roundtrip_audit",
             "classification": "same-coordinate VMEC half-grid Boozer-file round trip",
             "inputs": {
-                "input": str(input_path),
-                "wout": str(wout_path),
-                "generated_boozmn": str(boozmn_path),
+                "input": portable_path(input_path),
+                "wout": portable_path(wout_path),
+                "generated_boozmn": portable_path(boozmn_path),
                 "generated_boozmn_retained": output_dir is not None,
                 "surface_indices": list(surface_indices),
                 "mboz": int(mboz),
@@ -515,6 +514,8 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
+    if args.input is None or args.wout is None:
+        raise SystemExit("VMEX example data not found: set VMEX_ROOT or pass --input/--wout.")
     payload = build_roundtrip_audit(
         input_path=args.input,
         wout_path=args.wout,

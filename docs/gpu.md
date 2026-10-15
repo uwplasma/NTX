@@ -6,16 +6,16 @@ NTX uses the same JAX solver path on CPU and GPU.
 
 - `tests/test_gpu_smoke.py`
 - `scripts/run_gpu_regression.py`
-- `scripts/sh_office_gpu_smoke.sh`
+- `scripts/sh_gpu_smoke.sh`
 
 ## Typical Session
 
 ```bash
-sh office
+ssh <gpu-host>
 cd /path/to/NTX
 python -m pip install -e ".[dev,docs,io]"
 export XLA_PYTHON_CLIENT_PREALLOCATE=false
-scripts/sh_office_gpu_smoke.sh
+scripts/sh_gpu_smoke.sh
 ```
 
 ## What The Regression Script Reports
@@ -52,25 +52,25 @@ python scripts/profile_multiprocess_runtime.py --backend gpu --workers 2
 ```
 
 That path runs one Python worker per GPU with process-local
-`CUDA_VISIBLE_DEVICES` pinning. It is the current robust route for office
+`CUDA_VISIBLE_DEVICES` pinning. It is the current robust route for multi-GPU
 hardware because it avoids the single-process cuSolver failure mode seen on
 `cuda:1`.
 
 ## Current Hardware Interpretation
 
-The current GPU lane is numerically stable and validated on office hardware.
+The current GPU lane is numerically stable and validated on a two-GPU RTX A4000 workstation.
 For the small repository smoke cases, CPU remains faster in steady-state wall
 time. That is expected: these grids are small enough that GPU launch and
 transfer overheads dominate.
 
-For the single-process profiler on office:
+For the single-process profiler on that workstation:
 
 - JAX sees two GPUs
 - only one passes the NTX dense-solve smoke check under the current stack
 - the guarded parallel path therefore runs on the healthy subset and preserves
   correct coefficients
 
-For the multiprocess profiler on office:
+For the multiprocess profiler on that workstation:
 
 - both GPUs execute correctly when pinned to separate worker processes
 - coefficient deltas are zero at the repository smoke-case tolerance

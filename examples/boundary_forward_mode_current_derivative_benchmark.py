@@ -33,6 +33,7 @@ from ntx._checkout_paths import (  # noqa: E402
     find_booz_xform_jax_root,
     find_neopax_root,
     find_vmex_example_input,
+    portable_path,
 )
 from ntx.config import enable_x64  # noqa: E402
 
@@ -241,7 +242,7 @@ def _build_payload(*, fd_step: float, grid: GridSpec) -> dict[str, object]:
         "benchmark": "boundary_forward_mode_current_derivative_benchmark",
         "classification": "artifact-backed boundary-to-output forward-mode stress benchmark",
         "case": {
-            "input_path": str(find_vmex_example_input()),
+            "input_path": portable_path(find_vmex_example_input() or "input.circular_tokamak"),
             "geometry_path": "boundary_projected_initial_guess",
             "parameter_names": parameter_names,
         },

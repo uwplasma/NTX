@@ -5,6 +5,8 @@ from typing import Any
 
 import numpy as np
 
+from ntx._checkout_paths import portable_path
+
 
 def jsonify(value: Any) -> Any:
     if isinstance(value, dict):
@@ -12,7 +14,7 @@ def jsonify(value: Any) -> Any:
     if isinstance(value, (list, tuple)):
         return [jsonify(item) for item in value]
     if isinstance(value, Path):
-        return str(value)
+        return portable_path(value)
     if isinstance(value, np.ndarray):
         return value.tolist()
     if isinstance(value, np.generic):

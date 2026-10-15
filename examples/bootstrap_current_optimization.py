@@ -25,7 +25,7 @@ from ntx import (  # noqa: E402
     solve_monoenergetic_scan,
     surface_from_vmex_vmec_wout_file,
 )
-from ntx._checkout_paths import find_neopax_root  # noqa: E402
+from ntx._checkout_paths import find_neopax_root, portable_path  # noqa: E402
 from ntx.config import enable_x64  # noqa: E402
 
 
@@ -335,8 +335,8 @@ def main() -> None:
         "parallel_scan_seconds": float(result.parallel_seconds),
         "objective_history": objective_history.tolist(),
         "gradient_history": gradient_history.tolist(),
-        "figure_png": str(output_png),
-        "figure_pdf": str(output_pdf),
+        "figure_png": portable_path(output_png),
+        "figure_pdf": portable_path(output_pdf),
     }
     args.output_prefix.with_suffix(".json").write_text(
         json.dumps(summary, indent=2),

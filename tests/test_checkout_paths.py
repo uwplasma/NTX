@@ -57,6 +57,12 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
     assert cp.find_vmex_root() == vmec_root.resolve()
     assert cp.find_vmex_example_input() == example_input
 
+    assert cp.portable_path(example_input) == "vmex:examples/data/input.circular_tokamak"
+    assert cp.portable_path(sfincs_root) == "DKX:"
+    assert cp.portable_path(cp.repo_root() / "docs" / "x.json") == "docs/x.json"
+    assert cp.portable_path(tmp_path / "elsewhere" / "wout.nc") == "wout.nc"
+    assert cp.portable_path("examples/outputs/x.h5") == "examples/outputs/x.h5"
+
 
 def test_fixture_path_and_workspace_helpers():
     fixture = cp.fixture_path("sample_surface.ddkes2.data")

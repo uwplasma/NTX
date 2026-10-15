@@ -27,6 +27,7 @@ from ntx import (  # noqa: E402
     solve_prepared_coefficient_vector,
     solve_prepared_coefficient_vector_vjp,
 )
+from ntx._checkout_paths import portable_path  # noqa: E402
 from ntx.config import enable_x64  # noqa: E402
 
 GRID = GridSpec(7, 9, 6)
@@ -505,8 +506,8 @@ def main(output_prefix: Path = OUTPUT_PREFIX) -> None:
             ),
             "entries": resolution_audits,
         },
-        "figure_png": str(output_prefix.with_suffix(".png")),
-        "figure_pdf": str(output_prefix.with_suffix(".pdf")),
+        "figure_png": portable_path(output_prefix.with_suffix(".png")),
+        "figure_pdf": portable_path(output_prefix.with_suffix(".pdf")),
     }
     output_prefix.with_suffix(".json").write_text(
         json.dumps(summary, indent=2),

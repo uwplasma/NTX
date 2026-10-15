@@ -2,7 +2,7 @@
   "benchmark": "boundary_forward_mode_current_derivative_benchmark",
   "classification": "artifact-backed boundary-to-output forward-mode stress benchmark",
   "case": {
-    "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.circular_tokamak",
+    "input_path": "vmex:examples/data/input.circular_tokamak",
     "geometry_path": "boundary_projected_initial_guess",
     "parameter_names": [
       "rc10",

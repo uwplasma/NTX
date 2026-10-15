@@ -6,6 +6,10 @@ build the Redl geometry factors, the NTX monoenergetic scan, the NEOPAX field,
 and the analytic density/temperature profiles.  It is a reduced-grid stress
 audit for normalization and interpolation provenance, not an independent-code
 parity claim.
+
+booz_xform_jax, NEOPAX and simsopt are imported from installed packages or from
+sibling checkouts found by ``ntx._checkout_paths`` (``BOOZ_XFORM_JAX_ROOT``,
+``NEOPAX_ROOT``, ``SIMSOPT_ROOT``).
 """
 
 from __future__ import annotations
@@ -43,6 +47,12 @@ from ntx import (  # noqa: E402
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
+from ntx._checkout_paths import (  # noqa: E402
+    find_booz_xform_jax_root,
+    find_neopax_root,
+    find_simsopt_root,
+    portable_path,
+)
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison"
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_bootstrap_comparison"
@@ -78,12 +88,14 @@ class ProfileContract:
 def _require_external_stacks() -> tuple[Any, Any, Any, Any, Any]:
     """Import optional local stacks only when the full audit is executed."""
 
-    for path in (
-        Path("/Users/rogeriojorge/local/booz_xform_jax/src"),
-        Path("/Users/rogeriojorge/local/tests/NEOPAX"),
-        Path("/Users/rogeriojorge/local/simsopt/src"),
-    ):
-        if path.exists() and str(path) not in sys.path:
+    checkouts = (
+        (find_booz_xform_jax_root(), "src"),
+        (find_neopax_root(), "."),
+        (find_simsopt_root(), "src"),
+    )
+    for root, subdir in checkouts:
+        path = None if root is None else (root / subdir).resolve()
+        if path is not None and path.exists() and str(path) not in sys.path:
             sys.path.insert(0, str(path))
     import NEOPAX
     from booz_xform_jax import Booz_xform
@@ -519,7 +531,7 @@ def _ntx_neopax_current(
     if write_hdf5:
         path = output_dir / f"{case.id}_bootstrap_scan.h5"
         write_neopax_scan_hdf5(scan, path)
-        hdf5_payload = {"path": str(path), "status": "written"}
+        hdf5_payload = {"path": portable_path(path), "status": "written"}
     database = to_neopax_monoenergetic(scan, a_b=float(field.a_b), d33_mode=d33_mode)
     closure = _evaluate_neopax_currents(
         NEOPAX,
@@ -607,7 +619,7 @@ def _ntx_neopax_current(
         "scan_seconds": float(scan_seconds),
         "field_a_b": float(field.a_b),
         "booz_xform_psi_p": float(_case_psi_p_for_boozer(case)),
-        "boozmn_path": str(boozmn_path),
+        "boozmn_path": portable_path(boozmn_path),
         "hdf5": hdf5_payload,
     }
 
@@ -632,7 +644,7 @@ def _to_jsonable(value: Any) -> Any:
     if isinstance(value, (np.floating, np.integer)):
         return value.item()
     if isinstance(value, Path):
-        return str(value)
+        return portable_path(value)
     return value
 
 

@@ -2,8 +2,8 @@
   "benchmark": "boozmn_backend_validation_audit",
   "classification": "direct Boozer-file backend validation audit",
   "inputs": {
-    "wout": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_wout.nc",
-    "boozmn": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_boozmn.nc",
+    "wout": "tests/fixtures/sample_wout.nc",
+    "boozmn": "tests/fixtures/sample_boozmn.nc",
     "rho": 0.5,
     "s": 0.25,
     "nu_hat": 0.01,
@@ -55,7 +55,7 @@
             0.03075
           ]
         },
-        "path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_wout.nc",
+        "path": "tests/fixtures/sample_wout.nc",
         "loaded_mode_count": 4,
         "total_mode_count": 4,
         "psi_a_hat": 0.1909859317102744,
@@ -299,7 +299,7 @@
             -0.0505
           ]
         },
-        "path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_boozmn.nc",
+        "path": "tests/fixtures/sample_boozmn.nc",
         "b_theta": 0.1825,
         "b_zeta": 1.3725
       },
@@ -541,7 +541,7 @@
             -0.0505
           ]
         },
-        "path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_boozmn.nc",
+        "path": "tests/fixtures/sample_boozmn.nc",
         "b_theta": 0.1825,
         "b_zeta": 1.3725
       },

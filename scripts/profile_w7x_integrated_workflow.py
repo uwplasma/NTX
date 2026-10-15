@@ -18,6 +18,8 @@ from typing import Any
 
 from jax.experimental.compilation_cache import compilation_cache as jax_compilation_cache
 
+from ntx._checkout_paths import portable_path  # noqa: E402
+
 
 def _configure_xla_flags(xla_dump_dir: Path | None) -> str | None:
     if xla_dump_dir is None:
@@ -208,7 +210,7 @@ def main(argv: list[str] | None = None) -> int:
         "xla_dump_dir": str(args.xla_dump_dir) if args.xla_dump_dir is not None else None,
         "compilation_cache_dir": compilation_cache_dir,
         "xla_flags": xla_flags,
-        "rebuilt_scan": str(module.REBUILT_SCAN_PATH),
+        "rebuilt_scan": portable_path(module.REBUILT_SCAN_PATH),
         "timings": timings,
         "max_rss_mb": _max_rss_mb(),
         "points": points,

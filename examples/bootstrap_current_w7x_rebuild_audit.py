@@ -30,7 +30,7 @@ from ntx import (
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
-from ntx._checkout_paths import find_neopax_root
+from ntx._checkout_paths import find_neopax_root, portable_path
 
 
 NEOPAX_ROOT = find_neopax_root()
@@ -274,10 +274,10 @@ def main() -> None:
     plt.close(fig)
 
     summary = {
-        "wout": str(WOUT_PATH),
-        "boozmn": str(BOOZMN_PATH),
-        "legacy_database": str(REFERENCE_PATH),
-        "rebuilt_scan": str(rebuilt_path),
+        "wout": portable_path(WOUT_PATH),
+        "boozmn": portable_path(BOOZMN_PATH),
+        "legacy_database": portable_path(REFERENCE_PATH),
+        "rebuilt_scan": portable_path(rebuilt_path),
         "ntx_grid": {
             "n_theta": NTX_GRID.n_theta,
             "n_zeta": NTX_GRID.n_zeta,
@@ -293,8 +293,8 @@ def main() -> None:
         },
         "rho": rho.tolist(),
         "reference_j_bootstrap": J_FINAL_REFERENCE.tolist(),
-        "figure_png": str(OUTPUT_PREFIX.with_suffix(".png")),
-        "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf")),
+        "figure_png": portable_path(OUTPUT_PREFIX.with_suffix(".png")),
+        "figure_pdf": portable_path(OUTPUT_PREFIX.with_suffix(".pdf")),
     }
     OUTPUT_PREFIX.with_suffix(".json").write_text(json.dumps(summary, indent=2))
     print(

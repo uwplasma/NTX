@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 from examples.owned_finite_beta_bootstrap_comparison import _to_jsonable  # noqa: E402
+from ntx._checkout_paths import portable_path  # noqa: E402
 
 OUTPUT_PREFIX = (
     ROOT
@@ -117,7 +118,7 @@ def _row_from_payload(path: Path) -> dict[str, Any]:
         "solver_method": solver.get("linearSolverMethod"),
         "solver_gate_pass": bool(solver.get("true_residual_gate_pass", False)),
         "solver_true_residual_over_target": solver.get("true_residual_over_target"),
-        "source_payload": str(path),
+        "source_payload": portable_path(path),
     }
 
 
@@ -174,7 +175,7 @@ def build_payload(input_root: Path = INPUT_ROOT) -> dict[str, Any]:
             "contract.  This is a numerical convergence diagnostic, not a "
             "bootstrap-current parity claim."
         ),
-        "input_root": str(input_root),
+        "input_root": portable_path(input_root),
         "rows": rows,
         "summary_metrics": {
             "row_count": int(len(rows)),
@@ -215,11 +216,7 @@ def write_payload(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) 
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     payload = dict(payload)
     for key, suffix in (("figure_png", ".png"), ("figure_pdf", ".pdf")):
-        path = output_prefix.with_suffix(suffix)
-        try:
-            payload[key] = str(path.relative_to(ROOT))
-        except ValueError:
-            payload[key] = str(path)
+        payload[key] = portable_path(output_prefix.with_suffix(suffix))
     output_prefix.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
 
 
