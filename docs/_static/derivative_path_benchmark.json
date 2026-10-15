@@ -242,6 +242,6 @@
       }
     ]
   },
-  "figure_png": "/Users/rogeriojorge/local/NTX/docs/_static/derivative_path_benchmark.png",
-  "figure_pdf": "/Users/rogeriojorge/local/NTX/docs/_static/derivative_path_benchmark.pdf"
+  "figure_png": "docs/_static/derivative_path_benchmark.png",
+  "figure_pdf": "docs/_static/derivative_path_benchmark.pdf"
 }

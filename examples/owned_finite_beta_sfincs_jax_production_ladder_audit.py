@@ -23,6 +23,8 @@ if str(ROOT) not in sys.path:
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
+from ntx._checkout_paths import portable_path  # noqa: E402
+
 OUTPUT_PREFIX = (
     ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_production_ladder_audit"
 )
@@ -249,10 +251,10 @@ def build_payload(
             "target."
         ),
         "inputs": {
-            "smoke_json": str(Path(smoke_json)),
-            "production_json": str(Path(production_json)),
-            "conditioning_json": str(Path(conditioning_json)),
-            "observable_json": str(Path(observable_json)),
+            "smoke_json": portable_path(smoke_json),
+            "production_json": portable_path(production_json),
+            "conditioning_json": portable_path(conditioning_json),
+            "observable_json": portable_path(observable_json),
             "coefficient_gate": COEFFICIENT_GATE,
         },
         "rows": rows,

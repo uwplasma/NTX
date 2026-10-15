@@ -9,6 +9,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
+from ntx._checkout_paths import portable_path  # noqa: E402
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -75,7 +77,8 @@ def main() -> None:
         )
 
     if args.output_json is not None:
-        args.output_json.write_text(json.dumps({"root": str(root), "gates": rows}, indent=2))
+        payload = {"root": portable_path(root), "gates": rows}
+        args.output_json.write_text(json.dumps(payload, indent=2))
 
 
 if __name__ == "__main__":

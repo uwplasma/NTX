@@ -56,6 +56,7 @@ from examples.owned_finite_beta_source_channel_audit import (  # noqa: E402
     _solve_channels,
 )
 from ntx import to_neopax_monoenergetic  # noqa: E402
+from ntx._checkout_paths import portable_path  # noqa: E402
 from ntx.validation._finite_beta_source_channels import (  # noqa: E402
     PROFILE_CURRENT_GATE,
     SOURCE_RECONSTRUCTION_GATE,
@@ -327,7 +328,7 @@ def build_payload(
             "case": case.as_payload(),
             "profile_contract": contract.as_payload(),
             "inputs": {
-                "bootstrap_artifact": str(bootstrap_json),
+                "bootstrap_artifact": portable_path(bootstrap_json),
                 "settings": [
                     {"neopax_x": int(neopax_x), "n_order": int(n_order)}
                     for neopax_x, n_order in settings

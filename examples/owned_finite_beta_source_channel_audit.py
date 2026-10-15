@@ -56,6 +56,7 @@ from ntx import (  # noqa: E402
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
+from ntx._checkout_paths import portable_path  # noqa: E402
 from ntx.validation._finite_beta_source_channels import (  # noqa: E402
     EFFECTIVE_LABELS,
     EPS,
@@ -203,13 +204,14 @@ def _load_or_build_scan(
 ) -> tuple[Any, dict[str, Any]]:
     inputs = bootstrap_payload["inputs"]
     hdf5_payload = bootstrap_payload.get("ntx_neopax", {}).get("hdf5") or {}
-    preferred_path = Path(str(hdf5_payload.get("path", ""))).expanduser()
+    raw_path = str(hdf5_payload.get("path", ""))
+    preferred_path = ROOT / raw_path if raw_path else Path(raw_path)
     if preferred_path.exists() and not neopax_scan_requires_rebuild(preferred_path):
         start = time.perf_counter()
         scan = load_neopax_reference_scan(preferred_path)
         return scan, {
             "scan_source": "cached_hdf5",
-            "scan_path": str(preferred_path),
+            "scan_path": portable_path(preferred_path),
             "scan_load_seconds": float(time.perf_counter() - start),
         }
 
@@ -219,8 +221,8 @@ def _load_or_build_scan(
         scan = load_neopax_reference_scan(fallback_path)
         return scan, {
             "scan_source": "cached_fallback_hdf5",
-            "scan_path": str(fallback_path),
-            "preferred_scan_path": str(preferred_path) if str(preferred_path) else None,
+            "scan_path": portable_path(fallback_path),
+            "preferred_scan_path": portable_path(preferred_path) if str(preferred_path) else None,
             "scan_load_seconds": float(time.perf_counter() - start),
         }
 
@@ -246,8 +248,8 @@ def _load_or_build_scan(
     write_neopax_scan_hdf5(scan, scan_path)
     return scan, {
         "scan_source": "rebuilt",
-        "scan_path": str(scan_path),
-        "preferred_scan_path": str(preferred_path) if str(preferred_path) else None,
+        "scan_path": portable_path(scan_path),
+        "preferred_scan_path": portable_path(preferred_path) if str(preferred_path) else None,
         "scan_build_seconds": float(time.perf_counter() - start),
     }
 
@@ -690,7 +692,7 @@ def build_payload(
             "case": case.as_payload(),
             "profile_contract": contract.as_payload(),
             "inputs": {
-                "bootstrap_artifact": str(bootstrap_json),
+                "bootstrap_artifact": portable_path(bootstrap_json),
                 "settings": [
                     {"neopax_x": int(neopax_x), "n_order": int(n_order)}
                     for neopax_x, n_order in settings

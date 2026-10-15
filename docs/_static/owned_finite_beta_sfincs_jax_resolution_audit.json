@@ -6,16 +6,16 @@
     "rho": 0.14285714285714285,
     "nuPrime": 0.01,
     "EStar": 0.0,
-    "smoke_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
-    "production_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
-    "production_tight_harmonics_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
-    "conditioning_json": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_current_conditioning_audit.json",
+    "smoke_json": "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+    "production_json": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+    "production_tight_harmonics_json": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+    "conditioning_json": "docs/_static/owned_finite_beta_current_conditioning_audit.json",
     "current_gate_relative_error": 0.1
   },
   "rows": [
     {
       "label": "smoke grid",
-      "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+      "source": "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
       "rho": 0.14285714285714285,
       "nu_prime": 0.01,
       "e_star": 0.0,
@@ -39,7 +39,7 @@
     },
     {
       "label": "production grid",
-      "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+      "source": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
       "rho": 0.14285714285714285,
       "nu_prime": 0.01,
       "e_star": 0.0,
@@ -63,7 +63,7 @@
     },
     {
       "label": "production grid, tight harmonics",
-      "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+      "source": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
       "rho": 0.14285714285714285,
       "nu_prime": 0.01,
       "e_star": 0.0,

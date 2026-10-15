@@ -32,6 +32,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 from examples.owned_finite_beta_bootstrap_comparison import _to_jsonable  # noqa: E402
+from ntx._checkout_paths import portable_path  # noqa: E402
 from ntx.validation._finite_beta_closure_target import (  # noqa: E402
     field_radius_matched_response_audit,
     profile_closure_target_diagnostics,
@@ -54,13 +55,6 @@ OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_closure_target_au
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
-
-
-def _artifact_path(path: Path) -> str:
-    try:
-        return str(path.relative_to(ROOT))
-    except ValueError:
-        return str(path)
 
 
 def build_payload(
@@ -125,7 +119,7 @@ def build_payload(
                 "design diagnostic: it applies no runtime correction and does "
                 "not promote finite-beta bootstrap-current parity."
             ),
-            "source_artifact": _artifact_path(source_response_json),
+            "source_artifact": portable_path(source_response_json),
             "rows": profile["rows"],
             "correlations": profile["correlations"],
             "linear_diagnostics": profile["linear_diagnostics"],

@@ -170,7 +170,7 @@
           "id": "boozmn_sample",
           "label": "Sample Boozer file",
           "source_kind": "boozmn",
-          "source_path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_boozmn.nc",
+          "source_path": "tests/fixtures/sample_boozmn.nc",
           "rho": 0.5,
           "s": 0.25,
           "grid": {
@@ -447,7 +447,7 @@
           "id": "vmec_sample",
           "label": "Sample VMEC-backed surface",
           "source_kind": "vmex",
-          "source_path": "/Users/rogeriojorge/local/NTX/tests/fixtures/sample_wout.nc",
+          "source_path": "tests/fixtures/sample_wout.nc",
           "rho": 0.5,
           "s": 0.25,
           "grid": {
@@ -782,7 +782,7 @@
     },
     "boundary_forward_mode_current_derivatives": {
       "case": {
-        "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.circular_tokamak",
+        "input_path": "vmex:examples/data/input.circular_tokamak",
         "geometry_path": "boundary_projected_initial_guess",
         "parameter_names": [
           "rc10",
@@ -841,7 +841,7 @@
       "case": {
         "id": "qa_lowres",
         "label": "QA low-res",
-        "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
+        "input_path": "vmex:examples/data/input.LandremanPaul2021_QA_lowres",
         "geometry_path": "implicit_fixed_boundary_residual_solve",
         "parameter_names": [
           "rc01"
@@ -932,7 +932,7 @@
         {
           "id": "qa_lowres",
           "label": "QA low-res",
-          "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.LandremanPaul2021_QA_lowres",
+          "input_path": "vmex:examples/data/input.LandremanPaul2021_QA_lowres",
           "geometry_path": "explicit_relaxed_fixed_boundary",
           "parameter_names": [
             "rc01",
@@ -1109,7 +1109,7 @@
         {
           "id": "qh_warm_start",
           "label": "QH warm-start",
-          "input_path": "/Users/rogeriojorge/local/vmex/examples/data/input.nfp4_QH_warm_start",
+          "input_path": "vmex:examples/data/input.nfp4_QH_warm_start",
           "geometry_path": "explicit_relaxed_fixed_boundary",
           "parameter_names": [
             "rc01",
@@ -1436,7 +1436,7 @@
           "label": "NFP2 QA",
           "family": "QA",
           "source": "vmex examples",
-          "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_nfp2_QA.nc",
+          "path": "vmex:examples/data/wout_nfp2_QA.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "near-zero-transform vacuum QA example from the installed vmex suite; retained as a singular-conditioning diagnostic",
@@ -1559,7 +1559,7 @@
           "label": "NFP2 QA finite beta",
           "family": "QA",
           "source": "vmex examples",
-          "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_nfp2_QA_finite_beta.nc",
+          "path": "vmex:examples/data/wout_nfp2_QA_finite_beta.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "finite-beta QA example from the installed vmex example suite",
@@ -1682,7 +1682,7 @@
           "label": "Precise-QS QH",
           "family": "QH",
           "source": "vmex examples",
-          "path": "/Users/rogeriojorge/local/vmex/examples/data/wout_LandremanPaul2021_QH_reactorScale_lowres.nc",
+          "path": "vmex:examples/data/wout_LandremanPaul2021_QH_reactorScale_lowres.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "precise-QS QH reactor-scale low-resolution reference",
@@ -1805,7 +1805,7 @@
           "label": "W7-X EIM/EJM",
           "family": "W7-X",
           "source": "SIMSOPT test files",
-          "path": "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/wout_W7-X_without_coil_ripple_beta0p05_d23p4_tm_reference.nc",
+          "path": "simsopt:tests/test_files/wout_W7-X_without_coil_ripple_beta0p05_d23p4_tm_reference.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "public W7-X standard-configuration reference; local input comments identify this as EIM geometry corresponding to EJM flux surfaces",
@@ -1928,7 +1928,7 @@
           "label": "NFP4 QH",
           "family": "QH",
           "source": "SIMSOPT test files",
-          "path": "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/wout_20220102-01-053-003_QH_nfp4_aspect6p5_beta0p05_iteratedWithSfincs_reference.nc",
+          "path": "simsopt:tests/test_files/wout_20220102-01-053-003_QH_nfp4_aspect6p5_beta0p05_iteratedWithSfincs_reference.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "finite-beta QH reference used in public optimization examples",
@@ -2051,7 +2051,7 @@
           "label": "High-aspect QS",
           "family": "QS",
           "source": "SIMSOPT test files",
-          "path": "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/wout_LandremanSengupta2019_section5.4_B2_A80_reference.nc",
+          "path": "simsopt:tests/test_files/wout_LandremanSengupta2019_section5.4_B2_A80_reference.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "high-aspect-ratio quasi-symmetric reference",
@@ -2174,7 +2174,7 @@
           "label": "LSP non-stellsym",
           "family": "non-stellarator-symmetric",
           "source": "SIMSOPT test files",
-          "path": "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/wout_LandremanSenguptaPlunk_section5p3_reference.nc",
+          "path": "simsopt:tests/test_files/wout_LandremanSenguptaPlunk_section5p3_reference.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "section 5.3 Landreman-Sengupta-Plunk public reference; local README identifies this case as not stellarator symmetric",
@@ -2187,7 +2187,7 @@
           "label": "LI383",
           "family": "NCSX/QS",
           "source": "SIMSOPT test files",
-          "path": "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/wout_li383_low_res_reference.nc",
+          "path": "simsopt:tests/test_files/wout_li383_low_res_reference.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "low-resolution LI383 configuration used in public quasisymmetry diagnostic tests",
@@ -2310,7 +2310,7 @@
           "label": "N3ARE",
           "family": "stellarator",
           "source": "SIMSOPT test files",
-          "path": "/Users/rogeriojorge/local/tests/simsopt/tests/test_files/wout_n3are_R7.75B5.7_lowres.nc",
+          "path": "simsopt:tests/test_files/wout_n3are_R7.75B5.7_lowres.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "public low-resolution three-field-period stellarator-family equilibrium",
@@ -2433,7 +2433,7 @@
           "label": "LHD",
           "family": "heliotron",
           "source": "STELLOPT benchmarks",
-          "path": "/Users/rogeriojorge/local/STELLOPT/BENCHMARKS/DIAGNO_TEST/wout_lhd.nc",
+          "path": "STELLOPT:BENCHMARKS/DIAGNO_TEST/wout_lhd.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "public LHD diagnostic benchmark equilibrium",
@@ -2556,7 +2556,7 @@
           "label": "HSX",
           "family": "QHS",
           "source": "STELLOPT benchmarks",
-          "path": "/Users/rogeriojorge/local/STELLOPT/BENCHMARKS/DIAGNO_TEST/wout_hsx.nc",
+          "path": "STELLOPT:BENCHMARKS/DIAGNO_TEST/wout_hsx.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "public HSX quasi-helically symmetric benchmark equilibrium",
@@ -2679,7 +2679,7 @@
           "label": "NCSX",
           "family": "stellarator",
           "source": "STELLOPT benchmarks",
-          "path": "/Users/rogeriojorge/local/STELLOPT/BENCHMARKS/DIAGNO_TEST/wout_ncsx.nc",
+          "path": "STELLOPT:BENCHMARKS/DIAGNO_TEST/wout_ncsx.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "public compact-stellarator benchmark equilibrium",
@@ -2802,7 +2802,7 @@
           "label": "DIII-D",
           "family": "tokamak",
           "source": "STELLOPT benchmarks",
-          "path": "/Users/rogeriojorge/local/STELLOPT/BENCHMARKS/DIAGNO_TEST/wout_DIIID_m24n0s99_nfp1.nc",
+          "path": "STELLOPT:BENCHMARKS/DIAGNO_TEST/wout_DIIID_m24n0s99_nfp1.nc",
           "psi_n": 0.25,
           "min_bmn_to_load": 0.0001,
           "notes": "public axisymmetric DIII-D diagnostic benchmark equilibrium",
@@ -2867,12 +2867,12 @@
           "label": "Finite-beta QA pressure/current",
           "family": "QA finite beta",
           "source": "single-stage finite-beta test case",
-          "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
-          "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+          "input_path": "single_stage_optimization_finite_beta:test/input.LandremanPaul2021_QA_lowres_pressure_current",
+          "wout_path": "single_stage_optimization_finite_beta:test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
           "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
           "primary_geometry_path": "booz_xform_jax",
           "wout_metadata": {
-            "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+            "path": "single_stage_optimization_finite_beta:test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
             "exists": true,
             "nfp": 2,
             "ns": 50,
@@ -3291,12 +3291,12 @@
           "label": "Finite-beta optimized NFP3 QH",
           "family": "QH finite beta",
           "source": "single-stage finite-beta optimized case",
-          "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/input.final",
-          "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
+          "input_path": "single_stage_optimization_finite_beta:optimization_finitebeta_nfp3_QH_stage1/input.final",
+          "wout_path": "single_stage_optimization_finite_beta:optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
           "notes": "optimized finite-beta QH stellarator; direct wout-harmonic NTX path is usable, while the current vmex Boozer path reports the unresolved cubic-spline current-profile support gap",
           "primary_geometry_path": "vmex_wout_cubic",
           "wout_metadata": {
-            "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
+            "path": "single_stage_optimization_finite_beta:optimization_finitebeta_nfp3_QH_stage1/wout_final.nc",
             "exists": true,
             "nfp": 3,
             "ns": 101,
@@ -3782,7 +3782,7 @@
       "rows": [
         {
           "label": "smoke grid",
-          "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
+          "source": "docs/_static/owned_finite_beta_sfincs_jax_inputs.json",
           "rho": 0.14285714285714285,
           "nu_prime": 0.01,
           "e_star": 0.0,
@@ -3806,7 +3806,7 @@
         },
         {
           "label": "production grid",
-          "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
+          "source": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.json",
           "rho": 0.14285714285714285,
           "nu_prime": 0.01,
           "e_star": 0.0,
@@ -3830,7 +3830,7 @@
         },
         {
           "label": "production grid, tight harmonics",
-          "source": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
+          "source": "docs/_static/owned_finite_beta_sfincs_jax_production_probe_minbmn.json",
           "rho": 0.14285714285714285,
           "nu_prime": 0.01,
           "e_star": 0.0,
@@ -3979,7 +3979,7 @@
           "solver_method": "auto",
           "solver_gate_pass": false,
           "solver_true_residual_over_target": 13944164.4083592,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_8/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_8/payload.json"
         },
         {
           "n_xi": 10,
@@ -3999,7 +3999,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 5.892958886885324e-07,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_10/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_10/payload.json"
         },
         {
           "n_xi": 12,
@@ -4019,7 +4019,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 8.45200712991399e-07,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_12/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_12/payload.json"
         },
         {
           "n_xi": 14,
@@ -4039,7 +4039,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 6.947774878455923e-07,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_14/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_14/payload.json"
         },
         {
           "n_xi": 16,
@@ -4059,7 +4059,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.2192541266145476e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_16/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_16/payload.json"
         },
         {
           "n_xi": 17,
@@ -4079,7 +4079,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 7.439176420058299e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_17/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_17/payload.json"
         },
         {
           "n_xi": 18,
@@ -4099,7 +4099,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.047598036238718e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_18/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_18/payload.json"
         },
         {
           "n_xi": 19,
@@ -4119,7 +4119,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 5.988272786560541e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_19/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_19/payload.json"
         },
         {
           "n_xi": 20,
@@ -4139,7 +4139,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.1734739926364072e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_20/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_20/payload.json"
         },
         {
           "n_xi": 21,
@@ -4159,7 +4159,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 6.9728637410043625e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_21/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_21/payload.json"
         },
         {
           "n_xi": 22,
@@ -4179,7 +4179,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.017138521574792e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_22/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_22/payload.json"
         },
         {
           "n_xi": 23,
@@ -4199,7 +4199,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 4.8788457035933805e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_23/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_23/payload.json"
         },
         {
           "n_xi": 24,
@@ -4219,7 +4219,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.269862912462896e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_24/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_24/payload.json"
         },
         {
           "n_xi": 25,
@@ -4239,7 +4239,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 4.5728386434939195e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_25/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_25/payload.json"
         },
         {
           "n_xi": 26,
@@ -4259,7 +4259,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.3957151588816514e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_26/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_26/payload.json"
         },
         {
           "n_xi": 28,
@@ -4279,7 +4279,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.2325304752753346e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_28/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_28/payload.json"
         },
         {
           "n_xi": 30,
@@ -4299,7 +4299,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.3369809740211206e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_30/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_30/payload.json"
         },
         {
           "n_xi": 32,
@@ -4319,7 +4319,7 @@
           "solver_method": "sparse_pc_gmres",
           "solver_gate_pass": true,
           "solver_true_residual_over_target": 1.4879349868287943e-06,
-          "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_32/payload.json"
+          "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_32/payload.json"
         }
       ]
     },
@@ -4329,12 +4329,12 @@
         "label": "Finite-beta QA pressure/current",
         "family": "QA finite beta",
         "source": "single-stage finite-beta test case",
-        "input_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/input.LandremanPaul2021_QA_lowres_pressure_current",
-        "wout_path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+        "input_path": "single_stage_optimization_finite_beta:test/input.LandremanPaul2021_QA_lowres_pressure_current",
+        "wout_path": "single_stage_optimization_finite_beta:test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
         "notes": "finite-beta QA stellarator with pressure and toroidal current profiles representable by the current vmex input reader",
         "primary_geometry_path": "booz_xform_jax",
         "wout_metadata": {
-          "path": "/Users/rogeriojorge/local/single_stage_optimization_finite_beta/test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
+          "path": "single_stage_optimization_finite_beta:test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
           "exists": true,
           "nfp": 2,
           "ns": 50,

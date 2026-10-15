@@ -25,7 +25,12 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from ntx import GridSpec, MonoenergeticCase, load_vmec_surface, solve_monoenergetic
-from ntx._checkout_paths import find_qs_zenodo_root, find_sfincs_jax_root, find_vmex_root
+from ntx._checkout_paths import (
+    find_qs_zenodo_root,
+    find_sfincs_jax_root,
+    find_vmex_root,
+    portable_path,
+)
 
 OUTPUT_DIR = ROOT / "examples" / "outputs" / "fixed_field_transport_matrix_audit"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -383,7 +388,7 @@ def _run_case(case: FixedFieldCase, *, recompute: bool) -> dict[str, Any]:
             }
         )
     case_payload = asdict(case)
-    case_payload["wout_path"] = str(case.wout_path)
+    case_payload["wout_path"] = portable_path(case.wout_path)
     return {"case": case_payload, "rows": rows}
 
 

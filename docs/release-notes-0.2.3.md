@@ -34,7 +34,7 @@ Verified locally on 2026-04-26 before tagging:
 - `python -m sphinx -b html docs docs/_build/html`
 - `python -m build --outdir /tmp/ntx-dist-0.2.3`
 - `python -m twine check /tmp/ntx-dist-0.2.3/*`
-- remote `office` GPU smoke regression and GPU test subset
+- remote GPU-workstation smoke regression and GPU test subset
 
 ## Tagging
 

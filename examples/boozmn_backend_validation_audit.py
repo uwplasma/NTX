@@ -37,6 +37,7 @@ from ntx import (  # noqa: E402
     solve_prepared,
     surface_from_vmex_vmec_wout_file,
 )
+from ntx._checkout_paths import portable_path  # noqa: E402
 from ntx.operators import OperatorContext, coefficients_for_k, source_modes  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "boozmn_backend_validation_audit"
@@ -54,7 +55,7 @@ def _scalar(value: Any) -> float:
 
 def _jsonify(value: Any) -> Any:
     if isinstance(value, Path):
-        return str(value)
+        return portable_path(value)
     if isinstance(value, np.ndarray):
         return value.tolist()
     if isinstance(value, np.floating | np.integer):
@@ -110,13 +111,13 @@ def _surface_metadata(surface: Any) -> dict[str, Any]:
         "mode_head": _mode_head(surface),
     }
     if hasattr(surface, "path"):
-        metadata["path"] = str(surface.path)
+        metadata["path"] = portable_path(surface.path)
         metadata["loaded_mode_count"] = int(surface.loaded_mode_count)
         metadata["total_mode_count"] = int(surface.total_mode_count)
         metadata["psi_a_hat"] = _scalar(surface.psi_a_hat)
         metadata["transport_psi_scale"] = _scalar(surface.transport_psi_scale)
     if getattr(surface, "source_path", None) is not None:
-        metadata["path"] = str(surface.source_path)
+        metadata["path"] = portable_path(surface.source_path)
     if hasattr(surface, "b_theta"):
         metadata["b_theta"] = _scalar(surface.b_theta)
         metadata["b_zeta"] = _scalar(surface.b_zeta)
@@ -310,8 +311,8 @@ def build_audit(
         "benchmark": "boozmn_backend_validation_audit",
         "classification": "direct Boozer-file backend validation audit",
         "inputs": {
-            "wout": str(wout_path),
-            "boozmn": str(boozmn_path),
+            "wout": portable_path(wout_path),
+            "boozmn": portable_path(boozmn_path),
             "rho": rho,
             "s": rho**2,
             "nu_hat": nu_hat,

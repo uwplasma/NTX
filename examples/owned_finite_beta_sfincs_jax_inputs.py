@@ -47,12 +47,14 @@ from ntx import (  # noqa: E402
     solve_monoenergetic,
     surface_from_vmex_vmec_wout_file,
 )
+from ntx._checkout_paths import find_dkx_root, portable_path  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_inputs"
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_sfincs_jax_inputs"
-SFINCS_JAX_ROOT = Path(
-    os.environ.get("NTX_SFINCS_JAX_ROOT", "/Users/rogeriojorge/local/tests/sfincs_jax")
-)
+# DKX (formerly SFINCS-JAX, https://github.com/uwplasma/DKX): NTX_SFINCS_JAX_ROOT
+# or DKX_ROOT, else a sibling checkout; without one the installed package is used.
+_SFINCS_JAX_ENV = os.environ.get("NTX_SFINCS_JAX_ROOT")
+SFINCS_JAX_ROOT = Path(_SFINCS_JAX_ENV) if _SFINCS_JAX_ENV else find_dkx_root()
 DEFAULT_GRID = GridSpec(25, 31, 32)
 DEFAULT_SFINCS_RHO = (1.0 / 7.0, 0.30, 0.50)
 DEFAULT_RHS2_NL = 3
@@ -223,7 +225,7 @@ def _run_sfincs_jax(
     env = os.environ.copy()
     env.setdefault("SFINCS_JAX_GMRES_DISTRIBUTED", "0")
     env.setdefault("SFINCS_JAX_MATVEC_SHARD_AXIS", "off")
-    if SFINCS_JAX_ROOT.exists():
+    if SFINCS_JAX_ROOT is not None and SFINCS_JAX_ROOT.exists():
         env["PYTHONPATH"] = f"{SFINCS_JAX_ROOT}{os.pathsep}{env.get('PYTHONPATH', '')}"
     command = [
         sys.executable,
@@ -728,7 +730,7 @@ def build_payload(
             "rhsmode2_species": rhsmode2_species if rhs_mode == 2 else None,
         },
         "run_sfincs_jax": bool(run_sfincs_jax),
-        "output_dir": str(output_dir),
+        "output_dir": portable_path(output_dir),
         "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
         "open_work": [
@@ -753,11 +755,7 @@ def write_payload(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFI
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     payload = dict(payload)
     for key, suffix in (("figure_png", ".png"), ("figure_pdf", ".pdf")):
-        path = output_prefix.with_suffix(suffix)
-        try:
-            payload[key] = str(path.relative_to(ROOT))
-        except ValueError:
-            payload[key] = str(path)
+        payload[key] = portable_path(output_prefix.with_suffix(suffix))
     output_prefix.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
 
 

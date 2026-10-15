@@ -340,6 +340,6 @@
     "compare against the prepared implicit-adjoint path once geometry pullbacks are implemented",
     "measure memory under larger scan/database workloads"
   ],
-  "figure_png": "/Users/rogeriojorge/local/NTX/docs/_static/geometry_control_derivative_benchmark.png",
-  "figure_pdf": "/Users/rogeriojorge/local/NTX/docs/_static/geometry_control_derivative_benchmark.pdf"
+  "figure_png": "docs/_static/geometry_control_derivative_benchmark.png",
+  "figure_pdf": "docs/_static/geometry_control_derivative_benchmark.pdf"
 }

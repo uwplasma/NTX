@@ -26,6 +26,8 @@ if str(SRC) not in sys.path:
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
+from ntx._checkout_paths import portable_path  # noqa: E402
+
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_current_conditioning_audit"
 CLOSURE_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_closure_localization.json"
 OBSERVABLE_JSON = (
@@ -193,8 +195,8 @@ def build_payload(
             "bootstrap-current parity claim."
         ),
         "inputs": {
-            "closure_localization_artifact": str(closure_json),
-            "profile_current_observable_artifact": str(observable_json),
+            "closure_localization_artifact": portable_path(closure_json),
+            "profile_current_observable_artifact": portable_path(observable_json),
             "profile_current_gate": PROFILE_CURRENT_GATE,
             "current_units": "<J dot B> / sqrt(<B^2>)",
         },

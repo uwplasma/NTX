@@ -43,6 +43,7 @@ from ntx._checkout_paths import (
     find_neopax_root,
     find_qs_zenodo_root,
     find_sfincs_jax_root,
+    portable_path,
 )
 
 OUTPUT_DIR = ROOT / "examples" / "outputs" / "fixed_field_parallel_flow_audit"
@@ -530,7 +531,7 @@ def _build_ntx_neopax_lij(case: FixedFieldCase) -> dict[str, np.ndarray]:
         "archived_er_hat_rho": archived_er_hat,
         "archived_alpha_rho": archived_alpha,
         "archived_er_kv_per_m_rho": archived_er,
-        "scan_path": str(scan_path),
+        "scan_path": portable_path(scan_path),
     }
 
 
@@ -644,8 +645,8 @@ def _run_sfincs_jax_rhsmode2(
     )
     matrix = np.asarray(np.load(matrix_path), dtype=float)
     return {
-        "input_path": str(input_path),
-        "log_path": str(log_path),
+        "input_path": portable_path(input_path),
+        "log_path": portable_path(log_path),
         "run_seconds": run_seconds,
         "transport_matrix": matrix,
         "meta": {
@@ -821,8 +822,8 @@ def _run_case(case: FixedFieldCase) -> dict[str, Any]:
             }
         )
     case_payload = asdict(case)
-    case_payload["wout_path"] = str(case.wout_path)
-    case_payload["sfincs_scan_path"] = str(case.sfincs_scan_path)
+    case_payload["wout_path"] = portable_path(case.wout_path)
+    case_payload["sfincs_scan_path"] = portable_path(case.sfincs_scan_path)
     return {"case": case_payload, "rows": rows}
 
 
@@ -912,7 +913,7 @@ def main() -> None:
                 "is excluded here because the current closure does not expose the matching "
                 "electric-field source channel."
             ),
-            "zenodo_root": str(_zenodo_root()),
+            "zenodo_root": portable_path(_zenodo_root()),
         }
     }
     for key, case in _cases().items():

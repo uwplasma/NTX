@@ -2,7 +2,7 @@
   "benchmark": "owned_finite_beta_sfincs_jax_profile_current_resolution_audit",
   "classification": "finite-beta RHSMode=1 pitch-resolution convergence diagnostic",
   "claim_scope": "Tracks SFINCS-JAX profile-current sensitivity to the Legendre pitch truncation Nxi on the same owned finite-beta VMEC/profile contract.  This is a numerical convergence diagnostic, not a bootstrap-current parity claim.",
-  "input_root": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5",
+  "input_root": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5",
   "rows": [
     {
       "n_xi": 8,
@@ -22,7 +22,7 @@
       "solver_method": "auto",
       "solver_gate_pass": false,
       "solver_true_residual_over_target": 13944164.4083592,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_8/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_8/payload.json"
     },
     {
       "n_xi": 10,
@@ -42,7 +42,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 5.892958886885324e-07,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_10/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_10/payload.json"
     },
     {
       "n_xi": 12,
@@ -62,7 +62,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 8.45200712991399e-07,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_12/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_12/payload.json"
     },
     {
       "n_xi": 14,
@@ -82,7 +82,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 6.947774878455923e-07,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_14/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_14/payload.json"
     },
     {
       "n_xi": 16,
@@ -102,7 +102,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.2192541266145476e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_16/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_16/payload.json"
     },
     {
       "n_xi": 17,
@@ -122,7 +122,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 7.439176420058299e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_17/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_17/payload.json"
     },
     {
       "n_xi": 18,
@@ -142,7 +142,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.047598036238718e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_18/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_18/payload.json"
     },
     {
       "n_xi": 19,
@@ -162,7 +162,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 5.988272786560541e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_19/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_19/payload.json"
     },
     {
       "n_xi": 20,
@@ -182,7 +182,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.1734739926364072e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_20/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_20/payload.json"
     },
     {
       "n_xi": 21,
@@ -202,7 +202,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 6.9728637410043625e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_21/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_21/payload.json"
     },
     {
       "n_xi": 22,
@@ -222,7 +222,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.017138521574792e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_22/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_22/payload.json"
     },
     {
       "n_xi": 23,
@@ -242,7 +242,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 4.8788457035933805e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_23/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_23/payload.json"
     },
     {
       "n_xi": 24,
@@ -262,7 +262,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.269862912462896e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_24/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_24/payload.json"
     },
     {
       "n_xi": 25,
@@ -282,7 +282,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 4.5728386434939195e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_25/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_25/payload.json"
     },
     {
       "n_xi": 26,
@@ -302,7 +302,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.3957151588816514e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_26/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_26/payload.json"
     },
     {
       "n_xi": 28,
@@ -322,7 +322,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.2325304752753346e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_28/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_28/payload.json"
     },
     {
       "n_xi": 30,
@@ -342,7 +342,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.3369809740211206e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_30/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_30/payload.json"
     },
     {
       "n_xi": 32,
@@ -362,7 +362,7 @@
       "solver_method": "sparse_pc_gmres",
       "solver_gate_pass": true,
       "solver_true_residual_over_target": 1.4879349868287943e-06,
-      "source_payload": "/Users/rogeriojorge/local/NTX/examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_32/payload.json"
+      "source_payload": "examples/outputs/sfincs_jax_v1p1_profile_current/nxi_ladder_17x21_nx5/Nxi_32/payload.json"
     }
   ],
   "summary_metrics": {

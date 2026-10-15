@@ -144,7 +144,7 @@ def test_load_or_build_scan_reuses_fallback_cache(
 
     assert scan is sentinel
     assert metadata["scan_source"] == "cached_fallback_hdf5"
-    assert metadata["scan_path"] == str(fallback)
+    assert metadata["scan_path"] == fallback.name
 
 
 def test_source_channel_audit_writes_payload_and_figure(tmp_path: Path) -> None:

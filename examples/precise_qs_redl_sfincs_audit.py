@@ -25,7 +25,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from ntx._checkout_paths import find_booz_xform_jax_root, find_qs_zenodo_root
+from ntx._checkout_paths import find_booz_xform_jax_root, find_qs_zenodo_root, portable_path
 
 OUTPUT_DIR = ROOT / "examples" / "outputs" / "precise_qs_redl_sfincs_audit"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -215,8 +215,8 @@ def _case_summary(case: PreciseQSCase) -> dict[str, Any]:
     redl_vmec = _compute_redl_vmec(case)
     redl_boozer = _compute_redl_boozer(case)
     case_payload = asdict(case)
-    case_payload["wout_path"] = str(case.wout_path)
-    case_payload["sfincs_scan_path"] = str(case.sfincs_scan_path)
+    case_payload["wout_path"] = portable_path(case.wout_path)
+    case_payload["sfincs_scan_path"] = portable_path(case.sfincs_scan_path)
     return {
         "case": case_payload,
         "surfaces": surfaces.tolist(),

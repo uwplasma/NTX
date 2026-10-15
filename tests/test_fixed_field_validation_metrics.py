@@ -60,7 +60,7 @@ def test_fixed_field_jsonify_converts_artifact_payload_types() -> None:
     }
 
     assert jsonify(payload) == {
-        "path": str(ROOT / "docs"),
+        "path": "docs",
         "array": [1.0, 2.0],
         "scalar": 3.0,
         "nested": [4],
@@ -137,8 +137,8 @@ def test_fixed_field_summary_helper_builds_traceable_error_payload(tmp_path: Pat
         },
     )
 
-    assert payload["figure_png"] == str((tmp_path / "fixed_field").with_suffix(".png"))
-    assert payload["figure_pdf"] == str((tmp_path / "fixed_field").with_suffix(".pdf"))
+    assert payload["figure_png"] == "fixed_field.png"
+    assert payload["figure_pdf"] == "fixed_field.pdf"
     assert payload["cases"]["qa"]["NTX+NEOPAX"]["jdotb"] == pytest.approx(
         [12.0, 18.0, 44.0]
     )

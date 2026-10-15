@@ -24,6 +24,7 @@ from ntx._checkout_paths import (  # noqa: E402
     find_stellopt_root,
     find_vmex_root,
     fixture_path,
+    portable_path,
 )
 from ntx.config import enable_x64  # noqa: E402
 from ntx.solver import prepare_monoenergetic_system, solve_prepared  # noqa: E402
@@ -72,7 +73,7 @@ class GeometryTransportCase:
 
     def as_payload(self) -> dict[str, object]:
         payload = asdict(self)
-        payload["path"] = str(self.path)
+        payload["path"] = portable_path(self.path)
         return payload
 
 

@@ -34,6 +34,7 @@ from ntx._checkout_paths import (  # noqa: E402
     find_booz_xform_jax_root,
     find_neopax_root,
     find_vmex_root,
+    portable_path,
 )
 from ntx.config import enable_x64  # noqa: E402
 
@@ -340,7 +341,7 @@ def _build_case_payload(
     return {
         "id": case_spec["id"],
         "label": case_spec["label"],
-        "input_path": str(input_path),
+        "input_path": portable_path(input_path),
         "geometry_path": "explicit_relaxed_fixed_boundary",
         "parameter_names": parameter_names,
         "volume_metrics": {

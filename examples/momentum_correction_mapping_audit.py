@@ -30,6 +30,7 @@ if str(NEOPAX_ROOT) not in sys.path:
 import jax
 import jax.numpy as jnp
 
+from ntx._checkout_paths import portable_path  # noqa: E402
 from ntx._interp import Interpolator1D
 
 jax.config.update("jax_enable_x64", True)
@@ -74,7 +75,7 @@ def _jsonify(value: Any) -> Any:
     if isinstance(value, np.generic):
         return value.item()
     if isinstance(value, Path):
-        return str(value)
+        return portable_path(value)
     return value
 
 
@@ -412,8 +413,8 @@ def main() -> None:
     }
 
     summary: dict[str, Any] = {
-        "figure_png": str(OUTPUT_PREFIX.with_suffix(".png")),
-        "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf")),
+        "figure_png": portable_path(OUTPUT_PREFIX.with_suffix(".png")),
+        "figure_pdf": portable_path(OUTPUT_PREFIX.with_suffix(".pdf")),
         "mappings": {},
     }
     datasets = {"fixed_field": fixed_field, "w7x": w7x, "combined": combined}

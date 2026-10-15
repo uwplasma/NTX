@@ -62,8 +62,8 @@ def test_owned_finite_beta_sfincs_jax_inputs_write_same_grid_decks(tmp_path: Pat
     assert output_prefix.with_suffix(".png").exists()
     assert output_prefix.with_suffix(".pdf").exists()
     written = json.loads(output_prefix.with_suffix(".json").read_text())
-    assert written["figure_png"] == str(output_prefix.with_suffix(".png"))
-    assert written["figure_pdf"] == str(output_prefix.with_suffix(".pdf"))
+    assert written["figure_png"] == output_prefix.with_suffix(".png").name
+    assert written["figure_pdf"] == output_prefix.with_suffix(".pdf").name
 
 
 def test_owned_finite_beta_sfincs_jax_inputs_resolves_relative_output_dir(

@@ -48,7 +48,7 @@ temporary memory unchanged at `20,656,504` bytes. NTX therefore does not
 invalidate user-owned collisionality or electric-field arrays for a nonexistent
 memory benefit.
 
-On the office RTX A4000 with JAX `0.6.2`, vectorized width `32` is about `2.5x`
+On an RTX A4000 with JAX `0.6.2`, vectorized width `32` is about `2.5x`
 faster than sequential width `8` at 128 cases, but differs from the canonical
 compiled scalar solve by up to `2.4e-7` relative over the production scan. The
 sequential scan is bitwise identical to that compiled scalar reference. Since
@@ -70,7 +70,7 @@ Larger-grid GPU results keep the same conclusion:
 The `Nxi=140` first execution was `66.5 s` despite a `1.06 s` reported XLA
 compile stage, while subsequent execution was about `11 s`. This likely
 includes backend initialization/autotuning and is why the benchmark does not
-fold first execution into either compile or warm solve time. Both office GPUs
+fold first execution into either compile or warm solve time. Both workstation GPUs
 reproduced the production-grid runtime and vectorized discrepancy. The owned
 JSON files are `prepared_scan_gpu_25x31x24.json`,
 `prepared_scan_gpu_25x25x63.json`, and
@@ -223,7 +223,7 @@ Interpretation:
   over the tested smoke-grid range
 - the refreshed CPU smoke artifact reports process peak resident memory of
   about `1.76 GB`
-- the refreshed office GPU smoke artifact reports process peak resident memory
+- the refreshed GPU smoke artifact reports process peak resident memory
   of about `1.29 GB`, with one of two GPUs passing the single-process
   device-parallel smoke filter
 
@@ -244,12 +244,12 @@ Interpretation:
 - on the heavier DKES grid `17 x 25 x 16`, the refreshed local CPU artifact
   shows the single-process device-parallel lane crossing serial by `32` cases,
   while the 4-worker CPU multiprocess lane remains slower through `64` cases
-- on the same heavier grid, the office 2-GPU multiprocess lane remains slower
-  than serial in the tested range under the current shared-office software and
+- on the same heavier grid, the 2-GPU multiprocess lane remains slower
+  than serial in the tested range under the current shared-workstation software and
   hardware stack
 - the refreshed CPU heavy artifact reports process peak resident memory of
   about `2.70 GB`
-- the refreshed office GPU heavy artifact reports process peak resident memory
+- the refreshed GPU heavy artifact reports process peak resident memory
   of about `1.42 GB`, again with one healthy single-process device
 - the practical guidance from these measurements is:
   - use serial batched JAX for small and medium studies
@@ -257,7 +257,7 @@ Interpretation:
     the target grid/scan size has crossed over
   - use the multiprocess lane only when a measured workload shows enough
     amortization of process startup on the target machine
-  - treat office multi-GPU multiprocess execution as a robust isolation path
+  - treat multi-GPU multiprocess execution as a robust isolation path
     first, and as a throughput path only after benchmarking the specific
     production workload
 
@@ -283,7 +283,7 @@ Interpretation:
 - the 4-worker CPU multiprocess lane remains below serial through `128` cases,
   reaching about `0.92x`; process startup and duplicated runtime state still
   dominate this workload
-- the office two-GPU workstation run found two CUDA devices, but only one device
+- the two-GPU workstation run found two CUDA devices, but only one device
   passed the NTX smoke solve for single-process parallel execution under the
   tested software stack
 - on that GPU workload, single-process device-parallel timing is characterized
@@ -481,7 +481,7 @@ as `max_rss_mb`. That value is intentionally treated as a run-environment
 metric rather than a parity target, but it keeps memory visible whenever timing
 artifacts are regenerated. The committed CPU artifacts were refreshed locally;
 the committed GPU artifacts were refreshed from a clean temporary checkout on
-the office GPU workstation.
+the two-GPU workstation.
 For CI smoke coverage, `scripts/profile_parallel_runtime.py` accepts
 `--num-cases` and `--grid` so the serial/device-parallel correctness path can
 run on a tiny grid while the default command remains the profiling workload.
@@ -489,7 +489,7 @@ run on a tiny grid while the default command remains the profiling workload.
 They were collected on:
 
 - local workstation CPU with `XLA_FLAGS=--xla_force_host_platform_device_count=4`
-- office workstation GPU with `XLA_PYTHON_CLIENT_PREALLOCATE=false`
+- two-GPU workstation (RTX A4000) with `XLA_PYTHON_CLIENT_PREALLOCATE=false`
 
 ## Integrated W7-X Workflow
 

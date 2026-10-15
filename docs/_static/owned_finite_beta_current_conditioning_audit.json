@@ -3,8 +3,8 @@
   "classification": "owned finite-beta current-conditioning audit",
   "claim_scope": "Combines the completed same-grid finite-beta coefficient ladder with the profile-current observable sidecar.  The diagnostic quantifies how species-flow cancellation amplifies coefficient uncertainty in the net bootstrap-current observable.  It is a conditioning audit, not a fitted closure correction and not a bootstrap-current parity claim.",
   "inputs": {
-    "closure_localization_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_closure_localization.json",
-    "profile_current_observable_artifact": "/Users/rogeriojorge/local/NTX/docs/_static/owned_finite_beta_profile_current_observable_audit.json",
+    "closure_localization_artifact": "docs/_static/owned_finite_beta_closure_localization.json",
+    "profile_current_observable_artifact": "docs/_static/owned_finite_beta_profile_current_observable_audit.json",
     "profile_current_gate": 0.1,
     "current_units": "<J dot B> / sqrt(<B^2>)"
   },

@@ -8,6 +8,12 @@ profile flux/current responses from the same scan tables.  The resulting
 artifacts are not SFINCS parity claims; they are self-contained datasets on
 which SFINCS, Redl, and NTX+NEOPAX comparisons can later be run without mixing
 unrelated geometry, normalization, or interpolation conventions.
+
+Inputs come from sibling checkouts located by ``ntx._checkout_paths``: VMEX
+``examples/data`` (https://github.com/uwplasma/vmex, ``VMEX_ROOT``) and the
+finite-beta ``test`` decks of
+https://github.com/rogeriojorge/single_stage_optimization_finite_beta
+(``SINGLE_STAGE_FINITE_BETA_ROOT``). Missing checkouts skip their cases.
 """
 
 from __future__ import annotations
@@ -35,7 +41,11 @@ from ntx import (  # noqa: E402
     surface_from_vmex_wout,
     write_neopax_scan_hdf5,
 )
-from ntx._checkout_paths import find_vmex_root  # noqa: E402
+from ntx._checkout_paths import (  # noqa: E402
+    find_single_stage_finite_beta_root,
+    find_vmex_root,
+    portable_path,
+)
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_geometry_neopax_dataset"
 DATABASE_DIR = ROOT / "docs" / "_static" / "owned_geometry_neopax_database"
@@ -45,19 +55,6 @@ DEFAULT_ES = (0.0,)
 DEFAULT_GRID = GridSpec(9, 11, 8)
 COEFFICIENTS = ("D11", "D13", "D33")
 EPS = 1.0e-30
-FINITE_BETA_ROOT_CANDIDATES = (
-    Path("/Users/rogeriojorge/local/single_stage_finite_beta"),
-    Path("/Users/rogeriojorge/local/single_stage_optimization_finite_beta"),
-    Path("/Users/rogeriojorge/local/tests/single_stage_optimization_finite_beta"),
-)
-
-
-def _display_path(path: Path) -> str:
-    resolved = path.resolve()
-    try:
-        return str(resolved.relative_to(ROOT))
-    except ValueError:
-        return str(resolved)
 
 
 @dataclass(frozen=True)
@@ -75,19 +72,10 @@ class OwnedJaxGeometryCase:
 
     def as_payload(self) -> dict[str, object]:
         payload = asdict(self)
-        payload["input_path"] = str(self.input_path)
-        payload["wout_path"] = str(self.wout_path)
+        payload["input_path"] = portable_path(self.input_path)
+        payload["wout_path"] = portable_path(self.wout_path)
         payload["wout_metadata"] = _wout_metadata(self.wout_path)
         return payload
-
-
-def find_single_stage_finite_beta_root() -> Path | None:
-    """Return the local finite-beta example checkout requested by this lane."""
-
-    for candidate in FINITE_BETA_ROOT_CANDIDATES:
-        if candidate.exists():
-            return candidate
-    return None
 
 
 def _scalar_from_dataset(path: Path, name: str) -> float | None:
@@ -109,7 +97,7 @@ def _scalar_from_dataset(path: Path, name: str) -> float | None:
 
 def _wout_metadata(path: Path) -> dict[str, float | int | str | bool | None]:
     metadata: dict[str, float | int | str | bool | None] = {
-        "path": str(path),
+        "path": portable_path(path),
         "exists": path.exists(),
     }
     for name in ("nfp", "ns", "mpol", "ntor"):
@@ -498,7 +486,7 @@ def _write_scan_file(scan, output_dir: Path, case_id: str, path_key: str) -> dic
         }
     return {
         "status": "written",
-        "path": _display_path(Path(written)),
+        "path": portable_path(Path(written)),
     }
 
 
@@ -760,7 +748,7 @@ def build_payload(
         ],
         "figure_png": str(OUTPUT_PREFIX.with_suffix(".png").relative_to(ROOT)),
         "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf").relative_to(ROOT)),
-        "database_dir": _display_path(output_dir),
+        "database_dir": portable_path(output_dir),
     }
 
 

@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 from ntx import GridSpec, example_surface, solve_monoenergetic_scan  # noqa: E402
+from ntx._checkout_paths import portable_path  # noqa: E402
 from ntx.config import enable_x64  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "geometry_control_derivative_benchmark"
@@ -274,8 +275,8 @@ def write_outputs(payload: dict[str, object], output_prefix: Path) -> None:
     plt.close(fig)
 
     payload = dict(payload)
-    payload["figure_png"] = str(figure_png)
-    payload["figure_pdf"] = str(figure_pdf)
+    payload["figure_png"] = portable_path(figure_png)
+    payload["figure_pdf"] = portable_path(figure_pdf)
     figure_json.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"Wrote {figure_png}")
     print(f"Wrote {figure_pdf}")

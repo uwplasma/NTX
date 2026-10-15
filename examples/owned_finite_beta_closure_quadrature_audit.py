@@ -49,6 +49,7 @@ from examples.owned_finite_beta_source_channel_audit import (  # noqa: E402
     _load_or_build_scan,
 )
 from ntx import GridSpec, to_neopax_monoenergetic  # noqa: E402
+from ntx._checkout_paths import portable_path  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_closure_quadrature_audit"
 BOOTSTRAP_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison.json"
@@ -206,7 +207,7 @@ def _evaluate_rows(
         "scan_cache": scan_metadata,
         "rho_compare": rho_compare.tolist(),
         "redl_current_over_root_fsab2": redl_current.tolist(),
-        "boozmn_path": str(boozmn_path),
+        "boozmn_path": portable_path(boozmn_path),
         "case": case.as_payload(),
         "inputs": {
             "scan_rho": scan_rho.tolist(),
@@ -365,7 +366,7 @@ def build_payload(
                 "current parity claim."
             ),
             "inputs": {
-                "bootstrap_artifact": str(bootstrap_json),
+                "bootstrap_artifact": portable_path(bootstrap_json),
                 "x_values": [int(value) for value in x_values],
                 "n_orders": [int(value) for value in n_orders],
                 "quadrature_note": (

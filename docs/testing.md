@@ -22,7 +22,7 @@ developer loop:
   - scaling/profiling studies
 - hardware lane:
   - GPU smoke
-  - office workstation profiling
+  - GPU workstation profiling
 
 This split is intentional. It keeps pull-request feedback fast while still
 tracking literature-grade validation and throughput studies in reproducible

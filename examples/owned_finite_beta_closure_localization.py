@@ -26,6 +26,8 @@ if str(SRC) not in sys.path:
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
+from ntx._checkout_paths import portable_path  # noqa: E402
+
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_closure_localization"
 SFINCS_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_inputs.json"
 BOOTSTRAP_JSON = (
@@ -288,8 +290,8 @@ def build_payload(
             "bootstrap-current parity."
         ),
         "inputs": {
-            "sfincs_artifact": str(sfincs_json),
-            "bootstrap_artifact": str(bootstrap_json),
+            "sfincs_artifact": portable_path(sfincs_json),
+            "bootstrap_artifact": portable_path(bootstrap_json),
             "raw_coefficient_channels": list(RAW_CHANNELS),
             "excluded_sidecar_channels": list(SIDECAR_CHANNELS),
         },

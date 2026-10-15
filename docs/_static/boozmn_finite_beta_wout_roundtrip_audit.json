@@ -2,8 +2,8 @@
   "benchmark": "boozmn_same_coordinate_roundtrip_audit",
   "classification": "same-coordinate VMEC half-grid Boozer-file round trip",
   "inputs": {
-    "input": "/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/configurations/QA_aspect6_beta2.5/input.QA_beta0p025_iota0p42_dreopt_HIGHERRES_2022-04-15",
-    "wout": "/Users/rogeriojorge/local/20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current/configurations/QA_aspect6_beta2.5/wout_QA_beta0p025_iota0p42_dreopt_HIGHERRES_2022-04-15.nc",
+    "input": "qs_zenodo:configurations/QA_aspect6_beta2.5/input.QA_beta0p025_iota0p42_dreopt_HIGHERRES_2022-04-15",
+    "wout": "qs_zenodo:configurations/QA_aspect6_beta2.5/wout_QA_beta0p025_iota0p42_dreopt_HIGHERRES_2022-04-15.nc",
     "generated_boozmn": "/var/folders/bg/ksp0y7qn2rl1jj667080mw080000gn/T/ntx_boozmn_roundtrip_4cj0g06f/boozmn_roundtrip_m6_n6.nc",
     "generated_boozmn_retained": false,
     "surface_indices": [

@@ -54,7 +54,7 @@ from ntx import (
     to_neopax_monoenergetic,
     write_neopax_scan_hdf5,
 )
-from ntx._checkout_paths import find_booz_xform_jax_root, find_qs_zenodo_root
+from ntx._checkout_paths import find_booz_xform_jax_root, find_qs_zenodo_root, portable_path
 
 SCRATCH_ROOT = ROOT / "examples" / "outputs" / "bootstrap_current_fixed_field_validation"
 SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
@@ -905,7 +905,7 @@ def _compute_ntx_neopax_profile(case: FixedFieldCase, rho: np.ndarray) -> dict[s
         "archived_er_hat_rho": archived_er_hat,
         "archived_alpha_rho": archived_alpha,
         "archived_er_rho": archived_er,
-        "scan_path": str(scan_path),
+        "scan_path": portable_path(scan_path),
         "timing": timing,
     }
 
@@ -1076,8 +1076,8 @@ def main() -> None:
     summary["case_metadata"] = {
         key: {
             **asdict(case),
-            "wout_path": str(case.wout_path),
-            "sfincs_scan_path": str(case.sfincs_scan_path),
+            "wout_path": portable_path(case.wout_path),
+            "sfincs_scan_path": portable_path(case.sfincs_scan_path),
         }
         for key, case in cases.items()
     }

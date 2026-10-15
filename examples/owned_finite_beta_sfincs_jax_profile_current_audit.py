@@ -47,15 +47,17 @@ from examples.owned_geometry_neopax_dataset import (  # noqa: E402
     discover_owned_case_specs,
 )
 from ntx import GridSpec  # noqa: E402
+from ntx._checkout_paths import find_dkx_root, portable_path  # noqa: E402
 
 OUTPUT_PREFIX = (
     ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_profile_current_audit"
 )
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_sfincs_jax_profile_current_audit"
 BOOTSTRAP_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison.json"
-SFINCS_JAX_ROOT = Path(
-    os.environ.get("NTX_SFINCS_JAX_ROOT", "/Users/rogeriojorge/local/tests/sfincs_jax")
-)
+# DKX (formerly SFINCS-JAX, https://github.com/uwplasma/DKX): NTX_SFINCS_JAX_ROOT
+# or DKX_ROOT, else a sibling checkout; without one the installed package is used.
+_SFINCS_JAX_ENV = os.environ.get("NTX_SFINCS_JAX_ROOT")
+SFINCS_JAX_ROOT = Path(_SFINCS_JAX_ENV) if _SFINCS_JAX_ENV else find_dkx_root()
 
 DEFAULT_GRID = GridSpec(13, 15, 8)
 DEFAULT_NX = 5
@@ -221,7 +223,7 @@ def _run_sfincs_jax_profile(
     # dense-PAS cutoff remains opt-out for constrained local reruns.
     if os.environ.get("NTX_SFINCS_JAX_DISABLE_DENSE_PAS") == "1":
         env.setdefault("SFINCS_JAX_RHSMODE1_DENSE_PAS_MAX", "0")
-    if SFINCS_JAX_ROOT.exists():
+    if SFINCS_JAX_ROOT is not None and SFINCS_JAX_ROOT.exists():
         env["PYTHONPATH"] = f"{SFINCS_JAX_ROOT}{os.pathsep}{env.get('PYTHONPATH', '')}"
     command = [
         sys.executable,
@@ -614,7 +616,7 @@ def build_payload(
             ),
         },
         "sfincs_jax_contract": {
-            "root": str(SFINCS_JAX_ROOT),
+            "root": portable_path(SFINCS_JAX_ROOT) if SFINCS_JAX_ROOT else None,
             "jax_enable_x64": "True unless explicitly overridden in the subprocess environment",
             "rhs_mode_1_solve_policy": (
                 "write-output --compute-solution with SFINCS-JAX auto solver "
@@ -638,7 +640,7 @@ def build_payload(
             "min_bmn_to_load": float(min_bmn_to_load),
             "collision_operator": int(collision_operator),
             "solve_method": solve_method,
-            "bootstrap_artifact": str(bootstrap_json),
+            "bootstrap_artifact": portable_path(bootstrap_json),
         },
         "decks": [deck.as_payload() for deck in decks],
         "summary_metrics": {
@@ -699,11 +701,7 @@ def write_payload(payload: dict[str, Any], output_prefix: Path = OUTPUT_PREFIX) 
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     payload = dict(payload)
     for key, suffix in (("figure_png", ".png"), ("figure_pdf", ".pdf")):
-        path = output_prefix.with_suffix(suffix)
-        try:
-            payload[key] = str(path.relative_to(ROOT))
-        except ValueError:
-            payload[key] = str(path)
+        payload[key] = portable_path(output_prefix.with_suffix(suffix))
     output_prefix.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
 
 

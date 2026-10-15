@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 from ntx import MonoenergeticCase, load_vmec_surface  # noqa: E402
-from ntx._checkout_paths import find_stellopt_root, find_vmex_root  # noqa: E402
+from ntx._checkout_paths import find_stellopt_root, find_vmex_root, portable_path  # noqa: E402
 from ntx.validation import audit_angular_oversampling  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "angular_oversampling_audit"
@@ -138,7 +138,7 @@ def run_audits(
         results.append(
             {
                 **asdict(case),
-                "path": str(case.path),
+                "path": portable_path(case.path),
                 "theta_nyquist_floor": audit.theta_nyquist_floor,
                 "zeta_nyquist_floor": audit.zeta_nyquist_floor,
                 "n_xi": audit.n_xi,

@@ -7,6 +7,8 @@ from typing import Any
 import numpy as np
 from _fixed_field_validation_metrics import jsonify
 
+from ntx._checkout_paths import portable_path  # noqa: E402
+
 
 def build_fixed_field_summary_payload(
     *,
@@ -19,8 +21,8 @@ def build_fixed_field_summary_payload(
 ) -> dict[str, Any]:
     out: dict[str, Any] = {
         "cases": {},
-        "figure_png": str(output_prefix.with_suffix(".png")),
-        "figure_pdf": str(output_prefix.with_suffix(".pdf")),
+        "figure_png": portable_path(output_prefix.with_suffix(".png")),
+        "figure_pdf": portable_path(output_prefix.with_suffix(".pdf")),
     }
     for key, case_results in results.items():
         ref = np.asarray(case_results["SFINCS"]["jdotb"], dtype=float)

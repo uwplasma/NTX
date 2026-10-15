@@ -23,6 +23,8 @@ for extra_path in (SRC, EXAMPLES):
     if str(extra_path) not in sys.path:
         sys.path.insert(0, str(extra_path))
 
+from ntx._checkout_paths import portable_path  # noqa: E402
+
 
 def _load_example_modules():
     import bootstrap_current_fixed_field_validation as fixed_field
@@ -171,8 +173,8 @@ def main() -> None:
         "precise_qs_max_successive_change": precise_qs_max_successive_change,
         "w7x_max_relative_error": max(w7x_errors.values()),
         "w7x_errors": {str(order): float(error) for order, error in w7x_errors.items()},
-        "figure_png": str(OUTPUT_PREFIX.with_suffix(".png")),
-        "figure_pdf": str(OUTPUT_PREFIX.with_suffix(".pdf")),
+        "figure_png": portable_path(OUTPUT_PREFIX.with_suffix(".png")),
+        "figure_pdf": portable_path(OUTPUT_PREFIX.with_suffix(".pdf")),
     }
     OUTPUT_PREFIX.with_suffix(".json").write_text(json.dumps(payload, indent=2))
     print(json.dumps(payload, indent=2))

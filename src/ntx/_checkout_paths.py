@@ -188,3 +188,45 @@ def find_vmex_example_input(name: str = "input.circular_tokamak") -> Path | None
         return None
     candidate = root / "examples" / "data" / name
     return candidate if candidate.exists() else None
+
+
+def _portable_roots() -> list[tuple[str, Path]]:
+    """Known checkout roots with the label each one is written under."""
+
+    finders = (
+        ("vmex", find_vmex_root),
+        ("simsopt", find_simsopt_root),
+        ("STELLOPT", find_stellopt_root),
+        ("single_stage_optimization_finite_beta", find_single_stage_finite_beta_root),
+        ("qs_zenodo", find_qs_zenodo_root),
+        ("DKX", find_dkx_root),
+        ("NEOPAX", find_neopax_root),
+        ("booz_xform_jax", find_booz_xform_jax_root),
+        ("sfincs", find_sfincs_root),
+    )
+    roots = [(label, root) for label, finder in finders if (root := finder()) is not None]
+    return [*roots, ("", repo_root().resolve())]
+
+
+def portable_path(path: str | os.PathLike[str]) -> str:
+    """Render a path for a committed artifact without machine-specific prefixes.
+
+    Files inside the repository become repo-relative (``docs/_static/x.json``);
+    files inside a known sibling checkout become ``label:relative`` (for
+    example ``vmex:examples/data/wout_x.nc``); anything else keeps only its
+    basename. Relative paths are returned unchanged.
+    """
+
+    candidate = Path(path).expanduser()
+    if not candidate.is_absolute():
+        return candidate.as_posix()
+    resolved = candidate.resolve()
+    for label, root in _portable_roots():
+        try:
+            relative = resolved.relative_to(root).as_posix()
+        except ValueError:
+            continue
+        if not label:
+            return relative
+        return f"{label}:" + ("" if relative == "." else relative)
+    return resolved.name

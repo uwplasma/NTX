@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import subprocess
 from pathlib import Path
 
@@ -45,3 +46,17 @@ def test_tracked_tree_and_artifact_directory_stay_small():
 
     assert tracked_size <= MAX_TRACKED_TREE_BYTES
     assert docs_static_size <= MAX_DOCS_STATIC_BYTES
+
+
+# Spelled so this file does not match itself.
+MACHINE_PATH = re.compile(rb"/(Users|private/tmp)/|/home/[A-Za-z_]|[A-Z]:\\\\Users\\\\")
+
+
+def test_tracked_text_files_hold_no_machine_paths():
+    leaks = []
+    for path in _tracked_files():
+        data = path.read_bytes()
+        if b"\0" not in data[:8192] and (match := MACHINE_PATH.search(data)):
+            line = data.count(b"\n", 0, match.start()) + 1
+            leaks.append(f"{path.relative_to(ROOT)}:{line}")
+    assert leaks == []

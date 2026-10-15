@@ -24,6 +24,8 @@ if str(ROOT) not in sys.path:
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
+from ntx._checkout_paths import portable_path  # noqa: E402
+
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_resolution_audit"
 SMOKE_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_inputs.json"
 PRODUCTION_JSON = (
@@ -140,7 +142,7 @@ def _extract_row(
     grid = payload["inputs"]["grid"]
     return ProbeRow(
         label=label,
-        source=str(Path(path)),
+        source=portable_path(path),
         rho=float(deck["rho"]),
         nu_prime=float(deck["nu_prime"]),
         e_star=float(deck["e_star"]),
@@ -208,10 +210,10 @@ def build_payload(
             "rho": float(rho),
             "nuPrime": float(nu_prime),
             "EStar": float(e_star),
-            "smoke_json": str(Path(smoke_json)),
-            "production_json": str(Path(production_json)),
-            "production_tight_harmonics_json": str(Path(production_tight_harmonics_json)),
-            "conditioning_json": str(Path(conditioning_json)),
+            "smoke_json": portable_path(smoke_json),
+            "production_json": portable_path(production_json),
+            "production_tight_harmonics_json": portable_path(production_tight_harmonics_json),
+            "conditioning_json": portable_path(conditioning_json),
             "current_gate_relative_error": 1.0e-1,
         },
         "rows": [row.as_payload() for row in rows],
