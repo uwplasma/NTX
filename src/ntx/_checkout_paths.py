@@ -140,17 +140,8 @@ def find_stellopt_root() -> Path | None:
 
 
 def find_vmex_root() -> Path | None:
-    # VMEX checkouts commonly still live under the historical vmec_jax
-    # directory name (and env var); prefer the new names but fall back.
-    """Locate a VMEX checkout, or None.
-
-    Falls back to the pre-rename vmec_jax names and variable, so an older
-    checkout on disk still resolves.
-    """
-    root = _discover("VMEX_ROOT", "VMEX", "vmex", "tests/vmex")
-    if root is None:
-        root = _discover("VMEC_JAX_ROOT", "vmec_jax", "tests/vmec_jax")
-    return root
+    """Locate a VMEX checkout, or None."""
+    return _discover("VMEX_ROOT", "VMEX", "vmex", "tests/vmex")
 
 
 def find_qs_zenodo_root() -> Path | None:
