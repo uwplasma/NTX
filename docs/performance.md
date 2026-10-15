@@ -81,16 +81,19 @@ guidance to select sequential execution and bucket `1` or `8`. A hard driver or
 process termination cannot be intercepted in Python; production users should
 start from the documented sequential memory map before increasing vector width.
 
-The cache is optional and should be configured before compilation:
+JAX's persistent compilation cache is on by default, in
+`$XDG_CACHE_HOME/ntx/jax` (else `~/.cache/ntx/jax`), with no minimum compile
+time: most of a cold start is small geometry kernels, not the solve. On the
+W7-X surface at `(15, 31, 40)` the first solve of a new process drops from
+1.9 s to 0.75 s on a 4-thread laptop CPU. NTX leaves the cache alone when
+`JAX_COMPILATION_CACHE_DIR` or the JAX config already names a directory. Set
+`NTX_DISABLE_COMPILATION_CACHE=1` to turn it off, or choose the directory
+before compiling:
 
 ```python
 from ntx import configure_compilation_cache
 
-configure_compilation_cache(
-    "~/.cache/ntx/jax",
-    minimum_compile_seconds=1.0,
-    explain_cache_misses=False,
-)
+configure_compilation_cache("/scratch/ntx-cache", minimum_compile_seconds=0.0)
 ```
 
 Generate synchronized crossover artifacts with:

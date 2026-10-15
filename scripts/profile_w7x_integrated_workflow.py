@@ -16,8 +16,6 @@ import time
 from pathlib import Path
 from typing import Any
 
-from jax.experimental.compilation_cache import compilation_cache as jax_compilation_cache
-
 from ntx._checkout_paths import portable_path  # noqa: E402
 
 
@@ -39,9 +37,9 @@ def _configure_xla_flags(xla_dump_dir: Path | None) -> str | None:
 def _configure_compilation_cache(cache_dir: Path | None) -> str | None:
     if cache_dir is None:
         return None
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    jax_compilation_cache.set_cache_dir(str(cache_dir))
-    return str(cache_dir)
+    from ntx import configure_compilation_cache
+
+    return str(configure_compilation_cache(cache_dir, minimum_compile_seconds=0.0))
 
 
 def _load_helper_module():
