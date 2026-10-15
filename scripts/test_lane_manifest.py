@@ -10,6 +10,7 @@ from typing import Literal
 
 Lane = Literal[
     "core_foundation",
+    "core_adjoint",
     "core_cli_workflows",
     "core_io_workflows",
     "core_parallel_workflows",
@@ -73,7 +74,6 @@ INTEGRATION_EXAMPLES: tuple[str, ...] = (
 )
 
 CORE_FOUNDATION_TESTS: tuple[str, ...] = (
-    "tests/test_autodiff.py",
     "tests/test_boozmn.py",
     "tests/test_config.py",
     "tests/test_convergence.py",
@@ -95,12 +95,16 @@ CORE_FOUNDATION_TESTS: tuple[str, ...] = (
     "tests/test_solver_derivative_audit.py",
     "tests/test_solver_residuals.py",
     "tests/test_solvax_integration.py",
-    "tests/test_exact_window_adjoint.py",
-    "tests/test_certified_adjoint_window.py",
     "tests/test_vmec.py",
     "tests/test_vmex_backend.py",
     "tests/test_vmex_vmec.py",
     "tests/test_vmec_physics.py",
+)
+
+CORE_ADJOINT_TESTS: tuple[str, ...] = (
+    "tests/test_autodiff.py",
+    "tests/test_certified_adjoint_window.py",
+    "tests/test_exact_window_adjoint.py",
 )
 
 CORE_CLI_WORKFLOW_TESTS: tuple[str, ...] = (
@@ -210,6 +214,7 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
 
 LANES: dict[Lane, tuple[str, ...]] = {
     "core_foundation": CORE_FOUNDATION_TESTS,
+    "core_adjoint": CORE_ADJOINT_TESTS,
     "core_cli_workflows": CORE_CLI_WORKFLOW_TESTS,
     "core_io_workflows": CORE_IO_WORKFLOW_TESTS,
     "core_parallel_workflows": CORE_PARALLEL_WORKFLOW_TESTS,

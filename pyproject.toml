@@ -7,7 +7,7 @@ name = "ntx"
 version = "0.3.0"
 description = "JAX-native monoenergetic neoclassical transport solver"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
   { name = "UW Plasma" }
@@ -18,9 +18,9 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
@@ -28,10 +28,7 @@ dependencies = [
   "netCDF4",
   "numpy",
   "rich",
-  # The bounded reverse pass needs the params/adjoint_window arguments on
-  # block_thomas_truncated_fn_with_residual (SOLVAX >= 0.11.0).
-  "solvax>=0.12.0",
-  "tomli; python_version < '3.11'",
+  "solvax>=0.28.2",
 ]
 
 [project.urls]
@@ -40,6 +37,8 @@ Repository = "https://github.com/uwplasma/NTX"
 Documentation = "https://ntx.readthedocs.io/en/latest/"
 
 [project.optional-dependencies]
+booz = ["booz_xform_jax>=0.4.3"]
+vmex = ["vmex>=0.11.10"]
 dev = [
   "build",
   "coverage[toml]",
@@ -89,7 +88,7 @@ markers = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
