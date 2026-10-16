@@ -139,6 +139,7 @@ ship-checklist
 neopax
 gpu
 performance
+monoenergetic-benchmark
 research-roadmap
 manuscript
 literature
