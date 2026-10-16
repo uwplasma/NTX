@@ -155,7 +155,8 @@ def test_booz_loader_error_branches(monkeypatch, tmp_path):
 def test_booz_loader_surface_index(monkeypatch, tmp_path):
     fixture = tmp_path / "surface.nc"
     fixture.write_text("", encoding="utf-8")
-    monkeypatch.setitem(sys.modules, "booz_xform_jax", _fake_booz_module([[1.0, 0.20], [1.5, 0.10]]))
+    fake = _fake_booz_module([[1.0, 0.20], [1.5, 0.10]])
+    monkeypatch.setitem(sys.modules, "booz_xform_jax", fake)
     payload = load_boozmn_surface(fixture, surface_index=1, min_bmn_to_load=0.75)
     assert payload.s == pytest.approx(0.75)  # jlist=3 -> half-grid surface 1 of ns_b=3
     assert payload.mode_count == 1
