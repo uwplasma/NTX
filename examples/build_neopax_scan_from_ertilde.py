@@ -413,13 +413,11 @@ def _load_vmec_boozer_channels(
         iotaf = _filled(vfile.variables["iotaf"])
         psia = float(jnp.abs(phi[-1]) / (2.0 * jnp.pi))
 
-    with Dataset(boozmn_path, mode="r") as bfile:
-        bmnc_b = _filled(bfile.variables["bmnc_b"])
-        rmnc_b = _filled(bfile.variables["rmnc_b"])
-        xm_b = _filled(bfile.variables["ixm_b"])
-        xn_b = _filled(bfile.variables["ixn_b"])
-        buco = _filled(bfile.variables["buco_b"])
-        bvco = _filled(bfile.variables["bvco_b"])
+    from booz_xform_jax import read_boozmn
+
+    booz = read_boozmn(boozmn_path)
+    bmnc_b, rmnc_b, xm_b, xn_b, buco, bvco = (
+        booz[key] for key in ("bmnc_b", "rmnc_b", "ixm_b", "ixn_b", "buco_b", "bvco_b"))
 
     zero_mode = np.where((xm_b == 0) & (xn_b == 0))[0]
     if zero_mode.size == 0:

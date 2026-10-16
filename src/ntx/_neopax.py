@@ -984,14 +984,15 @@ def build_differentiable_neopax_field_from_vmec_booz_files(
     evaluated on that same normalized-radius support.
     """
 
+    from booz_xform_jax import read_boozmn
     from netCDF4 import Dataset
 
-    with Dataset(vmec_path, mode="r") as vmec, Dataset(booz_path, mode="r") as booz:
+    booz = read_boozmn(booz_path)
+    with Dataset(vmec_path, mode="r") as vmec:
         ns = int(jnp.asarray(_filled_dataset_array(vmec, "ns")).reshape(()))
         s_full = jnp.linspace(0.0, 1.0, ns)
         s_half = jnp.asarray([(index - 0.5) / (ns - 1) for index in range(ns)])
         phi = jnp.asarray(_filled_dataset_array(vmec, "phi"))
-        gmnc_name = "gmn_b" if "gmn_b" in booz.variables else "gmnc_b"
         return build_differentiable_neopax_field(
             n_r=n_r,
             rho_half=jnp.sqrt(jnp.clip(s_half, 0.0, None)),
@@ -1000,13 +1001,13 @@ def build_differentiable_neopax_field_from_vmec_booz_files(
             vp=jnp.asarray(_filled_dataset_array(vmec, "vp")),
             iotaf=jnp.asarray(_filled_dataset_array(vmec, "iotaf")),
             Psia=jnp.abs(phi[-1]),
-            bmnc_b=jnp.asarray(_filled_dataset_array(booz, "bmnc_b")),
-            rmnc_b=jnp.asarray(_filled_dataset_array(booz, "rmnc_b")),
-            gmnc_b=jnp.asarray(_filled_dataset_array(booz, gmnc_name)),
-            xm_b=jnp.asarray(_filled_dataset_array(booz, "ixm_b"), dtype=jnp.int32),
-            xn_b=jnp.asarray(_filled_dataset_array(booz, "ixn_b"), dtype=jnp.int32),
-            bvco=jnp.asarray(_filled_dataset_array(booz, "bvco_b")),
-            buco=jnp.asarray(_filled_dataset_array(booz, "buco_b")),
+            bmnc_b=jnp.asarray(booz["bmnc_b"]),
+            rmnc_b=jnp.asarray(booz["rmnc_b"]),
+            gmnc_b=jnp.asarray(booz["gmn_b"]),
+            xm_b=jnp.asarray(booz["ixm_b"], dtype=jnp.int32),
+            xn_b=jnp.asarray(booz["ixn_b"], dtype=jnp.int32),
+            bvco=jnp.asarray(booz["bvco_b"]),
+            buco=jnp.asarray(booz["buco_b"]),
         )
 
 

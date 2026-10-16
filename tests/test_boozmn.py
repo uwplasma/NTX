@@ -51,3 +51,15 @@ def test_boozmn_surface_geometry_is_self_consistent():
     assert jnp.all(jnp.isfinite(geom.b_sub_zeta))
     assert jnp.all(jnp.isfinite(geom.radial_drift_spatial))
     assert jnp.isfinite(geom.iota)
+
+
+def test_load_boozmn_surface_matches_pre_booz_xform_jax_reader():
+    """Values recorded from the previous `Booz_xform` + netCDF reader (bitwise equal)."""
+    # (iota, b_theta, b_zeta, b0, s) per packed surface of the sample file.
+    reference = [(0.515, 0.175, 1.365, 2.3, 0.125), (0.53, 0.19, 1.38, 2.31, 0.375),
+                 (0.545, 0.205, 1.395, 2.32, 0.625), (0.56, 0.22, 1.41, 2.33, 0.875)]
+    for index, expected in enumerate(reference):
+        payload = load_boozmn_surface(SAMPLE_BOOZMN, surface_index=index)
+        got = (payload.surface.iota, payload.surface.b_theta, payload.surface.b_zeta,
+               payload.surface.b0, payload.s)
+        assert jnp.allclose(jnp.asarray(got), jnp.asarray(expected), rtol=1e-14)
