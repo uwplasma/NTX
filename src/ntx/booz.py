@@ -40,32 +40,22 @@ def load_boozmn_surface(
         raise ValueError("set exactly one of s, rho, or surface_index")
 
     try:
-        from booz_xform_jax import Booz_xform
+        from booz_xform_jax import read_boozmn
     except ModuleNotFoundError as exc:
         raise ModuleNotFoundError(
-            "load_boozmn_surface requires booz_xform_jax. Install it with "
-            "`pip install booz_xform_jax`, `pip install -e ../booz_xform_jax`, "
-            "or `pip install git+https://github.com/uwplasma/booz_xform_jax.git`."
+            "load_boozmn_surface requires booz_xform_jax>=0.5.0. Install it with "
+            "`pip install 'ntx[booz]'`."
         ) from exc
 
-    bx = Booz_xform()
-    bx.verbose = 0
-    bx.read_boozmn(str(booz_path))
-
-    xm = np.asarray(bx.xm_b, dtype=np.int32).reshape(-1)
-    xn = np.asarray(bx.xn_b, dtype=np.int32).reshape(-1)
-    bmnc = np.asarray(bx.bmnc_b, dtype=np.float64).T
-    iota = np.asarray(bx.iota, dtype=np.float64).reshape(-1)
-    buco = np.asarray(bx.Boozer_I_all, dtype=np.float64).reshape(-1)
-    bvco = np.asarray(bx.Boozer_G_all, dtype=np.float64).reshape(-1)
-    s_profile = _profile_surface_grid(bx, iota.size)
-    nfp = int(np.asarray(bx.nfp).reshape(()))
-
-    if bmnc.ndim != 2:
-        raise ValueError("expected booz_xform_jax bmnc_b to be a 2D `(surface, mode)` array")
+    booz = read_boozmn(booz_path)
+    xm, xn, bmnc, nfp = booz["ixm_b"], booz["ixn_b"], booz["bmnc_b"], booz["nfp_b"]
+    # Profiles are on the full grid with an axis placeholder; spectra are packed
+    # half-grid surfaces with 1-based full-grid labels `jlist`.
+    iota, buco, bvco = (booz[key][1:] for key in ("iota_b", "buco_b", "bvco_b"))
+    s_profile = (np.arange(iota.size) + 0.5) / iota.size
+    s_bmn = s_profile[booz["jlist"] - 2]
     ns_b, mode_count = bmnc.shape
-    s_bmn = _mode_surface_grid(bx, booz_path, ns_b, s_profile)
-    rho_grid = np.sqrt(np.clip(s_bmn, 0.0, None))
+    rho_grid = np.sqrt(s_bmn)
 
     idx: int
     if surface_index is not None:
@@ -126,80 +116,3 @@ def load_boozmn_surface(
         surface_index=idx,
         mode_count=int(np.count_nonzero(include)),
     )
-
-
-def _packed_surface_grid(path: Path, ns_b: int) -> np.ndarray:
-    """Return the radial grid for packed Boozer mode arrays."""
-
-    try:
-        from netCDF4 import Dataset
-    except ModuleNotFoundError as exc:
-        raise ValueError(
-            "booz_xform_jax radial grid length does not match bmnc_b and netCDF4 is not "
-            "available to read packed-surface metadata."
-        ) from exc
-
-    with Dataset(path, mode="r") as handle:
-        if "jlist" not in handle.variables:
-            raise ValueError("booz_xform_jax radial grid length does not match bmnc_b")
-        jlist = np.asarray(handle.variables["jlist"][:], dtype=np.int64).reshape(-1)
-        if jlist.shape[0] != ns_b:
-            raise ValueError("packed Boozer surface metadata does not match bmnc_b")
-        if "buco_b" in handle.variables:
-            ns_full = int(handle.variables["buco_b"].shape[0])
-        elif "ns_b" in handle.variables:
-            ns_full = int(np.asarray(handle.variables["ns_b"][:]).reshape(()))
-        else:
-            raise ValueError("unable to determine packed Boozer radial resolution")
-    if ns_full < 2:
-        raise ValueError("packed Boozer radial resolution must be at least 2")
-    s_full = np.linspace(0.0, 1.0, ns_full, dtype=np.float64)
-    s_half = 0.5 * (s_full[:-1] + s_full[1:])
-    half_indices = jlist - 2
-    if np.all((0 <= half_indices) & (half_indices < s_half.size)):
-        return s_half[half_indices]
-    alternate_indices = jlist - 1
-    if np.all((0 <= alternate_indices) & (alternate_indices < s_half.size)):
-        return s_half[alternate_indices]
-    raise ValueError("packed Boozer surface indices are inconsistent with radius grid")
-
-
-def _profile_surface_grid(bx, size: int) -> np.ndarray:
-    """Return the half-grid radial coordinate for Boozer radial profiles."""
-
-    s_in = getattr(bx, "s_in", None)
-    if s_in is not None:
-        values = np.asarray(s_in, dtype=np.float64).reshape(-1)
-        if values.size == size:
-            return values
-    if size <= 0:
-        raise ValueError("Boozer profile grid must contain at least one surface")
-    s_full = np.linspace(0.0, 1.0, size + 1, dtype=np.float64)
-    return 0.5 * (s_full[:-1] + s_full[1:])
-
-
-def _mode_surface_grid(
-    bx,
-    path: Path,
-    ns_b: int,
-    s_profile: np.ndarray,
-) -> np.ndarray:
-    """Return the half-grid radial coordinate for packed Boozer spectra."""
-
-    s_b = getattr(bx, "s_b", None)
-    if s_b is not None:
-        values = np.asarray(s_b, dtype=np.float64).reshape(-1)
-        if values.size == ns_b:
-            return values
-    compute_surfs = getattr(bx, "compute_surfs", None)
-    if compute_surfs is not None:
-        indices = np.asarray(compute_surfs, dtype=np.int64).reshape(-1)
-        if (
-            indices.size == ns_b
-            and indices.size > 0
-            and np.all((0 <= indices) & (indices < s_profile.size))
-        ):
-            return s_profile[indices]
-    if s_profile.shape[0] == ns_b:
-        return s_profile
-    return _packed_surface_grid(path, ns_b)

@@ -37,7 +37,7 @@ Repository = "https://github.com/uwplasma/NTX"
 Documentation = "https://ntx.readthedocs.io/en/latest/"
 
 [project.optional-dependencies]
-booz = ["booz_xform_jax>=0.4.3"]
+booz = ["booz_xform_jax>=0.5.0"]
 vmex = ["vmex>=0.11.10"]
 dev = [
   "build",

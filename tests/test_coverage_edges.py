@@ -14,7 +14,7 @@ import pytest
 from rich.console import Console
 
 from ntx import inputfiles, io, neopax
-from ntx.booz import _packed_surface_grid, load_boozmn_surface
+from ntx.booz import load_boozmn_surface
 from ntx.geometry import BoozerSurface, VmecSurface, example_surface
 from ntx.grids import GridSpec
 from ntx.neopax import build_ntx_neopax_scan, build_ntx_neopax_scan_from_surfaces
@@ -43,26 +43,14 @@ def _import_blocker(name: str):
     return blocker
 
 
-class _FakeBoozXform:
-    def __init__(self, bmnc_b, *, s_in=(0.0, 0.5, 1.0)):
-        self.xm_b = np.asarray([0, 1], dtype=np.int32)
-        self.xn_b = np.asarray([0, 2], dtype=np.int32)
-        self.bmnc_b = np.asarray(bmnc_b, dtype=np.float64)
-        self.iota = np.asarray([0.4, 0.5, 0.6], dtype=np.float64)
-        self.Boozer_I_all = np.asarray([0.2, 0.3, 0.4], dtype=np.float64)
-        self.Boozer_G_all = np.asarray([1.0, 1.1, 1.2], dtype=np.float64)
-        self.s_in = np.asarray(s_in, dtype=np.float64)
-        self.phi = None
-        self.nfp = np.asarray(2, dtype=np.int32)
-        self.verbose = 0
-
-    def read_boozmn(self, _path: str) -> None:
-        return None
-
-
-def _fake_booz_module(fake_class):
+def _fake_booz_module(bmnc_b):
     module = ModuleType("booz_xform_jax")
-    module.Booz_xform = fake_class
+    module.read_boozmn = lambda _path: {
+        "nfp_b": 2, "ixm_b": np.array([0, 1]), "ixn_b": np.array([0, 2]),
+        "jlist": np.array([2, 3]), "bmnc_b": np.asarray(bmnc_b, dtype=float),
+        "iota_b": np.array([0.0, 0.4, 0.6]), "buco_b": np.array([0.0, 0.5, 0.5]),
+        "bvco_b": np.array([0.0, 0.1, 0.1]),
+    }
     return module
 
 
@@ -159,166 +147,22 @@ def test_booz_loader_error_branches(monkeypatch, tmp_path):
         load_boozmn_surface(fixture, s=0.25)
     monkeypatch.undo()
 
-    monkeypatch.setitem(
-        sys.modules,
-        "booz_xform_jax",
-        _fake_booz_module(lambda: _FakeBoozXform([1.0, 2.0])),
-    )
-    with pytest.raises(ValueError, match="2D"):
-        load_boozmn_surface(fixture, s=0.25)
-
-    monkeypatch.setitem(
-        sys.modules,
-        "booz_xform_jax",
-        _fake_booz_module(lambda: _FakeBoozXform([[0.0, 0.0, 0.0], [0.1, 0.1, 0.1]])),
-    )
+    monkeypatch.setitem(sys.modules, "booz_xform_jax", _fake_booz_module([[0.0, 0.0], [0.1, 0.1]]))
     with pytest.raises(ValueError, match="is zero"):
         load_boozmn_surface(fixture, s=0.25)
 
 
-def test_packed_surface_grid_error_branches(monkeypatch, tmp_path):
-    fixture = tmp_path / "packed.nc"
-    fixture.write_text("", encoding="utf-8")
-    monkeypatch.delitem(sys.modules, "netCDF4", raising=False)
-    monkeypatch.setattr(builtins, "__import__", _import_blocker("netCDF4"))
-    with pytest.raises(ValueError, match="netCDF4"):
-        _packed_surface_grid(fixture, 2)
-    monkeypatch.undo()
-
-
-def test_packed_surface_grid_success_and_shape_branches(monkeypatch, tmp_path):
-    fixture = tmp_path / "packed.nc"
-    fixture.write_text("", encoding="utf-8")
-
-    class _FakeDataset:
-        def __init__(self, _path, mode="r"):
-            assert mode == "r"
-            self.variables = {
-                "jlist": np.asarray([2, 4], dtype=np.int64),
-                "buco_b": np.zeros((5,), dtype=np.float64),
-            }
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, exc_type, exc, tb):
-            return False
-
-    module = ModuleType("netCDF4")
-    module.Dataset = _FakeDataset
-    monkeypatch.setitem(sys.modules, "netCDF4", module)
-    grid = _packed_surface_grid(fixture, 2)
-    assert np.allclose(grid, np.asarray([0.125, 0.625]))
-
-
-def test_packed_surface_grid_ns_b_and_error_paths(monkeypatch, tmp_path):
-    fixture = tmp_path / "packed.nc"
-    fixture.write_text("", encoding="utf-8")
-
-    def _dataset_factory(variables):
-        class _FakeDataset:
-            def __init__(self, _path, mode="r"):
-                assert mode == "r"
-                self.variables = variables
-
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, tb):
-                return False
-
-        return _FakeDataset
-
-    module = ModuleType("netCDF4")
-
-    module.Dataset = _dataset_factory(
-        {
-            "jlist": np.asarray([2, 3], dtype=np.int64),
-            "ns_b": np.asarray([4], dtype=np.int64),
-        }
-    )
-    monkeypatch.setitem(sys.modules, "netCDF4", module)
-    grid = _packed_surface_grid(fixture, 2)
-    assert np.allclose(grid, np.asarray([1.0 / 6.0, 0.5]))
-
-    module.Dataset = _dataset_factory({})
-    with pytest.raises(ValueError, match="radial grid length does not match"):
-        _packed_surface_grid(fixture, 2)
-
-    module.Dataset = _dataset_factory({"jlist": np.asarray([1], dtype=np.int64)})
-    with pytest.raises(ValueError, match="metadata does not match"):
-        _packed_surface_grid(fixture, 2)
-
-    module.Dataset = _dataset_factory({"jlist": np.asarray([1, 2], dtype=np.int64)})
-    with pytest.raises(ValueError, match="unable to determine"):
-        _packed_surface_grid(fixture, 2)
-
-    module.Dataset = _dataset_factory(
-        {"jlist": np.asarray([1, 1], dtype=np.int64), "ns_b": np.asarray([1], dtype=np.int64)}
-    )
-    with pytest.raises(ValueError, match="at least 2"):
-        _packed_surface_grid(fixture, 2)
-
-
-def test_booz_loader_surface_index_and_packed_grid_success(monkeypatch, tmp_path):
+def test_booz_loader_surface_index(monkeypatch, tmp_path):
     fixture = tmp_path / "surface.nc"
     fixture.write_text("", encoding="utf-8")
-
-    class _PackedFakeBoozXform(_FakeBoozXform):
-        def __init__(self):
-            super().__init__(
-                [[1.0, 0.20], [1.5, 0.10]],
-                s_in=(0.0, 0.5, 1.0),
-            )
-            self.phi = np.asarray([0.0, 1.0, 2.0], dtype=np.float64)
-            self.iota = np.asarray([0.4, 0.6, 0.8], dtype=np.float64)
-            self.Boozer_I_all = np.asarray([0.5, 0.5, 0.5], dtype=np.float64)
-            self.Boozer_G_all = np.asarray([0.1, 0.1, 0.1], dtype=np.float64)
-
-    monkeypatch.setitem(
-        sys.modules,
-        "booz_xform_jax",
-        _fake_booz_module(_PackedFakeBoozXform),
-    )
-
-    called = {}
-
-    def _fake_packed_grid(path, ns_b):
-        called["path"] = path
-        called["ns_b"] = ns_b
-        return np.asarray([0.0, 0.5], dtype=np.float64)
-
-    monkeypatch.setattr("ntx.booz._packed_surface_grid", _fake_packed_grid)
-
+    monkeypatch.setitem(sys.modules, "booz_xform_jax", _fake_booz_module([[1.0, 0.20], [1.5, 0.10]]))
     payload = load_boozmn_surface(fixture, surface_index=1, min_bmn_to_load=0.75)
-    assert called["path"] == fixture.resolve()
-    assert called["ns_b"] == 2
-    assert payload.surface_index == 1
-    assert payload.s == pytest.approx(0.5)
-    assert payload.rho == pytest.approx(np.sqrt(0.5))
+    assert payload.s == pytest.approx(0.75)  # jlist=3 -> half-grid surface 1 of ns_b=3
     assert payload.mode_count == 1
     assert payload.surface.iota == pytest.approx(-0.6)
     assert payload.surface.b_theta == pytest.approx(-0.5)
     assert payload.surface.b_zeta == pytest.approx(0.1)
     assert payload.surface.n.tolist() == [0]
-
-
-def test_booz_loader_surface_index_out_of_range(monkeypatch, tmp_path):
-    fixture = tmp_path / "surface.nc"
-    fixture.write_text("", encoding="utf-8")
-    class _SurfaceIndexBoozXform(_FakeBoozXform):
-        def __init__(self):
-            super().__init__([[1.0, 0.2], [1.1, 0.1]], s_in=(0.0, 1.0))
-            self.iota = np.asarray([0.4, 0.6], dtype=np.float64)
-            self.Boozer_I_all = np.asarray([0.2, 0.3], dtype=np.float64)
-            self.Boozer_G_all = np.asarray([1.0, 1.1], dtype=np.float64)
-
-    monkeypatch.setitem(
-        sys.modules,
-        "booz_xform_jax",
-        _fake_booz_module(_SurfaceIndexBoozXform),
-    )
-
     with pytest.raises(IndexError):
         load_boozmn_surface(fixture, surface_index=5)
 
