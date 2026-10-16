@@ -538,6 +538,7 @@ def _parameter_gradient_from_adjoint(
     in the primal: that row is a constraint rather than a physical equation, so
     it carries no sensitivity.
     """
+
     def row(carry, inputs):
         k, l1, l3, x1, x3 = inputs
         diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
