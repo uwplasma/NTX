@@ -166,7 +166,7 @@ def test_2d_local_stencil_matches_whole_grid_tables() -> None:
     x = _grid(rng, 11)
     y = _grid(rng, 9)
     values = rng.normal(size=(11, 9))
-    for method in ("cubic", "parabolic", "pchip"):
+    for method in ("cubic", "parabolic", "pchip", "akima"):
         for xq in (-0.05, 0.0, 0.013, 0.5, 0.987, 1.0, 1.05):
             for yq in (-0.05, 0.0, 0.5, 1.0, 1.05):
                 loc = float(interp2d_at(x, y, values, jnp.asarray(xq),
