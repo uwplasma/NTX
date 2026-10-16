@@ -134,6 +134,8 @@ from .solver import (
     solve_monoenergetic_scan,
     solve_prepared,
     solve_prepared_coefficient_vector,
+    solve_prepared_coefficient_vector_derivative_vjp,
+    solve_prepared_coefficient_vector_lowdot_two_pullbacks,
     solve_prepared_coefficient_vector_vjp,
     solve_prepared_internal,
 )
@@ -257,6 +259,8 @@ __all__ = [
     "solve_monoenergetic_parallel_scan",
     "solve_monoenergetic_scan",
     "solve_prepared_coefficient_vector",
+    "solve_prepared_coefficient_vector_derivative_vjp",
+    "solve_prepared_coefficient_vector_lowdot_two_pullbacks",
     "solve_prepared_coefficient_vector_vjp",
     "solve_prepared",
     "solve_prepared_internal",
