@@ -57,7 +57,7 @@ prepared = ntx.prepare_monoenergetic_system(ntx.example_surface(), ntx.GridSpec(
 case = ntx.MonoenergeticCase(nu_hat=1e-1, epsi_hat=0.0)
 
 window = ntx.certify_adjoint_window(prepared, case, rtol=1e-6)
-print(int(window), window.certified_relative_error)     # 25, 3.2e-07
+print(int(window), window.certified_relative_error)  # 25, 3.2e-07
 
 result = ntx.solve_prepared(prepared, case, adjoint_window=window)
 ```

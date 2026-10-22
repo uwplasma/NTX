@@ -27,9 +27,9 @@ from ntx.vmec import (
     _resolve_psi_n,
     _select_mode_set,
     load_vmec_surface,
+    surface_from_vmex_vmec_wout,
 )
-from ntx.vmex_vmec import _interp_mode_columns as _vmex_interp_mode_columns
-from ntx.vmex_vmec import surface_from_vmex_vmec_wout
+from ntx.vmec import _interp_mode_columns as _vmex_interp_mode_columns
 
 
 def _import_blocker(name: str):
@@ -306,6 +306,7 @@ def test_booz_loader_surface_index_and_packed_grid_success(monkeypatch, tmp_path
 def test_booz_loader_surface_index_out_of_range(monkeypatch, tmp_path):
     fixture = tmp_path / "surface.nc"
     fixture.write_text("", encoding="utf-8")
+
     class _SurfaceIndexBoozXform(_FakeBoozXform):
         def __init__(self):
             super().__init__([[1.0, 0.2], [1.1, 0.1]], s_in=(0.0, 1.0))
@@ -423,6 +424,7 @@ def test_vmec_loader_covers_mode_and_transport_error_branches(monkeypatch, tmp_p
     original_resolve = load_vmec_surface.__globals__["_resolve_psi_n"]
 
     try:
+
         def _bad_len_interp(x, values, xq):
             if getattr(_bad_len_interp, "calls", 0) == 0:
                 _bad_len_interp.calls = 1

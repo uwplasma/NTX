@@ -27,7 +27,7 @@ from ntx import (  # noqa: E402
     solve_monoenergetic,
 )
 from ntx._checkout_paths import find_neopax_root, fixture_path  # noqa: E402
-from ntx.vmex_vmec import surface_from_vmex_vmec_wout_file  # noqa: E402
+from ntx.vmec import surface_from_vmex_vmec_wout_file  # noqa: E402
 
 
 NEOPAX_ROOT = find_neopax_root()

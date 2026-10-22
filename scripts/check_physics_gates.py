@@ -7,8 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+sys.path[:0] = [str(SRC), str(ROOT / "tools")]
 from ntx._checkout_paths import portable_path  # noqa: E402
 
 
@@ -32,7 +31,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    from ntx.physics_gates import evaluate_artifact_gates, physics_gate_registry
+    from ntx_validation import evaluate_artifact_gates, physics_gate_registry
 
     args = parse_args()
     root = args.root.resolve()

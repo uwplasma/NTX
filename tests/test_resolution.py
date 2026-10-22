@@ -41,9 +41,7 @@ def test_resolution_report_uses_one_field_period_mode_numbers():
 
 
 def test_resolution_report_warns_near_nyquist():
-    report = geometry_resolution_report(
-        _surface_with_modes([0, 2], [0, 2]), GridSpec(5, 5, 4)
-    )
+    report = geometry_resolution_report(_surface_with_modes([0, 2], [0, 2]), GridSpec(5, 5, 4))
     assert report.resolved
     assert len(report.warnings) == 2
 
@@ -94,8 +92,8 @@ def test_jitted_surface_keeps_existing_transform_contract():
     surface = _surface_with_modes([0, 1], [0, 1])
     grid = GridSpec(5, 5, 4)
     solve = jax.jit(
-        lambda traced_surface: solve_monoenergetic(
-            traced_surface, grid, MonoenergeticCase(1.0e-2)
-        ).D11
+        lambda traced_surface: (
+            solve_monoenergetic(traced_surface, grid, MonoenergeticCase(1.0e-2)).D11
+        )
     )
     assert jnp.isfinite(solve(surface))

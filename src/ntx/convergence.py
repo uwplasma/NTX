@@ -144,9 +144,7 @@ def solve_monoenergetic_converged(
                 "non-finite coefficient encountered during angular refinement",
             )
         change = (
-            None
-            if previous is None
-            else _changes(previous, current, rtol=rtol, atol=atol_values)
+            None if previous is None else _changes(previous, current, rtol=rtol, atol=atol_values)
         )
         accepted = None if change is None else change[2]
         steps.append(
@@ -183,9 +181,7 @@ def solve_monoenergetic_converged(
                 "non-finite coefficient encountered during Legendre refinement",
             )
         assert previous is not None
-        absolute, relative, accepted = _changes(
-            previous, current, rtol=rtol, atol=atol_values
-        )
+        absolute, relative, accepted = _changes(previous, current, rtol=rtol, atol=atol_values)
         steps.append(ConvergenceStep("legendre", grid, current, absolute, relative, accepted))
         accepted_run = accepted_run + 1 if accepted else 0
         previous = current

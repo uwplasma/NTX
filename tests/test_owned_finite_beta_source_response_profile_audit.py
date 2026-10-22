@@ -4,11 +4,11 @@ import json
 from pathlib import Path
 
 import numpy as np
-
-from examples import owned_finite_beta_source_response_profile_audit as audit
-from ntx.validation._finite_beta_source_channels import (
+from ntx_validation._finite_beta_source_channels import (
     profile_source_response_summary_metrics,
 )
+
+from examples import owned_finite_beta_source_response_profile_audit as audit
 
 
 def _synthetic_row(
@@ -77,9 +77,7 @@ def test_summary_metrics_track_profile_response_range() -> None:
     assert metrics["high_order_n_order"] == 18
     assert metrics["high_order_temperature_response_multiplier_min"] == 0.70
     assert metrics["high_order_temperature_response_multiplier_max"] == 0.95
-    assert metrics["high_order_temperature_response_multiplier_span"] == (
-        0.95 - 0.70
-    )
+    assert metrics["high_order_temperature_response_multiplier_span"] == (0.95 - 0.70)
     assert metrics["high_order_stress_rho"] == 0.15
     assert metrics["temperature_response_correlation_with_log10_nu_e_star"] is not None
 

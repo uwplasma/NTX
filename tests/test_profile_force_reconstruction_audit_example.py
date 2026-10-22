@@ -56,8 +56,7 @@ def test_profile_force_reconstruction_audit_writes_outputs(tmp_path, monkeypatch
     spec.loader.exec_module(module)
 
     archive_root = (
-        tmp_path
-        / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
+        tmp_path / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
     )
     _write_case(
         archive_root,

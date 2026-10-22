@@ -85,11 +85,7 @@ def test_owned_finite_beta_sfincs_jax_resolution_audit_builds_payload_and_figure
     _write_probe(tight, ntheta=35, nzeta=43, nxi=48, min_bmn=1.0e-8, rel=rel_tight)
     conditioning.write_text(
         json.dumps(
-            {
-                "stress_radius": {
-                    "required_coefficient_relative_difference_for_current_gate": 1.0e-3
-                }
-            }
+            {"stress_radius": {"required_coefficient_relative_difference_for_current_gate": 1.0e-3}}
         )
         + "\n"
     )

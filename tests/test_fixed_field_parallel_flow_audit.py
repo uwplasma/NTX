@@ -12,8 +12,7 @@ from examples import fixed_field_parallel_flow_audit as audit  # noqa: E402
 
 def test_case_discovery_uses_zenodo_archive(monkeypatch, tmp_path):
     zenodo_root = (
-        tmp_path
-        / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
+        tmp_path / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
     )
     calc_root = (
         zenodo_root / "calculations" / "20211226-01-sfincs_for_precise_QS_for_Redl_benchmark"
@@ -25,14 +24,10 @@ def test_case_discovery_uses_zenodo_archive(monkeypatch, tmp_path):
     qa_wout = wout_root / "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
     qh_wout = wout_root / "wout_LandremanPaul2021_QH_reactorScale_lowres_reference.nc"
     qa_scan = (
-        calc_root
-        / "20211226-01-012_QA_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces"
-        / "sfincsScan.dat"
+        calc_root / "20211226-01-012_QA_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces" / "sfincsScan.dat"
     )
     qh_scan = (
-        calc_root
-        / "20211226-01-019_QH_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces"
-        / "sfincsScan.dat"
+        calc_root / "20211226-01-019_QH_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces" / "sfincsScan.dat"
     )
     for path in (qa_wout, qh_wout, qa_scan, qh_scan):
         path.write_text("", encoding="utf-8")

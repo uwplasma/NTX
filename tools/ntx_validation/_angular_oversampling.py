@@ -9,15 +9,14 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from .._solver import MonoenergeticCase, solve_prepared
-from ..config import enable_x64
-from ..geometry import BoozerSurface, VmecSurface
-from ..grids import GridSpec
-from ..resolution import (
+from ntx.config import enable_x64
+from ntx.geometry import BoozerSurface, VmecSurface
+from ntx.grids import GridSpec
+from ntx.resolution import (
     RECOMMENDED_ANGULAR_OVERSAMPLING,
     geometry_resolution_report,
 )
-from ..solver import prepare_monoenergetic_system
+from ntx.solver import MonoenergeticCase, prepare_monoenergetic_system, solve_prepared
 
 DEFAULT_OVERSAMPLING_RATIOS = (1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5)
 RECOMMENDED_OVERSAMPLING = RECOMMENDED_ANGULAR_OVERSAMPLING
@@ -67,6 +66,7 @@ class AngularOversamplingAudit:
 @dataclass(frozen=True)
 class _RawPoint:
     """One measured oversampling point: the grid used and what it cost."""
+
     requested_ratio: float
     n_theta: int
     n_zeta: int

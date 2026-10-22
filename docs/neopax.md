@@ -127,8 +127,10 @@ Es = jnp.zeros((rho.size, 6))
 Er = jnp.zeros_like(Es)
 drds = jnp.ones_like(rho)
 
+
 def surface_loader(rho_value: float):
     return surface_from_vmex_vmec_wout_file("wout.nc", s=float(rho_value**2))
+
 
 scan = build_ntx_neopax_scan(
     surface_loader,

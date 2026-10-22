@@ -46,8 +46,7 @@ def test_fixed_field_case_discovery(monkeypatch, tmp_path):
 
 def test_fixed_field_case_discovery_prefers_zenodo(monkeypatch, tmp_path):
     zenodo_root = (
-        tmp_path
-        / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
+        tmp_path / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
     )
     test_files = zenodo_root / "codes" / "simsopt" / "tests" / "test_files"
     test_files.mkdir(parents=True)
@@ -75,7 +74,7 @@ def test_namelist_text_contains_expected_transport_matrix_settings(tmp_path):
     text = audit._namelist_text(case, 0.25)
     assert "RHSMode = 3" in text
     assert "geometryScheme = 5" in text
-    assert 'rN_wish = 0.25000000' in text
+    assert "rN_wish = 0.25000000" in text
     assert f'equilibriumFile = "{case.wout_path}"' in text
     assert "nuPrime" in text
     assert "EStar" in text

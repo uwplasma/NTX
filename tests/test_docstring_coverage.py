@@ -31,9 +31,7 @@ def _public_api(tree: ast.Module) -> list[ast.AST]:
 
     def scan(body: list[ast.stmt]) -> None:
         for node in body:
-            if not isinstance(
-                node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
-            ):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 continue
             if node.name.startswith("_"):
                 continue
@@ -85,9 +83,7 @@ def _every_definition(tree: ast.Module) -> list[tuple[str, ast.AST]]:
                 scan(node.body, prefix)
                 scan(node.orelse, prefix)
                 continue
-            if not isinstance(
-                node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
-            ):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 continue
             found.append((f"{prefix}{node.name}", node))
             if isinstance(node, ast.ClassDef):

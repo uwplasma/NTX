@@ -16,8 +16,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = ROOT / "docs" / "_static"
 SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+sys.path[:0] = [str(SRC), str(ROOT / "tools")]
 
 
 def _load_json(path: Path) -> dict:
@@ -45,7 +44,7 @@ def _format_optional_float(value: float | None, scientific: bool = False) -> str
 
 
 def build_payload() -> dict:
-    from ntx.validation.benchmark_matrix import benchmark_matrix_payload
+    from ntx_validation.benchmark_matrix import benchmark_matrix_payload
 
     monoenergetic = _load_json(STATIC / "validation_summary.json")
     fixed_field = _load_json(STATIC / "bootstrap_current_fixed_field_validation.json")

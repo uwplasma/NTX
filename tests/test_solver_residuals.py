@@ -11,7 +11,8 @@ from ntx import (
     prepare_monoenergetic_system,
     solve_prepared,
 )
-from ntx._solver import (
+from ntx.operators import apply_nullspace_condition, operator_blocks, source_modes
+from ntx.solver import (
     _factorize_prepared_modes,
     _full_mode_residual_norm,
     _full_mode_transpose_relative_residual_norm,
@@ -19,7 +20,6 @@ from ntx._solver import (
     _solve_factorized_adjoint,
     _solve_factorized_modes,
 )
-from ntx.operators import apply_nullspace_condition, operator_blocks, source_modes
 
 
 def _full_primary_solution(n_xi=6):

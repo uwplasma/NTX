@@ -5,6 +5,13 @@ from pathlib import Path
 
 import jax.numpy as jnp
 import pytest
+from ntx_validation import (
+    PhysicsGate,
+    PhysicsGateResult,
+    evaluate_artifact_gates,
+    physics_gate_registry,
+)
+from ntx_validation.physics_gates import _evaluate_scalar_gate, _gate_by_name
 
 from ntx import (
     BoozerSurface,
@@ -14,13 +21,6 @@ from ntx import (
     onsager_error,
     solve_monoenergetic,
 )
-from ntx.physics_gates import (
-    PhysicsGate,
-    PhysicsGateResult,
-    evaluate_artifact_gates,
-    physics_gate_registry,
-)
-from ntx.validation.physics_gates import _evaluate_scalar_gate, _gate_by_name
 
 ROOT = Path(__file__).resolve().parents[1]
 
