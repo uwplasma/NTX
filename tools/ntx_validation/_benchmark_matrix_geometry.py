@@ -539,7 +539,7 @@ def geometry_breadth_benchmark_entries() -> tuple[BenchmarkEntry, ...]:
             tests=(
                 "tests/test_boozmn.py",
                 "tests/test_boozmn_same_coordinate_roundtrip_audit.py",
-                "tests/test_vmex_backend.py",
+                "tests/test_vmec_vmex.py",
             ),
             artifacts=(
                 "docs/_static/boozmn_finite_beta_wout_roundtrip_audit.png",

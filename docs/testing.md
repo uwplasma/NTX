@@ -170,7 +170,7 @@ provides the artifact-backed VMEC-to-Boozer-file round trip.
 The same audit is also committed on an optimized finite-beta QA `wout`. The
 accepted file-backed path is the finalized `wout` magnetic-channel transform,
 not reconstruction of an equilibrium state from output coefficients.
-`tests/test_vmex_backend.py` protects the current root-level `read_wout`
+`tests/test_vmec_vmex.py` protects the current root-level `read_wout`
 API, the `profile_source="wout"`/automatic routes, and the traceable core
 Boozer-table adapter, while
 `boozmn_finite_beta_wout_roundtrip_audit.json` keeps the resulting
@@ -327,12 +327,12 @@ modules directly. The current full CI coverage report for the split lanes is
 above the release threshold:
 
 - overall repository-owned coverage is `99.0%`,
-- `src/ntx/neopax.py`, `src/ntx/neopax.py`, `src/ntx/neopax.py`,
+- `src/ntx/neopax.py`,
   and `src/ntx/neopax.py` are now at or above `97%`,
 - `src/ntx/neopax.py`, the imported `vmex`/`booz_xform_jax` field
   bridge, is now at `98.1%`,
 - the split autodiff workflow owners (`src/ntx/autodiff.py`,
-  `src/ntx/autodiff.py`, `src/ntx/autodiff.py`, and
+  `src/ntx/autodiff.py`, and
   `src/ntx/autodiff.py`), `src/ntx/_profiles.py`,
   `src/ntx/_profiles_transport.py`, and `src/ntx/_profiles_control.py` are
   all covered by the fast unit/workflow lanes, and the split

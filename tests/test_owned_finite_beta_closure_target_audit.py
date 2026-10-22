@@ -4,12 +4,12 @@ import json
 from pathlib import Path
 
 import pytest
-
-from examples import owned_finite_beta_closure_target_audit as audit
-from ntx.validation._finite_beta_closure_target import (
+from ntx_validation._finite_beta_closure_target import (
     field_radius_matched_response_audit,
     profile_closure_target_diagnostics,
 )
+
+from examples import owned_finite_beta_closure_target_audit as audit
 
 
 def _source_response_payload() -> dict:

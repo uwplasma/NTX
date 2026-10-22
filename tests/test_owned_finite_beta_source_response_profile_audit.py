@@ -4,11 +4,11 @@ import json
 from pathlib import Path
 
 import numpy as np
-
-from examples import owned_finite_beta_source_response_profile_audit as audit
-from ntx.validation._finite_beta_source_channels import (
+from ntx_validation._finite_beta_source_channels import (
     profile_source_response_summary_metrics,
 )
+
+from examples import owned_finite_beta_source_response_profile_audit as audit
 
 
 def _synthetic_row(

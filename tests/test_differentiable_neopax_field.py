@@ -25,7 +25,6 @@ from ntx._checkout_paths import (
 )
 from ntx.geometry import BoozerSurface
 from ntx.neopax import (
-    _apply_boozer_sign_convention_profiles,
     _booz_xform_bundle_with_gmnc_from_vmex_state,
     _booz_xform_gmnc_from_inputs,
     _find_mode_index,
@@ -40,6 +39,7 @@ from ntx.neopax import (
     _vmec_volume_profiles_from_state,
     build_differentiable_neopax_field_from_vmex_boundary_params,
 )
+from ntx.vmec import _apply_boozer_sign_convention_profiles
 
 
 def _import_neopax():

@@ -5,8 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ntx.physics_gates import physics_gate_registry
-from ntx.validation.benchmark_matrix import (
+from ntx_validation import physics_gate_registry
+from ntx_validation.benchmark_matrix import (
     BenchmarkEntry,
     BenchmarkEvaluation,
     BenchmarkPathStatus,

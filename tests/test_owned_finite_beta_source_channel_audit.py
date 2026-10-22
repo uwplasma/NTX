@@ -6,12 +6,12 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-
-from examples import owned_finite_beta_source_channel_audit as audit
-from ntx.validation._finite_beta_source_channels import (
+from ntx_validation._finite_beta_source_channels import (
     effective_projection_and_drives,
     source_channel_summary_metrics,
 )
+
+from examples import owned_finite_beta_source_channel_audit as audit
 
 
 def test_effective_source_decomposition_preserves_transport_rhs() -> None:

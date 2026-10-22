@@ -17,13 +17,11 @@ import numpy as np
 from jax import Array, tree_util
 
 from ._interp import Interpolator1D
-from ._vmex import (
+from .geometry import BoozerSurface, VmecSurface, evaluate_boozer_modes
+from .vmec import (
+    VmecJaxBoundaryContext,
     _booz_xform_bundle_from_vmex_state,
     _booz_xform_gmnc_from_inputs,
-)
-from .geometry import BoozerSurface, VmecSurface, evaluate_boozer_modes
-from .vmex_backend import (
-    VmecJaxBoundaryContext,
     solve_vmex_boundary_state,
     surfaces_from_vmex_state,
 )

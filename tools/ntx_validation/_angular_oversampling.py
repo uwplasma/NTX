@@ -9,14 +9,14 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from ..config import enable_x64
-from ..geometry import BoozerSurface, VmecSurface
-from ..grids import GridSpec
-from ..resolution import (
+from ntx.config import enable_x64
+from ntx.geometry import BoozerSurface, VmecSurface
+from ntx.grids import GridSpec
+from ntx.resolution import (
     RECOMMENDED_ANGULAR_OVERSAMPLING,
     geometry_resolution_report,
 )
-from ..solver import MonoenergeticCase, prepare_monoenergetic_system, solve_prepared
+from ntx.solver import MonoenergeticCase, prepare_monoenergetic_system, solve_prepared
 
 DEFAULT_OVERSAMPLING_RATIOS = (1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5)
 RECOMMENDED_OVERSAMPLING = RECOMMENDED_ANGULAR_OVERSAMPLING

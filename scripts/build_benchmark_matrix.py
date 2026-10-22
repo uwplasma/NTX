@@ -9,8 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+sys.path[:0] = [str(SRC), str(ROOT / "tools")]
 
 
 def parse_args() -> argparse.Namespace:
@@ -26,7 +25,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    from ntx.validation.benchmark_matrix import (
+    from ntx_validation.benchmark_matrix import (
         evaluate_benchmark_matrix,
         write_benchmark_matrix_json,
     )

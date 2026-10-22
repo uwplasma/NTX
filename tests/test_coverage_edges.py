@@ -27,9 +27,9 @@ from ntx.vmec import (
     _resolve_psi_n,
     _select_mode_set,
     load_vmec_surface,
+    surface_from_vmex_vmec_wout,
 )
-from ntx.vmex_vmec import _interp_mode_columns as _vmex_interp_mode_columns
-from ntx.vmex_vmec import surface_from_vmex_vmec_wout
+from ntx.vmec import _interp_mode_columns as _vmex_interp_mode_columns
 
 
 def _import_blocker(name: str):
