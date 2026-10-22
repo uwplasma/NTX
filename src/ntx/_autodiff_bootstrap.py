@@ -13,12 +13,12 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
-from ._autodiff import BootstrapOptimizationResult, RobustBootstrapOptimizationResult
-from ._autodiff import (
+from .autodiff import BootstrapOptimizationResult, RobustBootstrapOptimizationResult
+from .autodiff import (
     dominant_nonaxisymmetric_mode as _dominant_nonaxisymmetric_mode,
 )
-from ._autodiff import mode_value_for_surface as _mode_value_for_surface
-from ._autodiff import scale_surface_mode as _scale_surface_mode
+from .autodiff import mode_value_for_surface as _mode_value_for_surface
+from .autodiff import scale_surface_mode as _scale_surface_mode
 from .neopax import (
     build_ntx_neopax_scan_from_surfaces,
     scan_to_neopax_arrays,

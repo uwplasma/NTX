@@ -25,8 +25,7 @@ def test_runtime_dependencies_have_single_owners() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     dependencies = tuple(project["project"]["dependencies"])
     normalized = {
-        item.split(";", 1)[0].split("<", 1)[0].split(">", 1)[0].lower()
-        for item in dependencies
+        item.split(";", 1)[0].split("<", 1)[0].split(">", 1)[0].lower() for item in dependencies
     }
 
     assert "jax" in normalized

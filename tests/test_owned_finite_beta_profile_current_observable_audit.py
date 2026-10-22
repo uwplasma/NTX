@@ -92,10 +92,7 @@ def test_profile_current_observable_audit_identifies_correction_amplitude(tmp_pa
     assert metrics["stress_residual_after_correction_over_needed"] == 0.25
     assert metrics["stress_species_correction_l1_over_root_fsab2"] == 15.0
     assert metrics["stress_species_correction_cancellation_amplification"] == 1.0
-    assert (
-        metrics["stress_residual_after_correction_over_species_correction_l1"]
-        == 5.0 / 15.0
-    )
+    assert metrics["stress_residual_after_correction_over_species_correction_l1"] == 5.0 / 15.0
     assert metrics["correction_sign_agreement_fraction"] == 1.0
     assert metrics["pmax_stress_error_monotone_nonincreasing"] is True
     assert metrics["profile_current_gate_pass"] is False

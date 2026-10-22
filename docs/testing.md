@@ -327,13 +327,13 @@ modules directly. The current full CI coverage report for the split lanes is
 above the release threshold:
 
 - overall repository-owned coverage is `99.0%`,
-- `src/ntx/neopax.py`, `src/ntx/_neopax.py`, `src/ntx/_neopax.py`,
-  and `src/ntx/_neopax.py` are now at or above `97%`,
-- `src/ntx/_neopax.py`, the imported `vmex`/`booz_xform_jax` field
+- `src/ntx/neopax.py`, `src/ntx/neopax.py`, `src/ntx/neopax.py`,
+  and `src/ntx/neopax.py` are now at or above `97%`,
+- `src/ntx/neopax.py`, the imported `vmex`/`booz_xform_jax` field
   bridge, is now at `98.1%`,
-- the split autodiff workflow owners (`src/ntx/_autodiff.py`,
-  `src/ntx/_autodiff.py`, `src/ntx/_autodiff.py`, and
-  `src/ntx/_autodiff.py`), `src/ntx/_profiles.py`,
+- the split autodiff workflow owners (`src/ntx/autodiff.py`,
+  `src/ntx/autodiff.py`, `src/ntx/autodiff.py`, and
+  `src/ntx/autodiff.py`), `src/ntx/_profiles.py`,
   `src/ntx/_profiles_transport.py`, and `src/ntx/_profiles_control.py` are
   all covered by the fast unit/workflow lanes, and the split
   transport-closure owner is exercised by the same profile tests,

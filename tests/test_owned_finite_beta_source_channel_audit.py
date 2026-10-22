@@ -76,10 +76,7 @@ def test_source_channel_summary_tracks_high_stable_dominant_channel() -> None:
     assert metrics["best_public_neopax_x"] == 10
     assert metrics["best_public_current_gate_pass"] is False
     assert metrics["high_stable_neopax_x"] == 18
-    assert (
-        metrics["high_stable_dominant_effective_channel"]
-        == "effective_temperature_force"
-    )
+    assert metrics["high_stable_dominant_effective_channel"] == "effective_temperature_force"
     assert metrics["high_stable_species_cancellation_factor"] == 82.0
     assert metrics["high_stable_effective_temperature_response_multiplier_to_redl"] == 0.72
     assert metrics["best_effective_temperature_response_multiplier_to_redl"] == 0.75

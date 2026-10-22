@@ -106,10 +106,7 @@ def test_owned_finite_beta_sfincs_jax_production_ladder_audit_builds_payload_and
     assert payload["benchmark"] == "owned_finite_beta_sfincs_jax_production_ladder_audit"
     assert payload["summary_metrics"]["completed_production_ladder_count"] == 4
     assert payload["summary_metrics"]["production_ladder_coefficient_gate_pass"] is True
-    assert (
-        payload["summary_metrics"]["production_ladder_current_conditioned_gate_pass"]
-        is False
-    )
+    assert payload["summary_metrics"]["production_ladder_current_conditioned_gate_pass"] is False
     assert payload["summary_metrics"]["max_production_precision_gap_to_current_gate"] > 1.0
     assert payload["stress_row"]["rho"] == pytest.approx(1.0 / 7.0)
 

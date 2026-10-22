@@ -18,9 +18,8 @@ def _has_boundary_stack() -> bool:
     if vmec_root is None:
         return False
     return (
-        (vmec_root / "examples" / "data" / "input.LandremanPaul2021_QA_lowres").exists()
-        and find_booz_xform_jax_root() is not None
-    )
+        vmec_root / "examples" / "data" / "input.LandremanPaul2021_QA_lowres"
+    ).exists() and find_booz_xform_jax_root() is not None
 
 
 @pytest.mark.skipif(
@@ -47,8 +46,7 @@ def test_implicit_equilibrium_forward_mode_derivative_benchmark_writes_outputs(t
     payload = json.loads(output_prefix.with_suffix(".json").read_text(encoding="utf-8"))
     assert payload["benchmark"] == "implicit_equilibrium_forward_mode_derivative_benchmark"
     assert (
-        payload["classification"]
-        == "artifact-backed non-shipping implicit-equilibrium diagnostic"
+        payload["classification"] == "artifact-backed non-shipping implicit-equilibrium diagnostic"
     )
     assert payload["closure_decision"]["status"] == "closed-not-shipped"
     assert (

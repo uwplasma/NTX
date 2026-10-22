@@ -46,8 +46,7 @@ def test_benchmark_scaling_script_runs(tmp_path):
     assert payload["max_rss_mb"] > 0.0
     assert len(payload["results"]) == 2
     assert all(
-        entry["max_abs_delta_serial_vs_multiprocess_d11"] < 1e-10
-        for entry in payload["results"]
+        entry["max_abs_delta_serial_vs_multiprocess_d11"] < 1e-10 for entry in payload["results"]
     )
 
 
@@ -130,9 +129,7 @@ def test_committed_performance_scaling_artifacts_have_memory_and_correctness_met
         assert payload["surface"] == "dkes"
         assert payload["max_rss_mb"] > 0.0
         assert payload["local_device_count"] >= payload["healthy_parallel_device_count"] >= 1
-        assert payload["sizes"] == [
-            entry["num_cases"] for entry in payload["results"]
-        ]
+        assert payload["sizes"] == [entry["num_cases"] for entry in payload["results"]]
 
         for result in payload["results"]:
             assert required_result_keys <= result.keys()

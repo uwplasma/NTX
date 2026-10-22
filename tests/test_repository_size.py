@@ -18,11 +18,7 @@ def _tracked_files() -> tuple[Path, ...]:
         check=True,
         capture_output=True,
     )
-    return tuple(
-        ROOT / item.decode()
-        for item in result.stdout.split(b"\0")
-        if item
-    )
+    return tuple(ROOT / item.decode() for item in result.stdout.split(b"\0") if item)
 
 
 def test_tracked_files_stay_below_two_mib():

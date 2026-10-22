@@ -135,10 +135,7 @@ def test_build_payload_tracks_physical_driver_diagnostics(tmp_path: Path) -> Non
     }
     assert metrics["epsilon_abs_pearson"] == pytest.approx(1.0)
     assert metrics["best_leave_one_out_rmse"] is not None
-    assert (
-        metrics["best_leave_one_out_improvement_over_constant"]
-        > 1.0
-    )
+    assert metrics["best_leave_one_out_improvement_over_constant"] > 1.0
     assert payload["closure_requirements"]
     assert payload["field_radius_matched_response_audit"] is None
 

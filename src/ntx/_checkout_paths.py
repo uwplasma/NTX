@@ -82,9 +82,7 @@ def find_dkx_root() -> Path | None:
     check reads exactly like a passing one in a summary.
     """
 
-    return _discover(
-        "DKX_ROOT", "DKX", "tests/DKX", "sfincs_jax", "tests/sfincs_jax"
-    )
+    return _discover("DKX_ROOT", "DKX", "tests/DKX", "sfincs_jax", "tests/sfincs_jax")
 
 
 def find_sfincs_jax_root() -> Path | None:

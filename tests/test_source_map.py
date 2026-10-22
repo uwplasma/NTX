@@ -6,16 +6,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 INTERNAL_MODULES_REQUIRING_SOURCE_MAP = (
-    "src/ntx/_autodiff.py",
+    "src/ntx/autodiff.py",
     "src/ntx/_autodiff_bootstrap.py",
-    "src/ntx/_geometry.py",
-    "src/ntx/_inputfiles.py",
-    "src/ntx/_neopax.py",
+    "src/ntx/geometry.py",
+    "src/ntx/inputfiles.py",
+    "src/ntx/neopax.py",
     "src/ntx/_neopax_scan.py",
     "src/ntx/_profiles.py",
     "src/ntx/_profiles_control.py",
     "src/ntx/_profiles_transport.py",
-    "src/ntx/_solver.py",
+    "src/ntx/solver.py",
     "src/ntx/_solver_scan.py",
     "src/ntx/_vmex.py",
     "src/ntx/validation/_benchmark_matrix.py",
@@ -53,7 +53,7 @@ def test_source_map_mentions_split_internal_modules() -> None:
 #
 # It counts *code* lines: docstrings, comments and blanks are excluded. Counting
 # raw lines made documenting a module a way to fail this test, which is exactly
-# backwards -- the first version of this rule tripped on _neopax.py at 1201 raw
+# backwards -- the first version of this rule tripped on neopax.py at 1201 raw
 # lines while its code was 948. A module's cost to a reader is its logic; the
 # prose that explains that logic makes it cheaper, not dearer.
 MODULE_CODE_LINE_LIMIT = 1000
@@ -64,9 +64,7 @@ def _code_lines(path: Path) -> int:
     source = path.read_text(encoding="utf-8")
     documented: set[int] = set()
     for node in ast.walk(ast.parse(source)):
-        if not isinstance(
-            node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
-        ):
+        if not isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             continue
         body = node.body
         if (

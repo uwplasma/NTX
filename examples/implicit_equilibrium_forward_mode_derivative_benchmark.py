@@ -27,7 +27,11 @@ from ntx import (  # noqa: E402
     solve_vmex_boundary_state,
     surface_from_vmex_state,
 )
-from ntx._checkout_paths import find_booz_xform_jax_root, find_vmex_root, portable_path  # noqa: E402
+from ntx._checkout_paths import (  # noqa: E402
+    find_booz_xform_jax_root,
+    find_vmex_root,
+    portable_path,
+)
 from ntx.config import enable_x64  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "implicit_equilibrium_forward_mode_derivative_benchmark"

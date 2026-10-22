@@ -17,6 +17,7 @@ GateStatus = Literal["pass", "fail", "monitor", "missing"]
 @dataclass(frozen=True)
 class PhysicsGate:
     """A single physics gate: the metric, the relation, and the bound it must meet."""
+
     name: str
     category: GateCategory
     metric: str
@@ -37,6 +38,7 @@ class PhysicsGateResult:
     Keeps the measured value beside the status so a failure reports by how much
     rather than merely that it failed.
     """
+
     gate: PhysicsGate
     value: float | None
     status: GateStatus

@@ -77,9 +77,7 @@ def test_summary_metrics_track_profile_response_range() -> None:
     assert metrics["high_order_n_order"] == 18
     assert metrics["high_order_temperature_response_multiplier_min"] == 0.70
     assert metrics["high_order_temperature_response_multiplier_max"] == 0.95
-    assert metrics["high_order_temperature_response_multiplier_span"] == (
-        0.95 - 0.70
-    )
+    assert metrics["high_order_temperature_response_multiplier_span"] == (0.95 - 0.70)
     assert metrics["high_order_stress_rho"] == 0.15
     assert metrics["temperature_response_correlation_with_log10_nu_e_star"] is not None
 
