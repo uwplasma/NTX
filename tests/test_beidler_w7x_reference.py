@@ -18,7 +18,8 @@ reports for the same surface:
     D31* = 3 iota psi_p D31 / (2 R0 f_t),  f_t = 1.46 sqrt(r / R0)
     D33* = D33 / D33_Spitzer.
 
-Measured deviations: D11* +1.5 to +7.0% (nu* 1.1e-2 to 1.1, and 1.1e-3 at 21 x 45 x 64), D31* <= 0.007, D33* <= 1.6%; at v_E = 3e-3 and nu* = 1.8e-4, +17% of the cluster centre (half extent 25%).
+Measured deviations: D11* +1.5 to +7.0% (nu* 1.1e-3 to 1.1), D31* <= 0.007, D33* <= 1.6%; at
+v_E = 3e-3 and nu* = 1.8e-4, +17% of the cluster centre (half extent 25%).
 """
 
 from __future__ import annotations
