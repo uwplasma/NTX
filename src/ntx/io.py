@@ -141,7 +141,7 @@ def load_geiger_boozer_surface(
 
     if (rho is None) == (s is None):
         raise ValueError("set exactly one of rho or s")
-    s_wish = float(rho) ** 2 if rho is not None else float(s)
+    s_wish = float(rho) ** 2 if rho is not None else float(s or 0.0)
     resolved = Path(path).expanduser().resolve()
     lines = (
         resolved.read_text(encoding="utf-8", errors="replace")
