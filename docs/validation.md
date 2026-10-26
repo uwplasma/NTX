@@ -923,3 +923,21 @@ When an independent transport workflow such as
 research environment, NTX studies can also be checked against it. Those
 comparisons are useful for confidence, but they are not required to run NTX or
 to understand the code.
+
+## DKES Comparison On The Hydra Np04 Reactor
+
+NTX against the IPP DKES coefficients of the 4-period HELIAS reactor `hydra_Np04_20190108` at
+seven radii (`rho = 0.12247` to `0.875`), `efield = 0, 0.01, 0.03` and `cmul = 1e-6` to `10`, on
+the Geiger Boozer file, with the normalization of the DKX comparison (uwplasma/DKX#395). Neither
+the DKES values nor the Boozer file can be redistributed: `scripts/validate_dkes_hydra_np04.py`
+reads them from `NTX_DKES_HYDRA_DIR` and `NTX_HYDRA_BOOZER`, and the committed record
+`benchmarks/results/dkes_hydra_np04.json` holds agreement statistics per radius and regime
+only (the tests that need the data skip without it).
+
+Mapping: `nu_hat = cmul` (DKES `CMUL`, 1/m), `epsi_hat = efield / r`,
+`D33* = D33 / D33_spitzer`, `D11* = (8 / pi) B0^2 R |iota| D11` and
+`D31* = 3 B0 |iota| sqrt(r / R) D31 / (2 * 1.46)` with `R = |G| / B0`. At `17 x 41 x 96`,
+`cmul >= 1e-3`: `D33*` within 0.4%, `D11*` within 19.3% pointwise (median 0.1% to 6.7% per radius
+and regime) and `D31*` within 1e-3, the same as DKX within the rounding of the statistics; the
+stored `rho = 0.875`, `efield = 0` `D11_S` is excluded from the gate as in DKX. Below `cmul` 3e-4
+neither code is converged on this grid and the statistics are reported, not gated.

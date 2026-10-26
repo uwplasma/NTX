@@ -40,6 +40,7 @@ from .inputfiles import (
 from .io import (
     load_boozer_modes_csv,
     load_dkes_surface,
+    load_geiger_boozer_surface,
     load_magnetic_configuration_surface,
     load_vmec_surface,
 )
@@ -228,6 +229,7 @@ __all__ = [
     "load_run_config",
     "load_boozer_modes_csv",
     "load_dkes_surface",
+    "load_geiger_boozer_surface",
     "load_magnetic_configuration_surface",
     "load_neopax_reference_scan",
     "neopax_scan_requires_rebuild",
