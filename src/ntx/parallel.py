@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import math
-import multiprocessing as mp
 import os
-from concurrent.futures import ProcessPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, cast
@@ -31,6 +29,7 @@ def solve_monoenergetic_multiprocess_scan(
     """
 
     import jax.numpy as jnp
+    from solvax import map_independent
 
     from .solver import _resolved_scan_inputs, prepare_monoenergetic_system
 
@@ -81,11 +80,9 @@ def solve_monoenergetic_multiprocess_scan(
         }
         for index in range(shard_count)
     ]
-    # spawn, not fork: a forked child inherits the parent's initialized JAX
-    # and CUDA state, which then races with the child's own device setup.
-    ctx = mp.get_context("spawn")
-    with ProcessPoolExecutor(max_workers=shard_count, mp_context=ctx) as pool:
-        shard_results = list(pool.map(_solve_scan_worker, tasks))
+    shard_results = map_independent(
+        _solve_scan_worker, tasks, workers=shard_count, executor="process"
+    )
 
     output: dict[str, Any] = {}
     for key in ("D11", "D31", "D13", "D33", "D33_spitzer"):
