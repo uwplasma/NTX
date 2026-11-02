@@ -2,6 +2,19 @@
 
 NTX uses the same JAX solver path on CPU and GPU.
 
+## Defaults And When To Change Them
+
+NTX enables float64 at import and a persistent compilation cache under `~/.cache/ntx/jax` (or `XDG_CACHE_HOME`). A solve uses JAX's default device: one GPU when a CUDA `jaxlib` is installed, else the CPU. Several devices are used only when you call a scan helper below.
+
+| Setting | Default | Change it when |
+| --- | --- | --- |
+| `JAX_PLATFORMS=cpu` | GPU when a CUDA `jaxlib` is installed | Small grids: CPU is faster on the smoke cases below |
+| `solve_monoenergetic_parallel_scan` | opt-in; healthy local devices | A large scan on one process; `num_devices` limits it |
+| `solve_monoenergetic_multiprocess_scan` | opt-in; `backend="gpu"`, one worker per device | Several GPUs, the robust route below; with `backend="cpu"`, set `workers` or it runs one |
+| `scan_batch_size` | not set | A scan runs out of memory |
+| `XLA_PYTHON_CLIENT_PREALLOCATE=false` | JAX preallocates most GPU memory | Several processes share one GPU |
+| `NTX_DISABLE_COMPILATION_CACHE=1`, `JAX_COMPILATION_CACHE_DIR` | cache on | The cache filesystem is slow or small |
+
 ## GPU Test Targets
 
 - `tests/test_gpu_smoke.py`
