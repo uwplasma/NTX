@@ -28,7 +28,7 @@ dependencies = [
   "netCDF4",
   "numpy",
   "rich",
-  "solvax>=0.28.2",
+  "solvax>=0.35.0",
 ]
 
 [project.urls]

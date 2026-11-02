@@ -122,41 +122,31 @@ def test_multiprocess_scan_nonempty_branch_uses_executor(monkeypatch):
             (3,),
         )
 
-    class DummyPool:
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, exc_type, exc, tb):
-            return False
-
-        def map(self, func, tasks):
-            return [
-                {
-                    "D11": np.asarray([1.0, 2.0]),
-                    "D31": np.asarray([3.0, 4.0]),
-                    "D13": np.asarray([5.0, 6.0]),
-                    "D33": np.asarray([7.0, 8.0]),
-                    "D33_spitzer": np.asarray([9.0, 10.0]),
-                },
-                {
-                    "D11": np.asarray([11.0, 12.0]),
-                    "D31": np.asarray([13.0, 14.0]),
-                    "D13": np.asarray([15.0, 16.0]),
-                    "D33": np.asarray([17.0, 18.0]),
-                    "D33_spitzer": np.asarray([19.0, 20.0]),
-                },
-            ]
+    def fake_map(func, tasks, *, workers, executor):
+        assert (func, len(tasks), workers, executor) == (_solve_scan_worker, 2, 2, "process")
+        return [
+            {
+                "D11": np.asarray([1.0, 2.0]),
+                "D31": np.asarray([3.0, 4.0]),
+                "D13": np.asarray([5.0, 6.0]),
+                "D33": np.asarray([7.0, 8.0]),
+                "D33_spitzer": np.asarray([9.0, 10.0]),
+            },
+            {
+                "D11": np.asarray([11.0, 12.0]),
+                "D31": np.asarray([13.0, 14.0]),
+                "D13": np.asarray([15.0, 16.0]),
+                "D33": np.asarray([17.0, 18.0]),
+                "D33_spitzer": np.asarray([19.0, 20.0]),
+            },
+        ]
 
     solver_stub = SimpleNamespace(
         _resolved_scan_inputs=fake_resolved,
         prepare_monoenergetic_system=fake_prepare,
     )
     monkeypatch.setitem(__import__("sys").modules, "ntx.solver", solver_stub)
-    monkeypatch.setattr(parallel_mod.mp, "get_context", lambda _: "ctx")
-    monkeypatch.setattr(parallel_mod, "ProcessPoolExecutor", DummyPool)
+    monkeypatch.setattr("solvax.map_independent", fake_map)
 
     result = solve_monoenergetic_multiprocess_scan(
         example_surface(),
