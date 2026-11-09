@@ -172,12 +172,15 @@ def _booz_xform_bundle_from_vmex_state(
         )
         surface_indices = None
         asym = bool(static.resolution.lasym)
-    constants, grids = jax_api.prepare_booz_xform_constants_from_inputs(
-        inputs=inputs,
-        mboz=int(mboz),
-        nboz=int(nboz),
-        asym=asym,
-    )
+    # The mode tables are static; evaluating them eagerly keeps this callable
+    # inside jit and grad.
+    with jax.ensure_compile_time_eval():
+        constants, grids = jax_api.prepare_booz_xform_constants_from_inputs(
+            inputs=inputs,
+            mboz=int(mboz),
+            nboz=int(nboz),
+            asym=asym,
+        )
     out = jax_api.booz_xform_from_inputs(
         inputs=inputs,
         constants=constants,
@@ -213,16 +216,20 @@ def _core_boozer_inputs_from_state(*, vmex, state, runtime, s_values):
             "stellarator-symmetric equilibria only."
         )
 
-    s_full = jnp.asarray(runtime.setup.s_full)
+    # The VMEC full mesh is uniform in s; building it from the static size keeps
+    # the surface lookup concrete when the runtime is traced (inside jit or grad).
+    s_full = np.linspace(0.0, 1.0, int(runtime.setup.s_full.shape[0]))
     s_half = 0.5 * (s_full[:-1] + s_full[1:])
-    requested = s_half if s_values is None else jnp.asarray(s_values, dtype=s_half.dtype)
-    if requested.ndim != 1 or int(requested.size) == 0:
-        raise ValueError("s_values must contain at least one normalized-flux surface")
-    if bool(jnp.any((requested < 0.0) | (requested > 1.0))):
-        raise ValueError("s_values must lie between 0 and 1")
-
+    if s_values is None:
+        rows = list(range(1, int(s_half.size) + 1))
+    else:
+        requested = np.atleast_1d(np.asarray(s_values, dtype=float))
+        if requested.ndim != 1 or requested.size == 0:
+            raise ValueError("s_values must contain at least one normalized-flux surface")
+        if np.any((requested < 0.0) | (requested > 1.0)):
+            raise ValueError("s_values must lie between 0 and 1")
+        rows = [int(np.argmin(np.abs(s_half - value))) + 1 for value in requested]
     # boozer_input_tables uses VMEC half-mesh row j, with 1 <= j < ns.
-    rows = [int(jnp.argmin(jnp.abs(s_half - value))) + 1 for value in requested]
     tables = [boozer_input_tables(state, runtime, row) for row in rows]
     mode_m = tables[0]["xm"]
     mode_n = tables[0]["xn"]
@@ -763,8 +770,14 @@ def surfaces_from_vmex_state(
             b_zeta=jnp.asarray(out["bvco_b"])[row],
         )
         b0 = bmnc_b[0]
-        include = jnp.abs(bmnc_b / b0) >= jnp.asarray(min_bmn_to_load, dtype=bmnc_b.dtype)
-        include = include.at[0].set(True)
+        # A zero cutoff keeps every mode, so no data-dependent mask is needed
+        # and the surface builds under jit and grad.
+        include: jax.Array | slice
+        if min_bmn_to_load > 0.0:
+            include = jnp.abs(bmnc_b / b0) >= jnp.asarray(min_bmn_to_load, dtype=bmnc_b.dtype)
+            include = include.at[0].set(True)
+        else:
+            include = slice(None)
         surfaces.append(
             BoozerSurface(
                 m=ixm_b[include],
