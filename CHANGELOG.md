@@ -4,6 +4,8 @@ Release notes for tagged versions live in `docs/release-notes-*.md`.
 
 ## Unreleased
 
+- Add opt-in NEOPAX structured scan records and bounded scalar/batched VMEC transposes, compact prepared-support pullbacks, and factorization-reusing directional/Hessian helpers. The generic scan and ordinary solver defaults are unchanged.
+
 - Python 3.11 is the minimum (VMEX needs it); CI runs 3.13 with the latest JAX and checks 3.11 and 3.12.
 - SOLVAX floor raised to 0.28.2; the factorization narrows its return type explicitly.
 - VMEX and booz_xform_jax are optional extras (`ntx[vmex]`, `ntx[booz]`) installed from PyPI in CI.

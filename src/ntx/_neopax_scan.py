@@ -5,6 +5,11 @@ Sweeps fields and coefficients across a scan and collects the resulting fluxes.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Literal, overload
+
+if TYPE_CHECKING:
+    from ._neopax_ad import NeopaxScanCoefficientPrimalRecord
+
 from collections.abc import Callable
 from dataclasses import dataclass
 
@@ -225,6 +230,7 @@ def build_ntx_neopax_scan(
     )
 
 
+@overload
 def build_ntx_neopax_scan_from_surfaces(
     surfaces: tuple[BoozerSurface | VmecSurface, ...],
     *,
@@ -235,13 +241,69 @@ def build_ntx_neopax_scan_from_surfaces(
     drds: Array,
     grid: GridSpec,
     source_name: str | None = None,
+    coefficient_reverse_mode: str = "generic",
+    return_primal_record: Literal[False] = False,
 ) -> NeopaxScan:
+    ...
+
+
+@overload
+def build_ntx_neopax_scan_from_surfaces(
+    surfaces: tuple[BoozerSurface | VmecSurface, ...],
+    *,
+    rho: Array,
+    nu_v: Array,
+    Es: Array | None = None,
+    Er: Array | None = None,
+    drds: Array,
+    grid: GridSpec,
+    source_name: str | None = None,
+    coefficient_reverse_mode: str = "generic",
+    return_primal_record: Literal[True],
+) -> tuple[NeopaxScan, NeopaxScanCoefficientPrimalRecord]:
+    ...
+
+
+@overload
+def build_ntx_neopax_scan_from_surfaces(
+    surfaces: tuple[BoozerSurface | VmecSurface, ...],
+    *,
+    rho: Array,
+    nu_v: Array,
+    Es: Array | None = None,
+    Er: Array | None = None,
+    drds: Array,
+    grid: GridSpec,
+    source_name: str | None = None,
+    coefficient_reverse_mode: str = "generic",
+    return_primal_record: bool,
+) -> NeopaxScan | tuple[NeopaxScan, NeopaxScanCoefficientPrimalRecord]:
+    ...
+
+
+def build_ntx_neopax_scan_from_surfaces(
+    surfaces: tuple[BoozerSurface | VmecSurface, ...],
+    *,
+    rho: Array,
+    nu_v: Array,
+    Es: Array | None = None,
+    Er: Array | None = None,
+    drds: Array,
+    grid: GridSpec,
+    source_name: str | None = None,
+    coefficient_reverse_mode: str = "generic",
+    return_primal_record: bool = False,
+) -> NeopaxScan | tuple[NeopaxScan, NeopaxScanCoefficientPrimalRecord]:
     """Build a NEOPAX-style scan from an explicit tuple of NTX surfaces.
 
     This is the intended imported path when the caller already has surface
     objects in memory and wants to avoid a Python callback boundary.
     """
 
+    if coefficient_reverse_mode not in {"generic", "structured"}:
+        raise ValueError("coefficient_reverse_mode must be 'generic' or 'structured'")
+    if return_primal_record and coefficient_reverse_mode != "structured":
+        raise ValueError("A scan primal record requires coefficient_reverse_mode='structured'.")
     channels = normalize_neopax_scan_field_channels(
         surfaces,
         rho=rho,
@@ -251,14 +313,30 @@ def build_ntx_neopax_scan_from_surfaces(
         drds=drds,
         grid=grid,
     )
-    blocks = solve_neopax_scan_coefficient_blocks(
-        surfaces,
-        Es=channels.Es,
-        nu_v=channels.nu_v,
-        grid=grid,
-    )
+    if coefficient_reverse_mode == "structured":
+        from ._neopax_ad import (
+            solve_neopax_scan_coefficient_blocks_prepared,
+            solve_neopax_scan_coefficient_blocks_prepared_structured_vjp,
+        )
 
-    return NeopaxScan(
+        if return_primal_record:
+            blocks, record = solve_neopax_scan_coefficient_blocks_prepared(
+                surfaces, Es=channels.Es, nu_v=channels.nu_v, grid=grid,
+                return_primal_record=True,
+            )
+        else:
+            blocks = solve_neopax_scan_coefficient_blocks_prepared_structured_vjp(
+                surfaces, Es=channels.Es, nu_v=channels.nu_v, grid=grid,
+            )
+    else:
+        blocks = solve_neopax_scan_coefficient_blocks(
+            surfaces,
+            Es=channels.Es,
+            nu_v=channels.nu_v,
+            grid=grid,
+        )
+
+    scan = NeopaxScan(
         rho=channels.rho,
         nu_v=channels.nu_v,
         Er=channels.Er,
@@ -280,6 +358,7 @@ def build_ntx_neopax_scan_from_surfaces(
         fac_sfincs_to_dkes_33=blocks.fac_sfincs_to_dkes_33,
         source_name=source_name,
     )
+    return (scan, record) if return_primal_record else scan
 
 
 def build_ntx_neopax_scan_from_vmex_state(

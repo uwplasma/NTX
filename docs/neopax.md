@@ -431,3 +431,34 @@ scan payload:
 - `solve_profile_transport_loop(...)`
 
 Those helpers are documented on the [Profiles](profiles.md) page.
+
+## Recorded scans and local derivative utilities
+
+The ordinary scan builder keeps its generic reverse path. To retain the
+prepared systems for a later compact transpose, opt in explicitly:
+
+```python
+scan, record = ntx.build_ntx_neopax_scan_from_surfaces(
+    surfaces, rho=rho, nu_v=nu_v, Es=Es, drds=drds, grid=grid,
+    coefficient_reverse_mode="structured", return_primal_record=True,
+)
+surface_bars, Es_bar = ntx.pullback_neopax_scan_coefficient_blocks_from_primal_record(
+    record, coefficient_blocks_bar=table_bars,
+)
+```
+
+`table_bars` is a `NeopaxScanCoefficientBlocks` cotangent. The batched variant
+accepts a leading objective axis and scans numeric bars without mapping over
+surface metadata. Its `batched_vmec_native` counterpart accumulates compact
+geometry bars before the Fourier transpose and requires VMEC surfaces. Both
+reuse the record's prepared systems; callers control the record's lifetime.
+
+For one prepared system,
+`solve_prepared_coefficient_vector_hessian_factorized(prepared, case)` returns
+`(value, d_nu, d_epsi, d_nunu, d_nuepsi, d_epsiepsi)`. These are derivatives
+in the resolved local `(nu_hat, epsi_hat)` coordinates and reuse one operator
+factorization. The two-directional helper returns the value and two specified
+case tangents. The prepared-support custom-VJP wrapper retains those local
+primal residuals for its reverse rule. Grouped `lowdot_two_pullbacks` views
+also expose case, geometry or complete prepared-support cotangents, including
+compact and matrix-RHS variants for callers with several objective rows.
