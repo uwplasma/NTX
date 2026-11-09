@@ -74,8 +74,10 @@ tree_util.register_dataclass(
         "dzeta",
         "dtheta_matrix",
         "dzeta_matrix",
+        # VMEC nfp is traced when a recorded surface is transposed under JIT.
+        "nfp",
     ),
-    meta_fields=("nfp",),
+    meta_fields=(),
 )
 
 
@@ -105,7 +107,7 @@ def fourier_derivative_matrix(n: int, period: float | Array, dtype=jnp.float64) 
     the discrete Fourier basis, which keeps the formula compact and easy to test.
     """
 
-    k = jnp.fft.fftfreq(n, d=float(period) / n) * (2.0 * jnp.pi)
+    k = jnp.fft.fftfreq(n, d=1.0 / n) * (2.0 * jnp.pi / period)
     eye = jnp.eye(n, dtype=jnp.complex128 if dtype == jnp.float64 else jnp.complex64)
 
     def differentiate(column):
