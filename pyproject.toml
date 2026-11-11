@@ -108,6 +108,16 @@ branch = true
 parallel = true
 source = ["src/ntx"]
 
+# Shards run on self-hosted macOS checkouts (/Users/.../_work/<repo>/<repo>) and
+# are combined on hosted Ubuntu (/home/runner/work/<repo>/<repo>); map every
+# absolute prefix onto the combining checkout so ``coverage combine`` finds sources.
+[tool.coverage.paths]
+source = [
+  "src/ntx",
+  "*/src/ntx",
+  "*/site-packages/ntx",
+]
+
 [tool.coverage.report]
 skip_covered = true
 show_missing = true
