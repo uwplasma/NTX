@@ -14,8 +14,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.13"
       - name: Build distributions
@@ -25,7 +27,7 @@ jobs:
           python -m build
           python -m twine check dist/*
       - name: Upload distributions
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ntx-release-dist
           path: dist/*
@@ -52,11 +54,11 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ntx-release-dist
           path: dist
       - name: Publish distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.14.0
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
         with:
           packages-dir: dist
