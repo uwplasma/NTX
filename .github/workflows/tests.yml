@@ -13,6 +13,7 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -29,8 +30,11 @@ jobs:
         run: mypy src/ntx
 
   test-shards:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, macOS, uwplasma-cpu]
+    timeout-minutes: 30
+    env:
+      JAX_ENABLE_X64: "1"
     strategy:
       fail-fast: false
       matrix:
@@ -55,21 +59,22 @@ jobs:
           - heavy_examples_publication
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
-          cache: "pip"
+          enable-cache: false
       - name: Install
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev,io,vmex,booz]"
+          uv venv
+          uv pip install -e ".[dev,io,vmex,booz]"
       - name: Test shard
         shell: bash
         run: |
           set -euo pipefail
+          source .venv/bin/activate
           python scripts/test_lane_manifest.py --check
-          python scripts/test_lane_manifest.py "${{ matrix.shard }}" > /tmp/ntx-tests.txt
-          xargs pytest -q -m "not gpu" --cov=src/ntx --cov-report= < /tmp/ntx-tests.txt
+          python scripts/test_lane_manifest.py "${{ matrix.shard }}" > "$RUNNER_TEMP/ntx-tests.txt"
+          xargs pytest -q -m "not gpu" --cov=src/ntx --cov-report= < "$RUNNER_TEMP/ntx-tests.txt"
           python - <<'PY'
           from pathlib import Path
           import shutil
@@ -92,6 +97,7 @@ jobs:
 
   coverage-report:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: test-shards
     steps:
       - uses: actions/checkout@v5
@@ -145,6 +151,7 @@ jobs:
 
   compatibility-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -171,6 +178,7 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -183,3 +191,26 @@ jobs:
           python -m pip install -e ".[docs,vmex,booz]"
       - name: Docs
         run: sphinx-build -b html docs docs/_build/html
+
+  gpu:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, Linux, uwplasma-gpu]
+    timeout-minutes: 5
+    env:
+      JAX_ENABLE_X64: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: false
+      - name: Install
+        run: |
+          uv venv
+          uv pip install -e ".[dev]" "jax[cuda12]"
+      - name: Check backend
+        run: |
+          uv run --no-sync python -c "import jax; assert jax.default_backend() == 'gpu', jax.devices(); assert jax.config.jax_enable_x64; assert jax.numpy.zeros(1).dtype == jax.numpy.float64"
+      - name: GPU tests
+        timeout-minutes: 1
+        run: uv run --no-sync pytest -m gpu -q -x tests/test_gpu_smoke.py
