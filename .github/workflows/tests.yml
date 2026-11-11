@@ -38,25 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard:
-          - core_foundation
-          - core_adjoint
-          - core_cli_workflows
-          - core_io_workflows
-          - core_parallel_workflows
-          - core_neopax_workflows
-          - core_profile_audit_workflow
-          - core_profile_basic_workflows
-          - core_profile_optimization_workflows
-          - core_profile_transport_workflows
-          - core_autodiff_uncertainty_workflow
-          - core_robust_bootstrap_workflow
-          - core_validation
-          - integration_examples
-          - heavy_examples_profiles
-          - heavy_examples_derivatives
-          - heavy_examples_boundary
-          - heavy_examples_publication
+        include: ${{ fromJSON(github.event_name == 'pull_request' && '[{"name":"pr1","lanes":"heavy_examples_derivatives core_validation core_foundation core_cli_workflows core_profile_audit_workflow core_robust_bootstrap_workflow heavy_examples_boundary"},{"name":"pr2","lanes":"heavy_examples_profiles core_adjoint core_profile_basic_workflows core_io_workflows core_neopax_workflows core_parallel_workflows"},{"name":"pr3","lanes":"core_profile_optimization_workflows core_profile_transport_workflows heavy_examples_publication integration_examples core_autodiff_uncertainty_workflow"}]' || '[{"name":"core_foundation","lanes":"core_foundation"},{"name":"core_adjoint","lanes":"core_adjoint"},{"name":"core_cli_workflows","lanes":"core_cli_workflows"},{"name":"core_io_workflows","lanes":"core_io_workflows"},{"name":"core_parallel_workflows","lanes":"core_parallel_workflows"},{"name":"core_neopax_workflows","lanes":"core_neopax_workflows"},{"name":"core_profile_audit_workflow","lanes":"core_profile_audit_workflow"},{"name":"core_profile_basic_workflows","lanes":"core_profile_basic_workflows"},{"name":"core_profile_optimization_workflows","lanes":"core_profile_optimization_workflows"},{"name":"core_profile_transport_workflows","lanes":"core_profile_transport_workflows"},{"name":"core_autodiff_uncertainty_workflow","lanes":"core_autodiff_uncertainty_workflow"},{"name":"core_robust_bootstrap_workflow","lanes":"core_robust_bootstrap_workflow"},{"name":"core_validation","lanes":"core_validation"},{"name":"integration_examples","lanes":"integration_examples"},{"name":"heavy_examples_profiles","lanes":"heavy_examples_profiles"},{"name":"heavy_examples_derivatives","lanes":"heavy_examples_derivatives"},{"name":"heavy_examples_boundary","lanes":"heavy_examples_boundary"},{"name":"heavy_examples_publication","lanes":"heavy_examples_publication"}]') }}
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6
@@ -73,7 +55,10 @@ jobs:
           set -euo pipefail
           source .venv/bin/activate
           python scripts/test_lane_manifest.py --check
-          python scripts/test_lane_manifest.py "${{ matrix.shard }}" > "$RUNNER_TEMP/ntx-tests.txt"
+          : > "$RUNNER_TEMP/ntx-tests.txt"
+          for lane in ${{ matrix.lanes }}; do
+            python scripts/test_lane_manifest.py "$lane" >> "$RUNNER_TEMP/ntx-tests.txt"
+          done
           xargs pytest -q -m "not gpu" --cov=src/ntx --cov-report= < "$RUNNER_TEMP/ntx-tests.txt"
           python - <<'PY'
           from pathlib import Path
@@ -92,7 +77,7 @@ jobs:
       - name: Upload shard coverage data
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-${{ matrix.shard }}
+          name: coverage-${{ matrix.name }}
           path: coverage-data
 
   coverage-report:
