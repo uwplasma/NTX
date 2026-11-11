@@ -207,7 +207,7 @@ jobs:
       - name: Install
         run: |
           uv venv
-          uv pip install -e ".[dev]" "jax[cuda12]"
+          uv pip install -e ".[dev,vmex]" "jax[cuda12]"
       - name: Check backend
         run: |
           uv run --no-sync python -c "import jax; assert jax.default_backend() == 'gpu', jax.devices(); assert jax.config.jax_enable_x64; assert jax.numpy.zeros(1).dtype == jax.numpy.float64"
