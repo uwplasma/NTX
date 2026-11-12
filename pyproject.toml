@@ -44,7 +44,7 @@ dev = [
   "coverage[toml]",
   "scipy",
   "matplotlib",
-  "pytest",
+  "pytest<9.2",  # 9.2 approx() reads .flat, which JAX arrays lack
   "pytest-cov",
   "ruff",
   "scipy",
