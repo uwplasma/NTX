@@ -192,6 +192,7 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
     "tests/test_geometry_family_breadth_summary.py",
     "tests/test_geometry_family_transport_convergence.py",
     "tests/test_momentum_correction_mapping_audit.py",
+    "tests/test_monoenergetic_crosscode_benchmark.py",
     "tests/test_owned_finite_beta_bootstrap_comparison.py",
     "tests/test_owned_finite_beta_closure_localization.py",
     "tests/test_owned_finite_beta_current_conditioning_audit.py",
