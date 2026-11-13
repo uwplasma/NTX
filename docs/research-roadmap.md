@@ -103,7 +103,7 @@ The expanded bibliography and the exact role of each source are maintained in
 | Stable input/output contracts | `ntx.io` and `ntx.inputfiles` |
 | Profile and current workflows | `ntx.profiles` |
 | NEOPAX bridge | `ntx.neopax` |
-| Physics gates and artifacts | `ntx.validation` |
+| Physics gates and artifacts | `tools/ntx_validation` |
 
 See the [source-code map](source-map.md) before changing ownership. Public APIs
 should remain stable while internal modules are reduced to coherent, testable

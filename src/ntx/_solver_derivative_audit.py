@@ -9,7 +9,8 @@ import jax
 import jax.numpy as jnp
 from jax import Array, tree_util
 
-from ._solver import (
+from .operators import source_modes
+from .solver import (
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
     _coefficient_mode_pullback,
@@ -21,7 +22,6 @@ from ._solver import (
     solve_prepared_coefficient_vector,
     solve_prepared_coefficient_vector_vjp,
 )
-from .operators import source_modes
 
 CoefficientParameter = Literal["nu_hat", "epsi_hat", "er_hat"]
 COEFFICIENT_NAMES = ("D11", "D31", "D13", "D33", "D33_spitzer")

@@ -57,10 +57,7 @@ def test_build_manuscript_artifacts_script_writes_outputs(tmp_path):
     assert "owned_finite_beta_source_channel" in payload["tables"]
     assert "owned_finite_beta_source_response_profile" in payload["tables"]
     assert "owned_finite_beta_closure_target" in payload["tables"]
-    assert (
-        "owned_finite_beta_field_radius_matched_closure_quadrature"
-        in payload["tables"]
-    )
+    assert "owned_finite_beta_field_radius_matched_closure_quadrature" in payload["tables"]
     assert "owned_finite_beta_field_radius_matched_source_channel" in payload["tables"]
     assert "owned_finite_beta_sfincs_jax_resolution_audit" in payload["tables"]
     assert "owned_finite_beta_sfincs_jax_production_ladder" in payload["tables"]
@@ -76,90 +73,34 @@ def test_build_manuscript_artifacts_script_writes_outputs(tmp_path):
     )
     assert 0.0 < payload["claims"]["owned_finite_beta_observable_applied_over_needed"]
     assert payload["claims"]["owned_finite_beta_observable_pmax_error_reduction"] > 0.0
-    assert (
-        payload["claims"][
-            "owned_finite_beta_conditioning_coefficient_precision_gap"
-        ]
-        > 1.0
-    )
-    assert (
-        payload["claims"][
-            "owned_finite_beta_resolution_production_precision_gap"
-        ]
-        > 1.0
-    )
+    assert payload["claims"]["owned_finite_beta_conditioning_coefficient_precision_gap"] > 1.0
+    assert payload["claims"]["owned_finite_beta_resolution_production_precision_gap"] > 1.0
     assert payload["claims"]["owned_finite_beta_production_ladder_count"] >= 1
+    assert payload["claims"]["owned_finite_beta_production_ladder_precision_gap"] > 1.0
+    assert payload["claims"]["owned_finite_beta_quadrature_underintegrated_gate_pass_count"] == 0
     assert (
-        payload["claims"]["owned_finite_beta_production_ladder_precision_gap"] > 1.0
+        payload["claims"]["owned_finite_beta_quadrature_high_x_largest_order_stress_error"] > 1.0e-1
     )
+    assert payload["claims"]["owned_finite_beta_source_channel_reconstruction_residual"] < 1.0e-8
+    assert payload["claims"]["owned_finite_beta_source_channel_high_stable_dominant"] in {
+        "density_electric_force",
+        "effective_temperature_force",
+    }
     assert (
-        payload["claims"][
-            "owned_finite_beta_quadrature_underintegrated_gate_pass_count"
-        ]
-        == 0
+        payload["claims"]["owned_finite_beta_source_channel_temperature_response_multiplier"] > 0.0
     )
-    assert (
-        payload["claims"]["owned_finite_beta_quadrature_high_x_largest_order_stress_error"]
-        > 1.0e-1
-    )
-    assert (
-        payload["claims"]["owned_finite_beta_source_channel_reconstruction_residual"]
-        < 1.0e-8
-    )
-    assert (
-        payload["claims"]["owned_finite_beta_source_channel_high_stable_dominant"]
-        in {"density_electric_force", "effective_temperature_force"}
-    )
-    assert (
-        payload["claims"][
-            "owned_finite_beta_source_channel_temperature_response_multiplier"
-        ]
-        > 0.0
-    )
-    assert (
-        payload["claims"][
-            "owned_finite_beta_source_response_profile_radius_count"
-        ]
-        >= 1
-    )
-    assert (
-        payload["claims"][
-            "owned_finite_beta_source_response_profile_multiplier_span"
-        ]
-        >= 0.0
-    )
+    assert payload["claims"]["owned_finite_beta_source_response_profile_radius_count"] >= 1
+    assert payload["claims"]["owned_finite_beta_source_response_profile_multiplier_span"] >= 0.0
     assert payload["claims"]["owned_finite_beta_closure_target_best_driver"]
-    assert (
-        payload["claims"][
-            "owned_finite_beta_closure_target_best_driver_abs_pearson"
-        ]
-        > 0.0
-    )
+    assert payload["claims"]["owned_finite_beta_closure_target_best_driver_abs_pearson"] > 0.0
     assert payload["claims"]["owned_finite_beta_closure_target_best_model"]
+    assert payload["claims"]["owned_finite_beta_matched_quadrature_stable_pass_count"] == 0
     assert (
-        payload["claims"][
-            "owned_finite_beta_matched_quadrature_stable_pass_count"
-        ]
-        == 0
-    )
-    assert (
-        payload["claims"][
-            "owned_finite_beta_matched_source_channel_reconstruction_residual"
-        ]
+        payload["claims"]["owned_finite_beta_matched_source_channel_reconstruction_residual"]
         < 1.0e-8
     )
-    assert (
-        payload["claims"][
-            "owned_finite_beta_matched_source_channel_high_stable_error"
-        ]
-        > 1.0e-1
-    )
-    assert (
-        payload["claims"][
-            "owned_finite_beta_closure_target_runtime_correction_applied"
-        ]
-        is False
-    )
+    assert payload["claims"]["owned_finite_beta_matched_source_channel_high_stable_error"] > 1.0e-1
+    assert payload["claims"]["owned_finite_beta_closure_target_runtime_correction_applied"] is False
     assert "performance" in payload["tables"]
     assert "prepared_geometry_reuse" in payload["tables"]["performance"]
     assert "production" in payload["tables"]["performance"]

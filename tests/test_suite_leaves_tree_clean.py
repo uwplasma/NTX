@@ -52,9 +52,7 @@ def test_evidence_generators_accept_an_output_location(script: str, flag: str) -
 def _tracked_status() -> set[str]:
     """Tracked paths git currently reports as modified."""
     status = _git("status", "--porcelain", "--", "docs", "src", "tests", "examples")
-    return {
-        line[3:] for line in status.splitlines() if line and not line.startswith("??")
-    }
+    return {line[3:] for line in status.splitlines() if line and not line.startswith("??")}
 
 
 # Captured at collection, which happens before any test body runs. Comparing

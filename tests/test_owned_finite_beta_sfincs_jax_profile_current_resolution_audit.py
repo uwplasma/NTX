@@ -26,10 +26,8 @@ def _write_payload(root: Path, n_xi: int, current: float, *, converged: bool = T
                     "comparison": {
                         "redl_current_over_root_fsab2": -20.0,
                         "ntx_neopax_current_over_root_fsab2": -25.0,
-                        "sfincs_jax_relative_error_vs_redl": abs(current + 20.0)
-                        / 20.0,
-                        "sfincs_jax_relative_error_vs_ntx_neopax": abs(current + 25.0)
-                        / 25.0,
+                        "sfincs_jax_relative_error_vs_redl": abs(current + 20.0) / 20.0,
+                        "sfincs_jax_relative_error_vs_ntx_neopax": abs(current + 25.0) / 25.0,
                         "ntx_neopax_relative_error_vs_redl": 0.25,
                     },
                     "solver": {
@@ -50,9 +48,7 @@ def test_profile_current_resolution_audit_summarizes_nxi_scan(tmp_path: Path):
 
     payload = audit.build_payload(tmp_path)
 
-    assert payload["benchmark"] == (
-        "owned_finite_beta_sfincs_jax_profile_current_resolution_audit"
-    )
+    assert payload["benchmark"] == ("owned_finite_beta_sfincs_jax_profile_current_resolution_audit")
     assert payload["summary_metrics"]["row_count"] == 4
     assert payload["summary_metrics"]["solver_converged_count"] == 4
     assert payload["summary_metrics"]["best_sfincs_jax_relative_error_vs_redl"] == 0.0

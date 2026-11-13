@@ -37,9 +37,7 @@ constructing geometry and pass a matching grid:
 ```python
 ntx.enable_x64(False)
 surface = ntx.example_surface()
-result = ntx.solve_monoenergetic(
-    surface, ntx.GridSpec(9, 9, 8, dtype="float32", x64=False), case
-)
+result = ntx.solve_monoenergetic(surface, ntx.GridSpec(9, 9, 8, dtype="float32", x64=False), case)
 ```
 
 ## New: a window you can prove
@@ -50,9 +48,9 @@ added in SOLVAX `0.12.0`.
 
 ```python
 window = ntx.certify_adjoint_window(prepared, case, rtol=1e-6)
-int(window)                        # 25
-window.certified_relative_error    # 3.2e-07, the proven bound
-window.status                      # "certified", or "full-window" if none exists
+int(window)  # 25
+window.certified_relative_error  # 3.2e-07, the proven bound
+window.status  # "certified", or "full-window" if none exists
 ```
 
 The cotangent the certificate needs is exact rather than estimated, because the

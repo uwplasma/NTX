@@ -25,11 +25,19 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+sys.path[:0] = [str(SRC), str(ROOT / "tools")]
 
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+from ntx_validation._finite_beta_source_channels import (  # noqa: E402
+    PROFILE_CURRENT_GATE,
+    SOURCE_RECONSTRUCTION_GATE,
+    profile_source_response_summary_metrics,
+    rows_for_setting,
+)
+from ntx_validation._finite_beta_source_channels import (
+    relative_scalar_error as _relative_scalar_error,
+)
 
 from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
     DEFAULT_CASE,
@@ -57,15 +65,6 @@ from examples.owned_finite_beta_source_channel_audit import (  # noqa: E402
 )
 from ntx import to_neopax_monoenergetic  # noqa: E402
 from ntx._checkout_paths import portable_path  # noqa: E402
-from ntx.validation._finite_beta_source_channels import (  # noqa: E402
-    PROFILE_CURRENT_GATE,
-    SOURCE_RECONSTRUCTION_GATE,
-    profile_source_response_summary_metrics,
-    rows_for_setting,
-)
-from ntx.validation._finite_beta_source_channels import (
-    relative_scalar_error as _relative_scalar_error,
-)
 
 OUTPUT_PREFIX = (
     ROOT / "docs" / "_static" / "owned_finite_beta_source_response_profile_audit"

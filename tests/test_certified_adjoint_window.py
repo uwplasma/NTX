@@ -76,8 +76,7 @@ def test_the_certified_window_is_never_shorter_than_the_heuristic_is_wrong(prepa
 def test_a_tighter_tolerance_never_asks_for_a_narrower_window(prepared):
     case = MonoenergeticCase(nu_hat=1e-1, epsi_hat=0.0)
     windows = [
-        ntx.certify_adjoint_window(prepared, case, rtol=r).window
-        for r in (1e-2, 1e-4, 1e-6, 1e-8)
+        ntx.certify_adjoint_window(prepared, case, rtol=r).window for r in (1e-2, 1e-4, 1e-6, 1e-8)
     ]
     assert windows == sorted(windows)
 
@@ -85,9 +84,7 @@ def test_a_tighter_tolerance_never_asks_for_a_narrower_window(prepared):
 @pytest.mark.parametrize("coefficient", ["D11", "D33"])
 def test_every_coefficient_can_be_certified(prepared, coefficient):
     case = MonoenergeticCase(nu_hat=1e-1, epsi_hat=0.0)
-    certificate = ntx.certify_adjoint_window(
-        prepared, case, rtol=1e-6, coefficient=coefficient
-    )
+    certificate = ntx.certify_adjoint_window(prepared, case, rtol=1e-6, coefficient=coefficient)
     assert certificate.certified
     assert 0 <= certificate.window <= GRID.n_xi + 1 - 3
 

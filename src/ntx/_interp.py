@@ -114,9 +114,7 @@ def _slopes_pchip(x: Array, f: Array) -> Array:
     def end(dk, dk1, hk, hk1):
         m = ((2.0 * hk + hk1) * dk - hk * dk1) / (hk + hk1)
         m = jnp.where(m * dk <= 0.0, jnp.zeros_like(m), m)
-        return jnp.where(
-            (dk * dk1 <= 0.0) & (jnp.abs(m) > 3.0 * jnp.abs(dk)), 3.0 * dk, m
-        )
+        return jnp.where((dk * dk1 <= 0.0) & (jnp.abs(m) > 3.0 * jnp.abs(dk)), 3.0 * dk, m)
 
     m0 = end(d[:1], d[1:2], h[0], h[1])
     mn = end(d[-1:], d[-2:-1], h[-1], h[-2])
@@ -136,9 +134,7 @@ def slopes(x: Array, f: Array, method: str = "akima") -> Array:
     try:
         rule = _RULES[method]
     except KeyError:
-        raise ValueError(
-            f"unknown method {method!r}; expected one of {sorted(_RULES)}"
-        ) from None
+        raise ValueError(f"unknown method {method!r}; expected one of {sorted(_RULES)}") from None
     if x.shape[0] < 3:
         # Two nodes admit only the secant; one admits nothing but a constant.
         if x.shape[0] == 2:
@@ -198,9 +194,9 @@ class Interpolator1D:
     def __init__(self, x: Array, f: Array, method: str = "akima") -> None:
         """Precompute the slopes for the chosen rule.
 
-    The slopes are the expensive part and depend only on the data, so building
-    the interpolator once and calling it many times avoids recomputing them per
-    query.
+        The slopes are the expensive part and depend only on the data, so building
+        the interpolator once and calling it many times avoids recomputing them per
+        query.
         """
         self.x = jnp.asarray(x)
         self.f = jnp.asarray(f)
@@ -216,8 +212,8 @@ class Interpolator1D:
     def _tree_flatten(self):
         """Split into JAX children (arrays) and static data (the method name).
 
-    The method is static because it selects a code path; tracing it as data
-    would make every rule compile to the same branchless program.
+        The method is static because it selects a code path; tracing it as data
+        would make every rule compile to the same branchless program.
         """
         return (self.x, self.f, self.m), (self.method,)
 
@@ -225,8 +221,8 @@ class Interpolator1D:
     def _tree_unflatten(cls, aux, children):
         """Rebuild from flattened parts without re-running __init__.
 
-    Bypasses __init__ via __new__ so the precomputed slopes survive a JAX
-    transform rather than being recomputed on every unflatten.
+        Bypasses __init__ via __new__ so the precomputed slopes survive a JAX
+        transform rather than being recomputed on every unflatten.
         """
         obj = cls.__new__(cls)
         obj.x, obj.f, obj.m = children

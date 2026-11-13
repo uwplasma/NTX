@@ -6,9 +6,9 @@ import sys
 from pathlib import Path
 
 import pytest
+from ntx_validation import audit_angular_oversampling
 
 from ntx import MonoenergeticCase, load_vmec_surface
-from ntx.validation import audit_angular_oversampling
 
 from .fixture_data import SAMPLE_WOUT
 

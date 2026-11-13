@@ -58,25 +58,15 @@ def test_current_conditioning_audit_quantifies_required_coefficient_precision(
     metrics = payload["summary_metrics"]
 
     assert metrics["stress_current_condition_number"] == 20.0
-    assert (
-        metrics["stress_required_coefficient_relative_difference_for_current_gate"]
-        == pytest.approx(0.005)
-    )
+    assert metrics[
+        "stress_required_coefficient_relative_difference_for_current_gate"
+    ] == pytest.approx(0.005)
     assert metrics["stress_coefficient_precision_gap_to_current_gate"] == 4.0
-    assert (
-        metrics["stress_coefficient_limited_current_relative_error_bound"]
-        == pytest.approx(0.4)
-    )
-    assert (
-        metrics["stress_observed_current_error_over_coefficient_bound"]
-        == pytest.approx(0.75)
-    )
-    assert (
-        payload["stress_radius"][
-            "observed_residual_species_l1_over_coefficient_error"
-        ]
-        == pytest.approx(0.75)
-    )
+    assert metrics["stress_coefficient_limited_current_relative_error_bound"] == pytest.approx(0.4)
+    assert metrics["stress_observed_current_error_over_coefficient_bound"] == pytest.approx(0.75)
+    assert payload["stress_radius"][
+        "observed_residual_species_l1_over_coefficient_error"
+    ] == pytest.approx(0.75)
 
     output_prefix = tmp_path / "current_conditioning"
     example.write_payload(payload, output_prefix)

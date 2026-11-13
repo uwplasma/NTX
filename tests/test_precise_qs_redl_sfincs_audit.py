@@ -9,13 +9,10 @@ from examples import precise_qs_redl_sfincs_audit as audit
 
 def test_precise_qs_case_discovery(monkeypatch, tmp_path):
     root = (
-        tmp_path
-        / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
+        tmp_path / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
     )
     wout_root = root / "codes" / "simsopt" / "tests" / "test_files"
-    calc_root = (
-        root / "calculations" / "20211226-01-sfincs_for_precise_QS_for_Redl_benchmark"
-    )
+    calc_root = root / "calculations" / "20211226-01-sfincs_for_precise_QS_for_Redl_benchmark"
     qa_scan = calc_root / "20211226-01-012_QA_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces"
     qh_scan = calc_root / "20211226-01-019_QH_Ntheta25_Nzeta39_Nxi60_Nx7_manySurfaces"
     for directory in (wout_root, qa_scan, qh_scan):
@@ -36,8 +33,7 @@ def test_precise_qs_case_discovery(monkeypatch, tmp_path):
     assert cases["qa"].helicity_n == 0
     assert cases["qh"].helicity_n == -1
     assert (
-        cases["qa"].wout_path.name
-        == "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
+        cases["qa"].wout_path.name == "wout_LandremanPaul2021_QA_reactorScale_lowres_reference.nc"
     )
     assert cases["qh"].sfincs_scan_path.name == "sfincsScan.dat"
 

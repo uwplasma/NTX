@@ -25,11 +25,36 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+sys.path[:0] = [str(SRC), str(ROOT / "tools")]
 
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+from ntx_validation._finite_beta_source_channels import (  # noqa: E402
+    EFFECTIVE_LABELS,
+    EPS,
+    PROFILE_CURRENT_GATE,
+    SOURCE_RECONSTRUCTION_GATE,
+    TRANSPORT_LABELS,
+    source_channel_summary_metrics,
+)
+from ntx_validation._finite_beta_source_channels import (
+    channel_response_ratios as _channel_response_ratios,
+)
+from ntx_validation._finite_beta_source_channels import (
+    dominant_channel as _dominant_channel,
+)
+from ntx_validation._finite_beta_source_channels import (
+    effective_projection_and_drives as _effective_projection_and_drives,
+)
+from ntx_validation._finite_beta_source_channels import (
+    finite_or_none as _finite_or_none,
+)
+from ntx_validation._finite_beta_source_channels import (
+    relative_scalar_error as _relative_scalar_error,
+)
+from ntx_validation._finite_beta_source_channels import (
+    source_contributions_by_channel as _source_contributions_by_channel,
+)
 from scipy.constants import elementary_charge  # noqa: E402
 
 from examples.owned_finite_beta_bootstrap_comparison import (  # noqa: E402
@@ -57,32 +82,6 @@ from ntx import (  # noqa: E402
     write_neopax_scan_hdf5,
 )
 from ntx._checkout_paths import portable_path  # noqa: E402
-from ntx.validation._finite_beta_source_channels import (  # noqa: E402
-    EFFECTIVE_LABELS,
-    EPS,
-    PROFILE_CURRENT_GATE,
-    SOURCE_RECONSTRUCTION_GATE,
-    TRANSPORT_LABELS,
-    source_channel_summary_metrics,
-)
-from ntx.validation._finite_beta_source_channels import (
-    channel_response_ratios as _channel_response_ratios,
-)
-from ntx.validation._finite_beta_source_channels import (
-    dominant_channel as _dominant_channel,
-)
-from ntx.validation._finite_beta_source_channels import (
-    effective_projection_and_drives as _effective_projection_and_drives,
-)
-from ntx.validation._finite_beta_source_channels import (
-    finite_or_none as _finite_or_none,
-)
-from ntx.validation._finite_beta_source_channels import (
-    relative_scalar_error as _relative_scalar_error,
-)
-from ntx.validation._finite_beta_source_channels import (
-    source_contributions_by_channel as _source_contributions_by_channel,
-)
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_source_channel_audit"
 BOOTSTRAP_JSON = ROOT / "docs" / "_static" / "owned_finite_beta_bootstrap_comparison.json"

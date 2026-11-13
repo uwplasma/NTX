@@ -42,8 +42,6 @@ Surface loaders live in:
 - `src/ntx/io.py`
 - `src/ntx/vmec.py`
 - `src/ntx/booz.py`
-- `src/ntx/vmex_backend.py`
-- `src/ntx/vmex_vmec.py`
 
 ## Differentiable Lane
 

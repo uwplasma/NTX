@@ -44,11 +44,14 @@ def test_fixed_field_validation_metric_helpers_are_masked_and_scaled() -> None:
     )
 
     assert sign_mismatch_count(reference, model, np.ones_like(mask, dtype=bool)) == 2
-    assert sign_mismatch_count(
-        np.asarray([0.0, 1.0, -1.0]),
-        np.asarray([-1.0, -1.0, -2.0]),
-        np.asarray([True, True, True]),
-    ) == 1
+    assert (
+        sign_mismatch_count(
+            np.asarray([0.0, 1.0, -1.0]),
+            np.asarray([-1.0, -1.0, -2.0]),
+            np.asarray([True, True, True]),
+        )
+        == 1
+    )
 
 
 def test_fixed_field_jsonify_converts_artifact_payload_types() -> None:
@@ -139,9 +142,7 @@ def test_fixed_field_summary_helper_builds_traceable_error_payload(tmp_path: Pat
 
     assert payload["figure_png"] == "fixed_field.png"
     assert payload["figure_pdf"] == "fixed_field.pdf"
-    assert payload["cases"]["qa"]["NTX+NEOPAX"]["jdotb"] == pytest.approx(
-        [12.0, 18.0, 44.0]
-    )
+    assert payload["cases"]["qa"]["NTX+NEOPAX"]["jdotb"] == pytest.approx([12.0, 18.0, 44.0])
     assert payload["cases"]["qa"]["max_relative_error_vs_sfincs"]["NTX+NEOPAX"] == (
         pytest.approx(0.2)
     )

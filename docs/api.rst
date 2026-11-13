@@ -63,10 +63,3 @@ Input And Output
 
 .. automodule:: ntx.io
    :members:
-
-Validation
-----------
-
-.. automodule:: ntx.validation
-   :members:
-   :imported-members:

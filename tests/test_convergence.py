@@ -103,9 +103,7 @@ def test_invalid_convergence_policy_is_rejected(kwargs, message):
     }
     options.update(kwargs)
     with pytest.raises(ValueError, match=message):
-        solve_monoenergetic_converged(
-            _uniform_surface(), MonoenergeticCase(1.0e-2), **options
-        )
+        solve_monoenergetic_converged(_uniform_surface(), MonoenergeticCase(1.0e-2), **options)
 
 
 def test_uniform_field_passes_the_physical_convergence_gate():

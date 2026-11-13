@@ -75,8 +75,12 @@ def test_cubic_is_the_mean_of_adjacent_secants() -> None:
     f = rng.normal(size=14)
     d = np.diff(f) / np.diff(x)
     expected = np.concatenate([d[:1], 0.5 * (d[:-1] + d[1:]), d[-1:]])
-    assert np.allclose(np.asarray(slopes(jnp.asarray(x), jnp.asarray(f), "cubic")),
-                       expected, rtol=1e-13, atol=1e-13)
+    assert np.allclose(
+        np.asarray(slopes(jnp.asarray(x), jnp.asarray(f), "cubic")),
+        expected,
+        rtol=1e-13,
+        atol=1e-13,
+    )
 
 
 def test_cubic_and_parabolic_agree_on_a_uniform_grid() -> None:
@@ -89,11 +93,12 @@ def test_cubic_and_parabolic_agree_on_a_uniform_grid() -> None:
     """
     x = jnp.linspace(-1.0, 1.0, 13)
     f = jnp.asarray(np.random.default_rng(0).normal(size=13))
-    assert np.allclose(np.asarray(slopes(x, f, "parabolic")),
-                       np.asarray(slopes(x, f, "cubic")), atol=1e-13)
+    assert np.allclose(
+        np.asarray(slopes(x, f, "parabolic")), np.asarray(slopes(x, f, "cubic")), atol=1e-13
+    )
 
     xn = jnp.asarray(np.sort(np.random.default_rng(1).uniform(-1.0, 1.0, 13)))
-    quad = 1.0 - 0.7 * xn ** 2 + 0.3 * xn
+    quad = 1.0 - 0.7 * xn**2 + 0.3 * xn
     exact = -1.4 * xn + 0.3
     par = np.asarray(slopes(xn, quad, "parabolic"))[1:-1]
     cub = np.asarray(slopes(xn, quad, "cubic"))[1:-1]
@@ -108,7 +113,7 @@ def test_pchip_does_not_overshoot_monotone_data() -> None:
     unlimited cubic overshoots it; this asserts the monotone rule does not.
     """
     x = np.linspace(0.0, 1.0, 11)
-    f = np.concatenate([np.zeros(5), np.ones(6)])   # a step: the hardest case
+    f = np.concatenate([np.zeros(5), np.ones(6)])  # a step: the hardest case
     xq = np.linspace(0.0, 1.0, 501)
     got = np.asarray(interp1d(xq, x, f, method="pchip"))
     assert got.min() >= -1e-12, "undershot below the data"
@@ -125,14 +130,14 @@ def test_parabolic_keeps_a_smooth_extremum() -> None:
     flattens a genuine smooth maximum. The parabolic rule does not.
     """
     x = np.linspace(-1.0, 1.0, 9)
-    f = 1.0 - x ** 2
+    f = 1.0 - x**2
     # Interior only: the parabolic rule is exact on a quadratic where its
     # three-point stencil fits, but the first and last nodes fall back to a
     # one-sided secant, whose slope is the derivative at the interval midpoint
     # rather than at the node. The end intervals are therefore not exact, and
     # asserting otherwise tests the wrong thing.
     xq = np.linspace(x[1], x[-2], 401)
-    truth = 1.0 - xq ** 2
+    truth = 1.0 - xq**2
     err_par = np.max(np.abs(np.asarray(interp1d(xq, x, f, method="parabolic")) - truth))
     err_pch = np.max(np.abs(np.asarray(interp1d(xq, x, f, method="pchip")) - truth))
     assert err_par < 1e-12, "parabolic should be exact on a quadratic in the interior"
@@ -169,11 +174,19 @@ def test_2d_local_stencil_matches_whole_grid_tables() -> None:
     for method in ("cubic", "parabolic", "pchip"):
         for xq in (-0.05, 0.0, 0.013, 0.5, 0.987, 1.0, 1.05):
             for yq in (-0.05, 0.0, 0.5, 1.0, 1.05):
-                loc = float(interp2d_at(x, y, values, jnp.asarray(xq),
-                                        jnp.asarray(yq), method=method))
-                full = float(_interp2d_full(jnp.asarray(x), jnp.asarray(y),
-                                            jnp.asarray(values), jnp.asarray(xq),
-                                            jnp.asarray(yq), method))
+                loc = float(
+                    interp2d_at(x, y, values, jnp.asarray(xq), jnp.asarray(yq), method=method)
+                )
+                full = float(
+                    _interp2d_full(
+                        jnp.asarray(x),
+                        jnp.asarray(y),
+                        jnp.asarray(values),
+                        jnp.asarray(xq),
+                        jnp.asarray(yq),
+                        method,
+                    )
+                )
                 assert np.isfinite(loc), (method, xq, yq)
                 assert abs(loc - full) <= 1e-9 * max(abs(full), 1.0), (method, xq, yq)
 
@@ -185,8 +198,7 @@ def test_2d_is_differentiable_and_finite_at_the_corners() -> None:
     values = jnp.asarray(rng.normal(size=(8, 7)))
 
     def loss(v):
-        return interp2d_at(x, y, v, jnp.asarray(0.0), jnp.asarray(1.0),
-                           method="pchip")
+        return interp2d_at(x, y, v, jnp.asarray(0.0), jnp.asarray(1.0), method="pchip")
 
     g = jax.grad(loss)(values)
     assert jnp.all(jnp.isfinite(g))
@@ -215,7 +227,8 @@ def test_interpolator1d_is_a_pytree_and_differentiable_in_the_query() -> None:
     # absolute number: 2.6e-3 on a quantity of order 3 is under a part in a
     # thousand, and the convergence above is the property that matters.
     assert errs[2] < 1e-3 * float(jnp.max(jnp.abs(truth))), (
-        f"derivative still inaccurate at n=48: {errs}")
+        f"derivative still inaccurate at n=48: {errs}"
+    )
 
     x = jnp.linspace(0.0, 1.0, 12)
     itp = Interpolator1D(x, jnp.sin(3.0 * x), method="akima")

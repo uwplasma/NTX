@@ -4,12 +4,12 @@ import json
 from pathlib import Path
 
 import pytest
-
-from examples import owned_finite_beta_closure_target_audit as audit
-from ntx.validation._finite_beta_closure_target import (
+from ntx_validation._finite_beta_closure_target import (
     field_radius_matched_response_audit,
     profile_closure_target_diagnostics,
 )
+
+from examples import owned_finite_beta_closure_target_audit as audit
 
 
 def _source_response_payload() -> dict:
@@ -135,10 +135,7 @@ def test_build_payload_tracks_physical_driver_diagnostics(tmp_path: Path) -> Non
     }
     assert metrics["epsilon_abs_pearson"] == pytest.approx(1.0)
     assert metrics["best_leave_one_out_rmse"] is not None
-    assert (
-        metrics["best_leave_one_out_improvement_over_constant"]
-        > 1.0
-    )
+    assert metrics["best_leave_one_out_improvement_over_constant"] > 1.0
     assert payload["closure_requirements"]
     assert payload["field_radius_matched_response_audit"] is None
 

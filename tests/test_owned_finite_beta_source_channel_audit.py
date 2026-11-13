@@ -6,12 +6,12 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-
-from examples import owned_finite_beta_source_channel_audit as audit
-from ntx.validation._finite_beta_source_channels import (
+from ntx_validation._finite_beta_source_channels import (
     effective_projection_and_drives,
     source_channel_summary_metrics,
 )
+
+from examples import owned_finite_beta_source_channel_audit as audit
 
 
 def test_effective_source_decomposition_preserves_transport_rhs() -> None:
@@ -76,10 +76,7 @@ def test_source_channel_summary_tracks_high_stable_dominant_channel() -> None:
     assert metrics["best_public_neopax_x"] == 10
     assert metrics["best_public_current_gate_pass"] is False
     assert metrics["high_stable_neopax_x"] == 18
-    assert (
-        metrics["high_stable_dominant_effective_channel"]
-        == "effective_temperature_force"
-    )
+    assert metrics["high_stable_dominant_effective_channel"] == "effective_temperature_force"
     assert metrics["high_stable_species_cancellation_factor"] == 82.0
     assert metrics["high_stable_effective_temperature_response_multiplier_to_redl"] == 0.72
     assert metrics["best_effective_temperature_response_multiplier_to_redl"] == 0.75

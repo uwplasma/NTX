@@ -5,8 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ntx.physics_gates import physics_gate_registry
-from ntx.validation.benchmark_matrix import (
+from ntx_validation import physics_gate_registry
+from ntx_validation.benchmark_matrix import (
     BenchmarkEntry,
     BenchmarkEvaluation,
     BenchmarkPathStatus,
@@ -85,9 +85,7 @@ def test_benchmark_matrix_entries_have_claim_traceability():
 
 
 def test_artifact_gate_sources_are_represented_in_benchmark_matrix():
-    matrix_artifacts = {
-        artifact for entry in benchmark_matrix() for artifact in entry.artifacts
-    }
+    matrix_artifacts = {artifact for entry in benchmark_matrix() for artifact in entry.artifacts}
     artifact_gate_sources = {
         gate.source
         for gate in physics_gate_registry()
@@ -99,14 +97,10 @@ def test_artifact_gate_sources_are_represented_in_benchmark_matrix():
 
 def test_active_manuscript_figures_are_traceable_to_bundle_and_artifacts():
     manifest = json.loads(
-        (ROOT / "docs" / "_static" / "publication_figure_manifest.json").read_text(
-            encoding="utf-8"
-        )
+        (ROOT / "docs" / "_static" / "publication_figure_manifest.json").read_text(encoding="utf-8")
     )
     bundled_figure_ids = set(manifest)
-    bundled_artifact_stems = {
-        Path(path).stem for paths in manifest.values() for path in paths
-    }
+    bundled_artifact_stems = {Path(path).stem for paths in manifest.values() for path in paths}
 
     for entry in benchmark_matrix():
         if entry.maturity == "planned-lane":
@@ -144,9 +138,7 @@ def test_build_benchmark_matrix_script_writes_machine_readable_artifact(tmp_path
     payload = json.loads(output_json.read_text(encoding="utf-8"))
     assert payload["summary"]["incomplete"] == 0
     assert payload["summary"]["planned"] >= 1
-    assert any(
-        entry["entry"]["id"] == "prepared_derivative_path" for entry in payload["entries"]
-    )
+    assert any(entry["entry"]["id"] == "prepared_derivative_path" for entry in payload["entries"])
 
 
 def test_release_facing_docs_scope_future_work_without_open_blocker_language():
