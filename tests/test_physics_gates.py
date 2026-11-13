@@ -605,7 +605,7 @@ def test_constant_field_symmetric_limit_has_no_radial_transport():
     assert result.D31 == pytest.approx(0.0, abs=1.0e-12)
     assert result.D13 == pytest.approx(0.0, abs=1.0e-12)
     assert result.D33 > 0.0
-    assert result.D33 == pytest.approx(result.D33_spitzer, rel=1.0e-10, abs=1.0e-12)
+    assert result.D33 == pytest.approx(float(result.D33_spitzer), rel=1.0e-10, abs=1.0e-12)
 
 
 def test_constant_field_spitzer_branch_scales_with_inverse_collisionality():
@@ -625,12 +625,12 @@ def test_constant_field_spitzer_branch_scales_with_inverse_collisionality():
     )
 
     assert low_collision.D33 == pytest.approx(
-        low_collision.D33_spitzer,
+        float(low_collision.D33_spitzer),
         rel=1.0e-10,
         abs=1.0e-12,
     )
     assert high_collision.D33 == pytest.approx(
-        high_collision.D33_spitzer,
+        float(high_collision.D33_spitzer),
         rel=1.0e-10,
         abs=1.0e-12,
     )
@@ -657,8 +657,8 @@ def test_constant_field_transport_is_invariant_under_radial_electric_field():
         assert result.D11 == pytest.approx(0.0, abs=1.0e-12)
         assert result.D31 == pytest.approx(0.0, abs=1.0e-12)
         assert result.D13 == pytest.approx(0.0, abs=1.0e-12)
-        assert result.D33 == pytest.approx(result.D33_spitzer, rel=1.0e-10)
-        assert result.D33 == pytest.approx(reference.D33, rel=1.0e-10)
+        assert result.D33 == pytest.approx(float(result.D33_spitzer), rel=1.0e-10)
+        assert result.D33 == pytest.approx(float(reference.D33), rel=1.0e-10)
 
 
 def test_scalar_gate_helpers_cover_fail_greater_equal_and_lookup_error():
