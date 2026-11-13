@@ -13,6 +13,7 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -29,47 +30,36 @@ jobs:
         run: mypy src/ntx
 
   test-shards:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, uwplasma-cpu]
+    timeout-minutes: 30
+    env:
+      JAX_ENABLE_X64: "1"
     strategy:
       fail-fast: false
       matrix:
-        shard:
-          - core_foundation
-          - core_adjoint
-          - core_cli_workflows
-          - core_io_workflows
-          - core_parallel_workflows
-          - core_neopax_workflows
-          - core_profile_audit_workflow
-          - core_profile_basic_workflows
-          - core_profile_optimization_workflows
-          - core_profile_transport_workflows
-          - core_autodiff_uncertainty_workflow
-          - core_robust_bootstrap_workflow
-          - core_validation
-          - integration_examples
-          - heavy_examples_profiles
-          - heavy_examples_derivatives
-          - heavy_examples_boundary
-          - heavy_examples_publication
+        include: ${{ fromJSON(github.event_name == 'pull_request' && '[{"name":"pr1","lanes":"heavy_examples_derivatives core_validation core_foundation core_cli_workflows core_profile_audit_workflow core_robust_bootstrap_workflow heavy_examples_boundary"},{"name":"pr2","lanes":"heavy_examples_profiles core_adjoint core_profile_basic_workflows core_io_workflows core_neopax_workflows core_parallel_workflows"},{"name":"pr3","lanes":"core_profile_optimization_workflows core_profile_transport_workflows heavy_examples_publication integration_examples core_autodiff_uncertainty_workflow"}]' || '[{"name":"core_foundation","lanes":"core_foundation"},{"name":"core_adjoint","lanes":"core_adjoint"},{"name":"core_cli_workflows","lanes":"core_cli_workflows"},{"name":"core_io_workflows","lanes":"core_io_workflows"},{"name":"core_parallel_workflows","lanes":"core_parallel_workflows"},{"name":"core_neopax_workflows","lanes":"core_neopax_workflows"},{"name":"core_profile_audit_workflow","lanes":"core_profile_audit_workflow"},{"name":"core_profile_basic_workflows","lanes":"core_profile_basic_workflows"},{"name":"core_profile_optimization_workflows","lanes":"core_profile_optimization_workflows"},{"name":"core_profile_transport_workflows","lanes":"core_profile_transport_workflows"},{"name":"core_autodiff_uncertainty_workflow","lanes":"core_autodiff_uncertainty_workflow"},{"name":"core_robust_bootstrap_workflow","lanes":"core_robust_bootstrap_workflow"},{"name":"core_validation","lanes":"core_validation"},{"name":"integration_examples","lanes":"integration_examples"},{"name":"heavy_examples_profiles","lanes":"heavy_examples_profiles"},{"name":"heavy_examples_derivatives","lanes":"heavy_examples_derivatives"},{"name":"heavy_examples_boundary","lanes":"heavy_examples_boundary"},{"name":"heavy_examples_publication","lanes":"heavy_examples_publication"}]') }}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
-          cache: "pip"
+          enable-cache: false
       - name: Install
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev,io,vmex,booz]"
+          uv venv
+          uv pip install -e ".[dev,io,vmex,booz]"
       - name: Test shard
         shell: bash
         run: |
           set -euo pipefail
+          source .venv/bin/activate
           python scripts/test_lane_manifest.py --check
-          python scripts/test_lane_manifest.py "${{ matrix.shard }}" > /tmp/ntx-tests.txt
-          xargs pytest -q -m "not gpu" --cov=src/ntx --cov-report= < /tmp/ntx-tests.txt
+          : > "$RUNNER_TEMP/ntx-tests.txt"
+          for lane in ${{ matrix.lanes }}; do
+            python scripts/test_lane_manifest.py "$lane" >> "$RUNNER_TEMP/ntx-tests.txt"
+          done
+          xargs pytest -q -m "not gpu" --cov=src/ntx --cov-report= < "$RUNNER_TEMP/ntx-tests.txt"
           python - <<'PY'
           from pathlib import Path
           import shutil
@@ -87,11 +77,12 @@ jobs:
       - name: Upload shard coverage data
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-${{ matrix.shard }}
+          name: coverage-${{ matrix.name }}
           path: coverage-data
 
   coverage-report:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: test-shards
     steps:
       - uses: actions/checkout@v5
@@ -145,6 +136,7 @@ jobs:
 
   compatibility-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -171,6 +163,7 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
