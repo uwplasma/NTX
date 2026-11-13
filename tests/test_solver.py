@@ -377,3 +377,21 @@ def test_custom_vjp_coefficient_vector_matches_direct_forward_and_gradient():
     )(1e-3)
     assert jnp.isfinite(wrapped_grad)
     assert jnp.allclose(direct_grad, wrapped_grad, rtol=1e-10, atol=1e-12)
+
+
+def test_implicit_derivative_matches_central_differences_in_both_modes():
+    surface = example_surface()
+    grid = GridSpec(7, 7, 24)
+
+    def d11(b_cos, nu_hat):
+        shifted = type(surface)(**{**surface.__dict__, "b_cos": b_cos})
+        return solve_monoenergetic(shifted, grid, MonoenergeticCase(nu_hat, er_hat=1e-3)).D11
+
+    b0, nu = jnp.asarray(surface.b_cos), 2e-2
+    d_b = jnp.zeros_like(b0).at[1].set(1.0)
+    step = 1e-6
+    fd = (d11(b0 + step * d_b, nu) - d11(b0 - step * d_b, nu)) / (2 * step)
+    forward = jax.jvp(d11, (b0, nu), (d_b, 0.0))[1]
+    reverse = jnp.vdot(jax.grad(d11)(b0, nu), d_b)
+    assert jnp.allclose(forward, fd, rtol=1e-6)
+    assert jnp.allclose(reverse, forward, rtol=1e-10)

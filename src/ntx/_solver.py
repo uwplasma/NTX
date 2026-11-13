@@ -29,6 +29,7 @@ from .operators import (
     OperatorContext,
     apply_nullspace_condition,
     block_parameters,
+    coefficients_from_parameters,
     derivative_blocks,
     operator_blocks,
     operator_blocks_from_parameters,
@@ -109,9 +110,10 @@ def _solve_modes_with_tail_residual(
     only the three retained modes. What ``adjoint_window`` changes is how a
     derivative of it is taken.
 
-    ``None`` (the default) differentiates the elimination directly. Reverse mode
-    records the whole sweep, so its memory grows with ``n_xi``, but *both* AD
-    modes work, which matters --- the derivative audits use forward mode.
+    ``None`` (the default) differentiates implicitly, see
+    :func:`_implicit_modes`: one factorization and one extra solve per
+    derivative direction, in forward or reverse mode, with memory of one
+    factored chain (``n_xi * n_fs**2``).
 
     An integer selects the exact-window rule: the rows are regenerated on demand
     and only ``3 + adjoint_window`` of them are retained, so the reverse pass
@@ -128,12 +130,13 @@ def _solve_modes_with_tail_residual(
     rhs_low = jnp.stack((s1[:keep_lowest], s3[:keep_lowest]), axis=-1)
     block_fn = _parameterized_block_fn(d_theta, d_zeta)
     if adjoint_window is None:
-        modes, residual = block_thomas_truncated_fn_with_residual(
-            _operator_block_fn(ctx, d_theta, d_zeta),
-            n_blocks=n_blocks,
-            rhs_low=rhs_low,
-            keep_lowest=keep_lowest,
-            residual_rhs_index=0,
+        grid = ctx.geometry.grid
+        modes, residual = _implicit_modes(
+            block_parameters(ctx),
+            (d_theta, d_zeta),
+            rhs_low,
+            n_blocks,
+            (grid.dtheta_matrix, grid.dzeta_matrix),
         )
     else:
         modes, residual = block_thomas_truncated_fn_with_residual(
@@ -148,6 +151,96 @@ def _solve_modes_with_tail_residual(
     f1_modes = modes[..., 0]
     f3_modes = modes[..., 1]
     return f1_modes, f3_modes, residual
+
+
+def _stencil_row(params, mats, k, z, which):
+    """Row ``k`` of block ``which`` (0 lower, 1 diagonal, 2 upper) applied to ``z``.
+
+    Every block is ``c_theta (I x D_theta) + c_zeta (D_zeta x I) + diag(c_value)``,
+    so its action on ``(n_fs, r)`` costs ``n_fs * r * (n_theta + n_zeta)``, not
+    ``n_fs**2 * r``. ``mats`` carries the one-dimensional derivative matrices.
+    """
+    dtheta, dzeta = mats
+    c = coefficients_from_parameters(params, k)[which]
+    z3 = z.reshape(dzeta.shape[0], dtheta.shape[0], -1)
+    out = c[0][:, None] * jnp.einsum("ij,zjr->zir", dtheta, z3).reshape(z.shape)
+    out += c[1][:, None] * jnp.einsum("zw,wjr->zjr", dzeta, z3).reshape(z.shape)
+    out += c[2][:, None] * z
+    if which == 0:
+        return out
+    # the nullspace condition replaces row 0 of D_0 and zeroes it in U_0
+    return jnp.where(k == 0, out.at[0].set(z[0] if which == 1 else 0.0), out)
+
+
+def _chain_apply(params, mats, x):
+    """``A @ x`` for the whole chain, ``x`` of shape ``(n_blocks, n_fs, r)``."""
+    zero = jnp.zeros_like(x[:1])
+    return jax.vmap(
+        lambda k, xm, x0, xp: (
+            _stencil_row(params, mats, k, xm, 0)
+            + _stencil_row(params, mats, k, x0, 1)
+            + _stencil_row(params, mats, k, xp, 2)
+        )
+    )(
+        jnp.arange(x.shape[0], dtype=jnp.int32),
+        jnp.concatenate([zero, x[:-1]]),
+        x,
+        jnp.concatenate([x[1:], zero]),
+    )
+
+
+@partial(jax.custom_jvp, nondiff_argnums=(3,))
+def _implicit_modes(params, lifted, rhs_low, n_blocks, mats):
+    """Retained modes and Schur residual of the Legendre chain, differentiated implicitly.
+
+    A value-only call runs the constant-memory truncated elimination. A
+    derivative, forward or reverse, runs the ``custom_jvp`` rule instead:
+    factor the chain once, solve ``A x = b``, then ``dx = A^-1 (db - dA x)``
+    with ``dA x`` the JVP of the matrix-free :func:`_chain_apply`. Reverse mode
+    transposes that linear map, so a gradient costs about one factorization
+    rather than the taped elimination, which was several times slower and held
+    several chains. ``lifted`` and ``mats`` are constants (the lifted and the
+    one-dimensional derivative matrices); they are arguments rather than
+    closures because a closed-over tracer cannot cross a ``lax.map`` under
+    ``jax.grad``.
+    """
+    block_fn = _parameterized_block_fn(*lifted)
+    return block_thomas_truncated_fn_with_residual(
+        lambda k: block_fn(params, k),
+        n_blocks=n_blocks,
+        rhs_low=rhs_low,
+        keep_lowest=rhs_low.shape[0],
+        residual_rhs_index=0,
+    )
+
+
+@_implicit_modes.defjvp
+def _implicit_modes_jvp(n_blocks, primals, tangents):
+    """Implicit derivative of :func:`_implicit_modes` with respect to ``params`` and ``rhs_low``."""
+    params, lifted, rhs_low, mats = primals
+    d_params, _, d_rhs_low, _ = tangents
+    block_fn = _parameterized_block_fn(*lifted)
+
+    def couple(params, k, z, *, which, transpose):
+        assert not transpose  # only the primal solve is used; JAX transposes it
+        return _stencil_row(params, mats, k, z, 0 if which == "lower" else 2)
+
+    def pad(rhs):
+        tail = jnp.zeros((n_blocks - rhs.shape[0], *rhs.shape[1:]), rhs.dtype)
+        return jnp.concatenate([rhs, tail])
+
+    factors = solvax.block_thomas_factor_ops(
+        lambda k: block_fn(params, k)[1], couple, params, n_blocks=n_blocks
+    )
+    rhs = pad(rhs_low)
+    x = solvax.block_thomas_solve_ops(factors, rhs)
+    _, d_ax = jax.jvp(lambda q: _chain_apply(q, mats, x), (params,), (d_params,))
+    dx = solvax.block_thomas_solve_ops(factors, pad(d_rhs_low) - d_ax)
+    residual = jnp.linalg.norm(_chain_apply(params, mats, x)[..., 0] - rhs[..., 0]) / jnp.sqrt(
+        rhs[..., 0].size
+    )
+    keep = rhs_low.shape[0]
+    return (x[:keep], residual), (dx[:keep], jnp.zeros_like(residual))
 
 
 def _factorize_prepared_modes(
