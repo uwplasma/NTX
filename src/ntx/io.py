@@ -14,6 +14,7 @@ from .vmec import load_vmec_surface
 __all__ = [
     "load_boozer_modes_csv",
     "load_dkes_surface",
+    "load_geiger_boozer_surface",
     "load_magnetic_configuration_surface",
     "load_vmec_surface",
     "write_result_jsonable",
@@ -110,6 +111,122 @@ def load_dkes_surface(path: str | Path) -> BoozerSurface:
         b0=b0_matches[0],
         source_path=Path(path).expanduser().resolve(),
     )
+
+
+_MU0 = 4.0e-7 * np.pi
+
+
+def load_geiger_boozer_surface(
+    path: str | Path,
+    *,
+    rho: float | None = None,
+    s: float | None = None,
+    min_bmn: float = 0.0,
+) -> BoozerSurface:
+    """Load one flux surface of a Geiger/IPP "CC Boozer-coordinate data file".
+
+    The file (header ``m0b n0b nsurf nper flux a R ...``, then per surface
+    ``s iota curr_pol/nper curr_tor pprime sqrt g`` and rows ``m n r z (phib-phi) bmn``)
+    is the ``.bc`` format read by SFINCS and DKX with ``geometryScheme = 11``. The surface at
+    ``rho = sqrt(s)`` (or ``s``) is the linear interpolation in ``s`` of the two bracketing file
+    surfaces, mode by mode (``VMECRadialOption = 0``); a request outside the file is clamped to
+    its first or last surface. ``G = -mu0 curr_pol/(2 pi)`` and ``I = mu0 curr_tor/(2 pi)`` in T m,
+    ``iota -> -iota``
+    (the ``theta -> -theta`` that takes the file's left-handed (r, theta, zeta) to the right-handed
+    system of SFINCS and DKX, whose ``n`` is then NTX's ``n``). ``psi_p`` is
+    ``d psi / d r = B0 r`` with ``r = sqrt(2 psi / B0)`` and ``psi = s |flux| / (2 pi)``, so
+    ``er_hat = E_r / v`` in V m^-1 per m s^-1 and the coefficients are in the effective radius.
+    ``min_bmn`` drops modes with ``|B_mn / B_00|`` below it.
+    """
+
+    if (rho is None) == (s is None):
+        raise ValueError("set exactly one of rho or s")
+    s_wish = float(rho) ** 2 if rho is not None else float(s or 0.0)
+    resolved = Path(path).expanduser().resolve()
+    lines = (
+        resolved.read_text(encoding="utf-8", errors="replace")
+        .replace("D", "E")
+        .replace("d", "E")
+        .splitlines()
+    )
+
+    header: list[float] | None = None
+    for i, line in enumerate(lines):
+        if line.startswith("CC"):
+            continue
+        tokens = line.split()
+        if (
+            len(tokens) >= 6
+            and all(_is_float(t) for t in tokens[:4])
+            and not line.lstrip().startswith("s ")
+        ):
+            # The ten-number header may carry trailing text ("original: a=... m").
+            header = [float(t) for t in tokens[4:] if _is_float(t)]
+            n_periods = int(tokens[3])
+            first = i
+            break
+    if header is None or len(header) < 2:
+        raise ValueError(f"no Boozer-file header (m0b n0b nsurf nper flux a ...) in {resolved}")
+    psi_edge = abs(header[0]) / (2.0 * np.pi)
+
+    titles = [
+        i
+        for i in range(first, len(lines))
+        if lines[i].lstrip().startswith("s ") and "iota" in lines[i]
+    ]
+    if not titles:
+        raise ValueError(f"no surface blocks in {resolved}")
+    scalars = np.array([[float(t) for t in lines[i + 2].split()[:6]] for i in titles])
+    s_all = scalars[:, 0]
+    hi = int(np.clip(np.searchsorted(s_all, s_wish), 1, len(s_all) - 1)) if len(s_all) > 1 else 0
+    lo = max(hi - 1, 0)
+    weight = (
+        1.0
+        if hi == lo
+        else float(np.clip((s_wish - s_all[lo]) / (s_all[hi] - s_all[lo]), 0.0, 1.0))
+    )
+    s_used = (1.0 - weight) * s_all[lo] + weight * s_all[hi]
+
+    def block(k: int) -> np.ndarray:
+        """``(m, n, bmn)`` rows of the ``k``-th surface block."""
+
+        end = titles[k + 1] if k + 1 < len(titles) else len(lines)
+        return np.loadtxt(lines[titles[k] + 4 : end], usecols=(0, 1, 5), dtype=float, ndmin=2)
+
+    blo, bhi = block(lo), block(hi)
+    if not np.array_equal(blo[:, :2], bhi[:, :2]):
+        raise ValueError("neighbouring surfaces list different (m, n) modes")
+    bmn = (1.0 - weight) * blo[:, 2] + weight * bhi[:, 2]
+    iota, curr_pol, curr_tor = (
+        (1.0 - weight) * scalars[lo, j] + weight * scalars[hi, j] for j in (1, 2, 3)
+    )
+    m = blo[:, 0].astype(np.int32)
+    n = blo[:, 1].astype(np.int32)
+    b0 = float(bmn[(m == 0) & (n == 0)][0])
+    keep = (np.abs(bmn / b0) >= min_bmn) | ((m == 0) & (n == 0))
+    r_eff = float(np.sqrt(2.0 * s_used * psi_edge / b0))
+    return BoozerSurface(
+        m=jnp.asarray(m[keep]),
+        n=jnp.asarray(n[keep]),
+        b_cos=jnp.asarray(bmn[keep]),
+        nfp=n_periods,
+        iota=-float(iota),
+        psi_p=b0 * r_eff,
+        b_theta=curr_tor / (2.0 * np.pi) * _MU0,
+        b_zeta=-curr_pol * n_periods / (2.0 * np.pi) * _MU0,
+        b0=b0,
+        source_path=resolved,
+    )
+
+
+def _is_float(token: str) -> bool:
+    """Whether a whitespace-separated token is a number (``D`` exponents already rewritten)."""
+
+    try:
+        float(token)
+    except ValueError:
+        return False
+    return True
 
 
 def load_magnetic_configuration_surface(path: str | Path) -> BoozerSurface:
