@@ -538,29 +538,23 @@ def _parameter_gradient_from_adjoint(
     in the primal: that row is a constraint rather than a physical equation, so
     it carries no sensitivity.
     """
-    def zero_first_row(block: Array) -> Array:
-        return block.at[0, :].set(jnp.zeros((block.shape[1],), dtype=block.dtype))
 
-    nu_bar = jnp.asarray(0.0, dtype=prepared.grid.jax_dtype)
-    epsi_bar = jnp.asarray(0.0, dtype=prepared.grid.jax_dtype)
-    for k in range(prepared.grid.n_xi + 1):
+    def row(carry, inputs):
+        k, l1, l3, x1, x3 = inputs
         diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
-            ctx,
-            k,
-            prepared.d_theta,
-            prepared.d_zeta,
+            ctx, k, prepared.d_theta, prepared.d_zeta
         )
-        if k == 0:
-            diagonal_nu = zero_first_row(diagonal_nu)
-            diagonal_epsi = zero_first_row(diagonal_epsi)
-        nu_bar = nu_bar - (
-            jnp.vdot(lambda1[k], diagonal_nu @ f1_full[k])
-            + jnp.vdot(lambda3[k], diagonal_nu @ f3_full[k])
-        )
-        epsi_bar = epsi_bar - (
-            jnp.vdot(lambda1[k], diagonal_epsi @ f1_full[k])
-            + jnp.vdot(lambda3[k], diagonal_epsi @ f3_full[k])
-        )
+        keep = jnp.where(k == 0, 0.0, 1.0).astype(l1.dtype)  # row zero is the constraint
+        l1, l3 = l1.at[0].multiply(keep), l3.at[0].multiply(keep)
+        nu_k = jnp.vdot(l1, diagonal_nu @ x1) + jnp.vdot(l3, diagonal_nu @ x3)
+        epsi_k = jnp.vdot(l1, diagonal_epsi @ x1) + jnp.vdot(l3, diagonal_epsi @ x3)
+        return (carry[0] - nu_k, carry[1] - epsi_k), None
+
+    zero = jnp.asarray(0.0, dtype=prepared.grid.jax_dtype)
+    rows = jnp.arange(prepared.grid.n_xi + 1, dtype=jnp.int32)
+    (nu_bar, epsi_bar), _ = jax.lax.scan(
+        row, (zero, zero), (rows, lambda1, lambda3, f1_full, f3_full)
+    )
     return nu_bar, epsi_bar
 
 
