@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import os
+
 import jax
 import pytest
 
 from ntx import configure_compilation_cache
-from ntx.config import _enable_default_compilation_cache
+from ntx.config import _default_cpu_threads, _enable_default_compilation_cache
 
 
 def test_configure_compilation_cache_creates_resolved_directory(tmp_path):
@@ -56,3 +58,13 @@ def test_the_default_cache_respects_an_existing_choice(tmp_path, monkeypatch):
     finally:
         jax.config.update("jax_compilation_cache_dir", old_dir)
         jax.config.update("jax_persistent_cache_min_compile_time_secs", old_threshold)
+
+
+def test_blas_threads_default_to_at_most_four_and_respect_the_caller(monkeypatch):
+    monkeypatch.delenv("OPENBLAS_NUM_THREADS", raising=False)
+    monkeypatch.delenv("OMP_NUM_THREADS", raising=False)
+    _default_cpu_threads()
+    assert 1 <= int(os.environ["OPENBLAS_NUM_THREADS"]) <= 4
+    monkeypatch.setenv("OPENBLAS_NUM_THREADS", "1")
+    _default_cpu_threads()
+    assert os.environ["OPENBLAS_NUM_THREADS"] == "1"

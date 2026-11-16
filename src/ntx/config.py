@@ -9,6 +9,25 @@ from pathlib import Path
 from jax import config as jax_config
 
 
+def _default_cpu_threads() -> None:
+    """Give SciPy's OpenBLAS ``min(4, cores)`` threads unless the caller chose.
+
+    XLA lowers ``lu`` and ``triangular_solve`` to LAPACK calls into that
+    library, and it is loaded on the first such call, so setting the variable
+    here still takes effect. Left unset, OpenBLAS starts one thread per host
+    core, ignoring ``taskset``, and its pool fights XLA's; one thread leaves
+    the block LU sequential. Cores are counted with ``sched_getaffinity``.
+    """
+
+    if any(os.environ.get(k) for k in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS")):
+        return
+    cores = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else os.cpu_count()
+    os.environ["OPENBLAS_NUM_THREADS"] = str(min(4, cores or 1))
+
+
+_default_cpu_threads()
+
+
 def enable_x64(enabled: bool = True) -> None:
     """Enable or disable JAX 64-bit arithmetic.
 
