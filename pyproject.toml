@@ -44,7 +44,7 @@ dev = [
   "coverage[toml]",
   "scipy",
   "matplotlib",
-  "pytest",
+  "pytest<9.2",  # 9.2 approx() reads .flat, which JAX arrays lack
   "pytest-cov",
   "ruff",
   "scipy",
@@ -107,6 +107,15 @@ warn_unused_ignores = true
 branch = true
 parallel = true
 source = ["src/ntx"]
+
+# Shards run on self-hosted macOS checkouts and are combined on hosted Ubuntu;
+# map every absolute prefix onto the combining checkout so ``coverage combine`` finds sources.
+[tool.coverage.paths]
+source = [
+  "src/ntx",
+  "*/src/ntx",
+  "*/site-packages/ntx",
+]
 
 [tool.coverage.report]
 skip_covered = true
