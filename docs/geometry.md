@@ -54,6 +54,23 @@ Use this path when:
 - a Boozer harmonic surface is already available
 - the goal is a direct monoenergetic solve without VMEC preprocessing
 
+### Geiger/IPP Boozer-Coordinate Files
+
+`load_geiger_boozer_surface(path, rho=...)` reads the "CC Boozer-coordinate data file" of
+J. Geiger (IPP), the `.bc` format that SFINCS and DKX read with `geometryScheme = 11`: a header
+`m0b n0b nsurf nper flux a R ...` (ten numbers, optionally followed by free text), then per
+surface `s iota curr_pol/nper curr_tor pprime sqrt g` and rows `m n r z (phib-phi) bmn`. The
+surface at `rho = sqrt(s)` is the linear interpolation in `s` of the two bracketing file
+surfaces (a request outside the file is clamped to its first or last surface). Conversions:
+`G = -mu0 curr_pol / (2 pi)` and `I = mu0 curr_tor / (2 pi)` in T m, `iota -> -iota`, the same
+right-handed system as DKX, and `psi_p = d psi / d r = B0 r` with `r = sqrt(2 psi / B0)`,
+`psi = s |flux| / (2 pi)`, so `er_hat = E_r / v` and the coefficients refer to the effective
+radius `r`. `min_bmn` drops harmonics weaker than `min_bmn |B00|`.
+
+`DKES` coefficient normalization on these files (`nu_hat = cmul`, `epsi_hat = efield / r`,
+`D33* = D33 / D33_spitzer`) and the comparison with the IPP DKES results of the HELIAS reactor
+`hydra_Np04_20190108` are in [validation](validation.md).
+
 ## VMEC `wout` Files
 
 `load_vmec_surface(...)` in [`src/ntx/vmec.py`](../src/ntx/vmec.py) reads
@@ -161,6 +178,10 @@ roundoff.
 ![Finite-beta finalized-wout Boozer round-trip audit](_static/boozmn_finite_beta_wout_roundtrip_audit.png)
 
 ## Geometry Evaluation On The Angular Grid
+
+Boozer harmonics that the grid cannot represent, `|m| > n_theta / 2` or `|n| > n_zeta / 2`
+(`n` per field period), are dropped before evaluation (`ntx.geometry.truncate_to_grid`), as in
+SFINCS and DKX, rather than aliased onto lower harmonics.
 
 All surface families are converted to `GeometryOnGrid` by
 `geometry_on_grid(...)` in [`src/ntx/geometry.py`](../src/ntx/geometry.py).

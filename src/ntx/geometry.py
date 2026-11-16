@@ -8,6 +8,7 @@ from ._geometry import (
     evaluate_fourier_series,
     example_surface,
     geometry_on_grid,
+    truncate_to_grid,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "evaluate_fourier_series",
     "example_surface",
     "geometry_on_grid",
+    "truncate_to_grid",
 ]

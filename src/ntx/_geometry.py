@@ -7,7 +7,7 @@ always imported together.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import jax.numpy as jnp
@@ -39,8 +39,8 @@ class BoozerSurface:
     def __post_init__(self) -> None:
         """Reject harmonic arrays of mismatched length.
 
-    Checked at construction because a length mismatch would otherwise surface as
-    a silent broadcast far away in the operator build.
+        Checked at construction because a length mismatch would otherwise surface as
+        a silent broadcast far away in the operator build.
         """
         if len(self.m) != len(self.n) or len(self.m) != len(self.b_cos):
             msg = "m, n, and b_cos must have the same length"
@@ -162,6 +162,7 @@ class GeometryOnGrid:
     the field and its derivatives, the Jacobian, and the flux scale. Holding it
     as one frozen container is what lets the solve be a pure function of it.
     """
+
     surface_type: str
     surface_path: Path | None
     nfp: int
@@ -286,12 +287,33 @@ def geometry_on_grid(surface: BoozerSurface | VmecSurface, spec) -> GeometryOnGr
     return _boozer_geometry_on_grid(surface, spec)
 
 
+def truncate_to_grid(surface: BoozerSurface, spec) -> BoozerSurface:
+    """Zero the harmonics that the angular grid cannot represent.
+
+    A harmonic with ``|m| > n_theta / 2`` or ``|n| > n_zeta / 2`` (``n`` per field period) aliases
+    onto a lower one on the collocation grid, and the aliased amplitude is not small when a file
+    carries many weak high harmonics (the hydra_Np04 Boozer file has ``m`` up to 36 and ``n`` up to
+    36 at amplitudes of 1e-4 B_00). SFINCS (``computeBHat_Boozer``) and DKX drop them; so does this
+    function. The ``(0, 0)`` mode is always kept and the arrays keep their shape, so it is
+    traceable.
+    """
+
+    m = jnp.abs(jnp.asarray(surface.m))
+    n = jnp.abs(jnp.asarray(surface.n))
+    keep = (m <= spec.n_theta // 2) & (n <= spec.n_zeta // 2)
+    b_sin = None if surface.b_sin is None else jnp.where(keep, surface.b_sin, 0.0)
+    return replace(
+        surface, b_cos=jnp.where(keep | ((m == 0) & (n == 0)), surface.b_cos, 0.0), b_sin=b_sin
+    )
+
+
 def _boozer_geometry_on_grid(surface: BoozerSurface, spec) -> GeometryOnGrid:
     """Evaluate a Boozer surface on the grid.
 
     Boozer coordinates make the field a single Fourier sum, so B and its
     derivatives come directly from the harmonics.
     """
+    surface = truncate_to_grid(surface, spec)
     grid = periodic_grid(spec, surface.nfp)
     theta_2d, zeta_2d = jnp.meshgrid(grid.theta, grid.zeta, indexing="ij")
     b, d_b_dtheta, d_b_dzeta = evaluate_boozer_modes(surface, theta_2d, zeta_2d)
