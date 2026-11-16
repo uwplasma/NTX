@@ -132,6 +132,7 @@ CORE_PARALLEL_WORKFLOW_TESTS: tuple[str, ...] = (
 )
 
 CORE_NEOPAX_WORKFLOW_TESTS: tuple[str, ...] = (
+    "tests/test_ambipolar.py",
     "tests/test_neopax_adapter.py",
     "tests/test_neopax_arrays.py",
     "tests/test_neopax_qi.py",

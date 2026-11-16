@@ -16,6 +16,7 @@ tree.
 | VMEC loading | `src/ntx/vmec.py` | `load_vmec_surface(...)` |
 | In-memory `vmex -> booz_xform_jax` boundary workflows | `src/ntx/vmex_backend.py`, `src/ntx/_vmex.py`, `src/ntx/_neopax.py` | `build_vmex_boundary_context(...)`, `initial_guess_vmex_boundary_state(...)`, `solve_vmex_boundary_state(...)`, VMEX state to Boozer-surface builders, VMEC scalar/profile transfer, imported Boozer and NEOPAX field builders |
 | Boozer file loading | `src/ntx/booz.py` | Boozer harmonic file loaders |
+| Ambipolar roots and electron-root objective | `src/ntx/ambipolar.py` | `ElectronRoot`, `AmbipolarPlasma`, `ambipolar_roots(...)` |
 | NEOPAX coupling | `src/ntx/neopax.py`, `src/ntx/_neopax.py`, `src/ntx/_neopax_scan.py` | `build_ntx_neopax_scan(...)`, scan field-channel normalization, scan coefficient and bridge assembly, `scan_to_neopax_arrays(...)`, `write_neopax_scan_hdf5(...)`, differentiable imported-field helpers |
 | Profile-grade imported workflows | `src/ntx/profiles.py`, `src/ntx/_profiles.py`, `src/ntx/_profiles_control.py`, `src/ntx/_profiles_transport.py` | radial profile dataclasses, scan-channel interpolation, primitive-force reconstruction, ambipolar `E_r(r)` solve, scalar controls, basis controls, normalized transport terms, closures, and transport loops |
 | Throughput-oriented multi-device execution | `src/ntx/parallel.py` | `solve_monoenergetic_multiprocess_scan(...)` |

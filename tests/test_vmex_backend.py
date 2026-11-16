@@ -8,8 +8,9 @@ from types import ModuleType, SimpleNamespace
 import jax.numpy as jnp
 import pytest
 
+from ntx import _vmex as ntx_vmex
 from ntx import surface_from_vmex_state, surface_from_vmex_wout
-from ntx._vmex import _apply_boozer_sign_convention_profiles
+from ntx._vmex import _apply_boozer_sign_convention_profiles, _core_boozer_inputs_from_state
 from ntx.geometry import BoozerSurface
 from ntx.vmex_backend import (
     _apply_boozer_sign_convention,
@@ -22,6 +23,7 @@ from ntx.vmex_backend import (
     relax_vmex_boundary_state_explicit,
     solve_vmex_boundary_state,
     surfaces_from_vmex_boundary_params,
+    surfaces_from_vmex_state,
 )
 
 
@@ -493,3 +495,48 @@ def test_import_helpers_use_checkout_fallback(monkeypatch, tmp_path):
             path_str = str(path)
             while path_str in sys.path:
                 sys.path.remove(path_str)
+
+
+def test_core_boozer_inputs_validate_surface_requests(monkeypatch):
+    boozer_tables = ModuleType("vmex.core.boozer_tables")
+    boozer_tables.boozer_input_tables = lambda *args: {
+        "xm": jnp.asarray([0, 1]),
+        "xn": jnp.asarray([0, 2]),
+        **{k: jnp.asarray([1.0, 0.1]) for k in ("rmnc", "zmns", "lmns", "bmnc")},
+        **{k: jnp.asarray([0.2, 0.0]) for k in ("bsubumnc", "bsubvmnc")},
+        "iota": jnp.asarray(0.4),
+    }
+    monkeypatch.setitem(sys.modules, "vmex.core.boozer_tables", boozer_tables)
+    runtime = SimpleNamespace(
+        resolution=SimpleNamespace(nfp=2, lasym=False),
+        setup=SimpleNamespace(signgs=1, s_full=jnp.asarray([0.0, 0.5, 1.0])),
+    )
+    all_surfaces = _core_boozer_inputs_from_state(
+        vmex=None, state=None, runtime=runtime, s_values=None
+    )
+    assert all_surfaces.bmnc.shape == (2, 2)
+    for s_values in ([], [[0.5]], [1.5]):
+        with pytest.raises(ValueError, match="s_values"):
+            _core_boozer_inputs_from_state(
+                vmex=None, state=None, runtime=runtime, s_values=s_values
+            )
+
+
+def test_surfaces_from_vmex_state_applies_mode_cutoff(monkeypatch):
+    out = {
+        "ixm_b": jnp.asarray([0, 1, 2]),
+        "ixn_b": jnp.asarray([0, 2, 4]),
+        "bmnc_b": jnp.asarray([[2.0, 0.1, 1.0e-6]]),
+        "iota_b": jnp.asarray([0.4]),
+        "buco_b": jnp.asarray([0.2]),
+        "bvco_b": jnp.asarray([1.2]),
+    }
+    monkeypatch.setattr(
+        ntx_vmex,
+        "_booz_xform_bundle_from_vmex_state",
+        lambda **kwargs: (SimpleNamespace(nfp=2), out),
+    )
+    kwargs = {"state": None, "static": None, "indata": None, "signgs": 1, "s_values": (0.5,)}
+    kept_all = surfaces_from_vmex_state(**kwargs)[0]
+    cut = surfaces_from_vmex_state(**kwargs, min_bmn_to_load=1.0e-3)[0]
+    assert kept_all.m.shape == (3,) and cut.m.shape == (2,)
