@@ -235,6 +235,7 @@ The publication-ready example scripts live in [`examples/`](../examples):
 - `profile_transport_loop.py`
 - `primitive_profile_transport.py`
 - `plot_output_file.py`
+- `cross_code_conversion.py`
 
 The fixed-field validation script delegates reviewable artifact math to
 `examples/_fixed_field_validation_metrics.py` and
