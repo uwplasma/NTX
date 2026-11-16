@@ -156,9 +156,7 @@ def source_channel_summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]
     max_reconstruction_residual = max(
         float(row["source_channel_superposition_relative_residual"]) for row in rows
     )
-    max_public_difference = max(
-        float(row["full_vs_public_relative_difference"]) for row in rows
-    )
+    max_public_difference = max(float(row["full_vs_public_relative_difference"]) for row in rows)
     stress_errors = [float(row["public_neopax_relative_error_vs_redl"]) for row in rows]
     best_row = rows[int(np.argmin(stress_errors))]
     return {
@@ -167,9 +165,7 @@ def source_channel_summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]
         "source_channel_superposition_gate_pass": bool(
             max_reconstruction_residual <= SOURCE_RECONSTRUCTION_GATE
         ),
-        "max_source_channel_superposition_relative_residual": float(
-            max_reconstruction_residual
-        ),
+        "max_source_channel_superposition_relative_residual": float(max_reconstruction_residual),
         "max_full_vs_public_relative_difference": float(max_public_difference),
         "best_public_relative_error_vs_redl": float(
             best_row["public_neopax_relative_error_vs_redl"]
@@ -185,9 +181,7 @@ def source_channel_summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]
         "high_stable_public_relative_error_vs_redl": float(
             high_stable["public_neopax_relative_error_vs_redl"]
         ),
-        "high_stable_dominant_effective_channel": str(
-            high_stable["dominant_effective_channel"]
-        ),
+        "high_stable_dominant_effective_channel": str(high_stable["dominant_effective_channel"]),
         "high_stable_effective_temperature_fraction_of_total": float(
             high_stable["effective_temperature_fraction_of_total"]
         ),
@@ -201,14 +195,10 @@ def source_channel_summary_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]
             high_stable["species_cancellation_factor"]
         ),
         "high_stable_effective_temperature_response_multiplier_to_redl": (
-            finite_or_none(
-                high_stable.get("effective_temperature_response_multiplier_to_redl")
-            )
+            finite_or_none(high_stable.get("effective_temperature_response_multiplier_to_redl"))
         ),
         "high_stable_effective_temperature_channel_relative_error_vs_redl": (
-            finite_or_none(
-                high_stable.get("effective_temperature_channel_relative_error_vs_redl")
-            )
+            finite_or_none(high_stable.get("effective_temperature_channel_relative_error_vs_redl"))
         ),
         "high_stable_redl_effective_temperature_fraction_of_total": (
             finite_or_none(high_stable.get("redl_effective_temperature_fraction_of_total"))
@@ -284,11 +274,7 @@ def rows_for_setting(
     """Rows recorded at one resolution setting, sorted for stable output."""
     x_value, p_value = setting
     return sorted(
-        [
-            row
-            for row in rows
-            if int(row["neopax_x"]) == x_value and int(row["n_order"]) == p_value
-        ],
+        [row for row in rows if int(row["neopax_x"]) == x_value and int(row["n_order"]) == p_value],
         key=lambda row: float(row["rho"]),
     )
 
@@ -302,16 +288,10 @@ def profile_source_response_summary_metrics(
     high_setting = high_order_setting(rows)
     high_rows = rows_for_setting(rows, setting=high_setting)
     multipliers = finite_values(
-        [
-            row.get("effective_temperature_response_multiplier_to_redl")
-            for row in high_rows
-        ]
+        [row.get("effective_temperature_response_multiplier_to_redl") for row in high_rows]
     )
     response_errors = finite_values(
-        [
-            row.get("effective_temperature_channel_relative_error_vs_redl")
-            for row in high_rows
-        ]
+        [row.get("effective_temperature_channel_relative_error_vs_redl") for row in high_rows]
     )
     reconstruction = finite_values(
         [row.get("source_channel_superposition_relative_residual") for row in rows]
@@ -362,15 +342,12 @@ def profile_source_response_summary_metrics(
     return {
         "row_count": int(len(rows)),
         "radius_count": int(len({float(row["rho"]) for row in rows})),
-        "setting_count": int(
-            len({(int(row["neopax_x"]), int(row["n_order"])) for row in rows})
-        ),
+        "setting_count": int(len({(int(row["neopax_x"]), int(row["n_order"])) for row in rows})),
         "high_order_neopax_x": int(high_setting[0]),
         "high_order_n_order": int(high_setting[1]),
         "source_reconstruction_gate": SOURCE_RECONSTRUCTION_GATE,
         "source_channel_superposition_gate_pass": bool(
-            reconstruction.size > 0
-            and float(np.max(reconstruction)) <= SOURCE_RECONSTRUCTION_GATE
+            reconstruction.size > 0 and float(np.max(reconstruction)) <= SOURCE_RECONSTRUCTION_GATE
         ),
         "max_source_channel_superposition_relative_residual": (
             float(np.max(reconstruction)) if reconstruction.size else None

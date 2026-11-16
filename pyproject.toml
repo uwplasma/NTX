@@ -81,7 +81,7 @@ packages = ["src/ntx"]
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "tools"]
 markers = [
   "gpu: tests that require a JAX GPU device",
 ]

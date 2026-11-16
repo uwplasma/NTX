@@ -15,16 +15,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+sys.path[:0] = [str(SRC), str(ROOT / "tools")]
 
 import jax  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+from ntx_validation import audit_angular_oversampling  # noqa: E402
 
 from ntx import MonoenergeticCase, load_vmec_surface  # noqa: E402
 from ntx._checkout_paths import find_stellopt_root, find_vmex_root, portable_path  # noqa: E402
-from ntx.validation import audit_angular_oversampling  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "angular_oversampling_audit"
 PRODUCTION_RATIOS = (1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5)

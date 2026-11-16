@@ -15,9 +15,7 @@ def test_plot_output_file_example(tmp_path):
     env = dict(os.environ)
     existing_pythonpath = env.get("PYTHONPATH")
     src_path = str(ROOT / "src")
-    env["PYTHONPATH"] = (
-        src_path if not existing_pythonpath else f"{src_path}:{existing_pythonpath}"
-    )
+    env["PYTHONPATH"] = src_path if not existing_pythonpath else f"{src_path}:{existing_pythonpath}"
     input_path.write_text(
         "\n".join(
             [

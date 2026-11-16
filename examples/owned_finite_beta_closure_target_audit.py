@@ -25,18 +25,17 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+sys.path[:0] = [str(SRC), str(ROOT / "tools")]
 
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
-
-from examples.owned_finite_beta_bootstrap_comparison import _to_jsonable  # noqa: E402
-from ntx._checkout_paths import portable_path  # noqa: E402
-from ntx.validation._finite_beta_closure_target import (  # noqa: E402
+from ntx_validation._finite_beta_closure_target import (  # noqa: E402
     field_radius_matched_response_audit,
     profile_closure_target_diagnostics,
 )
+
+from examples.owned_finite_beta_bootstrap_comparison import _to_jsonable  # noqa: E402
+from ntx._checkout_paths import portable_path  # noqa: E402
 
 SOURCE_RESPONSE_JSON = (
     ROOT / "docs" / "_static" / "owned_finite_beta_source_response_profile_audit.json"

@@ -21,8 +21,8 @@ class GridSpec:
     def __post_init__(self) -> None:
         """Reject grids too coarse to resolve a Fourier derivative.
 
-    Three points is the minimum for which the spectral derivative is meaningful
-    rather than merely computable.
+        Three points is the minimum for which the spectral derivative is meaningful
+        rather than merely computable.
         """
         if self.n_theta < 3 or self.n_zeta < 3:
             msg = "n_theta and n_zeta must be at least 3"
@@ -56,6 +56,7 @@ class AngularGrid:
     Built once per :class:`GridSpec` and reused: the derivative matrices are the
     expensive part and do not depend on the case being solved.
     """
+
     theta: Array
     zeta: Array
     dtheta: Array

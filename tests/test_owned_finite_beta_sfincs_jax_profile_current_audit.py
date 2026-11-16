@@ -84,9 +84,7 @@ def test_profile_current_audit_summarizes_h5_current(tmp_path: Path):
     assert summary["status"] == "complete"
     assert summary["fsab_jhat"] == pytest.approx(-0.25)
     assert summary["fsab_jhat_over_root_fsab2"] == pytest.approx(-0.5)
-    assert summary["current_over_root_fsab2_am2"] == pytest.approx(
-        -0.5 * audit.SFINCS_JHAT_TO_AM2
-    )
+    assert summary["current_over_root_fsab2_am2"] == pytest.approx(-0.5 * audit.SFINCS_JHAT_TO_AM2)
     assert summary["scalars"]["RHSMode"] == 1
     assert summary["scalars"]["nu_n"] == pytest.approx(8.31565e-3)
     assert summary["solver"]["linearSolverMethod"] == "sparse_pc_gmres"

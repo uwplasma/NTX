@@ -1,6 +1,6 @@
 """Running the solver over a parameter scan, serially or in parallel.
 
-Wraps the single solve in _solver with the batching, device placement and
+Wraps the single solve in solver with the batching, device placement and
 result collection a sweep needs.
 """
 
@@ -20,7 +20,9 @@ import jax.numpy as jnp
 import numpy as np
 from jax import Array
 
-from ._solver import (
+from .geometry import BoozerSurface, VmecSurface, example_surface
+from .grids import GridSpec
+from .solver import (
     MonoenergeticCase,
     PreparedMonoenergeticSystem,
     TransportResult,
@@ -28,8 +30,6 @@ from ._solver import (
     prepare_monoenergetic_system,
     solve_prepared,
 )
-from .geometry import BoozerSurface, VmecSurface, example_surface
-from .grids import GridSpec
 
 __all__ = [
     "CompiledPreparedScanSolver",
@@ -75,6 +75,7 @@ class _CompiledBatchFunction(Protocol):
     `lower` is part of the contract because the scan reports compiled shapes
     without executing, which is how a batch plan is checked before it runs.
     """
+
     def __call__(self, nu_values: Array, epsi_values: Array) -> Array:
         """Run the compiled batch."""
         ...
@@ -116,8 +117,8 @@ class CompiledPreparedScanSolver:
     ) -> None:
         """Hold a prepared system with a fixed batch size and execution mode.
 
-    Fixing both at construction is what lets the batch compile once and be
-    reused across calls.
+        Fixing both at construction is what lets the batch compile once and be
+        reused across calls.
         """
         self.prepared = prepared
         self.batch_size = batch_size

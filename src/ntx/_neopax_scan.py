@@ -11,11 +11,11 @@ from dataclasses import dataclass
 import jax.numpy as jnp
 from jax import Array
 
-from ._neopax import NeopaxScan, _surface_reference_bridge, _surface_transport_scale
 from .geometry import BoozerSurface, VmecSurface
 from .grids import GridSpec
+from .neopax import NeopaxScan, _surface_reference_bridge, _surface_transport_scale
 from .solver import solve_monoenergetic_scan
-from .vmex_backend import (
+from .vmec import (
     VmecJaxBoundaryContext,
     surfaces_from_vmex_boundary_params,
     surfaces_from_vmex_state,

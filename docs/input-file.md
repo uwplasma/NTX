@@ -274,7 +274,7 @@ Metadata is also stored as JSON strings:
 - `algorithm_metadata_json`
 
 All of this is written in `save_run_output(...)` in
-[`src/ntx/_inputfiles.py`](../src/ntx/_inputfiles.py), with
+[`src/ntx/inputfiles.py`](../src/ntx/inputfiles.py), with
 `save_run_output(...)` selecting the concrete writer from the filename suffix.
 
 ## Example Inputs

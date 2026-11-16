@@ -354,12 +354,10 @@ must not regress the fixed-field precise-QS or integrated W7-X gates.
 
 ## Current Policy
 
-The gate registry is exposed in the public API:
+The gate registry lives in `tools/ntx_validation`, outside the installed package:
 
-- `ntx.physics_gates.physics_gate_registry()`
-- `ntx.physics_gates.evaluate_artifact_gates(...)`
-- `ntx.validation.physics_gate_registry()`
-- `ntx.validation.evaluate_artifact_gates(...)`
+- `ntx_validation.physics_gate_registry()`
+- `ntx_validation.evaluate_artifact_gates(...)`
 
 To inspect the tracked artifact-backed gates locally:
 

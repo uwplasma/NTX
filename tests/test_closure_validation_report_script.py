@@ -38,8 +38,9 @@ def test_build_closure_validation_report_writes_outputs(tmp_path):
         "fixed-field NTX+NEOPAX total-current stress" in item
         for item in payload["claim_scope"]["positive_gates"]
     )
-    assert "avoid fitted bridge constants in the shipping runtime" in (
-        payload["claim_scope"]["promotion_requirements"]
+    assert (
+        "avoid fitted bridge constants in the shipping runtime"
+        in (payload["claim_scope"]["promotion_requirements"])
     )
     assert payload["precise_qs"]["qa"]["Redl"] <= 1.0e-1
     assert payload["fixed_field_diagnostics"]["qa"]["current_total"] <= 1.0e-1

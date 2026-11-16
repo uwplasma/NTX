@@ -16,8 +16,7 @@ def test_helper_discovery_from_env(monkeypatch, tmp_path):
     finite_beta_root = tmp_path / "single_stage_optimization_finite_beta"
     stellopt_root = tmp_path / "STELLOPT"
     zenodo_root = (
-        tmp_path
-        / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
+        tmp_path / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
     )
     vmec_root = tmp_path / "vmex"
     example_input = vmec_root / "examples" / "data" / "input.circular_tokamak"
@@ -99,10 +98,7 @@ def test_workspace_checkout_candidates_and_missing_optional_roots(monkeypatch, t
 
 def test_qs_zenodo_root_prefers_repo_local_copy(monkeypatch, tmp_path):
     repo = tmp_path / "NTX"
-    zenodo = (
-        repo
-        / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
-    )
+    zenodo = repo / "20220708-01-zenodo_for_QS_optimization_with_self_consistent_bootstrap_current"
     zenodo.mkdir(parents=True)
 
     monkeypatch.delenv("QS_ZENODO_ROOT", raising=False)

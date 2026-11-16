@@ -21,17 +21,17 @@ from ntx import (
     load_neopax_reference_scan,
     surface_from_vmex_vmec_wout_file,
 )
-from ntx._autodiff import (
+from ntx.autodiff import (
     _er_profile,
     _evaluate_d11_profile,
     _evaluate_d13_profile,
     _evaluate_d33_profile,
+    _maybe_import_neopax,
 )
-from ntx._autodiff import (
+from ntx.autodiff import (
     example_neopax_profile_autodiff as _example_neopax_profile_autodiff,
 )
-from ntx._neopax import NeopaxMonoenergeticArrays
-from ntx.autodiff import _maybe_import_neopax
+from ntx.neopax import NeopaxMonoenergeticArrays
 
 from .fixture_data import SAMPLE_NEOPAX, SAMPLE_WOUT
 
@@ -153,30 +153,19 @@ def test_neopax_profile_uncertainty_matches_linearized_and_monte_carlo_scales():
     assert jnp.allclose(jnp.diag(result.parameter_correlation), 1.0)
 
 
-def test_neopax_profile_autodiff_optional_import_paths():
+def test_neopax_profile_autodiff_optional_import_paths(monkeypatch):
     scan = load_neopax_reference_scan(SAMPLE_NEOPAX)
     surfaces = tuple(
         surface_from_vmex_vmec_wout_file(SAMPLE_WOUT, s=float(rho_value**2))
         for rho_value in scan.rho
     )
-    with pytest.raises(RuntimeError, match="requires a NEOPAX importer callback"):
-        _example_neopax_profile_autodiff(
-            surfaces,
-            rho=scan.rho,
-            nu_v=scan.nu_v,
-            Es=scan.Es,
-            Er=scan.Er,
-            drds=scan.drds,
-            grid=GridSpec(5, 5, 4),
-            steps=2,
-            use_neopax_package=True,
-        )
     called = {"value": False}
 
     def fake_importer():
         called["value"] = True
         return object()
 
+    monkeypatch.setattr("ntx.autodiff._maybe_import_neopax", fake_importer)
     result = _example_neopax_profile_autodiff(
         surfaces,
         rho=scan.rho,
@@ -187,7 +176,6 @@ def test_neopax_profile_autodiff_optional_import_paths():
         grid=GridSpec(5, 5, 4),
         steps=2,
         use_neopax_package=True,
-        maybe_import_neopax=fake_importer,
     )
     assert called["value"] is True
     assert result.parameter_history.shape[0] == 2

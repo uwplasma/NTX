@@ -65,9 +65,7 @@ def test_build_payload_from_comparisons_tracks_interpolation_sensitivity() -> No
     assert metrics["runtime_interpolation_policy_changed"] is False
     assert metrics["runtime_correction_applied"] is False
     assert metrics["baseline_max_relative_error_total_vs_redl"] == pytest.approx(0.5)
-    assert metrics["field_radius_matched_max_relative_error_total_vs_redl"] == pytest.approx(
-        0.1
-    )
+    assert metrics["field_radius_matched_max_relative_error_total_vs_redl"] == pytest.approx(0.1)
     assert metrics["max_relative_error_improvement_factor"] == pytest.approx(5.0)
     assert metrics["field_radius_matched_current_gate_pass"] is True
     assert payload["open_work"]

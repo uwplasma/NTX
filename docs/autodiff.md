@@ -32,9 +32,9 @@ weaken. `advise_adjoint_window` reads that crossover off the operator:
 
 ```python
 advice = ntx.advise_adjoint_window(ctx, grid.n_xi, prepared.d_theta, prepared.d_zeta)
-advice.window          # a starting point
-advice.crossover_row   # where the transfer norms fall below one
-advice.certified       # False: this is an estimate, not a guarantee
+advice.window  # a starting point
+advice.crossover_row  # where the transfer norms fall below one
+advice.certified  # False: this is an estimate, not a guarantee
 ```
 
 ### Asking for an accuracy instead of guessing a window
@@ -43,9 +43,9 @@ advice.certified       # False: this is an estimate, not a guarantee
 
 ```python
 window = ntx.certify_adjoint_window(prepared, case, rtol=1e-6)
-int(window)                        # smallest window with a proof
-window.certified_relative_error    # the proven bound, at or below rtol
-window.status                      # "certified", or "full-window" if it cannot prove one
+int(window)  # smallest window with a proof
+window.certified_relative_error  # the proven bound, at or below rtol
+window.status  # "certified", or "full-window" if it cannot prove one
 ```
 
 The proof is available because the exact-window rule leaves exactly one thing

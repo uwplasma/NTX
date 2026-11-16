@@ -48,8 +48,7 @@ def test_docs_entry_point_displays_complete_normalized_dke():
 def test_example_sections_have_unique_sequential_numbers():
     examples = _read("docs/examples.md")
     numbers = [
-        int(match.group(1))
-        for match in re.finditer(r"^## (\d+)\. ", examples, flags=re.MULTILINE)
+        int(match.group(1)) for match in re.finditer(r"^## (\d+)\. ", examples, flags=re.MULTILINE)
     ]
 
     assert numbers == list(range(1, len(numbers) + 1))

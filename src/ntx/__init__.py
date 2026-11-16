@@ -63,14 +63,6 @@ from .neopax import (
     write_neopax_scan_hdf5,
 )
 from .parallel import solve_monoenergetic_multiprocess_scan
-from .physics_gates import (
-    ANALYTICAL_GATES,
-    ARTIFACT_GATES,
-    PhysicsGate,
-    PhysicsGateResult,
-    evaluate_artifact_gates,
-    physics_gate_registry,
-)
 from .plotting import plot_run_output
 from .profiles import (
     AmbipolarProfileFamilyResult,
@@ -138,16 +130,17 @@ from .solver import (
     solve_prepared_internal,
 )
 from .transport import onsager_error
-from .vmex_backend import (
+from .vmec import (
     VmecJaxBoundaryContext,
     build_vmex_boundary_context,
     initial_guess_vmex_boundary_state,
     relax_vmex_boundary_state_explicit,
     solve_vmex_boundary_state,
     surface_from_vmex_state,
+    surface_from_vmex_vmec_wout,
+    surface_from_vmex_vmec_wout_file,
     surface_from_vmex_wout,
 )
-from .vmex_vmec import surface_from_vmex_vmec_wout, surface_from_vmex_vmec_wout_file
 
 try:
     __version__ = version("ntx")
@@ -172,8 +165,6 @@ __all__ = [
     "MonoenergeticCase",
     "MonoenergeticDatabaseArrays",
     "MonoenergeticSpeciesProfile",
-    "PhysicsGate",
-    "PhysicsGateResult",
     "PrimitiveSpeciesProfile",
     "ProfileBasisControlSpec",
     "ProfileBasisOptimizationResult",
@@ -192,8 +183,6 @@ __all__ = [
     "TransportResult",
     "VmecJaxBoundaryContext",
     "VmecSurface",
-    "ANALYTICAL_GATES",
-    "ARTIFACT_GATES",
     "build_differentiable_neopax_field",
     "audit_prepared_coefficient_derivative",
     "advise_adjoint_window",
@@ -221,7 +210,6 @@ __all__ = [
     "example_derivative_audit",
     "example_surface",
     "example_bootstrap_current_optimization",
-    "evaluate_artifact_gates",
     "infer_run_output_format",
     "load_boozmn_surface",
     "load_run_output",
@@ -235,7 +223,6 @@ __all__ = [
     "healthy_parallel_device_count",
     "local_parallel_device_count",
     "onsager_error",
-    "physics_gate_registry",
     "ambipolar_residual_profile",
     "advance_profile_transport",
     "advance_primitive_profile_transport",

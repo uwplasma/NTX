@@ -51,6 +51,7 @@ class BenchmarkEntry:
 @dataclass(frozen=True)
 class BenchmarkPathStatus:
     """One evidence path a benchmark entry claims, and whether it exists."""
+
     kind: Literal["script", "test", "artifact", "doc"]
     path: str
     exists: bool
@@ -63,6 +64,7 @@ class BenchmarkPathStatus:
 @dataclass(frozen=True)
 class BenchmarkEvaluation:
     """A benchmark entry together with the state of its evidence on disk."""
+
     entry: BenchmarkEntry
     path_status: tuple[BenchmarkPathStatus, ...]
 
@@ -70,8 +72,8 @@ class BenchmarkEvaluation:
     def missing_required_paths(self) -> tuple[str, ...]:
         """Claimed evidence paths that are absent.
 
-    A planned lane claims nothing yet, so it reports none rather than every
-    path it will eventually need.
+        A planned lane claims nothing yet, so it reports none rather than every
+        path it will eventually need.
         """
         if self.entry.maturity == "planned-lane":
             return ()
@@ -81,8 +83,8 @@ class BenchmarkEvaluation:
     def status(self) -> Literal["complete", "incomplete", "planned"]:
         """'planned', 'complete', or 'incomplete'.
 
-    Planned lanes are a separate state rather than incomplete ones: they are
-    declared future work, not a broken claim.
+        Planned lanes are a separate state rather than incomplete ones: they are
+        declared future work, not a broken claim.
         """
         if self.entry.maturity == "planned-lane":
             return "planned"

@@ -70,9 +70,7 @@ The adaptive convergence API enforces this gate. For a one-off solve, request
 strict pre-solve validation explicitly:
 
 ```python
-result = solve_monoenergetic(
-    surface, grid, case, require_resolved_geometry=True
-)
+result = solve_monoenergetic(surface, grid, case, require_resolved_geometry=True)
 ```
 
 The default remains permissive so deliberately underresolved smoke diagnostics

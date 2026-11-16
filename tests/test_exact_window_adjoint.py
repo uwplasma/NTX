@@ -23,7 +23,6 @@ from ntx import (
     example_surface,
     solve_monoenergetic,
 )
-from ntx._solver import _solve_modes_with_tail_residual, prepare_monoenergetic_system
 from ntx.operators import (
     OperatorContext,
     block_parameters,
@@ -31,6 +30,7 @@ from ntx.operators import (
     coefficients_from_parameters,
     source_modes,
 )
+from ntx.solver import _solve_modes_with_tail_residual, prepare_monoenergetic_system
 
 NU, EPSI = 1.0e-2, 1.0e-3
 

@@ -19,6 +19,7 @@ class OperatorContext:
     Held as a frozen dataclass so it can be closed over by the row generator and
     still be replaced cheaply for a different collisionality.
     """
+
     surface: BoozerSurface | VmecSurface
     geometry: GeometryOnGrid
     nu_hat: Array
@@ -115,9 +116,7 @@ def coefficients_from_parameters(
     upper = {
         "theta": (kf + 1.0) * bu / (b * (2.0 * kf + 3.0)),
         "zeta": (kf + 1.0) * bv / (b * (2.0 * kf + 3.0)),
-        "value": -((kf + 1.0) * (kf + 2.0)) * bdot_grad_b / (
-            2.0 * (2.0 * kf + 3.0) * b**2
-        ),
+        "value": -((kf + 1.0) * (kf + 2.0)) * bdot_grad_b / (2.0 * (2.0 * kf + 3.0) * b**2),
     }
     return _pack(lower), _pack(diagonal), _pack(upper)
 

@@ -43,9 +43,7 @@ def _finite_array(values: list[float | None]) -> np.ndarray:
     """
     return np.asarray(
         [
-            float(value)
-            if value is not None and np.isfinite(float(value))
-            else np.nan
+            float(value) if value is not None and np.isfinite(float(value)) else np.nan
             for value in values
         ],
         dtype=float,
@@ -73,10 +71,7 @@ def _response_table(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
     table: dict[str, np.ndarray] = {
         "rho": np.asarray([float(row["rho"]) for row in rows], dtype=float),
         "response": np.asarray(
-            [
-                float(row["effective_temperature_response_multiplier_to_redl"])
-                for row in rows
-            ],
+            [float(row["effective_temperature_response_multiplier_to_redl"]) for row in rows],
             dtype=float,
         ),
         "current_error": np.asarray(
@@ -84,10 +79,7 @@ def _response_table(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
             dtype=float,
         ),
         "reconstruction": np.asarray(
-            [
-                float(row["source_channel_superposition_relative_residual"])
-                for row in rows
-            ],
+            [float(row["source_channel_superposition_relative_residual"]) for row in rows],
             dtype=float,
         ),
     }
@@ -250,8 +242,7 @@ def _best_model(diagnostics: list[dict[str, Any]]) -> dict[str, Any]:
     finite = [
         item
         for item in diagnostics
-        if item["leave_one_out_rmse"] is not None
-        and np.isfinite(float(item["leave_one_out_rmse"]))
+        if item["leave_one_out_rmse"] is not None and np.isfinite(float(item["leave_one_out_rmse"]))
     ]
     if not finite:
         return {}
@@ -305,9 +296,7 @@ def profile_closure_target_diagnostics(source_payload: dict[str, Any]) -> dict[s
             "response_multiplier_median": float(np.median(response)),
             "response_multiplier_max": float(np.max(response)),
             "response_multiplier_span": float(np.max(response) - np.min(response)),
-            "response_multiplier_max_abs_deviation_from_one": float(
-                np.max(np.abs(response - 1.0))
-            ),
+            "response_multiplier_max_abs_deviation_from_one": float(np.max(np.abs(response - 1.0))),
             "unit_response_rmse": unit_rmse,
             "constant_leave_one_out_rmse": constant_loo,
             "best_leave_one_out_model": best.get("name"),
@@ -328,9 +317,7 @@ def profile_closure_target_diagnostics(source_payload: dict[str, Any]) -> dict[s
             "log10_nu_e_star_abs_pearson": abs(
                 float(correlations["log10_nu_e_star"]["pearson"] or 0.0)
             ),
-            "redl_L32_abs_pearson": abs(
-                float(correlations["redl_L32"]["pearson"] or 0.0)
-            ),
+            "redl_L32_abs_pearson": abs(float(correlations["redl_L32"]["pearson"] or 0.0)),
             "max_profile_current_relative_error": float(np.max(current_error)),
             "median_profile_current_relative_error": float(np.median(current_error)),
             "max_source_channel_superposition_relative_residual": float(
@@ -391,9 +378,7 @@ def _settings_match_rho(
     """
     if stress_rho is None or not rows:
         return None
-    return bool(
-        all(abs(float(row["rho"]) - float(stress_rho)) <= 1.0e-12 for row in rows)
-    )
+    return bool(all(abs(float(row["rho"]) - float(stress_rho)) <= 1.0e-12 for row in rows))
 
 
 def field_radius_matched_response_audit(
@@ -418,9 +403,7 @@ def field_radius_matched_response_audit(
     source_rows = source_payload.get("rows", []) if source_payload else []
     source_metrics = source_payload.get("summary_metrics", {}) if source_payload else {}
     quadrature_rows = quadrature_payload.get("rows", []) if quadrature_payload else []
-    quadrature_metrics = (
-        quadrature_payload.get("summary_metrics", {}) if quadrature_payload else {}
-    )
+    quadrature_metrics = quadrature_payload.get("summary_metrics", {}) if quadrature_payload else {}
 
     source_by_setting = {_setting(row): row for row in source_rows}
     quadrature_by_setting = {_setting(row): row for row in quadrature_rows}
@@ -440,14 +423,10 @@ def field_radius_matched_response_audit(
                     quadrature_row.get("stress_relative_error_total_vs_redl")
                 ),
                 "effective_temperature_response_multiplier_to_redl": _float_or_none(
-                    source_row.get(
-                        "effective_temperature_response_multiplier_to_redl"
-                    )
+                    source_row.get("effective_temperature_response_multiplier_to_redl")
                 ),
                 "effective_temperature_channel_relative_error_vs_redl": _float_or_none(
-                    source_row.get(
-                        "effective_temperature_channel_relative_error_vs_redl"
-                    )
+                    source_row.get("effective_temperature_channel_relative_error_vs_redl")
                 ),
                 "source_channel_superposition_relative_residual": _float_or_none(
                     source_row.get("source_channel_superposition_relative_residual")
@@ -488,8 +467,8 @@ def field_radius_matched_response_audit(
     )
     response_unit_distance_reduction = None
     if high_stable_response is not None and best_response is not None:
-        response_unit_distance_reduction = (
-            abs(high_stable_response - 1.0) - abs(best_response - 1.0)
+        response_unit_distance_reduction = abs(high_stable_response - 1.0) - abs(
+            best_response - 1.0
         )
 
     return {
@@ -515,13 +494,9 @@ def field_radius_matched_response_audit(
         "same_stress_radius_between_artifacts": same_radius,
         "matched_setting_count": int(len(rows)),
         "rows": rows,
-        "best_public_setting": (
-            _setting_dict(best_setting) if best_setting is not None else None
-        ),
+        "best_public_setting": (_setting_dict(best_setting) if best_setting is not None else None),
         "high_stable_setting": (
-            _setting_dict(high_stable_setting)
-            if high_stable_setting is not None
-            else None
+            _setting_dict(high_stable_setting) if high_stable_setting is not None else None
         ),
         "best_public_relative_error_vs_redl": _float_or_none(
             source_metrics.get("best_public_relative_error_vs_redl")
@@ -530,12 +505,8 @@ def field_radius_matched_response_audit(
             source_metrics.get("high_stable_public_relative_error_vs_redl")
         ),
         "best_effective_temperature_response_multiplier_to_redl": best_response,
-        "high_stable_effective_temperature_response_multiplier_to_redl": (
-            high_stable_response
-        ),
-        "response_unit_distance_reduction_in_best_vs_stable": (
-            response_unit_distance_reduction
-        ),
+        "high_stable_effective_temperature_response_multiplier_to_redl": (high_stable_response),
+        "response_unit_distance_reduction_in_best_vs_stable": (response_unit_distance_reduction),
         "source_channel_superposition_gate_pass": source_metrics.get(
             "source_channel_superposition_gate_pass"
         ),
@@ -560,9 +531,7 @@ def field_radius_matched_response_audit(
         "best_stress_pass_rejected_as_underintegrated": quadrature_metrics.get(
             "best_stress_pass_rejected_as_underintegrated"
         ),
-        "quadrature_aliasing_detected": quadrature_metrics.get(
-            "quadrature_aliasing_detected"
-        ),
+        "quadrature_aliasing_detected": quadrature_metrics.get("quadrature_aliasing_detected"),
         "conclusion": (
             "The field-radius-matched source solve reconstructs the full "
             "corrected current, but the only current-gate pass is rejected "
