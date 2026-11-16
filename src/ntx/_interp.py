@@ -253,8 +253,9 @@ def interp2d_at(
     The channel lookups evaluate one point per radius. Building coefficient
     tables over the whole ``(nu, E_r)`` grid to read one value out of them is
     ``O(n_nu * n_er)`` of work discarded; the answer depends only on a four-by-
-    four neighbourhood. On production database sizes this is four times faster
-    forward and eight times faster through the gradient, at identical values.
+    four neighbourhood (six-by-six for Akima). On production database sizes
+    this is four times faster forward and eight times faster through the
+    gradient, at identical values.
 
     The window is *slid* to stay in range rather than having its indices
     clamped. Clamping repeats a node at the boundary, which gives an interval of
@@ -262,16 +263,19 @@ def interp2d_at(
     """
     x, y, values = jnp.asarray(x), jnp.asarray(y), jnp.asarray(values)
     nx, ny = x.shape[0], y.shape[0]
-    if nx < 4 or ny < 4:
+    # Akima's node slope reads two secants on each side; the others read one.
+    width = 6 if method == "akima" else 4
+    if nx < width or ny < width:
         # Too small for a local window; fall back to whole-grid tables.
         return _interp2d_full(x, y, values, xq, yq, method)
 
     i = _interval(x, xq)
     j = _interval(y, yq)
-    wi = jnp.clip(i - 1, 0, nx - 4)
-    wj = jnp.clip(j - 1, 0, ny - 4)
-    ii = wi + jnp.arange(4)
-    jj = wj + jnp.arange(4)
+    lead = width // 2 - 1
+    wi = jnp.clip(i - lead, 0, nx - width)
+    wj = jnp.clip(j - lead, 0, ny - width)
+    ii = wi + jnp.arange(width)
+    jj = wj + jnp.arange(width)
     xs, ys = x[ii], y[jj]
     fs = values[ii][:, jj]
     return _bicubic(xs, ys, fs, i - wi, j - wj, xq, yq, method)
