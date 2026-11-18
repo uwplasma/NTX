@@ -813,3 +813,21 @@ validated assets, run:
 ```bash
 python scripts/build_manuscript_artifacts.py
 ```
+
+## 34. Converting Between NTX, SFINCS, YANCC And MONKES
+
+```bash
+python examples/cross_code_conversion.py
+```
+
+A flat script, with the formulas in its comments, for the factors that relate NTX
+`D11`, `D31`, `D13`, `D33` to the SFINCS RHSMode 3 `transportMatrix`, to Beidler
+`D*`, and to the DKES-scaled tables of YANCC and MONKES: the collisionality map
+(`nu_hat = nu_n nuDHat`), the radial `dpsi/dr` each code uses (`D11` changes with
+the square of the ratio of two conventions, `D31` and `D13` with the first power),
+the electric-field relations and SFINCS hat units. It prints coefficient, NTX,
+reference, converted reference and relative error against a 2% gate for the
+committed same-grid SFINCS decks at rho = 0.3 and 0.5, and checks its inline
+factors against the ones NTX stores for the sample surface. No YANCC or MONKES
+table is committed here; those conventions are shown as conversions of the same
+NTX numbers, matching the rows of DKX's cross-code artifact.

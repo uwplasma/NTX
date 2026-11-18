@@ -185,6 +185,7 @@ CORE_VALIDATION_TESTS: tuple[str, ...] = (
     "tests/test_ci_lane_manifest.py",
     "tests/test_closure_validation_report_script.py",
     "tests/test_coverage_edges.py",
+    "tests/test_cross_code_conversion_example.py",
     "tests/test_fixed_field_momentum_correction_diagnostic.py",
     "tests/test_fixed_field_parallel_flow_audit.py",
     "tests/test_fixed_field_transport_matrix_audit.py",
