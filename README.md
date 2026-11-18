@@ -104,6 +104,22 @@ species-resolved or full-collision parity; assumptions and provenance are in
 python scripts/check_physics_gates.py
 ```
 
+## Cross-code benchmark
+
+NTX against MONKES and DKX on W7-X, QA, QH and LHD surfaces. Error is the largest
+relative D11/D31/D33 error against a finer-grid reference at ν* = νR₀/ι = 3×10⁻⁴,
+with v_E = 0 to 5×10⁻⁴. Warm solve on 8 Xeon cores and one RTX A4000:
+
+| Device | Error NTX = MONKES / DKX | Warm CPU NTX / MONKES / DKX | Warm GPU NTX |
+| --- | --- | --- | ---: |
+| W7-X | 0.5% / 0.3% | 37 s / 6.3 s / 101 s | 6.4 s |
+| QA | 0.08% / 0.08% | 29 s / 6.2 s / 31 s | 6.4 s |
+| QH | 0.007% / 0.02% | 34 s / 6.5 s / 112 s | 6.4 s |
+| LHD | 10% / 10% (not resolved) | 29 s / 6.2 s / 89 s | 14 s |
+
+Plateau and collisional results, the LHD caveat and the low-collisionality
+resolution table are in the [benchmark page](docs/monoenergetic-benchmark.md).
+
 ## Choose A Workflow
 
 | Goal | Start here |
@@ -157,6 +173,5 @@ python -m sphinx -W -b html docs docs/_build/html
 Optional geometry backends:
 
 ```bash
-pip install git+https://github.com/uwplasma/VMEX.git
-pip install git+https://github.com/uwplasma/booz_xform_jax.git
+pip install "ntx[vmex,booz]"
 ```
