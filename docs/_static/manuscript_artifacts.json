@@ -3745,7 +3745,7 @@
         "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9343189044961101,
         "completed_ntx_same_grid_comparison_count": 6,
         "max_ntx_same_grid_transport_relative_difference": 0.02054783993495091,
-        "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.30271458425786035,
+        "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.3199274412168985,
         "rhs_mode": 3,
         "rhsmode2_species": null
       },
@@ -3754,7 +3754,7 @@
         "rho_to_s": "s=rho^2",
         "ntx_nu_v_to_sfincs_nuPrime": "SFINCS-JAX reports runtime nu_n = nuPrime*B0OverBBar/(GHat+iota*IHat); owned parity comparisons must either solve NTX at that reported nu_n or generate nuPrime from the target NTX nu_v using the same bridge",
         "radial_interpolation": "VMECRadialOption=0 is used so SFINCS-JAX evaluates the requested rN_wish directly instead of snapping to a nearest VMEC half-grid surface.",
-        "rhs3_flow_row_bridge": "NTX D33 maps to the RHSMode=3 SFINCS flow row with nuDHat*4*B0OverBBar/(3*(GHat+iota*IHat)); this is the row-2 flow normalization in the SFINCS transport-matrix diagnostic when collisionOperator=1.",
+        "rhs3_flow_row_bridge": "NTX D33 maps to the RHSMode=3 SFINCS flow row with 2*b00/(sqrt(pi)*(GHat+iota*IHat)), the NEOPAX bridge factor (ntx.neopax fac_33); nuDHat enters only through nu_hat=nu_n*nuDHat.",
         "pas_collision_frequency_bridge": "NTX uses nu_hat as the monoenergetic pitch-angle scattering frequency, while SFINCS-JAX RHSMode=3 uses nu_n*nuDHat(x=1). The same-grid NTX solve therefore uses nu_hat=nu_n*nuDHat.",
         "ntx_es_to_sfincs_EStar": "identity for this monoenergetic generation audit; electric-field normalization must stay explicit in any promoted comparison",
         "rhsmode2_frequency_semantics": "RHSMode=2 uses nu_n directly, not the RHSMode=3 nuPrime overwrite. The generator stores the input axis under nuPrime for backward JSON compatibility but writes nu_n to RHSMode=2 decks.",
@@ -3773,9 +3773,9 @@
         "production_tight_harmonics_max_transport_relative_difference": 0.020546717035894013,
         "production_change_vs_smoke": 0.004835358271263395,
         "tight_harmonics_change_vs_production": -0.004866475154446728,
-        "required_coefficient_relative_difference_for_current_gate": 0.0013006501179462983,
-        "production_precision_gap_to_current_gate": 15.874519840384513,
-        "tight_harmonics_precision_gap_to_current_gate": 15.797266883992512
+        "required_coefficient_relative_difference_for_current_gate": 0.001122085082595331,
+        "production_precision_gap_to_current_gate": 18.400740213906914,
+        "tight_harmonics_precision_gap_to_current_gate": 18.31119346883251
       },
       "claim_scope": "Compares the finite-beta QA stress-radius same-grid transport coefficients after increasing angular/pitch resolution and after tightening the VMEC harmonic cutoff. This is a diagnostic for coefficient normalization and numerical convergence; it is not a bootstrap-current parity claim.",
       "conclusion": "The stress-radius coefficient floor is insensitive to the tested angular/pitch-resolution increase and to the tighter VMEC harmonic cutoff. The remaining finite-beta current gap should therefore stay classified as a monitored profile-current/reduced-closure stress until a profile-current closure diagnostic, not a scalar fit, closes it.",
@@ -3799,8 +3799,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.020293376803271736,
             "L31_bridge_vs_sfincs": 0.02054783993495091,
-            "L33_bridge_vs_sfincs": 0.012517276278425539,
-            "L33_spitzer_bridge_vs_sfincs": 0.0036278025605098792
+            "L33_bridge_vs_sfincs": 0.00021465149967085333,
+            "L33_spitzer_bridge_vs_sfincs": 0.008785572368100542
           },
           "max_transport_relative_difference": 0.02054783993495091
         },
@@ -3823,8 +3823,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.020391309255673024,
             "L31_bridge_vs_sfincs": 0.02064719610273697,
-            "L33_bridge_vs_sfincs": 0.01251805742967253,
-            "L33_spitzer_bridge_vs_sfincs": 0.003628590757026083
+            "L33_bridge_vs_sfincs": 0.0002154423829470855,
+            "L33_spitzer_bridge_vs_sfincs": 0.008784774351781008
           },
           "max_transport_relative_difference": 0.02064719610273697
         },
@@ -3847,8 +3847,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.020494277507319067,
             "L31_bridge_vs_sfincs": 0.020546717035894013,
-            "L33_bridge_vs_sfincs": 0.012518077861174657,
-            "L33_spitzer_bridge_vs_sfincs": 0.0036291778437901106
+            "L33_bridge_vs_sfincs": 0.00021546619838937626,
+            "L33_spitzer_bridge_vs_sfincs": 0.008784176793191897
           },
           "max_transport_relative_difference": 0.020546717035894013
         }
@@ -3903,8 +3903,8 @@
         "relative_difference": {
           "L13_bridge_vs_sfincs": 0.02039121102203927,
           "L31_bridge_vs_sfincs": 0.02064719610195181,
-          "L33_bridge_vs_sfincs": 0.012518057430190818,
-          "L33_spitzer_bridge_vs_sfincs": 0.003628590757549038
+          "L33_bridge_vs_sfincs": 0.00021544238347183178,
+          "L33_spitzer_bridge_vs_sfincs": 0.008784774351251539
         }
       },
       "open_work": [
@@ -4691,8 +4691,8 @@
         "stress_gap_bootstrap_relative_difference": 0.21926076611238907,
         "stress_gap_nearest_coefficient_rho": 0.5,
         "stress_gap_nearest_coefficient_distance": 0.4285714285714285,
-        "stress_gap_coefficient_relative_difference": 0.012535349439094555,
-        "stress_gap_current_to_coefficient_error_ratio": 17.491396404839797,
+        "stress_gap_coefficient_relative_difference": 0.0010484123970917836,
+        "stress_gap_current_to_coefficient_error_ratio": 209.13599144821427,
         "coefficient_gate": 0.1,
         "coefficient_gate_pass": true,
         "profile_current_gate": 0.1,
@@ -4715,9 +4715,9 @@
         },
         {
           "rho": 0.5,
-          "max_raw_coefficient_relative_difference": 0.012535349439094555,
+          "max_raw_coefficient_relative_difference": 0.0010484123970917836,
           "interpolated_profile_current_relative_difference": 0.06422549700888262,
-          "current_to_coefficient_error_ratio": 5.123550589549557
+          "current_to_coefficient_error_ratio": 61.259764942726044
         }
       ],
       "open_work": [
@@ -9108,8 +9108,8 @@
     "owned_finite_beta_sfincs_completed_transport_count": 6,
     "owned_finite_beta_sfincs_ntx_same_grid_count": 6,
     "owned_finite_beta_sfincs_max_transport_relative_difference": 0.02054783993495091,
-    "owned_finite_beta_resolution_production_precision_gap": 15.874519840384513,
-    "owned_finite_beta_resolution_tight_harmonics_precision_gap": 15.797266883992512,
+    "owned_finite_beta_resolution_production_precision_gap": 18.400740213906914,
+    "owned_finite_beta_resolution_tight_harmonics_precision_gap": 18.31119346883251,
     "owned_finite_beta_resolution_production_change_vs_smoke": 0.004835358271263395,
     "owned_finite_beta_resolution_tight_harmonics_change_vs_production": -0.004866475154446728,
     "owned_finite_beta_production_ladder_count": 6,
@@ -9123,9 +9123,9 @@
     "owned_finite_beta_sfincs_profile_current_pitch_gap": 0.13232636827032285,
     "owned_finite_beta_bootstrap_rms_relative_error": 0.1443057154681684,
     "owned_finite_beta_bootstrap_sign_agreement": 1.0,
-    "owned_finite_beta_closure_stress_gap_coefficient_error": 0.012535349439094555,
+    "owned_finite_beta_closure_stress_gap_coefficient_error": 0.0010484123970917836,
     "owned_finite_beta_closure_stress_gap_current_error": 0.21926076611238907,
-    "owned_finite_beta_closure_stress_gap_error_ratio": 17.491396404839797,
+    "owned_finite_beta_closure_stress_gap_error_ratio": 209.13599144821427,
     "owned_finite_beta_closure_coefficient_gate_pass": true,
     "owned_finite_beta_closure_profile_gate_pass": false,
     "owned_finite_beta_observable_stress_rho": 0.9285714285714285,

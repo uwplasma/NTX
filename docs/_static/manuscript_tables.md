@@ -152,9 +152,9 @@
 | Max total-current relative difference vs Redl | `2.193e-01` |
 | RMS total-current relative difference vs Redl | `1.443e-01` |
 | Sign-agreement fraction | `1.000` |
-| Stress-gap same-grid coefficient relative difference | `1.254e-02` |
+| Stress-gap same-grid coefficient relative difference | `1.048e-03` |
 | Stress-gap profile-current relative difference | `2.193e-01` |
-| Stress-gap current/coefficient error ratio | `1.749e+01` |
+| Stress-gap current/coefficient error ratio | `2.091e+02` |
 | Stress-radius applied/needed correction | `2.100` |
 | Stress-radius residual/needed correction | `-1.100` |
 | Stress-radius species-correction cancellation amplification | `212.898` |
@@ -162,8 +162,8 @@
 | Stress-radius current condition number | `8.912e+01` |
 | Required coefficient error for `1e-1` current gate | `1.122e-03` |
 | Coefficient precision gap to current gate | `29.804x` |
-| Production-grid coefficient precision gap | `15.875x` |
-| Tight-harmonic coefficient precision gap | `15.797x` |
+| Production-grid coefficient precision gap | `18.401x` |
+| Tight-harmonic coefficient precision gap | `18.311x` |
 | Production radial/collisionality ladder count | `6` |
 | Production ladder max coefficient difference | `2.065e-02` |
 | Production ladder precision gap | `29.948x` |

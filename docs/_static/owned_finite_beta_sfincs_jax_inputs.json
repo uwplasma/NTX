@@ -6,7 +6,7 @@
     "rho_to_s": "s=rho^2",
     "ntx_nu_v_to_sfincs_nuPrime": "SFINCS-JAX reports runtime nu_n = nuPrime*B0OverBBar/(GHat+iota*IHat); owned parity comparisons must either solve NTX at that reported nu_n or generate nuPrime from the target NTX nu_v using the same bridge",
     "radial_interpolation": "VMECRadialOption=0 is used so SFINCS-JAX evaluates the requested rN_wish directly instead of snapping to a nearest VMEC half-grid surface.",
-    "rhs3_flow_row_bridge": "NTX D33 maps to the RHSMode=3 SFINCS flow row with nuDHat*4*B0OverBBar/(3*(GHat+iota*IHat)); this is the row-2 flow normalization in the SFINCS transport-matrix diagnostic when collisionOperator=1.",
+    "rhs3_flow_row_bridge": "NTX D33 maps to the RHSMode=3 SFINCS flow row with 2*b00/(sqrt(pi)*(GHat+iota*IHat)), the NEOPAX bridge factor (ntx.neopax fac_33); nuDHat enters only through nu_hat=nu_n*nuDHat.",
     "pas_collision_frequency_bridge": "NTX uses nu_hat as the monoenergetic pitch-angle scattering frequency, while SFINCS-JAX RHSMode=3 uses nu_n*nuDHat(x=1). The same-grid NTX solve therefore uses nu_hat=nu_n*nuDHat.",
     "ntx_es_to_sfincs_EStar": "identity for this monoenergetic generation audit; electric-field normalization must stay explicit in any promoted comparison",
     "rhsmode2_frequency_semantics": "RHSMode=2 uses nu_n directly, not the RHSMode=3 nuPrime overwrite. The generator stores the input axis under nuPrime for backward JSON compatibility but writes nu_n to RHSMode=2 decks.",
@@ -127,10 +127,10 @@
             "D33_spitzer": 856.352294780529,
             "L13_bridge": 0.18640140126745663,
             "L31_bridge": 0.18640721341153157,
-            "L33_bridge": 829.1982899036307,
-            "L33_spitzer_bridge": 888.3625711299368,
+            "L33_bridge": 839.5289166404946,
+            "L33_spitzer_bridge": 899.4303003342634,
             "factor_31": 0.02803118418764365,
-            "factor_33": 1.0373797986465507,
+            "factor_33": 1.0503040697342614,
             "surface_b0": 0.9896828872105415,
             "sfincs_B0OverBBar": 0.9895751457171216,
             "surface_psi_a_hat": 0.013346299916410087,
@@ -140,8 +140,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.015500813070526073,
             "L31_bridge_vs_sfincs": 0.015572152661195883,
-            "L33_bridge_vs_sfincs": 0.013530855916041635,
-            "L33_spitzer_bridge_vs_sfincs": 0.05685488724370346
+            "L33_bridge_vs_sfincs": 0.0012408588923509903,
+            "L33_spitzer_bridge_vs_sfincs": 0.07002179012819203
           }
         }
       }
@@ -229,10 +229,10 @@
             "D33_spitzer": 85.63522947805303,
             "L13_bridge": 0.025093146589078737,
             "L31_bridge": 0.025096198570860734,
-            "L33_bridge": 88.04367420589006,
-            "L33_spitzer_bridge": 88.83625711299382,
+            "L33_bridge": 89.14057267497496,
+            "L33_spitzer_bridge": 89.9430300334265,
             "factor_31": 0.02803118418764365,
-            "factor_33": 1.0373797986465507,
+            "factor_33": 1.0503040697342614,
             "surface_b0": 0.9896828872105415,
             "sfincs_B0OverBBar": 0.9895751457171216,
             "surface_psi_a_hat": 0.013346299916410087,
@@ -242,8 +242,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.020293376803271736,
             "L31_bridge_vs_sfincs": 0.02054783993495091,
-            "L33_bridge_vs_sfincs": 0.012517276278425539,
-            "L33_spitzer_bridge_vs_sfincs": 0.0036278025605098792
+            "L33_bridge_vs_sfincs": 0.00021465149967085333,
+            "L33_spitzer_bridge_vs_sfincs": 0.008785572368100542
           }
         }
       }
@@ -331,10 +331,10 @@
             "D33_spitzer": 854.1844924426476,
             "L13_bridge": 0.4596317229494876,
             "L31_bridge": 0.45963593609853987,
-            "L33_bridge": 745.3534827574717,
-            "L33_spitzer_bridge": 887.189260594562,
+            "L33_bridge": 754.8235871001359,
+            "L33_spitzer_bridge": 898.4614623939536,
             "factor_31": 0.028068779762679963,
-            "factor_33": 1.0386389222046553,
+            "factor_33": 1.051835370863138,
             "surface_b0": 0.9917582900651559,
             "sfincs_B0OverBBar": 0.9916608366760225,
             "surface_psi_a_hat": 0.013346299916410087,
@@ -344,8 +344,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.0036458462861180215,
             "L31_bridge_vs_sfincs": 0.0013636305047481534,
-            "L33_bridge_vs_sfincs": 0.012547172467539508,
-            "L33_spitzer_bridge_vs_sfincs": 0.1753584898932992
+            "L33_bridge_vs_sfincs": 1.0698108568743723e-06,
+            "L33_spitzer_bridge_vs_sfincs": 0.19029203189292454
           }
         }
       }
@@ -433,10 +433,10 @@
             "D33_spitzer": 85.41844924426482,
             "L13_bridge": 0.10825843802088284,
             "L31_bridge": 0.1082538415194326,
-            "L33_bridge": 85.39776687613892,
-            "L33_spitzer_bridge": 88.71892605945627,
+            "L33_bridge": 86.48278999826296,
+            "L33_spitzer_bridge": 89.84614623939542,
             "factor_31": 0.028068779762679963,
-            "factor_33": 1.0386389222046553,
+            "factor_33": 1.051835370863138,
             "surface_b0": 0.9917582900651559,
             "sfincs_B0OverBBar": 0.9916608366760225,
             "surface_psi_a_hat": 0.013346299916410087,
@@ -446,8 +446,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.014072815428719222,
             "L31_bridge_vs_sfincs": 0.0007692234427162705,
-            "L33_bridge_vs_sfincs": 0.012337176654005178,
-            "L33_spitzer_bridge_vs_sfincs": 0.02607349350478572
+            "L33_bridge_vs_sfincs": 0.0002115941089003883,
+            "L33_spitzer_bridge_vs_sfincs": 0.039110291844794316
           }
         }
       }
@@ -535,10 +535,10 @@
             "D33_spitzer": 849.3007091975606,
             "L13_bridge": 0.7124789301207042,
             "L31_bridge": 0.7122610063579516,
-            "L33_bridge": 670.4838152624222,
-            "L33_spitzer_bridge": 884.5370253558634,
+            "L33_bridge": 679.3429638011154,
+            "L33_spitzer_bridge": 896.224473609233,
             "factor_31": 0.028152806100433525,
-            "factor_33": 1.041488622082507,
+            "factor_33": 1.055249882525127,
             "surface_b0": 0.9965086510459154,
             "sfincs_B0OverBBar": 0.9964082810083786,
             "surface_psi_a_hat": 0.013346299916410087,
@@ -548,8 +548,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.00018248827284859245,
             "L31_bridge_vs_sfincs": 0.0008903720478646459,
-            "L33_bridge_vs_sfincs": 0.012535349439094555,
-            "L33_spitzer_bridge_vs_sfincs": 0.30271458425786035
+            "L33_bridge_vs_sfincs": 0.0005120885704327101,
+            "L33_spitzer_bridge_vs_sfincs": 0.3199274412168985
           }
         }
       }
@@ -637,10 +637,10 @@
             "D33_spitzer": 84.93007091975602,
             "L13_bridge": 0.2617530249672492,
             "L31_bridge": 0.2620226459398797,
-            "L33_bridge": 80.62556804032712,
-            "L33_spitzer_bridge": 88.4537025355863,
+            "L33_bridge": 81.69087918882397,
+            "L33_spitzer_bridge": 89.62244736092325,
             "factor_31": 0.028152806100433525,
-            "factor_33": 1.041488622082507,
+            "factor_33": 1.055249882525127,
             "surface_b0": 0.9965086510459154,
             "sfincs_B0OverBBar": 0.9964082810083786,
             "surface_psi_a_hat": 0.013346299916410087,
@@ -650,8 +650,8 @@
           "relative_difference": {
             "L13_bridge_vs_sfincs": 0.0008966940097664823,
             "L31_bridge_vs_sfincs": 0.0010484123970917836,
-            "L33_bridge_vs_sfincs": 0.012280032502483489,
-            "L33_spitzer_bridge_vs_sfincs": 0.08362012593554706
+            "L33_bridge_vs_sfincs": 0.0007707790272008077,
+            "L33_spitzer_bridge_vs_sfincs": 0.09793807282203963
           }
         }
       }
@@ -669,7 +669,7 @@
     "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9343189044961101,
     "completed_ntx_same_grid_comparison_count": 6,
     "max_ntx_same_grid_transport_relative_difference": 0.02054783993495091,
-    "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.30271458425786035,
+    "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.3199274412168985,
     "rhs_mode": 3,
     "rhsmode2_species": null
   },

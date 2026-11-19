@@ -48,6 +48,7 @@ from ntx import (  # noqa: E402
     surface_from_vmex_vmec_wout_file,
 )
 from ntx._checkout_paths import find_dkx_root, portable_path  # noqa: E402
+from ntx.neopax import _surface_reference_bridge  # noqa: E402
 
 OUTPUT_PREFIX = ROOT / "docs" / "_static" / "owned_finite_beta_sfincs_jax_inputs"
 WORKDIR = ROOT / "examples" / "outputs" / "owned_finite_beta_sfincs_jax_inputs"
@@ -413,7 +414,6 @@ def _ntx_same_grid_transport_summary(
             epsi_hat=float(e_star),
         ),
     )
-    denom = float(scalars["GHat"]) + float(scalars["iota"]) * float(scalars["IHat"])
     b0_over_bbar = float(scalars.get("B0OverBBar", float(surface.b0)))
     pas_nu_d = float(transport_summary.get("sfincs_pas_nu_d_hat_first_species", 1.0))
     factor_31 = (
@@ -422,7 +422,7 @@ def _ntx_same_grid_transport_summary(
         * float(scalars["psiAHat"])
         / (np.sqrt(np.pi) * float(scalars["GHat"]))
     )
-    factor_33 = pas_nu_d * 4.0 * b0_over_bbar / (3.0 * denom)
+    factor_33 = float(_surface_reference_bridge(surface)["fac_33"])
     ntx = {
         "D11_raw": float(result.D11),
         "D13_raw": float(result.D13),
@@ -654,9 +654,8 @@ def build_payload(
             ),
             "rhs3_flow_row_bridge": (
                 "NTX D33 maps to the RHSMode=3 SFINCS flow row with "
-                "nuDHat*4*B0OverBBar/(3*(GHat+iota*IHat)); this is the row-2 "
-                "flow normalization in the SFINCS transport-matrix diagnostic "
-                "when collisionOperator=1."
+                "2*b00/(sqrt(pi)*(GHat+iota*IHat)), the NEOPAX bridge factor "
+                "(ntx.neopax fac_33); nuDHat enters only through nu_hat=nu_n*nuDHat."
             ),
             "pas_collision_frequency_bridge": (
                 "NTX uses nu_hat as the monoenergetic pitch-angle scattering "
