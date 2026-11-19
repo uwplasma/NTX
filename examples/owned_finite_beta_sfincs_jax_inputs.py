@@ -60,6 +60,8 @@ DEFAULT_GRID = GridSpec(25, 31, 32)
 DEFAULT_SFINCS_RHO = (1.0 / 7.0, 0.30, 0.50)
 DEFAULT_RHS2_NL = 3
 DEFAULT_RHS2_NX = 3
+# Committed artifacts cover one geometry so min/max metrics never mix cases.
+DEFAULT_CASE_IDS = ("finite_beta_qa_pressure_current",)
 RHSMODE2_SPECIES = {
     "electron": {"Zs": -1.0, "mHats": 1.0 / 1836.15267343},
     "ion": {"Zs": 1.0, "mHats": 2.0},
@@ -231,7 +233,7 @@ def _run_sfincs_jax(
     command = [
         sys.executable,
         "-m",
-        "sfincs_jax",
+        "dkx",
         "write-output",
         "--input",
         str(input_path),
@@ -750,11 +752,37 @@ def build_payload(
     }
 
 
+def run_provenance(argv: list[str] | None = None) -> dict[str, object]:
+    """NTX commit, DKX and JAX versions, and the CLI arguments of this run."""
+
+    import importlib
+
+    def _version(name: str) -> str:
+        try:
+            return str(importlib.import_module(name).__version__)
+        except (ImportError, AttributeError):
+            return "not-installed"
+
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=False
+    ).stdout.strip()
+    return {
+        "ntx_commit": commit or "unknown",
+        "dkx_version": _version("dkx"),
+        "jax_version": _version("jax"),
+        "cli_args": list(sys.argv[1:] if argv is None else argv),
+    }
+
+
 def write_payload(payload: dict[str, object], output_prefix: Path = OUTPUT_PREFIX) -> None:
     output_prefix.parent.mkdir(parents=True, exist_ok=True)
     payload = dict(payload)
     for key, suffix in (("figure_png", ".png"), ("figure_pdf", ".pdf")):
         payload[key] = portable_path(output_prefix.with_suffix(suffix))
+    payload["decks"] = [
+        {**deck, **{k: portable_path(deck[k]) for k in ("input_path", "output_path", "wout_path")}}
+        for deck in payload.get("decks", [])
+    ]
     output_prefix.with_suffix(".json").write_text(json.dumps(payload, indent=2) + "\n")
 
 
@@ -846,7 +874,7 @@ def main() -> None:
         "--case",
         action="append",
         default=[],
-        help="finite-beta case id to include",
+        help=f"finite-beta case id to include (default: {DEFAULT_CASE_IDS[0]})",
     )
     parser.add_argument(
         "--case-limit",
@@ -883,7 +911,7 @@ def main() -> None:
     args = parser.parse_args()
 
     payload = build_payload(
-        case_ids=tuple(args.case),
+        case_ids=tuple(args.case) or DEFAULT_CASE_IDS,
         case_limit=args.case_limit,
         rho=tuple(args.rho),
         nu_v=tuple(args.nu_v),
@@ -900,6 +928,7 @@ def main() -> None:
         solver_tolerance=float(args.solver_tolerance),
         min_bmn_to_load=float(args.min_bmn_to_load),
     )
+    payload["provenance"] = run_provenance()
     write_payload(payload, args.output_prefix)
     build_figure(payload, args.output_prefix)
     print(

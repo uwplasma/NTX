@@ -1,16 +1,21 @@
 {
   "benchmark": "owned_finite_beta_sfincs_jax_inputs",
   "classification": "owned finite-beta SFINCS-JAX generation contract",
-  "claim_scope": "Generates SFINCS-JAX RHSMode=3 input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization and compared against NTX on the same geometry and grid. This payload uses a 35 x 43 x 48 coefficient grid. The default committed artifact is a smoke-resolution ladder, while separately named output prefixes can record production stress probes. Neither form is a finite-beta bootstrap-current parity claim until profile-current closure diagnostics are complete on the same contract.",
+  "claim_scope": "Generates SFINCS-JAX RHSMode=3 monoenergetic input decks on the same finite-beta VMEC wout, rho, collisionality, electric-field, and resolution grids used by the owned NTX+NEOPAX scan lane. Completed outputs are ingested with the reported nu_n normalization. RHSMode=3 outputs are compared against NTX on the same geometry and grid; RHSMode=2 outputs are kept as profile-source current-row diagnostics. This payload uses a 35 x 43 x 48 coefficient grid. The default committed artifact is a smoke-resolution ladder, while separately named output prefixes can record production stress probes. Neither form is a finite-beta bootstrap-current parity claim until profile-current closure diagnostics are complete on the same contract.",
   "normalization_contract": {
     "rho_to_s": "s=rho^2",
     "ntx_nu_v_to_sfincs_nuPrime": "SFINCS-JAX reports runtime nu_n = nuPrime*B0OverBBar/(GHat+iota*IHat); owned parity comparisons must either solve NTX at that reported nu_n or generate nuPrime from the target NTX nu_v using the same bridge",
     "radial_interpolation": "VMECRadialOption=0 is used so SFINCS-JAX evaluates the requested rN_wish directly instead of snapping to a nearest VMEC half-grid surface.",
     "rhs3_flow_row_bridge": "NTX D33 maps to the RHSMode=3 SFINCS flow row with 2*b00/(sqrt(pi)*(GHat+iota*IHat)), the NEOPAX bridge factor (ntx.neopax fac_33); nuDHat enters only through nu_hat=nu_n*nuDHat.",
     "pas_collision_frequency_bridge": "NTX uses nu_hat as the monoenergetic pitch-angle scattering frequency, while SFINCS-JAX RHSMode=3 uses nu_n*nuDHat(x=1). The same-grid NTX solve therefore uses nu_hat=nu_n*nuDHat.",
-    "ntx_es_to_sfincs_EStar": "identity for this monoenergetic generation audit; electric-field normalization must stay explicit in any promoted comparison"
+    "ntx_es_to_sfincs_EStar": "identity for this monoenergetic generation audit; electric-field normalization must stay explicit in any promoted comparison",
+    "rhsmode2_frequency_semantics": "RHSMode=2 uses nu_n directly, not the RHSMode=3 nuPrime overwrite. The generator stores the input axis under nuPrime for backward JSON compatibility but writes nu_n to RHSMode=2 decks.",
+    "rhsmode2_profile_contract": "When rhsmode2_use_profile_contract is true, nHats=n/1e20 and THats=T/1keV are evaluated from the same analytic finite-beta profile contract used by the NTX+NEOPAX bootstrap-current audit."
   },
   "inputs": {
+    "rhs_mode": 3,
+    "rhsmode2_species": null,
+    "rhsmode2_use_profile_contract": null,
     "rho": [
       0.14285714285714285
     ],
@@ -27,6 +32,7 @@
       "Ntheta": 35,
       "Nzeta": 43,
       "Nxi": 48,
+      "NL": null,
       "Nx": 1
     },
     "solverTolerance": 1e-07,
@@ -37,6 +43,10 @@
       "case_id": "finite_beta_qa_pressure_current",
       "case_label": "Finite-beta QA pressure/current",
       "family": "QA finite beta",
+      "rhs_mode": 3,
+      "species": null,
+      "n_hat": null,
+      "t_hat": null,
       "rho": 0.14285714285714285,
       "s": 0.02040816326530612,
       "nu_prime": 0.01,
@@ -45,37 +55,39 @@
       "output_path": "examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48/finite_beta_qa_pressure_current/rho_0p142857/nuPrime_0p01/EStar_0/sfincs_jax_output.h5",
       "wout_path": "single_stage_optimization_finite_beta:test/wout_LandremanPaul2021_QA_lowres_pressure_current.nc",
       "status": "complete",
-      "seconds": 2.70819420798216,
+      "seconds": 7.532600957900286,
       "error": null,
       "transport_summary": {
         "status": "complete",
         "transportMatrix": [
           [
-            -0.0008355602451597579,
-            0.02459168983552081
+            -0.0008355602458847073,
+            0.02459169059859429
           ],
           [
-            0.02458851468531945,
-            89.1597814719413
+            0.024588522474370596,
+            89.15978128716165
           ]
         ],
         "transportMatrix_shape": [
           2,
           2
         ],
-        "transportMatrix_abs_max": 89.1597814719413,
-        "sfincs_runtime_nu_n": 0.009306328811156773,
-        "sfincs_runtime_nu_n_over_input_nuPrime": 0.9306328811156772,
+        "transportMatrix_abs_max": 89.15978128716165,
+        "sfincs_runtime_nu_n": 0.009306328811156768,
+        "sfincs_runtime_nu_n_over_input_nuPrime": 0.9306328811156768,
         "sfincs_pas_nu_d_hat_first_species": 0.8360276804879019,
         "scalars": {
-          "B0OverBBar": 0.9895751457171215,
-          "GHat": 1.063293769072468,
-          "IHat": 8.059142024156784e-05,
+          "B0OverBBar": 0.9895751457171212,
+          "Delta": 0.0045694,
+          "GHat": 1.0632937690724682,
+          "IHat": 8.059142024157029e-05,
+          "alpha": 1.0,
           "iota": 0.5200186603377145,
           "psiAHat": 0.013346299916410087,
           "aHat": 0.16831206437162471,
           "rN": 0.14285714285714285,
-          "nu_n": 0.009306328811156773,
+          "nu_n": 0.009306328811156768,
           "Ntheta": 35,
           "Nzeta": 43,
           "Nxi": 48,
@@ -103,28 +115,28 @@
           "geometry_path": "vmex wout harmonics -> NTX VmecSurface",
           "comparison_scope": "Coefficient-level finite-beta diagnostic only; bootstrap-current parity requires profile closure and production-resolution scans.",
           "ntx": {
-            "D11_raw": 1.1397551500029757,
-            "D13_raw": -0.8951868183698689,
-            "D31_raw": 0.8952956964609738,
-            "D33_raw": 84.8712056297292,
-            "D33_spitzer": 85.63522947805296,
-            "L13_bridge": 0.025093146588076504,
-            "L31_bridge": 0.025096198569902268,
-            "L33_bridge": 89.14057267615794,
-            "L33_spitzer_bridge": 89.94303003342641,
-            "factor_31": 0.028031184187643658,
+            "D11_raw": 1.1728288460400549,
+            "D13_raw": -0.9211195863189409,
+            "D31_raw": 0.9212212889949584,
+            "D33_raw": 84.84862577850718,
+            "D33_spitzer": 85.634281499016,
+            "L13_bridge": 0.02582007278295235,
+            "L31_bridge": 0.02582292362939617,
+            "L33_bridge": 89.11685696652546,
+            "L33_spitzer_bridge": 89.94203436718587,
+            "factor_31": 0.028031184187643644,
             "factor_33": 1.0503040697342614,
-            "surface_b0": 0.9896828872105415,
-            "sfincs_B0OverBBar": 0.9895751457171215,
+            "surface_b0": 0.9896829666244967,
+            "sfincs_B0OverBBar": 0.9895751457171212,
             "surface_psi_a_hat": 0.013346299916410087,
             "sfincs_pas_nu_d_hat_first_species": 0.8360276804879019,
-            "effective_ntx_nu_hat": 0.00778034848984913
+            "effective_ntx_nu_hat": 0.007780348489849126
           },
           "relative_difference": {
-            "L13_bridge_vs_sfincs": 0.020391309255673024,
-            "L31_bridge_vs_sfincs": 0.02064719610273697,
-            "L33_bridge_vs_sfincs": 0.0002154423829470855,
-            "L33_spitzer_bridge_vs_sfincs": 0.008784774351781008
+            "L13_bridge_vs_sfincs": 0.04995110764886888,
+            "L31_bridge_vs_sfincs": 0.05020233144599197,
+            "L33_bridge_vs_sfincs": 0.00048143142587957064,
+            "L33_spitzer_bridge_vs_sfincs": 0.008773609229757697
           }
         }
       }
@@ -138,19 +150,47 @@
     "input_written_count": 0,
     "output_found_count": 0,
     "completed_transport_matrix_count": 1,
-    "sfincs_runtime_nu_n_over_input_nuPrime_min": 0.9306328811156772,
-    "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9306328811156772,
+    "sfincs_runtime_nu_n_over_input_nuPrime_min": 0.9306328811156768,
+    "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9306328811156768,
     "completed_ntx_same_grid_comparison_count": 1,
-    "max_ntx_same_grid_transport_relative_difference": 0.02064719610273697,
-    "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.008784774351781008
+    "max_ntx_same_grid_transport_relative_difference": 0.05020233144599197,
+    "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.008773609229757697,
+    "rhs_mode": 3,
+    "rhsmode2_species": null
   },
   "run_sfincs_jax": true,
   "output_dir": "examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48",
   "figure_png": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.png",
   "figure_pdf": "docs/_static/owned_finite_beta_sfincs_jax_production_probe.pdf",
   "open_work": [
-    "expand the current completed inner-radius smoke-resolution SFINCS-JAX transport-matrix ladder to production radial and collisionality resolution using the reported nu_n bridge",
+    "expand the current completed stress-radius smoke-resolution SFINCS-JAX transport-matrix ladder to production radial and collisionality resolution using the reported nu_n bridge",
     "connect production SFINCS-JAX profile-current closure diagnostics to the same finite-beta profile contract",
     "promote only after the same geometry, profile, normalization, and interpolation JSON sidecar is complete"
-  ]
+  ],
+  "provenance": {
+    "ntx_commit": "a3234b17549e6f4e5fbf3e67036656a8f9bb8108",
+    "dkx_version": "2.16.0",
+    "jax_version": "0.12.1",
+    "cli_args": [
+      "--run-sfincs-jax",
+      "--timeout-s",
+      "1800",
+      "--rho",
+      "0.14285714285714285",
+      "--nu-v",
+      "0.01",
+      "--n-theta",
+      "35",
+      "--n-zeta",
+      "43",
+      "--n-xi",
+      "48",
+      "--solver-tolerance",
+      "1e-7",
+      "--output-prefix",
+      "docs/_static/owned_finite_beta_sfincs_jax_production_probe",
+      "--output-dir",
+      "examples/outputs/owned_finite_beta_sfincs_jax_inputs_production_probe/grid_35_43_48"
+    ]
+  }
 }

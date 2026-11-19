@@ -15,7 +15,7 @@
       "rho": 0.14285714285714285,
       "nu_prime": 0.001,
       "e_star": 0.0,
-      "production_seconds": 3.381583541049622,
+      "production_seconds": 9.613956958055496,
       "smoke_grid": {
         "Ntheta": 25,
         "Nzeta": 31,
@@ -28,17 +28,17 @@
         "Nxi": 48,
         "Nx": 1
       },
-      "smoke_max_transport_relative_difference": 0.015572152661195883,
-      "production_max_transport_relative_difference": 0.015219563238649645,
-      "production_change_vs_smoke": -0.0226423045174,
+      "smoke_max_transport_relative_difference": 0.037235468184568805,
+      "production_max_transport_relative_difference": 0.03687391867945958,
+      "production_change_vs_smoke": -0.009709814935509847,
       "required_coefficient_relative_difference_for_current_gate": 0.0006894343607859794,
-      "production_precision_gap_to_current_gate": 22.075434739427273,
+      "production_precision_gap_to_current_gate": 53.4843065225557,
       "profile_current_relative_difference": 0.20828178269124106,
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.015148217834204602,
-        "L31_bridge_vs_sfincs": 0.015219563238649645,
-        "L33_bridge_vs_sfincs": 0.0010793505363449732,
-        "L33_spitzer_bridge_vs_sfincs": 0.07011464312138958
+        "L13_bridge_vs_sfincs": 0.03681171219143676,
+        "L31_bridge_vs_sfincs": 0.03687391867945958,
+        "L33_bridge_vs_sfincs": 0.002564116192690204,
+        "L33_spitzer_bridge_vs_sfincs": 0.07010279720130984
       }
     },
     {
@@ -46,7 +46,7 @@
       "rho": 0.14285714285714285,
       "nu_prime": 0.01,
       "e_star": 0.0,
-      "production_seconds": 6.3202911670086905,
+      "production_seconds": 8.826754000037909,
       "smoke_grid": {
         "Ntheta": 25,
         "Nzeta": 31,
@@ -59,17 +59,17 @@
         "Nxi": 48,
         "Nx": 1
       },
-      "smoke_max_transport_relative_difference": 0.02054783993495091,
-      "production_max_transport_relative_difference": 0.02064719610195181,
-      "production_change_vs_smoke": 0.004835358233052073,
+      "smoke_max_transport_relative_difference": 0.050099939880671226,
+      "production_max_transport_relative_difference": 0.05020233144599197,
+      "production_change_vs_smoke": 0.002043746271245427,
       "required_coefficient_relative_difference_for_current_gate": 0.0006894343607859794,
-      "production_precision_gap_to_current_gate": 29.948023011811134,
+      "production_precision_gap_to_current_gate": 72.8166948174146,
       "profile_current_relative_difference": 0.20828178269124106,
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.02039121102203927,
-        "L31_bridge_vs_sfincs": 0.02064719610195181,
-        "L33_bridge_vs_sfincs": 0.00021544238347183178,
-        "L33_spitzer_bridge_vs_sfincs": 0.008784774351251539
+        "L13_bridge_vs_sfincs": 0.04995110764886888,
+        "L31_bridge_vs_sfincs": 0.05020233144599197,
+        "L33_bridge_vs_sfincs": 0.00048143142587957064,
+        "L33_spitzer_bridge_vs_sfincs": 0.008773609229757697
       }
     },
     {
@@ -77,7 +77,7 @@
       "rho": 0.3,
       "nu_prime": 0.001,
       "e_star": 0.0,
-      "production_seconds": 6.33978920802474,
+      "production_seconds": 9.00191929191351,
       "smoke_grid": {
         "Ntheta": 25,
         "Nzeta": 31,
@@ -90,17 +90,17 @@
         "Nxi": 48,
         "Nx": 1
       },
-      "smoke_max_transport_relative_difference": 0.0036458462861180215,
-      "production_max_transport_relative_difference": 0.00042968762659662565,
-      "production_change_vs_smoke": -0.8821432411364378,
+      "smoke_max_transport_relative_difference": 0.003768606651033419,
+      "production_max_transport_relative_difference": 0.0005523904379081992,
+      "production_change_vs_smoke": -0.8534231642995366,
       "required_coefficient_relative_difference_for_current_gate": 0.0010745832667783915,
-      "production_precision_gap_to_current_gate": 0.3998644310597096,
+      "production_precision_gap_to_current_gate": 0.5140508464870012,
       "profile_current_relative_difference": 0.0569114447166989,
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.00040118959365025573,
-        "L31_bridge_vs_sfincs": 0.00042968762659662565,
-        "L33_bridge_vs_sfincs": 0.0001360838638870876,
-        "L33_spitzer_bridge_vs_sfincs": 0.1902853047059531
+        "L13_bridge_vs_sfincs": 0.0005241018762223262,
+        "L31_bridge_vs_sfincs": 0.0005523904379081992,
+        "L33_bridge_vs_sfincs": 0.00011224353478489492,
+        "L33_spitzer_bridge_vs_sfincs": 0.19028477819575856
       }
     },
     {
@@ -108,7 +108,7 @@
       "rho": 0.3,
       "nu_prime": 0.01,
       "e_star": 0.0,
-      "production_seconds": 5.4216770000057295,
+      "production_seconds": 10.389028999954462,
       "smoke_grid": {
         "Ntheta": 25,
         "Nzeta": 31,
@@ -121,17 +121,17 @@
         "Nxi": 48,
         "Nx": 1
       },
-      "smoke_max_transport_relative_difference": 0.014072815428719222,
-      "production_max_transport_relative_difference": 0.0009364054546884834,
-      "production_change_vs_smoke": -0.9334599775409897,
+      "smoke_max_transport_relative_difference": 0.014315799434500214,
+      "production_max_transport_relative_difference": 0.001175045913034366,
+      "production_change_vs_smoke": -0.9179196440680374,
       "required_coefficient_relative_difference_for_current_gate": 0.0010745832667783915,
-      "production_precision_gap_to_current_gate": 0.8714126523632122,
+      "production_precision_gap_to_current_gate": 1.0934898665946682,
       "profile_current_relative_difference": 0.0569114447166989,
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.0009364054546884834,
-        "L31_bridge_vs_sfincs": 0.0008423632578576418,
-        "L33_bridge_vs_sfincs": 0.00019552405411257868,
-        "L33_spitzer_bridge_vs_sfincs": 0.03909359649573586
+        "L13_bridge_vs_sfincs": 0.001175045913034366,
+        "L31_bridge_vs_sfincs": 0.0010803832799188555,
+        "L33_bridge_vs_sfincs": 0.00018581073712011761,
+        "L33_spitzer_bridge_vs_sfincs": 0.039093134040241465
       }
     },
     {
@@ -139,7 +139,7 @@
       "rho": 0.5,
       "nu_prime": 0.001,
       "e_star": 0.0,
-      "production_seconds": 7.444976249942556,
+      "production_seconds": 10.00018237484619,
       "smoke_grid": {
         "Ntheta": 25,
         "Nzeta": 31,
@@ -152,17 +152,17 @@
         "Nxi": 48,
         "Nx": 1
       },
-      "smoke_max_transport_relative_difference": 0.0008903720478646459,
-      "production_max_transport_relative_difference": 0.0017319052152244062,
-      "production_change_vs_smoke": 0.9451477833092194,
+      "smoke_max_transport_relative_difference": 0.000892061213439581,
+      "production_max_transport_relative_difference": 0.0017251189003951392,
+      "production_change_vs_smoke": 0.9338570878375948,
       "required_coefficient_relative_difference_for_current_gate": 0.001614741226146946,
-      "production_precision_gap_to_current_gate": 1.0725589878924648,
+      "production_precision_gap_to_current_gate": 1.0683562619575728,
       "profile_current_relative_difference": 0.06422549700888262,
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.0017319052152244062,
-        "L31_bridge_vs_sfincs": 0.0006107235045065839,
-        "L33_bridge_vs_sfincs": 0.0003394567382265107,
-        "L33_spitzer_bridge_vs_sfincs": 0.31932156048667504
+        "L13_bridge_vs_sfincs": 0.0017251189003951392,
+        "L31_bridge_vs_sfincs": 0.0006042838732264379,
+        "L33_bridge_vs_sfincs": 0.00033736342818070934,
+        "L33_spitzer_bridge_vs_sfincs": 0.3193215106168132
       }
     },
     {
@@ -170,7 +170,7 @@
       "rho": 0.5,
       "nu_prime": 0.01,
       "e_star": 0.0,
-      "production_seconds": 7.086231374996714,
+      "production_seconds": 8.86390604195185,
       "smoke_grid": {
         "Ntheta": 25,
         "Nzeta": 31,
@@ -183,17 +183,17 @@
         "Nxi": 48,
         "Nx": 1
       },
-      "smoke_max_transport_relative_difference": 0.0010484123970917836,
-      "production_max_transport_relative_difference": 0.007136971517195299,
-      "production_change_vs_smoke": 5.807408551246358,
+      "smoke_max_transport_relative_difference": 0.0010619280111028512,
+      "production_max_transport_relative_difference": 0.007123443394841023,
+      "production_change_vs_smoke": 5.708028529582777,
       "required_coefficient_relative_difference_for_current_gate": 0.001614741226146946,
-      "production_precision_gap_to_current_gate": 4.41988561487673,
+      "production_precision_gap_to_current_gate": 4.411507726125752,
       "profile_current_relative_difference": 0.06422549700888262,
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.007136971517195299,
-        "L31_bridge_vs_sfincs": 0.0011591218091746107,
-        "L33_bridge_vs_sfincs": 0.0006578547303975139,
-        "L33_spitzer_bridge_vs_sfincs": 0.09781418344620006
+        "L13_bridge_vs_sfincs": 0.007123443394841023,
+        "L31_bridge_vs_sfincs": 0.0011726426704816348,
+        "L33_bridge_vs_sfincs": 0.0006564966383643397,
+        "L33_spitzer_bridge_vs_sfincs": 0.09781411788472906
       }
     }
   ],
@@ -202,7 +202,7 @@
     "rho": 0.14285714285714285,
     "nu_prime": 0.01,
     "e_star": 0.0,
-    "production_seconds": 6.3202911670086905,
+    "production_seconds": 8.826754000037909,
     "smoke_grid": {
       "Ntheta": 25,
       "Nzeta": 31,
@@ -215,29 +215,29 @@
       "Nxi": 48,
       "Nx": 1
     },
-    "smoke_max_transport_relative_difference": 0.02054783993495091,
-    "production_max_transport_relative_difference": 0.02064719610195181,
-    "production_change_vs_smoke": 0.004835358233052073,
+    "smoke_max_transport_relative_difference": 0.050099939880671226,
+    "production_max_transport_relative_difference": 0.05020233144599197,
+    "production_change_vs_smoke": 0.002043746271245427,
     "required_coefficient_relative_difference_for_current_gate": 0.0006894343607859794,
-    "production_precision_gap_to_current_gate": 29.948023011811134,
+    "production_precision_gap_to_current_gate": 72.8166948174146,
     "profile_current_relative_difference": 0.20828178269124106,
     "relative_difference": {
-      "L13_bridge_vs_sfincs": 0.02039121102203927,
-      "L31_bridge_vs_sfincs": 0.02064719610195181,
-      "L33_bridge_vs_sfincs": 0.00021544238347183178,
-      "L33_spitzer_bridge_vs_sfincs": 0.008784774351251539
+      "L13_bridge_vs_sfincs": 0.04995110764886888,
+      "L31_bridge_vs_sfincs": 0.05020233144599197,
+      "L33_bridge_vs_sfincs": 0.00048143142587957064,
+      "L33_spitzer_bridge_vs_sfincs": 0.008773609229757697
     }
   },
   "summary_metrics": {
     "completed_production_ladder_count": 6,
-    "max_production_transport_relative_difference": 0.02064719610195181,
+    "max_production_transport_relative_difference": 0.05020233144599197,
     "max_production_transport_relative_difference_rho": 0.14285714285714285,
     "max_production_transport_relative_difference_nuPrime": 0.01,
-    "max_production_precision_gap_to_current_gate": 29.948023011811134,
+    "max_production_precision_gap_to_current_gate": 72.8166948174146,
     "max_production_precision_gap_rho": 0.14285714285714285,
     "max_production_precision_gap_nuPrime": 0.01,
     "max_profile_current_relative_difference_on_ladder": 0.20828178269124106,
-    "mean_production_seconds": 5.999091423504676,
+    "mean_production_seconds": 9.449291277793236,
     "coefficient_gate": 0.1,
     "production_ladder_coefficient_gate_pass": true,
     "production_ladder_current_conditioned_gate_pass": false
@@ -249,5 +249,11 @@
     "extend the owned production ladder to QH/QI and W7-X-family inputs only after those independent-reference cases are owned"
   ],
   "figure_png": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.png",
-  "figure_pdf": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf"
+  "figure_pdf": "docs/_static/owned_finite_beta_sfincs_jax_production_ladder_audit.pdf",
+  "provenance": {
+    "ntx_commit": "a3234b17549e6f4e5fbf3e67036656a8f9bb8108",
+    "dkx_version": "2.16.0",
+    "jax_version": "0.12.1",
+    "cli_args": []
+  }
 }

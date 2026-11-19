@@ -222,11 +222,11 @@ main checkout:
 - grid: `35 x 43 x 48`
 - six completed same-grid points
 - max NTX/SFINCS-JAX `L13/L31/L33` relative difference:
-  `0.02064719610195181`
+  `0.05020233144599197` (at the interpolation-limited `rho=1/7` row)
 - coefficient gate: `1e-1`, passed
 - current-conditioned precision gate: still failed, with maximum precision gap
-  `29.948023011811134`
-- mean production point runtime: `5.999091423504676 s`
+  `72.8166948174146`
+- mean production point runtime: `9.449291277793236 s`
 
 This closes the broad finite-beta coefficient-resolution lane for the current
 owned QA case.  The remaining finite-beta current work is localized to the

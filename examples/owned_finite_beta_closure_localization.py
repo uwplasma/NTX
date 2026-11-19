@@ -474,6 +474,9 @@ def main() -> None:
         sfincs_json=args.sfincs_json,
         bootstrap_json=args.bootstrap_json,
     )
+    from examples.owned_finite_beta_sfincs_jax_inputs import run_provenance
+
+    payload["provenance"] = run_provenance()
     write_payload(payload, args.output_prefix)
     build_figure(payload, args.output_prefix)
     print(json.dumps(payload["summary_metrics"], indent=2))

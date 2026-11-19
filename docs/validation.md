@@ -135,10 +135,11 @@ electric-field, and resolution grids. Add `--run-sfincs-jax` only when the
 local SFINCS-JAX checkout should execute those inputs. The committed artifact
 now ingests a six-point same-grid coefficient ladder on the finite-beta QA
 case, including the profile-current stress neighborhood, using the reported
-`nu_n` normalization and a coefficient-level NTX bridge comparison. The current
-max `L13/L31/L33` relative difference is about `2.1e-2` after enforcing exact
-radial interpolation, the pitch-angle-scattering `nuD` frequency bridge, and the
-`RHSMode=3` flow-row normalization. This
+`nu_n` normalization and a coefficient-level NTX bridge comparison. At
+`rho=0.3` and `0.5` the max `L13/L31/L33` relative difference is about
+`1.4e-2` on the smoke grid and `7.1e-3` on the production grid, with the
+pitch-angle-scattering `nuD` frequency bridge and the `RHSMode=3` flow-row
+normalization. The inner `rho=1/7` (`s=1/49`) row is limited by near-axis radial interpolation of the `ns=50` wout, where the `m=1` harmonics scale as `sqrt(s)`; its `L13/L31` difference (about `5e-2`) is reported but not quoted as agreement. This
 localizes the remaining finite-beta bootstrap-current mismatch downstream of
 the monoenergetic coefficient solve. These artifacts are deliberately scoped
 as smoke-resolution same-grid generation control, not independent-code
@@ -185,8 +186,8 @@ the `1e-1` current gate.
 The closure-localization sidecar makes this split explicit: at the current
 stress radius, the nearest same-grid coefficient difference is about `1.0e-3`,
 the profile-current difference is about `2.2e-1`, and the current/coefficient
-error ratio is about `2.1e2`. The maximum same-grid coefficient difference remains
-about `2.1e-2`, so the non-promoted follow-up is scoped to the reduced
+error ratio is about `2.1e2`. The maximum same-grid coefficient difference is
+about `5.0e-2`, set by the interpolation-limited `rho=1/7` row, so the non-promoted follow-up is scoped to the reduced
 momentum/profile-current observable and production profile-current closure.
 The profile-current observable audit then shows that the stress-radius momentum
 correction has the correct sign but overshoots the Redl target correction by
@@ -201,13 +202,15 @@ net current of about `1.45e2`. A `1e-1` net-current gate therefore requires
 same-grid coefficient precision near `1e-3` at sensitive radii, tighter than
 the completed coefficient ladders.
 The production stress probe and six-point radial/collisionality ladder keep the
-same-grid finite-beta coefficient differences near `2.1e-2`. That closes the
+same-grid finite-beta coefficient differences below `1.5e-2` away from the
+interpolation-limited `rho=1/7` row (about `5.0e-2` there). That closes the
 production coefficient ladder as a broad numerical failure and scopes the
 non-promoted finite-beta parity work to the profile-current closure layer.
 The production radial/collisionality ladder then runs the six same-grid
 finite-beta QA SFINCS-JAX points at `35 x 43 x 48`. The optimized SFINCS-JAX
-main-branch refresh leaves all completed points below `2.07e-2` coefficient
-difference; the maximum precision gap is still the inner `rho=1/7`,
+main-branch refresh leaves the `rho=0.3` and `0.5` points below `7.2e-3`
+coefficient difference and the interpolation-limited `rho=1/7` points below
+`5.03e-2`; the maximum precision gap is still the inner `rho=1/7`,
 `nuPrime=1e-2` point. That closes the production coefficient ladder as a broad
 numerical failure and scopes the non-promoted finite-beta parity work to the
 profile-current closure and converged RHSMode=1 profile-current layers.

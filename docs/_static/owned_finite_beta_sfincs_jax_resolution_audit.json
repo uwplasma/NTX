@@ -27,15 +27,15 @@
       },
       "solverTolerance": 1e-06,
       "min_Bmn_to_load": 1e-05,
-      "seconds": null,
-      "status": "output_found",
+      "seconds": 5.6762350420467556,
+      "status": "complete",
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.020293376803271736,
-        "L31_bridge_vs_sfincs": 0.02054783993495091,
-        "L33_bridge_vs_sfincs": 0.00021465149967085333,
-        "L33_spitzer_bridge_vs_sfincs": 0.008785572368100542
+        "L13_bridge_vs_sfincs": 0.04985079106184819,
+        "L31_bridge_vs_sfincs": 0.050099939880671226,
+        "L33_bridge_vs_sfincs": 0.0004806051557469338,
+        "L33_spitzer_bridge_vs_sfincs": 0.008774443164549981
       },
-      "max_transport_relative_difference": 0.02054783993495091
+      "max_transport_relative_difference": 0.050099939880671226
     },
     {
       "label": "production grid",
@@ -51,15 +51,15 @@
       },
       "solverTolerance": 1e-07,
       "min_Bmn_to_load": 1e-05,
-      "seconds": 2.70819420798216,
+      "seconds": 7.532600957900286,
       "status": "complete",
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.020391309255673024,
-        "L31_bridge_vs_sfincs": 0.02064719610273697,
-        "L33_bridge_vs_sfincs": 0.0002154423829470855,
-        "L33_spitzer_bridge_vs_sfincs": 0.008784774351781008
+        "L13_bridge_vs_sfincs": 0.04995110764886888,
+        "L31_bridge_vs_sfincs": 0.05020233144599197,
+        "L33_bridge_vs_sfincs": 0.00048143142587957064,
+        "L33_spitzer_bridge_vs_sfincs": 0.008773609229757697
       },
-      "max_transport_relative_difference": 0.02064719610273697
+      "max_transport_relative_difference": 0.05020233144599197
     },
     {
       "label": "production grid, tight harmonics",
@@ -75,26 +75,26 @@
       },
       "solverTolerance": 1e-07,
       "min_Bmn_to_load": 1e-08,
-      "seconds": 2.7280696670059115,
+      "seconds": 7.8091989159584045,
       "status": "complete",
       "relative_difference": {
-        "L13_bridge_vs_sfincs": 0.020494277507319067,
-        "L31_bridge_vs_sfincs": 0.020546717035894013,
-        "L33_bridge_vs_sfincs": 0.00021546619838937626,
-        "L33_spitzer_bridge_vs_sfincs": 0.008784176793191897
+        "L13_bridge_vs_sfincs": 0.05005781383943769,
+        "L31_bridge_vs_sfincs": 0.050098942543734946,
+        "L33_bridge_vs_sfincs": 0.0004814421390111878,
+        "L33_spitzer_bridge_vs_sfincs": 0.008773012788502248
       },
-      "max_transport_relative_difference": 0.020546717035894013
+      "max_transport_relative_difference": 0.050098942543734946
     }
   ],
   "summary_metrics": {
-    "smoke_max_transport_relative_difference": 0.02054783993495091,
-    "production_max_transport_relative_difference": 0.02064719610273697,
-    "production_tight_harmonics_max_transport_relative_difference": 0.020546717035894013,
-    "production_change_vs_smoke": 0.004835358271263395,
-    "tight_harmonics_change_vs_production": -0.004866475154446728,
+    "smoke_max_transport_relative_difference": 0.050099939880671226,
+    "production_max_transport_relative_difference": 0.05020233144599197,
+    "production_tight_harmonics_max_transport_relative_difference": 0.050098942543734946,
+    "production_change_vs_smoke": 0.002043746271245427,
+    "tight_harmonics_change_vs_production": -0.0020594442385260233,
     "required_coefficient_relative_difference_for_current_gate": 0.001122085082595331,
-    "production_precision_gap_to_current_gate": 18.400740213906914,
-    "tight_harmonics_precision_gap_to_current_gate": 18.31119346883251
+    "production_precision_gap_to_current_gate": 44.74021821043756,
+    "tight_harmonics_precision_gap_to_current_gate": 44.648078225813684
   },
   "conclusion": "The stress-radius coefficient floor is insensitive to the tested angular/pitch-resolution increase and to the tighter VMEC harmonic cutoff. The remaining finite-beta current gap should therefore stay classified as a monitored profile-current/reduced-closure stress until a profile-current closure diagnostic, not a scalar fit, closes it.",
   "open_work": [
@@ -103,5 +103,11 @@
     "promote finite-beta current parity only after the coefficient floor and profile-current observable both clear the current conditioning threshold"
   ],
   "figure_png": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.png",
-  "figure_pdf": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf"
+  "figure_pdf": "docs/_static/owned_finite_beta_sfincs_jax_resolution_audit.pdf",
+  "provenance": {
+    "ntx_commit": "a3234b17549e6f4e5fbf3e67036656a8f9bb8108",
+    "dkx_version": "2.16.0",
+    "jax_version": "0.12.1",
+    "cli_args": []
+  }
 }

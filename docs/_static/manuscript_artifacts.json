@@ -1,13 +1,13 @@
 {
   "git": {
-    "commit": "d38663ce17d5c8073f0bbac9accc4eb8d8d765e6",
-    "branch": "main"
+    "commit": "a3234b17549e6f4e5fbf3e67036656a8f9bb8108",
+    "branch": "regen/finite-beta-sfincs-artifacts"
   },
   "environment": {
-    "python": "3.13.7",
-    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
-    "jax": "0.11.0",
-    "numpy": "2.5.1"
+    "python": "3.12.9",
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "jax": "0.12.1",
+    "numpy": "2.5.5"
   },
   "tables": {
     "monoenergetic_validation": {
@@ -3736,16 +3736,16 @@
       "summary_metrics": {
         "case_count": 1,
         "deck_count": 6,
-        "completed_run_count": 0,
+        "completed_run_count": 6,
         "failed_run_count": 0,
         "input_written_count": 0,
-        "output_found_count": 6,
+        "output_found_count": 0,
         "completed_transport_matrix_count": 6,
-        "sfincs_runtime_nu_n_over_input_nuPrime_min": 0.9306328811156771,
-        "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9343189044961101,
+        "sfincs_runtime_nu_n_over_input_nuPrime_min": 0.9306328811156778,
+        "sfincs_runtime_nu_n_over_input_nuPrime_max": 0.9343189044961098,
         "completed_ntx_same_grid_comparison_count": 6,
-        "max_ntx_same_grid_transport_relative_difference": 0.02054783993495091,
-        "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.3199274412168985,
+        "max_ntx_same_grid_transport_relative_difference": 0.050099939880671226,
+        "max_ntx_same_grid_transport_spitzer_audit_relative_difference": 0.3199282749386035,
         "rhs_mode": 3,
         "rhsmode2_species": null
       },
@@ -3768,14 +3768,14 @@
     },
     "owned_finite_beta_sfincs_jax_resolution_audit": {
       "summary_metrics": {
-        "smoke_max_transport_relative_difference": 0.02054783993495091,
-        "production_max_transport_relative_difference": 0.02064719610273697,
-        "production_tight_harmonics_max_transport_relative_difference": 0.020546717035894013,
-        "production_change_vs_smoke": 0.004835358271263395,
-        "tight_harmonics_change_vs_production": -0.004866475154446728,
+        "smoke_max_transport_relative_difference": 0.050099939880671226,
+        "production_max_transport_relative_difference": 0.05020233144599197,
+        "production_tight_harmonics_max_transport_relative_difference": 0.050098942543734946,
+        "production_change_vs_smoke": 0.002043746271245427,
+        "tight_harmonics_change_vs_production": -0.0020594442385260233,
         "required_coefficient_relative_difference_for_current_gate": 0.001122085082595331,
-        "production_precision_gap_to_current_gate": 18.400740213906914,
-        "tight_harmonics_precision_gap_to_current_gate": 18.31119346883251
+        "production_precision_gap_to_current_gate": 44.74021821043756,
+        "tight_harmonics_precision_gap_to_current_gate": 44.648078225813684
       },
       "claim_scope": "Compares the finite-beta QA stress-radius same-grid transport coefficients after increasing angular/pitch resolution and after tightening the VMEC harmonic cutoff. This is a diagnostic for coefficient normalization and numerical convergence; it is not a bootstrap-current parity claim.",
       "conclusion": "The stress-radius coefficient floor is insensitive to the tested angular/pitch-resolution increase and to the tighter VMEC harmonic cutoff. The remaining finite-beta current gap should therefore stay classified as a monitored profile-current/reduced-closure stress until a profile-current closure diagnostic, not a scalar fit, closes it.",
@@ -3794,15 +3794,15 @@
           },
           "solverTolerance": 1e-06,
           "min_Bmn_to_load": 1e-05,
-          "seconds": null,
-          "status": "output_found",
+          "seconds": 5.6762350420467556,
+          "status": "complete",
           "relative_difference": {
-            "L13_bridge_vs_sfincs": 0.020293376803271736,
-            "L31_bridge_vs_sfincs": 0.02054783993495091,
-            "L33_bridge_vs_sfincs": 0.00021465149967085333,
-            "L33_spitzer_bridge_vs_sfincs": 0.008785572368100542
+            "L13_bridge_vs_sfincs": 0.04985079106184819,
+            "L31_bridge_vs_sfincs": 0.050099939880671226,
+            "L33_bridge_vs_sfincs": 0.0004806051557469338,
+            "L33_spitzer_bridge_vs_sfincs": 0.008774443164549981
           },
-          "max_transport_relative_difference": 0.02054783993495091
+          "max_transport_relative_difference": 0.050099939880671226
         },
         {
           "label": "production grid",
@@ -3818,15 +3818,15 @@
           },
           "solverTolerance": 1e-07,
           "min_Bmn_to_load": 1e-05,
-          "seconds": 2.70819420798216,
+          "seconds": 7.532600957900286,
           "status": "complete",
           "relative_difference": {
-            "L13_bridge_vs_sfincs": 0.020391309255673024,
-            "L31_bridge_vs_sfincs": 0.02064719610273697,
-            "L33_bridge_vs_sfincs": 0.0002154423829470855,
-            "L33_spitzer_bridge_vs_sfincs": 0.008784774351781008
+            "L13_bridge_vs_sfincs": 0.04995110764886888,
+            "L31_bridge_vs_sfincs": 0.05020233144599197,
+            "L33_bridge_vs_sfincs": 0.00048143142587957064,
+            "L33_spitzer_bridge_vs_sfincs": 0.008773609229757697
           },
-          "max_transport_relative_difference": 0.02064719610273697
+          "max_transport_relative_difference": 0.05020233144599197
         },
         {
           "label": "production grid, tight harmonics",
@@ -3842,15 +3842,15 @@
           },
           "solverTolerance": 1e-07,
           "min_Bmn_to_load": 1e-08,
-          "seconds": 2.7280696670059115,
+          "seconds": 7.8091989159584045,
           "status": "complete",
           "relative_difference": {
-            "L13_bridge_vs_sfincs": 0.020494277507319067,
-            "L31_bridge_vs_sfincs": 0.020546717035894013,
-            "L33_bridge_vs_sfincs": 0.00021546619838937626,
-            "L33_spitzer_bridge_vs_sfincs": 0.008784176793191897
+            "L13_bridge_vs_sfincs": 0.05005781383943769,
+            "L31_bridge_vs_sfincs": 0.050098942543734946,
+            "L33_bridge_vs_sfincs": 0.0004814421390111878,
+            "L33_spitzer_bridge_vs_sfincs": 0.008773012788502248
           },
-          "max_transport_relative_difference": 0.020546717035894013
+          "max_transport_relative_difference": 0.050098942543734946
         }
       ],
       "open_work": [
@@ -3862,14 +3862,14 @@
     "owned_finite_beta_sfincs_jax_production_ladder": {
       "summary_metrics": {
         "completed_production_ladder_count": 6,
-        "max_production_transport_relative_difference": 0.02064719610195181,
+        "max_production_transport_relative_difference": 0.05020233144599197,
         "max_production_transport_relative_difference_rho": 0.14285714285714285,
         "max_production_transport_relative_difference_nuPrime": 0.01,
-        "max_production_precision_gap_to_current_gate": 29.948023011811134,
+        "max_production_precision_gap_to_current_gate": 72.8166948174146,
         "max_production_precision_gap_rho": 0.14285714285714285,
         "max_production_precision_gap_nuPrime": 0.01,
         "max_profile_current_relative_difference_on_ladder": 0.20828178269124106,
-        "mean_production_seconds": 5.999091423504676,
+        "mean_production_seconds": 9.449291277793236,
         "coefficient_gate": 0.1,
         "production_ladder_coefficient_gate_pass": true,
         "production_ladder_current_conditioned_gate_pass": false
@@ -3881,7 +3881,7 @@
         "rho": 0.14285714285714285,
         "nu_prime": 0.01,
         "e_star": 0.0,
-        "production_seconds": 6.3202911670086905,
+        "production_seconds": 8.826754000037909,
         "smoke_grid": {
           "Ntheta": 25,
           "Nzeta": 31,
@@ -3894,17 +3894,17 @@
           "Nxi": 48,
           "Nx": 1
         },
-        "smoke_max_transport_relative_difference": 0.02054783993495091,
-        "production_max_transport_relative_difference": 0.02064719610195181,
-        "production_change_vs_smoke": 0.004835358233052073,
+        "smoke_max_transport_relative_difference": 0.050099939880671226,
+        "production_max_transport_relative_difference": 0.05020233144599197,
+        "production_change_vs_smoke": 0.002043746271245427,
         "required_coefficient_relative_difference_for_current_gate": 0.0006894343607859794,
-        "production_precision_gap_to_current_gate": 29.948023011811134,
+        "production_precision_gap_to_current_gate": 72.8166948174146,
         "profile_current_relative_difference": 0.20828178269124106,
         "relative_difference": {
-          "L13_bridge_vs_sfincs": 0.02039121102203927,
-          "L31_bridge_vs_sfincs": 0.02064719610195181,
-          "L33_bridge_vs_sfincs": 0.00021544238347183178,
-          "L33_spitzer_bridge_vs_sfincs": 0.008784774351251539
+          "L13_bridge_vs_sfincs": 0.04995110764886888,
+          "L31_bridge_vs_sfincs": 0.05020233144599197,
+          "L33_bridge_vs_sfincs": 0.00048143142587957064,
+          "L33_spitzer_bridge_vs_sfincs": 0.008773609229757697
         }
       },
       "open_work": [
@@ -4684,15 +4684,15 @@
     },
     "owned_finite_beta_closure_localization": {
       "summary_metrics": {
-        "max_same_grid_coefficient_relative_difference": 0.02054783993495091,
+        "max_same_grid_coefficient_relative_difference": 0.050099939880671226,
         "max_bootstrap_total_relative_difference": 0.21926076611238907,
         "rms_bootstrap_total_relative_difference": 0.1443057154681684,
         "stress_gap_rho": 0.9285714285714285,
         "stress_gap_bootstrap_relative_difference": 0.21926076611238907,
         "stress_gap_nearest_coefficient_rho": 0.5,
         "stress_gap_nearest_coefficient_distance": 0.4285714285714285,
-        "stress_gap_coefficient_relative_difference": 0.0010484123970917836,
-        "stress_gap_current_to_coefficient_error_ratio": 209.13599144821427,
+        "stress_gap_coefficient_relative_difference": 0.0010619280111028512,
+        "stress_gap_current_to_coefficient_error_ratio": 206.47422783836234,
         "coefficient_gate": 0.1,
         "coefficient_gate_pass": true,
         "profile_current_gate": 0.1,
@@ -4703,21 +4703,21 @@
       "matched_radii": [
         {
           "rho": 0.14285714285714285,
-          "max_raw_coefficient_relative_difference": 0.02054783993495091,
+          "max_raw_coefficient_relative_difference": 0.050099939880671226,
           "interpolated_profile_current_relative_difference": 0.20828178269124106,
-          "current_to_coefficient_error_ratio": 10.136432021594812
+          "current_to_coefficient_error_ratio": 4.15732600053672
         },
         {
           "rho": 0.3,
-          "max_raw_coefficient_relative_difference": 0.014072815428719222,
+          "max_raw_coefficient_relative_difference": 0.014315799434500214,
           "interpolated_profile_current_relative_difference": 0.0569114447166989,
-          "current_to_coefficient_error_ratio": 4.044069575484971
+          "current_to_coefficient_error_ratio": 3.9754290339906375
         },
         {
           "rho": 0.5,
-          "max_raw_coefficient_relative_difference": 0.0010484123970917836,
+          "max_raw_coefficient_relative_difference": 0.0010619280111028512,
           "interpolated_profile_current_relative_difference": 0.06422549700888262,
-          "current_to_coefficient_error_ratio": 61.259764942726044
+          "current_to_coefficient_error_ratio": 60.48008559655761
         }
       ],
       "open_work": [
@@ -9107,14 +9107,14 @@
     "owned_finite_beta_bootstrap_psi_p": 0.013346299916410087,
     "owned_finite_beta_sfincs_completed_transport_count": 6,
     "owned_finite_beta_sfincs_ntx_same_grid_count": 6,
-    "owned_finite_beta_sfincs_max_transport_relative_difference": 0.02054783993495091,
-    "owned_finite_beta_resolution_production_precision_gap": 18.400740213906914,
-    "owned_finite_beta_resolution_tight_harmonics_precision_gap": 18.31119346883251,
-    "owned_finite_beta_resolution_production_change_vs_smoke": 0.004835358271263395,
-    "owned_finite_beta_resolution_tight_harmonics_change_vs_production": -0.004866475154446728,
+    "owned_finite_beta_sfincs_max_transport_relative_difference": 0.050099939880671226,
+    "owned_finite_beta_resolution_production_precision_gap": 44.74021821043756,
+    "owned_finite_beta_resolution_tight_harmonics_precision_gap": 44.648078225813684,
+    "owned_finite_beta_resolution_production_change_vs_smoke": 0.002043746271245427,
+    "owned_finite_beta_resolution_tight_harmonics_change_vs_production": -0.0020594442385260233,
     "owned_finite_beta_production_ladder_count": 6,
-    "owned_finite_beta_production_ladder_max_transport_error": 0.02064719610195181,
-    "owned_finite_beta_production_ladder_precision_gap": 29.948023011811134,
+    "owned_finite_beta_production_ladder_max_transport_error": 0.05020233144599197,
+    "owned_finite_beta_production_ladder_precision_gap": 72.8166948174146,
     "owned_finite_beta_production_ladder_profile_current_error": 0.20828178269124106,
     "owned_finite_beta_sfincs_profile_current_count": 3,
     "owned_finite_beta_sfincs_profile_current_error_vs_redl": 0.8478018522703096,
@@ -9123,9 +9123,9 @@
     "owned_finite_beta_sfincs_profile_current_pitch_gap": 0.13232636827032285,
     "owned_finite_beta_bootstrap_rms_relative_error": 0.1443057154681684,
     "owned_finite_beta_bootstrap_sign_agreement": 1.0,
-    "owned_finite_beta_closure_stress_gap_coefficient_error": 0.0010484123970917836,
+    "owned_finite_beta_closure_stress_gap_coefficient_error": 0.0010619280111028512,
     "owned_finite_beta_closure_stress_gap_current_error": 0.21926076611238907,
-    "owned_finite_beta_closure_stress_gap_error_ratio": 209.13599144821427,
+    "owned_finite_beta_closure_stress_gap_error_ratio": 206.47422783836234,
     "owned_finite_beta_closure_coefficient_gate_pass": true,
     "owned_finite_beta_closure_profile_gate_pass": false,
     "owned_finite_beta_observable_stress_rho": 0.9285714285714285,

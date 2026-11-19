@@ -460,6 +460,9 @@ def main() -> None:
         conditioning_json=args.conditioning_json,
         observable_json=args.observable_json,
     )
+    from examples.owned_finite_beta_sfincs_jax_inputs import run_provenance
+
+    payload["provenance"] = run_provenance()
     write_payload(payload, args.output_prefix)
     build_figure(payload, args.output_prefix)
     print(json.dumps(payload["summary_metrics"], indent=2))
