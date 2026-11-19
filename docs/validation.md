@@ -183,9 +183,9 @@ unit sign agreement. This remains a mismatch-localization diagnostic rather
 than a README/manuscript parity claim because the full profile is still above
 the `1e-1` current gate.
 The closure-localization sidecar makes this split explicit: at the current
-stress radius, the nearest same-grid coefficient difference is about `1.3e-2`,
+stress radius, the nearest same-grid coefficient difference is about `1.0e-3`,
 the profile-current difference is about `2.2e-1`, and the current/coefficient
-error ratio is about `17`. The maximum same-grid coefficient difference remains
+error ratio is about `2.1e2`. The maximum same-grid coefficient difference remains
 about `2.1e-2`, so the non-promoted follow-up is scoped to the reduced
 momentum/profile-current observable and production profile-current closure.
 The profile-current observable audit then shows that the stress-radius momentum

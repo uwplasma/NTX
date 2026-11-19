@@ -24,13 +24,13 @@
       "raw_channel_relative_difference": {
         "L13_bridge_vs_sfincs": 0.015500813070526073,
         "L31_bridge_vs_sfincs": 0.015572152661195883,
-        "L33_bridge_vs_sfincs": 0.013530855916041635
+        "L33_bridge_vs_sfincs": 0.0012408588923509903
       },
       "sidecar_channel_relative_difference": {
-        "L33_spitzer_bridge_vs_sfincs": 0.05685488724370346
+        "L33_spitzer_bridge_vs_sfincs": 0.07002179012819203
       },
       "max_raw_relative_difference": 0.015572152661195883,
-      "max_sidecar_relative_difference": 0.05685488724370346
+      "max_sidecar_relative_difference": 0.07002179012819203
     },
     {
       "case_id": "finite_beta_qa_pressure_current",
@@ -41,13 +41,13 @@
       "raw_channel_relative_difference": {
         "L13_bridge_vs_sfincs": 0.020293376803271736,
         "L31_bridge_vs_sfincs": 0.02054783993495091,
-        "L33_bridge_vs_sfincs": 0.012517276278425539
+        "L33_bridge_vs_sfincs": 0.00021465149967085333
       },
       "sidecar_channel_relative_difference": {
-        "L33_spitzer_bridge_vs_sfincs": 0.0036278025605098792
+        "L33_spitzer_bridge_vs_sfincs": 0.008785572368100542
       },
       "max_raw_relative_difference": 0.02054783993495091,
-      "max_sidecar_relative_difference": 0.0036278025605098792
+      "max_sidecar_relative_difference": 0.008785572368100542
     },
     {
       "case_id": "finite_beta_qa_pressure_current",
@@ -58,13 +58,13 @@
       "raw_channel_relative_difference": {
         "L13_bridge_vs_sfincs": 0.0036458462861180215,
         "L31_bridge_vs_sfincs": 0.0013636305047481534,
-        "L33_bridge_vs_sfincs": 0.012547172467539508
+        "L33_bridge_vs_sfincs": 1.0698108568743723e-06
       },
       "sidecar_channel_relative_difference": {
-        "L33_spitzer_bridge_vs_sfincs": 0.1753584898932992
+        "L33_spitzer_bridge_vs_sfincs": 0.19029203189292454
       },
-      "max_raw_relative_difference": 0.012547172467539508,
-      "max_sidecar_relative_difference": 0.1753584898932992
+      "max_raw_relative_difference": 0.0036458462861180215,
+      "max_sidecar_relative_difference": 0.19029203189292454
     },
     {
       "case_id": "finite_beta_qa_pressure_current",
@@ -75,13 +75,13 @@
       "raw_channel_relative_difference": {
         "L13_bridge_vs_sfincs": 0.014072815428719222,
         "L31_bridge_vs_sfincs": 0.0007692234427162705,
-        "L33_bridge_vs_sfincs": 0.012337176654005178
+        "L33_bridge_vs_sfincs": 0.0002115941089003883
       },
       "sidecar_channel_relative_difference": {
-        "L33_spitzer_bridge_vs_sfincs": 0.02607349350478572
+        "L33_spitzer_bridge_vs_sfincs": 0.039110291844794316
       },
       "max_raw_relative_difference": 0.014072815428719222,
-      "max_sidecar_relative_difference": 0.02607349350478572
+      "max_sidecar_relative_difference": 0.039110291844794316
     },
     {
       "case_id": "finite_beta_qa_pressure_current",
@@ -92,13 +92,13 @@
       "raw_channel_relative_difference": {
         "L13_bridge_vs_sfincs": 0.00018248827284859245,
         "L31_bridge_vs_sfincs": 0.0008903720478646459,
-        "L33_bridge_vs_sfincs": 0.012535349439094555
+        "L33_bridge_vs_sfincs": 0.0005120885704327101
       },
       "sidecar_channel_relative_difference": {
-        "L33_spitzer_bridge_vs_sfincs": 0.30271458425786035
+        "L33_spitzer_bridge_vs_sfincs": 0.3199274412168985
       },
-      "max_raw_relative_difference": 0.012535349439094555,
-      "max_sidecar_relative_difference": 0.30271458425786035
+      "max_raw_relative_difference": 0.0008903720478646459,
+      "max_sidecar_relative_difference": 0.3199274412168985
     },
     {
       "case_id": "finite_beta_qa_pressure_current",
@@ -109,13 +109,13 @@
       "raw_channel_relative_difference": {
         "L13_bridge_vs_sfincs": 0.0008966940097664823,
         "L31_bridge_vs_sfincs": 0.0010484123970917836,
-        "L33_bridge_vs_sfincs": 0.012280032502483489
+        "L33_bridge_vs_sfincs": 0.0007707790272008077
       },
       "sidecar_channel_relative_difference": {
-        "L33_spitzer_bridge_vs_sfincs": 0.08362012593554706
+        "L33_spitzer_bridge_vs_sfincs": 0.09793807282203963
       },
-      "max_raw_relative_difference": 0.012280032502483489,
-      "max_sidecar_relative_difference": 0.08362012593554706
+      "max_raw_relative_difference": 0.0010484123970917836,
+      "max_sidecar_relative_difference": 0.09793807282203963
     }
   ],
   "coefficient_by_rho": [
@@ -123,42 +123,42 @@
       "rho": 0.14285714285714285,
       "count": 2,
       "max_raw_relative_difference": 0.02054783993495091,
-      "max_sidecar_relative_difference": 0.05685488724370346,
+      "max_sidecar_relative_difference": 0.07002179012819203,
       "raw_channel_max": {
         "L13_bridge_vs_sfincs": 0.020293376803271736,
         "L31_bridge_vs_sfincs": 0.02054783993495091,
-        "L33_bridge_vs_sfincs": 0.013530855916041635
+        "L33_bridge_vs_sfincs": 0.0012408588923509903
       },
       "sidecar_channel_max": {
-        "L33_spitzer_bridge_vs_sfincs": 0.05685488724370346
+        "L33_spitzer_bridge_vs_sfincs": 0.07002179012819203
       }
     },
     {
       "rho": 0.3,
       "count": 2,
       "max_raw_relative_difference": 0.014072815428719222,
-      "max_sidecar_relative_difference": 0.1753584898932992,
+      "max_sidecar_relative_difference": 0.19029203189292454,
       "raw_channel_max": {
         "L13_bridge_vs_sfincs": 0.014072815428719222,
         "L31_bridge_vs_sfincs": 0.0013636305047481534,
-        "L33_bridge_vs_sfincs": 0.012547172467539508
+        "L33_bridge_vs_sfincs": 0.0002115941089003883
       },
       "sidecar_channel_max": {
-        "L33_spitzer_bridge_vs_sfincs": 0.1753584898932992
+        "L33_spitzer_bridge_vs_sfincs": 0.19029203189292454
       }
     },
     {
       "rho": 0.5,
       "count": 2,
-      "max_raw_relative_difference": 0.012535349439094555,
-      "max_sidecar_relative_difference": 0.30271458425786035,
+      "max_raw_relative_difference": 0.0010484123970917836,
+      "max_sidecar_relative_difference": 0.3199274412168985,
       "raw_channel_max": {
         "L13_bridge_vs_sfincs": 0.0008966940097664823,
         "L31_bridge_vs_sfincs": 0.0010484123970917836,
-        "L33_bridge_vs_sfincs": 0.012535349439094555
+        "L33_bridge_vs_sfincs": 0.0007707790272008077
       },
       "sidecar_channel_max": {
-        "L33_spitzer_bridge_vs_sfincs": 0.30271458425786035
+        "L33_spitzer_bridge_vs_sfincs": 0.3199274412168985
       }
     }
   ],
@@ -254,9 +254,9 @@
     },
     {
       "rho": 0.5,
-      "max_raw_coefficient_relative_difference": 0.012535349439094555,
+      "max_raw_coefficient_relative_difference": 0.0010484123970917836,
       "interpolated_profile_current_relative_difference": 0.06422549700888262,
-      "current_to_coefficient_error_ratio": 5.123550589549557
+      "current_to_coefficient_error_ratio": 61.259764942726044
     }
   ],
   "momentum_order_scan": {
@@ -301,8 +301,8 @@
     "stress_gap_bootstrap_relative_difference": 0.21926076611238907,
     "stress_gap_nearest_coefficient_rho": 0.5,
     "stress_gap_nearest_coefficient_distance": 0.4285714285714285,
-    "stress_gap_coefficient_relative_difference": 0.012535349439094555,
-    "stress_gap_current_to_coefficient_error_ratio": 17.491396404839797,
+    "stress_gap_coefficient_relative_difference": 0.0010484123970917836,
+    "stress_gap_current_to_coefficient_error_ratio": 209.13599144821427,
     "coefficient_gate": 0.1,
     "coefficient_gate_pass": true,
     "profile_current_gate": 0.1,

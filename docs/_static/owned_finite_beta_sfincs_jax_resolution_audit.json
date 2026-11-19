@@ -32,8 +32,8 @@
       "relative_difference": {
         "L13_bridge_vs_sfincs": 0.020293376803271736,
         "L31_bridge_vs_sfincs": 0.02054783993495091,
-        "L33_bridge_vs_sfincs": 0.012517276278425539,
-        "L33_spitzer_bridge_vs_sfincs": 0.0036278025605098792
+        "L33_bridge_vs_sfincs": 0.00021465149967085333,
+        "L33_spitzer_bridge_vs_sfincs": 0.008785572368100542
       },
       "max_transport_relative_difference": 0.02054783993495091
     },
@@ -56,8 +56,8 @@
       "relative_difference": {
         "L13_bridge_vs_sfincs": 0.020391309255673024,
         "L31_bridge_vs_sfincs": 0.02064719610273697,
-        "L33_bridge_vs_sfincs": 0.01251805742967253,
-        "L33_spitzer_bridge_vs_sfincs": 0.003628590757026083
+        "L33_bridge_vs_sfincs": 0.0002154423829470855,
+        "L33_spitzer_bridge_vs_sfincs": 0.008784774351781008
       },
       "max_transport_relative_difference": 0.02064719610273697
     },
@@ -80,8 +80,8 @@
       "relative_difference": {
         "L13_bridge_vs_sfincs": 0.020494277507319067,
         "L31_bridge_vs_sfincs": 0.020546717035894013,
-        "L33_bridge_vs_sfincs": 0.012518077861174657,
-        "L33_spitzer_bridge_vs_sfincs": 0.0036291778437901106
+        "L33_bridge_vs_sfincs": 0.00021546619838937626,
+        "L33_spitzer_bridge_vs_sfincs": 0.008784176793191897
       },
       "max_transport_relative_difference": 0.020546717035894013
     }
@@ -92,9 +92,9 @@
     "production_tight_harmonics_max_transport_relative_difference": 0.020546717035894013,
     "production_change_vs_smoke": 0.004835358271263395,
     "tight_harmonics_change_vs_production": -0.004866475154446728,
-    "required_coefficient_relative_difference_for_current_gate": 0.0013006501179462983,
-    "production_precision_gap_to_current_gate": 15.874519840384513,
-    "tight_harmonics_precision_gap_to_current_gate": 15.797266883992512
+    "required_coefficient_relative_difference_for_current_gate": 0.001122085082595331,
+    "production_precision_gap_to_current_gate": 18.400740213906914,
+    "tight_harmonics_precision_gap_to_current_gate": 18.31119346883251
   },
   "conclusion": "The stress-radius coefficient floor is insensitive to the tested angular/pitch-resolution increase and to the tighter VMEC harmonic cutoff. The remaining finite-beta current gap should therefore stay classified as a monitored profile-current/reduced-closure stress until a profile-current closure diagnostic, not a scalar fit, closes it.",
   "open_work": [
