@@ -226,13 +226,14 @@ These are trust-building comparisons against independent workflows:
   compared with the species-current L1 scale. The current artifact reports that
   the stress-radius net current needs about `1.1e-3` coefficient precision for
   a `1e-1` current gate, while the completed coefficient ladder is order
-  `2e-2`.
+  `5e-2` (set by the interpolation-limited `rho=1/7` row).
 - **Owned finite-beta resolution floor:** the stress-radius point has also
   been rerun at `35 x 43 x 48` and with a tighter VMEC harmonic cutoff. The
-  coefficient floor stays near `2.05e-2`, so angular resolution and harmonic
+  coefficient floor stays near `5.0e-2`, set by near-axis radial interpolation
+  at `rho=1/7`, so angular resolution and harmonic
   truncation are not treated as the closure fix.
 - **Owned finite-beta production ladder:** the six production same-grid
-  radius/collisionality points all stay below `2.07e-2` coefficient difference.
+  radius/collisionality points all stay below `5.03e-2` coefficient difference (`7.2e-3` away from `rho=1/7`).
   The current-conditioned precision gap remains larger than the coefficient
   floor, so the coefficient-resolution lane is localized rather than a broad
   whole-profile failure.

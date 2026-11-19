@@ -176,7 +176,7 @@ It writes:
 
 ```bash
 python examples/owned_geometry_neopax_dataset.py
-python examples/owned_finite_beta_sfincs_jax_inputs.py
+python examples/owned_finite_beta_sfincs_jax_inputs.py --case finite_beta_qa_pressure_current
 python examples/owned_finite_beta_sfincs_jax_resolution_audit.py
 python examples/owned_finite_beta_sfincs_jax_production_ladder_audit.py
 python examples/owned_finite_beta_sfincs_jax_profile_current_audit.py
@@ -248,16 +248,18 @@ electron/ion cancellation, how accurate must the same-grid coefficient ladder be
 before coefficient uncertainty can be ruled out for a `1e-1` net-current gate?
 For the current finite-beta QA artifact, the stress radius needs about
 `1.1e-3` coefficient precision, while the completed coefficient ladder is still
-order `2e-2`. That keeps the next step focused on production-resolution
+order `5e-2`. That keeps the next step focused on production-resolution
 same-grid coefficient/profile-current diagnostics before any closure change is
 promoted.
 The resolution audit adds the first production stress probe: increasing the
 same point to `35 x 43 x 48` and tightening the VMEC harmonic cutoff leaves the
-coefficient floor near `2.05e-2`, so the remaining finite-beta current gap is
+coefficient floor near `5.0e-2`, set by near-axis radial interpolation at
+`rho=1/7` (`s=1/49`, `ns=50`), so the remaining finite-beta current gap is
 not explained by those numerical knobs.
 The production-ladder audit then reads the six production same-grid
 SFINCS-JAX points across the owned finite-beta QA radii and collisionalities.
-All completed coefficient differences stay below `2.07e-2`; the
+The `rho=0.3` and `0.5` differences stay below `7.2e-3` and the
+interpolation-limited `rho=1/7` row below `5.03e-2`; the
 current-conditioned precision gap remains larger than the coefficient floor, so
 the next open item is the profile-current closure observable.
 The closure-quadrature audit holds the same scan, Redl observable, profiles, and

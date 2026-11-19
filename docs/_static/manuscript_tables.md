@@ -152,9 +152,9 @@
 | Max total-current relative difference vs Redl | `2.193e-01` |
 | RMS total-current relative difference vs Redl | `1.443e-01` |
 | Sign-agreement fraction | `1.000` |
-| Stress-gap same-grid coefficient relative difference | `1.048e-03` |
+| Stress-gap same-grid coefficient relative difference | `1.062e-03` |
 | Stress-gap profile-current relative difference | `2.193e-01` |
-| Stress-gap current/coefficient error ratio | `2.091e+02` |
+| Stress-gap current/coefficient error ratio | `2.065e+02` |
 | Stress-radius applied/needed correction | `2.100` |
 | Stress-radius residual/needed correction | `-1.100` |
 | Stress-radius species-correction cancellation amplification | `212.898` |
@@ -162,11 +162,11 @@
 | Stress-radius current condition number | `8.912e+01` |
 | Required coefficient error for `1e-1` current gate | `1.122e-03` |
 | Coefficient precision gap to current gate | `29.804x` |
-| Production-grid coefficient precision gap | `18.401x` |
-| Tight-harmonic coefficient precision gap | `18.311x` |
+| Production-grid coefficient precision gap | `44.740x` |
+| Tight-harmonic coefficient precision gap | `44.648x` |
 | Production radial/collisionality ladder count | `6` |
-| Production ladder max coefficient difference | `2.065e-02` |
-| Production ladder precision gap | `29.948x` |
+| Production ladder max coefficient difference | `5.020e-02` |
+| Production ladder precision gap | `72.817x` |
 | Coefficient-conditioned current-error bound | `2.980e+00` |
 | Under-integrated closure current-gate passes | `0` |
 | Quadrature-stable closure current-gate passes | `0` |
@@ -257,12 +257,12 @@
 
 | Key | Value |
 | --- | --- |
-| Commit | `d38663ce17d5c8073f0bbac9accc4eb8d8d765e6` |
-| Branch | `main` |
-| Python | `3.13.7` |
-| JAX | `0.11.0` |
-| NumPy | `2.5.1` |
-| Platform | `macOS-26.5.1-arm64-arm-64bit-Mach-O` |
+| Commit | `a3234b17549e6f4e5fbf3e67036656a8f9bb8108` |
+| Branch | `regen/finite-beta-sfincs-artifacts` |
+| Python | `3.12.9` |
+| JAX | `0.12.1` |
+| NumPy | `2.5.5` |
+| Platform | `macOS-27.2-arm64-arm-64bit` |
 | Figure bundle | `python examples/make_publication_figures.py --figures main_text,supplement` |
 | Main-text figures | `python examples/make_publication_figures.py --figures main_text` |
 | Supplement figures | `python examples/make_publication_figures.py --figures supplement` |

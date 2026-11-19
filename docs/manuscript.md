@@ -125,12 +125,12 @@ examples.
 16. `owned_finite_beta_sfincs_jax_resolution_audit.{png,pdf,json}`
    - production stress-radius rerun of the same finite-beta coefficient point
      at `35 x 43 x 48`, plus a tighter VMEC harmonic-cutoff probe; the
-     coefficient floor remains near `2.05e-2`, about `18.4x` above the
+     coefficient floor remains near `5.0e-2`, about `44.7x` above the
      cancellation-conditioned current target
 17. `owned_finite_beta_sfincs_jax_production_ladder_audit.{png,pdf,json}`
    - production six-point finite-beta QA same-grid SFINCS-JAX/NTX ladder across
      radius and collisionality; all coefficient differences stay below
-     `2.07e-2`, with the current-conditioned precision gap localized to the
+     `5.03e-2` (`7.2e-3` away from the interpolation-limited `rho=1/7` row), with the current-conditioned precision gap localized to the
      most cancellation-sensitive radius
 18. `owned_finite_beta_sfincs_jax_profile_current_audit.{png,pdf,json}`
    - bounded RHSMode=1 profile-current diagnostic on the same finite-beta

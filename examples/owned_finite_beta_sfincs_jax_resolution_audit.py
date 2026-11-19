@@ -335,6 +335,9 @@ def main() -> None:
         nu_prime=float(args.nu_prime),
         e_star=float(args.e_star),
     )
+    from examples.owned_finite_beta_sfincs_jax_inputs import run_provenance
+
+    payload["provenance"] = run_provenance()
     write_payload(payload, args.output_prefix)
     build_figure(payload, args.output_prefix)
     print(
