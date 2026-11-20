@@ -47,15 +47,18 @@ jobs:
         with:
           python-version: "3.13"
           enable-cache: false
+      - name: Select the job environment
+        run: |
+          echo "VIRTUAL_ENV=$RUNNER_TEMP/venv" >> "$GITHUB_ENV"
       - name: Install
         run: |
-          uv venv
+          uv venv "$VIRTUAL_ENV"
           uv pip install -e ".[dev,io,vmex,booz]"
       - name: Test shard
         shell: bash
         run: |
           set -euo pipefail
-          source .venv/bin/activate
+          source "$VIRTUAL_ENV"/bin/activate
           python scripts/test_lane_manifest.py --check
           : > "$RUNNER_TEMP/ntx-tests.txt"
           for lane in ${{ matrix.lanes }}; do
