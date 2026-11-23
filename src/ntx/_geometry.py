@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import jax.numpy as jnp
-from jax import Array, tree_util
+from jax import Array, lax, tree_util
 
 from .grids import AngularGrid, flux_surface_average, periodic_grid
 
@@ -251,6 +251,21 @@ def evaluate_boozer_modes(
     )
 
 
+def _sum_fourier_modes(values: Array) -> Array:
+    """Sum the final axis with an explicit pairwise addition order."""
+    values = lax.optimization_barrier(values)
+    while values.shape[-1] > 1:
+        width = values.shape[-1]
+        stop = width - width % 2
+        paired = lax.optimization_barrier(values[..., :stop:2] + values[..., 1:stop:2])
+        values = (
+            jnp.concatenate((paired, values[..., -1:]), axis=-1) if width % 2 else paired
+        )
+    if not values.shape[-1]:
+        return jnp.zeros(values.shape[:-1], dtype=values.dtype)
+    return values[..., 0]
+
+
 def evaluate_fourier_series(
     m: Array,
     n: Array,
@@ -267,14 +282,15 @@ def evaluate_fourier_series(
     n = jnp.asarray(n)
     cos_coeffs = jnp.asarray(cos_coeffs)
     phase = theta[..., None] * m + zeta[..., None] * (n * nfp)
-    value = jnp.sum(cos_coeffs * jnp.cos(phase), axis=-1)
-    d_dtheta = jnp.sum(-cos_coeffs * m * jnp.sin(phase), axis=-1)
-    d_dzeta = jnp.sum(-cos_coeffs * (n * nfp) * jnp.sin(phase), axis=-1)
+    cosine, sine = jnp.cos(phase), jnp.sin(phase)
+    value = _sum_fourier_modes(cos_coeffs * cosine)
+    d_dtheta = _sum_fourier_modes(-cos_coeffs * m * sine)
+    d_dzeta = _sum_fourier_modes(-cos_coeffs * (n * nfp) * sine)
     if sin_coeffs is not None:
         sin_coeffs = jnp.asarray(sin_coeffs)
-        value = value + jnp.sum(sin_coeffs * jnp.sin(phase), axis=-1)
-        d_dtheta = d_dtheta + jnp.sum(sin_coeffs * m * jnp.cos(phase), axis=-1)
-        d_dzeta = d_dzeta + jnp.sum(sin_coeffs * (n * nfp) * jnp.cos(phase), axis=-1)
+        value = value + _sum_fourier_modes(sin_coeffs * sine)
+        d_dtheta = d_dtheta + _sum_fourier_modes(sin_coeffs * m * cosine)
+        d_dzeta = d_dzeta + _sum_fourier_modes(sin_coeffs * (n * nfp) * cosine)
     return value, d_dtheta, d_dzeta
 
 
