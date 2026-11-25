@@ -329,3 +329,11 @@ def test_2d_jvp_and_vjp_in_the_table_match_central_differences(method: str) -> N
     np.testing.assert_allclose(tangent, _central(fun, table, v), rtol=1e-7, atol=1e-9)
     (cotangent,) = jax.vjp(fun, table)[1](jnp.asarray(1.0))
     np.testing.assert_allclose(jnp.vdot(cotangent, v), tangent, rtol=1e-12)
+
+
+@pytest.mark.parametrize("method", sorted(_PINS_1D))
+def test_two_nodes_give_the_line_through_them_including_outside(method: str) -> None:
+    x, f = jnp.array([0.2, 0.7]), jnp.array([1.0, -0.5])
+    q = jnp.array([-0.3, 0.2, 0.45, 0.7, 1.2])
+    line = 1.0 - 3.0 * (q - 0.2)
+    np.testing.assert_allclose(interp1d(q, x, f, method), line, rtol=1e-14, atol=1e-14)
