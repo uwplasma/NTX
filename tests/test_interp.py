@@ -228,3 +228,112 @@ def test_interpolator1d_is_a_pytree_and_differentiable_in_the_query() -> None:
 def test_slopes_rejects_an_unknown_method() -> None:
     with pytest.raises(ValueError, match="unknown method"):
         slopes(jnp.linspace(0, 1, 5), jnp.zeros(5), method="quintic")
+
+
+# Regression pins: values and query derivatives of this module before its
+# evaluation moved to SOLVAX, on a non-uniform grid with points outside it.
+_PIN_X = jnp.array([0.0, 0.1, 0.25, 0.45, 0.6, 0.8, 1.0])
+_PIN_Q = jnp.array([-0.1, 0.05, 0.3, 0.77, 1.0, 1.1])
+_PINS_1D = {
+    "akima": (
+        [-0.327852078517636, 0.15382208091840316, 0.8759105477987893,
+         1.32998067209071, 1.1411200080598671, 0.9901089193080126],
+        [3.482420485487372, 3.043672023984705, 2.4387882307660305,
+         -0.41463300529240954, -1.2616126678670183, -1.7764590461521486],
+    ),
+    "pchip": (
+        [-0.31397227443682485, 0.15419802475770347, 0.869591766061899,
+         1.3201847492630658, 1.1411200080598671, 1.019127273690943],
+        [3.1616410589737813, 3.0577448196473824, 2.480736859315659,
+         -0.14806924191274692, -1.2616126678670216, -1.099364110550445],
+    ),
+    "cubic": (
+        [-0.2924123689079964, 0.15357934319025376, 0.8685694247969609,
+         1.3288318721451415, 1.1411200080598671, 1.0831906822200201],
+        [2.727506122779814, 3.071586863805075, 2.4181024039193924,
+         -0.4054937815322068, -0.871715862456415, -0.18939645298786312],
+    ),
+    "parabolic": (
+        [-0.29503393645866505, 0.15341549521833697, 0.8708422127002174,
+         1.3291404451148072, 1.1411200080598671, 1.08319068222002],
+        [2.7930453115465306, 3.0683099043667394, 2.4534851774769306,
+         -0.42425017772757145, -0.8717158624564151, -0.18939645298786326],
+    ),
+}
+_PIN_GX = jnp.array([-4.0, -3.4, -3.0, -2.2, -1.7, -1.0])
+_PIN_GY = jnp.array([-2e-3, -6e-4, 0.0, 5e-4, 2e-3])
+_PIN_POINTS = [(-3.9, -1.9e-3), (-2.5, 1e-4), (-1.05, 1.9e-3), (-3.2, 7e-4)]
+_PINS_2D = {
+    "pchip": [-0.2611524268960651, -0.18129967881474263, 1.054805798311661, -0.7384529909620285],
+    "parabolic": [
+        -0.25475346408793503, -0.18191522432155746, 1.0468009025211498, -0.7371792186080219
+    ],
+}
+
+
+def _pin_data():
+    return jnp.sin(3 * _PIN_X) + _PIN_X**2
+
+
+def _pin_table():
+    g = 1 + 300 * _PIN_GY - 4e4 * _PIN_GY**2
+    return jnp.cos(0.7 * _PIN_GX)[:, None] * g[None, :]
+
+
+@pytest.mark.parametrize("method", sorted(_PINS_1D))
+def test_1d_values_and_query_derivatives_are_pinned(method: str) -> None:
+    value, slope = _PINS_1D[method]
+    f = _pin_data()
+    got = interp1d(_PIN_Q, _PIN_X, f, method)
+    d = jax.vmap(jax.grad(lambda q: interp1d(q, _PIN_X, f, method)))(_PIN_Q)
+    np.testing.assert_allclose(got, value, rtol=1e-13, atol=1e-14)
+    np.testing.assert_allclose(d, slope, rtol=1e-12, atol=1e-13)
+
+
+@pytest.mark.parametrize("method", sorted(_PINS_2D))
+def test_2d_values_are_pinned(method: str) -> None:
+    table = _pin_table()
+    got = [interp2d_at(_PIN_GX, _PIN_GY, table, a, b, method) for a, b in _PIN_POINTS]
+    np.testing.assert_allclose(jnp.stack(got), _PINS_2D[method], rtol=1e-13, atol=1e-14)
+
+
+def _central(fun, x, v, h=1e-6):
+    return (fun(x + h * v) - fun(x - h * v)) / (2 * h)
+
+
+@pytest.mark.parametrize("method", sorted(_PINS_1D))
+def test_1d_jvp_and_vjp_in_the_data_match_central_differences(method: str) -> None:
+    f = _pin_data()
+    v = jnp.cos(5.0 * _PIN_X)
+
+    def fun(data):
+        return interp1d(_PIN_Q, _PIN_X, data, method)
+
+    _, tangent = jax.jvp(fun, (f,), (v,))
+    np.testing.assert_allclose(tangent, _central(fun, f, v), rtol=1e-7, atol=1e-8)
+    w = jnp.linspace(0.5, 1.5, _PIN_Q.size)
+    (cotangent,) = jax.vjp(fun, f)[1](w)
+    np.testing.assert_allclose(jnp.vdot(cotangent, v), jnp.vdot(w, tangent), rtol=1e-12)
+
+
+@pytest.mark.parametrize("method", sorted(_PINS_2D))
+def test_2d_jvp_and_vjp_in_the_table_match_central_differences(method: str) -> None:
+    table = _pin_table()
+    v = jnp.sin(1.3 * _PIN_GX)[:, None] * jnp.cos(400.0 * _PIN_GY)[None, :]
+    a, b = _PIN_POINTS[1]
+
+    def fun(data):
+        return interp2d_at(_PIN_GX, _PIN_GY, data, a, b, method)
+
+    _, tangent = jax.jvp(fun, (table,), (v,))
+    np.testing.assert_allclose(tangent, _central(fun, table, v), rtol=1e-7, atol=1e-9)
+    (cotangent,) = jax.vjp(fun, table)[1](jnp.asarray(1.0))
+    np.testing.assert_allclose(jnp.vdot(cotangent, v), tangent, rtol=1e-12)
+
+
+@pytest.mark.parametrize("method", sorted(_PINS_1D))
+def test_two_nodes_give_the_line_through_them_including_outside(method: str) -> None:
+    x, f = jnp.array([0.2, 0.7]), jnp.array([1.0, -0.5])
+    q = jnp.array([-0.3, 0.2, 0.45, 0.7, 1.2])
+    line = 1.0 - 3.0 * (q - 0.2)
+    np.testing.assert_allclose(interp1d(q, x, f, method), line, rtol=1e-14, atol=1e-14)

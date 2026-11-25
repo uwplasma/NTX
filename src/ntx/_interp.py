@@ -27,8 +27,8 @@ importantly, on the derivative, where it is nearly three times more accurate
 than the mean-of-secants cubic on a real equilibrium. Profiles use it.
 
 Every scheme here is a cubic Hermite; they differ only in how the node slopes
-are chosen, so they share an evaluator and cost about the same. The slope rules
-for ``pchip`` and ``akima`` agree with SciPy's ``PchipInterpolator`` and
+are chosen, so they share SOLVAX's evaluator and cost about the same. The
+``pchip`` and ``akima`` slopes are SOLVAX's, which agree with SciPy's ``PchipInterpolator`` and
 ``Akima1DInterpolator`` to roundoff. ``cubic`` is the mean-of-secants rule NTX
 used before, kept so a regression against the old behaviour stays possible; it
 matched the previous dependency to 4e-15 when the switch was made.
@@ -40,6 +40,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 from jax import Array
+from solvax import cubic_spline, cubic_spline_evaluate
 
 __all__ = [
     "Interpolator1D",
@@ -77,57 +78,11 @@ def _slopes_parabolic(x: Array, f: Array) -> Array:
     return jnp.concatenate([d[:1], interior, d[-1:]], axis=0)
 
 
-def _slopes_akima(x: Array, f: Array) -> Array:
-    """Akima (1970). Slope weights suppress the pull of a distant kink."""
-    d = _secants(x, f)
-    e0 = 2.0 * d[:1] - d[1:2]
-    em1 = 2.0 * e0 - d[:1]
-    en = 2.0 * d[-1:] - d[-2:-1]
-    en1 = 2.0 * en - d[-1:]
-    de = jnp.concatenate([em1, e0, d, en, en1], axis=0)
-    w1 = jnp.abs(de[3:] - de[2:-1])
-    w2 = jnp.abs(de[1:-2] - de[:-3])
-    denom = w1 + w2
-    safe = denom > 0.0
-    return jnp.where(
-        safe,
-        (w1 * de[1:-2] + w2 * de[2:-1]) / jnp.where(safe, denom, 1.0),
-        0.5 * (de[1:-2] + de[2:-1]),
-    )
-
-
-def _slopes_pchip(x: Array, f: Array) -> Array:
-    """Fritsch-Carlson monotone cubic. Cannot overshoot monotone data."""
-    h = jnp.diff(x)
-    d = _secants(x, f)
-    shape = (-1,) + (1,) * (f.ndim - 1)
-    hl, hr = h[:-1].reshape(shape), h[1:].reshape(shape)
-    dl, dr = d[:-1], d[1:]
-    w1, w2 = 2.0 * hr + hl, hr + 2.0 * hl
-    same = dl * dr > 0.0
-    interior = jnp.where(
-        same,
-        (w1 + w2) / (w1 / jnp.where(same, dl, 1.0) + w2 / jnp.where(same, dr, 1.0)),
-        jnp.zeros_like(dl),
-    )
-
-    def end(dk, dk1, hk, hk1):
-        m = ((2.0 * hk + hk1) * dk - hk * dk1) / (hk + hk1)
-        m = jnp.where(m * dk <= 0.0, jnp.zeros_like(m), m)
-        return jnp.where(
-            (dk * dk1 <= 0.0) & (jnp.abs(m) > 3.0 * jnp.abs(dk)), 3.0 * dk, m
-        )
-
-    m0 = end(d[:1], d[1:2], h[0], h[1])
-    mn = end(d[-1:], d[-2:-1], h[-1], h[-2])
-    return jnp.concatenate([m0, interior, mn], axis=0)
-
-
 _RULES = {
     "cubic": _slopes_cubic,
     "parabolic": _slopes_parabolic,
-    "akima": _slopes_akima,
-    "pchip": _slopes_pchip,
+    "akima": lambda x, f: cubic_spline(x, f, slopes="akima").slopes,
+    "pchip": lambda x, f: cubic_spline(x, f, monotone=True).slopes,
 }
 
 
@@ -149,28 +104,15 @@ def slopes(x: Array, f: Array, method: str = "akima") -> Array:
 
 
 # ---------------------------------------------------------------- evaluation ---
-def _hermite(x, f, m, i, xq):
-    """Evaluate the cubic Hermite polynomial on interval i.
+def _evaluate(x: Array, f: Array, m: Array, xq: Array) -> Array:
+    """Cubic Hermite through ``f`` with node slopes ``m``, at ``xq``.
 
-    All slope rules in this module differ only in how they choose `m`; the
-    evaluation is shared, so a new rule never re-derives the basis.
+    All slope rules differ only in how they choose ``m``; SOLVAX evaluates the
+    Hermite cubic and continues the end cubics beyond the nodes.
     """
-    hx = x[i + 1] - x[i]
-    t = (xq - x[i]) / hx
-    t2 = t * t
-    t3 = t2 * t
-    return (
-        (2 * t3 - 3 * t2 + 1) * f[i]
-        + (t3 - 2 * t2 + t) * hx * m[i]
-        + (-2 * t3 + 3 * t2) * f[i + 1]
-        + (t3 - t2) * hx * m[i + 1]
-    )
-
-
-def _interval(x: Array, xq: Array) -> Array:
-    """Index of the interval containing ``xq``, clamped so extrapolation uses
-    the end polynomial rather than falling off the array."""
-    return jnp.clip(jnp.searchsorted(x, xq, side="right") - 1, 0, x.shape[0] - 2)
+    value = cubic_spline_evaluate(cubic_spline(x, f, slopes=m), xq)
+    assert not isinstance(value, tuple)  # one derivative order asked for
+    return value
 
 
 def interp1d(xq: Array, x: Array, f: Array, method: str = "akima") -> Array:
@@ -181,9 +123,7 @@ def interp1d(xq: Array, x: Array, f: Array, method: str = "akima") -> Array:
     either the axis or the boundary, and the profiles are evaluated at both.
     """
     x, f, xq = jnp.asarray(x), jnp.asarray(f), jnp.asarray(xq)
-    m = slopes(x, f, method)
-    i = _interval(x, xq)
-    return _hermite(x, f, m, i, xq)
+    return _evaluate(x, f, slopes(x, f, method), xq)
 
 
 class Interpolator1D:
@@ -209,9 +149,7 @@ class Interpolator1D:
 
     def __call__(self, xq: Array) -> Array:
         """Interpolate at the query points."""
-        xq = jnp.asarray(xq)
-        i = _interval(self.x, xq)
-        return _hermite(self.x, self.f, self.m, i, xq)
+        return _evaluate(self.x, self.f, self.m, jnp.asarray(xq))
 
     def _tree_flatten(self):
         """Split into JAX children (arrays) and static data (the method name).
@@ -266,57 +204,26 @@ def interp2d_at(
         # Too small for a local window; fall back to whole-grid tables.
         return _interp2d_full(x, y, values, xq, yq, method)
 
-    i = _interval(x, xq)
-    j = _interval(y, yq)
-    wi = jnp.clip(i - 1, 0, nx - 4)
-    wj = jnp.clip(j - 1, 0, ny - 4)
-    ii = wi + jnp.arange(4)
-    jj = wj + jnp.arange(4)
-    xs, ys = x[ii], y[jj]
-    fs = values[ii][:, jj]
-    return _bicubic(xs, ys, fs, i - wi, j - wj, xq, yq, method)
+    ii = jnp.clip(jnp.searchsorted(x, xq, side="right") - 2, 0, nx - 4) + jnp.arange(4)
+    jj = jnp.clip(jnp.searchsorted(y, yq, side="right") - 2, 0, ny - 4) + jnp.arange(4)
+    return _bicubic(x[ii], y[jj], values[ii][:, jj], xq, yq, method)
 
 
 def _interp2d_full(x, y, values, xq, yq, method):
-    """Bicubic interpolation at a query point, locating both intervals first."""
-    return _bicubic(x, y, values, _interval(x, xq), _interval(y, yq), xq, yq, method)
+    """Bicubic interpolation at a query point from the whole grid."""
+    return _bicubic(x, y, values, xq, yq, method)
 
 
-def _bicubic(x, y, f, i, j, xq, yq, method):
-    """Tensor-product bicubic patch from values, both slopes, and the cross term.
+def _bicubic(x, y, f, xq, yq, method):
+    """Tensor-product bicubic Hermite patch from values, both slopes, and the cross term.
 
     The cross derivative is built by applying the 1-D slope rule along one axis
     and then the other, so a monotone rule stays monotone in each direction
-    separately.
+    separately. The patch is linear in its corner data, so it is evaluated as a
+    Hermite cubic in ``x`` of the values and y-slopes, then one in ``y``.
     """
     fx = slopes(x, f, method)
     fy = jnp.swapaxes(slopes(y, jnp.swapaxes(f, 0, 1), method), 0, 1)
     fxy = jnp.swapaxes(slopes(y, jnp.swapaxes(fx, 0, 1), method), 0, 1)
-
-    hx = x[i + 1] - x[i]
-    hy = y[j + 1] - y[j]
-    u = (xq - x[i]) / hx
-    v = (yq - y[j]) / hy
-
-    def basis(t):
-        t2 = t * t
-        t3 = t2 * t
-        return 2 * t3 - 3 * t2 + 1, t3 - 2 * t2 + t, -2 * t3 + 3 * t2, t3 - t2
-
-    a0, a1, a2, a3 = basis(u)
-    b0, b1, b2, b3 = basis(v)
-
-    def corner(p, q):
-        return f[i + p, j + q], fx[i + p, j + q], fy[i + p, j + q], fxy[i + p, j + q]
-
-    f00, x00, y00, c00 = corner(0, 0)
-    f01, x01, y01, c01 = corner(0, 1)
-    f10, x10, y10, c10 = corner(1, 0)
-    f11, x11, y11, c11 = corner(1, 1)
-
-    return (
-        a0 * (b0 * f00 + b1 * hy * y00 + b2 * f01 + b3 * hy * y01)
-        + a1 * hx * (b0 * x00 + b1 * hy * c00 + b2 * x01 + b3 * hy * c01)
-        + a2 * (b0 * f10 + b1 * hy * y10 + b2 * f11 + b3 * hy * y11)
-        + a3 * hx * (b0 * x10 + b1 * hy * c10 + b2 * x11 + b3 * hy * c11)
-    )
+    g = _evaluate(x, jnp.stack([f, fy], -1), jnp.stack([fx, fxy], -1), xq)
+    return _evaluate(y, g[:, 0], g[:, 1], yq)
