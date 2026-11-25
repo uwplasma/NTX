@@ -4,7 +4,7 @@ Release notes for tagged versions live in `docs/release-notes-*.md`.
 
 ## Unreleased
 
-- `ntx._interp` evaluates every cubic Hermite through SOLVAX (`cubic_spline`, `cubic_spline_evaluate`) and takes its Akima and PCHIP slopes from SOLVAX; NTX keeps only its mean-of-secants and parabolic slope rules. SOLVAX floor raised to 0.37.0. Values agree with the previous code within 5e-14 relative inside the grid (4e-13 extrapolated in 2-D).
+- `ntx._interp` evaluates every cubic Hermite through SOLVAX (`cubic_spline`, `cubic_spline_evaluate`) and takes its Akima and PCHIP slopes from SOLVAX; NTX keeps only its mean-of-secants and parabolic slope rules. SOLVAX floor raised to 0.37.0. Values agree with the previous code within 3e-15 relative inside the grid and about 1e-12 at extrapolated points. Knots that are not strictly increasing, and a single knot, now raise `ValueError` outside `jit` instead of returning NaN.
 - `examples/cross_code_conversion.py` writes out the factors between NTX, SFINCS and the DKES-scaled tables of YANCC and MONKES (collisionality, radial `dpsi/dr`, `E_r`, Beidler `D*`, SFINCS hat units) and prints a table of NTX against the committed SFINCS RHSMode 3 decks with relative errors against a 2% gate; a live solve on the sample surface checks the inline factors against the ones NTX stores. Measured against the committed ladder, every coefficient agrees within 0.72% at rho = 0.3 and 0.5.
 - Python 3.11 is the minimum (VMEX needs it); CI runs 3.13 with the latest JAX and checks 3.11 and 3.12.
 - SOLVAX floor raised to 0.28.2; the factorization narrows its return type explicitly.
