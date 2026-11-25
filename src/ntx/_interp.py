@@ -110,7 +110,9 @@ def _evaluate(x: Array, f: Array, m: Array, xq: Array) -> Array:
     All slope rules differ only in how they choose ``m``; SOLVAX evaluates the
     Hermite cubic and continues the end cubics beyond the nodes.
     """
-    return cubic_spline_evaluate(cubic_spline(x, f, slopes=m), xq)
+    value = cubic_spline_evaluate(cubic_spline(x, f, slopes=m), xq)
+    assert not isinstance(value, tuple)  # one derivative order asked for
+    return value
 
 
 def interp1d(xq: Array, x: Array, f: Array, method: str = "akima") -> Array:
