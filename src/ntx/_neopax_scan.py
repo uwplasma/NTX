@@ -244,6 +244,7 @@ def build_ntx_neopax_scan_from_surfaces(
     coefficient_reverse_mode: str = "generic",
     return_primal_record: Literal[False] = False,
 ) -> NeopaxScan:
+    """Describe coefficient-only callers that do not request reusable primal records."""
     ...
 
 
@@ -261,6 +262,7 @@ def build_ntx_neopax_scan_from_surfaces(
     coefficient_reverse_mode: str = "generic",
     return_primal_record: Literal[True],
 ) -> tuple[NeopaxScan, NeopaxScanCoefficientPrimalRecord]:
+    """Describe callers that retain primal records for a later scan transpose."""
     ...
 
 
@@ -278,6 +280,7 @@ def build_ntx_neopax_scan_from_surfaces(
     coefficient_reverse_mode: str = "generic",
     return_primal_record: bool,
 ) -> NeopaxScan | tuple[NeopaxScan, NeopaxScanCoefficientPrimalRecord]:
+    """Cover callers whose primal-record flag is not a literal."""
     ...
 
 

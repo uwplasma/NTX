@@ -31,6 +31,15 @@ grouped imports:
 - `ntx.workflows` for autodiff, profile, and imported database helpers.
 - `ntx.validation` for benchmark and validation registries.
 
+`src/ntx/_neopax_ad/__init__.py` preserves the NEOPAX derivative import surface:
+
+- `src/ntx/_neopax_ad/geometry.py`: sampled-field and VMEC primitive transposes.
+- `src/ntx/_neopax_ad/adjoints.py`: prepared adjoints and coordinate chain rules.
+- `src/ntx/_neopax_ad/responses.py`: grouped primal and directional pullbacks.
+- `src/ntx/_neopax_ad/native.py`: matrix-RHS and compact VMEC support bars.
+- `src/ntx/_neopax_ad/derivatives.py`: coefficient derivatives and custom VJPs.
+- `src/ntx/_neopax_ad/scans.py`: recorded scan lifetimes and bounded transposes.
+
 ## Refactoring Target
 
 The source tree should keep moving toward smaller ownership boundaries, but only

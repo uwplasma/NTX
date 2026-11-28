@@ -12,6 +12,7 @@ import ntx
 import ntx.solver
 from ntx import _neopax_ad as ad
 from ntx import _neopax_scan as scan
+from ntx._neopax_ad import scans as recorded_scan
 from ntx.geometry import VmecSurface, evaluate_fourier_series, geometry_on_grid
 
 GRID = ntx.GridSpec(3, 3, 2)
@@ -311,7 +312,7 @@ def test_recorded_boozer_scan_matches_generic_ad_and_reuses_primal_systems(monke
         ),
         reference,
     )
-    original_prepare = ad.prepare_monoenergetic_system
+    original_prepare = recorded_scan.prepare_monoenergetic_system
 
     def prepare_chain_rule_only(surface, grid):
         assert isinstance(surface.b_cos, jax.core.Tracer), (
@@ -319,7 +320,7 @@ def test_recorded_boozer_scan_matches_generic_ad_and_reuses_primal_systems(monke
         )
         return original_prepare(surface, grid)
 
-    monkeypatch.setattr(ad, "prepare_monoenergetic_system", prepare_chain_rule_only)
+    monkeypatch.setattr(recorded_scan, "prepare_monoenergetic_system", prepare_chain_rule_only)
     _close(
         ad.pullback_neopax_scan_coefficient_blocks_from_primal_record(
             record, coefficient_blocks_bar=bars
