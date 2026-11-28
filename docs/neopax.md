@@ -447,11 +447,10 @@ surface_bars, Es_bar = ntx.pullback_neopax_scan_coefficient_blocks_from_primal_r
 )
 ```
 
-`table_bars` is a `NeopaxScanCoefficientBlocks` cotangent. The batched variant
-accepts a leading objective axis and scans numeric bars without mapping over
-surface metadata. Its `batched_vmec_native` counterpart accumulates compact
-geometry bars before the Fourier transpose and requires VMEC surfaces. Both
-reuse the record's prepared systems; callers control the record's lifetime.
+`table_bars` is a `NeopaxScanCoefficientBlocks` cotangent. The
+`batched_vmec_native` pullback accepts a leading objective axis, accumulates
+compact geometry bars before the surface transpose, and requires VMEC surfaces.
+It reuses the recorded prepared systems; callers control the record's lifetime.
 
 For one prepared system,
 `solve_prepared_coefficient_vector_hessian_factorized(prepared, case)` returns

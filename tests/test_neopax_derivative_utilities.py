@@ -218,44 +218,6 @@ def test_directional_and_prepared_custom_vjps_match_raw_ad():
             (reference_case, reference_prepared),
         )
 
-        # Geometry-only bars hold resolved epsilon fixed; the full prepared API
-        # above additionally owns the er_hat / transport_psi_scale chain rule.
-        def geometry_solver(geometry, local_case):
-            resolved_case = ntx.MonoenergeticCase(
-                local_case.nu_hat,
-                epsi_hat=local_case.resolved_epsi_hat(prepared.geometry.transport_psi_scale),
-            )
-            return ntx.solve_prepared_coefficient_vector(
-                replace(prepared, geometry=geometry), resolved_case
-            )
-
-        _, geometry_pb = jax.vjp(geometry_solver, prepared.geometry, case)
-        expected_geometry, expected_case = geometry_pb(BARS[0])
-        _close(
-            ad.pullback_prepared_coefficient_vector_case_and_geometry(prepared, case, BARS[0]),
-            (expected_case, expected_geometry),
-        )
-
-        def geometry_pullback(local_case):
-            _, pb = jax.vjp(geometry_solver, prepared.geometry, local_case)
-            geometry_bar, case_bar = pb(BARS[1])
-            return case_bar, geometry_bar
-
-        base_bars, tangent_bars = jax.jvp(geometry_pullback, (case,), (first,))
-        _close(
-            ad.pullback_prepared_coefficient_vector_case_and_geometry_derivative(
-                prepared, case, first, BARS[1]
-            ),
-            (base_bars[0], tangent_bars[0], base_bars[1], tangent_bars[1]),
-            rtol=2e-8,
-        )
-        batched = jnp.stack([BARS[0], BARS[1]])
-        for i in range(2):
-            result = ad.pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs(
-                prepared, case, batched
-            )
-            expected_prepared, expected_case = pullback(batched[i])
-            _close(jax.tree.map(lambda x, i=i: x[i], result), (expected_case, expected_prepared))
 
 
 def test_lowdot_scalar_geometry_and_prepared_views_agree():
@@ -278,18 +240,14 @@ def test_lowdot_scalar_geometry_and_prepared_views_agree():
         ),
         full,
     )
-    geo = ad.solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry(
-        *args, lambda *x: BARS
+    geo_aux = ad._solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
+        *args, _bars_and_aux, include_geometry=True, return_coefficient_aux=True
     )
-    geo_aux = ad.solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry_and_aux(
-        *args, _bars_and_aux
-    )
-    _close(geo, geo_aux[:-1])
     _close(
-        ad.solve_prepared_coefficient_vector_lowdot_two_pullbacks_geometry_support_only_and_aux(  # noqa: E501 - preserve the existing public API name
+        ad.solve_prepared_coefficient_vector_lowdot_two_pullbacks_geometry_support_only_and_aux(
             *args, _bars_and_aux
         ),
-        (geo[2], geo[7], geo[8], geo[13], geo[14], geo_aux[-1]),
+        (geo_aux[2], geo_aux[7], geo_aux[8], geo_aux[13], geo_aux[14], geo_aux[-1]),
     )
 
     def batched_bars(*values):
@@ -369,9 +327,7 @@ def test_recorded_boozer_scan_matches_generic_ad_and_reuses_primal_systems(monke
         reference,
     )
     rows = _block_bars(blocks, batched=True)
-    actual = ad.pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
-        record, coefficient_blocks_bar=rows
-    )
+    actual = ad._pullback_recorded_scan_batched(record, rows, vmec_native=False)
     for i in range(2):
         _close(
             jax.tree.map(lambda x, i=i: x[i], actual),
@@ -408,23 +364,12 @@ def test_recorded_vmec_scan_native_rows_match_generic_transpose():
         surfaces, Es=es, nu_v=nu, grid=GRID, return_primal_record=True
     )
     rows = _block_bars(blocks, batched=True)
-    expected = ad.pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
-        record, coefficient_blocks_bar=rows
-    )
+    expected = ad._pullback_recorded_scan_batched(record, rows, vmec_native=False)
     actual = ad.pullback_neopax_scan_coefficient_blocks_from_primal_record_batched_vmec_native(
         record, coefficient_blocks_bar=rows
     )
     _close(actual, expected, rtol=1e-8, atol=1e-8)
     prepared = record.prepared[0]
-    bars = jnp.stack([BARS[0], BARS[1]])
-    case_bars, primitive = ad.pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs(
-        prepared, CASE, bars
-    )
-    coefficient_case, coefficient_bars = (
-        ad.pullback_prepared_database_coefficients_to_vmec_multi_rhs(prepared, CASE, bars)
-    )
-    _close(case_bars, coefficient_case)
-    assert "b_cos" in coefficient_bars and primitive
     args = prepared, CASE, FIRST, SECOND, _batched_bars_with_dot
     native = ad.solve_prepared_coefficient_vector_lowdot_two_pullbacks_prepared_support_only_native_multi_rhs_and_aux  # noqa: E501 - preserve the existing public API name
     full = native(*args)
@@ -535,7 +480,6 @@ def test_new_utilities_validate_modes_shapes_and_static_cotangents():
     fields = jnp.zeros((3, 9))
     adjoints = jnp.zeros((3, 9, 2))
     for helper in (
-        ad.pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs,
         ad.pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs,
     ):
         with pytest.raises(ValueError):
@@ -654,7 +598,6 @@ def test_new_utilities_validate_modes_shapes_and_static_cotangents():
         }
     )
     for helper in (
-        ad.pullback_neopax_scan_coefficient_blocks_from_primal_record_batched,
         ad.pullback_neopax_scan_coefficient_blocks_from_primal_record_batched_vmec_native,
     ):
         with pytest.raises(ValueError):

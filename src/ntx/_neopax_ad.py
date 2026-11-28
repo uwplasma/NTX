@@ -1378,62 +1378,6 @@ def _prepared_primal_context(prepared, case):
     return transport_scale, ctx, primal
 
 
-def pullback_prepared_coefficient_vector_case_and_geometry(
-    prepared: PreparedMonoenergeticSystem,
-    case: MonoenergeticCase,
-    coefficient_bar: Array,
-) -> tuple[MonoenergeticCase, GeometryOnGrid]:
-    """Exact grouped implicit pullback for case/profile and NTX geometry.
-
-    Unlike :func:`solve_prepared_coefficient_vector_vjp`, this is an explicit
-    pullback API. It retains the existing custom-VJP contract (``prepared`` is
-    non-differentiable there), while exposing the exact prepared-geometry
-    cotangent required by callers that already manage a higher-level support
-    payload. Geometry bars hold resolved epsilon fixed; the complete prepared
-    API also includes the ``er_hat / transport_psi_scale`` chain rule.
-    No primal or adjoint system is solved twice.
-    """
-
-    transport_scale, ctx, primal = _prepared_primal_context(prepared, case)
-    (_coefficients, f1_full, f3_full, saved_lu, saved_piv, saved_lower, saved_upper) = primal
-    f1_bar_low, f3_bar_low, nu_hat_direct_bar = _coefficient_mode_pullback(
-        prepared.geometry,
-        f1_full[:3],
-        f3_full[:3],
-        ctx.nu_hat,
-        coefficient_bar,
-    )
-    g1 = jnp.zeros_like(f1_full).at[:3].set(f1_bar_low)
-    g3 = jnp.zeros_like(f3_full).at[:3].set(f3_bar_low)
-    lambda1 = _solve_factorized_adjoint(
-        saved_lu,
-        saved_piv,
-        saved_lower,
-        saved_upper,
-        g1,
-    )
-    lambda3 = _solve_factorized_adjoint(
-        saved_lu,
-        saved_piv,
-        saved_lower,
-        saved_upper,
-        g3,
-    )
-    nu_hat_implicit_bar, epsi_hat_bar = _parameter_gradient_from_adjoint(
-        prepared, ctx, f1_full, f3_full, lambda1, lambda3
-    )
-    geometry_bar = _geometry_gradient_from_adjoint(
-        prepared, ctx, f1_full, f3_full, lambda1, lambda3, coefficient_bar
-    )
-    case_bar = _case_cotangent_from_resolved_epsi_bar(
-        case,
-        nu_hat_bar=nu_hat_direct_bar + nu_hat_implicit_bar,
-        epsi_hat_bar=epsi_hat_bar,
-        transport_scale=transport_scale,
-    )
-    return case_bar, geometry_bar
-
-
 def pullback_prepared_coefficient_vector_case_and_prepared(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -1468,131 +1412,6 @@ def pullback_prepared_coefficient_vector_case_and_prepared(
         transport_scale=transport_scale,
     )
     return case_bar, prepared_bar
-
-
-def pullback_prepared_coefficient_vector_case_and_prepared_multi_rhs(
-    prepared: PreparedMonoenergeticSystem,
-    case: MonoenergeticCase,
-    coefficient_bars: Array,
-) -> tuple[MonoenergeticCase, PreparedMonoenergeticSystem]:
-    """Transpose coefficient rows with one primal and matrix-RHS adjoint solve.
-
-    Case and prepared bars have the leading objective-RHS axis supplied in
-    ``coefficient_bars``. Only base coefficients are handled here; the low-dot
-    helpers additionally include their directional terms.
-    """
-
-    coefficient_bars = jnp.asarray(coefficient_bars)
-    if coefficient_bars.ndim != 2:
-        raise ValueError("coefficient_bars must have shape (n_rhs, n_coefficients).")
-
-    transport_scale, ctx, primal = _prepared_primal_context(prepared, case)
-    (_coefficients, f1_full, f3_full, saved_lu, saved_piv, saved_lower, saved_upper) = primal
-
-    def _coefficient_bar_to_low_modes(one_coefficient_bar):
-        return _coefficient_mode_pullback(
-            prepared.geometry,
-            f1_full[:3],
-            f3_full[:3],
-            ctx.nu_hat,
-            one_coefficient_bar,
-        )
-
-    f1_bar_low, f3_bar_low, nu_hat_direct_bars = jax.vmap(_coefficient_bar_to_low_modes)(
-        coefficient_bars
-    )
-    rhs_count = coefficient_bars.shape[0]
-    g1 = (
-        jnp.zeros((*f1_full.shape, rhs_count), dtype=f1_full.dtype)
-        .at[:3]
-        .set(jnp.moveaxis(f1_bar_low, 0, -1))
-    )
-    g3 = (
-        jnp.zeros((*f3_full.shape, rhs_count), dtype=f3_full.dtype)
-        .at[:3]
-        .set(jnp.moveaxis(f3_bar_low, 0, -1))
-    )
-    lambda1, lambda3 = _solve_factorized_adjoint_field_pair(
-        saved_lu,
-        saved_piv,
-        saved_lower,
-        saved_upper,
-        g1,
-        g3,
-    )
-
-    def _parameter_bars(carry, mode_index):
-        nu_bar, epsi_bar = carry
-        diagonal_nu, diagonal_epsi = parameter_derivative_blocks(
-            ctx,
-            mode_index,
-            prepared.d_theta,
-            prepared.d_zeta,
-        )
-        diagonal_nu = jax.lax.cond(
-            mode_index == 0, _zero_first_row, lambda value: value, diagonal_nu
-        )
-        diagonal_epsi = jax.lax.cond(
-            mode_index == 0, _zero_first_row, lambda value: value, diagonal_epsi
-        )
-        f1_mode = jax.lax.dynamic_index_in_dim(f1_full, mode_index, axis=0, keepdims=False)
-        f3_mode = jax.lax.dynamic_index_in_dim(f3_full, mode_index, axis=0, keepdims=False)
-        lambda1_mode = jax.lax.dynamic_index_in_dim(lambda1, mode_index, axis=0, keepdims=False)
-        lambda3_mode = jax.lax.dynamic_index_in_dim(lambda3, mode_index, axis=0, keepdims=False)
-        nu_bar = nu_bar - (
-            jnp.einsum("nr,n->r", lambda1_mode, diagonal_nu @ f1_mode)
-            + jnp.einsum("nr,n->r", lambda3_mode, diagonal_nu @ f3_mode)
-        )
-        epsi_bar = epsi_bar - (
-            jnp.einsum("nr,n->r", lambda1_mode, diagonal_epsi @ f1_mode)
-            + jnp.einsum("nr,n->r", lambda3_mode, diagonal_epsi @ f3_mode)
-        )
-        return (nu_bar, epsi_bar), None
-
-    (nu_hat_implicit_bars, epsi_hat_bars), _ = jax.lax.scan(
-        _parameter_bars,
-        (
-            jnp.zeros((rhs_count,), dtype=prepared.grid.jax_dtype),
-            jnp.zeros((rhs_count,), dtype=prepared.grid.jax_dtype),
-        ),
-        jnp.arange(prepared.grid.n_xi + 1, dtype=jnp.int32),
-    )
-    # ``PreparedMonoenergeticSystem`` has static metadata leaves.  Batch only
-    # its dynamic cotangent leaves, then rebuild the original pytree, rather
-    # than asking ``vmap`` to construct a batched instance with static fields.
-    prepared_bar_tree = jax.tree_util.tree_structure(prepared)
-
-    def _prepared_bar_leaves(one_lambda1, one_lambda3, one_coefficient_bar):
-        prepared_bar = _prepared_gradient_from_adjoint(
-            prepared,
-            ctx,
-            f1_full,
-            f3_full,
-            one_lambda1,
-            one_lambda3,
-            one_coefficient_bar,
-        )
-        return tuple(jax.tree_util.tree_leaves(prepared_bar))
-
-    batched_prepared_bar_leaves = jax.vmap(
-        _prepared_bar_leaves,
-        in_axes=(2, 2, 0),
-    )(lambda1, lambda3, coefficient_bars)
-    prepared_bars = jax.tree_util.tree_unflatten(
-        prepared_bar_tree,
-        batched_prepared_bar_leaves,
-    )
-
-    prepared_bars = _add_er_coordinate_scale_bar(
-        prepared_bars, case, epsi_hat_bars, transport_scale
-    )
-    case_bars = _case_cotangent_from_resolved_epsi_bar(
-        case,
-        nu_hat_bar=nu_hat_direct_bars + nu_hat_implicit_bars,
-        epsi_hat_bar=epsi_hat_bars,
-        transport_scale=transport_scale,
-    )
-    return case_bars, prepared_bars
 
 
 def pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs(
@@ -1694,47 +1513,6 @@ def pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs(
             er_hat=None,
         ),
         geometry_bars,
-    )
-
-
-def pullback_prepared_database_coefficients_to_vmec_multi_rhs(
-    prepared: PreparedMonoenergeticSystem,
-    case: MonoenergeticCase,
-    coefficient_bars: Array,
-) -> tuple[MonoenergeticCase, dict[str, Array]]:
-    """Database-only base-coefficient transpose directly to VMEC bars.
-
-    This convenience wrapper preserves the compact per-case API.  Recorded
-    scan transposes should instead use the primitive helper above and defer
-    their Fourier contraction until all scan cases have been accumulated.
-    """
-
-    case_bars, geometry_bars = pullback_prepared_database_coefficients_to_vmec_primitive_multi_rhs(
-        prepared, case, coefficient_bars
-    )
-    return (
-        case_bars,
-        vmec_geometry_bars_to_coefficients_multi_rhs(
-            cast(VmecSurface, prepared.surface),
-            prepared.geometry,
-            {
-                name: getattr(geometry_bars, name)
-                for name in (
-                    "b",
-                    "d_b_dtheta",
-                    "d_b_dzeta",
-                    "jacobian",
-                    "b_sub_theta",
-                    "b_sub_zeta",
-                    "b_sup_theta",
-                    "b_sup_zeta",
-                    "volume_prime",
-                    "b2_mean",
-                    "radial_drift_spatial",
-                    "b0",
-                )
-            },
-        ),
     )
 
 
@@ -2000,27 +1778,6 @@ def _pullback_prepared_coefficient_vector_case_and_geometry_derivative_core(
         base_geometry_bar,
         directional_geometry_bar,
     )
-
-
-def pullback_prepared_coefficient_vector_case_and_geometry_derivative(
-    prepared: PreparedMonoenergeticSystem,
-    case: MonoenergeticCase,
-    case_dot: MonoenergeticCase,
-    coefficient_bar: Array,
-) -> tuple[MonoenergeticCase, MonoenergeticCase, GeometryOnGrid, GeometryOnGrid]:
-    """Grouped directional pullback with geometry bars at fixed resolved epsilon."""
-
-    base, tangent, base_geometry, tangent_geometry = (
-        _pullback_prepared_coefficient_vector_case_and_geometry_derivative_core(
-            prepared,
-            case,
-            case_dot,
-            coefficient_bar,
-            include_geometry=True,
-        )
-    )
-    assert base_geometry is not None and tangent_geometry is not None
-    return base, tangent, base_geometry, tangent_geometry
 
 
 def solve_prepared_coefficient_vector_derivative_vjp(
@@ -3681,59 +3438,6 @@ def solve_prepared_coefficient_vector_lowdot_two_pullbacks(
     )
 
 
-def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry(
-    prepared: PreparedMonoenergeticSystem,
-    case: MonoenergeticCase,
-    first_case_dot: MonoenergeticCase,
-    second_case_dot: MonoenergeticCase,
-    coefficient_bar_fn,
-):
-    """Fused exact pullback returning case and prepared-geometry cotangents.
-
-    This opt-in API preserves the original 10 case cotangents and additionally
-    returns one geometry cotangent for the base response plus base/directional
-    geometry cotangents for each supplied case direction.  The primal
-    factorization is shared across all three contractions.
-    """
-
-    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
-        prepared,
-        case,
-        first_case_dot,
-        second_case_dot,
-        coefficient_bar_fn,
-        include_geometry=True,
-        return_coefficient_aux=False,
-    )
-
-
-def solve_prepared_coefficient_vector_lowdot_two_pullbacks_with_geometry_and_aux(
-    prepared: PreparedMonoenergeticSystem,
-    case: MonoenergeticCase,
-    first_case_dot: MonoenergeticCase,
-    second_case_dot: MonoenergeticCase,
-    coefficient_bar_and_aux_fn,
-):
-    """Geometry-returning fused pullback with caller-defined direct auxiliaries.
-
-    ``coefficient_bar_and_aux_fn(coefficients, first_coeff_dot,
-    second_coeff_dot)`` returns ``(base_bar, first_bar, second_bar,
-    auxiliary)``. ``auxiliary`` is not interpreted by NTX; it is evaluated
-    from the already available coefficient vector and its two exact tangent
-    vectors, then returned with the implicit bars.
-    """
-
-    return _solve_prepared_coefficient_vector_lowdot_two_pullbacks_core(
-        prepared,
-        case,
-        first_case_dot,
-        second_case_dot,
-        coefficient_bar_and_aux_fn,
-        include_geometry=True,
-        return_coefficient_aux=True,
-    )
-
-
 def solve_prepared_coefficient_vector_lowdot_two_pullbacks_geometry_support_only_and_aux(
     prepared: PreparedMonoenergeticSystem,
     case: MonoenergeticCase,
@@ -4961,21 +4665,6 @@ def pullback_neopax_scan_coefficient_blocks_from_primal_record(
         coefficient_blocks_bar=coefficient_blocks_bar,
         prepared_systems=record.prepared,
     )
-
-
-def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched(
-    record: NeopaxScanCoefficientPrimalRecord,
-    *,
-    coefficient_blocks_bar: NeopaxScanCoefficientBlocks,
-) -> tuple[tuple[BoozerSurface | VmecSurface, ...], Array]:
-    """Transpose objective rows using one bounded-memory recorded scan.
-
-    Surface metadata stays outside the mapped axis. The compiled row scan
-    carries one objective RHS through the prepared transpose at a time and
-    emits only numeric surface leaves, avoiding a full objective-batched tape.
-    """
-
-    return _pullback_recorded_scan_batched(record, coefficient_blocks_bar, vmec_native=False)
 
 
 def pullback_neopax_scan_coefficient_blocks_from_primal_record_batched_vmec_native(
