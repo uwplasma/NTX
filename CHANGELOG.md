@@ -4,6 +4,7 @@ Release notes for tagged versions live in `docs/release-notes-*.md`.
 
 ## Unreleased
 
+- `examples/cross_code_conversion.py` writes out the factors between NTX, SFINCS and the DKES-scaled tables of YANCC and MONKES (collisionality, radial `dpsi/dr`, `E_r`, Beidler `D*`, SFINCS hat units) and prints a table of NTX against the committed SFINCS RHSMode 3 decks with relative errors against a 2% gate; a live solve on the sample surface checks the inline factors against the ones NTX stores. Measured against the committed ladder, every coefficient agrees within 0.72% at rho = 0.3 and 0.5.
 - Add opt-in NEOPAX structured scan records and bounded scalar/batched VMEC transposes, compact prepared-support pullbacks, and factorization-reusing directional/Hessian helpers. The generic scan and ordinary solver defaults are unchanged.
 
 - Python 3.11 is the minimum (VMEX needs it); CI runs 3.13 with the latest JAX and checks 3.11 and 3.12.
